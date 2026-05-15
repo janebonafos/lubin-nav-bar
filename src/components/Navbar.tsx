@@ -3,13 +3,13 @@ import { Link } from "@tanstack/react-router";
 
 interface NavLinkItem {
   label: string;
-  to: string;
+  href: string;
 }
 
 const NAV_LINKS: NavLinkItem[] = [
-  { label: "How It Works", to: "/how-it-works" },
-  { label: "FAQs", to: "/faqs" },
-  { label: "Pricing", to: "/pricing" },
+  { label: "How It Works", href: "/how-it-works" },
+  { label: "FAQs", href: "/faqs" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 function ButterflyIcon({ className }: { className?: string }) {
@@ -79,25 +79,25 @@ export default function Navbar() {
           style={{ fontFamily: "Inter, sans-serif" }}
         >
           {NAV_LINKS.map((link) => (
-            <li key={link.to}>
-              <Link
-                to={link.to}
+            <li key={link.href}>
+              <a
+                href={link.href}
                 className="text-[15px] font-normal text-brand-purple-dark no-underline transition-colors hover:text-brand-purple"
               >
                 {link.label}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>
 
         {/* Desktop CTA */}
-        <Link
-          to="/find-provider"
+        <a
+          href="/find-provider"
           className="hidden md:inline-flex items-center justify-center rounded-lg border-[1.5px] border-brand-purple-accent bg-transparent px-5 py-2.5 text-[15px] font-medium text-brand-purple-accent transition-colors duration-200 hover:bg-brand-purple-accent hover:text-white"
           style={{ fontFamily: "Inter, sans-serif" }}
         >
           Find Service Provider
-        </Link>
+        </a>
 
         {/* Mobile hamburger */}
         <button
@@ -119,24 +119,24 @@ export default function Navbar() {
         >
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
-              <li key={link.to}>
-                <Link
-                  to={link.to}
+              <li key={link.href}>
+                <a
+                  href={link.href}
                   onClick={() => setOpen(false)}
                   className="block text-[15px] font-normal text-brand-purple-dark no-underline transition-colors hover:text-brand-purple"
                 >
                   {link.label}
-                </Link>
+                </a>
               </li>
             ))}
             <li>
-              <Link
-                to="/find-provider"
+              <a
+                href="/find-provider"
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full items-center justify-center rounded-lg border-[1.5px] border-brand-purple-accent bg-transparent px-5 py-2.5 text-[15px] font-medium text-brand-purple-accent transition-colors duration-200 hover:bg-brand-purple-accent hover:text-white"
               >
                 Find Service Provider
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
