@@ -19,6 +19,9 @@
  */
 
 @theme inline {
+  --color-brand-purple: #7E6BAF;
+  --color-brand-purple-dark: #3D2E6B;
+  --color-brand-purple-accent: #7C3AED;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
