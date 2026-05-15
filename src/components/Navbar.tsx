@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import lubinLogo from "@/assets/lubin-logo.svg";
 
 interface NavLinkItem {
   label: string;
@@ -11,19 +12,6 @@ const NAV_LINKS: NavLinkItem[] = [
   { label: "FAQs", href: "/faqs" },
   { label: "Pricing", href: "/pricing" },
 ];
-
-function ButterflyIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M12 12c-1.5-3-4-5-7-5-1.7 0-3 1.3-3 3 0 3 3 6 7 7-2 0-3 1-3 2s1 2 3 2c1.5 0 2.5-1 3-2 .5 1 1.5 2 3 2 2 0 3-1 3-2s-1-2-3-2c4-1 7-4 7-7 0-1.7-1.3-3-3-3-3 0-5.5 2-7 5z" />
-    </svg>
-  );
-}
 
 function HamburgerIcon({ open, className }: { open: boolean; className?: string }) {
   return (
@@ -63,14 +51,8 @@ export default function Navbar() {
         aria-label="Main navigation"
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 text-brand-purple">
-          <ButterflyIcon className="h-6 w-6" />
-          <span
-            className="text-xl font-semibold tracking-wide"
-            style={{ fontFamily: "Inter, sans-serif" }}
-          >
-            LUBIN
-          </span>
+        <Link to="/" className="flex items-center" aria-label="Lubin home">
+          <img src={lubinLogo} alt="Lubin" className="h-8 w-auto" />
         </Link>
 
         {/* Desktop nav links */}
