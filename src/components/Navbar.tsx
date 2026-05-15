@@ -64,7 +64,7 @@ export default function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-[15px] font-normal text-brand-purple-dark no-underline transition-colors hover:text-brand-purple"
+                className="text-[15px] font-normal text-brand-purple no-underline transition-colors hover:text-brand-purple-dark"
               >
                 {link.label}
               </a>
@@ -105,7 +105,7 @@ export default function Navbar() {
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block text-[15px] font-normal text-brand-purple-dark no-underline transition-colors hover:text-brand-purple"
+                  className="block text-[15px] font-normal text-brand-purple no-underline transition-colors hover:text-brand-purple-dark"
                 >
                   {link.label}
                 </a>
