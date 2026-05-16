@@ -11,6 +11,7 @@ const NAV_LINKS: NavLinkItem[] = [
   { label: "How It Works", href: "/how-it-works" },
   { label: "FAQs", href: "/faqs" },
   { label: "Pricing", href: "/pricing" },
+  { label: "My Health Passport", href: "/my-health-passport" },
 ];
 
 function HamburgerIcon({ open, className }: { open: boolean; className?: string }) {
