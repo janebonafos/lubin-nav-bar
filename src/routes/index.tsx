@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Leaf, ArrowRight, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ChatPreview from "@/components/ChatPreview";
+import PassportPreview from "@/components/PassportPreview";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -84,9 +85,15 @@ function Index() {
         </div>
 
         {/* Animated chat preview */}
-        <div className="animate-rise-in mt-10 w-full max-w-[860px] [animation-delay:360ms]">
+        <div className="animate-rise-in relative mt-10 w-full max-w-[860px] [animation-delay:360ms]">
           <div className="animate-float-slow">
             <ChatPreview />
+          </div>
+          {/* Overlapping Health Passport preview — hidden on mobile */}
+          <div className="pointer-events-none absolute -bottom-10 -right-4 hidden w-[260px] rotate-2 md:block lg:-right-10 lg:w-[280px]">
+            <div className="animate-float-slow [animation-delay:-3s]">
+              <PassportPreview />
+            </div>
           </div>
         </div>
 
