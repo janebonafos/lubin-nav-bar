@@ -38,7 +38,7 @@ function Index() {
           {/* Card 1 — Chat with Lubin */}
           <a
             href="/chat"
-            className="group flex flex-col rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-purple/25"
+            className="group flex flex-col rounded-xl bg-gradient-to-br from-brand-purple/70 to-brand-purple p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-purple/25"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white">
               <MessageCircle className="h-5 w-5" strokeWidth={2} />
