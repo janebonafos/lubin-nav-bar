@@ -74,7 +74,7 @@ export default function ChatPreview() {
             <div
               className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
                 m.from === "user"
-                  ? "bg-[#9990C9] text-white rounded-br-sm"
+                  ? "bg-[#4A6FA5] text-white rounded-br-sm"
                   : "bg-[#EAE6F4] text-[#2C2B4B] rounded-bl-sm"
               }`}
             >
