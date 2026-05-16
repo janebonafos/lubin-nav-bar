@@ -74,7 +74,7 @@ function Index() {
         </div>
 
         {/* Animated chat preview */}
-        <div className="mt-8 w-full max-w-[600px]">
+        <div className="mt-8 w-full max-w-[860px]">
           <ChatPreview />
         </div>
 
