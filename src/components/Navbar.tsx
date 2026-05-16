@@ -144,6 +144,37 @@ function HamburgerIcon({ open, className }: { open: boolean; className?: string 
   );
 }
 
+function SimpleDropdown({
+  items,
+  onClose,
+}: {
+  items: { label: string; href: string }[];
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="absolute left-1/2 top-full z-50 mt-3 w-56 -translate-x-1/2 animate-fade-in"
+      onMouseLeave={onClose}
+    >
+      <div className="rounded-2xl border border-white/50 bg-white/95 p-2 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)] backdrop-blur-xl">
+        <ul className="flex flex-col">
+          {items.map((item) => (
+            <li key={item.href}>
+              <a
+                href={item.href}
+                onClick={onClose}
+                className="block rounded-xl px-4 py-2.5 text-[14px] font-medium text-brand-purple-dark no-underline transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-accent"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
   return (
     <div
