@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Leaf, ArrowRight } from "lucide-react";
+import { MessageCircle, Leaf, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ChatPreview from "@/components/ChatPreview";
 
@@ -34,14 +34,27 @@ function Index() {
           Everything here is private and saved only to you.
         </p>
 
-        {/* Animated chat preview — hero visual */}
-        <div className="mt-6 w-full max-w-[600px]">
-          <ChatPreview />
-        </div>
+        {/* Two cards side by side */}
+        <div className="mt-10 grid w-full max-w-[700px] grid-cols-1 gap-5 md:grid-cols-2">
+          {/* Card 1 — Chat with Lubin */}
+          <a
+            href="/chat"
+            className="group flex flex-col rounded-xl bg-gradient-to-br from-brand-purple/70 to-brand-purple p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-purple/25"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white">
+              <MessageCircle className="h-5 w-5" strokeWidth={2} />
+            </div>
+            <h2 className="mt-5 text-xl font-bold text-white">Chat with Lubin</h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-white/80">
+              Talk through how you're feeling. Lubin listens, reflects, and helps you understand what's going on.
+            </p>
+            <span className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-purple-dark transition-colors group-hover:bg-white/95">
+              Start chatting
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </a>
 
-        {/* Health Passport + Quick checks */}
-        <div className="mt-6 grid w-full grid-cols-1 gap-5 md:grid-cols-2">
-          {/* Health Passport card */}
+          {/* Card 2 — Health Passport */}
           <a
             href="/passport"
             className="group flex flex-col rounded-xl border border-brand-purple/25 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple hover:shadow-xl hover:shadow-brand-purple/15"
@@ -58,28 +71,33 @@ function Index() {
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
           </a>
+        </div>
 
-          {/* Quick checks */}
-          <div className="flex flex-col items-center justify-center rounded-xl border border-brand-purple/15 bg-white/50 p-7">
-            <p className="text-[13px] font-medium uppercase tracking-wider text-brand-purple-dark/50">
-              Or take a quick check
-            </p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-              {ASSESSMENTS.map((a) => (
-                <a
-                  key={a.href}
-                  href={a.href}
-                  className="inline-flex items-center rounded-full border border-brand-purple/30 bg-white px-5 py-2 text-[13px] font-medium text-brand-purple transition-all duration-200 hover:border-brand-purple hover:bg-brand-purple hover:text-white"
-                >
-                  {a.label}
-                </a>
-              ))}
-            </div>
+        {/* Animated chat preview */}
+        <div className="mt-8 w-full max-w-[600px]">
+          <ChatPreview />
+        </div>
+
+        {/* Quick check section */}
+        <div className="mt-14 flex w-full flex-col items-center">
+          <p className="text-[13px] font-medium uppercase tracking-wider text-brand-purple-dark/50">
+            Or take a quick check
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+            {ASSESSMENTS.map((a) => (
+              <a
+                key={a.href}
+                href={a.href}
+                className="inline-flex items-center rounded-full border border-brand-purple/30 bg-white px-5 py-2 text-[13px] font-medium text-brand-purple transition-all duration-200 hover:border-brand-purple hover:bg-brand-purple hover:text-white"
+              >
+                {a.label}
+              </a>
+            ))}
           </div>
         </div>
 
         {/* Sign in note */}
-        <p className="mt-6 text-center text-[13px] text-brand-purple-dark/50">
+        <p className="mt-12 text-center text-[13px] text-brand-purple-dark/50">
           Already have an account?{" "}
           <a
             href="/sign-in"
