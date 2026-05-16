@@ -284,7 +284,7 @@ export default function Navbar() {
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="group relative inline-flex items-center text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
+                    className="group relative inline-flex items-center whitespace-nowrap text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
                   >
                     <span>{link.label}</span>
                     <span className="absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-brand-purple-accent/40 transition-all duration-300 group-hover:w-full" />
@@ -304,7 +304,7 @@ export default function Navbar() {
                   type="button"
                   onClick={() => setOpenKey(isOpen ? null : link.href)}
                   aria-expanded={isOpen}
-                  className="group relative inline-flex items-center gap-1 text-sm font-medium text-brand-purple-dark/80 transition-colors hover:text-brand-purple-dark"
+                  className="group relative inline-flex items-center gap-1 whitespace-nowrap text-sm font-medium text-brand-purple-dark/80 transition-colors hover:text-brand-purple-dark"
                 >
                   <span>{link.label}</span>
                   <ChevronDown
