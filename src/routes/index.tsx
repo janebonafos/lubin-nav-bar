@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle, Leaf, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import ChatPreview from "@/components/ChatPreview";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -19,7 +20,8 @@ function Index() {
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
-      <main className="mx-auto flex w-full max-w-[900px] flex-col items-center px-5 md:px-8 py-12 md:py-16">
+      <main className="mx-auto grid w-full max-w-[1280px] grid-cols-1 lg:grid-cols-[55%_45%] items-start gap-12 px-5 md:px-8 py-12 md:py-16">
+        <div className="flex flex-col items-center lg:items-start w-full">
         {/* Badge */}
         <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-4 py-1.5 text-[13px] font-medium text-brand-purple">
           Your private mental health companion
@@ -100,6 +102,10 @@ function Index() {
             Sign in
           </a>
         </p>
+        </div>
+        <div className="w-full lg:sticky lg:top-24">
+          <ChatPreview />
+        </div>
       </main>
     </div>
   );
