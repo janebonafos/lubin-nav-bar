@@ -57,16 +57,17 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <ul
-          className="hidden md:flex items-center gap-10"
+          className="hidden md:flex items-center gap-1 rounded-full border border-brand-purple/10 bg-brand-purple/[0.04] p-1.5"
           style={{ fontFamily: "Inter, sans-serif" }}
         >
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-[15px] font-normal text-brand-purple no-underline transition-colors hover:text-brand-purple-dark"
+                className="group relative inline-flex items-center rounded-full px-5 py-2 text-[14px] font-medium text-brand-purple-dark/80 no-underline transition-all duration-300 hover:bg-white hover:text-brand-purple-dark hover:shadow-sm"
               >
                 {link.label}
+                <span className="pointer-events-none absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-purple opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </a>
             </li>
           ))}
