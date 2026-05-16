@@ -269,7 +269,7 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-8 rounded-full border border-white/40 bg-white/70 pl-5 pr-3 py-3 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-12 md:pl-10 md:pr-4 md:py-2"
+        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-8 rounded-full border border-white/40 bg-white/70 pl-5 pr-3 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-12 md:pl-10 md:pr-3 md:py-2"
       >
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center md:mr-4" aria-label="Lubin home">
