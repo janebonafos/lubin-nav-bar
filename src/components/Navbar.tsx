@@ -48,28 +48,30 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm">
       <nav
-        className="mx-auto flex h-[72px] w-full items-center justify-between px-5 md:px-10"
+        className="mx-auto flex h-[72px] w-full items-center justify-between px-5 md:px-16"
         aria-label="Main navigation"
         style={{ fontFamily: "Inter, sans-serif" }}
       >
-        {/* Logo */}
-        <Link to="/" className="flex items-center" aria-label="Lubin home">
-          <img src={lubinLogo} alt="Lubin" className="h-7 w-auto mr-2" />
-        </Link>
+        {/* Left group: Logo + Desktop nav links */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center md:mr-12" aria-label="Lubin home">
+            <img src={lubinLogo} alt="Lubin" className="h-7 w-auto" />
+          </Link>
 
-        {/* Desktop nav links */}
-        <ul className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="inline-flex items-center px-1 py-1 text-[15px] font-medium tracking-normal text-brand-purple-dark no-underline transition-colors duration-200 hover:text-brand-purple-accent"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+          {/* Desktop nav links */}
+          <ul className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="inline-flex items-center px-1 py-1 text-[15px] font-medium tracking-normal text-brand-purple-dark no-underline transition-colors duration-200 hover:text-brand-purple-accent"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         {/* Desktop CTA */}
         <a
