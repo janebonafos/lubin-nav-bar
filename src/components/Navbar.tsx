@@ -17,14 +17,24 @@ import lubinLogo from "@/assets/lubin-logo.svg";
 interface NavLinkItem {
   label: string;
   href: string;
-  hasDropdown?: boolean;
+  dropdown?: "mega" | "simple";
+  simpleItems?: { label: string; href: string }[];
 }
 
 const NAV_LINKS: NavLinkItem[] = [
-  { label: "How It Works", href: "/how-it-works", hasDropdown: true },
+  { label: "How It Works", href: "/how-it-works", dropdown: "mega" },
   { label: "FAQs", href: "/faqs" },
   { label: "Pricing", href: "/pricing" },
   { label: "My Health Passport", href: "/my-health-passport" },
+  {
+    label: "Help",
+    href: "/help",
+    dropdown: "simple",
+    simpleItems: [
+      { label: "Support center", href: "/help/support" },
+      { label: "Contact", href: "/help/contact" },
+    ],
+  },
 ];
 
 type DropdownItem = {
@@ -202,17 +212,17 @@ function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
 
 export default function Navbar() {
   const [open, setOpen] = useState<boolean>(false);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openDropdown = () => {
+  const openDropdown = (key: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    setDropdownOpen(true);
+    setOpenKey(key);
   };
 
   const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setDropdownOpen(false), 120);
+    closeTimer.current = setTimeout(() => setOpenKey(null), 120);
   };
 
   useEffect(() => {
@@ -237,44 +247,54 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <ul className="hidden md:flex items-center gap-10">
-          {NAV_LINKS.map((link) =>
-            link.hasDropdown ? (
+          {NAV_LINKS.map((link) => {
+            if (!link.dropdown) {
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    className="group relative inline-flex items-center text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
+                  >
+                    <span>{link.label}</span>
+                    <span className="absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-brand-purple-accent/40 transition-all duration-300 group-hover:w-full" />
+                  </a>
+                </li>
+              );
+            }
+            const isOpen = openKey === link.href;
+            return (
               <li
                 key={link.href}
                 className="relative"
-                onMouseEnter={openDropdown}
+                onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
                 <button
                   type="button"
-                  onClick={() => setDropdownOpen((v) => !v)}
-                  aria-expanded={dropdownOpen}
+                  onClick={() => setOpenKey(isOpen ? null : link.href)}
+                  aria-expanded={isOpen}
                   className="group relative inline-flex items-center gap-1 text-sm font-medium text-brand-purple-dark/80 transition-colors hover:text-brand-purple-dark"
                 >
                   <span>{link.label}</span>
                   <ChevronDown
                     className={`h-3.5 w-3.5 transition-transform duration-300 ${
-                      dropdownOpen ? "rotate-180" : ""
+                      isOpen ? "rotate-180" : ""
                     }`}
                   />
                   <span className="absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-brand-purple-accent/40 transition-all duration-300 group-hover:w-full" />
                 </button>
-                {dropdownOpen && (
-                  <HowItWorksDropdown onClose={() => setDropdownOpen(false)} />
+                {isOpen && link.dropdown === "mega" && (
+                  <HowItWorksDropdown onClose={() => setOpenKey(null)} />
+                )}
+                {isOpen && link.dropdown === "simple" && link.simpleItems && (
+                  <SimpleDropdown
+                    items={link.simpleItems}
+                    onClose={() => setOpenKey(null)}
+                  />
                 )}
               </li>
-            ) : (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="group relative inline-flex items-center text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
-                >
-                  <span>{link.label}</span>
-                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-brand-purple-accent/40 transition-all duration-300 group-hover:w-full" />
-                </a>
-              </li>
-            ),
-          )}
+            );
+          })}
         </ul>
 
         {/* Desktop CTA */}
