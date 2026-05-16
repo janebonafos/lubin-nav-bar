@@ -46,26 +46,24 @@ export default function Navbar() {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-[#E5E7EB]">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm">
       <nav
-        className="mx-auto flex h-16 w-full items-center justify-between px-5 md:px-10"
+        className="mx-auto flex h-[72px] w-full items-center justify-between px-5 md:px-10"
         aria-label="Main navigation"
+        style={{ fontFamily: "Inter, sans-serif" }}
       >
         {/* Logo */}
         <Link to="/" className="flex items-center" aria-label="Lubin home">
-          <img src={lubinLogo} alt="Lubin" className="h-8 w-auto" />
+          <img src={lubinLogo} alt="Lubin" className="h-7 w-auto mr-2" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul
-          className="hidden md:flex items-center gap-2 rounded-full border border-brand-purple/10 bg-brand-purple/[0.04] px-2 py-1.5"
-          style={{ fontFamily: "Inter, sans-serif" }}
-        >
+        <ul className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="inline-flex items-center rounded-full px-6 py-2 text-[14px] font-medium text-brand-purple-dark/75 no-underline transition-all duration-200 hover:bg-white hover:text-brand-purple-dark hover:shadow-sm"
+                className="inline-flex items-center px-1 py-1 text-[15px] font-medium tracking-normal text-brand-purple-dark no-underline transition-colors duration-200 hover:text-brand-purple-accent"
               >
                 {link.label}
               </a>
@@ -76,8 +74,7 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <a
           href="/find-provider"
-          className="hidden md:inline-flex items-center justify-center rounded-full border border-brand-purple/20 px-6 py-2 text-[14px] font-medium text-white bg-brand-purple shadow-sm transition-all duration-200 hover:bg-brand-purple-dark hover:shadow-md"
-          style={{ fontFamily: "Inter, sans-serif" }}
+          className="hidden md:inline-flex items-center justify-center rounded-lg bg-brand-purple-accent px-6 py-2.5 text-[15px] font-medium text-white transition-colors duration-200 hover:bg-[#6D28D9]"
         >
           Find Service Provider
         </a>
