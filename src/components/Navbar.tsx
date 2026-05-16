@@ -65,7 +65,7 @@ export default function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="inline-flex items-center rounded-full px-6 py-2 text-[14px] font-medium text-brand-purple-dark/75 no-underline transition-all duration-300 hover:bg-white hover:text-brand-purple-dark hover:shadow-sm"
+                className="inline-flex items-center rounded-full px-6 py-2 text-[14px] font-medium text-brand-purple-dark/75 no-underline transition-all duration-200 hover:bg-brand-purple hover:text-white hover:shadow-md hover:shadow-brand-purple/30"
               >
                 {link.label}
               </a>
