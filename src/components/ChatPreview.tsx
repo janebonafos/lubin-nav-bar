@@ -74,8 +74,8 @@ export default function ChatPreview() {
             <div
               className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
                 m.from === "user"
-                  ? "bg-[#7C3AED] text-white rounded-br-sm"
-                  : "bg-[#F3F4F6] text-[#1F2937] rounded-bl-sm"
+                  ? "bg-[#9990C9] text-white rounded-br-sm"
+                  : "bg-[#EAE6F4] text-[#2C2B4B] rounded-bl-sm"
               }`}
             >
               {m.text}
@@ -84,7 +84,7 @@ export default function ChatPreview() {
         ))}
         {typing && (
           <div className="flex justify-start animate-[fade-in_0.2s_ease-out]">
-            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-[#F3F4F6] px-3.5 py-2.5">
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-[#EAE6F4] px-3.5 py-2.5">
               <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:0ms]" />
               <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
               <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
