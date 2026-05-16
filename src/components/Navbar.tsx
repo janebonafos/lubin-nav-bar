@@ -332,7 +332,7 @@ export default function Navbar() {
         <div className="hidden md:flex shrink-0 items-center gap-4 md:ml-4">
           <a
             href="/sign-in"
-            className="inline-flex items-center justify-center rounded-full border border-brand-purple/25 bg-white/60 px-5 py-2.5 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple-accent/40 hover:bg-white hover:text-brand-purple-accent"
+            className="inline-flex items-center justify-center rounded-full border border-brand-purple/25 bg-white/60 px-5 py-2.5 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white hover:text-brand-purple"
           >
             Sign in
           </a>
