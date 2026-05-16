@@ -64,7 +64,7 @@ export default function ChatPreview() {
   }, []);
 
   return (
-    <div className="hidden lg:flex flex-col w-full rounded-2xl bg-white shadow-lg overflow-hidden p-6">
+    <div className="flex flex-col w-full rounded-2xl bg-white shadow-lg overflow-hidden p-6">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E5E7EB]">
         <div className="flex items-center gap-2">
