@@ -328,13 +328,21 @@ export default function Navbar() {
           })}
         </ul>
 
-        {/* Desktop CTA */}
-        <a
-          href="/find-provider"
-          className="hidden md:inline-flex items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
-        >
-          Find Service Provider
-        </a>
+        {/* Desktop CTAs */}
+        <div className="hidden md:flex items-center gap-3">
+          <a
+            href="/sign-in"
+            className="inline-flex items-center justify-center rounded-full border border-brand-purple/25 bg-white/60 px-5 py-2.5 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple-accent/40 hover:bg-white hover:text-brand-purple-accent"
+          >
+            Sign in
+          </a>
+          <a
+            href="/find-provider"
+            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
+          >
+            Find Service Provider
+          </a>
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -363,6 +371,15 @@ export default function Navbar() {
                 </a>
               </li>
             ))}
+            <li>
+              <a
+                href="/sign-in"
+                onClick={() => setOpen(false)}
+                className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
+              >
+                Sign in
+              </a>
+            </li>
             <li>
               <a
                 href="/find-provider"
