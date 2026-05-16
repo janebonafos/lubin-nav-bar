@@ -65,7 +65,7 @@ export default function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="inline-flex items-center rounded-full px-6 py-2 text-[14px] font-medium text-brand-purple-dark/75 no-underline transition-all duration-200 hover:bg-brand-purple hover:text-white hover:shadow-md hover:shadow-brand-purple/30"
+                className="inline-flex items-center rounded-full px-6 py-2 text-[14px] font-medium text-brand-purple-dark/75 no-underline transition-all duration-200 hover:bg-white hover:text-brand-purple-dark hover:shadow-sm"
               >
                 {link.label}
               </a>
@@ -76,7 +76,7 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <a
           href="/find-provider"
-          className="hidden md:inline-flex items-center justify-center rounded-lg border-[1.5px] border-brand-purple-accent px-5 py-2.5 text-[15px] font-medium text-white bg-[#7d6aaf] shadow-sm transition-all duration-200 hover:bg-brand-purple-dark hover:border-brand-purple-dark hover:shadow-lg hover:shadow-brand-purple/30 hover:-translate-y-0.5"
+          className="hidden md:inline-flex items-center justify-center rounded-full border border-brand-purple/20 px-6 py-2 text-[14px] font-medium text-white bg-brand-purple shadow-sm transition-all duration-200 hover:bg-brand-purple-dark hover:shadow-md"
           style={{ fontFamily: "Inter, sans-serif" }}
         >
           Find Service Provider
