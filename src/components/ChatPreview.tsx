@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Send } from "lucide-react";
 
 type Msg = { from: "ai" | "user"; text: string };
 
@@ -65,18 +64,6 @@ export default function ChatPreview() {
 
   return (
     <div className="flex flex-col w-full rounded-2xl bg-white shadow-lg overflow-hidden p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E5E7EB]">
-        <div className="flex items-center gap-2">
-          <span aria-hidden className="text-lg leading-none">🦋</span>
-          <span className="text-[15px] font-medium text-[#2C2B4B]">Lubin</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          <span className="text-[12px] text-muted-foreground">Online</span>
-        </div>
-      </div>
-
       {/* Messages */}
       <div className="flex flex-col gap-2.5 min-h-[340px]">
         {SCRIPT.slice(0, visible).map((m, i) => (
@@ -104,22 +91,6 @@ export default function ChatPreview() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Input bar */}
-      <div className="mt-4 pt-3 border-t border-[#E5E7EB] flex items-center gap-2 bg-white">
-        <input
-          disabled
-          placeholder="Type something..."
-          className="flex-1 bg-transparent text-[13px] text-[#1F2937] placeholder:text-gray-400 outline-none"
-        />
-        <button
-          type="button"
-          aria-label="Send"
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7C3AED] text-white"
-        >
-          <Send className="h-3.5 w-3.5" />
-        </button>
       </div>
     </div>
   );
