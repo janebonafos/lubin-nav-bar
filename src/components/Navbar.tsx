@@ -269,15 +269,15 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-8 rounded-full border border-white/40 bg-white/70 px-5 py-3 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-12 md:px-10 md:py-3.5"
+        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 rounded-full border border-white/40 bg-white/70 pl-5 pr-5 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-6 md:pl-8 md:pr-6 md:py-2"
       >
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center md:mr-4" aria-label="Lubin home">
-          <img src={lubinLogo} alt="Lubin" className="h-7 w-auto" />
+          <img src={lubinLogo} alt="Lubin" className="h-6 w-auto lg:h-7" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden md:flex flex-1 items-center justify-center gap-12">
+        <ul className="hidden md:flex flex-1 items-center justify-center gap-6 lg:gap-8">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -329,16 +329,16 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex shrink-0 items-center gap-4 md:ml-4">
+        <div className="hidden md:flex shrink-0 items-center gap-3">
           <a
             href="/sign-in"
-            className="inline-flex items-center justify-center rounded-full border border-brand-purple/25 bg-white/60 px-5 py-2.5 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white hover:text-brand-purple"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/25 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white hover:text-brand-purple"
           >
             Sign in
           </a>
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
           >
             Find Service Provider
           </a>
