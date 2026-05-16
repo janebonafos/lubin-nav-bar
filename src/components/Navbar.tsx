@@ -75,7 +75,7 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <a
           href="/find-provider"
-          className="hidden md:inline-flex items-center justify-center rounded-lg border-[1.5px] border-brand-purple-accent px-5 py-2.5 text-[15px] font-medium text-brand-purple-accent transition-colors duration-200 hover:bg-brand-purple-accent hover:text-white bg-[#7d6aaf]"
+          className="hidden md:inline-flex items-center justify-center rounded-lg border-[1.5px] border-brand-purple-accent px-5 py-2.5 text-[15px] font-medium text-white transition-colors duration-200 hover:bg-brand-purple-accent hover:text-white bg-[#7d6aaf]"
           style={{ fontFamily: "Inter, sans-serif" }}
         >
           Find Service Provider
