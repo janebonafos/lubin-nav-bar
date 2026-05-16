@@ -156,7 +156,7 @@ function SimpleDropdown({
       className="absolute left-1/2 top-full z-50 mt-3 w-56 -translate-x-1/2 animate-fade-in"
       onMouseLeave={onClose}
     >
-      <div className="rounded-2xl border border-white/50 bg-white/95 p-2 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)] backdrop-blur-xl">
+      <div className="rounded-2xl border border-brand-purple/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)]">
         <ul className="flex flex-col">
           {items.map((item) => (
             <li key={item.href}>
@@ -181,7 +181,7 @@ function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
       className="absolute left-1/2 top-full z-50 mt-3 w-[min(1100px,calc(100vw-2rem))] -translate-x-1/2 animate-fade-in"
       onMouseLeave={onClose}
     >
-      <div className="rounded-3xl border border-white/50 bg-white/90 p-6 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)] backdrop-blur-xl md:p-8">
+      <div className="rounded-3xl border border-brand-purple/10 bg-white p-6 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)] md:p-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {HOW_IT_WORKS_COLUMNS.map((column) => (
             <div key={column.heading} className="flex flex-col gap-5">
