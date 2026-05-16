@@ -84,8 +84,10 @@ function Index() {
         </div>
 
         {/* Animated chat preview */}
-        <div className="animate-rise-in mt-10 w-full max-w-[860px] animate-float-slow [animation-delay:360ms]">
-          <ChatPreview />
+        <div className="animate-rise-in mt-10 w-full max-w-[860px] [animation-delay:360ms]">
+          <div className="animate-float-slow">
+            <ChatPreview />
+          </div>
         </div>
 
         {/* Quick check section */}
