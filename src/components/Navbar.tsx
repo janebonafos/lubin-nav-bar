@@ -373,6 +373,15 @@ export default function Navbar() {
             ))}
             <li>
               <a
+                href="/sign-in"
+                onClick={() => setOpen(false)}
+                className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
+              >
+                Sign in
+              </a>
+            </li>
+            <li>
+              <a
                 href="/find-provider"
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)]"
