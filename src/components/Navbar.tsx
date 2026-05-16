@@ -23,8 +23,8 @@ interface NavLinkItem {
 
 const NAV_LINKS: NavLinkItem[] = [
   { label: "How It Works", href: "/how-it-works", dropdown: "mega" },
-  { label: "FAQs", href: "/faqs" },
-  { label: "Pricing", href: "/pricing" },
+  { label: "About", href: "/about" },
+  { label: "Resources", href: "/resources" },
   { label: "My Health Passport", href: "/my-health-passport" },
   {
     label: "Help",
