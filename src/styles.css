@@ -191,19 +191,19 @@
   animation: bubble-float 3s ease-in-out infinite both;
 }
 
-/* Thought / typing → message phased reveal (6s cycle) */
+/* Thought process: typing → message → fully hidden, then repeats */
 @keyframes typing-phase {
-  0%        { opacity: 0; transform: scale(0.8); }
-  6%, 22%   { opacity: 1; transform: scale(1); }
-  32%, 100% { opacity: 0; transform: scale(0.8); }
+  0%, 2%    { opacity: 0; transform: scale(0.7); }
+  8%, 20%   { opacity: 1; transform: scale(1); }
+  26%, 100% { opacity: 0; transform: scale(0.7); }
 }
 @keyframes message-phase {
-  0%, 28%   { opacity: 0; transform: translateY(6px) scale(0.95); }
-  36%, 92%  { opacity: 1; transform: translateY(0) scale(1); }
-  100%      { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  0%, 24%   { opacity: 0; transform: translateY(8px) scale(0.9); }
+  32%, 70%  { opacity: 1; transform: translateY(0) scale(1); }
+  82%, 100% { opacity: 0; transform: translateY(-6px) scale(0.92); }
 }
-.phase-typing  { animation: typing-phase 6s ease-in-out infinite both; }
-.phase-message { animation: message-phase 6s ease-in-out infinite both; }
+.phase-typing  { animation: typing-phase 7s ease-in-out infinite both; }
+.phase-message { animation: message-phase 7s ease-in-out infinite both; }
 
 .text-shimmer {
   background: linear-gradient(90deg, #3D2E6B 0%, #7C3AED 50%, #3D2E6B 100%);

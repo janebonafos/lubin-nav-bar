@@ -31,9 +31,10 @@ function ThoughtBubble({
 }) {
   const isUser = variant === "user";
   const radius = isUser ? "20px 20px 20px 4px" : "20px 20px 4px 20px";
+  const aiGradient = "linear-gradient(135deg, #7E6BAF 0%, #3D2E6B 100%)";
   const typingBg = isUser ? "bg-white ring-1 ring-brand-purple/10" : "";
-  const typingStyle: React.CSSProperties = !isUser ? { background: "#7C3AED" } : {};
-  const dotColor = isUser ? "#7C3AED" : "rgba(255,255,255,0.95)";
+  const typingStyle: React.CSSProperties = !isUser ? { background: aiGradient } : {};
+  const dotColor = isUser ? "#7E6BAF" : "rgba(255,255,255,0.95)";
   return (
     <div
       className="pointer-events-none absolute hidden lg:block z-10 animate-bubble-float"
@@ -61,7 +62,7 @@ function ThoughtBubble({
         <div
           className={`phase-message px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.35)] ${isUser ? "bg-white ring-1 ring-brand-purple/10" : "text-white"}`}
           style={{
-            ...(isUser ? {} : { background: "#7C3AED" }),
+            ...(isUser ? {} : { background: aiGradient }),
             borderRadius: radius,
             fontFamily: "Inter, sans-serif",
             animationDelay: delay,
@@ -69,7 +70,7 @@ function ThoughtBubble({
         >
           <p
             className="text-[13.5px] leading-snug whitespace-nowrap"
-            style={isUser ? { color: "#2C2B4B" } : undefined}
+            style={isUser ? { color: "#3D2E6B" } : undefined}
           >
             {text}
           </p>
