@@ -113,10 +113,6 @@ function Index() {
         <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
           {/* LEFT thread — "You" */}
           <div className="pointer-events-none absolute right-[calc(100%+28px)] top-6 hidden lg:flex w-[240px] flex-col gap-2.5 items-end">
-            <div className="flex items-center gap-2 pr-1 opacity-70">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/70">You</span>
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#5C82BD] to-[#3F5F94] text-[10px] font-bold text-white shadow-sm">Y</span>
-            </div>
             <div className="animate-bubble-pop self-end" style={{ animationDelay: "0s" }}>
               <div className="relative max-w-[220px] rounded-[20px] bg-white px-4 py-2.5 shadow-[0_6px_20px_-8px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
                 <p className="text-[13.5px] leading-snug text-brand-purple-dark/90">
@@ -141,10 +137,6 @@ function Index() {
 
           {/* RIGHT thread — "Lubin" */}
           <div className="pointer-events-none absolute left-[calc(100%+28px)] top-12 hidden lg:flex w-[240px] flex-col gap-2.5 items-start">
-            <div className="flex items-center gap-2 pl-1 opacity-80">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[10px] font-bold text-white shadow-sm">L</span>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/80">Lubin</span>
-            </div>
             <div className="animate-bubble-pop self-start" style={{ animationDelay: "1.5s" }}>
               <div className="relative max-w-[220px] rounded-[20px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(124,58,237,0.5)]">
                 <p className="text-[13.5px] leading-snug">
