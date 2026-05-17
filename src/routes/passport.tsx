@@ -202,20 +202,12 @@ function GuestBanner() {
           You're viewing as a guest — create a free account to save your progress and
           access it anywhere.
         </p>
-        <div className="flex items-center gap-4 shrink-0">
-          <a
-            href="/register"
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
-          >
-            Create account <span aria-hidden>→</span>
-          </a>
-          <a
-            href="/login"
-            className="text-xs font-medium text-brand-purple-dark/60 underline-offset-4 hover:underline"
-          >
-            Already have an account? Sign in
-          </a>
-        </div>
+        <a
+          href="/register"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-purple/15 px-5 py-2 text-sm font-semibold text-brand-purple-dark ring-1 ring-brand-purple/30 transition hover:bg-brand-purple/25"
+        >
+          Create account <span aria-hidden>→</span>
+        </a>
       </div>
     </div>
   );
