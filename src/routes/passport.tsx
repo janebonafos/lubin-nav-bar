@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/passport")({
   component: PassportPage,
@@ -23,6 +24,7 @@ type Assessment = { id: string; name: string; score: number; date: string };
 const CHECKINS_KEY = "lubinai_checkins";
 const ASSESSMENTS_KEY = "lubinai_assessments";
 const GUEST_KEY = "lubinai_guest_mode";
+const INTRO_SEEN_KEY = "lubinai_passport_intro_seen";
 
 function readLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -62,12 +64,15 @@ function PassportPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
+  // null = unknown (pre-hydration), true = show intro, false = show passport
+  const [showIntro, setShowIntro] = useState<boolean | null>(null);
 
   // hydrate from localStorage
   useEffect(() => {
     setCheckins(readLS<CheckIn[]>(CHECKINS_KEY, []));
     setAssessments(readLS<Assessment[]>(ASSESSMENTS_KEY, []));
     if (readLS<boolean | null>(GUEST_KEY, null) === null) writeLS(GUEST_KEY, true);
+    setShowIntro(readLS<boolean>(INTRO_SEEN_KEY, false) !== true);
   }, []);
 
   const today = useMemo(
@@ -99,6 +104,22 @@ function PassportPage() {
     const next = [c, ...checkins].slice(0, 50);
     setCheckins(next);
     writeLS(CHECKINS_KEY, next);
+  }
+
+  if (showIntro === null) {
+    // avoid SSR/intro flash — render bare shell until we know
+    return <div className="min-h-screen bg-brand-lavender"><Navbar /></div>;
+  }
+
+  if (showIntro) {
+    return (
+      <IntroScreen
+        onOpen={() => {
+          writeLS(INTRO_SEEN_KEY, true);
+          setShowIntro(false);
+        }}
+      />
+    );
   }
 
   return (
