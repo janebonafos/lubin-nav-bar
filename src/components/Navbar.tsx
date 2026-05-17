@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
+import AuthModal, { type AuthMode } from "@/components/AuthModal";
 
 interface NavLinkItem {
   label: string;
@@ -244,7 +245,14 @@ function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
 export default function Navbar() {
   const [open, setOpen] = useState<boolean>(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("signin");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openAuth = (mode: AuthMode) => {
+    setAuthMode(mode);
+    setAuthOpen(true);
+  };
 
   const openDropdown = (key: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -330,12 +338,13 @@ export default function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex shrink-0 items-center gap-3">
-          <a
-            href="/sign-in"
+          <button
+            type="button"
+            onClick={() => openAuth("signin")}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/25 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white hover:text-brand-purple"
           >
             Sign in
-          </a>
+          </button>
           <a
             href="/find-provider"
             className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
@@ -372,13 +381,16 @@ export default function Navbar() {
               </li>
             ))}
             <li>
-              <a
-                href="/sign-in"
-                onClick={() => setOpen(false)}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  openAuth("signin");
+                }}
                 className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
               >
                 Sign in
-              </a>
+              </button>
             </li>
             <li>
               <a
@@ -392,6 +404,11 @@ export default function Navbar() {
           </ul>
         </div>
       )}
+      <AuthModal
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+      />
     </header>
   );
 }
