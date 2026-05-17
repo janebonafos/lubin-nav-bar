@@ -65,15 +65,22 @@ function PassportPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
-  // null = unknown (pre-hydration), true = show intro, false = show passport
-  const [showIntro, setShowIntro] = useState<boolean | null>(null);
+  // Read synchronously on the client so the page never flashes blank.
+  // SSR defaults to false (render passport); client decides on first render.
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(INTRO_SEEN_KEY) !== "true";
+    } catch {
+      return false;
+    }
+  });
 
   // hydrate from localStorage
   useEffect(() => {
     setCheckins(readLS<CheckIn[]>(CHECKINS_KEY, []));
     setAssessments(readLS<Assessment[]>(ASSESSMENTS_KEY, []));
     if (readLS<boolean | null>(GUEST_KEY, null) === null) writeLS(GUEST_KEY, true);
-    setShowIntro(readLS<boolean>(INTRO_SEEN_KEY, false) !== true);
   }, []);
 
   const today = useMemo(
@@ -107,16 +114,13 @@ function PassportPage() {
     writeLS(CHECKINS_KEY, next);
   }
 
-  if (showIntro === null) {
-    // avoid SSR/intro flash — render bare shell until we know
-    return <div className="min-h-screen bg-brand-lavender"><Navbar /></div>;
-  }
-
   if (showIntro) {
     return (
       <IntroScreen
         onOpen={() => {
-          writeLS(INTRO_SEEN_KEY, true);
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem(INTRO_SEEN_KEY, "true");
+          }
           setShowIntro(false);
         }}
       />
