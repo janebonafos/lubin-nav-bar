@@ -66,11 +66,12 @@ function ThoughtBubble({
             borderRadius: radius,
             fontFamily: "Inter, sans-serif",
             animationDelay: delay,
-            maxWidth: 220,
+            maxWidth: 280,
+            whiteSpace: "normal",
           }}
         >
           <p
-            className="text-[13px] leading-snug"
+            className="text-[13px] leading-snug whitespace-normal break-words"
             style={isUser ? { color: "#3D2E6B" } : undefined}
           >
             {text}
