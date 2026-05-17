@@ -138,7 +138,7 @@ function PassportPage() {
               >
                 {label}
                 {active && (
-                  <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple-accent" />
+                  <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
                 )}
               </button>
             );
@@ -193,7 +193,7 @@ function PassportPage() {
 function GuestBanner() {
   return (
     <div
-      className="rounded-2xl border-l-4 border-brand-purple-accent bg-white/70 backdrop-blur-sm p-5 shadow-[0_4px_20px_rgba(124,58,237,0.06)]"
+      className="rounded-2xl border-l-4 border-brand-purple bg-white/70 backdrop-blur-sm p-5 shadow-[0_4px_20px_rgba(124,58,237,0.06)]"
       role="region"
       aria-label="Guest mode notice"
     >
@@ -205,7 +205,7 @@ function GuestBanner() {
         <div className="flex items-center gap-4 shrink-0">
           <a
             href="/register"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#7C3AED] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
           >
             Create account <span aria-hidden>→</span>
           </a>
@@ -262,7 +262,7 @@ function Overview({
         </div>
         <button
           onClick={onLogMood}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#7C3AED] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
         >
           Check in <span aria-hidden>→</span>
         </button>
@@ -329,7 +329,7 @@ function Progress({
         {assessments.length === 0 ? (
           <p className="mt-3 text-sm text-brand-purple-dark/55">
             No assessments completed yet.{" "}
-            <a href="/register" className="text-brand-purple-accent hover:underline">
+            <a href="/register" className="text-brand-purple hover:underline">
               Take one to see results here →
             </a>
           </p>
@@ -341,7 +341,7 @@ function Progress({
                 className="rounded-xl bg-brand-lavender/60 p-4 ring-1 ring-brand-purple/10"
               >
                 <p className="text-sm font-medium text-brand-purple-dark">{a.name}</p>
-                <p className="mt-1 text-2xl font-bold text-brand-purple-accent">
+                <p className="mt-1 text-2xl font-bold text-brand-purple">
                   {a.score}
                 </p>
                 <p className="text-xs text-brand-purple-dark/55">{formatDate(a.date)}</p>
@@ -419,9 +419,9 @@ function MoodChart({ checkins }: { checkins: CheckIn[] }) {
   return (
     <div className="mt-4">
       <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full" preserveAspectRatio="none">
-        <path d={path} fill="none" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="#7E6BAF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="1.2" fill="#7C3AED" />
+          <circle key={i} cx={p.x} cy={p.y} r="1.2" fill="#7E6BAF" />
         ))}
       </svg>
       <div className="mt-2 flex justify-between text-[10px] text-brand-purple-dark/45">
@@ -450,7 +450,7 @@ function StreakCalendar({ checkins }: { checkins: CheckIn[] }) {
           title={d.date.toDateString()}
           className={`aspect-square rounded-md ${
             d.has
-              ? "bg-brand-purple-accent"
+              ? "bg-brand-purple"
               : "bg-brand-purple/10"
           }`}
         />
@@ -474,7 +474,7 @@ function ShareSnapshot() {
         </p>
         <a
           href="/register"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-[#7C3AED] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
         >
           Create account <span aria-hidden>→</span>
         </a>
@@ -510,7 +510,7 @@ function CheckInModal({
             onClick={() => setMood(m.v)}
             className={`flex flex-col items-center gap-1 rounded-2xl py-3 transition ${
               mood === m.v
-                ? "bg-brand-purple-accent/15 ring-2 ring-brand-purple-accent"
+                ? "bg-brand-purple/15 ring-2 ring-brand-purple"
                 : "bg-brand-lavender/60 ring-1 ring-brand-purple/10 hover:bg-brand-lavender"
             }`}
           >
@@ -532,7 +532,7 @@ function CheckInModal({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
-          className="mt-1.5 w-full resize-none rounded-xl border border-brand-purple/15 bg-white p-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple-accent/30"
+          className="mt-1.5 w-full resize-none rounded-xl border border-brand-purple/15 bg-white p-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/30"
           placeholder="A sentence is plenty."
         />
       </label>
@@ -540,7 +540,7 @@ function CheckInModal({
       <div className="mt-6 flex items-center justify-between gap-4">
         <a
           href="/register"
-          className="text-xs text-brand-purple-dark/55 hover:text-brand-purple-accent"
+          className="text-xs text-brand-purple-dark/55 hover:text-brand-purple"
         >
           Create a free account to save your results permanently →
         </a>
@@ -562,7 +562,7 @@ function CheckInModal({
                 date: new Date().toISOString(),
               })
             }
-            className="rounded-full bg-[#7C3AED] px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-full bg-brand-purple px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Save
           </button>
@@ -595,7 +595,7 @@ function SaveProgressModal({
         <a
           href="/register"
           onClick={onCreateAccount}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#7C3AED] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
         >
           Create account <span aria-hidden>→</span>
         </a>
