@@ -370,13 +370,13 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
             initial={{ opacity: 0, y: 16, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -16, scale: 0.97 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             className="relative mt-8 w-full"
           >
             <motion.div
               initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
             className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(126,107,175,0.35)]"
             style={{ background: `linear-gradient(135deg, #A89BD0, #7E6BAF)` }}
             >
@@ -386,7 +386,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
             <motion.h1
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.05, duration: 0.25 }}
               className="mt-6 text-[28px] md:text-[34px] font-bold leading-tight"
             style={{ color: "#3D2E6B" }}
             >
@@ -396,7 +396,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+              transition={{ delay: 0.1, duration: 0.25 }}
               className="mx-auto mt-4 max-w-[460px] text-[15px] md:text-base"
             style={{ color: "#5A4E8A", lineHeight: 1.65 }}
             >
