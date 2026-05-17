@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
 
 export const Route = createFileRoute("/passport")({
   component: PassportPage,
@@ -25,6 +25,7 @@ const CHECKINS_KEY = "lubinai_checkins";
 const ASSESSMENTS_KEY = "lubinai_assessments";
 const GUEST_KEY = "lubinai_guest_mode";
 const INTRO_SEEN_KEY = "lubinai_passport_intro_seen";
+const INTRO_DISMISSED_KEY = "lubinai_passport_intro_dismissed";
 
 function readLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -212,7 +213,87 @@ function PassportPage() {
 
 // ---------- Guest banner ----------
 function GuestBanner() {
-  return GuestBannerImpl();
+  const [dismissed, setDismissed] = useState(() =>
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(INTRO_DISMISSED_KEY) === "true"
+      : false
+  );
+  const [fading, setFading] = useState(false);
+
+  if (dismissed) return null;
+
+  const handleDismiss = () => {
+    setFading(true);
+    setTimeout(() => {
+      setDismissed(true);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(INTRO_DISMISSED_KEY, "true");
+      }
+    }, 300);
+  };
+
+  return (
+    <div
+      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7C3AED] bg-white transition-all duration-300 ${
+        fading ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
+      }`}
+      style={{
+        boxShadow: "0 2px 12px rgba(124, 58, 237, 0.08)",
+        padding: "28px 32px",
+      }}
+    >
+      <button
+        onClick={handleDismiss}
+        className="absolute top-5 right-5 text-[#9CA3AF] transition hover:text-[#6B7280]"
+        aria-label="Dismiss"
+      >
+        <X size={18} />
+      </button>
+
+      <span
+        className="text-[11px] font-semibold uppercase"
+        style={{ color: "#7C3AED", letterSpacing: "0.08em" }}
+      >
+        FROM LUBIN
+      </span>
+
+      <h2
+        className="mt-2 text-[20px] font-bold"
+        style={{ color: "#2C2B4B", fontFamily: "Inter, sans-serif", marginBottom: 12 }}
+      >
+        Your Health Passport is your mental wellness story
+      </h2>
+
+      <p
+        className="text-[15px]"
+        style={{
+          color: "#5A4E8A",
+          lineHeight: 1.7,
+          maxWidth: 720,
+          fontFamily: "Inter, sans-serif",
+        }}
+      >
+        Most people go through their mental health journey without ever seeing the full picture — what triggers their stress, when their mood tends to dip, what actually helps. Your Health Passport changes that. Every check-in, every assessment, every conversation with Lubin quietly builds a private record that's yours alone. Over time, you'll start to notice patterns you never saw before — and that awareness is where real change begins.
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {[
+          { emoji: "\uD83D\uDD12", text: "Private to you only" },
+          { emoji: "\uD83D\uDCC8", text: "Builds over time" },
+          { emoji: "\uD83D\uDC9C", text: "Shared only when you choose" },
+        ].map(({ emoji, text }) => (
+          <span
+            key={text}
+            className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+            style={{ background: "#EDE9FE", color: "#7C3AED" }}
+          >
+            <span aria-hidden>{emoji}</span>
+            {text}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function IntroScreen({ onOpen }: { onOpen: () => void }) {
@@ -318,29 +399,6 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           No account needed to explore — your data saves to this device.
         </p>
       </main>
-    </div>
-  );
-}
-
-function GuestBannerImpl() {
-  return (
-    <div
-      className="rounded-2xl border-l-4 border-brand-purple bg-white/70 backdrop-blur-sm p-5 shadow-[0_4px_20px_rgba(124,58,237,0.06)]"
-      role="region"
-      aria-label="Guest mode notice"
-    >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <p className="text-sm text-brand-purple-dark/85 leading-relaxed">
-          You're viewing as a guest — create a free account to save your progress and
-          access it anywhere.
-        </p>
-        <a
-          href="/register"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
-        >
-          Create account <span aria-hidden>→</span>
-        </a>
-      </div>
     </div>
   );
 }
