@@ -66,22 +66,19 @@ function PassportPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
-  // Read synchronously on the client so the page never flashes blank.
-  // SSR defaults to false (render passport); client decides on first render.
-  const [showIntro, setShowIntro] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      return window.localStorage.getItem(INTRO_SEEN_KEY) !== "true";
-    } catch {
-      return false;
-    }
-  });
+  // Avoid SSR/client mismatch: start undecided, decide after mount.
+  const [showIntro, setShowIntro] = useState<boolean | null>(null);
 
   // hydrate from localStorage
   useEffect(() => {
     setCheckins(readLS<CheckIn[]>(CHECKINS_KEY, []));
     setAssessments(readLS<Assessment[]>(ASSESSMENTS_KEY, []));
     if (readLS<boolean | null>(GUEST_KEY, null) === null) writeLS(GUEST_KEY, true);
+    try {
+      setShowIntro(window.localStorage.getItem(INTRO_SEEN_KEY) !== "true");
+    } catch {
+      setShowIntro(false);
+    }
   }, []);
 
   const today = useMemo(
@@ -113,6 +110,10 @@ function PassportPage() {
     const next = [c, ...checkins].slice(0, 50);
     setCheckins(next);
     writeLS(CHECKINS_KEY, next);
+  }
+
+  if (showIntro === null) {
+    return <div className="min-h-screen bg-brand-lavender" />;
   }
 
   if (showIntro) {
@@ -348,7 +349,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
         <motion.div
           aria-hidden
           className="pointer-events-none absolute bottom-10 -right-16 h-72 w-72 rounded-full blur-3xl"
-          style={{ background: "rgba(201,190,229,0.35)" }}
+          style={{ background: "rgba(126,107,175,0.35)" }}
           animate={{ y: [0, -25, 0], x: [0, -10, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -358,7 +359,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="relative inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-          style={{ background: "#F3F0FA", color: "#7E6BAF" }}
+          style={{ background: "#EDE6FA", color: "#5A4E8A" }}
         >
           Welcome to your Health Passport
         </motion.span>
@@ -377,7 +378,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.1 }}
             className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(126,107,175,0.35)]"
-            style={{ background: `linear-gradient(135deg, ${current.accent}, #A89BD0)` }}
+            style={{ background: `linear-gradient(135deg, #A89BD0, #7E6BAF)` }}
             >
               <ActiveIcon size={40} color="#fff" strokeWidth={1.75} />
             </motion.div>
@@ -387,7 +388,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mt-6 text-[28px] md:text-[34px] font-bold leading-tight"
-            style={{ color: "#5A4E8A" }}
+            style={{ color: "#3D2E6B" }}
             >
               {current.title}
             </motion.h1>
@@ -397,7 +398,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
               className="mx-auto mt-4 max-w-[460px] text-[15px] md:text-base"
-            style={{ color: "#7E6BAF", lineHeight: 1.65 }}
+            style={{ color: "#5A4E8A", lineHeight: 1.65 }}
             >
               {current.body}
             </motion.p>
@@ -413,7 +414,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               className="h-2 rounded-full transition-all"
               style={{
                 width: i === step ? 28 : 8,
-                background: i === step ? "#A89BD0" : "rgba(201,190,229,0.55)",
+                background: i === step ? "#7E6BAF" : "rgba(126,107,175,0.35)",
               }}
             />
           ))}
@@ -421,7 +422,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 
         <div
           className="relative mt-6 flex items-center justify-center gap-2 text-[13px]"
-          style={{ color: "#7E6BAF" }}
+          style={{ color: "#5A4E8A" }}
         >
           <Lock size={14} aria-hidden />
           <span>Private to you. Nothing is shared unless you choose to.</span>
@@ -431,7 +432,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           {step > 0 && (
             <button
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="rounded-lg border-[1.5px] border-[#C9BEE5] bg-transparent px-6 py-3 text-sm font-semibold text-[#7E6BAF] transition hover:bg-[#C9BEE5]/20"
+              className="rounded-lg border-[1.5px] border-[#7E6BAF] bg-transparent px-6 py-3 text-sm font-semibold text-[#5A4E8A] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#7E6BAF] hover:text-white hover:shadow-[0_6px_18px_-6px_rgba(126,107,175,0.5)]"
             >
               Back
             </button>
@@ -444,7 +445,9 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
             onClick={() =>
               isLast ? onOpen() : setStep((s) => Math.min(steps.length - 1, s + 1))
             }
-            className="rounded-lg bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-8 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(168,155,208,0.5)] transition hover:opacity-95"
+            whileHover={{ y: -2, scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="rounded-lg bg-gradient-to-r from-[#7E6BAF] to-[#5A4E8A] px-8 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_-8px_rgba(90,78,138,0.55)] transition-all duration-200 hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.6)] hover:from-[#5A4E8A] hover:to-[#3D2E6B]"
           >
             {isLast ? "Got it!" : "Next"} <span aria-hidden>→</span>
           </motion.button>
@@ -452,7 +455,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 
         <button
           onClick={onOpen}
-          className="relative mt-5 text-[12px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark"
+          className="relative mt-5 text-[12px] font-medium text-[#7E6BAF] transition hover:text-[#3D2E6B] hover:underline underline-offset-4"
         >
           Skip intro
         </button>
