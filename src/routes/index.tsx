@@ -109,107 +109,91 @@ function Index() {
           </div>
         </div>
 
-        {/* Animated Health Passport preview with floating chat bubbles */}
-        <div
-          className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]"
-          style={{
-            minHeight: 500,
-            background: "linear-gradient(to bottom, #EAE7F5, #F0EEF8)",
-            borderRadius: 28,
-            padding: "48px 24px",
-          }}
-        >
-          {/* Bubble 1 — top left (user) */}
+        {/* Animated Health Passport preview with organically-placed floating bubbles */}
+        <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
+          {/* LEFT — user bubbles, asymmetric & varied */}
+          {/* User bubble: high left, slight tilt out */}
           <div
             className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ top: 40, right: "calc(100% - 90px)", animationDelay: "0s" }}
+            style={{ top: 24, right: "calc(100% - 40px)", animationDelay: "0s", transform: "rotate(-3deg)" }}
           >
             <div
-              className="bg-white px-4 py-2.5 shadow-[0_8px_24px_-8px_rgba(124,58,237,0.25)]"
-              style={{ borderRadius: "18px 18px 18px 4px", fontFamily: "Inter, sans-serif" }}
+              className="bg-white px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.3)] ring-1 ring-brand-purple/10"
+              style={{ borderRadius: "20px 20px 20px 4px", fontFamily: "Inter, sans-serif" }}
             >
-              <p className="text-[14px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
+              <p className="text-[13.5px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
                 Sleep's been rough this week
               </p>
             </div>
-            {/* connector dots toward card */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {[0, 1, 2].map((i) => (
-                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
               ))}
             </div>
           </div>
 
-          {/* Bubble 2 — bottom left (user) */}
+          {/* User bubble: middle-low left, deeper out */}
           <div
             className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ bottom: 60, right: "calc(100% - 90px)", animationDelay: "0.75s" }}
+            style={{ top: "55%", right: "calc(100% - 20px)", animationDelay: "1.2s", transform: "rotate(2deg)" }}
           >
             <div
-              className="bg-white px-4 py-2.5 shadow-[0_8px_24px_-8px_rgba(124,58,237,0.25)]"
-              style={{ borderRadius: "18px 18px 18px 4px", fontFamily: "Inter, sans-serif" }}
+              className="bg-white px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.3)] ring-1 ring-brand-purple/10"
+              style={{ borderRadius: "20px 20px 20px 4px", fontFamily: "Inter, sans-serif" }}
             >
-              <p className="text-[14px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
+              <p className="text-[13.5px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
                 I can't seem to switch off lately
               </p>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {[0, 1, 2].map((i) => (
-                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
               ))}
             </div>
           </div>
 
-          {/* Bubble 3 — top right (AI) */}
+          {/* RIGHT — AI bubbles, asymmetric */}
+          {/* AI bubble: upper-right, close to card */}
           <div
             className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ top: 40, left: "calc(100% - 90px)", animationDelay: "1.5s" }}
+            style={{ top: "30%", left: "calc(100% - 30px)", animationDelay: "0.6s", transform: "rotate(2deg)" }}
           >
-            <div className="flex items-center gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+            <div className="flex items-center gap-1">
+              {[2, 1, 0].map((i) => (
+                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
               ))}
             </div>
             <div
-              className="px-4 py-2.5 text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.4)]"
-              style={{ background: "#7C3AED", borderRadius: "18px 18px 4px 18px", fontFamily: "Inter, sans-serif" }}
+              className="px-4 py-2.5 text-white shadow-[0_10px_28px_-10px_rgba(124,58,237,0.45)]"
+              style={{ background: "#7C3AED", borderRadius: "20px 20px 4px 20px", fontFamily: "Inter, sans-serif" }}
             >
-              <p className="text-[14px] leading-snug whitespace-nowrap">
+              <p className="text-[13.5px] leading-snug whitespace-nowrap">
                 I'll hold onto this — gently 💜
               </p>
             </div>
           </div>
 
-          {/* Bubble 4 — bottom right (AI) */}
+          {/* AI bubble: low-right, further out, larger tilt */}
           <div
             className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ bottom: 60, left: "calc(100% - 90px)", animationDelay: "2.25s" }}
+            style={{ bottom: 32, left: "calc(100% - 60px)", animationDelay: "1.8s", transform: "rotate(-3deg)" }}
           >
-            <div className="flex items-center gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+            <div className="flex items-center gap-1">
+              {[2, 1, 0].map((i) => (
+                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
               ))}
             </div>
             <div
-              className="px-4 py-2.5 text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.4)]"
-              style={{ background: "#7C3AED", borderRadius: "18px 18px 4px 18px", fontFamily: "Inter, sans-serif" }}
+              className="px-4 py-2.5 text-white shadow-[0_10px_28px_-10px_rgba(124,58,237,0.45)]"
+              style={{ background: "#7C3AED", borderRadius: "20px 20px 4px 20px", fontFamily: "Inter, sans-serif" }}
             >
-              <p className="text-[14px] leading-snug whitespace-nowrap">
+              <p className="text-[13.5px] leading-snug whitespace-nowrap">
                 Your mood has been slowly lifting
               </p>
             </div>
           </div>
 
-          {/* Passport card — content unchanged, wrapper styling per spec */}
-          <div
-            className="mx-auto w-full max-w-[860px]"
-            style={{
-              borderRadius: 20,
-              boxShadow: "0 8px 40px rgba(124, 58, 237, 0.12)",
-            }}
-          >
-            <PassportPreview />
-          </div>
+          <PassportPreview />
         </div>
 
         {/* Sign in note */}
