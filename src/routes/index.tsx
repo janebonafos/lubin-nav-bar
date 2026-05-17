@@ -180,7 +180,7 @@ function Index() {
           <ThoughtBubble
             side="left"
             variant="user"
-            text="Sleep's been rough this week"
+            text="I keep forgetting what I told my therapist last time…"
             delay="0s"
             rotate={-3}
             style={{ top: 24, right: "calc(100% - 40px)" }}
@@ -188,7 +188,7 @@ function Index() {
           <ThoughtBubble
             side="left"
             variant="user"
-            text="I can't seem to switch off lately"
+            text="Is my mood actually getting better, or does it just feel that way?"
             delay="1.5s"
             rotate={2}
             style={{ top: "55%", right: "calc(100% - 20px)" }}
@@ -196,7 +196,7 @@ function Index() {
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="I'll hold onto this — gently 💜"
+            text="Your Passport remembers it for you — so you don't have to."
             delay="0.75s"
             rotate={2}
             style={{ top: "30%", left: "calc(100% - 30px)" }}
@@ -204,7 +204,7 @@ function Index() {
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="Your mood has been slowly lifting"
+            text="See your patterns over time, and share only what you choose."
             delay="2.25s"
             rotate={-3}
             style={{ bottom: 32, left: "calc(100% - 60px)" }}
