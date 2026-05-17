@@ -110,7 +110,55 @@ function Index() {
         </div>
 
         {/* Animated Health Passport preview */}
-        <div className="animate-rise-in mt-8 w-full max-w-[860px] [animation-delay:480ms]">
+        <div className="animate-rise-in relative mt-8 w-full max-w-[860px] [animation-delay:480ms]">
+          {/* User thought bubble — top left */}
+          <div
+            className="pointer-events-none absolute -top-6 -left-2 z-10 hidden md:block animate-float-slow"
+            style={{ animationDelay: "-2s" }}
+          >
+            <div className="relative max-w-[210px] rounded-2xl rounded-bl-sm bg-white px-4 py-3 shadow-[0_10px_30px_-10px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+              <p className="text-[12px] font-medium uppercase tracking-wider text-brand-purple/70">
+                You shared
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-brand-purple-dark/80">
+                "Sleep has been rough this week, and work keeps weighing on me."
+              </p>
+              <span className="absolute -bottom-1.5 left-5 h-3 w-3 rotate-45 bg-white ring-1 ring-brand-purple/10" />
+            </div>
+          </div>
+
+          {/* Lubin goal bubble — top right */}
+          <div
+            className="pointer-events-none absolute -top-8 -right-2 z-10 hidden md:block animate-float-slow"
+            style={{ animationDelay: "-4s" }}
+          >
+            <div className="relative max-w-[230px] rounded-2xl rounded-br-sm bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-3 text-white shadow-[0_10px_30px_-10px_rgba(124,58,237,0.5)]">
+              <p className="text-[12px] font-medium uppercase tracking-wider text-white/80">
+                Lubin's goal
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-white/95">
+                Turn what you share into a gentle map of your wellbeing — only for you.
+              </p>
+              <span className="absolute -bottom-1.5 right-5 h-3 w-3 rotate-45 bg-brand-purple-dark" />
+            </div>
+          </div>
+
+          {/* Lubin reflection bubble — bottom left */}
+          <div
+            className="pointer-events-none absolute -bottom-6 left-4 z-10 hidden md:block animate-float-slow"
+            style={{ animationDelay: "-1s" }}
+          >
+            <div className="relative max-w-[220px] rounded-2xl rounded-tl-sm bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] px-4 py-3 shadow-[0_10px_30px_-10px_rgba(124,58,237,0.3)] ring-1 ring-brand-purple/10">
+              <p className="text-[12px] font-medium uppercase tracking-wider text-brand-purple/70">
+                Lubin notices
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-brand-purple-dark/80">
+                "Your mood is slowly lifting — small wins count."
+              </p>
+              <span className="absolute -top-1.5 left-5 h-3 w-3 rotate-45 bg-[#F0ECFB] ring-1 ring-brand-purple/10" />
+            </div>
+          </div>
+
           <PassportPreview />
         </div>
 
