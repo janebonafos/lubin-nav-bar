@@ -84,20 +84,8 @@ function Index() {
           </a>
         </div>
 
-        {/* Animated chat preview */}
-        <div className="animate-rise-in mt-10 w-full max-w-[860px] [animation-delay:360ms]">
-          <div className="animate-float-slow">
-            <ChatPreview />
-          </div>
-        </div>
-
-        {/* Animated Health Passport preview */}
-        <div className="animate-rise-in mt-8 w-full max-w-[860px] [animation-delay:480ms]">
-          <PassportPreview />
-        </div>
-
-        {/* Quick check section */}
-        <div className="mt-14 flex w-full flex-col items-center">
+        {/* Quick check section — surfaced upfront */}
+        <div className="animate-rise-in mt-10 flex w-full flex-col items-center [animation-delay:320ms]">
           <p className="text-[13px] font-medium uppercase tracking-wider text-brand-purple-dark/50">
             Or take a quick check
           </p>
@@ -112,6 +100,18 @@ function Index() {
               </a>
             ))}
           </div>
+        </div>
+
+        {/* Animated chat preview */}
+        <div className="animate-rise-in mt-10 w-full max-w-[860px] [animation-delay:360ms]">
+          <div className="animate-float-slow">
+            <ChatPreview />
+          </div>
+        </div>
+
+        {/* Animated Health Passport preview */}
+        <div className="animate-rise-in mt-8 w-full max-w-[860px] [animation-delay:480ms]">
+          <PassportPreview />
         </div>
 
         {/* Sign in note */}
