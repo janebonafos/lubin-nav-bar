@@ -14,6 +14,71 @@ const ASSESSMENTS = [
   { label: "Wellbeing Check", href: "/assessments/WHO-5" },
 ];
 
+function ThoughtBubble({
+  side,
+  variant,
+  text,
+  delay,
+  style,
+  rotate,
+}: {
+  side: "left" | "right";
+  variant: "user" | "ai";
+  text: string;
+  delay: string;
+  style: React.CSSProperties;
+  rotate: number;
+}) {
+  const isUser = variant === "user";
+  const radius = isUser ? "20px 20px 20px 4px" : "20px 20px 4px 20px";
+  const typingBg = isUser ? "bg-white ring-1 ring-brand-purple/10" : "";
+  const typingStyle: React.CSSProperties = !isUser ? { background: "#7C3AED" } : {};
+  const dotColor = isUser ? "#7C3AED" : "rgba(255,255,255,0.95)";
+  return (
+    <div
+      className="pointer-events-none absolute hidden lg:block z-10 animate-bubble-float"
+      style={{ ...style, animationDelay: delay, transform: `rotate(${rotate}deg)` }}
+    >
+      <div className={`relative flex ${side === "left" ? "justify-end" : "justify-start"}`}>
+        {/* Typing bubble (phase 1) */}
+        <div
+          className={`phase-typing absolute ${side === "left" ? "right-0" : "left-0"} top-0 inline-flex items-center gap-1 px-3 py-2 shadow-[0_8px_22px_-10px_rgba(124,58,237,0.3)] ${typingBg}`}
+          style={{ ...typingStyle, borderRadius: radius, animationDelay: delay }}
+        >
+          {[0, 150, 300].map((d) => (
+            <span
+              key={d}
+              className="block h-1.5 w-1.5 rounded-full"
+              style={{
+                background: dotColor,
+                animation: "dot-bounce 1.2s ease-in-out infinite",
+                animationDelay: `${d}ms`,
+              }}
+            />
+          ))}
+        </div>
+        {/* Message bubble (phase 2) */}
+        <div
+          className={`phase-message px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.35)] ${isUser ? "bg-white ring-1 ring-brand-purple/10" : "text-white"}`}
+          style={{
+            ...(isUser ? {} : { background: "#7C3AED" }),
+            borderRadius: radius,
+            fontFamily: "Inter, sans-serif",
+            animationDelay: delay,
+          }}
+        >
+          <p
+            className="text-[13.5px] leading-snug whitespace-nowrap"
+            style={isUser ? { color: "#2C2B4B" } : undefined}
+          >
+            {text}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Index() {
   return (
     <div
@@ -111,87 +176,38 @@ function Index() {
 
         {/* Animated Health Passport preview with organically-placed floating bubbles */}
         <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
-          {/* LEFT — user bubbles, asymmetric & varied */}
-          {/* User bubble: high left, slight tilt out */}
-          <div
-            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ top: 24, right: "calc(100% - 40px)", animationDelay: "0s", transform: "rotate(-3deg)" }}
-          >
-            <div
-              className="bg-white px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.3)] ring-1 ring-brand-purple/10"
-              style={{ borderRadius: "20px 20px 20px 4px", fontFamily: "Inter, sans-serif" }}
-            >
-              <p className="text-[13.5px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
-                Sleep's been rough this week
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
-              ))}
-            </div>
-          </div>
-
-          {/* User bubble: middle-low left, deeper out */}
-          <div
-            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ top: "55%", right: "calc(100% - 20px)", animationDelay: "1.2s", transform: "rotate(2deg)" }}
-          >
-            <div
-              className="bg-white px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.3)] ring-1 ring-brand-purple/10"
-              style={{ borderRadius: "20px 20px 20px 4px", fontFamily: "Inter, sans-serif" }}
-            >
-              <p className="text-[13.5px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
-                I can't seem to switch off lately
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
-              ))}
-            </div>
-          </div>
-
-          {/* RIGHT — AI bubbles, asymmetric */}
-          {/* AI bubble: upper-right, close to card */}
-          <div
-            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ top: "30%", left: "calc(100% - 30px)", animationDelay: "0.6s", transform: "rotate(2deg)" }}
-          >
-            <div className="flex items-center gap-1">
-              {[2, 1, 0].map((i) => (
-                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
-              ))}
-            </div>
-            <div
-              className="px-4 py-2.5 text-white shadow-[0_10px_28px_-10px_rgba(124,58,237,0.45)]"
-              style={{ background: "#7C3AED", borderRadius: "20px 20px 4px 20px", fontFamily: "Inter, sans-serif" }}
-            >
-              <p className="text-[13.5px] leading-snug whitespace-nowrap">
-                I'll hold onto this — gently 💜
-              </p>
-            </div>
-          </div>
-
-          {/* AI bubble: low-right, further out, larger tilt */}
-          <div
-            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
-            style={{ bottom: 32, left: "calc(100% - 60px)", animationDelay: "1.8s", transform: "rotate(-3deg)" }}
-          >
-            <div className="flex items-center gap-1">
-              {[2, 1, 0].map((i) => (
-                <span key={i} className="block rounded-full" style={{ width: 4 - i, height: 4 - i, background: "#C4B5FD", opacity: 0.6 - i * 0.15 }} />
-              ))}
-            </div>
-            <div
-              className="px-4 py-2.5 text-white shadow-[0_10px_28px_-10px_rgba(124,58,237,0.45)]"
-              style={{ background: "#7C3AED", borderRadius: "20px 20px 4px 20px", fontFamily: "Inter, sans-serif" }}
-            >
-              <p className="text-[13.5px] leading-snug whitespace-nowrap">
-                Your mood has been slowly lifting
-              </p>
-            </div>
-          </div>
+          <ThoughtBubble
+            side="left"
+            variant="user"
+            text="Sleep's been rough this week"
+            delay="0s"
+            rotate={-3}
+            style={{ top: 24, right: "calc(100% - 40px)" }}
+          />
+          <ThoughtBubble
+            side="left"
+            variant="user"
+            text="I can't seem to switch off lately"
+            delay="1.5s"
+            rotate={2}
+            style={{ top: "55%", right: "calc(100% - 20px)" }}
+          />
+          <ThoughtBubble
+            side="right"
+            variant="ai"
+            text="I'll hold onto this — gently 💜"
+            delay="0.75s"
+            rotate={2}
+            style={{ top: "30%", left: "calc(100% - 30px)" }}
+          />
+          <ThoughtBubble
+            side="right"
+            variant="ai"
+            text="Your mood has been slowly lifting"
+            delay="2.25s"
+            rotate={-3}
+            style={{ bottom: 32, left: "calc(100% - 60px)" }}
+          />
 
           <PassportPreview />
         </div>
