@@ -111,42 +111,58 @@ function Index() {
 
         {/* Animated Health Passport preview with iMessage-style side bubbles */}
         <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
-          {/* LEFT side — user bubbles (incoming, gray) */}
-          <div className="pointer-events-none absolute right-[calc(100%+20px)] top-10 hidden lg:flex w-[260px] flex-col gap-3 items-end">
+          {/* LEFT thread — "You" */}
+          <div className="pointer-events-none absolute right-[calc(100%+28px)] top-6 hidden lg:flex w-[240px] flex-col gap-2.5 items-end">
+            <div className="flex items-center gap-2 pr-1 opacity-70">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/70">You</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#5C82BD] to-[#3F5F94] text-[10px] font-bold text-white shadow-sm">Y</span>
+            </div>
             <div className="animate-bubble-pop self-end" style={{ animationDelay: "0s" }}>
-              <div className="relative max-w-[240px] rounded-[22px] rounded-br-md bg-white px-4 py-2.5 shadow-[0_8px_24px_-10px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
-                <p className="text-[13.5px] leading-snug text-brand-purple-dark/85">
+              <div className="relative max-w-[220px] rounded-[20px] bg-white px-4 py-2.5 shadow-[0_6px_20px_-8px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+                <p className="text-[13.5px] leading-snug text-brand-purple-dark/90">
                   Sleep's been rough this week 😔
                 </p>
-                <span className="absolute -bottom-0.5 -right-1 h-4 w-4 rounded-br-[10px] bg-white" style={{ clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
+                <svg className="absolute -bottom-[2px] -right-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="white">
+                  <path d="M0 0 C 4 8, 10 12, 18 13 C 12 13, 6 10, 4 0 Z" />
+                </svg>
               </div>
             </div>
-            <div className="animate-bubble-pop self-end" style={{ animationDelay: "2.5s" }}>
-              <div className="relative max-w-[240px] rounded-[22px] rounded-br-md bg-white px-4 py-2.5 shadow-[0_8px_24px_-10px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
-                <p className="text-[13.5px] leading-snug text-brand-purple-dark/85">
-                  Work keeps weighing on me lately.
+            <div className="animate-bubble-pop self-end" style={{ animationDelay: "3s" }}>
+              <div className="relative max-w-[220px] rounded-[20px] bg-white px-4 py-2.5 shadow-[0_6px_20px_-8px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+                <p className="text-[13.5px] leading-snug text-brand-purple-dark/90">
+                  Work just keeps weighing on me.
                 </p>
-                <span className="absolute -bottom-0.5 -right-1 h-4 w-4 bg-white" style={{ clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
+                <svg className="absolute -bottom-[2px] -right-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="white">
+                  <path d="M0 0 C 4 8, 10 12, 18 13 C 12 13, 6 10, 4 0 Z" />
+                </svg>
               </div>
             </div>
           </div>
 
-          {/* RIGHT side — Lubin bubbles (outgoing, purple) */}
-          <div className="pointer-events-none absolute left-[calc(100%+20px)] top-16 hidden lg:flex w-[260px] flex-col gap-3 items-start">
-            <div className="animate-bubble-pop self-start" style={{ animationDelay: "1.2s" }}>
-              <div className="relative max-w-[240px] rounded-[22px] rounded-bl-md bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.5)]">
+          {/* RIGHT thread — "Lubin" */}
+          <div className="pointer-events-none absolute left-[calc(100%+28px)] top-12 hidden lg:flex w-[240px] flex-col gap-2.5 items-start">
+            <div className="flex items-center gap-2 pl-1 opacity-80">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[10px] font-bold text-white shadow-sm">L</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/80">Lubin</span>
+            </div>
+            <div className="animate-bubble-pop self-start" style={{ animationDelay: "1.5s" }}>
+              <div className="relative max-w-[220px] rounded-[20px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(124,58,237,0.5)]">
                 <p className="text-[13.5px] leading-snug">
-                  I'll remember this — gently. 💜
+                  I'll hold onto this — gently. 💜
                 </p>
-                <span className="absolute -bottom-0.5 -left-1 h-4 w-4 bg-brand-purple-dark" style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }} />
+                <svg className="absolute -bottom-[2px] -left-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="#3D2E6B">
+                  <path d="M18 0 C 14 8, 8 12, 0 13 C 6 13, 12 10, 14 0 Z" />
+                </svg>
               </div>
             </div>
-            <div className="animate-bubble-pop self-start" style={{ animationDelay: "3.8s" }}>
-              <div className="relative max-w-[240px] rounded-[22px] rounded-bl-md bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.5)]">
+            <div className="animate-bubble-pop self-start" style={{ animationDelay: "4.5s" }}>
+              <div className="relative max-w-[220px] rounded-[20px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(124,58,237,0.5)]">
                 <p className="text-[13.5px] leading-snug">
-                  Your mood's slowly lifting — small wins count. 🌱
+                  Your mood's lifting — small wins count. 🌱
                 </p>
-                <span className="absolute -bottom-0.5 -left-1 h-4 w-4 bg-brand-purple-dark" style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }} />
+                <svg className="absolute -bottom-[2px] -left-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="#3D2E6B">
+                  <path d="M18 0 C 14 8, 8 12, 0 13 C 6 13, 12 10, 14 0 Z" />
+                </svg>
               </div>
             </div>
           </div>
