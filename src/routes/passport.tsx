@@ -203,14 +203,14 @@ function GuestBanner() {
           access it anywhere.
         </p>
         <div className="flex items-center gap-4 shrink-0">
-          <Link
-            to="/register"
+          <a
+            href="/register"
             className="inline-flex items-center gap-1.5 rounded-full bg-[#7C3AED] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
           >
             Create account <span aria-hidden>→</span>
           </Link>
-          <Link
-            to="/login"
+          <a
+            href="/login"
             className="text-xs font-medium text-brand-purple-dark/60 underline-offset-4 hover:underline"
           >
             Already have an account? Sign in
@@ -329,7 +329,7 @@ function Progress({
         {assessments.length === 0 ? (
           <p className="mt-3 text-sm text-brand-purple-dark/55">
             No assessments completed yet.{" "}
-            <Link to="/register" className="text-brand-purple-accent hover:underline">
+            <Link href="/register" className="text-brand-purple-accent hover:underline">
               Take one to see results here →
             </Link>
           </p>
@@ -472,8 +472,8 @@ function ShareSnapshot() {
         <p className="mt-2 text-sm text-brand-purple-dark/70 leading-relaxed">
           Sharing your health summary with a provider requires a free account.
         </p>
-        <Link
-          to="/register"
+        <a
+          href="/register"
           className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-[#7C3AED] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
         >
           Create account <span aria-hidden>→</span>
@@ -538,8 +538,8 @@ function CheckInModal({
       </label>
 
       <div className="mt-6 flex items-center justify-between gap-4">
-        <Link
-          to="/register"
+        <a
+          href="/register"
           className="text-xs text-brand-purple-dark/55 hover:text-brand-purple-accent"
         >
           Create a free account to save your results permanently →
@@ -592,8 +592,8 @@ function SaveProgressModal({
         takes a moment.
       </p>
       <div className="mt-6 flex flex-col gap-2">
-        <Link
-          to="/register"
+        <a
+          href="/register"
           onClick={onCreateAccount}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#7C3AED] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#6d28d9]"
         >
