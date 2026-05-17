@@ -109,68 +109,49 @@ function Index() {
           </div>
         </div>
 
-        {/* Animated Health Passport preview */}
-        <div className="animate-rise-in mt-12 w-full max-w-[860px] [animation-delay:480ms]">
-          {/* Comic-style speech bubbles ABOVE the passport — no overlap */}
-          <div className="mb-6 hidden md:flex items-end justify-between gap-6 px-2">
-            {/* User thought — comic bubble */}
-            <div className="animate-bubble-pop max-w-[260px]" style={{ animationDelay: "0s" }}>
-              <div className="relative bg-white px-5 py-3.5 shadow-[0_12px_30px_-12px_rgba(124,58,237,0.4)] ring-1 ring-brand-purple/10"
-                style={{ borderRadius: "28px 28px 28px 6px" }}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/70">
-                  You shared
+        {/* Animated Health Passport preview with iMessage-style side bubbles */}
+        <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
+          {/* LEFT side — user bubbles (incoming, gray) */}
+          <div className="pointer-events-none absolute right-[calc(100%+20px)] top-10 hidden lg:flex w-[260px] flex-col gap-3 items-end">
+            <div className="animate-bubble-pop self-end" style={{ animationDelay: "0s" }}>
+              <div className="relative max-w-[240px] rounded-[22px] rounded-br-md bg-white px-4 py-2.5 shadow-[0_8px_24px_-10px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+                <p className="text-[13.5px] leading-snug text-brand-purple-dark/85">
+                  Sleep's been rough this week 😔
                 </p>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-brand-purple-dark/85">
-                  "Sleep has been rough, and work keeps weighing on me."
-                </p>
-                {/* comic tail pointing down-left */}
-                <svg className="absolute -bottom-3 left-3" width="28" height="22" viewBox="0 0 28 22" fill="none">
-                  <path d="M4 0 C 8 10, 14 16, 24 20 C 14 14, 10 8, 12 0 Z" fill="white" />
-                </svg>
+                <span className="absolute -bottom-0.5 -right-1 h-4 w-4 rounded-br-[10px] bg-white" style={{ clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
               </div>
             </div>
+            <div className="animate-bubble-pop self-end" style={{ animationDelay: "2.5s" }}>
+              <div className="relative max-w-[240px] rounded-[22px] rounded-br-md bg-white px-4 py-2.5 shadow-[0_8px_24px_-10px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+                <p className="text-[13.5px] leading-snug text-brand-purple-dark/85">
+                  Work keeps weighing on me lately.
+                </p>
+                <span className="absolute -bottom-0.5 -right-1 h-4 w-4 bg-white" style={{ clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
+              </div>
+            </div>
+          </div>
 
-            {/* Lubin's goal — purple comic bubble */}
-            <div className="animate-bubble-pop max-w-[280px]" style={{ animationDelay: "3s" }}>
-              <div className="relative bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-white shadow-[0_12px_30px_-12px_rgba(124,58,237,0.55)]"
-                style={{ borderRadius: "28px 28px 6px 28px" }}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/80">
-                  Lubin's goal
+          {/* RIGHT side — Lubin bubbles (outgoing, purple) */}
+          <div className="pointer-events-none absolute left-[calc(100%+20px)] top-16 hidden lg:flex w-[260px] flex-col gap-3 items-start">
+            <div className="animate-bubble-pop self-start" style={{ animationDelay: "1.2s" }}>
+              <div className="relative max-w-[240px] rounded-[22px] rounded-bl-md bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.5)]">
+                <p className="text-[13.5px] leading-snug">
+                  I'll remember this — gently. 💜
                 </p>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-white/95">
-                  Turn what you share into a gentle map of your wellbeing — only for you.
+                <span className="absolute -bottom-0.5 -left-1 h-4 w-4 bg-brand-purple-dark" style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }} />
+              </div>
+            </div>
+            <div className="animate-bubble-pop self-start" style={{ animationDelay: "3.8s" }}>
+              <div className="relative max-w-[240px] rounded-[22px] rounded-bl-md bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_8px_24px_-10px_rgba(124,58,237,0.5)]">
+                <p className="text-[13.5px] leading-snug">
+                  Your mood's slowly lifting — small wins count. 🌱
                 </p>
-                {/* comic tail pointing down-right */}
-                <svg className="absolute -bottom-3 right-3" width="28" height="22" viewBox="0 0 28 22" fill="none">
-                  <path d="M24 0 C 20 10, 14 16, 4 20 C 14 14, 18 8, 16 0 Z" fill="#3D2E6B" />
-                </svg>
+                <span className="absolute -bottom-0.5 -left-1 h-4 w-4 bg-brand-purple-dark" style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }} />
               </div>
             </div>
           </div>
 
           <PassportPreview />
-
-          {/* Lubin notices — bubble BELOW */}
-          <div className="mt-6 hidden md:flex justify-center">
-            <div className="animate-bubble-pop max-w-[320px]" style={{ animationDelay: "6s" }}>
-              <div className="relative bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] px-5 py-3.5 shadow-[0_12px_30px_-12px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10"
-                style={{ borderRadius: "6px 28px 28px 28px" }}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/70">
-                  Lubin notices
-                </p>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-brand-purple-dark/85">
-                  "Your mood is slowly lifting — small wins count. 🌱"
-                </p>
-                {/* comic tail pointing up-left */}
-                <svg className="absolute -top-3 left-3 rotate-180" width="28" height="22" viewBox="0 0 28 22" fill="none">
-                  <path d="M4 0 C 8 10, 14 16, 24 20 C 14 14, 10 8, 12 0 Z" fill="#F0ECFB" />
-                </svg>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Sign in note */}
