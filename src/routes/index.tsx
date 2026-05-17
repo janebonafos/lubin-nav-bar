@@ -185,7 +185,7 @@ function Index() {
             text="I keep forgetting what I shared last time."
             delay="0s"
             rotate={-3}
-            style={{ top: 24, right: "calc(100% - 60px)" }}
+            style={{ top: 24, right: "calc(100% - 60px)", width: 240 }}
           />
           <ThoughtBubble
             side="left"
@@ -193,7 +193,7 @@ function Index() {
             text="Am I actually feeling better?"
             delay="1.5s"
             rotate={2}
-            style={{ top: "55%", right: "calc(100% - 40px)" }}
+            style={{ top: "55%", right: "calc(100% - 40px)", width: 240 }}
           />
           <ThoughtBubble
             side="right"
@@ -201,7 +201,7 @@ function Index() {
             text="Your Passport remembers, so you don't have to."
             delay="0.75s"
             rotate={2}
-            style={{ top: "30%", left: "calc(100% - 50px)" }}
+            style={{ top: "30%", left: "calc(100% - 50px)", width: 240 }}
           />
           <ThoughtBubble
             side="right"
@@ -209,7 +209,7 @@ function Index() {
             text="Share only what you choose."
             delay="2.25s"
             rotate={-3}
-            style={{ bottom: 32, left: "calc(100% - 70px)" }}
+            style={{ bottom: 32, left: "calc(100% - 70px)", width: 240 }}
           />
 
           <PassportPreview />
