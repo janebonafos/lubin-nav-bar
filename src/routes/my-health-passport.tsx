@@ -308,14 +308,14 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
       title: "Check in daily",
       body:
         "Tell Lubin how you're feeling in just 15 seconds. Every check-in adds to your story.",
-      accent: "#7C3AED",
+      accent: "#7E6BAF",
     },
     {
       Icon: ClipboardList,
       title: "Take gentle assessments",
       body:
         "Quick, science-backed checks help you understand what's going on beneath the surface.",
-      accent: "#9B72CF",
+      accent: "#7E6BAF",
     },
     {
       Icon: TrendingUp,
@@ -341,14 +341,14 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
         <motion.div
           aria-hidden
           className="pointer-events-none absolute -top-10 -left-10 h-64 w-64 rounded-full blur-3xl"
-          style={{ background: "rgba(124,58,237,0.18)" }}
+          style={{ background: "rgba(126,107,175,0.22)" }}
           animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           aria-hidden
           className="pointer-events-none absolute bottom-10 -right-16 h-72 w-72 rounded-full blur-3xl"
-          style={{ background: "rgba(155,114,220,0.18)" }}
+          style={{ background: "rgba(61,46,107,0.18)" }}
           animate={{ y: [0, -25, 0], x: [0, -10, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -358,7 +358,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="relative inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-          style={{ background: "#EDE9FE", color: "#7C3AED" }}
+          style={{ background: "#EAE7F5", color: "#3D2E6B" }}
         >
           Welcome to your Health Passport
         </motion.span>
@@ -377,7 +377,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.1 }}
               className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(124,58,237,0.45)]"
-              style={{ background: `linear-gradient(135deg, ${current.accent}, #3D2E6B)` }}
+            style={{ background: `linear-gradient(135deg, ${current.accent}, #3D2E6B)` }}
             >
               <ActiveIcon size={40} color="#fff" strokeWidth={1.75} />
             </motion.div>
@@ -387,7 +387,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mt-6 text-[28px] md:text-[34px] font-bold leading-tight"
-              style={{ color: "#2C2B4B" }}
+            style={{ color: "#3D2E6B" }}
             >
               {current.title}
             </motion.h1>
@@ -397,7 +397,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
               className="mx-auto mt-4 max-w-[460px] text-[15px] md:text-base"
-              style={{ color: "#5A4E8A", lineHeight: 1.65 }}
+            style={{ color: "#7E6BAF", lineHeight: 1.65 }}
             >
               {current.body}
             </motion.p>
@@ -413,7 +413,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               className="h-2 rounded-full transition-all"
               style={{
                 width: i === step ? 28 : 8,
-                background: i === step ? "#7C3AED" : "rgba(124,58,237,0.25)",
+                background: i === step ? "#3D2E6B" : "rgba(126,107,175,0.35)",
               }}
             />
           ))}
@@ -421,7 +421,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 
         <div
           className="relative mt-6 flex items-center justify-center gap-2 text-[13px]"
-          style={{ color: "#5A4E8A" }}
+          style={{ color: "#7E6BAF" }}
         >
           <Lock size={14} aria-hidden />
           <span>Private to you. Nothing is shared unless you choose to.</span>
