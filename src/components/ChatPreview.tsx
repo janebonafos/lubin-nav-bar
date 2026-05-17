@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Msg = { from: "ai" | "user"; text: string };
 
@@ -17,6 +17,13 @@ const LOOP_PAUSE_MS = 3000;
 export default function ChatPreview() {
   const [visible, setVisible] = useState<number>(1); // first message shown immediately
   const [typing, setTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [visible, typing]);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,19 +70,31 @@ export default function ChatPreview() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full rounded-2xl bg-white shadow-lg overflow-hidden p-6">
+    <div className="relative flex flex-col w-full rounded-2xl bg-white/95 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10 overflow-hidden backdrop-blur-sm">
+      {/* Subtle header */}
+      <div className="flex items-center gap-2 border-b border-brand-purple/10 bg-gradient-to-r from-white to-[#F5F3FF] px-5 py-3">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+        <span className="text-[12px] font-medium tracking-wide text-brand-purple-dark/70">
+          Lubin · listening
+        </span>
+      </div>
+
       {/* Messages */}
-      <div className="flex flex-col gap-2.5 min-h-[340px]">
+      <div
+        ref={scrollRef}
+        className="flex flex-col gap-2.5 min-h-[340px] max-h-[380px] overflow-hidden scroll-smooth p-6"
+      >
         {SCRIPT.slice(0, visible).map((m, i) => (
           <div
             key={i}
-            className={`flex ${m.from === "user" ? "justify-end" : "justify-start"} animate-[fade-in_0.4s_ease-out]`}
+            className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
+            style={{ animation: "msg-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both" }}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
+              className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed shadow-sm transition-transform ${
                 m.from === "user"
-                  ? "bg-[#4A6FA5] text-white rounded-br-sm"
-                  : "bg-[#EAE6F4] text-[#2C2B4B] rounded-bl-sm"
+                  ? "bg-gradient-to-br from-[#5C82BD] to-[#3F5F94] text-white rounded-br-sm"
+                  : "bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] text-[#2C2B4B] rounded-bl-sm"
               }`}
             >
               {m.text}
@@ -83,11 +102,23 @@ export default function ChatPreview() {
           </div>
         ))}
         {typing && (
-          <div className="flex justify-start animate-[fade-in_0.2s_ease-out]">
-            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-[#EAE6F4] px-3.5 py-2.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:0ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
+          <div
+            className="flex justify-start"
+            style={{ animation: "msg-in 0.35s ease-out both" }}
+          >
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] px-3.5 py-2.5 shadow-sm">
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
+                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "0ms" }}
+              />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
+                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "150ms" }}
+              />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
+                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "300ms" }}
+              />
             </div>
           </div>
         )}
