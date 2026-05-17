@@ -25,6 +25,7 @@ const CHECKINS_KEY = "lubinai_checkins";
 const ASSESSMENTS_KEY = "lubinai_assessments";
 const GUEST_KEY = "lubinai_guest_mode";
 const INTRO_SEEN_KEY = "lubinai_passport_intro_seen";
+const INTRO_DISMISSED_KEY = "lubinai_passport_intro_dismissed";
 
 function readLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
