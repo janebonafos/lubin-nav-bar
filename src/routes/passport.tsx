@@ -213,134 +213,84 @@ function PassportPage() {
 
 // ---------- Guest banner ----------
 function GuestBanner() {
-  return GuestBannerImpl();
-}
-
-function IntroScreen({ onOpen }: { onOpen: () => void }) {
-  const steps = [
-    {
-      Icon: CalendarCheck,
-      title: "Check in daily",
-      body: "Tell Lubin how you're feeling — it only takes 15 seconds.",
-    },
-    {
-      Icon: ClipboardList,
-      title: "Take a check",
-      body:
-        "Use our gentle assessments to understand patterns in your mood and wellbeing.",
-    },
-    {
-      Icon: TrendingUp,
-      title: "See your patterns",
-      body:
-        "Your passport builds over time — showing you what's been coming up and how you're growing.",
-    },
-  ];
-
-  return (
-    <div
-      className="min-h-screen bg-brand-lavender"
-      style={{ fontFamily: "Inter, sans-serif" }}
-    >
-      <Navbar />
-      <main className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col items-center px-5 pt-32 pb-16 text-center">
-        <span
-          className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium"
-          style={{ background: "#EDE9FE", color: "#7E6BAF" }}
-        >
-          Your private space
-        </span>
-
-        <h1
-          className="mt-5 text-[32px] md:text-[40px] font-bold leading-tight"
-          style={{ color: "#2C2B4B" }}
-        >
-          Meet your Health Passport
-        </h1>
-
-        <p
-          className="mt-4 mb-10 text-[15px] md:text-base"
-          style={{ color: "#5A4E8A", lineHeight: 1.6, maxWidth: 480 }}
-        >
-          A private record of how you've been feeling — built gently over time,
-          one check-in at a time.
-        </p>
-
-        <div className="grid w-full max-w-[640px] grid-cols-1 gap-4 md:grid-cols-3">
-          {steps.map(({ Icon, title, body }) => (
-            <div
-              key={title}
-              className="rounded-2xl bg-white p-5 text-left shadow-[0_4px_20px_rgba(124,58,237,0.06)] ring-1 ring-brand-purple/8"
-            >
-              <Icon size={32} color="#7E6BAF" strokeWidth={1.75} />
-              <p
-                className="mt-3 text-[15px] font-semibold"
-                style={{ color: "#2C2B4B" }}
-              >
-                {title}
-              </p>
-              <p
-                className="mt-1.5 text-[13.5px] leading-relaxed"
-                style={{ color: "#5A4E8A" }}
-              >
-                {body}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="mt-6 flex items-center justify-center gap-2 text-[13px]"
-          style={{ color: "#5A4E8A" }}
-        >
-          <Lock size={14} aria-hidden />
-          <span>
-            Everything in your passport is private to you. Nothing is shared unless
-            you choose to.
-          </span>
-        </div>
-
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button
-            onClick={onOpen}
-            className="rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-dark px-8 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
-          >
-            Open my passport <span aria-hidden>→</span>
-          </button>
-          <a
-            href="/register"
-            className="rounded-lg border-[1.5px] border-brand-purple bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-purple-dark transition hover:bg-brand-purple/10"
-          >
-            Create a free account first
-          </a>
-        </div>
-
-        <p className="mt-4 text-[12px]" style={{ color: "#9CA3AF" }}>
-          No account needed to explore — your data saves to this device.
-        </p>
-      </main>
-    </div>
+  const [dismissed, setDismissed] = useState(() =>
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(INTRO_DISMISSED_KEY) === "true"
+      : false
   );
-}
+  const [fading, setFading] = useState(false);
 
-function GuestBannerImpl() {
+  if (dismissed) return null;
+
+  const handleDismiss = () => {
+    setFading(true);
+    setTimeout(() => {
+      setDismissed(true);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(INTRO_DISMISSED_KEY, "true");
+      }
+    }, 300);
+  };
+
   return (
     <div
-      className="rounded-2xl border-l-4 border-brand-purple bg-white/70 backdrop-blur-sm p-5 shadow-[0_4px_20px_rgba(124,58,237,0.06)]"
-      role="region"
-      aria-label="Guest mode notice"
+      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7C3AED] bg-white transition-all duration-300 ${
+        fading ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
+      }`}
+      style={{
+        boxShadow: "0 2px 12px rgba(124, 58, 237, 0.08)",
+        padding: "28px 32px",
+      }}
     >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <p className="text-sm text-brand-purple-dark/85 leading-relaxed">
-          You're viewing as a guest — create a free account to save your progress and
-          access it anywhere.
-        </p>
-        <a
-          href="/register"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
-        >
-          Create account <span aria-hidden>→</span>
-        </a>
+      <button
+        onClick={handleDismiss}
+        className="absolute top-5 right-5 text-[#9CA3AF] transition hover:text-[#6B7280]"
+        aria-label="Dismiss"
+      >
+        <X size={18} />
+      </button>
+
+      <span
+        className="text-[11px] font-semibold uppercase"
+        style={{ color: "#7C3AED", letterSpacing: "0.08em" }}
+      >
+        FROM LUBIN
+      </span>
+
+      <h2
+        className="mt-2 text-[20px] font-bold"
+        style={{ color: "#2C2B4B", fontFamily: "Inter, sans-serif", marginBottom: 12 }}
+      >
+        Your Health Passport is your mental wellness story
+      </h2>
+
+      <p
+        className="text-[15px]"
+        style={{
+          color: "#5A4E8A",
+          lineHeight: 1.7,
+          maxWidth: 720,
+          fontFamily: "Inter, sans-serif",
+        }}
+      >
+        Most people go through their mental health journey without ever seeing the full picture — what triggers their stress, when their mood tends to dip, what actually helps. Your Health Passport changes that. Every check-in, every assessment, every conversation with Lubin quietly builds a private record that's yours alone. Over time, you'll start to notice patterns you never saw before — and that awareness is where real change begins.
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {[
+          { emoji: "\uD83D\uDD12", text: "Private to you only" },
+          { emoji: "\uD83D\uDCC8", text: "Builds over time" },
+          { emoji: "\uD83D\uDC9C", text: "Shared only when you choose" },
+        ].map(({ emoji, text }) => (
+          <span
+            key={text}
+            className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+            style={{ background: "#EDE9FE", color: "#7C3AED" }}
+          >
+            <span aria-hidden>{emoji}</span>
+            {text}
+          </span>
+        ))}
       </div>
     </div>
   );
