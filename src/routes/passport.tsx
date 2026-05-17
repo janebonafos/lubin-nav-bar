@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/passport")({
   component: PassportPage,
@@ -23,6 +24,7 @@ type Assessment = { id: string; name: string; score: number; date: string };
 const CHECKINS_KEY = "lubinai_checkins";
 const ASSESSMENTS_KEY = "lubinai_assessments";
 const GUEST_KEY = "lubinai_guest_mode";
+const INTRO_SEEN_KEY = "lubinai_passport_intro_seen";
 
 function readLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -62,12 +64,15 @@ function PassportPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
+  // null = unknown (pre-hydration), true = show intro, false = show passport
+  const [showIntro, setShowIntro] = useState<boolean | null>(null);
 
   // hydrate from localStorage
   useEffect(() => {
     setCheckins(readLS<CheckIn[]>(CHECKINS_KEY, []));
     setAssessments(readLS<Assessment[]>(ASSESSMENTS_KEY, []));
     if (readLS<boolean | null>(GUEST_KEY, null) === null) writeLS(GUEST_KEY, true);
+    setShowIntro(readLS<boolean>(INTRO_SEEN_KEY, false) !== true);
   }, []);
 
   const today = useMemo(
@@ -99,6 +104,22 @@ function PassportPage() {
     const next = [c, ...checkins].slice(0, 50);
     setCheckins(next);
     writeLS(CHECKINS_KEY, next);
+  }
+
+  if (showIntro === null) {
+    // avoid SSR/intro flash — render bare shell until we know
+    return <div className="min-h-screen bg-brand-lavender"><Navbar /></div>;
+  }
+
+  if (showIntro) {
+    return (
+      <IntroScreen
+        onOpen={() => {
+          writeLS(INTRO_SEEN_KEY, true);
+          setShowIntro(false);
+        }}
+      />
+    );
   }
 
   return (
@@ -191,6 +212,123 @@ function PassportPage() {
 
 // ---------- Guest banner ----------
 function GuestBanner() {
+  return GuestBannerImpl();
+}
+
+function IntroScreen({ onOpen }: { onOpen: () => void }) {
+  const steps = [
+    {
+      Icon: CalendarCheck,
+      title: "Check in daily",
+      body: "Tell Lubin how you're feeling — it only takes 15 seconds.",
+    },
+    {
+      Icon: ClipboardList,
+      title: "Take a check",
+      body:
+        "Use our gentle assessments to understand patterns in your mood and wellbeing.",
+    },
+    {
+      Icon: TrendingUp,
+      title: "See your patterns",
+      body:
+        "Your passport builds over time — showing you what's been coming up and how you're growing.",
+    },
+  ];
+
+  return (
+    <div
+      className="min-h-screen bg-brand-lavender"
+      style={{ fontFamily: "Inter, sans-serif" }}
+    >
+      <Navbar />
+      <main className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col items-center px-5 pt-32 pb-16 text-center">
+        <span
+          className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium"
+          style={{ background: "#EDE9FE", color: "#7C3AED" }}
+        >
+          Your private space
+        </span>
+
+        <h1
+          className="mt-5 text-[32px] md:text-[40px] font-bold leading-tight"
+          style={{ color: "#2C2B4B" }}
+        >
+          Meet your Health Passport
+        </h1>
+
+        <p
+          className="mt-4 mb-10 text-[15px] md:text-base"
+          style={{ color: "#5A4E8A", lineHeight: 1.6, maxWidth: 480 }}
+        >
+          A private record of how you've been feeling — built gently over time,
+          one check-in at a time.
+        </p>
+
+        <div className="grid w-full max-w-[640px] grid-cols-1 gap-4 md:grid-cols-3">
+          {steps.map(({ Icon, title, body }) => (
+            <div
+              key={title}
+              className="rounded-2xl bg-white p-5 text-left shadow-[0_4px_20px_rgba(124,58,237,0.06)] ring-1 ring-brand-purple/8"
+            >
+              <Icon size={32} color="#7C3AED" strokeWidth={1.75} />
+              <p
+                className="mt-3 text-[15px] font-semibold"
+                style={{ color: "#2C2B4B" }}
+              >
+                {title}
+              </p>
+              <p
+                className="mt-1.5 text-[13.5px] leading-relaxed"
+                style={{ color: "#5A4E8A" }}
+              >
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div
+          className="mt-6 flex items-center justify-center gap-2 text-[13px]"
+          style={{ color: "#5A4E8A" }}
+        >
+          <Lock size={14} aria-hidden />
+          <span>
+            Everything in your passport is private to you. Nothing is shared unless
+            you choose to.
+          </span>
+        </div>
+
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={onOpen}
+            className="rounded-lg px-8 py-3.5 text-sm font-medium text-white shadow-[0_8px_20px_-6px_rgba(124,58,237,0.45)] transition hover:opacity-95"
+            style={{ background: "#7C3AED" }}
+          >
+            Open my passport <span aria-hidden>→</span>
+          </button>
+          <a
+            href="/register"
+            className="rounded-lg px-8 py-3.5 text-sm font-medium transition hover:bg-[#7C3AED]/5"
+            style={{
+              color: "#7C3AED",
+              border: "1.5px solid #7C3AED",
+              background: "transparent",
+            }}
+          >
+            Create a free account first
+          </a>
+        </div>
+
+        <p className="mt-4 text-[12px]" style={{ color: "#9CA3AF" }}>
+          No account needed to explore — your data saves to this device.
+        </p>
+      </main>
+    </div>
+  );
+}
+
+function GuestBannerImpl() {
   return (
     <div
       className="rounded-2xl border-l-4 border-brand-purple bg-white/70 backdrop-blur-sm p-5 shadow-[0_4px_20px_rgba(124,58,237,0.06)]"
