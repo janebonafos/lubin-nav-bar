@@ -182,7 +182,7 @@ function Index() {
           <ThoughtBubble
             side="left"
             variant="user"
-            text="I keep forgetting what I shared last time…"
+            text="I keep forgetting what I shared last time."
             delay="0s"
             rotate={-3}
             style={{ top: 24, right: "calc(100% - 60px)" }}
@@ -190,7 +190,7 @@ function Index() {
           <ThoughtBubble
             side="left"
             variant="user"
-            text="Am I actually feeling better, or just imagining it?"
+            text="Am I actually feeling better?"
             delay="1.5s"
             rotate={2}
             style={{ top: "55%", right: "calc(100% - 40px)" }}
@@ -198,7 +198,7 @@ function Index() {
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="Your Passport remembers — so you don't have to."
+            text="Your Passport remembers, so you don't have to."
             delay="0.75s"
             rotate={2}
             style={{ top: "30%", left: "calc(100% - 50px)" }}
@@ -206,7 +206,7 @@ function Index() {
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="See your patterns — share only what you choose."
+            text="Share only what you choose."
             delay="2.25s"
             rotate={-3}
             style={{ bottom: 32, left: "calc(100% - 70px)" }}
