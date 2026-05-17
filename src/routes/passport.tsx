@@ -245,7 +245,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
       <main className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col items-center px-5 pt-32 pb-16 text-center">
         <span
           className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium"
-          style={{ background: "#EDE9FE", color: "#7C3AED" }}
+          style={{ background: "#EDE9FE", color: "#7E6BAF" }}
         >
           Your private space
         </span>
@@ -271,7 +271,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               key={title}
               className="rounded-2xl bg-white p-5 text-left shadow-[0_4px_20px_rgba(124,58,237,0.06)] ring-1 ring-brand-purple/8"
             >
-              <Icon size={32} color="#7C3AED" strokeWidth={1.75} />
+              <Icon size={32} color="#7E6BAF" strokeWidth={1.75} />
               <p
                 className="mt-3 text-[15px] font-semibold"
                 style={{ color: "#2C2B4B" }}
@@ -302,19 +302,13 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={onOpen}
-            className="rounded-lg px-8 py-3.5 text-sm font-medium text-white shadow-[0_8px_20px_-6px_rgba(124,58,237,0.45)] transition hover:opacity-95"
-            style={{ background: "#7C3AED" }}
+            className="rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-dark px-8 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
           >
             Open my passport <span aria-hidden>→</span>
           </button>
           <a
             href="/register"
-            className="rounded-lg px-8 py-3.5 text-sm font-medium transition hover:bg-[#7C3AED]/5"
-            style={{
-              color: "#7C3AED",
-              border: "1.5px solid #7C3AED",
-              background: "transparent",
-            }}
+            className="rounded-lg border-[1.5px] border-brand-purple bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-purple-dark transition hover:bg-brand-purple/10"
           >
             Create a free account first
           </a>
@@ -342,7 +336,7 @@ function GuestBannerImpl() {
         </p>
         <a
           href="/register"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-purple/15 px-5 py-2 text-sm font-semibold text-brand-purple-dark ring-1 ring-brand-purple/30 transition hover:bg-brand-purple/25"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
         >
           Create account <span aria-hidden>→</span>
         </a>
