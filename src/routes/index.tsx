@@ -109,57 +109,107 @@ function Index() {
           </div>
         </div>
 
-        {/* Animated Health Passport preview with iMessage-style side bubbles */}
-        <div className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]">
-          {/* LEFT thread — "You" */}
-          <div className="pointer-events-none absolute right-[calc(100%+28px)] top-6 hidden lg:flex w-[240px] flex-col gap-2.5 items-end">
-            <div className="animate-bubble-pop self-end" style={{ animationDelay: "0s" }}>
-              <div className="relative max-w-[220px] rounded-[20px] bg-white px-4 py-2.5 shadow-[0_6px_20px_-8px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
-                <p className="text-[13.5px] leading-snug text-brand-purple-dark/90">
-                  Sleep's been rough this week 😔
-                </p>
-                <svg className="absolute -bottom-[2px] -right-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="white">
-                  <path d="M0 0 C 4 8, 10 12, 18 13 C 12 13, 6 10, 4 0 Z" />
-                </svg>
-              </div>
+        {/* Animated Health Passport preview with floating chat bubbles */}
+        <div
+          className="animate-rise-in relative mt-12 w-full max-w-[860px] [animation-delay:480ms]"
+          style={{
+            minHeight: 500,
+            background: "linear-gradient(to bottom, #EAE7F5, #F0EEF8)",
+            borderRadius: 28,
+            padding: "48px 24px",
+          }}
+        >
+          {/* Bubble 1 — top left (user) */}
+          <div
+            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
+            style={{ top: 40, right: "calc(100% - 90px)", animationDelay: "0s" }}
+          >
+            <div
+              className="bg-white px-4 py-2.5 shadow-[0_8px_24px_-8px_rgba(124,58,237,0.25)]"
+              style={{ borderRadius: "18px 18px 18px 4px", fontFamily: "Inter, sans-serif" }}
+            >
+              <p className="text-[14px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
+                Sleep's been rough this week
+              </p>
             </div>
-            <div className="animate-bubble-pop self-end" style={{ animationDelay: "3s" }}>
-              <div className="relative max-w-[220px] rounded-[20px] bg-white px-4 py-2.5 shadow-[0_6px_20px_-8px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
-                <p className="text-[13.5px] leading-snug text-brand-purple-dark/90">
-                  Work just keeps weighing on me.
-                </p>
-                <svg className="absolute -bottom-[2px] -right-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="white">
-                  <path d="M0 0 C 4 8, 10 12, 18 13 C 12 13, 6 10, 4 0 Z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT thread — "Lubin" */}
-          <div className="pointer-events-none absolute left-[calc(100%+28px)] top-12 hidden lg:flex w-[240px] flex-col gap-2.5 items-start">
-            <div className="animate-bubble-pop self-start" style={{ animationDelay: "1.5s" }}>
-              <div className="relative max-w-[220px] rounded-[20px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(124,58,237,0.5)]">
-                <p className="text-[13.5px] leading-snug">
-                  I'll hold onto this — gently. 💜
-                </p>
-                <svg className="absolute -bottom-[2px] -left-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="#3D2E6B">
-                  <path d="M18 0 C 14 8, 8 12, 0 13 C 6 13, 12 10, 14 0 Z" />
-                </svg>
-              </div>
-            </div>
-            <div className="animate-bubble-pop self-start" style={{ animationDelay: "4.5s" }}>
-              <div className="relative max-w-[220px] rounded-[20px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(124,58,237,0.5)]">
-                <p className="text-[13.5px] leading-snug">
-                  Your mood's lifting — small wins count. 🌱
-                </p>
-                <svg className="absolute -bottom-[2px] -left-[6px]" width="18" height="14" viewBox="0 0 18 14" fill="#3D2E6B">
-                  <path d="M18 0 C 14 8, 8 12, 0 13 C 6 13, 12 10, 14 0 Z" />
-                </svg>
-              </div>
+            {/* connector dots toward card */}
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+              ))}
             </div>
           </div>
 
-          <PassportPreview />
+          {/* Bubble 2 — bottom left (user) */}
+          <div
+            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
+            style={{ bottom: 60, right: "calc(100% - 90px)", animationDelay: "0.75s" }}
+          >
+            <div
+              className="bg-white px-4 py-2.5 shadow-[0_8px_24px_-8px_rgba(124,58,237,0.25)]"
+              style={{ borderRadius: "18px 18px 18px 4px", fontFamily: "Inter, sans-serif" }}
+            >
+              <p className="text-[14px] leading-snug whitespace-nowrap" style={{ color: "#2C2B4B" }}>
+                I can't seem to switch off lately
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+              ))}
+            </div>
+          </div>
+
+          {/* Bubble 3 — top right (AI) */}
+          <div
+            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
+            style={{ top: 40, left: "calc(100% - 90px)", animationDelay: "1.5s" }}
+          >
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+              ))}
+            </div>
+            <div
+              className="px-4 py-2.5 text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.4)]"
+              style={{ background: "#7C3AED", borderRadius: "18px 18px 4px 18px", fontFamily: "Inter, sans-serif" }}
+            >
+              <p className="text-[14px] leading-snug whitespace-nowrap">
+                I'll hold onto this — gently 💜
+              </p>
+            </div>
+          </div>
+
+          {/* Bubble 4 — bottom right (AI) */}
+          <div
+            className="pointer-events-none absolute hidden lg:flex items-center gap-2 z-10 animate-bubble-float"
+            style={{ bottom: 60, left: "calc(100% - 90px)", animationDelay: "2.25s" }}
+          >
+            <div className="flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="block h-1 w-1 rounded-full" style={{ background: "#C4B5FD", opacity: 0.6 }} />
+              ))}
+            </div>
+            <div
+              className="px-4 py-2.5 text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.4)]"
+              style={{ background: "#7C3AED", borderRadius: "18px 18px 4px 18px", fontFamily: "Inter, sans-serif" }}
+            >
+              <p className="text-[14px] leading-snug whitespace-nowrap">
+                Your mood has been slowly lifting
+              </p>
+            </div>
+          </div>
+
+          {/* Passport card — content unchanged, wrapper styling per spec */}
+          <div
+            className="mx-auto w-full max-w-[860px]"
+            style={{
+              borderRadius: 20,
+              boxShadow: "0 8px 40px rgba(124, 58, 237, 0.12)",
+            }}
+          >
+            <PassportPreview />
+          </div>
         </div>
 
         {/* Sign in note */}
