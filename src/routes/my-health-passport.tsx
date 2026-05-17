@@ -306,103 +306,156 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
     {
       Icon: CalendarCheck,
       title: "Check in daily",
-      body: "Tell Lubin how you're feeling — it only takes 15 seconds.",
+      body:
+        "Tell Lubin how you're feeling in just 15 seconds. Every check-in adds to your story.",
+      accent: "#7C3AED",
     },
     {
       Icon: ClipboardList,
-      title: "Take a check",
+      title: "Take gentle assessments",
       body:
-        "Use our gentle assessments to understand patterns in your mood and wellbeing.",
+        "Quick, science-backed checks help you understand what's going on beneath the surface.",
+      accent: "#9B72CF",
     },
     {
       Icon: TrendingUp,
-      title: "See your patterns",
+      title: "See your patterns emerge",
       body:
-        "Your passport builds over time — showing you what's been coming up and how you're growing.",
+        "Over time, your passport reveals the rhythms of your mood — and what truly helps.",
+      accent: "#7E6BAF",
     },
   ];
 
+  const [step, setStep] = useState(0);
+  const isLast = step === steps.length - 1;
+  const current = steps[step];
+  const ActiveIcon = current.Icon;
+
   return (
     <div
-      className="min-h-screen bg-brand-lavender"
+      className="min-h-screen overflow-hidden bg-brand-lavender"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
-      <main className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col items-center px-5 pt-32 pb-16 text-center">
-        <span
-          className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium"
-          style={{ background: "#EDE9FE", color: "#7E6BAF" }}
-        >
-          Your private space
-        </span>
+      <main className="relative mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-[680px] flex-col items-center justify-center px-5 pb-16 pt-24 text-center">
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -left-10 h-64 w-64 rounded-full blur-3xl"
+          style={{ background: "rgba(124,58,237,0.18)" }}
+          animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute bottom-10 -right-16 h-72 w-72 rounded-full blur-3xl"
+          style={{ background: "rgba(155,114,220,0.18)" }}
+          animate={{ y: [0, -25, 0], x: [0, -10, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
 
-        <h1
-          className="mt-5 text-[32px] md:text-[40px] font-bold leading-tight"
-          style={{ color: "#2C2B4B" }}
+        <motion.span
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+          style={{ background: "#EDE9FE", color: "#7C3AED" }}
         >
-          Meet your Health Passport
-        </h1>
+          Welcome to your Health Passport
+        </motion.span>
 
-        <p
-          className="mt-4 mb-10 text-[15px] md:text-base"
-          style={{ color: "#5A4E8A", lineHeight: 1.6, maxWidth: 480 }}
-        >
-          A private record of how you've been feeling — built gently over time,
-          one check-in at a time.
-        </p>
-
-        <div className="grid w-full max-w-[640px] grid-cols-1 gap-4 md:grid-cols-3">
-          {steps.map(({ Icon, title, body }) => (
-            <div
-              key={title}
-              className="rounded-2xl bg-white p-5 text-left shadow-[0_4px_20px_rgba(124,58,237,0.06)] ring-1 ring-brand-purple/8"
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.97 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="relative mt-8 w-full"
+          >
+            <motion.div
+              initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.1 }}
+              className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(124,58,237,0.45)]"
+              style={{ background: `linear-gradient(135deg, ${current.accent}, #3D2E6B)` }}
             >
-              <Icon size={32} color="#7E6BAF" strokeWidth={1.75} />
-              <p
-                className="mt-3 text-[15px] font-semibold"
-                style={{ color: "#2C2B4B" }}
-              >
-                {title}
-              </p>
-              <p
-                className="mt-1.5 text-[13.5px] leading-relaxed"
-                style={{ color: "#5A4E8A" }}
-              >
-                {body}
-              </p>
-            </div>
+              <ActiveIcon size={40} color="#fff" strokeWidth={1.75} />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="mt-6 text-[28px] md:text-[34px] font-bold leading-tight"
+              style={{ color: "#2C2B4B" }}
+            >
+              {current.title}
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mx-auto mt-4 max-w-[460px] text-[15px] md:text-base"
+              style={{ color: "#5A4E8A", lineHeight: 1.65 }}
+            >
+              {current.body}
+            </motion.p>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="relative mt-10 flex items-center gap-2">
+          {steps.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setStep(i)}
+              aria-label={`Go to step ${i + 1}`}
+              className="h-2 rounded-full transition-all"
+              style={{
+                width: i === step ? 28 : 8,
+                background: i === step ? "#7C3AED" : "rgba(124,58,237,0.25)",
+              }}
+            />
           ))}
         </div>
 
         <div
-          className="mt-6 flex items-center justify-center gap-2 text-[13px]"
+          className="relative mt-6 flex items-center justify-center gap-2 text-[13px]"
           style={{ color: "#5A4E8A" }}
         >
           <Lock size={14} aria-hidden />
-          <span>
-            Everything in your passport is private to you. Nothing is shared unless
-            you choose to.
-          </span>
+          <span>Private to you. Nothing is shared unless you choose to.</span>
         </div>
 
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button
-            onClick={onOpen}
-            className="rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-dark px-8 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
+        <div className="relative mt-6 flex items-center justify-center gap-3">
+          {step > 0 && (
+            <button
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              className="rounded-lg border-[1.5px] border-brand-purple bg-transparent px-6 py-3 text-sm font-semibold text-brand-purple-dark transition hover:bg-brand-purple/10"
+            >
+              Back
+            </button>
+          )}
+          <motion.button
+            key={isLast ? "got-it" : "next"}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.25 }}
+            onClick={() =>
+              isLast ? onOpen() : setStep((s) => Math.min(steps.length - 1, s + 1))
+            }
+            className="rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-dark px-8 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
           >
-            Open my passport <span aria-hidden>→</span>
-          </button>
-          <a
-            href="/register"
-            className="rounded-lg border-[1.5px] border-brand-purple bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-purple-dark transition hover:bg-brand-purple/10"
-          >
-            Create a free account first
-          </a>
+            {isLast ? "Got it!" : "Next"} <span aria-hidden>→</span>
+          </motion.button>
         </div>
 
-        <p className="mt-4 text-[12px]" style={{ color: "#9CA3AF" }}>
-          No account needed to explore — your data saves to this device.
-        </p>
+        <button
+          onClick={onOpen}
+          className="relative mt-5 text-[12px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark"
+        >
+          Skip intro
+        </button>
       </main>
     </div>
   );
