@@ -182,6 +182,20 @@
   40% { transform: translateY(-4px); opacity: 1; }
 }
 
+@keyframes bubble-pop {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.7); }
+  6%   { opacity: 1; transform: translateY(0) scale(1.04); }
+  10%  { transform: translateY(0) scale(1); }
+  30%  { opacity: 1; transform: translateY(0) scale(1); }
+  38%  { opacity: 0; transform: translateY(-6px) scale(0.85); }
+  100% { opacity: 0; transform: translateY(-6px) scale(0.85); }
+}
+
+.animate-bubble-pop {
+  animation: bubble-pop 9s ease-in-out infinite both;
+  transform-origin: bottom left;
+}
+
 .text-shimmer {
   background: linear-gradient(90deg, #3D2E6B 0%, #7C3AED 50%, #3D2E6B 100%);
   background-size: 200% auto;

@@ -114,7 +114,7 @@ function Index() {
           {/* Comic-style speech bubbles ABOVE the passport — no overlap */}
           <div className="mb-6 hidden md:flex items-end justify-between gap-6 px-2">
             {/* User thought — comic bubble */}
-            <div className="animate-float-slow max-w-[260px]" style={{ animationDelay: "-2s" }}>
+            <div className="animate-bubble-pop max-w-[260px]" style={{ animationDelay: "0s" }}>
               <div className="relative bg-white px-5 py-3.5 shadow-[0_12px_30px_-12px_rgba(124,58,237,0.4)] ring-1 ring-brand-purple/10"
                 style={{ borderRadius: "28px 28px 28px 6px" }}
               >
@@ -132,7 +132,7 @@ function Index() {
             </div>
 
             {/* Lubin's goal — purple comic bubble */}
-            <div className="animate-float-slow max-w-[280px]" style={{ animationDelay: "-4s" }}>
+            <div className="animate-bubble-pop max-w-[280px]" style={{ animationDelay: "3s" }}>
               <div className="relative bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-white shadow-[0_12px_30px_-12px_rgba(124,58,237,0.55)]"
                 style={{ borderRadius: "28px 28px 6px 28px" }}
               >
@@ -154,7 +154,7 @@ function Index() {
 
           {/* Lubin notices — bubble BELOW */}
           <div className="mt-6 hidden md:flex justify-center">
-            <div className="animate-float-slow max-w-[320px]" style={{ animationDelay: "-1s" }}>
+            <div className="animate-bubble-pop max-w-[320px]" style={{ animationDelay: "6s" }}>
               <div className="relative bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] px-5 py-3.5 shadow-[0_12px_30px_-12px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10"
                 style={{ borderRadius: "6px 28px 28px 28px" }}
               >
