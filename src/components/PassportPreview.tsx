@@ -25,6 +25,7 @@ export default function PassportPreview() {
   const [activeTab, setActiveTab] = useState(0);
   const [shownInsight, setShownInsight] = useState(0);
   const [pathLen, setPathLen] = useState(0);
+  const [cardsShown, setCardsShown] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,12 +35,17 @@ export default function PassportPreview() {
       if (cancelled) return;
       setShownInsight(0);
       setPathLen(0);
-      INSIGHTS.forEach((_, i) => {
-        timers.push(setTimeout(() => !cancelled && setShownInsight(i + 1), 400 + i * 600));
+      setCardsShown(0);
+      // Reveal cards one by one so it doesn't feel like everything lands at once
+      [1, 2, 3].forEach((n, i) => {
+        timers.push(setTimeout(() => !cancelled && setCardsShown(n), 300 + i * 550));
       });
-      timers.push(setTimeout(() => !cancelled && setPathLen(1), 600));
-      timers.push(setTimeout(() => !cancelled && setActiveTab((t) => (t + 1) % TABS.length), 3500));
-      timers.push(setTimeout(cycle, 5500));
+      INSIGHTS.forEach((_, i) => {
+        timers.push(setTimeout(() => !cancelled && setShownInsight(i + 1), 700 + i * 700));
+      });
+      timers.push(setTimeout(() => !cancelled && setPathLen(1), 1100));
+      timers.push(setTimeout(() => !cancelled && setActiveTab((t) => (t + 1) % TABS.length), 5200));
+      timers.push(setTimeout(cycle, 7800));
     };
     cycle();
 
@@ -51,30 +57,36 @@ export default function PassportPreview() {
 
   const pointsStr = MOOD_POINTS.map((p) => `${p.x},${p.y}`).join(" ");
 
+  const cardReveal = (idx: number) => ({
+    opacity: cardsShown > idx ? 1 : 0,
+    transform: cardsShown > idx ? "translateY(0)" : "translateY(14px)",
+    transition: "opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+  });
+
   return (
-    <div className="flex w-full flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-lg ring-1 ring-brand-purple/10">
+    <div className="flex w-full flex-col overflow-hidden rounded-3xl bg-white p-8 md:p-10 shadow-[0_30px_80px_-30px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
       {/* Header label */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple/70">
+          <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-brand-purple/70">
             Your Health Passport
           </p>
-          <p className="mt-0.5 text-[15px] font-semibold text-brand-purple-dark">
+          <p className="mt-1.5 text-[20px] md:text-[22px] font-semibold leading-snug text-brand-purple-dark">
             Everything you share, gently remembered.
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10.5px] font-medium text-brand-purple">
-          <Lock className="h-2.5 w-2.5" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1.5 text-[12px] font-medium text-brand-purple">
+          <Lock className="h-3 w-3" />
           Private to you
         </span>
       </div>
 
       {/* Animated tabs */}
-      <div className="mt-4 flex items-center gap-5 border-b border-brand-purple/10">
+      <div className="mt-6 flex items-center gap-7 border-b border-brand-purple/10">
         {TABS.map((t, i) => (
-          <div key={t} className="relative pb-2">
+          <div key={t} className="relative pb-3">
             <span
-              className={`text-[12px] transition-colors duration-300 ${
+              className={`text-[13.5px] transition-colors duration-300 ${
                 i === activeTab
                   ? "font-semibold text-brand-purple"
                   : "text-brand-purple-dark/50"
@@ -89,26 +101,26 @@ export default function PassportPreview() {
         ))}
       </div>
 
-      {/* Three compact insight blocks side-by-side */}
-      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+      {/* Insight blocks — staggered reveal */}
+      <div className="mt-7 grid grid-cols-1 gap-5 md:grid-cols-3">
         {/* What we're noticing */}
-        <div className="rounded-xl bg-brand-purple/[0.05] p-4">
-          <div className="flex items-center gap-1.5 text-brand-purple">
-            <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
-            <p className="text-[11px] font-semibold uppercase tracking-wide">
+        <div className="rounded-2xl bg-brand-purple/[0.05] p-5" style={cardReveal(0)}>
+          <div className="flex items-center gap-2 text-brand-purple">
+            <Sparkles className="h-4 w-4" strokeWidth={2.2} />
+            <p className="text-[12px] font-semibold uppercase tracking-wider">
               What we're noticing
             </p>
           </div>
-          <div className="mt-2.5 flex flex-col gap-1.5 min-h-[88px]">
+          <div className="mt-4 flex flex-col gap-2.5 min-h-[140px]">
             {INSIGHTS.map((line, i) => {
               const shown = i < shownInsight;
               return (
                 <p
                   key={i}
-                  className="text-[12px] leading-snug text-brand-purple-dark/80 transition-all duration-500"
+                  className="text-[13.5px] leading-relaxed text-brand-purple-dark/80 transition-all duration-500"
                   style={{
                     opacity: shown ? 1 : 0,
-                    transform: shown ? "translateY(0)" : "translateY(4px)",
+                    transform: shown ? "translateY(0)" : "translateY(6px)",
                   }}
                 >
                   • {line}
@@ -119,17 +131,17 @@ export default function PassportPreview() {
         </div>
 
         {/* Mood trend */}
-        <div className="rounded-xl bg-brand-purple/[0.05] p-4">
+        <div className="rounded-2xl bg-brand-purple/[0.05] p-5" style={cardReveal(1)}>
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-purple">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-purple">
               Mood trend
             </p>
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100/70 px-1.5 py-0.5 text-[9.5px] font-medium text-emerald-700">
-              <TrendingUp className="h-2.5 w-2.5" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100/70 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+              <TrendingUp className="h-3 w-3" />
               Improving
             </span>
           </div>
-          <svg viewBox="0 0 100 70" className="mt-2 h-[88px] w-full" preserveAspectRatio="none">
+          <svg viewBox="0 0 100 70" className="mt-4 h-[140px] w-full" preserveAspectRatio="none">
             <defs>
               <linearGradient id="moodFill" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%" stopColor="#7E6BAF" stopOpacity="0.3" />
@@ -145,7 +157,7 @@ export default function PassportPreview() {
               points={pointsStr}
               fill="none"
               stroke="#7E6BAF"
-              strokeWidth="1.8"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{
@@ -158,17 +170,17 @@ export default function PassportPreview() {
         </div>
 
         {/* Top themes */}
-        <div className="rounded-xl bg-brand-purple/[0.05] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-purple">
+        <div className="rounded-2xl bg-brand-purple/[0.05] p-5" style={cardReveal(2)}>
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-purple">
             On your mind
           </p>
-          <div className="mt-2.5 flex flex-col gap-2 min-h-[88px] justify-center">
+          <div className="mt-4 flex flex-col gap-3 min-h-[140px] justify-center">
             {THEMES.map((th, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="w-12 shrink-0 text-[11px] font-medium text-brand-purple-dark/80">
+              <div key={i} className="flex items-center gap-3">
+                <span className="w-14 shrink-0 text-[12.5px] font-medium text-brand-purple-dark/80">
                   {th.label}
                 </span>
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-brand-purple/10">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-brand-purple/10">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple transition-all duration-[1200ms] ease-out"
                     style={{
@@ -177,7 +189,7 @@ export default function PassportPreview() {
                     }}
                   />
                 </div>
-                <span className="w-6 text-right text-[10px] text-brand-purple-dark/50">
+                <span className="w-7 text-right text-[11.5px] text-brand-purple-dark/50">
                   {th.count}×
                 </span>
               </div>
@@ -187,9 +199,12 @@ export default function PassportPreview() {
       </div>
 
       {/* Share teaser */}
-      <div className="mt-4 flex items-center gap-2 rounded-xl border border-dashed border-brand-purple/25 px-4 py-2.5">
-        <FileText className="h-3.5 w-3.5 text-brand-purple" strokeWidth={2.2} />
-        <p className="text-[11.5px] text-brand-purple-dark/70">
+      <div
+        className="mt-6 flex items-center gap-3 rounded-2xl border border-dashed border-brand-purple/25 px-5 py-4"
+        style={cardReveal(2)}
+      >
+        <FileText className="h-4 w-4 shrink-0 text-brand-purple" strokeWidth={2.2} />
+        <p className="text-[13px] leading-relaxed text-brand-purple-dark/70">
           Share a snapshot with your therapist or someone you trust — only when{" "}
           <span className="font-semibold text-brand-purple-dark">you</span> choose to.
         </p>
