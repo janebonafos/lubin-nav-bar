@@ -134,7 +134,7 @@ function Index() {
 
           {/* Card 2 — Health Passport */}
           <a
-            href="/passport"
+            href="/my-health-passport"
             className="group relative flex flex-col overflow-hidden rounded-2xl border border-brand-purple/20 bg-white/80 p-7 shadow-lg shadow-brand-purple/10 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-purple/50 hover:shadow-2xl hover:shadow-brand-purple/20"
           >
             <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/15 blur-2xl transition-opacity duration-500 group-hover:bg-brand-purple/25" />
