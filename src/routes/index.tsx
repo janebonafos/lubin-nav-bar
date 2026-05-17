@@ -37,7 +37,7 @@ function ThoughtBubble({
   const dotColor = isUser ? "#7E6BAF" : "rgba(255,255,255,0.95)";
   return (
     <div
-      className="pointer-events-none absolute hidden lg:block z-10 animate-bubble-float"
+      className="pointer-events-none absolute hidden xl:block z-10 animate-bubble-float"
       style={{ ...style, animationDelay: delay, transform: `rotate(${rotate}deg)` }}
     >
       <div className={`relative flex ${side === "left" ? "justify-end" : "justify-start"}`}>
@@ -184,7 +184,7 @@ function Index() {
             text="I keep forgetting what I shared last time…"
             delay="0s"
             rotate={-3}
-            style={{ top: 24, right: "calc(100% + 12px)" }}
+            style={{ top: 24, right: "calc(100% - 60px)" }}
           />
           <ThoughtBubble
             side="left"
@@ -192,7 +192,7 @@ function Index() {
             text="Am I actually feeling better, or just imagining it?"
             delay="1.5s"
             rotate={2}
-            style={{ top: "55%", right: "calc(100% + 24px)" }}
+            style={{ top: "55%", right: "calc(100% - 40px)" }}
           />
           <ThoughtBubble
             side="right"
@@ -200,7 +200,7 @@ function Index() {
             text="Your Passport remembers — so you don't have to."
             delay="0.75s"
             rotate={2}
-            style={{ top: "30%", left: "calc(100% + 16px)" }}
+            style={{ top: "30%", left: "calc(100% - 50px)" }}
           />
           <ThoughtBubble
             side="right"
@@ -208,7 +208,7 @@ function Index() {
             text="See your patterns — share only what you choose."
             delay="2.25s"
             rotate={-3}
-            style={{ bottom: 32, left: "calc(100% + 28px)" }}
+            style={{ bottom: 32, left: "calc(100% - 70px)" }}
           />
 
           <PassportPreview />
