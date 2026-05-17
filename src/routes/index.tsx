@@ -37,7 +37,7 @@ function ThoughtBubble({
   const dotColor = isUser ? "#7E6BAF" : "rgba(255,255,255,0.95)";
   return (
     <div
-      className="pointer-events-none absolute hidden lg:block z-10 animate-bubble-float"
+      className="pointer-events-none absolute hidden xl:block z-10 animate-bubble-float"
       style={{ ...style, animationDelay: delay, transform: `rotate(${rotate}deg)` }}
     >
       <div className={`relative flex ${side === "left" ? "justify-end" : "justify-start"}`}>
@@ -66,10 +66,11 @@ function ThoughtBubble({
             borderRadius: radius,
             fontFamily: "Inter, sans-serif",
             animationDelay: delay,
+            maxWidth: 220,
           }}
         >
           <p
-            className="text-[13.5px] leading-snug whitespace-nowrap"
+            className="text-[13px] leading-snug"
             style={isUser ? { color: "#3D2E6B" } : undefined}
           >
             {text}
@@ -180,34 +181,34 @@ function Index() {
           <ThoughtBubble
             side="left"
             variant="user"
-            text="I keep forgetting what I told my therapist last time…"
+            text="I keep forgetting what I shared last time…"
             delay="0s"
             rotate={-3}
-            style={{ top: 24, right: "calc(100% - 40px)" }}
+            style={{ top: 24, right: "calc(100% - 60px)" }}
           />
           <ThoughtBubble
             side="left"
             variant="user"
-            text="Is my mood actually getting better, or does it just feel that way?"
+            text="Am I actually feeling better, or just imagining it?"
             delay="1.5s"
             rotate={2}
-            style={{ top: "55%", right: "calc(100% - 20px)" }}
+            style={{ top: "55%", right: "calc(100% - 40px)" }}
           />
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="Your Passport remembers it for you — so you don't have to."
+            text="Your Passport remembers — so you don't have to."
             delay="0.75s"
             rotate={2}
-            style={{ top: "30%", left: "calc(100% - 30px)" }}
+            style={{ top: "30%", left: "calc(100% - 50px)" }}
           />
           <ThoughtBubble
             side="right"
             variant="ai"
-            text="See your patterns over time, and share only what you choose."
+            text="See your patterns — share only what you choose."
             delay="2.25s"
             rotate={-3}
-            style={{ bottom: 32, left: "calc(100% - 60px)" }}
+            style={{ bottom: 32, left: "calc(100% - 70px)" }}
           />
 
           <PassportPreview />
