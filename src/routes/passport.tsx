@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
 
 export const Route = createFileRoute("/passport")({
   component: PassportPage,
