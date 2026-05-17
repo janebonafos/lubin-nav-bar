@@ -70,6 +70,11 @@ export default function ChatPreview() {
   }, []);
 
   return (
+    (() => null)(),
+    (() => null)(),
+    null
+  );
+}
     <div className="relative flex flex-col w-full rounded-2xl bg-white/95 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10 overflow-hidden backdrop-blur-sm">
       {/* Subtle header */}
       <div className="flex items-center gap-2 border-b border-brand-purple/10 bg-gradient-to-r from-white to-[#F5F3FF] px-5 py-3">
