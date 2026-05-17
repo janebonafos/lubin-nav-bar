@@ -308,21 +308,21 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
       title: "Check in daily",
       body:
         "Tell Lubin how you're feeling in just 15 seconds. Every check-in adds to your story.",
-      accent: "#7E6BAF",
+      accent: "#C9BEE5",
     },
     {
       Icon: ClipboardList,
       title: "Take gentle assessments",
       body:
         "Quick, science-backed checks help you understand what's going on beneath the surface.",
-      accent: "#7E6BAF",
+      accent: "#C9BEE5",
     },
     {
       Icon: TrendingUp,
       title: "See your patterns emerge",
       body:
         "Over time, your passport reveals the rhythms of your mood — and what truly helps.",
-      accent: "#7E6BAF",
+      accent: "#C9BEE5",
     },
   ];
 
@@ -341,14 +341,14 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
         <motion.div
           aria-hidden
           className="pointer-events-none absolute -top-10 -left-10 h-64 w-64 rounded-full blur-3xl"
-          style={{ background: "rgba(126,107,175,0.22)" }}
+          style={{ background: "rgba(201,190,229,0.45)" }}
           animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           aria-hidden
           className="pointer-events-none absolute bottom-10 -right-16 h-72 w-72 rounded-full blur-3xl"
-          style={{ background: "rgba(61,46,107,0.18)" }}
+          style={{ background: "rgba(201,190,229,0.35)" }}
           animate={{ y: [0, -25, 0], x: [0, -10, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -358,7 +358,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="relative inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-          style={{ background: "#EAE7F5", color: "#3D2E6B" }}
+          style={{ background: "#F3F0FA", color: "#7E6BAF" }}
         >
           Welcome to your Health Passport
         </motion.span>
@@ -376,8 +376,8 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.1 }}
-              className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(124,58,237,0.45)]"
-            style={{ background: `linear-gradient(135deg, ${current.accent}, #3D2E6B)` }}
+            className="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-[0_12px_30px_-10px_rgba(126,107,175,0.35)]"
+            style={{ background: `linear-gradient(135deg, ${current.accent}, #A89BD0)` }}
             >
               <ActiveIcon size={40} color="#fff" strokeWidth={1.75} />
             </motion.div>
@@ -387,7 +387,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mt-6 text-[28px] md:text-[34px] font-bold leading-tight"
-            style={{ color: "#3D2E6B" }}
+            style={{ color: "#5A4E8A" }}
             >
               {current.title}
             </motion.h1>
@@ -413,7 +413,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
               className="h-2 rounded-full transition-all"
               style={{
                 width: i === step ? 28 : 8,
-                background: i === step ? "#3D2E6B" : "rgba(126,107,175,0.35)",
+                background: i === step ? "#A89BD0" : "rgba(201,190,229,0.55)",
               }}
             />
           ))}
@@ -431,7 +431,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
           {step > 0 && (
             <button
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="rounded-lg border-[1.5px] border-brand-purple bg-transparent px-6 py-3 text-sm font-semibold text-brand-purple-dark transition hover:bg-brand-purple/10"
+              className="rounded-lg border-[1.5px] border-[#C9BEE5] bg-transparent px-6 py-3 text-sm font-semibold text-[#7E6BAF] transition hover:bg-[#C9BEE5]/20"
             >
               Back
             </button>
@@ -444,7 +444,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
             onClick={() =>
               isLast ? onOpen() : setStep((s) => Math.min(steps.length - 1, s + 1))
             }
-            className="rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-dark px-8 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:opacity-95"
+            className="rounded-lg bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-8 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(168,155,208,0.5)] transition hover:opacity-95"
           >
             {isLast ? "Got it!" : "Next"} <span aria-hidden>→</span>
           </motion.button>
