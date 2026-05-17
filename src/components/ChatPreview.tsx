@@ -70,11 +70,6 @@ export default function ChatPreview() {
   }, []);
 
   return (
-    (() => null)(),
-    (() => null)(),
-    null
-  );
-}
     <div className="relative flex flex-col w-full rounded-2xl bg-white/95 shadow-[0_20px_60px_-20px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10 overflow-hidden backdrop-blur-sm">
       {/* Subtle header */}
       <div className="flex items-center gap-2 border-b border-brand-purple/10 bg-gradient-to-r from-white to-[#F5F3FF] px-5 py-3">
@@ -107,25 +102,31 @@ export default function ChatPreview() {
           </div>
         ))}
         {typing && (
-          <div
-            className="flex justify-start"
-            style={{ animation: "msg-in 0.35s ease-out both" }}
-          >
-            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3] px-3.5 py-2.5 shadow-sm">
-              <span
-                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
-                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "0ms" }}
-              />
-              <span
-                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
-                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "150ms" }}
-              />
-              <span
-                className="h-1.5 w-1.5 rounded-full bg-brand-purple/70"
-                style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: "300ms" }}
-              />
-            </div>
-          </div>
+          (() => {
+            const isUser = SCRIPT[visible]?.from === "user";
+            return (
+              <div
+                className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                style={{ animation: "msg-in 0.35s ease-out both" }}
+              >
+                <div
+                  className={`flex items-center gap-1 rounded-2xl px-3.5 py-2.5 shadow-sm ${
+                    isUser
+                      ? "rounded-br-sm bg-gradient-to-br from-[#5C82BD] to-[#3F5F94]"
+                      : "rounded-bl-sm bg-gradient-to-br from-[#F0ECFB] to-[#E4DEF3]"
+                  }`}
+                >
+                  {[0, 150, 300].map((d) => (
+                    <span
+                      key={d}
+                      className={`h-1.5 w-1.5 rounded-full ${isUser ? "bg-white/80" : "bg-brand-purple/70"}`}
+                      style={{ animation: "dot-bounce 1.2s ease-in-out infinite", animationDelay: `${d}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })()
         )}
       </div>
     </div>
