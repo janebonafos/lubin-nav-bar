@@ -205,7 +205,7 @@ function GuestBanner() {
         <div className="flex items-center gap-4 shrink-0">
           <a
             href="/register"
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
           >
             Create account <span aria-hidden>→</span>
           </a>
@@ -262,7 +262,7 @@ function Overview({
         </div>
         <button
           onClick={onLogMood}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
         >
           Check in <span aria-hidden>→</span>
         </button>
@@ -474,7 +474,7 @@ function ShareSnapshot() {
         </p>
         <a
           href="/register"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
         >
           Create account <span aria-hidden>→</span>
         </a>
@@ -562,7 +562,7 @@ function CheckInModal({
                 date: new Date().toISOString(),
               })
             }
-            className="rounded-full bg-brand-purple px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Save
           </button>
@@ -595,7 +595,7 @@ function SaveProgressModal({
         <a
           href="/register"
           onClick={onCreateAccount}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-purple-dark"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
         >
           Create account <span aria-hidden>→</span>
         </a>
