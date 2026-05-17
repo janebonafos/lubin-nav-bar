@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 type Msg = { from: "ai" | "user"; text: string };
 
 const SCRIPT: Msg[] = [
-  { from: "ai", text: "Hey, I'm really glad you're here. How's your heart today? 💜" },
-  { from: "user", text: "Honestly… a bit heavy. I don't even know where to start." },
-  { from: "ai", text: "That's okay — you don't have to have the words. We can go slow, together." },
-  { from: "user", text: "Thanks. It's nice to feel heard for once." },
-  { from: "ai", text: "You always will be here. Whatever you're carrying, we'll take it one small step at a time. 🌱" },
+  { from: "ai", text: "Hey, I'm really glad you stopped by. How have you been feeling lately?" },
+  { from: "user", text: "Honestly, a bit overwhelmed. I'm not sure where to begin." },
+  { from: "ai", text: "That's completely okay — you don't need the right words. We can take it slow, together." },
+  { from: "user", text: "Thanks. It actually feels good to say it out loud." },
+  { from: "ai", text: "I'm always here whenever you need to talk. One small step at a time — there's no rush." },
 ];
 
 const GAP_MS = 1500;
