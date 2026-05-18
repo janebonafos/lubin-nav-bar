@@ -149,18 +149,11 @@ function PassportPage() {
               Everything you share, gently remembered.
             </h1>
           </div>
-          <div className="hidden sm:flex shrink-0 items-center gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => openAuth("signin")}
-              className="rounded-full px-4 py-2 text-sm font-medium text-brand-purple-dark/80 transition hover:text-brand-purple-dark"
-            >
-              Sign in
-            </button>
+          <div className="hidden sm:flex shrink-0 items-center pt-2">
             <button
               type="button"
               onClick={() => openAuth("signup")}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-5 py-2.5 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_20px_-6px_rgba(168,155,208,0.55)] transition hover:-translate-y-0.5 hover:from-[#A89BD0] hover:to-[#7E6BAF] hover:text-white hover:shadow-[0_12px_24px_-8px_rgba(126,107,175,0.55)]"
             >
               Create account <span aria-hidden>→</span>
             </button>
@@ -214,7 +207,7 @@ function PassportPage() {
           <button
             type="button"
             onClick={() => openAuth("signup")}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)]"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-5 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_20px_-6px_rgba(168,155,208,0.55)]"
           >
             Create your free account <span aria-hidden>→</span>
           </button>
