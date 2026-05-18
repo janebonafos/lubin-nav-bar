@@ -220,7 +220,7 @@ function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
           <a
             href="/how-it-works"
             onClick={onClose}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark p-6 text-white no-underline shadow-[0_8px_24px_-8px_rgba(124,58,237,0.4)] transition-all duration-300 hover:shadow-[0_12px_32px_-8px_rgba(124,58,237,0.55)]"
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark p-6 text-white no-underline shadow-[0_8px_24px_-8px_rgba(126,107,175,0.4)] transition-all duration-300 hover:shadow-[0_12px_32px_-8px_rgba(126,107,175,0.55)]"
           >
             <div>
               <h4 className="text-[22px] font-semibold leading-tight">
@@ -347,7 +347,7 @@ export default function Navbar() {
           </button>
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(124,58,237,0.4)] active:scale-95"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(126,107,175,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(126,107,175,0.4)] active:scale-95"
           >
             Find Service Provider
           </a>
@@ -396,7 +396,7 @@ export default function Navbar() {
               <a
                 href="/find-provider"
                 onClick={() => setOpen(false)}
-                className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_4px_15px_rgba(124,58,237,0.3)]"
+                className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_4px_15px_rgba(126,107,175,0.3)]"
               >
                 Find Service Provider
               </a>

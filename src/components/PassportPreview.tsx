@@ -64,7 +64,7 @@ export default function PassportPreview() {
   });
 
   return (
-    <div className="flex w-full flex-col overflow-hidden rounded-3xl bg-white p-8 md:p-10 shadow-[0_30px_80px_-30px_rgba(124,58,237,0.35)] ring-1 ring-brand-purple/10">
+    <div className="flex w-full flex-col overflow-hidden rounded-3xl bg-white p-8 md:p-10 shadow-[0_30px_80px_-30px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10">
       {/* Header label */}
       <div className="flex items-center justify-between gap-4">
         <div>

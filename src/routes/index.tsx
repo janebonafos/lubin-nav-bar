@@ -43,7 +43,7 @@ function ThoughtBubble({
       <div className={`relative flex ${side === "left" ? "justify-end" : "justify-start"}`}>
         {/* Typing bubble (phase 1) */}
         <div
-          className={`phase-typing absolute ${side === "left" ? "right-0" : "left-0"} top-0 inline-flex items-center gap-1 px-3 py-2 shadow-[0_8px_22px_-10px_rgba(124,58,237,0.3)] ${typingBg}`}
+          className={`phase-typing absolute ${side === "left" ? "right-0" : "left-0"} top-0 inline-flex items-center gap-1 px-3 py-2 shadow-[0_8px_22px_-10px_rgba(126,107,175,0.3)] ${typingBg}`}
           style={{ ...typingStyle, borderRadius: radius, animationDelay: delay }}
         >
           {[0, 150, 300].map((d) => (
@@ -60,7 +60,7 @@ function ThoughtBubble({
         </div>
         {/* Message bubble (phase 2) */}
         <div
-          className={`phase-message px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(124,58,237,0.35)] ${isUser ? "bg-white ring-1 ring-brand-purple/10" : "text-white"}`}
+          className={`phase-message px-4 py-2.5 shadow-[0_10px_28px_-10px_rgba(126,107,175,0.35)] ${isUser ? "bg-white ring-1 ring-brand-purple/10" : "text-white"}`}
           style={{
             ...(isUser ? {} : { background: aiGradient }),
             borderRadius: radius,

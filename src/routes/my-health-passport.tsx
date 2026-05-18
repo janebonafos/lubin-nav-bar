@@ -279,11 +279,11 @@ function GuestBanner() {
 
   return (
     <div
-      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7C3AED] bg-white transition-all duration-300 ${
+      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7E6BAF] bg-white transition-all duration-300 ${
         fading ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
       }`}
       style={{
-        boxShadow: "0 2px 12px rgba(124, 58, 237, 0.08)",
+        boxShadow: "0 2px 12px rgba(126, 107, 175, 0.08)",
         padding: "28px 32px",
       }}
     >
@@ -297,7 +297,7 @@ function GuestBanner() {
 
       <span
         className="text-[11px] font-semibold uppercase"
-        style={{ color: "#7C3AED", letterSpacing: "0.08em" }}
+        style={{ color: "#7E6BAF", letterSpacing: "0.08em" }}
       >
         FROM LUBIN
       </span>
@@ -330,7 +330,7 @@ function GuestBanner() {
           <span
             key={text}
             className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
-            style={{ background: "#EDE9FE", color: "#7C3AED" }}
+            style={{ background: "#EDE9FE", color: "#7E6BAF" }}
           >
             <span aria-hidden>{emoji}</span>
             {text}
@@ -908,7 +908,7 @@ function Card({
 }) {
   return (
     <section
-      className={`rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(124,58,237,0.06)] ring-1 ring-brand-purple/8 ${className}`}
+      className={`rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(126,107,175,0.06)] ring-1 ring-brand-purple/8 ${className}`}
     >
       {children}
     </section>
