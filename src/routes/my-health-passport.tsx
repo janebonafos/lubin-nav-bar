@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
+import AuthModal, { type AuthMode } from "@/components/AuthModal";
 import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -68,6 +69,8 @@ function PassportPage() {
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
   // Avoid SSR/client mismatch: start undecided, decide after mount.
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
+  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
 
   // hydrate from localStorage
   useEffect(() => {
@@ -137,13 +140,31 @@ function PassportPage() {
         <GuestBanner />
 
         {/* Header */}
-        <header className="mt-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-            Your Health Passport
-          </p>
-          <h1 className="mt-2 text-3xl md:text-4xl font-bold text-brand-purple-dark">
-            Everything you share, gently remembered.
-          </h1>
+        <header className="mt-6 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+              Your Health Passport
+            </p>
+            <h1 className="mt-2 text-3xl md:text-4xl font-bold text-brand-purple-dark">
+              Everything you share, gently remembered.
+            </h1>
+          </div>
+          <div className="hidden sm:flex shrink-0 items-center gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => openAuth("signin")}
+              className="rounded-full px-4 py-2 text-sm font-medium text-brand-purple-dark/80 transition hover:text-brand-purple-dark"
+            >
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={() => openAuth("signup")}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
+            >
+              Create account <span aria-hidden>→</span>
+            </button>
+          </div>
         </header>
 
         {/* Tabs */}
@@ -187,6 +208,17 @@ function PassportPage() {
           )}
           {tab === "share" && <ShareSnapshot />}
         </div>
+
+        {/* Mobile registration CTA */}
+        <div className="mt-6 flex sm:hidden">
+          <button
+            type="button"
+            onClick={() => openAuth("signup")}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)]"
+          >
+            Create your free account <span aria-hidden>→</span>
+          </button>
+        </div>
       </main>
 
       {checkInOpen && (
@@ -205,6 +237,7 @@ function PassportPage() {
             // persist anyway so guest doesn't lose work, then navigate
             if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
             setSavePrompt(null);
+            openAuth("signup");
           }}
           onSaveLocal={() => {
             if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
@@ -213,6 +246,12 @@ function PassportPage() {
           onDismiss={() => setSavePrompt(null)}
         />
       )}
+
+      <AuthModal
+        open={authMode !== null}
+        mode={authMode ?? "signup"}
+        onClose={() => setAuthMode(null)}
+      />
     </div>
   );
 }
