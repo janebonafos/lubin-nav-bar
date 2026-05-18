@@ -21,7 +21,7 @@
 @theme inline {
   --color-brand-purple: #7E6BAF;
   --color-brand-purple-dark: #3D2E6B;
-  --color-brand-purple-accent: #7C3AED;
+  --color-brand-purple-accent: #A89BD0;
   --color-brand-lavender: #EAE7F5;
   --color-brand-navy: #2C2B4B;
   --radius-sm: calc(var(--radius) - 4px);
@@ -208,7 +208,7 @@
 .phase-message { animation: message-phase 7s ease-in-out infinite both; }
 
 .text-shimmer {
-  background: linear-gradient(90deg, #3D2E6B 0%, #7C3AED 50%, #3D2E6B 100%);
+  background: linear-gradient(90deg, #3D2E6B 0%, #7E6BAF 50%, #3D2E6B 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
