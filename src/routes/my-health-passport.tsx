@@ -20,38 +20,6 @@ import {
   Sparkles,
   Pencil,
   CheckCircle2,
-  Bed,
-  Briefcase,
-  BatteryLow,
-  Heart,
-  UserX,
-  CloudOff,
-  Anchor,
-  HeartCrack,
-  Gauge,
-  Clock,
-  Zap,
-  Layers,
-  HelpCircle,
-  Compass,
-  Shuffle,
-  Target,
-  Moon,
-  Trees,
-  Sparkle,
-  Smile,
-  Repeat,
-  Scale,
-  Users,
-  CheckCircle,
-  DollarSign,
-  Stethoscope,
-  Battery,
-  Home,
-  TrendingDown,
-  Minus,
-  ClipboardCheck,
-  type LucideIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -204,9 +172,9 @@ function PassportPage() {
         {/* Tabs */}
         <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
           {([
-            ["overview", "Today"],
-            ["progress", "Patterns"],
-            ["share", "Share"],
+            ["overview", "Overview"],
+            ["progress", "My Progress"],
+            ["share", "Share Snapshot"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
             return (
@@ -540,364 +508,6 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 }
 
 // ---------- Overview ----------
-type NoticingEntry = CheckInPayload & { savedAt: number };
-
-const POSITIVE_MOODS: MoodKey[] = ["calm", "okay"];
-const NEGATIVE_MOODS: MoodKey[] = ["drained", "stressed", "anxious", "low"];
-
-const TOPIC_META: Record<string, { Icon: LucideIcon; text: string }> = {
-  "Sleep loss": { Icon: Bed, text: "Sleep loss is a core factor" },
-  Overwork: { Icon: Briefcase, text: "Overwork has compounded the strain" },
-  Burnout: { Icon: BatteryLow, text: "Exhaustion has been intense" },
-  Caregiving: { Icon: Heart, text: "Caregiving has been weighing on you" },
-  Loneliness: { Icon: UserX, text: "Loneliness has been a thread" },
-  "Self-doubt": { Icon: CloudOff, text: "Self-doubt has been louder lately" },
-  Stuckness: { Icon: Anchor, text: "Stuckness has been recurring" },
-  Grief: { Icon: HeartCrack, text: "Grief has been present" },
-  Pressure: { Icon: Gauge, text: "Pressure has been heavy" },
-  Deadlines: { Icon: Clock, text: "Deadlines have been pushing you" },
-  Conflict: { Icon: Zap, text: "Conflict has been in the background" },
-  Workload: { Icon: Layers, text: "Workload has been overwhelming" },
-  Uncertainty: { Icon: HelpCircle, text: "Uncertainty has been hard to sit with" },
-  Future: { Icon: Compass, text: "The future has felt unclear" },
-  "Big change": { Icon: Shuffle, text: "A big change has been on your mind" },
-  Performance: { Icon: Target, text: "Performance pressure has been a factor" },
-  Rest: { Icon: Moon, text: "Rest has been a meaningful focus" },
-  Nature: { Icon: Trees, text: "Nature has been a balm" },
-  Mindfulness: { Icon: Sparkle, text: "Mindfulness has been steadying" },
-  Gratitude: { Icon: Smile, text: "Gratitude has been present" },
-  Routine: { Icon: Repeat, text: "Routine has been grounding" },
-  Balance: { Icon: Scale, text: "Balance has been a focus" },
-  Connection: { Icon: Users, text: "Connection has been important" },
-  "Small wins": { Icon: CheckCircle, text: "Small wins have added up" },
-  Sleep: { Icon: Bed, text: "Sleep has been on your mind" },
-  Work: { Icon: Briefcase, text: "Work has been a recurring theme" },
-  Money: { Icon: DollarSign, text: "Money has been a focus" },
-  Health: { Icon: Stethoscope, text: "Health has been present" },
-  Energy: { Icon: Battery, text: "Energy has been a theme" },
-  Family: { Icon: Home, text: "Family has been on your mind" },
-  Relationships: { Icon: Users, text: "Relationships have been a focus" },
-};
-
-type NoticingData = {
-  lead: string;
-  bullets: { Icon: LucideIcon; text: string }[];
-  patterns: { topic: string; count: number }[];
-};
-
-function frequencyPhrase(n: number): string {
-  if (n === 1) return "once";
-  if (n === 2) return "a couple of times";
-  if (n === 3) return "a few times";
-  return `${n} times`;
-}
-
-function computeNoticing(entries: NoticingEntry[]): NoticingData | null {
-  if (entries.length < 3) return null;
-  const last5 = entries.slice(0, 5);
-
-  const topicCount = new Map<string, number>();
-  for (const e of last5)
-    for (const t of new Set(e.topics))
-      topicCount.set(t, (topicCount.get(t) ?? 0) + 1);
-  const topicsSorted = [...topicCount.entries()].sort(
-    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
-  );
-  const top2 = topicsSorted.slice(0, 2).map(([t]) => t);
-  const topic1 = top2[0] ?? "things";
-  const topic2 = top2[1] ?? topic1;
-
-  const moodCount = new Map<MoodKey, number>();
-  for (const e of last5) moodCount.set(e.mood, (moodCount.get(e.mood) ?? 0) + 1);
-  let domMood: MoodKey | null = null;
-  let domN = 0;
-  for (const [m, c] of moodCount) if (c > domN) { domN = c; domMood = m; }
-  const majority = domN > last5.length / 2;
-
-  const last3 = entries.slice(0, 3);
-  const latest = last3[0];
-  const older = last3.slice(1);
-  const latestPositive = POSITIVE_MOODS.includes(latest.mood);
-  const olderAllNegative =
-    older.length > 0 && older.every((e) => NEGATIVE_MOODS.includes(e.mood));
-  const olderAllPositive =
-    older.length > 0 && older.every((e) => POSITIVE_MOODS.includes(e.mood));
-  let trajectory: "improving" | "worsening" | "stable" = "stable";
-  if (latestPositive && olderAllNegative) trajectory = "improving";
-  else if (!latestPositive && olderAllPositive) trajectory = "worsening";
-
-  const trendTail =
-    trajectory === "improving"
-      ? "A steadier day emerged most recently, though the toll from the previous stretch is still present."
-      : trajectory === "worsening"
-      ? "Recent days have felt heavier than the ones before."
-      : "The pattern has held through your last few check-ins.";
-
-  const leadKey: MoodKey | "mixed" = majority && domMood ? domMood : "mixed";
-  const LEADS: Record<MoodKey | "mixed", (t1: string, t2: string, tail: string) => string> = {
-    drained: (t1, t2, tail) =>
-      `You've been running on empty—${t1} and ${t2} have drained your reserves significantly. ${tail}`,
-    stressed: (t1, t2, tail) =>
-      `There's been a lot on your plate—${t1} and ${t2} have been weighing on you. ${tail}`,
-    anxious: (t1, t2, tail) =>
-      `Your mind has been working hard—${t1} and ${t2} have been recurring concerns. ${tail}`,
-    low: (t1, t2, tail) =>
-      `Things have felt heavier recently—${t1} and ${t2} have been showing up. ${tail}`,
-    calm: (t1, t2, tail) =>
-      `You've been finding steady ground—${t1} and ${t2} have been part of that. ${tail}`,
-    okay: (t1, t2, tail) =>
-      `You've been holding things in balance—${t1} and ${t2} have been part of that. ${tail}`,
-    mixed: (t1, t2, tail) =>
-      `Your week has been a mix—${t1} on the lighter days, ${t2} on the harder ones. ${tail}`,
-  };
-  const lead = LEADS[leadKey](topic1, topic2, trendTail);
-
-  const bulletTopics = topicsSorted
-    .slice(0, 3)
-    .map(([t]) => t)
-    .filter((t) => TOPIC_META[t]);
-  const bullets: { Icon: LucideIcon; text: string }[] = bulletTopics.map((t) => ({
-    Icon: TOPIC_META[t].Icon,
-    text: TOPIC_META[t].text,
-  }));
-  if (trajectory === "improving")
-    bullets.push({ Icon: TrendingUp, text: "A small shift toward steadier ground" });
-  else if (trajectory === "worsening")
-    bullets.push({ Icon: TrendingDown, text: "The strain has been growing" });
-  else bullets.push({ Icon: Minus, text: "The pattern has held" });
-
-  const patterns = topicsSorted.slice(0, 4).map(([topic, count]) => ({ topic, count }));
-
-  return { lead, bullets, patterns };
-}
-
-// ---------- Mood score helpers ----------
-const MOOD_SCORE_TABLE: Record<MoodKey, [number, number, number, number, number]> = {
-  calm: [4.0, 4.25, 4.5, 4.75, 5.0],
-  okay: [3.0, 3.25, 3.5, 3.75, 4.0],
-  drained: [2.5, 2.25, 2.0, 1.75, 1.5],
-  stressed: [2.5, 2.25, 2.0, 1.75, 1.5],
-  anxious: [2.5, 2.25, 2.0, 1.75, 1.5],
-  low: [2.0, 1.75, 1.5, 1.25, 1.0],
-};
-function scoreForEntry(mood: MoodKey, intensityIdx: number): number {
-  const table = MOOD_SCORE_TABLE[mood];
-  if (!table) return 3;
-  const i = Math.max(0, Math.min(4, intensityIdx));
-  return table[i];
-}
-
-// ---------- Source badge ----------
-function SourceBadge({ source = "check-in" }: { source?: "check-in" | "conversation" }) {
-  const Icon = source === "conversation" ? MessageCircle : ClipboardCheck;
-  const label = source === "conversation" ? "From conversation" : "From check-in";
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10.5px] font-medium text-brand-purple-dark/80">
-      <Icon className="h-3 w-3 text-brand-purple" strokeWidth={2.25} />
-      {label}
-    </span>
-  );
-}
-
-// ---------- Mood This Month ----------
-function MoodThisMonth({ entries }: { entries: NoticingEntry[] }) {
-  const now = new Date();
-  const curMonth = now.getMonth();
-  const curYear = now.getFullYear();
-
-  const curMonthEntries = entries.filter((e) => {
-    const d = new Date(e.savedAt);
-    return d.getFullYear() === curYear && d.getMonth() === curMonth;
-  });
-  const prevMonthEntries = entries.filter((e) => {
-    const d = new Date(e.savedAt);
-    const pm = (curMonth + 11) % 12;
-    const py = curMonth === 0 ? curYear - 1 : curYear;
-    return d.getFullYear() === py && d.getMonth() === pm;
-  });
-
-  if (entries.length < 3 || curMonthEntries.length === 0) return null;
-
-  const avg = (arr: NoticingEntry[]) =>
-    arr.reduce((s, e) => s + scoreForEntry(e.mood, e.intensityIdx), 0) / arr.length;
-
-  const score = avg(curMonthEntries);
-  const prev = prevMonthEntries.length ? avg(prevMonthEntries) : null;
-  const rounded = Math.round(score * 10) / 10;
-  const prevRounded = prev !== null ? Math.round(prev * 10) / 10 : null;
-
-  let trend: "up" | "down" | "steady" | null = null;
-  if (prevRounded !== null) {
-    const diff = score - prev!;
-    if (diff > 0.2) trend = "up";
-    else if (diff < -0.2) trend = "down";
-    else trend = "steady";
-  }
-
-  // Chart data: chronological, avg per day
-  const byDay = new Map<string, { sum: number; n: number; day: number }>();
-  for (const e of curMonthEntries) {
-    const d = new Date(e.savedAt);
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    const cur = byDay.get(key) ?? { sum: 0, n: 0, day: d.getDate() };
-    cur.sum += scoreForEntry(e.mood, e.intensityIdx);
-    cur.n += 1;
-    byDay.set(key, cur);
-  }
-  const data = [...byDay.values()]
-    .sort((a, b) => a.day - b.day)
-    .map((v) => ({ day: v.day, score: Math.round((v.sum / v.n) * 100) / 100 }));
-
-  const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-  const trendBg =
-    trend === "up"
-      ? "bg-emerald-100/70 text-emerald-700"
-      : trend === "down"
-      ? "bg-orange-100/70 text-orange-700"
-      : "bg-brand-purple/10 text-brand-purple-dark/70";
-  const trendLabel =
-    trend === "up"
-      ? `Up from ${prevRounded!.toFixed(1)}`
-      : trend === "down"
-      ? `Down from ${prevRounded!.toFixed(1)}`
-      : trend === "steady"
-      ? `Steady at ${prevRounded!.toFixed(1)}`
-      : "";
-
-  return (
-    <Card>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-brand-purple-dark">
-            Mood This Month
-          </h3>
-          <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-brand-purple-dark">
-              {rounded.toFixed(1)}
-            </span>
-            <span className="text-sm text-brand-purple-dark/45">/ 5</span>
-          </div>
-        </div>
-        {trend && (
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${trendBg}`}
-          >
-            <TrendIcon className="h-3 w-3" strokeWidth={2.4} />
-            {trendLabel}
-          </span>
-        )}
-      </div>
-
-      <div className="mt-5 h-40 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-            <XAxis
-              dataKey="day"
-              tick={{ fontSize: 10, fill: "#5A4E8A" }}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveStartEnd"
-              ticks={
-                data.length <= 4
-                  ? data.map((d) => d.day)
-                  : [
-                      data[0].day,
-                      data[Math.floor(data.length / 3)].day,
-                      data[Math.floor((2 * data.length) / 3)].day,
-                      data[data.length - 1].day,
-                    ]
-              }
-            />
-            <YAxis
-              domain={[1, 5]}
-              ticks={[1.5, 3, 4.5]}
-              tickFormatter={(v) => (v === 4.5 ? "Good" : v === 3 ? "Medium" : "Low")}
-              tick={{ fontSize: 10, fill: "#5A4E8A" }}
-              axisLine={false}
-              tickLine={false}
-              width={56}
-            />
-            <Tooltip
-              cursor={{ stroke: "#C9BEE5", strokeDasharray: "3 3" }}
-              contentStyle={{
-                background: "white",
-                border: "1px solid rgba(126,107,175,0.2)",
-                borderRadius: 8,
-                fontSize: 11,
-              }}
-              formatter={(v: number) => [v.toFixed(1), "Score"]}
-              labelFormatter={(d) => `Day ${d}`}
-            />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke="#7E6BAF"
-              strokeWidth={2.25}
-              dot={{ r: 3, fill: "#7E6BAF" }}
-              activeDot={{ r: 4 }}
-              isAnimationActive={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-  );
-}
-
-// ---------- Latest check-in card ----------
-const LATEST_TITLES: Record<MoodKey, string> = {
-  calm: "You felt calm",
-  okay: "You felt okay",
-  drained: "You felt drained",
-  stressed: "You felt stressed",
-  anxious: "You felt anxious",
-  low: "You felt low",
-};
-function latestNarrative(mood: MoodKey, topics: string[]): string {
-  const t1 = topics[0];
-  const t2 = topics[1];
-  const make = (with2: string, with1: string, none: string) =>
-    t1 && t2 ? with2 : t1 ? with1 : none;
-  switch (mood) {
-    case "calm":
-      return make(
-        `A steady, grounded moment. ${t1} and ${t2} were part of that.`,
-        `A steady, grounded moment. ${t1} was part of that.`,
-        `A steady, grounded moment.`,
-      );
-    case "okay":
-      return make(
-        `Things have been holding together. ${t1} and ${t2} have been in the mix.`,
-        `Things have been holding together. ${t1} has been in the mix.`,
-        `Things have been holding together.`,
-      );
-    case "drained":
-      return make(
-        `${t1} and ${t2} have been weighing on you.`,
-        `${t1} has been weighing on you.`,
-        `It's been a heavy stretch.`,
-      );
-    case "stressed":
-      return make(
-        `${t1} has been weighing on you, especially around ${t2}.`,
-        `${t1} has been weighing on you.`,
-        `There's been a lot to carry.`,
-      );
-    case "anxious":
-      return make(
-        `${t1} has been on your mind, alongside ${t2}.`,
-        `${t1} has been on your mind.`,
-        `Your mind has been working hard.`,
-      );
-    case "low":
-      return make(
-        `Things have felt heavier. ${t1} and ${t2} have been present.`,
-        `Things have felt heavier. ${t1} has been present.`,
-        `Things have felt heavier.`,
-      );
-  }
-}
-
 function Overview({
   today,
   checkins: _checkins,
@@ -918,8 +528,6 @@ function Overview({
   const [pulseId, setPulseId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
-
-  const insight = useMemo(() => computeNoticing(liveEntries), [liveEntries]);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
@@ -988,59 +596,17 @@ function Overview({
         </Link>
       </Card>
 
-      {/* Insights — synthesis + raw patterns */}
-      {insight && (
-        <>
-          <Card className="bg-[#F5F1FB]">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-brand-purple" strokeWidth={2.5} />
-              <h3 className="text-base font-semibold text-brand-purple-dark">
-                Here's what we're noticing
-              </h3>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-brand-purple-dark/75">
-              {insight.lead}
-            </p>
-            <ul className="mt-5 space-y-3">
-              {insight.bullets.map((b, i) => (
-                <li key={i} className="flex items-start gap-2.5">
-                  <b.Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" strokeWidth={2.25} />
-                  <span className="text-sm leading-relaxed text-brand-purple-dark/75">
-                    {b.text}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-xs text-brand-purple-dark/45">
-              Based on your recent check-ins
-            </p>
-          </Card>
-
-          <Card>
-            <h3 className="text-base font-semibold text-brand-purple-dark">
-              Patterns we're seeing
-            </h3>
-            <p className="mt-1 text-sm text-brand-purple-dark/60">
-              These are the things that have been coming up most in your recent check-ins.
-            </p>
-            <ul className="mt-4 divide-y divide-brand-purple/10">
-              {insight.patterns.map((p, i) => (
-                <li key={i} className="flex items-start gap-2.5 py-3 first:pt-0 last:pb-0">
-                  <Heart className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" strokeWidth={2.25} />
-                  <p className="text-sm leading-relaxed text-brand-purple-dark/75">
-                    You've mentioned{" "}
-                    <span className="font-semibold text-brand-purple-dark">{p.topic}</span>{" "}
-                    {frequencyPhrase(p.count)} ({p.count} times)
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </>
-      )}
-
-      {/* Mood this month */}
-      <MoodThisMonth entries={liveEntries} />
+      {/* Insights — anticipation-framed */}
+      <Card>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          What we're noticing
+        </p>
+        <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/45">
+          After a few check-ins you might see something like:
+          {" "}“Sleep keeps coming up in your conversations,” or
+          {" "}“Your mood has been steady this week.”
+        </p>
+      </Card>
 
       {/* Mood check-in CTA */}
       <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -1090,11 +656,10 @@ function Overview({
         {liveEntries.length > 0 ? (
           <div className="mt-4 space-y-3">
             <AnimatePresence initial={false}>
-              {liveEntries.map((entry, idx) => (
+              {liveEntries.map((entry) => (
                 <LiveEntry
                   key={entry.id}
                   entry={entry}
-                  isTop={idx === 0}
                   pulsing={pulseId === entry.id}
                   showActions={latestSavedId === entry.id}
                   expanded={expandedId === entry.id}
@@ -1164,7 +729,6 @@ function Overview({
 
 function LiveEntry({
   entry,
-  isTop = false,
   pulsing,
   showActions,
   expanded,
@@ -1181,7 +745,6 @@ function LiveEntry({
     note: string;
     savedAt: number;
   };
-  isTop?: boolean;
   pulsing: boolean;
   showActions: boolean;
   expanded: boolean;
@@ -1201,85 +764,9 @@ function LiveEntry({
   const accent = "#EDE9F4";
   const fullLabel = `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`;
 
-  if (isTop) {
-    const narrative = latestNarrative(entry.mood, orderedTopics);
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={
-          pulsing
-            ? { opacity: 1, y: 0, backgroundColor: ["#E4DAF3", "#F5F1FB"] }
-            : { opacity: 1, y: 0, backgroundColor: "#F5F1FB" }
-        }
-        transition={{ duration: pulsing ? 1.5 : 0.25, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-xl ring-1 ring-brand-purple/15"
-      >
-        <div className="px-5 py-4">
-          <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-2.5 py-0.5 text-[11px] font-medium text-white">
-              <Sparkles className="h-3 w-3" strokeWidth={2.4} />
-              Most recent
-            </span>
-            <p className="whitespace-nowrap text-xs text-brand-purple-dark/55">
-              {time}, today
-            </p>
-          </div>
-          <h3 className="mt-3 text-xl font-medium text-brand-purple-dark">
-            {LATEST_TITLES[entry.mood]}
-          </h3>
-          <p className="mt-1.5 text-sm leading-relaxed text-brand-purple-dark/75">
-            {narrative}
-          </p>
-          {orderedTopics.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {orderedTopics.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-brand-purple/25 bg-white px-2.5 py-1 text-xs text-brand-purple-dark/80"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-          {entry.note && (
-            <div className="mt-3 border-l-2 border-brand-purple/40 pl-3">
-              <p className="text-sm italic text-brand-purple-dark/65">
-                &ldquo;{entry.note}&rdquo;
-              </p>
-            </div>
-          )}
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-            <Link
-              to="/chat"
-              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
-            >
-              <MessageCircle className="h-3.5 w-3.5" />
-              Talk this through with Lubin →
-            </Link>
-            <Link
-              to="/resources"
-              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Try something that might help →
-            </Link>
-            <button
-              type="button"
-              onClick={onEdit}
-              className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-brand-purple-dark/60 transition hover:text-brand-purple-dark"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Edit
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: -6 }}
       animate={
         pulsing
