@@ -110,36 +110,26 @@ const SUMMARY: Record<MoodKey, string> = {
 };
 
 export default function CheckInFlow({ onClose }: { onClose: () => void }) {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [direction, setDirection] = useState<1 | -1>(1);
   const [mood, setMood] = useState<MoodKey | null>(null);
   const [intensityIdx, setIntensityIdx] = useState<number | null>(null);
   const [topics, setTopics] = useState<string[]>([]);
   const [note, setNote] = useState("");
 
-  const go = (next: 1 | 2 | 3) => {
-    setDirection(next > step ? 1 : -1);
-    setStep(next);
-  };
-
   const pickMood = (m: MoodKey) => {
+    if (mood === m) {
+      setMood(null);
+      setIntensityIdx(null);
+      setTopics([]);
+      setNote("");
+      return;
+    }
     setMood(m);
-    setIntensityIdx(null);
+    setIntensityIdx(2);
     setTopics([]);
-    go(2);
   };
 
   const toggleTopic = (t: string) =>
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-
-  const summarySentence = useMemo(() => {
-    const base = mood ? SUMMARY[mood] : "Thanks for taking a moment to notice how today has been.";
-    if (topics.length === 1 || topics.length === 2) {
-      const tail = topics.map((t) => t.toLowerCase()).join(" and ");
-      return base.replace(/\.$/, "") + `, especially around ${tail}.`;
-    }
-    return base;
-  }, [mood, topics]);
 
   return (
     <div className="relative mx-auto w-full max-w-[640px] py-4">
@@ -151,29 +141,19 @@ export default function CheckInFlow({ onClose }: { onClose: () => void }) {
         <X className="h-5 w-5" />
       </button>
 
-      <div className="flex items-center justify-center gap-2 pt-2">
-        {[1, 2, 3].map((n) => (
-          <span
-            key={n}
-            className={`h-2 w-2 rounded-full transition-colors ${
-              n === step ? "bg-brand-purple-dark" : "bg-brand-purple/25"
-            }`}
-          />
-        ))}
-      </div>
+      <div className="pt-6">
+        <Step1 mood={mood} onPick={pickMood} />
 
-      <div className="mt-8 overflow-hidden">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            initial={{ opacity: 0, x: 16 * direction }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -16 * direction }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            {step === 1 && <Step1 onPick={pickMood} />}
-            {step === 2 && mood && (
+        <AnimatePresence initial={false}>
+          {mood && (
+            <motion.div
+              key="details"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="mt-6"
+            >
               <Step2
                 mood={mood}
                 intensityIdx={intensityIdx}
@@ -182,12 +162,10 @@ export default function CheckInFlow({ onClose }: { onClose: () => void }) {
                 toggleTopic={toggleTopic}
                 note={note}
                 setNote={setNote}
-                onBack={() => go(1)}
-                onContinue={() => go(3)}
+                onSave={onClose}
               />
-            )}
-            {step === 3 && <Step3 summary={summarySentence} onClose={onClose} />}
-          </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -203,7 +181,7 @@ export default function CheckInFlow({ onClose }: { onClose: () => void }) {
   );
 }
 
-function Step1({ onPick }: { onPick: (m: MoodKey) => void }) {
+function Step1({ mood, onPick }: { mood: MoodKey | null; onPick: (m: MoodKey) => void }) {
   return (
     <div>
       <h1 className="text-center text-3xl font-semibold text-brand-purple-dark">
@@ -213,20 +191,39 @@ function Step1({ onPick }: { onPick: (m: MoodKey) => void }) {
         Pick what feels closest. There's no wrong answer.
       </p>
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {MOODS.map(({ key, label, Icon }) => (
-          <button
-            key={key}
-            onClick={() => onPick(key)}
-            className="group flex min-w-0 items-center gap-2.5 rounded-xl border-2 border-[#E5E7EB] bg-white px-3 py-3 text-left transition-all duration-150 hover:border-[#7E6BAF]/40 hover:bg-[#F5F1FB] active:scale-[0.98]"
-          >
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#ECE7F6] transition-colors">
-              <Icon className="h-4 w-4 text-[#7E6BAF]" strokeWidth={2.5} />
-            </span>
-            <span className="flex-1 whitespace-nowrap text-[13.5px] font-semibold text-[#374151]">
-              {label}
-            </span>
-          </button>
-        ))}
+        {MOODS.map(({ key, label, Icon }) => {
+          const active = mood === key;
+          return (
+            <button
+              key={key}
+              onClick={() => onPick(key)}
+              aria-pressed={active}
+              className={`group flex min-w-0 items-center gap-2.5 rounded-xl border-2 px-3 py-3 text-left transition-all duration-150 active:scale-[0.98] ${
+                active
+                  ? "border-[#7E6BAF] bg-[#ECE7F6] shadow-sm"
+                  : "border-[#E5E7EB] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F1FB]"
+              }`}
+            >
+              <span
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                  active ? "bg-[#DCD2EE]" : "bg-[#ECE7F6]"
+                }`}
+              >
+                <Icon
+                  className={`h-4 w-4 ${active ? "text-[#4A3A7A]" : "text-[#7E6BAF]"}`}
+                  strokeWidth={2.5}
+                />
+              </span>
+              <span
+                className={`flex-1 whitespace-nowrap text-[13.5px] font-semibold ${
+                  active ? "text-[#4A3A7A]" : "text-[#374151]"
+                }`}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -240,8 +237,7 @@ function Step2({
   toggleTopic,
   note,
   setNote,
-  onBack,
-  onContinue,
+  onSave,
 }: {
   mood: MoodKey;
   intensityIdx: number | null;
@@ -250,8 +246,7 @@ function Step2({
   toggleTopic: (t: string) => void;
   note: string;
   setNote: (s: string) => void;
-  onBack: () => void;
-  onContinue: () => void;
+  onSave: () => void;
 }) {
   const { question, options } = INTENSITY[mood];
   const chips = [...MOOD_TOPICS[mood], ...UNIVERSAL_TOPICS];
@@ -331,81 +326,13 @@ function Step2({
         />
       </section>
 
-      <div className="mt-7 flex items-center justify-between">
+      <div className="mt-7 flex items-center justify-end">
         <button
-          onClick={onBack}
-          className="text-sm text-brand-purple-dark/60 transition hover:text-brand-purple-dark"
-        >
-          ← Back
-        </button>
-        <button
-          onClick={onContinue}
+          onClick={onSave}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
         >
-          Continue <span aria-hidden>→</span>
+          Save to passport
         </button>
-      </div>
-    </div>
-  );
-}
-
-function Step3({ summary, onClose }: { summary: string; onClose: () => void }) {
-  const cards: { Icon: LucideIcon; heading: string; body: string; to?: string; onClick?: () => void }[] = [
-    {
-      Icon: MessageCircle,
-      heading: "Talk this through with Lubin",
-      body: "Pick this up in chat — Lubin already has context.",
-      to: "/chat",
-    },
-    {
-      Icon: LifeBuoy,
-      heading: "Get support",
-      body: "See resources and ways to connect with a professional.",
-      to: "/resources",
-    },
-    {
-      Icon: BookmarkCheck,
-      heading: "Save to passport",
-      body: "Keep this private and finish up.",
-      onClick: onClose,
-    },
-  ];
-
-  return (
-    <div className="py-6">
-      <motion.p
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="mx-auto max-w-[560px] text-center text-3xl font-medium leading-snug text-brand-purple-dark"
-      >
-        {summary}
-      </motion.p>
-
-      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {cards.map(({ Icon, heading, body, to, onClick }) => {
-          const className =
-            "group flex flex-col rounded-2xl border border-transparent bg-white p-5 text-left shadow-[0_10px_30px_-20px_rgba(126,107,175,0.4)] transition duration-200 hover:scale-[1.02] hover:border-brand-purple/30";
-          const inner = (
-            <>
-              <Icon className="h-6 w-6 text-brand-purple" strokeWidth={1.9} />
-              <p className="mt-3 text-sm font-semibold text-brand-purple-dark">{heading}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-brand-purple-dark/60">{body}</p>
-            </>
-          );
-          if (to) {
-            return (
-              <Link key={heading} to={to} className={className}>
-                {inner}
-              </Link>
-            );
-          }
-          return (
-            <button key={heading} onClick={onClick} className={className}>
-              {inner}
-            </button>
-          );
-        })}
       </div>
     </div>
   );
