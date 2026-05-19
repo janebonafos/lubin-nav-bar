@@ -50,6 +50,7 @@ import {
   Home,
   TrendingDown,
   Minus,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -670,6 +671,296 @@ function computeNoticing(entries: NoticingEntry[]): NoticingData | null {
   return { lead, bullets, patterns };
 }
 
+// ---------- Mood score helpers ----------
+const MOOD_SCORE_TABLE: Record<MoodKey, [number, number, number, number, number]> = {
+  calm: [4.0, 4.25, 4.5, 4.75, 5.0],
+  okay: [3.0, 3.25, 3.5, 3.75, 4.0],
+  drained: [2.5, 2.25, 2.0, 1.75, 1.5],
+  stressed: [2.5, 2.25, 2.0, 1.75, 1.5],
+  anxious: [2.5, 2.25, 2.0, 1.75, 1.5],
+  low: [2.0, 1.75, 1.5, 1.25, 1.0],
+};
+function scoreForEntry(mood: MoodKey, intensityIdx: number): number {
+  const table = MOOD_SCORE_TABLE[mood];
+  if (!table) return 3;
+  const i = Math.max(0, Math.min(4, intensityIdx));
+  return table[i];
+}
+
+// ---------- Source badge ----------
+function SourceBadge({ source = "check-in" }: { source?: "check-in" | "conversation" }) {
+  const Icon = source === "conversation" ? MessageCircle : ClipboardCheck;
+  const label = source === "conversation" ? "From conversation" : "From check-in";
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10.5px] font-medium text-brand-purple-dark/80">
+      <Icon className="h-3 w-3 text-brand-purple" strokeWidth={2.25} />
+      {label}
+    </span>
+  );
+}
+
+// ---------- Mood This Month ----------
+function MoodThisMonth({ entries }: { entries: NoticingEntry[] }) {
+  const now = new Date();
+  const curMonth = now.getMonth();
+  const curYear = now.getFullYear();
+
+  const curMonthEntries = entries.filter((e) => {
+    const d = new Date(e.savedAt);
+    return d.getFullYear() === curYear && d.getMonth() === curMonth;
+  });
+  const prevMonthEntries = entries.filter((e) => {
+    const d = new Date(e.savedAt);
+    const pm = (curMonth + 11) % 12;
+    const py = curMonth === 0 ? curYear - 1 : curYear;
+    return d.getFullYear() === py && d.getMonth() === pm;
+  });
+
+  if (entries.length < 3 || curMonthEntries.length === 0) return null;
+
+  const avg = (arr: NoticingEntry[]) =>
+    arr.reduce((s, e) => s + scoreForEntry(e.mood, e.intensityIdx), 0) / arr.length;
+
+  const score = avg(curMonthEntries);
+  const prev = prevMonthEntries.length ? avg(prevMonthEntries) : null;
+  const rounded = Math.round(score * 10) / 10;
+  const prevRounded = prev !== null ? Math.round(prev * 10) / 10 : null;
+
+  let trend: "up" | "down" | "steady" | null = null;
+  if (prevRounded !== null) {
+    const diff = score - prev!;
+    if (diff > 0.2) trend = "up";
+    else if (diff < -0.2) trend = "down";
+    else trend = "steady";
+  }
+
+  // Chart data: chronological, avg per day
+  const byDay = new Map<string, { sum: number; n: number; day: number }>();
+  for (const e of curMonthEntries) {
+    const d = new Date(e.savedAt);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const cur = byDay.get(key) ?? { sum: 0, n: 0, day: d.getDate() };
+    cur.sum += scoreForEntry(e.mood, e.intensityIdx);
+    cur.n += 1;
+    byDay.set(key, cur);
+  }
+  const data = [...byDay.values()]
+    .sort((a, b) => a.day - b.day)
+    .map((v) => ({ day: v.day, score: Math.round((v.sum / v.n) * 100) / 100 }));
+
+  const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
+  const trendBg =
+    trend === "up"
+      ? "bg-emerald-100/70 text-emerald-700"
+      : trend === "down"
+      ? "bg-orange-100/70 text-orange-700"
+      : "bg-brand-purple/10 text-brand-purple-dark/70";
+  const trendLabel =
+    trend === "up"
+      ? `Up from ${prevRounded!.toFixed(1)}`
+      : trend === "down"
+      ? `Down from ${prevRounded!.toFixed(1)}`
+      : trend === "steady"
+      ? `Steady at ${prevRounded!.toFixed(1)}`
+      : "";
+
+  return (
+    <Card>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-brand-purple-dark">
+            Mood This Month
+          </h3>
+          <div className="mt-3 flex items-baseline gap-1">
+            <span className="text-4xl font-bold text-brand-purple-dark">
+              {rounded.toFixed(1)}
+            </span>
+            <span className="text-sm text-brand-purple-dark/45">/ 5</span>
+          </div>
+        </div>
+        {trend && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${trendBg}`}
+          >
+            <TrendIcon className="h-3 w-3" strokeWidth={2.4} />
+            {trendLabel}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-5 h-40 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+            <XAxis
+              dataKey="day"
+              tick={{ fontSize: 10, fill: "#5A4E8A" }}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveStartEnd"
+              ticks={
+                data.length <= 4
+                  ? data.map((d) => d.day)
+                  : [
+                      data[0].day,
+                      data[Math.floor(data.length / 3)].day,
+                      data[Math.floor((2 * data.length) / 3)].day,
+                      data[data.length - 1].day,
+                    ]
+              }
+            />
+            <YAxis
+              domain={[1, 5]}
+              ticks={[1.5, 3, 4.5]}
+              tickFormatter={(v) => (v === 4.5 ? "Good" : v === 3 ? "Medium" : "Low")}
+              tick={{ fontSize: 10, fill: "#5A4E8A" }}
+              axisLine={false}
+              tickLine={false}
+              width={56}
+            />
+            <Tooltip
+              cursor={{ stroke: "#C9BEE5", strokeDasharray: "3 3" }}
+              contentStyle={{
+                background: "white",
+                border: "1px solid rgba(126,107,175,0.2)",
+                borderRadius: 8,
+                fontSize: 11,
+              }}
+              formatter={(v: number) => [v.toFixed(1), "Score"]}
+              labelFormatter={(d) => `Day ${d}`}
+            />
+            <Line
+              type="monotone"
+              dataKey="score"
+              stroke="#7E6BAF"
+              strokeWidth={2.25}
+              dot={{ r: 3, fill: "#7E6BAF" }}
+              activeDot={{ r: 4 }}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  );
+}
+
+// ---------- Latest check-in card ----------
+const LATEST_TITLES: Record<MoodKey, string> = {
+  calm: "You felt calm",
+  okay: "You felt okay",
+  drained: "You felt drained",
+  stressed: "You felt stressed",
+  anxious: "You felt anxious",
+  low: "You felt low",
+};
+function latestNarrative(mood: MoodKey, topics: string[]): string {
+  const t1 = topics[0];
+  const t2 = topics[1];
+  const make = (with2: string, with1: string, none: string) =>
+    t1 && t2 ? with2 : t1 ? with1 : none;
+  switch (mood) {
+    case "calm":
+      return make(
+        `A steady, grounded moment. ${t1} and ${t2} were part of that.`,
+        `A steady, grounded moment. ${t1} was part of that.`,
+        `A steady, grounded moment.`,
+      );
+    case "okay":
+      return make(
+        `Things have been holding together. ${t1} and ${t2} have been in the mix.`,
+        `Things have been holding together. ${t1} has been in the mix.`,
+        `Things have been holding together.`,
+      );
+    case "drained":
+      return make(
+        `${t1} and ${t2} have been weighing on you.`,
+        `${t1} has been weighing on you.`,
+        `It's been a heavy stretch.`,
+      );
+    case "stressed":
+      return make(
+        `${t1} has been weighing on you, especially around ${t2}.`,
+        `${t1} has been weighing on you.`,
+        `There's been a lot to carry.`,
+      );
+    case "anxious":
+      return make(
+        `${t1} has been on your mind, alongside ${t2}.`,
+        `${t1} has been on your mind.`,
+        `Your mind has been working hard.`,
+      );
+    case "low":
+      return make(
+        `Things have felt heavier. ${t1} and ${t2} have been present.`,
+        `Things have felt heavier. ${t1} has been present.`,
+        `Things have felt heavier.`,
+      );
+  }
+}
+
+function LatestCheckIn({ entry }: { entry: NoticingEntry & { id: string } }) {
+  const moodTopics = MOOD_TOPICS[entry.mood].filter((t) => entry.topics.includes(t));
+  const universalTopics = UNIVERSAL_TOPICS.filter((t) => entry.topics.includes(t));
+  const orderedTopics = [...moodTopics, ...universalTopics];
+  const dateLabel = new Date(entry.savedAt).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+  const narrative = latestNarrative(entry.mood, orderedTopics);
+
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          Your latest check-in
+        </p>
+        <p className="text-xs text-brand-purple-dark/55">{dateLabel}</p>
+      </div>
+      <Card className="bg-[#F5F1FB]">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-2.5 py-0.5 text-[11px] font-medium text-white">
+            <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+            Most recent
+          </span>
+          <SourceBadge source="check-in" />
+        </div>
+        <h3 className="mt-4 text-2xl font-medium text-brand-purple-dark">
+          {LATEST_TITLES[entry.mood]}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark/75">
+          {narrative}
+        </p>
+        {orderedTopics.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {orderedTopics.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-brand-purple/25 bg-white px-2.5 py-1 text-xs text-brand-purple-dark/80"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+        {entry.note && (
+          <div className="mt-4 border-l-2 border-brand-purple/40 pl-3">
+            <p className="text-sm italic text-brand-purple-dark/65">
+              &ldquo;{entry.note}&rdquo;
+            </p>
+          </div>
+        )}
+        <button
+          type="button"
+          className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand-purple transition hover:text-brand-purple-dark"
+        >
+          Open this check-in <span aria-hidden>→</span>
+        </button>
+      </Card>
+    </div>
+  );
+}
+
 function Overview({
   today,
   checkins: _checkins,
@@ -811,6 +1102,9 @@ function Overview({
         </>
       )}
 
+      {/* Mood this month */}
+      <MoodThisMonth entries={liveEntries} />
+
       {/* Mood check-in CTA */}
       <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -850,6 +1144,9 @@ function Overview({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Latest check-in spotlight */}
+      {liveEntries.length > 0 && <LatestCheckIn entry={liveEntries[0]} />}
 
       {/* Recent check-ins */}
       <Card>
@@ -998,9 +1295,12 @@ function LiveEntry({
             <p className="text-sm font-semibold text-brand-purple-dark">
               {expanded ? fullLabel : entry.intensityLabel}
             </p>
-            <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
-              {time}, today
-            </p>
+            <div className="flex shrink-0 items-center gap-2">
+              <SourceBadge source="check-in" />
+              <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
+                {time}, today
+              </p>
+            </div>
           </div>
           {!expanded && orderedTopics.length > 0 && (
             <p className="mt-1 text-xs text-brand-purple-dark/70">
