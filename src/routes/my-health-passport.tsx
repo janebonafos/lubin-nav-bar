@@ -766,7 +766,6 @@ function LiveEntry({
 
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: -6 }}
       animate={
         pulsing
