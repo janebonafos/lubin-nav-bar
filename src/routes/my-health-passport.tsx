@@ -508,6 +508,82 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 }
 
 // ---------- Overview ----------
+type NoticingEntry = CheckInPayload & { savedAt: number };
+type NoticingPattern =
+  | { kind: "top"; topic: string; count: number; total: number }
+  | { kind: "pair"; a: string; b: string }
+  | { kind: "mood"; mood: MoodKey; count: number; total: number };
+type NoticingResult =
+  | { case: "A" }
+  | { case: "B" }
+  | { case: "C"; topic: string; count: number }
+  | { case: "D"; patterns: NoticingPattern[] };
+
+function computeNoticing(entries: NoticingEntry[]): NoticingResult {
+  const n = entries.length;
+  if (n === 0) return { case: "A" };
+  if (n <= 2) return { case: "B" };
+
+  const topicCount = new Map<string, number>();
+  for (const e of entries)
+    for (const t of new Set(e.topics))
+      topicCount.set(t, (topicCount.get(t) ?? 0) + 1);
+
+  if (n <= 4) {
+    let topTopic = "";
+    let topN = 0;
+    for (const [t, c] of topicCount) if (c > topN) { topTopic = t; topN = c; }
+    if (topN >= 2) return { case: "C", topic: topTopic, count: topN };
+    return { case: "B" };
+  }
+
+  const patterns: NoticingPattern[] = [];
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recent = entries.filter((e) => e.savedAt >= sevenDaysAgo);
+  const recentTopic = new Map<string, number>();
+  for (const e of recent)
+    for (const t of new Set(e.topics))
+      recentTopic.set(t, (recentTopic.get(t) ?? 0) + 1);
+
+  let p1Topic = "";
+  let p1N = 0;
+  for (const [t, c] of recentTopic) if (c > p1N) { p1Topic = t; p1N = c; }
+  if (p1N >= 3)
+    patterns.push({ kind: "top", topic: p1Topic, count: p1N, total: recent.length });
+
+  const pairCount = new Map<string, number>();
+  for (const e of entries) {
+    const ts = [...new Set(e.topics)].sort();
+    for (let i = 0; i < ts.length; i++)
+      for (let j = i + 1; j < ts.length; j++)
+        pairCount.set(ts[i] + "|" + ts[j], (pairCount.get(ts[i] + "|" + ts[j]) ?? 0) + 1);
+  }
+  let bestPair: [string, string] | null = null;
+  let bestPairN = 0;
+  for (const [k, c] of pairCount)
+    if (c >= 2 && c > bestPairN) {
+      bestPairN = c;
+      const [a, b] = k.split("|");
+      bestPair = [a, b];
+    }
+  if (bestPair && patterns.length < 2)
+    patterns.push({ kind: "pair", a: bestPair[0], b: bestPair[1] });
+
+  if (patterns.length === 0) {
+    const moodCount = new Map<MoodKey, number>();
+    for (const e of recent)
+      moodCount.set(e.mood, (moodCount.get(e.mood) ?? 0) + 1);
+    let topMood: MoodKey | "" = "";
+    let topMoodN = 0;
+    for (const [m, c] of moodCount)
+      if (c > topMoodN) { topMoodN = c; topMood = m; }
+    if (topMood)
+      patterns.push({ kind: "mood", mood: topMood, count: topMoodN, total: recent.length });
+  }
+
+  return { case: "D", patterns };
+}
+
 function Overview({
   today,
   checkins: _checkins,
