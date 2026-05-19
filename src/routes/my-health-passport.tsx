@@ -709,12 +709,7 @@ function LiveEntry({
     hour: "numeric",
     minute: "2-digit",
   });
-  const topicsLine =
-    entry.topics.length === 0
-      ? null
-      : entry.topics.length <= 3
-        ? entry.topics.join(" · ")
-        : `${entry.topics.slice(0, 3).join(" · ")} · +${entry.topics.length - 3} more`;
+  const topicsLine = entry.topics.length === 0 ? null : entry.topics.join(" · ");
 
   return (
     <motion.div
