@@ -1102,6 +1102,9 @@ function Overview({
         </>
       )}
 
+      {/* Mood this month */}
+      <MoodThisMonth entries={liveEntries} />
+
       {/* Mood check-in CTA */}
       <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -1141,6 +1144,9 @@ function Overview({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Latest check-in spotlight */}
+      {liveEntries.length > 0 && <LatestCheckIn entry={liveEntries[0]} />}
 
       {/* Recent check-ins */}
       <Card>
