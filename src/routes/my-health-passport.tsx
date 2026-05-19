@@ -19,6 +19,7 @@ import {
   MessageCircle,
   Sparkles,
   Pencil,
+  CheckCircle2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -526,6 +527,7 @@ function Overview({
   const [latestSavedId, setLatestSavedId] = useState<string | null>(null);
   const [pulseId, setPulseId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
@@ -553,6 +555,15 @@ function Overview({
     setPulseId(id);
     setEditingId(null);
     onCloseCheckIn();
+    const toastId = Date.now();
+    setToast({
+      id: toastId,
+      message: editingId ? "Check-in updated" : "Check-in saved",
+    });
+    window.setTimeout(
+      () => setToast((c) => (c && c.id === toastId ? null : c)),
+      2800,
+    );
     window.setTimeout(() => setPulseId((c) => (c === id ? null : c)), 1600);
     window.setTimeout(() => setLatestSavedId((c) => (c === id ? null : c)), 30000);
   };
@@ -695,6 +706,23 @@ function Overview({
           <span className="font-semibold text-brand-purple">Talk to Lubin →</span>
         </p>
       </Link>
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            role="status"
+            aria-live="polite"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-brand-purple-dark px-4 py-2.5 text-sm font-medium text-white shadow-[0_18px_40px_-12px_rgba(61,46,107,0.55)]"
+          >
+            <CheckCircle2 className="h-4 w-4 text-emerald-300" strokeWidth={2.4} />
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
