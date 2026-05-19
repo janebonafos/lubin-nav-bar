@@ -1227,6 +1227,7 @@ function Overview({
 
 function LiveEntry({
   entry,
+  isTop = false,
   pulsing,
   showActions,
   expanded,
@@ -1243,6 +1244,7 @@ function LiveEntry({
     note: string;
     savedAt: number;
   };
+  isTop?: boolean;
   pulsing: boolean;
   showActions: boolean;
   expanded: boolean;
@@ -1261,6 +1263,83 @@ function LiveEntry({
   const remainingCount = Math.max(0, orderedTopics.length - 3);
   const accent = "#EDE9F4";
   const fullLabel = `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`;
+
+  if (isTop) {
+    const narrative = latestNarrative(entry.mood, orderedTopics);
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={
+          pulsing
+            ? { opacity: 1, y: 0, backgroundColor: ["#E4DAF3", "#F5F1FB"] }
+            : { opacity: 1, y: 0, backgroundColor: "#F5F1FB" }
+        }
+        transition={{ duration: pulsing ? 1.5 : 0.25, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-xl ring-1 ring-brand-purple/15"
+      >
+        <div className="px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-2.5 py-0.5 text-[11px] font-medium text-white">
+              <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+              Most recent
+            </span>
+            <p className="whitespace-nowrap text-xs text-brand-purple-dark/55">
+              {time}, today
+            </p>
+          </div>
+          <h3 className="mt-3 text-xl font-medium text-brand-purple-dark">
+            {LATEST_TITLES[entry.mood]}
+          </h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-brand-purple-dark/75">
+            {narrative}
+          </p>
+          {orderedTopics.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {orderedTopics.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-brand-purple/25 bg-white px-2.5 py-1 text-xs text-brand-purple-dark/80"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+          {entry.note && (
+            <div className="mt-3 border-l-2 border-brand-purple/40 pl-3">
+              <p className="text-sm italic text-brand-purple-dark/65">
+                &ldquo;{entry.note}&rdquo;
+              </p>
+            </div>
+          )}
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+            <Link
+              to="/chat"
+              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              Talk this through with Lubin →
+            </Link>
+            <Link
+              to="/resources"
+              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Try something that might help →
+            </Link>
+            <button
+              type="button"
+              onClick={onEdit}
+              className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-brand-purple-dark/60 transition hover:text-brand-purple-dark"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -1293,12 +1372,9 @@ function LiveEntry({
             <p className="text-sm font-semibold text-brand-purple-dark">
               {expanded ? fullLabel : entry.intensityLabel}
             </p>
-            <div className="flex shrink-0 items-center gap-2">
-              <SourceBadge source="check-in" />
-              <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
-                {time}, today
-              </p>
-            </div>
+            <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
+              {time}, today
+            </p>
           </div>
           {!expanded && orderedTopics.length > 0 && (
             <p className="mt-1 text-xs text-brand-purple-dark/70">
