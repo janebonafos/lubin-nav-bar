@@ -17,13 +17,13 @@ import {
 
 type MoodKey = "calm" | "okay" | "drained" | "stressed" | "anxious" | "low";
 
-const MOODS: { key: MoodKey; label: string; Icon: LucideIcon; bg: string }[] = [
-  { key: "calm", label: "Calm", Icon: Leaf, bg: "#E8F1EC" },
-  { key: "okay", label: "Okay", Icon: Smile, bg: "#EEF2F7" },
-  { key: "drained", label: "Drained", Icon: Moon, bg: "#EDE9F4" },
-  { key: "stressed", label: "Stressed", Icon: Waves, bg: "#FCEBE3" },
-  { key: "anxious", label: "Anxious", Icon: Wind, bg: "#FFF4E0" },
-  { key: "low", label: "Low", Icon: CloudDrizzle, bg: "#E6EEF6" },
+const MOODS: { key: MoodKey; label: string; Icon: LucideIcon }[] = [
+  { key: "calm", label: "Calm", Icon: Leaf },
+  { key: "okay", label: "Okay", Icon: Smile },
+  { key: "drained", label: "Drained", Icon: Moon },
+  { key: "stressed", label: "Stressed", Icon: Waves },
+  { key: "anxious", label: "Anxious", Icon: Wind },
+  { key: "low", label: "Low", Icon: CloudDrizzle },
 ];
 
 const INTENSITY: Record<MoodKey, { question: string; options: { emoji: string; label: string }[] }> = {
@@ -213,14 +213,15 @@ function Step1({ onPick }: { onPick: (m: MoodKey) => void }) {
         Pick what feels closest. There's no wrong answer.
       </p>
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {MOODS.map(({ key, label, Icon, bg }) => (
+        {MOODS.map(({ key, label, Icon }) => (
           <button
             key={key}
             onClick={() => onPick(key)}
-            style={{ backgroundColor: bg }}
-            className="flex items-center gap-2.5 rounded-2xl px-4 py-4 text-left text-sm font-medium text-brand-purple-dark shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="flex items-center gap-3 rounded-2xl border border-brand-purple/10 bg-white px-4 py-3.5 text-left text-sm font-semibold text-brand-purple-dark shadow-[0_2px_6px_-2px_rgba(126,107,175,0.15)] transition hover:-translate-y-0.5 hover:border-brand-purple/25 hover:shadow-md"
           >
-            <Icon className="h-5 w-5 text-brand-purple-dark/80" strokeWidth={2} />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-purple/12">
+              <Icon className="h-[18px] w-[18px] text-brand-purple" strokeWidth={2} />
+            </span>
             <span>{label}</span>
           </button>
         ))}
