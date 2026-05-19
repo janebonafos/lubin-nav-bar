@@ -1145,9 +1145,6 @@ function Overview({
         )}
       </AnimatePresence>
 
-      {/* Latest check-in spotlight */}
-      {liveEntries.length > 0 && <LatestCheckIn entry={liveEntries[0]} />}
-
       {/* Recent check-ins */}
       <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
@@ -1156,10 +1153,11 @@ function Overview({
         {liveEntries.length > 0 ? (
           <div className="mt-4 space-y-3">
             <AnimatePresence initial={false}>
-              {liveEntries.map((entry) => (
+              {liveEntries.map((entry, idx) => (
                 <LiveEntry
                   key={entry.id}
                   entry={entry}
+                  isTop={idx === 0}
                   pulsing={pulseId === entry.id}
                   showActions={latestSavedId === entry.id}
                   expanded={expandedId === entry.id}
