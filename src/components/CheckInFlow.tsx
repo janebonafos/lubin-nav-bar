@@ -94,7 +94,7 @@ const INTENSITY: Record<MoodKey, { question: string; options: { emoji: string; l
   },
 };
 
-const MOOD_TOPICS: Record<MoodKey, string[]> = {
+export const MOOD_TOPICS: Record<MoodKey, string[]> = {
   calm: ["Rest", "Nature", "Mindfulness", "Gratitude"],
   okay: ["Routine", "Balance", "Connection", "Small wins"],
   drained: ["Burnout", "Sleep loss", "Overwork", "Caregiving"],
@@ -103,7 +103,25 @@ const MOOD_TOPICS: Record<MoodKey, string[]> = {
   low: ["Loneliness", "Grief", "Self-doubt", "Stuckness"],
 };
 
-const UNIVERSAL_TOPICS = ["Sleep", "Work", "Relationships", "Family", "Health", "Money", "Energy"];
+export const UNIVERSAL_TOPICS = ["Sleep", "Work", "Relationships", "Family", "Health", "Money", "Energy"];
+
+export const MOOD_LABELS: Record<MoodKey, string> = {
+  calm: "Calm",
+  okay: "Okay",
+  drained: "Drained",
+  stressed: "Stressed",
+  anxious: "Anxious",
+  low: "Low",
+};
+
+export const MOOD_ACCENTS: Record<MoodKey, string> = {
+  calm: "#E8F1EC",
+  okay: "#EEF2F7",
+  drained: "#EDE9F4",
+  stressed: "#FCEBE3",
+  anxious: "#FFF4E0",
+  low: "#E6EEF6",
+};
 
 export default function CheckInFlow({
   onClose,

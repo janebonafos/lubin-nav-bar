@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
+import CheckInFlow, {
+  type CheckInPayload,
+  type MoodKey,
+  MOOD_TOPICS,
+  UNIVERSAL_TOPICS,
+  MOOD_LABELS,
+  MOOD_ACCENTS,
+} from "@/components/CheckInFlow";
 import {
   CalendarCheck,
   ClipboardList,
@@ -518,6 +525,7 @@ function Overview({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [latestSavedId, setLatestSavedId] = useState<string | null>(null);
   const [pulseId, setPulseId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
@@ -643,6 +651,10 @@ function Overview({
                   entry={entry}
                   pulsing={pulseId === entry.id}
                   showActions={latestSavedId === entry.id}
+                  expanded={expandedId === entry.id}
+                  onToggle={() =>
+                    setExpandedId((c) => (c === entry.id ? null : entry.id))
+                  }
                   onEdit={() => handleEdit(entry.id)}
                 />
               ))}
@@ -691,10 +703,14 @@ function LiveEntry({
   entry,
   pulsing,
   showActions,
+  expanded,
+  onToggle,
   onEdit,
 }: {
   entry: {
     id: string;
+    mood: MoodKey;
+    intensityIdx: number;
     intensityEmoji: string;
     intensityLabel: string;
     topics: string[];
@@ -703,13 +719,22 @@ function LiveEntry({
   };
   pulsing: boolean;
   showActions: boolean;
+  expanded: boolean;
+  onToggle: () => void;
   onEdit: () => void;
 }) {
   const time = new Date(entry.savedAt).toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
   });
-  const topicsLine = entry.topics.length === 0 ? null : entry.topics.join(" · ");
+  // Order topics: mood-specific first (in canonical order), then universal (in canonical order)
+  const moodTopics = MOOD_TOPICS[entry.mood].filter((t) => entry.topics.includes(t));
+  const universalTopics = UNIVERSAL_TOPICS.filter((t) => entry.topics.includes(t));
+  const orderedTopics = [...moodTopics, ...universalTopics];
+  const collapsedTopics = orderedTopics.slice(0, 3);
+  const remainingCount = Math.max(0, orderedTopics.length - 3);
+  const accent = MOOD_ACCENTS[entry.mood];
+  const fullLabel = `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`;
 
   return (
     <motion.div
@@ -721,8 +746,19 @@ function LiveEntry({
           : { opacity: 1, y: 0, backgroundColor: "#ffffff" }
       }
       transition={{ duration: pulsing ? 1.5 : 0.25, ease: "easeOut" }}
-      className="rounded-xl px-4 py-3 ring-1 ring-brand-purple/10"
+      className="relative overflow-hidden rounded-xl ring-1 ring-brand-purple/10"
     >
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-1"
+        style={{ background: accent }}
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        className="block w-full px-4 py-3 pl-5 text-left"
+      >
       <div className="flex items-start gap-3">
         <span className="text-2xl leading-none" aria-hidden>
           {entry.intensityEmoji}
@@ -730,22 +766,73 @@ function LiveEntry({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-sm font-semibold text-brand-purple-dark">
-              {entry.intensityLabel}
+              {expanded ? fullLabel : entry.intensityLabel}
             </p>
             <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
               {time}, today
             </p>
           </div>
-          {topicsLine && (
-            <p className="mt-1 text-xs text-brand-purple-dark/70">{topicsLine}</p>
+          {!expanded && orderedTopics.length > 0 && (
+            <p className="mt-1 text-xs text-brand-purple-dark/70">
+              {collapsedTopics.join(" · ")}
+              {remainingCount > 0 && (
+                <span className="ml-1.5 inline-flex items-center rounded-full bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-purple-dark/70">
+                  +{remainingCount} more
+                </span>
+              )}
+            </p>
           )}
-          {entry.note && (
+          {!expanded && entry.note && (
             <p className="mt-1 text-xs italic text-brand-purple-dark/65">
               &ldquo;{entry.note}&rdquo;
             </p>
           )}
         </div>
       </div>
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="expanded"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="px-4 pb-4 pl-14">
+              {orderedTopics.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {orderedTopics.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs text-brand-purple-dark/80"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {entry.note && (
+                <p className="mt-3 text-xs italic text-brand-purple-dark/70">
+                  &ldquo;{entry.note}&rdquo;
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-purple transition hover:text-brand-purple-dark"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit →
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showActions && (
           <motion.div
@@ -753,7 +840,7 @@ function LiveEntry({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 text-xs"
+            className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pl-14 text-xs"
           >
             <Link
               to="/chat"
@@ -769,14 +856,6 @@ function LiveEntry({
               <Sparkles className="h-3.5 w-3.5" />
               Try something that might help →
             </Link>
-            <button
-              type="button"
-              onClick={onEdit}
-              className="inline-flex items-center gap-1 font-medium text-brand-purple transition hover:text-brand-purple-dark"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Edit →
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
