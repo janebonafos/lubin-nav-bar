@@ -137,10 +137,6 @@ function PassportPage() {
     <div className="min-h-screen bg-brand-lavender" style={{ fontFamily: "Inter, sans-serif" }}>
       <Navbar />
       <main className="mx-auto w-full max-w-[900px] px-5 md:px-10 pt-32 pb-20">
-        {checkInActive ? (
-          <CheckInFlow onClose={() => setCheckInActive(false)} />
-        ) : (
-          <>
         {/* Guest nudge banner */}
         <GuestBanner />
 
@@ -190,6 +186,8 @@ function PassportPage() {
               today={today}
               checkins={checkins}
               onLogMood={() => setCheckInActive(true)}
+              checkInActive={checkInActive}
+              onCloseCheckIn={() => setCheckInActive(false)}
             />
           )}
           {tab === "progress" && (
@@ -208,8 +206,6 @@ function PassportPage() {
             Create your free account <span aria-hidden>→</span>
           </button>
         </div>
-          </>
-        )}
       </main>
 
       {checkInOpen && (
@@ -499,10 +495,14 @@ function Overview({
   today,
   checkins: _checkins,
   onLogMood,
+  checkInActive,
+  onCloseCheckIn,
 }: {
   today: string;
   checkins: CheckIn[];
   onLogMood: () => void;
+  checkInActive: boolean;
+  onCloseCheckIn: () => void;
 }) {
   return (
     <div className="grid gap-5">
@@ -551,6 +551,12 @@ function Overview({
           Check in <span aria-hidden>→</span>
         </button>
       </Card>
+
+      {checkInActive && (
+        <Card>
+          <CheckInFlow onClose={onCloseCheckIn} />
+        </Card>
+      )}
 
       {/* Recent check-ins — anticipation empty state */}
       <Card>
