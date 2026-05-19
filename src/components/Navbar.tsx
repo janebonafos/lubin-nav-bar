@@ -347,7 +347,7 @@ export default function Navbar() {
           </button>
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_4px_15px_rgba(126,107,175,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(126,107,175,0.4)] active:scale-95"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
           >
             Find Service Provider
           </a>
@@ -396,7 +396,7 @@ export default function Navbar() {
               <a
                 href="/find-provider"
                 onClick={() => setOpen(false)}
-                className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-brand-purple-accent to-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_4px_15px_rgba(126,107,175,0.3)]"
+                className="inline-flex w-full items-center justify-center rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
               >
                 Find Service Provider
               </a>
