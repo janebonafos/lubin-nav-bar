@@ -1,5 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -9,9 +8,6 @@ import {
   Waves,
   Wind,
   CloudDrizzle,
-  MessageCircle,
-  LifeBuoy,
-  BookmarkCheck,
   LucideIcon,
 } from "lucide-react";
 
@@ -99,15 +95,6 @@ const MOOD_TOPICS: Record<MoodKey, string[]> = {
 };
 
 const UNIVERSAL_TOPICS = ["Sleep", "Work", "Relationships", "Family", "Health", "Money", "Energy"];
-
-const SUMMARY: Record<MoodKey, string> = {
-  calm: "You seem grounded and steady today.",
-  okay: "You seem to be holding things in balance today.",
-  drained: "You seem a bit mentally drained and under pressure right now.",
-  stressed: "There's a lot on your plate — it sounds like today has felt heavy.",
-  anxious: "You seem a bit on edge. Your mind has been working hard today.",
-  low: "Today has felt a little heavier. That's okay to notice.",
-};
 
 export default function CheckInFlow({ onClose }: { onClose: () => void }) {
   const [mood, setMood] = useState<MoodKey | null>(null);
