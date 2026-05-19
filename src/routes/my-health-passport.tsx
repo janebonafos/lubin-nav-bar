@@ -648,6 +648,9 @@ function Overview({
         )}
       </AnimatePresence>
 
+      {/* Mood this month — live metrics */}
+      <MoodThisMonth entries={liveEntries} />
+
       {/* Recent check-ins */}
       <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
