@@ -800,7 +800,12 @@ function LiveEntry({
             transition={{ duration: 0.25, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
           >
-            <div className="px-4 pb-4 pl-14">
+            <div
+              className="cursor-pointer px-4 pb-4 pl-14"
+              onClick={onToggle}
+              role="button"
+              tabIndex={-1}
+            >
               {orderedTopics.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {orderedTopics.map((t) => (
