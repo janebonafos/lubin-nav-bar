@@ -495,10 +495,14 @@ function Overview({
   today,
   checkins: _checkins,
   onLogMood,
+  checkInActive,
+  onCloseCheckIn,
 }: {
   today: string;
   checkins: CheckIn[];
   onLogMood: () => void;
+  checkInActive: boolean;
+  onCloseCheckIn: () => void;
 }) {
   return (
     <div className="grid gap-5">
@@ -547,6 +551,12 @@ function Overview({
           Check in <span aria-hidden>→</span>
         </button>
       </Card>
+
+      {checkInActive && (
+        <Card>
+          <CheckInFlow onClose={onCloseCheckIn} />
+        </Card>
+      )}
 
       {/* Recent check-ins — anticipation empty state */}
       <Card>
