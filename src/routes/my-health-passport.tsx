@@ -529,6 +529,8 @@ function Overview({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
 
+  const insight = useMemo(() => computeNoticing(liveEntries), [liveEntries]);
+
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
     : null;
