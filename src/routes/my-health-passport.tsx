@@ -540,79 +540,134 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 
 // ---------- Overview ----------
 type NoticingEntry = CheckInPayload & { savedAt: number };
-type NoticingPattern =
-  | { kind: "top"; topic: string; count: number; total: number }
-  | { kind: "pair"; a: string; b: string }
-  | { kind: "mood"; mood: MoodKey; count: number; total: number };
-type NoticingResult =
-  | { case: "A" }
-  | { case: "B" }
-  | { case: "C"; topic: string; count: number }
-  | { case: "D"; patterns: NoticingPattern[] };
 
-function computeNoticing(entries: NoticingEntry[]): NoticingResult {
-  const n = entries.length;
-  if (n === 0) return { case: "A" };
-  if (n <= 2) return { case: "B" };
+const POSITIVE_MOODS: MoodKey[] = ["calm", "okay"];
+const NEGATIVE_MOODS: MoodKey[] = ["drained", "stressed", "anxious", "low"];
+
+const TOPIC_META: Record<string, { Icon: LucideIcon; text: string }> = {
+  "Sleep loss": { Icon: Bed, text: "Sleep loss is a core factor" },
+  Overwork: { Icon: Briefcase, text: "Overwork has compounded the strain" },
+  Burnout: { Icon: BatteryLow, text: "Exhaustion has been intense" },
+  Caregiving: { Icon: Heart, text: "Caregiving has been weighing on you" },
+  Loneliness: { Icon: UserX, text: "Loneliness has been a thread" },
+  "Self-doubt": { Icon: CloudOff, text: "Self-doubt has been louder lately" },
+  Stuckness: { Icon: Anchor, text: "Stuckness has been recurring" },
+  Grief: { Icon: HeartCrack, text: "Grief has been present" },
+  Pressure: { Icon: Gauge, text: "Pressure has been heavy" },
+  Deadlines: { Icon: Clock, text: "Deadlines have been pushing you" },
+  Conflict: { Icon: Zap, text: "Conflict has been in the background" },
+  Workload: { Icon: Layers, text: "Workload has been overwhelming" },
+  Uncertainty: { Icon: HelpCircle, text: "Uncertainty has been hard to sit with" },
+  Future: { Icon: Compass, text: "The future has felt unclear" },
+  "Big change": { Icon: Shuffle, text: "A big change has been on your mind" },
+  Performance: { Icon: Target, text: "Performance pressure has been a factor" },
+  Rest: { Icon: Moon, text: "Rest has been a meaningful focus" },
+  Nature: { Icon: Trees, text: "Nature has been a balm" },
+  Mindfulness: { Icon: Sparkle, text: "Mindfulness has been steadying" },
+  Gratitude: { Icon: Smile, text: "Gratitude has been present" },
+  Routine: { Icon: Repeat, text: "Routine has been grounding" },
+  Balance: { Icon: Scale, text: "Balance has been a focus" },
+  Connection: { Icon: Users, text: "Connection has been important" },
+  "Small wins": { Icon: CheckCircle, text: "Small wins have added up" },
+  Sleep: { Icon: Bed, text: "Sleep has been on your mind" },
+  Work: { Icon: Briefcase, text: "Work has been a recurring theme" },
+  Money: { Icon: DollarSign, text: "Money has been a focus" },
+  Health: { Icon: Stethoscope, text: "Health has been present" },
+  Energy: { Icon: Battery, text: "Energy has been a theme" },
+  Family: { Icon: Home, text: "Family has been on your mind" },
+  Relationships: { Icon: Users, text: "Relationships have been a focus" },
+};
+
+type NoticingData = {
+  lead: string;
+  bullets: { Icon: LucideIcon; text: string }[];
+  patterns: { topic: string; count: number }[];
+};
+
+function frequencyPhrase(n: number): string {
+  if (n === 1) return "once";
+  if (n === 2) return "a couple of times";
+  if (n === 3) return "a few times";
+  return `${n} times`;
+}
+
+function computeNoticing(entries: NoticingEntry[]): NoticingData | null {
+  if (entries.length < 3) return null;
+  const last5 = entries.slice(0, 5);
 
   const topicCount = new Map<string, number>();
-  for (const e of entries)
+  for (const e of last5)
     for (const t of new Set(e.topics))
       topicCount.set(t, (topicCount.get(t) ?? 0) + 1);
+  const topicsSorted = [...topicCount.entries()].sort(
+    (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+  );
+  const top2 = topicsSorted.slice(0, 2).map(([t]) => t);
+  const topic1 = top2[0] ?? "things";
+  const topic2 = top2[1] ?? topic1;
 
-  if (n <= 4) {
-    let topTopic = "";
-    let topN = 0;
-    for (const [t, c] of topicCount) if (c > topN) { topTopic = t; topN = c; }
-    if (topN >= 2) return { case: "C", topic: topTopic, count: topN };
-    return { case: "B" };
-  }
+  const moodCount = new Map<MoodKey, number>();
+  for (const e of last5) moodCount.set(e.mood, (moodCount.get(e.mood) ?? 0) + 1);
+  let domMood: MoodKey | null = null;
+  let domN = 0;
+  for (const [m, c] of moodCount) if (c > domN) { domN = c; domMood = m; }
+  const majority = domN > last5.length / 2;
 
-  const patterns: NoticingPattern[] = [];
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const recent = entries.filter((e) => e.savedAt >= sevenDaysAgo);
-  const recentTopic = new Map<string, number>();
-  for (const e of recent)
-    for (const t of new Set(e.topics))
-      recentTopic.set(t, (recentTopic.get(t) ?? 0) + 1);
+  const last3 = entries.slice(0, 3);
+  const latest = last3[0];
+  const older = last3.slice(1);
+  const latestPositive = POSITIVE_MOODS.includes(latest.mood);
+  const olderAllNegative =
+    older.length > 0 && older.every((e) => NEGATIVE_MOODS.includes(e.mood));
+  const olderAllPositive =
+    older.length > 0 && older.every((e) => POSITIVE_MOODS.includes(e.mood));
+  let trajectory: "improving" | "worsening" | "stable" = "stable";
+  if (latestPositive && olderAllNegative) trajectory = "improving";
+  else if (!latestPositive && olderAllPositive) trajectory = "worsening";
 
-  let p1Topic = "";
-  let p1N = 0;
-  for (const [t, c] of recentTopic) if (c > p1N) { p1Topic = t; p1N = c; }
-  if (p1N >= 3)
-    patterns.push({ kind: "top", topic: p1Topic, count: p1N, total: recent.length });
+  const trendTail =
+    trajectory === "improving"
+      ? "A steadier day emerged most recently, though the toll from the previous stretch is still present."
+      : trajectory === "worsening"
+      ? "Recent days have felt heavier than the ones before."
+      : "The pattern has held through your last few check-ins.";
 
-  const pairCount = new Map<string, number>();
-  for (const e of entries) {
-    const ts = [...new Set(e.topics)].sort();
-    for (let i = 0; i < ts.length; i++)
-      for (let j = i + 1; j < ts.length; j++)
-        pairCount.set(ts[i] + "|" + ts[j], (pairCount.get(ts[i] + "|" + ts[j]) ?? 0) + 1);
-  }
-  let bestPair: [string, string] | null = null;
-  let bestPairN = 0;
-  for (const [k, c] of pairCount)
-    if (c >= 2 && c > bestPairN) {
-      bestPairN = c;
-      const [a, b] = k.split("|");
-      bestPair = [a, b];
-    }
-  if (bestPair && patterns.length < 2)
-    patterns.push({ kind: "pair", a: bestPair[0], b: bestPair[1] });
+  const leadKey: MoodKey | "mixed" = majority && domMood ? domMood : "mixed";
+  const LEADS: Record<MoodKey | "mixed", (t1: string, t2: string, tail: string) => string> = {
+    drained: (t1, t2, tail) =>
+      `You've been running on empty—${t1} and ${t2} have drained your reserves significantly. ${tail}`,
+    stressed: (t1, t2, tail) =>
+      `There's been a lot on your plate—${t1} and ${t2} have been weighing on you. ${tail}`,
+    anxious: (t1, t2, tail) =>
+      `Your mind has been working hard—${t1} and ${t2} have been recurring concerns. ${tail}`,
+    low: (t1, t2, tail) =>
+      `Things have felt heavier recently—${t1} and ${t2} have been showing up. ${tail}`,
+    calm: (t1, t2, tail) =>
+      `You've been finding steady ground—${t1} and ${t2} have been part of that. ${tail}`,
+    okay: (t1, t2, tail) =>
+      `You've been holding things in balance—${t1} and ${t2} have been part of that. ${tail}`,
+    mixed: (t1, t2, tail) =>
+      `Your week has been a mix—${t1} on the lighter days, ${t2} on the harder ones. ${tail}`,
+  };
+  const lead = LEADS[leadKey](topic1, topic2, trendTail);
 
-  if (patterns.length === 0) {
-    const moodCount = new Map<MoodKey, number>();
-    for (const e of recent)
-      moodCount.set(e.mood, (moodCount.get(e.mood) ?? 0) + 1);
-    let topMood: MoodKey | "" = "";
-    let topMoodN = 0;
-    for (const [m, c] of moodCount)
-      if (c > topMoodN) { topMoodN = c; topMood = m; }
-    if (topMood)
-      patterns.push({ kind: "mood", mood: topMood, count: topMoodN, total: recent.length });
-  }
+  const bulletTopics = topicsSorted
+    .slice(0, 3)
+    .map(([t]) => t)
+    .filter((t) => TOPIC_META[t]);
+  const bullets: { Icon: LucideIcon; text: string }[] = bulletTopics.map((t) => ({
+    Icon: TOPIC_META[t].Icon,
+    text: TOPIC_META[t].text,
+  }));
+  if (trajectory === "improving")
+    bullets.push({ Icon: TrendingUp, text: "A small shift toward steadier ground" });
+  else if (trajectory === "worsening")
+    bullets.push({ Icon: TrendingDown, text: "The strain has been growing" });
+  else bullets.push({ Icon: Minus, text: "The pattern has held" });
 
-  return { case: "D", patterns };
+  const patterns = topicsSorted.slice(0, 4).map(([topic, count]) => ({ topic, count }));
+
+  return { lead, bullets, patterns };
 }
 
 function Overview({
