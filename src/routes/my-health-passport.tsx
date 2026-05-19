@@ -204,9 +204,9 @@ function PassportPage() {
         {/* Tabs */}
         <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
           {([
-            ["overview", "Overview"],
-            ["progress", "My Progress"],
-            ["share", "Share Snapshot"],
+            ["overview", "Today"],
+            ["progress", "Patterns"],
+            ["share", "Share"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
             return (
