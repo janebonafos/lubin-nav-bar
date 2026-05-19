@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
+import CheckInFlow from "@/components/CheckInFlow";
 import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -65,6 +66,7 @@ function PassportPage() {
   const [checkins, setCheckins] = useState<CheckIn[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkInActive, setCheckInActive] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
   // Avoid SSR/client mismatch: start undecided, decide after mount.
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
@@ -135,6 +137,10 @@ function PassportPage() {
     <div className="min-h-screen bg-brand-lavender" style={{ fontFamily: "Inter, sans-serif" }}>
       <Navbar />
       <main className="mx-auto w-full max-w-[900px] px-5 md:px-10 pt-32 pb-20">
+        {checkInActive ? (
+          <CheckInFlow onClose={() => setCheckInActive(false)} />
+        ) : (
+          <>
         {/* Guest nudge banner */}
         <GuestBanner />
 
@@ -183,7 +189,7 @@ function PassportPage() {
             <Overview
               today={today}
               checkins={checkins}
-              onLogMood={() => setCheckInOpen(true)}
+              onLogMood={() => setCheckInActive(true)}
             />
           )}
           {tab === "progress" && (
@@ -202,6 +208,8 @@ function PassportPage() {
             Create your free account <span aria-hidden>→</span>
           </button>
         </div>
+          </>
+        )}
       </main>
 
       {checkInOpen && (
@@ -536,12 +544,12 @@ function Overview({
             Takes 15 seconds. Builds your passport over time.
           </p>
         </div>
-        <Link
-          to="/check-in"
+        <button
+          onClick={onLogMood}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
         >
           Check in <span aria-hidden>→</span>
-        </Link>
+        </button>
       </Card>
 
       {/* Recent check-ins — anticipation empty state */}
