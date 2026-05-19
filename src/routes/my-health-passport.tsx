@@ -50,6 +50,7 @@ import {
   Home,
   TrendingDown,
   Minus,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
