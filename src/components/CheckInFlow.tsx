@@ -217,12 +217,14 @@ function Step1({ onPick }: { onPick: (m: MoodKey) => void }) {
           <button
             key={key}
             onClick={() => onPick(key)}
-            className="flex items-center gap-3 rounded-2xl border border-brand-purple/10 bg-white px-4 py-3.5 text-left text-sm font-semibold text-brand-purple-dark shadow-[0_2px_6px_-2px_rgba(126,107,175,0.15)] transition hover:border-brand-purple/60 hover:ring-2 hover:ring-brand-purple/30 hover:shadow-md"
+            className="group flex min-w-0 items-center gap-2.5 rounded-xl border-2 border-[#E5E7EB] bg-white px-3 py-3 text-left transition-all duration-150 hover:border-[#7E6BAF]/40 hover:bg-[#F5F1FB] active:scale-[0.98]"
           >
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-purple/12">
-              <Icon className="h-[18px] w-[18px] text-brand-purple" strokeWidth={2} />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#ECE7F6] transition-colors">
+              <Icon className="h-4 w-4 text-[#7E6BAF]" strokeWidth={2.5} />
             </span>
-            <span>{label}</span>
+            <span className="flex-1 whitespace-nowrap text-[13.5px] font-semibold text-[#374151]">
+              {label}
+            </span>
           </button>
         ))}
       </div>
