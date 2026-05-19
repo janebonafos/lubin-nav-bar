@@ -648,6 +648,9 @@ function Overview({
         )}
       </AnimatePresence>
 
+      {/* Mood this month — live metrics */}
+      <MoodThisMonth entries={liveEntries} />
+
       {/* Recent check-ins */}
       <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
@@ -723,6 +726,132 @@ function Overview({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+type LiveCheckInLite = CheckInPayload & { id: string; savedAt: number };
+
+function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
+  const now = new Date();
+  const monthName = now.toLocaleString(undefined, { month: "long" });
+  const inMonth = entries.filter((e) => {
+    const d = new Date(e.savedAt);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+
+  const total = inMonth.length;
+  const moodOrder: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
+  const counts: Record<MoodKey, number> = {
+    calm: 0, okay: 0, drained: 0, stressed: 0, anxious: 0, low: 0,
+  };
+  inMonth.forEach((e) => { counts[e.mood]++; });
+
+  const topMood =
+    total > 0
+      ? moodOrder.reduce((a, b) => (counts[b] > counts[a] ? b : a), moodOrder[0])
+      : null;
+
+  const avgIntensity =
+    total > 0
+      ? (inMonth.reduce((s, e) => s + (e.intensityIdx + 1), 0) / total).toFixed(1)
+      : "—";
+
+  const topicTally = new Map<string, number>();
+  inMonth.forEach((e) =>
+    e.topics.forEach((t) => topicTally.set(t, (topicTally.get(t) ?? 0) + 1)),
+  );
+  const topTopics = [...topicTally.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([t]) => t);
+
+  const maxCount = Math.max(1, ...moodOrder.map((m) => counts[m]));
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          Mood this month
+        </p>
+        <p className="text-[11px] text-brand-purple-dark/55">{monthName}</p>
+      </div>
+
+      {total === 0 ? (
+        <p className="mt-4 text-sm text-brand-purple-dark/55">
+          No check-ins yet this month. Your first one will start building this view.
+        </p>
+      ) : (
+        <>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <Metric label="Check-ins" value={String(total)} />
+            <Metric
+              label="Most felt"
+              value={topMood ? MOOD_LABELS[topMood] : "—"}
+            />
+            <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+          </div>
+
+          <div className="mt-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+              Mood mix
+            </p>
+            <div className="mt-3 space-y-2">
+              {moodOrder
+                .filter((m) => counts[m] > 0)
+                .map((m) => (
+                  <div key={m} className="flex items-center gap-3">
+                    <span className="w-16 shrink-0 text-xs font-medium text-brand-purple-dark/75">
+                      {MOOD_LABELS[m]}
+                    </span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-brand-purple/5">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${(counts[m] / maxCount) * 100}%`,
+                          backgroundColor: MOOD_ACCENTS[m],
+                          boxShadow: "inset 0 0 0 1px rgba(126,107,175,0.18)",
+                        }}
+                      />
+                    </div>
+                    <span className="w-6 text-right text-xs tabular-nums text-brand-purple-dark/55">
+                      {counts[m]}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {topTopics.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+                On your mind
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {topTopics.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </Card>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-brand-lavender/50 px-3 py-3 ring-1 ring-brand-purple/10">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/55">
+        {label}
+      </p>
+      <p className="mt-1 text-lg font-semibold text-brand-purple-dark">{value}</p>
     </div>
   );
 }
