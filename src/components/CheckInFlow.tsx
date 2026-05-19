@@ -88,10 +88,10 @@ const INTENSITY: Record<MoodKey, { question: string; options: { emoji: string; l
 const MOOD_TOPICS: Record<MoodKey, string[]> = {
   calm: ["Rest", "Nature", "Mindfulness", "Gratitude"],
   okay: ["Routine", "Balance", "Connection", "Small wins"],
-  drained: ["Burnout", "Sleep loss", "Overwork", "Recovery"],
-  stressed: ["Deadlines", "Pressure", "Conflict", "Overwhelm"],
-  anxious: ["Worry", "Uncertainty", "Future", "Racing thoughts"],
-  low: ["Loneliness", "Grief", "Self-esteem", "Motivation"],
+  drained: ["Burnout", "Sleep loss", "Overwork", "Caregiving"],
+  stressed: ["Deadlines", "Pressure", "Conflict", "Workload"],
+  anxious: ["Uncertainty", "Future", "Big change", "Performance"],
+  low: ["Loneliness", "Grief", "Self-doubt", "Stuckness"],
 };
 
 const UNIVERSAL_TOPICS = ["Sleep", "Work", "Relationships", "Family", "Health", "Money", "Energy"];
