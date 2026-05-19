@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Route = createFileRoute("/my-health-passport")({
@@ -710,12 +710,10 @@ function MoodChart({ checkins }: { checkins: CheckIn[] }) {
 function StreakCalendar({ checkins }: { checkins: CheckIn[] }) {
   if (checkins.length === 0) {
     return (
-      <div className="mt-4 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-brand-purple/25 bg-brand-purple/[0.04] px-6 py-10 text-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
+      <div className="mt-4 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-brand-purple/25 bg-brand-purple/[0.04] px-6 py-10 text-center">
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple/15 to-brand-purple-accent/20 text-brand-purple ring-1 ring-brand-purple/15">
+          <Sparkles className="h-5 w-5" strokeWidth={1.75} />
+          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple-accent/70" />
         </div>
         <p className="text-sm font-medium text-brand-purple-dark">No check-ins yet</p>
         <p className="max-w-xs text-xs leading-relaxed text-brand-purple-dark/55">
