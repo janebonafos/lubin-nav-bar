@@ -536,12 +536,12 @@ function Overview({
             Takes 15 seconds. Builds your passport over time.
           </p>
         </div>
-        <button
-          onClick={onLogMood}
+        <Link
+          to="/check-in"
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
         >
           Check in <span aria-hidden>→</span>
-        </button>
+        </Link>
       </Card>
 
       {/* Recent check-ins — anticipation empty state */}
