@@ -1,9 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Sparkles } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Sparkles, Mail, MessageCircle, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 
 export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
@@ -149,15 +157,6 @@ function PassportPage() {
               Everything you share, gently remembered.
             </h1>
           </div>
-          <div className="hidden sm:flex shrink-0 items-center pt-2">
-            <button
-              type="button"
-              onClick={() => openAuth("signup")}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
-            >
-              Create account <span aria-hidden>→</span>
-            </button>
-          </div>
         </header>
 
         {/* Tabs */}
@@ -199,7 +198,7 @@ function PassportPage() {
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />
           )}
-          {tab === "share" && <ShareSnapshot />}
+          {tab === "share" && <ShareSnapshot onCreateAccount={() => openAuth("signup")} />}
         </div>
 
         {/* Mobile registration CTA */}
