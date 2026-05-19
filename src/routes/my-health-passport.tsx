@@ -898,69 +898,6 @@ function latestNarrative(mood: MoodKey, topics: string[]): string {
   }
 }
 
-function LatestCheckIn({ entry }: { entry: NoticingEntry & { id: string } }) {
-  const moodTopics = MOOD_TOPICS[entry.mood].filter((t) => entry.topics.includes(t));
-  const universalTopics = UNIVERSAL_TOPICS.filter((t) => entry.topics.includes(t));
-  const orderedTopics = [...moodTopics, ...universalTopics];
-  const dateLabel = new Date(entry.savedAt).toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-  const narrative = latestNarrative(entry.mood, orderedTopics);
-
-  return (
-    <div>
-      <div className="mb-2 flex items-baseline justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Your latest check-in
-        </p>
-        <p className="text-xs text-brand-purple-dark/55">{dateLabel}</p>
-      </div>
-      <Card className="bg-[#F5F1FB]">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-2.5 py-0.5 text-[11px] font-medium text-white">
-            <Sparkles className="h-3 w-3" strokeWidth={2.4} />
-            Most recent
-          </span>
-          <SourceBadge source="check-in" />
-        </div>
-        <h3 className="mt-4 text-2xl font-medium text-brand-purple-dark">
-          {LATEST_TITLES[entry.mood]}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark/75">
-          {narrative}
-        </p>
-        {orderedTopics.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {orderedTopics.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-brand-purple/25 bg-white px-2.5 py-1 text-xs text-brand-purple-dark/80"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-        {entry.note && (
-          <div className="mt-4 border-l-2 border-brand-purple/40 pl-3">
-            <p className="text-sm italic text-brand-purple-dark/65">
-              &ldquo;{entry.note}&rdquo;
-            </p>
-          </div>
-        )}
-        <button
-          type="button"
-          className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand-purple transition hover:text-brand-purple-dark"
-        >
-          Open this check-in <span aria-hidden>→</span>
-        </button>
-      </Card>
-    </div>
-  );
-}
-
 function Overview({
   today,
   checkins: _checkins,
