@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Mail } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart,
@@ -712,12 +712,9 @@ function ShareSnapshot({ onCreateAccount }: { onCreateAccount: () => void }) {
   return (
     <div className="grid gap-5">
       <div>
-        <div className="flex items-center gap-3">
-          <Mail className="h-8 w-8 text-brand-purple" strokeWidth={1.75} />
-          <h2 className="text-2xl md:text-3xl font-bold text-brand-purple-dark">
-            Share your story, on your terms.
-          </h2>
-        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-brand-purple-dark">
+          Share your story, on your terms.
+        </h2>
         <p className="mt-3 text-sm text-brand-purple-dark/70 leading-relaxed max-w-2xl">
           You choose what's included. You decide who sees it. Nothing leaves your
           passport unless you send it.
