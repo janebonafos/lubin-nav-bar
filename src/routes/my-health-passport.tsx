@@ -679,11 +679,7 @@ function Overview({
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           What we're noticing
         </p>
-        <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/45">
-          After a few check-ins you might see something like:
-          {" "}“Sleep keeps coming up in your conversations,” or
-          {" "}“Your mood has been steady this week.”
-        </p>
+        <NoticingBody insight={insight} />
       </Card>
 
       {/* Mood check-in CTA */}
