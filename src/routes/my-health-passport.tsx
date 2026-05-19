@@ -760,13 +760,56 @@ function Overview({
         </Link>
       </Card>
 
-      {/* Insights — anticipation-framed */}
-      <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          What we're noticing
-        </p>
-        <NoticingBody insight={insight} />
-      </Card>
+      {/* Insights — synthesis + raw patterns */}
+      {insight && (
+        <>
+          <Card className="bg-[#F5F1FB]">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-brand-purple" strokeWidth={2.5} />
+              <h3 className="text-base font-semibold text-brand-purple-dark">
+                Here's what we're noticing
+              </h3>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-brand-purple-dark/75">
+              {insight.lead}
+            </p>
+            <ul className="mt-5 space-y-3">
+              {insight.bullets.map((b, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <b.Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" strokeWidth={2.25} />
+                  <span className="text-sm leading-relaxed text-brand-purple-dark/75">
+                    {b.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-xs text-brand-purple-dark/45">
+              Based on your recent check-ins
+            </p>
+          </Card>
+
+          <Card>
+            <h3 className="text-base font-semibold text-brand-purple-dark">
+              Patterns we're seeing
+            </h3>
+            <p className="mt-1 text-sm text-brand-purple-dark/60">
+              These are the things that have been coming up most in your recent check-ins.
+            </p>
+            <ul className="mt-4 divide-y divide-brand-purple/10">
+              {insight.patterns.map((p, i) => (
+                <li key={i} className="flex items-start gap-2.5 py-3 first:pt-0 last:pb-0">
+                  <Heart className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" strokeWidth={2.25} />
+                  <p className="text-sm leading-relaxed text-brand-purple-dark/75">
+                    You've mentioned{" "}
+                    <span className="font-semibold text-brand-purple-dark">{p.topic}</span>{" "}
+                    {frequencyPhrase(p.count)} ({p.count} times)
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </>
+      )}
 
       {/* Mood check-in CTA */}
       <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
