@@ -733,7 +733,7 @@ function LiveEntry({
   const orderedTopics = [...moodTopics, ...universalTopics];
   const collapsedTopics = orderedTopics.slice(0, 3);
   const remainingCount = Math.max(0, orderedTopics.length - 3);
-  const accent = MOOD_ACCENTS[entry.mood];
+  const accent = "#EDE9F4";
   const fullLabel = `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`;
 
   return (
