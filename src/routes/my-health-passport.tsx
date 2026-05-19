@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Sparkles, Mail, MessageCircle, FileText } from "lucide-react";
+import { CalendarCheck, ClipboardList, TrendingUp, Lock, X, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart,
@@ -58,15 +58,6 @@ const MOODS = [
   { v: 4, emoji: "🙂", label: "Good" },
   { v: 5, emoji: "😄", label: "Great" },
 ];
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 // ---------- Page ----------
 function PassportPage() {
