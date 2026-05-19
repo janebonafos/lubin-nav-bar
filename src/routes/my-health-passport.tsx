@@ -2,8 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import CheckInFlow from "@/components/CheckInFlow";
-import { CalendarCheck, ClipboardList, TrendingUp, Lock, X } from "lucide-react";
+import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
+import {
+  CalendarCheck,
+  ClipboardList,
+  TrendingUp,
+  Lock,
+  X,
+  MessageCircle,
+  Sparkles,
+  Pencil,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart,
@@ -504,6 +513,52 @@ function Overview({
   checkInActive: boolean;
   onCloseCheckIn: () => void;
 }) {
+  type LiveCheckIn = CheckInPayload & { id: string; savedAt: number };
+  const [liveEntries, setLiveEntries] = useState<LiveCheckIn[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [latestSavedId, setLatestSavedId] = useState<string | null>(null);
+  const [pulseId, setPulseId] = useState<string | null>(null);
+
+  const editingEntry = editingId
+    ? liveEntries.find((e) => e.id === editingId) ?? null
+    : null;
+
+  const initialForFlow: Partial<CheckInPayload> | undefined = editingEntry
+    ? {
+        mood: editingEntry.mood,
+        intensityIdx: editingEntry.intensityIdx,
+        topics: editingEntry.topics,
+        note: editingEntry.note,
+      }
+    : undefined;
+
+  const handleSave = (data: CheckInPayload) => {
+    const id = editingId ?? (typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()));
+    if (editingId) {
+      setLiveEntries((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, ...data, savedAt: Date.now() } : e)),
+      );
+    } else {
+      setLiveEntries((prev) => [{ id, savedAt: Date.now(), ...data }, ...prev]);
+    }
+    setLatestSavedId(id);
+    setPulseId(id);
+    setEditingId(null);
+    onCloseCheckIn();
+    window.setTimeout(() => setPulseId((c) => (c === id ? null : c)), 1600);
+    window.setTimeout(() => setLatestSavedId((c) => (c === id ? null : c)), 30000);
+  };
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    onLogMood();
+  };
+
+  const handleCloseFlow = () => {
+    setEditingId(null);
+    onCloseCheckIn();
+  };
+
   return (
     <div className="grid gap-5">
       {/* Greeting */}
@@ -552,36 +607,70 @@ function Overview({
         </button>
       </Card>
 
-      {checkInActive && (
-        <Card>
-          <CheckInFlow onClose={onCloseCheckIn} />
-        </Card>
-      )}
+      <AnimatePresence initial={false}>
+        {checkInActive && (
+          <motion.div
+            key="checkin-flow"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            <Card>
+              <CheckInFlow
+                key={editingId ?? "new"}
+                onClose={handleCloseFlow}
+                onSave={handleSave}
+                initial={initialForFlow}
+              />
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Recent check-ins — anticipation empty state */}
+      {/* Recent check-ins */}
       <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           Recent check-ins
         </p>
-        <div className="mt-4 space-y-2 opacity-40" aria-hidden>
-          {[
-            { emoji: "🙂", label: "Good", note: "Slept well, productive morning.", date: "Mon, May 12" },
-            { emoji: "😐", label: "Okay", note: "A bit foggy after lunch.", date: "Sun, May 11" },
-            { emoji: "😄", label: "Great", note: "Long walk cleared my head.", date: "Sat, May 10" },
-          ].map((c, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-xl bg-brand-lavender/40 px-3 py-2">
-              <span className="text-2xl">{c.emoji}</span>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-brand-purple-dark">{c.label}</p>
-                <p className="text-xs text-brand-purple-dark/60">{c.note}</p>
-              </div>
-              <p className="text-xs text-brand-purple-dark/50">{c.date}</p>
+        {liveEntries.length > 0 ? (
+          <div className="mt-4 space-y-3">
+            <AnimatePresence initial={false}>
+              {liveEntries.map((entry) => (
+                <LiveEntry
+                  key={entry.id}
+                  entry={entry}
+                  pulsing={pulseId === entry.id}
+                  showActions={latestSavedId === entry.id}
+                  onEdit={() => handleEdit(entry.id)}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <>
+            <div className="mt-4 space-y-2 opacity-40" aria-hidden>
+              {[
+                { emoji: "🙂", label: "Good", note: "Slept well, productive morning.", date: "Mon, May 12" },
+                { emoji: "😐", label: "Okay", note: "A bit foggy after lunch.", date: "Sun, May 11" },
+                { emoji: "😄", label: "Great", note: "Long walk cleared my head.", date: "Sat, May 10" },
+              ].map((c, i) => (
+                <div key={i} className="flex items-center gap-4 rounded-xl bg-brand-lavender/40 px-3 py-2">
+                  <span className="text-2xl">{c.emoji}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-brand-purple-dark">{c.label}</p>
+                    <p className="text-xs text-brand-purple-dark/60">{c.note}</p>
+                  </div>
+                  <p className="text-xs text-brand-purple-dark/50">{c.date}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <p className="mt-3 text-sm text-brand-purple-dark/55">
-          Your first check-in will appear here. Lubin remembers the rest.
-        </p>
+            <p className="mt-3 text-sm text-brand-purple-dark/55">
+              Your first check-in will appear here. Lubin remembers the rest.
+            </p>
+          </>
+        )}
       </Card>
 
       {/* Soft anchor CTA */}
@@ -595,6 +684,108 @@ function Overview({
         </p>
       </Link>
     </div>
+  );
+}
+
+function LiveEntry({
+  entry,
+  pulsing,
+  showActions,
+  onEdit,
+}: {
+  entry: {
+    id: string;
+    intensityEmoji: string;
+    intensityLabel: string;
+    topics: string[];
+    note: string;
+    savedAt: number;
+  };
+  pulsing: boolean;
+  showActions: boolean;
+  onEdit: () => void;
+}) {
+  const time = new Date(entry.savedAt).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  const topicsLine =
+    entry.topics.length === 0
+      ? null
+      : entry.topics.length <= 3
+        ? entry.topics.join(" · ")
+        : `${entry.topics.slice(0, 3).join(" · ")} · +${entry.topics.length - 3} more`;
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: -6 }}
+      animate={
+        pulsing
+          ? { opacity: 1, y: 0, backgroundColor: ["#ECE7F6", "#ffffff"] }
+          : { opacity: 1, y: 0, backgroundColor: "#ffffff" }
+      }
+      transition={{ duration: pulsing ? 1.5 : 0.25, ease: "easeOut" }}
+      className="rounded-xl px-4 py-3 ring-1 ring-brand-purple/10"
+    >
+      <div className="flex items-start gap-3">
+        <span className="text-2xl leading-none" aria-hidden>
+          {entry.intensityEmoji}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-sm font-semibold text-brand-purple-dark">
+              {entry.intensityLabel}
+            </p>
+            <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
+              {time}, today
+            </p>
+          </div>
+          {topicsLine && (
+            <p className="mt-1 text-xs text-brand-purple-dark/70">{topicsLine}</p>
+          )}
+          {entry.note && (
+            <p className="mt-1 text-xs italic text-brand-purple-dark/65">
+              &ldquo;{entry.note}&rdquo;
+            </p>
+          )}
+        </div>
+      </div>
+      <AnimatePresence>
+        {showActions && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 text-xs"
+          >
+            <Link
+              to="/chat"
+              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              Talk this through with Lubin →
+            </Link>
+            <Link
+              to="/resources"
+              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Try something that might help →
+            </Link>
+            <button
+              type="button"
+              onClick={onEdit}
+              className="inline-flex items-center gap-1 font-medium text-brand-purple transition hover:text-brand-purple-dark"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit →
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

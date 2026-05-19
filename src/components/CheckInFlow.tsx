@@ -11,7 +11,16 @@ import {
   LucideIcon,
 } from "lucide-react";
 
-type MoodKey = "calm" | "okay" | "drained" | "stressed" | "anxious" | "low";
+export type MoodKey = "calm" | "okay" | "drained" | "stressed" | "anxious" | "low";
+
+export type CheckInPayload = {
+  mood: MoodKey;
+  intensityIdx: number;
+  intensityEmoji: string;
+  intensityLabel: string;
+  topics: string[];
+  note: string;
+};
 
 const MOODS: { key: MoodKey; label: string; Icon: LucideIcon }[] = [
   { key: "calm", label: "Calm", Icon: Leaf },
@@ -96,11 +105,21 @@ const MOOD_TOPICS: Record<MoodKey, string[]> = {
 
 const UNIVERSAL_TOPICS = ["Sleep", "Work", "Relationships", "Family", "Health", "Money", "Energy"];
 
-export default function CheckInFlow({ onClose }: { onClose: () => void }) {
-  const [mood, setMood] = useState<MoodKey | null>(null);
-  const [intensityIdx, setIntensityIdx] = useState<number | null>(null);
-  const [topics, setTopics] = useState<string[]>([]);
-  const [note, setNote] = useState("");
+export default function CheckInFlow({
+  onClose,
+  onSave,
+  initial,
+}: {
+  onClose: () => void;
+  onSave?: (data: CheckInPayload) => void;
+  initial?: Partial<CheckInPayload>;
+}) {
+  const [mood, setMood] = useState<MoodKey | null>(initial?.mood ?? null);
+  const [intensityIdx, setIntensityIdx] = useState<number | null>(
+    initial?.intensityIdx ?? (initial?.mood ? 2 : null),
+  );
+  const [topics, setTopics] = useState<string[]>(initial?.topics ?? []);
+  const [note, setNote] = useState(initial?.note ?? "");
 
   const pickMood = (m: MoodKey) => {
     if (mood === m) {
@@ -117,6 +136,19 @@ export default function CheckInFlow({ onClose }: { onClose: () => void }) {
 
   const toggleTopic = (t: string) =>
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+
+  const handleSave = () => {
+    if (mood == null || intensityIdx == null) return;
+    const opt = INTENSITY[mood].options[intensityIdx];
+    onSave?.({
+      mood,
+      intensityIdx,
+      intensityEmoji: opt.emoji,
+      intensityLabel: opt.label,
+      topics,
+      note: note.trim(),
+    });
+  };
 
   return (
     <div className="relative mx-auto w-full max-w-[640px] py-4">
@@ -149,7 +181,7 @@ export default function CheckInFlow({ onClose }: { onClose: () => void }) {
                 toggleTopic={toggleTopic}
                 note={note}
                 setNote={setNote}
-                onSave={onClose}
+                onSave={handleSave}
               />
             </motion.div>
           )}
