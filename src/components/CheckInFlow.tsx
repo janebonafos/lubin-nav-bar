@@ -217,7 +217,7 @@ function Step1({ onPick }: { onPick: (m: MoodKey) => void }) {
           <button
             key={key}
             onClick={() => onPick(key)}
-            className="flex items-center gap-3 rounded-2xl border border-brand-purple/10 bg-white px-4 py-3.5 text-left text-sm font-semibold text-brand-purple-dark shadow-[0_2px_6px_-2px_rgba(126,107,175,0.15)] transition hover:-translate-y-0.5 hover:border-brand-purple/25 hover:shadow-md"
+            className="flex items-center gap-3 rounded-2xl border border-brand-purple/10 bg-white px-4 py-3.5 text-left text-sm font-semibold text-brand-purple-dark shadow-[0_2px_6px_-2px_rgba(126,107,175,0.15)] transition hover:border-brand-purple/60 hover:ring-2 hover:ring-brand-purple/30 hover:shadow-md"
           >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-purple/12">
               <Icon className="h-[18px] w-[18px] text-brand-purple" strokeWidth={2} />
