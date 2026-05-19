@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
-import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
+import CheckInFlow, {
+  type CheckInPayload,
+  type MoodKey,
+  MOOD_TOPICS,
+  UNIVERSAL_TOPICS,
+  MOOD_LABELS,
+  MOOD_ACCENTS,
+} from "@/components/CheckInFlow";
 import {
   CalendarCheck,
   ClipboardList,
@@ -518,6 +525,7 @@ function Overview({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [latestSavedId, setLatestSavedId] = useState<string | null>(null);
   const [pulseId, setPulseId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
@@ -643,6 +651,10 @@ function Overview({
                   entry={entry}
                   pulsing={pulseId === entry.id}
                   showActions={latestSavedId === entry.id}
+                  expanded={expandedId === entry.id}
+                  onToggle={() =>
+                    setExpandedId((c) => (c === entry.id ? null : entry.id))
+                  }
                   onEdit={() => handleEdit(entry.id)}
                 />
               ))}
