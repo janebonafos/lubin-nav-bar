@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
   id: '/my-health-passport',
   path: '/my-health-passport',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/resources': typeof ResourcesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/resources': typeof ResourcesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/resources': typeof ResourcesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/check-in' | '/my-health-passport'
+  fullPaths: '/' | '/check-in' | '/my-health-passport' | '/resources'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/check-in' | '/my-health-passport'
-  id: '__root__' | '/' | '/check-in' | '/my-health-passport'
+  to: '/' | '/check-in' | '/my-health-passport' | '/resources'
+  id: '__root__' | '/' | '/check-in' | '/my-health-passport' | '/resources'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
+  ResourcesRoute: typeof ResourcesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-health-passport': {
       id: '/my-health-passport'
       path: '/my-health-passport'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
+  ResourcesRoute: ResourcesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
