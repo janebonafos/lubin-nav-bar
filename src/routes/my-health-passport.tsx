@@ -818,17 +818,19 @@ function LiveEntry({
                   &ldquo;{entry.note}&rdquo;
                 </p>
               )}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-purple transition hover:text-brand-purple-dark"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                Edit →
-              </button>
+              <div className="mt-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-brand-purple transition hover:text-brand-purple-dark"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit →
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
