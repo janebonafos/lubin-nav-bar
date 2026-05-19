@@ -1295,9 +1295,12 @@ function LiveEntry({
             <p className="text-sm font-semibold text-brand-purple-dark">
               {expanded ? fullLabel : entry.intensityLabel}
             </p>
-            <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
-              {time}, today
-            </p>
+            <div className="flex shrink-0 items-center gap-2">
+              <SourceBadge source="check-in" />
+              <p className="whitespace-nowrap text-xs text-brand-purple-dark/50">
+                {time}, today
+              </p>
+            </div>
           </div>
           {!expanded && orderedTopics.length > 0 && (
             <p className="mt-1 text-xs text-brand-purple-dark/70">
