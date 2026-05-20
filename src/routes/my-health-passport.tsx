@@ -626,27 +626,27 @@ function Overview({
       </div>
 
       {/* Mood check-in CTA — full width */}
-      <Card className="relative overflow-hidden bg-gradient-to-r from-brand-purple-dark via-brand-purple to-brand-purple-dark">
-        <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple-accent/30 blur-3xl" />
+      <Card className="relative overflow-hidden bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender">
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 ring-1 ring-white/20 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse" />
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/90">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-brand-purple/15 backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark/80">
                 Daily check-in
               </p>
             </div>
-            <p className="mt-3 text-xl font-bold text-white">
+            <p className="mt-3 text-xl font-bold text-brand-purple-dark">
               How are you feeling today?
             </p>
-            <p className="mt-1 text-sm text-white/70">
+            <p className="mt-1 text-sm text-brand-purple-dark/65">
               Takes 15 seconds. Builds your passport over time.
             </p>
           </div>
           <button
             onClick={onLogMood}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_8px_24px_-6px_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(0,0,0,0.35)]"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-8px_rgba(91,71,160,0.45)]"
           >
             Check in <span aria-hidden>→</span>
           </button>
