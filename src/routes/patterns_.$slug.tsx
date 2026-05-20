@@ -361,6 +361,7 @@ function IntroView({
   onStart: () => void;
   started?: boolean;
 }) {
+  const [isStarting, setIsStarting] = useState(false);
   return (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
