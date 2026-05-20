@@ -368,19 +368,24 @@ function IntroView({
         <p>{assessment.introWhy}</p>
       </div>
 
-      <div className="relative mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <InfoChip
-          icon={<Clock className="h-3.5 w-3.5" strokeWidth={2.2} />}
-          label={`About ${assessment.estMinutes} min`}
-        />
-        <InfoChip
-          icon={<Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />}
-          label={`${assessment.questions.length} questions`}
-        />
-        <InfoChip
-          icon={<ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.2} />}
-          label="Private to this device"
-        />
+      <div className="relative mt-8 overflow-hidden rounded-2xl border border-brand-purple/15 bg-white/60 backdrop-blur-sm">
+        <dl className="grid grid-cols-3 divide-x divide-brand-purple/10">
+          <InfoStat
+            icon={<Clock className="h-4 w-4" strokeWidth={2} />}
+            label="Time"
+            value={`~${assessment.estMinutes} min`}
+          />
+          <InfoStat
+            icon={<Sparkles className="h-4 w-4" strokeWidth={2} />}
+            label="Questions"
+            value={`${assessment.questions.length}`}
+          />
+          <InfoStat
+            icon={<ShieldCheck className="h-4 w-4" strokeWidth={2} />}
+            label="Privacy"
+            value="On-device"
+          />
+        </dl>
       </div>
 
       <div className="relative mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
@@ -429,17 +434,26 @@ function PreparingView() {
   );
 }
 
-function InfoChip({
+function InfoStat({
   icon,
   label,
+  value,
 }: {
   icon: React.ReactNode;
   label: string;
+  value: string;
 }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-2xl border border-brand-purple/15 bg-brand-lavender/40 px-4 py-3 text-[13px] font-medium text-brand-purple-dark">
-      <span className="text-brand-purple">{icon}</span>
-      {label}
+    <div className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 text-center">
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-lavender/60 text-brand-purple">
+        {icon}
+      </span>
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple/55">
+        {label}
+      </dt>
+      <dd className="text-[14px] font-semibold text-brand-purple-dark">
+        {value}
+      </dd>
     </div>
   );
 }
