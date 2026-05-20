@@ -10,6 +10,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  ShieldCheck,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -211,6 +212,44 @@ function PatternsPage() {
               </a>
             ))}
           </nav>
+
+          {/* About the screening tools */}
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.15, ease: "easeOut" }}
+            aria-labelledby="about-tools-heading"
+            className="mt-10 rounded-2xl border border-[#EFEAFE] bg-white p-6 shadow-sm md:p-7"
+          >
+            <div className="flex items-start gap-4">
+              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F5F3FF] text-brand-purple">
+                <ShieldCheck className="h-4.5 w-4.5" strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <h2
+                  id="about-tools-heading"
+                  className="text-[15px] font-semibold text-brand-purple-dark"
+                >
+                  About these check-ins
+                </h2>
+                <p className="mt-2 text-[13.5px] leading-[1.7] text-brand-purple-dark/70">
+                  Each check uses an internationally recognised screening tool —
+                  like the <span className="font-semibold text-brand-purple-dark">PHQ-9</span> for
+                  mood or <span className="font-semibold text-brand-purple-dark">GAD-7</span> for
+                  anxiety. These are the same tools used by mental health
+                  professionals worldwide. The clinical name is shown so you
+                  can look them up if you're curious — but they've been adapted
+                  into everyday language so they're easy to answer. They help
+                  you understand patterns, not diagnose conditions.
+                </p>
+                <p className="mt-3 border-t border-[#F5F3FF] pt-3 text-[12px] italic leading-[1.65] text-brand-purple-dark/55">
+                  Based on internationally recognised screening tools developed
+                  by organisations like the World Health Organization. Adapted
+                  for everyday use, not intended as clinical diagnoses.
+                </p>
+              </div>
+            </div>
+          </motion.section>
 
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
