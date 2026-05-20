@@ -94,7 +94,13 @@ function NotFound() {
   );
 }
 
-type Phase = "intro" | "locked" | "questions" | "breathing" | "result";
+type Phase =
+  | "intro"
+  | "locked"
+  | "preparing"
+  | "questions"
+  | "breathing"
+  | "result";
 
 function PatternRunPage() {
   const { slug } = Route.useParams();
@@ -157,7 +163,8 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
   function startNow() {
     markIntroSeen(assessment.id);
-    setPhase("questions");
+    setPhase("preparing");
+    window.setTimeout(() => setPhase("questions"), 700);
   }
 
   function handleAnswer(value: number) {
@@ -263,6 +270,9 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 assessment={assessment}
                 onStart={startNow}
               />
+            )}
+            {phase === "preparing" && (
+              <PreparingView key="preparing" />
             )}
             {phase === "locked" && latestLocked && (
               <LockedView
