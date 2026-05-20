@@ -6,199 +6,310 @@ import {
   Sun,
   Minus,
   CloudRain,
-  Wind,
-  Sparkles,
   Heart,
-  Leaf,
   Moon,
-  Hand,
-  Feather,
   MessageCircle,
-  Eye,
-  Clock,
-  Check,
+  Compass,
+  HelpCircle,
+  Brain,
+  Activity,
+  Layers,
+  Quote,
+  Info,
+  LifeBuoy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MoodKey } from "@/components/CheckInFlow";
 
-type Intervention = {
+type Tip = { title: string; body: string };
+
+type Guide = {
   id: string;
   name: string;
-  duration: number;
-  blurb: string;
-  steps: string[];
+  subtitle: string;
   Icon: LucideIcon;
+  quoteHeader: string;
+  whatsHappening: string;
+  famousQuote: { text: string; author: string };
+  tips: Tip[];
+  whenToSeekHelp: string;
 };
 
-const LIBRARY: Record<MoodKey, Intervention[]> = {
-  calm: [
-    {
-      id: "savor",
-      name: "Savor the moment",
-      duration: 1,
-      blurb: "Sit with what's already feeling good — let it land more fully.",
-      Icon: Sparkles,
-      steps: [
-        "Notice three things around you that feel good right now.",
-        "Spend a moment with each one.",
-        "Set the feeling in your memory.",
-      ],
+const GUIDES: Record<string, Guide> = {
+  overthinking: {
+    id: "overthinking",
+    name: "Overthinking & racing thoughts",
+    subtitle: "When your mind won't slow down",
+    Icon: Brain,
+    quoteHeader:
+      "When your mind keeps replaying, jumping ahead, or going in circles",
+    whatsHappening:
+      "Your mind keeps returning to the same thoughts, replaying scenarios or worrying about what might happen. It's exhausting — and surprisingly common when stress builds up over time. This doesn't mean something is wrong with you.",
+    famousQuote: {
+      text: "You don't have to control your thoughts. You just have to stop letting them control you.",
+      author: "Dan Millman",
     },
-    {
-      id: "gratitude",
-      name: "Gratitude pause",
-      duration: 1,
-      blurb: "Three small things going well today.",
-      Icon: Heart,
-      steps: [
-        "Bring to mind three small things — a warm drink, a kind message, a small win.",
-        "Hold each one for a few breaths.",
-        "Notice the steadiness that comes from paying attention.",
-      ],
+    tips: [
+      {
+        title: "Slow your breathing",
+        body: "Breathe in for 4 counts, hold for 4, out for 4, hold for 4. Repeat 3–4 times. This directly calms your nervous system — it works even if it feels strange at first.",
+      },
+      {
+        title: "Write your thoughts down",
+        body: "Grab any paper or open your phone notes. Write exactly what's going through your mind without filtering. Getting thoughts out of your head reduces their intensity. You don't need to read it back.",
+      },
+      {
+        title: "Ground yourself in the present",
+        body: "Look around and name: 5 things you can see, 4 things you can physically touch, 3 sounds you can hear, 2 things you can smell, 1 thing you can taste. This interrupts overthinking by bringing you back to right now.",
+      },
+      {
+        title: "Give your worries a time limit",
+        body: "Set a timer for 15 minutes. Allow yourself to worry fully during that time — write it all down. When the timer ends, close the list and move on.",
+      },
+    ],
+    whenToSeekHelp:
+      "If racing thoughts are consistently affecting your sleep or daily functioning.",
+  },
+  anxiety: {
+    id: "anxiety",
+    name: "Anxiety & worry",
+    subtitle: "When worry starts taking over",
+    Icon: Activity,
+    quoteHeader: "When your body stays on alert even when nothing is wrong",
+    whatsHappening:
+      "Anxiety often shows up as a constant sense of dread, 'what if' thinking, or physical tension. Your nervous system is trying to protect you — but sometimes it stays switched on longer than needed.",
+    famousQuote: {
+      text: "Nothing in the universe can stop you from letting go and having a fresh start.",
+      author: "Guy Finley",
     },
-  ],
-  okay: [
-    {
-      id: "body-scan",
-      name: "Quick body scan",
-      duration: 1,
-      blurb: "A short pause to feel where you are right now.",
-      Icon: Leaf,
-      steps: [
-        "Sit comfortably. Let your shoulders drop.",
-        "Notice your feet on the floor.",
-        "Notice your breath without changing it.",
-        "Stay here as long as feels right.",
-      ],
+    tips: [
+      {
+        title: "Breathe out longer than you breathe in",
+        body: "In for 4 counts, out for 6–8. A longer exhale activates your body's calm response. Do this for 2 minutes.",
+      },
+      {
+        title: "Name the worry specifically",
+        body: "Instead of \u201cI'm anxious about everything,\u201d try: \u201cI'm worried that [specific thing] will happen.\u201d Naming it precisely makes it smaller.",
+      },
+      {
+        title: "Step away from your phone",
+        body: "News, social media, and notifications can quietly feed anxiety. Give yourself 30–60 minutes without checking anything.",
+      },
+      {
+        title: "Move your body gently",
+        body: "A 10-minute walk, stretching, or shaking out your hands and shoulders releases the physical tension anxiety creates.",
+      },
+    ],
+    whenToSeekHelp:
+      "If anxiety is regularly interfering with work, relationships, or daily tasks.",
+  },
+  "low-mood": {
+    id: "low-mood",
+    name: "Feeling low or unmotivated",
+    subtitle: "When everything feels heavier than usual",
+    Icon: Heart,
+    quoteHeader: "When everything feels a little heavier than it should",
+    whatsHappening:
+      "Low mood can show up as tiredness, lack of interest in things you usually enjoy, or feeling emotionally flat. It doesn't always mean depression — but it does mean your mind and body need some care.",
+    famousQuote: {
+      text: "Even the darkest night will end and the sun will rise.",
+      author: "Victor Hugo",
     },
-    {
-      id: "tiny-intention",
-      name: "Tiny intention",
-      duration: 1,
-      blurb: "One quiet quality for the rest of your day.",
-      Icon: Feather,
-      steps: [
-        "Think of one quality for the rest of your day.",
-        "Not a goal — just a quality. Calm. Curiosity. Patience.",
-        "Hold it lightly. Return to it when you remember.",
-      ],
+    tips: [
+      {
+        title: "Start with the smallest possible thing",
+        body: "Pick one tiny task: make your bed, drink a glass of water, reply to one message. Completing even a tiny thing creates momentum.",
+      },
+      {
+        title: "Get some natural light",
+        body: "Step outside for 5–10 minutes. Natural light genuinely affects brain chemistry and mood.",
+      },
+      {
+        title: "Reach out to one person",
+        body: "Send a message to someone you trust. Even \u201chey, thinking of you\u201d counts.",
+      },
+      {
+        title: "Talk to yourself like a friend",
+        body: "Notice how you're speaking to yourself. Would you say those words to someone you care about? Replace harsh self-talk with what a kind friend would say.",
+      },
+    ],
+    whenToSeekHelp:
+      "If low mood has been present most days for more than two weeks.",
+  },
+  stress: {
+    id: "stress",
+    name: "Stress & overwhelm",
+    subtitle: "When demands feel like too much",
+    Icon: Layers,
+    quoteHeader: "When there's more coming at you than you can handle",
+    whatsHappening:
+      "When demands pile up faster than you can process them, stress tips into overwhelm. Your mind and body start sending signals — tension, irritability, exhaustion, difficulty concentrating. These are signs to slow down, not push harder.",
+    famousQuote: {
+      text: "Almost everything will work again if you unplug it for a few minutes — including you.",
+      author: "Anne Lamott",
     },
-  ],
-  drained: [
-    {
-      id: "rest",
-      name: "Permission to rest",
-      duration: 1,
-      blurb: "A small reminder that rest doesn't have to be earned.",
-      Icon: Moon,
-      steps: [
-        "Pause. Notice you're tired.",
-        "Rest doesn't have to be earned.",
-        "Imagine what real rest would feel like right now.",
-        "If you can give it to yourself, even ten minutes, do.",
-      ],
+    tips: [
+      {
+        title: "Get it all out of your head",
+        body: "Write down every single thing that's stressing you. A list is far less overwhelming than holding it all in your mind. Then pick just one thing to focus on today.",
+      },
+      {
+        title: "Pause before deciding anything",
+        body: "When overwhelmed, decisions get worse. Take 5 slow breaths before responding to anything urgent.",
+      },
+      {
+        title: "Say no to one thing today",
+        body: "Find one thing you can decline, delay, or hand off. Protecting your time is necessary, not selfish.",
+      },
+      {
+        title: "Do a body check",
+        body: "Sit quietly. Notice where you're holding tension — jaw, shoulders, chest, stomach. Consciously relax each area.",
+      },
+    ],
+    whenToSeekHelp:
+      "If stress is causing persistent physical symptoms like headaches, chest tightness, or disrupted sleep.",
+  },
+  sleep: {
+    id: "sleep",
+    name: "Sleep & exhaustion",
+    subtitle: "When rest feels impossible",
+    Icon: Moon,
+    quoteHeader: "When rest feels out of reach",
+    whatsHappening:
+      "Poor sleep affects everything — mood, focus, patience, and emotional resilience. It's often both a cause and a symptom of mental health struggles. If you're exhausted, your mind and body are asking for rest.",
+    famousQuote: {
+      text: "Sleep is the best meditation.",
+      author: "Dalai Lama",
     },
-    {
-      id: "set-down",
-      name: "Set something down",
-      duration: 1,
-      blurb: "Pick one thing you're carrying — put it down for now.",
-      Icon: Hand,
-      steps: [
-        "Bring to mind everything you're holding.",
-        "Pick one thing that doesn't need to be carried today.",
-        "Mentally set it down.",
-        "Notice the difference, even slightly.",
-      ],
+    tips: [
+      {
+        title: "Keep the same wake-up time every day",
+        body: "Even weekends. The single most effective way to improve sleep quality over time.",
+      },
+      {
+        title: "Wind down 30 minutes before bed",
+        body: "Phone away, dim the lights, do something calm. Your brain needs a signal the day is ending.",
+      },
+      {
+        title: "Make your room as dark and cool as possible",
+        body: "Body temperature needs to drop slightly to fall asleep. Even covering LED lights helps.",
+      },
+      {
+        title: "If you can't sleep, get up briefly",
+        body: "If awake for more than 20 minutes, get up, do something quiet and boring in dim light, then return when sleepy.",
+      },
+    ],
+    whenToSeekHelp:
+      "If sleep difficulties have been ongoing for more than a month and affecting daily life.",
+  },
+  relationships: {
+    id: "relationships",
+    name: "Relationships & loneliness",
+    subtitle: "When connection feels hard",
+    Icon: MessageCircle,
+    quoteHeader: "When connection feels far away",
+    whatsHappening:
+      "Loneliness isn't just about being physically alone — it's about feeling unseen or disconnected. Relationship stress can be one of the heaviest things to carry, especially when it's hard to talk about.",
+    famousQuote: {
+      text: "The pain of loneliness is just love with nowhere to go.",
+      author: "C.S. Lewis",
     },
-  ],
-  stressed: [
-    {
-      id: "4-7-8",
-      name: "4-7-8 breath",
-      duration: 2,
-      blurb: "A breath pattern that gently calms the body.",
-      Icon: Wind,
-      steps: [
-        "Find a comfortable position.",
-        "Inhale through your nose for 4.",
-        "Hold for 7.",
-        "Exhale through your mouth for 8.",
-        "Repeat two more times.",
-      ],
+    tips: [
+      {
+        title: "Send one message today",
+        body: "\u201cHey, I was thinking about you\u201d is enough. Most people feel touched to be remembered.",
+      },
+      {
+        title: "Be honest about how you're feeling",
+        body: "Try: \u201cI've been feeling a bit disconnected lately.\u201d Honesty invites closeness.",
+      },
+      {
+        title: "Allow yourself to need people",
+        body: "Needing others isn't weakness. Humans are wired for connection.",
+      },
+      {
+        title: "Protect yourself from draining relationships",
+        body: "Notice how you feel after time with different people. Gentle distance from draining relationships is okay.",
+      },
+    ],
+    whenToSeekHelp:
+      "If relationship difficulties are significantly and consistently affecting your wellbeing.",
+  },
+  lost: {
+    id: "lost",
+    name: "Feeling lost or disconnected",
+    subtitle: "When life loses its direction",
+    Icon: Compass,
+    quoteHeader: "When life loses its sense of direction or meaning",
+    whatsHappening:
+      "Sometimes we lose our sense of who we are or where we're going. Feeling disconnected from yourself, your purpose, or others is more common than people talk about — especially after big life changes.",
+    famousQuote: {
+      text: "Not all those who wander are lost.",
+      author: "J.R.R. Tolkien",
     },
-    {
-      id: "brain-dump",
-      name: "Brain dump",
-      duration: 2,
-      blurb: "Empty out what's spinning in your head onto a page.",
-      Icon: Feather,
-      steps: [
-        "Write down everything spinning in your head.",
-        "Don't organize it. Just empty it out.",
-        "Read it once.",
-        "Pick one thing for today. Let the rest wait.",
-      ],
+    tips: [
+      {
+        title: "Write about what used to matter to you",
+        body: "Finish: \u201cI used to feel most like myself when…\u201d Just notice what comes up.",
+      },
+      {
+        title: "Do one thing that aligns with your values",
+        body: "A tiny action connected to something you care about — kindness, creativity, learning — can restore meaning.",
+      },
+      {
+        title: "Spend time somewhere grounding",
+        body: "A park, a familiar street. Just being in a real, present space helps reconnect you to yourself.",
+      },
+      {
+        title: "Lower the pressure to 'figure it out'",
+        body: "Feeling lost often comes before growth. Clarity usually comes with time and movement.",
+      },
+    ],
+    whenToSeekHelp:
+      "If feelings of disconnection or emptiness are persistent and affecting your ability to function.",
+  },
+  unsure: {
+    id: "unsure",
+    name: "Not sure what I'm feeling",
+    subtitle: "When you can't quite name it",
+    Icon: HelpCircle,
+    quoteHeader: "When something feels off but you can't quite name it",
+    whatsHappening:
+      "Sometimes emotions are hard to identify. You might feel numb, foggy, restless, or just 'off' without knowing why. This is still valid — and it's worth paying attention to.",
+    famousQuote: {
+      text: "Feelings are just visitors. Let them come and go.",
+      author: "Mooji",
     },
-  ],
-  anxious: [
-    {
-      id: "5-4-3-2-1",
-      name: "5-4-3-2-1 grounding",
-      duration: 2,
-      blurb: "A sensory grounding to bring you back to the present.",
-      Icon: Eye,
-      steps: [
-        "Name 5 things you can see.",
-        "Name 4 things you can hear.",
-        "Name 3 things you can touch.",
-        "Name 2 things you can smell.",
-        "Name 1 thing you can taste.",
-      ],
-    },
-    {
-      id: "box-breath",
-      name: "Box breath",
-      duration: 1,
-      blurb: "A steady breath pattern to slow racing thoughts.",
-      Icon: Wind,
-      steps: [
-        "Inhale slowly for 4.",
-        "Hold for 4.",
-        "Exhale slowly for 4.",
-        "Hold for 4.",
-        "Repeat as long as it helps.",
-      ],
-    },
-  ],
-  low: [
-    {
-      id: "kindness",
-      name: "One small kindness",
-      duration: 1,
-      blurb: "One small thing you could give yourself right now.",
-      Icon: Heart,
-      steps: [
-        "Bring to mind one small kindness for yourself.",
-        "A warm drink. A few minutes of music. Resting your eyes.",
-        "Choose just one.",
-        "Give it to yourself.",
-      ],
-    },
-    {
-      id: "reach-out",
-      name: "Reach out",
-      duration: 1,
-      blurb: "A small bridge to someone you trust.",
-      Icon: MessageCircle,
-      steps: [
-        "Think of one person you trust.",
-        "You don't need to explain anything heavy.",
-        "Send something simple — \u201cthinking of you.\u201d",
-        "Letting someone in counts, even when it's small.",
-      ],
-    },
-  ],
+    tips: [
+      {
+        title: "Try naming it loosely",
+        body: "You don't need the perfect word. \u201cI feel heavy,\u201d \u201csomething's off,\u201d or \u201cI don't know\u201d are valid starting points.",
+      },
+      {
+        title: "Check in with your body",
+        body: "Emotions often live in the body before the mind catches up. Notice tightness, heaviness, restlessness.",
+      },
+      {
+        title: "Don't try to force clarity",
+        body: "Pushing hard often makes it harder. Sit with the uncertainty — just noticing, not solving.",
+      },
+      {
+        title: "Talk it through with Lubin",
+        body: "Open a conversation and just start talking — you don't need to know what you want to say.",
+      },
+    ],
+    whenToSeekHelp:
+      "If emotional numbness or confusion has been persistent for more than a few weeks.",
+  },
+};
+
+const MOOD_TO_GUIDES: Record<MoodKey, string[]> = {
+  calm: ["unsure", "lost"],
+  okay: ["unsure", "lost"],
+  drained: ["sleep", "stress"],
+  stressed: ["stress", "overthinking"],
+  anxious: ["anxiety", "overthinking"],
+  low: ["low-mood", "relationships"],
 };
 
 const FEEDBACK_OPTIONS = [
@@ -218,7 +329,8 @@ const FEEDBACK_RESPONSE: Record<
     title: "Hold onto that feeling.",
     message:
       "Even small shifts matter. You showed up for yourself just now — that's the practice.",
-    quote: "Almost everything will work again if you unplug it for a few minutes, including you.",
+    quote:
+      "Almost everything will work again if you unplug it for a few minutes, including you.",
     author: "Anne Lamott",
     tone: "light",
   },
@@ -251,7 +363,10 @@ export default function TryHelpOverlay({
   mood: MoodKey | null;
   onClose: () => void;
 }) {
-  const list = useMemo(() => (mood ? LIBRARY[mood] : []), [mood]);
+  const list = useMemo(
+    () => (mood ? MOOD_TO_GUIDES[mood].map((id) => GUIDES[id]) : []),
+    [mood],
+  );
   const [idx, setIdx] = useState(0);
   const [rated, setRated] = useState<FeedbackKey | null>(null);
 
@@ -280,11 +395,11 @@ export default function TryHelpOverlay({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const intervention = list[idx];
+  const guide = list[idx];
 
   return (
     <AnimatePresence>
-      {open && intervention && (
+      {open && guide && (
         <motion.div
           key="try-help-overlay"
           initial={{ y: "100%", opacity: 0 }}
@@ -316,12 +431,12 @@ export default function TryHelpOverlay({
             <X className="h-4 w-4" strokeWidth={2} />
           </button>
 
-          <div className="relative mx-auto w-full max-w-[560px] px-5 pb-24 pt-16 sm:pt-20">
-            {/* Picker — visible options for this mood */}
+          <div className="relative mx-auto w-full max-w-[600px] px-5 pb-24 pt-16 sm:pt-20">
+            {/* Picker */}
             {list.length > 1 && (
               <div className="mb-10">
                 <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple-dark/45">
-                  Choose what feels right
+                  Choose what fits
                 </p>
                 <div className="flex flex-wrap justify-center gap-2.5">
                   {list.map((item, i) => {
@@ -354,7 +469,7 @@ export default function TryHelpOverlay({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              {/* Header with big icon */}
+              {/* Hero */}
               <div className="text-center">
                 <motion.div
                   initial={{ scale: 0.85, opacity: 0 }}
@@ -366,49 +481,99 @@ export default function TryHelpOverlay({
                     aria-hidden
                     className="absolute inset-1.5 rounded-full ring-1 ring-brand-purple-accent/20"
                   />
-                  <intervention.Icon
+                  <guide.Icon
                     className="relative h-10 w-10 text-brand-purple"
                     strokeWidth={1.25}
                   />
                 </motion.div>
 
                 <h2 className="mt-7 text-[2.25rem] font-light leading-[1.1] tracking-tight text-brand-purple-dark">
-                  {intervention.name}
+                  {guide.name}
                 </h2>
 
-                <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-purple/80 ring-1 ring-brand-purple-accent/30">
-                  <Clock className="h-3 w-3" strokeWidth={1.8} />
-                  About {intervention.duration} min
-                </div>
+                <p className="mt-3 text-[13px] font-medium uppercase tracking-[0.22em] text-brand-purple/75">
+                  {guide.subtitle}
+                </p>
 
-                <p className="mx-auto mt-6 max-w-[380px] text-[16px] leading-[1.6] text-brand-purple-dark/75">
-                  {intervention.blurb}
+                <p className="mx-auto mt-6 max-w-[460px] text-[15px] italic leading-[1.6] text-brand-purple-dark/70">
+                  &ldquo;{guide.quoteHeader}&rdquo;
                 </p>
               </div>
 
-              {/* Steps as visual cards */}
-              <ol className="mt-12 space-y-3">
-                {intervention.steps.map((step, i) => (
-                  <motion.li
-                    key={`${mood}-${idx}-${i}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.35,
-                      ease: "easeOut",
-                      delay: 0.15 + i * 0.06,
-                    }}
-                    className="flex items-start gap-4 rounded-2xl bg-white/75 p-4 ring-1 ring-brand-purple-accent/20 backdrop-blur-sm transition-colors hover:bg-white"
-                  >
-                    <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-lavender text-[13px] font-semibold text-brand-purple-dark ring-1 ring-brand-purple-accent/40">
-                      {i + 1}
-                    </span>
-                    <p className="pt-1 text-[16px] leading-[1.55] text-brand-purple-dark/85">
-                      {step}
-                    </p>
-                  </motion.li>
-                ))}
-              </ol>
+              {/* What's happening */}
+              <section className="mt-10 rounded-2xl bg-white/70 p-5 ring-1 ring-brand-purple-accent/25 backdrop-blur-sm">
+                <div className="mb-2 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-brand-purple/80">
+                  <Info className="h-3 w-3" strokeWidth={2} />
+                  What's happening
+                </div>
+                <p className="text-[15px] leading-[1.6] text-brand-purple-dark/80">
+                  {guide.whatsHappening}
+                </p>
+              </section>
+
+              {/* Famous quote */}
+              <figure className="mt-6 rounded-2xl bg-gradient-to-br from-white/80 to-brand-lavender/60 p-6 text-center ring-1 ring-brand-purple-accent/30 backdrop-blur-sm">
+                <Quote
+                  className="mx-auto h-5 w-5 text-brand-purple-accent"
+                  strokeWidth={1.5}
+                />
+                <blockquote className="mt-3 text-[17px] font-light italic leading-[1.5] text-brand-purple-dark">
+                  &ldquo;{guide.famousQuote.text}&rdquo;
+                </blockquote>
+                <figcaption className="mt-3 text-[11px] font-medium uppercase tracking-[0.24em] text-brand-purple/70">
+                  — {guide.famousQuote.author}
+                </figcaption>
+              </figure>
+
+              {/* Things that help */}
+              <div className="mt-10">
+                <h3 className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-purple-dark/55">
+                  Things that help
+                </h3>
+                <ol className="space-y-3">
+                  {guide.tips.map((tip, i) => (
+                    <motion.li
+                      key={`${guide.id}-${i}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.35,
+                        ease: "easeOut",
+                        delay: 0.1 + i * 0.06,
+                      }}
+                      className="flex items-start gap-4 rounded-2xl bg-white/75 p-5 ring-1 ring-brand-purple-accent/20 backdrop-blur-sm transition-colors hover:bg-white"
+                    >
+                      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-lavender text-[13px] font-semibold text-brand-purple-dark ring-1 ring-brand-purple-accent/40">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-[15px] font-semibold text-brand-purple-dark">
+                          {tip.title}
+                        </p>
+                        <p className="mt-1.5 text-[14.5px] leading-[1.6] text-brand-purple-dark/75">
+                          {tip.body}
+                        </p>
+                      </div>
+                    </motion.li>
+                  ))}
+                </ol>
+              </div>
+
+              {/* When to seek help */}
+              <section className="mt-6 flex items-start gap-3 rounded-2xl bg-white/55 p-4 ring-1 ring-brand-purple-accent/20 backdrop-blur-sm">
+                <LifeBuoy
+                  className="mt-0.5 h-4 w-4 flex-none text-brand-purple"
+                  strokeWidth={1.8}
+                />
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-purple/80">
+                    When to seek help
+                  </p>
+                  <p className="mt-1 text-[14px] leading-[1.55] text-brand-purple-dark/75">
+                    {guide.whenToSeekHelp}
+                  </p>
+                </div>
+              </section>
 
               {/* Feedback */}
               <div className="mt-12">
@@ -497,7 +662,7 @@ function FeedbackResponse({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className={`relative mx-auto max-w-[440px] rounded-3xl bg-gradient-to-br ${toneStyles} p-7 text-center ring-1 backdrop-blur-sm shadow-[0_18px_44px_-24px_rgba(126,107,175,0.45)]`}
+      className={`relative mx-auto max-w-[460px] rounded-3xl bg-gradient-to-br ${toneStyles} p-7 text-center ring-1 backdrop-blur-sm shadow-[0_18px_44px_-24px_rgba(126,107,175,0.45)]`}
     >
       <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple/80">
         <span className="h-1 w-1 rounded-full bg-brand-purple-accent" />
@@ -507,7 +672,7 @@ function FeedbackResponse({
       <h3 className="mt-4 text-[1.5rem] font-light leading-[1.2] tracking-tight text-brand-purple-dark">
         {r.title}
       </h3>
-      <p className="mx-auto mt-3 max-w-[360px] text-[15px] leading-[1.6] text-brand-purple-dark/75">
+      <p className="mx-auto mt-3 max-w-[380px] text-[15px] leading-[1.6] text-brand-purple-dark/75">
         {r.message}
       </p>
 
