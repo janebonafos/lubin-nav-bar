@@ -52,7 +52,7 @@ const ABOUT_COPY: Record<string, string> = {
     "This check is based on the SPIN — developed to help people understand patterns around social situations and comfort. It's widely used to help people notice social anxiety patterns.",
   "sleep-rest":
     "This is a custom sleep check created by Lubin.AI based on widely recognised sleep quality indicators. It helps you reflect on how your sleep and rest have been affecting you lately.",
-  "asrs-v1-1":
+  "asrs-6":
     "This check is based on the ASRS v1.1 — developed by the World Health Organization to help adults notice patterns around focus, attention, and restlessness. It's not a diagnosis tool — it simply helps surface patterns that might be worth exploring further.",
   scoff:
     "This check is based on the SCOFF — a brief screening tool developed to help people reflect on their relationship with food and their body. It covers some sensitive topics — please be gentle with yourself as you go through it.",
