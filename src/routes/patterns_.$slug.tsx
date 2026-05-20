@@ -387,7 +387,7 @@ function IntroView({
         <button
           type="button"
           onClick={onStart}
-          className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_34px_-14px_rgba(126,107,175,0.8)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-12px_rgba(126,107,175,0.9)] sm:w-auto"
+          className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0 sm:w-auto"
         >
           I'm ready
           <ArrowRight
