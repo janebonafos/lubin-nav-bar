@@ -267,17 +267,22 @@ function PatternsPage() {
                   <ul className="mt-4 divide-y divide-brand-purple/10 overflow-hidden rounded-xl border border-brand-purple/10 bg-white/70">
                     {[
                       {
-                        title: "Mood Check and Wellbeing Check",
+                        title: "Core mood & wellbeing",
                         body: "Quick to change — weekly gives you a useful pattern",
                         cadence: "Once a week",
                       },
                       {
-                        title: "Stress, Anxiety, and Mood Check-ins",
+                        title: "Deeper emotional patterns",
                         body: "These measure the last 2 weeks — space them out for accuracy",
                         cadence: "Every 2 weeks",
                       },
                       {
-                        title: "Focus, Eating, Alcohol, and Difficult Experiences Check-ins",
+                        title: "Energy, focus & patterns",
+                        body: "Attention and energy shift gradually — every 2 weeks works well",
+                        cadence: "Every 2 weeks",
+                      },
+                      {
+                        title: "Lifestyle & body",
                         body: "These reflect longer patterns — monthly is enough",
                         cadence: "Once a month",
                       },
