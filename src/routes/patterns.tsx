@@ -183,7 +183,7 @@ function PatternsPage() {
                 <Search className="h-4 w-4" strokeWidth={2.2} />
               </span>
               <input
-                type="search"
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search check-ins — try ‘mood’, ‘sleep’, or ‘PHQ-9’"
