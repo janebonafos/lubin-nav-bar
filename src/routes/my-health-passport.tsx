@@ -796,25 +796,25 @@ function MoodThisMonth({
 
   return (
     <Card className={className}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark">
             Mood this month
           </p>
-          <p className="mt-1 text-[12px] text-brand-purple-dark/55">
+          <p className="mt-1 text-[13px] font-medium text-brand-purple/80">
             Built automatically from your daily check-ins this month.
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 rounded-full bg-brand-lavender/50 p-1.5 ring-1 ring-brand-purple/10">
           <button
             type="button"
             onClick={goPrev}
             aria-label="Previous month"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <p className="min-w-[80px] text-center text-[12px] font-medium text-brand-purple-dark/70">
+          <p className="min-w-[88px] text-center text-[13px] font-semibold text-brand-purple-dark">
             {monthName}{yearLabel}
           </p>
           <button
@@ -822,48 +822,29 @@ function MoodThisMonth({
             onClick={goNext}
             disabled={!canGoNext}
             aria-label="Next month"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {total === 0 && isCurrentMonth ? (
-        <>
-          <p className="mt-4 text-sm text-brand-purple-dark/55">
-            No check-ins yet this month. Your first one will start building this view.
-          </p>
-          <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-start">
-            <MoodCalendar
-              inMonth={inMonth}
-              year={view.year}
-              month={view.month}
-              today={today}
-              onLogToday={onLogToday}
-            />
-            <MoodMix counts={counts} total={total} />
-          </div>
-        </>
+      {total === 0 ? (
+        <p className="mt-4 text-sm text-brand-purple-dark/55">
+          {isCurrentMonth
+            ? "No check-ins yet this month. Your first one will start building this view."
+            : `No check-ins logged for ${monthName}${yearLabel}.`}
+        </p>
       ) : (
-        <>
-          {total === 0 ? (
-            <div className="mt-4 rounded-xl bg-brand-purple/[0.04] px-4 py-5 text-center ring-1 ring-brand-purple/10">
-              <p className="text-sm text-brand-purple-dark/55">
-                No check-ins logged for {monthName}{yearLabel}.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <Metric label="Check-ins" value={String(total)} />
-              <Metric
-                label="Most felt"
-                value={topMood ? MOOD_LABELS[topMood] : "—"}
-              />
-              <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
-            </div>
-          )}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <Metric label="Check-ins" value={String(total)} />
+          <Metric label="Most felt" value={topMood ? MOOD_LABELS[topMood] : "—"} />
+          <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+        </div>
+      )}
 
+      <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:items-start">
+        <div className="lg:col-span-8">
           <MoodCalendar
             inMonth={inMonth}
             year={view.year}
@@ -871,30 +852,33 @@ function MoodThisMonth({
             today={today}
             onLogToday={onLogToday}
           />
+        </div>
+        <div className="lg:col-span-4">
+          <MoodMix counts={counts} total={total} />
+        </div>
+      </div>
 
-          {topTopics.length > 0 && (
-            <div className="mt-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-                  On your mind
-                </p>
-                <p className="text-[11px] text-brand-purple-dark/45">
-                  Topics you tagged most often
-                </p>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {topTopics.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+      {topTopics.length > 0 && (
+        <div className="mt-6">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+              On your mind
+            </p>
+            <p className="text-[11px] text-brand-purple-dark/45">
+              Topics you tagged most often
+            </p>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {topTopics.map((t) => (
+              <span
+                key={t}
+                className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
     </Card>
   );
