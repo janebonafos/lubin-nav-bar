@@ -6,7 +6,6 @@ import {
   Sun,
   Minus,
   CloudRain,
-  Wind,
   Heart,
   Moon,
   MessageCircle,
