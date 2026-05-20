@@ -169,7 +169,7 @@ export default function CheckInFlow({
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-[640px] py-4">
+    <div className="relative mx-auto w-full max-w-[920px] py-4">
       <button
         onClick={onClose}
         className="absolute right-0 top-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-white/60 hover:text-brand-purple-dark"
