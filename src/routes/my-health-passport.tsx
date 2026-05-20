@@ -578,9 +578,10 @@ function Overview({
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-      {/* Greeting */}
-      <Card>
+    <div className="flex flex-col gap-5">
+      {/* Top row: greeting + insights side by side on lg */}
+      <div className="grid gap-5 lg:grid-cols-2 lg:items-stretch">
+        <Card className="h-full">
         <h2 className="text-3xl font-bold text-brand-purple-dark">
           How are you today?
         </h2>
@@ -594,21 +595,20 @@ function Overview({
           Talk to Lubin <span aria-hidden>→</span>
         </Link>
       </Card>
+        <Card className="h-full">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+            What we're noticing
+          </p>
+          <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/45">
+            After a few check-ins you might see something like:
+            {" "}“Sleep keeps coming up in your conversations,” or
+            {" "}“Your mood has been steady this week.”
+          </p>
+        </Card>
+      </div>
 
-      {/* Insights — anticipation-framed */}
-      <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          What we're noticing
-        </p>
-        <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/45">
-          After a few check-ins you might see something like:
-          {" "}“Sleep keeps coming up in your conversations,” or
-          {" "}“Your mood has been steady this week.”
-        </p>
-      </Card>
-
-      {/* Mood check-in CTA */}
-      <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 lg:col-span-2">
+      {/* Mood check-in CTA — full width */}
+      <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <p className="text-lg font-semibold text-brand-purple-dark">
             How are you feeling today?
@@ -634,7 +634,6 @@ function Overview({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
-            className="lg:col-span-2"
           >
             <Card>
               <CheckInFlow
@@ -648,11 +647,12 @@ function Overview({
         )}
       </AnimatePresence>
 
-      {/* Mood this month — live metrics */}
-      <MoodThisMonth entries={liveEntries} />
-
-      {/* Recent check-ins */}
-      <Card>
+      {/* Bottom row: mood-this-month + recent check-ins side by side */}
+      <div className="grid gap-5 lg:grid-cols-5 lg:items-stretch">
+        <div className="lg:col-span-2 flex">
+          <MoodThisMonth entries={liveEntries} />
+        </div>
+        <Card className="lg:col-span-3 h-full">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           Recent check-ins
         </p>
@@ -697,12 +697,13 @@ function Overview({
             </p>
           </>
         )}
-      </Card>
+        </Card>
+      </div>
 
       {/* Soft anchor CTA */}
       <Link
         to="/chat"
-        className="block rounded-2xl bg-gradient-to-r from-brand-purple/10 to-brand-purple-accent/15 px-6 py-5 text-center no-underline ring-1 ring-brand-purple/15 transition hover:from-brand-purple/15 hover:to-brand-purple-accent/25 lg:col-span-2"
+        className="block rounded-2xl bg-gradient-to-r from-brand-purple/10 to-brand-purple-accent/15 px-6 py-5 text-center no-underline ring-1 ring-brand-purple/15 transition hover:from-brand-purple/15 hover:to-brand-purple-accent/25"
       >
         <p className="text-sm font-medium text-brand-purple-dark">
           Want to talk it through instead?{" "}
