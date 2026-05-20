@@ -962,38 +962,55 @@ function ResultView({
 function SupportCard({ crisis }: { crisis: boolean }) {
   return (
     <div
-      className={`mt-5 rounded-3xl p-6 md:p-8 ring-1 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ${
+      className={`mt-5 rounded-3xl p-6 md:p-8 ${
         crisis
-          ? "bg-gradient-to-br from-white to-brand-lavender/60 ring-brand-purple/25"
-          : "bg-white ring-brand-purple/10"
+          ? "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_28px_90px_-30px_rgba(126,107,175,0.7)] ring-2 ring-brand-purple/40"
+          : "bg-white ring-1 ring-brand-purple/10 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)]"
       }`}
     >
       {crisis && (
-        <p className="mb-5 rounded-2xl bg-brand-lavender/70 px-4 py-3 text-[14px] leading-[1.6] text-brand-purple-dark">
-          Your answers suggest you're carrying something really heavy right now.
-          Please reach out — you don't have to do this alone.
-        </p>
+        <div className="mb-6">
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-white">
+            <span aria-hidden>💜</span> A gentle, urgent note
+          </p>
+          <p className="mt-3 text-[17px] font-medium leading-[1.5] text-white md:text-[18px]">
+            Your answers suggest you're carrying something really heavy right
+            now. Please reach out — you don't have to do this alone.
+          </p>
+        </div>
       )}
-      <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+      <p
+        className={`text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
+          crisis ? "text-white/80" : "text-brand-purple"
+        }`}
+      >
         Need urgent help?
       </p>
       <ul className="mt-3 space-y-2">
         <li>
           <a
             href="tel:2919"
-            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
+              crisis
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            }`}
           >
             <span>📞 Hopeline PH</span>
-            <span className="font-semibold text-brand-purple">2919</span>
+            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>2919</span>
           </a>
         </li>
         <li>
           <a
             href="tel:1553"
-            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
+              crisis
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            }`}
           >
             <span>📞 NCMH</span>
-            <span className="font-semibold text-brand-purple">1553</span>
+            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>1553</span>
           </a>
         </li>
         <li>
@@ -1001,10 +1018,14 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             href="https://findahelpline.com"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
+              crisis
+                ? "bg-white/10 text-white hover:bg-white/20"
+                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            }`}
           >
             <span>🌐 findahelpline.com</span>
-            <span className="font-semibold text-brand-purple">Visit →</span>
+            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>Visit →</span>
           </a>
         </li>
       </ul>
