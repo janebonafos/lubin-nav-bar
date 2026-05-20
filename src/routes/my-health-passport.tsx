@@ -649,9 +649,7 @@ function Overview({
 
       {/* Bottom row: mood-this-month + recent check-ins side by side */}
       <div className="grid gap-5 lg:grid-cols-5 lg:items-stretch">
-        <div className="lg:col-span-2 flex">
-          <MoodThisMonth entries={liveEntries} />
-        </div>
+        <MoodThisMonth entries={liveEntries} className="lg:col-span-2 h-full" />
         <Card className="lg:col-span-3 h-full">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           Recent check-ins
