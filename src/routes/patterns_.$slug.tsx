@@ -384,7 +384,7 @@ function IntroView({
             strokeWidth={2.2}
           />
         </button>
-        <p className="max-w-[220px] text-[11.5px] leading-relaxed text-brand-purple/70">
+        <p className="whitespace-nowrap text-[11.5px] leading-relaxed text-brand-purple/70">
           You can pause or leave at any moment — nothing is saved until you finish.
         </p>
       </div>
