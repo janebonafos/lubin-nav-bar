@@ -588,48 +588,72 @@ function Overview({
     <div className="flex flex-col gap-5">
       {/* Top row: greeting + insights side by side on lg */}
       <div className="grid gap-5 lg:grid-cols-2 lg:items-stretch">
-        <Card className="h-full">
-        <h2 className="text-3xl font-bold text-brand-purple-dark">
-          How are you today?
-        </h2>
-        <p className="mt-2 text-sm text-brand-purple-dark/70">
-          Hi there 👋 — {today}
-        </p>
-        <Link
-          to="/chat"
-          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
-        >
-          Talk to Lubin <span aria-hidden>→</span>
-        </Link>
-      </Card>
-        <Card className="h-full">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-            What we're noticing
-          </p>
-          <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/45">
-            After a few check-ins you might see something like:
-            {" "}“Sleep keeps coming up in your conversations,” or
-            {" "}“Your mood has been steady this week.”
-          </p>
+        <Card className="relative h-full overflow-hidden bg-gradient-to-br from-white via-white to-brand-lavender/40">
+          <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/15 blur-3xl" />
+          <div className="relative">
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+              Today
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-brand-purple-dark">
+              How are you today?
+            </h2>
+            <p className="mt-3 text-sm text-brand-purple-dark/65">
+              Hi there <span className="inline-block animate-pulse">👋</span> — {today}
+            </p>
+            <Link
+              to="/chat"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3.5 py-1.5 text-sm font-semibold text-brand-purple no-underline ring-1 ring-brand-purple/15 transition hover:bg-brand-purple/15 hover:-translate-y-0.5"
+            >
+              Talk to Lubin <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </Card>
+        <Card className="relative h-full overflow-hidden bg-gradient-to-br from-white via-white to-brand-purple/[0.04]">
+          <div aria-hidden className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-brand-purple-accent/25 blur-3xl" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple/10 ring-1 ring-brand-purple/15">
+                <Sparkles className="h-3.5 w-3.5 text-brand-purple" />
+              </span>
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+                What we're noticing
+              </p>
+            </div>
+            <p className="mt-4 italic text-sm leading-relaxed text-brand-purple-dark/55">
+              After a few check-ins you might see something like:
+              {" "}"Sleep keeps coming up in your conversations," or
+              {" "}"Your mood has been steady this week."
+            </p>
+          </div>
         </Card>
       </div>
 
       {/* Mood check-in CTA — full width */}
-      <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p className="text-lg font-semibold text-brand-purple-dark">
-            How are you feeling today?
-          </p>
-          <p className="mt-1 text-sm text-brand-purple-dark/60">
-            Takes 15 seconds. Builds your passport over time.
-          </p>
+      <Card className="relative overflow-hidden bg-gradient-to-r from-brand-purple-dark via-brand-purple to-brand-purple-dark">
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple-accent/30 blur-3xl" />
+        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 ring-1 ring-white/20 backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/90">
+                Daily check-in
+              </p>
+            </div>
+            <p className="mt-3 text-xl font-bold text-white">
+              How are you feeling today?
+            </p>
+            <p className="mt-1 text-sm text-white/70">
+              Takes 15 seconds. Builds your passport over time.
+            </p>
+          </div>
+          <button
+            onClick={onLogMood}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_8px_24px_-6px_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(0,0,0,0.35)]"
+          >
+            Check in <span aria-hidden>→</span>
+          </button>
         </div>
-        <button
-          onClick={onLogMood}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
-        >
-          Check in <span aria-hidden>→</span>
-        </button>
       </Card>
 
       <AnimatePresence initial={false}>
