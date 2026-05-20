@@ -207,6 +207,41 @@ const FEEDBACK_OPTIONS = [
   { key: "heavier", label: "Heavier", Icon: CloudRain, iconClass: "text-amber-500" },
 ] as const;
 
+type FeedbackKey = (typeof FEEDBACK_OPTIONS)[number]["key"];
+
+const FEEDBACK_RESPONSE: Record<
+  FeedbackKey,
+  { eyebrow: string; title: string; message: string; quote: string; author: string; tone: "light" | "soft" | "care" }
+> = {
+  better: {
+    eyebrow: "That's beautiful",
+    title: "Hold onto that feeling.",
+    message:
+      "Even small shifts matter. You showed up for yourself just now — that's the practice.",
+    quote: "Almost everything will work again if you unplug it for a few minutes, including you.",
+    author: "Anne Lamott",
+    tone: "light",
+  },
+  same: {
+    eyebrow: "That's okay",
+    title: "Sometimes calm comes quietly.",
+    message:
+      "Not every moment shifts on the first try. Coming back to yourself is enough for now.",
+    quote: "You don't have to see the whole staircase. Just take the first step.",
+    author: "Martin Luther King Jr.",
+    tone: "soft",
+  },
+  heavier: {
+    eyebrow: "We hear you",
+    title: "You're not alone in this.",
+    message:
+      "Heavier moments deserve more than a breath. Be gentle with yourself — and if it helps, Lubin is right here to listen.",
+    quote: "The wound is the place where the light enters you.",
+    author: "Rumi",
+    tone: "care",
+  },
+};
+
 export default function TryHelpOverlay({
   open,
   mood,
@@ -218,7 +253,7 @@ export default function TryHelpOverlay({
 }) {
   const list = useMemo(() => (mood ? LIBRARY[mood] : []), [mood]);
   const [idx, setIdx] = useState(0);
-  const [rated, setRated] = useState<string | null>(null);
+  const [rated, setRated] = useState<FeedbackKey | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -404,17 +439,7 @@ export default function TryHelpOverlay({
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div
-                      key="thanks"
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center gap-2 text-[15px] italic text-brand-purple-dark/75"
-                    >
-                      <Check className="h-4 w-4 text-emerald-500" strokeWidth={2.4} />
-                      Thank you for taking that moment.
-                    </motion.div>
+                    <FeedbackResponse rated={rated} onClose={onClose} />
                   )}
                 </AnimatePresence>
               </div>
