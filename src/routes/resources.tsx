@@ -300,9 +300,8 @@ function ResourcesPage() {
 
             <a
               href="#talk-to-someone"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#7A5A2C] px-5 py-2.5 text-[13.5px] font-semibold text-[#FEF3C7] no-underline transition hover:-translate-y-0.5 hover:bg-[#6A4A1C]"
+              className="mt-6 inline-flex items-center gap-2 text-[14px] font-semibold text-[#7A5A2C] no-underline transition hover:opacity-80"
             >
-              <HeartHandshake className="h-4 w-4" strokeWidth={2} />
               Find support for yourself
               <ArrowRight className="h-4 w-4" strokeWidth={2} />
             </a>
