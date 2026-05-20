@@ -868,47 +868,42 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1.5 max-w-[560px]">
+      <div className="mt-3 grid grid-cols-7 gap-y-2 max-w-[520px]">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="text-center text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
+            className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
           >
             {l}
           </p>
         ))}
         {cells.map((c, i) => {
-          if (c.day === null) return <div key={`pad-${i}`} className="aspect-square" />;
+          if (c.day === null)
+            return <div key={`pad-${i}`} className="aspect-square" />;
           const isToday = c.day === todayDate;
           const entry = c.entry;
-          const bg = entry ? MOOD_ACCENTS[entry.mood] : undefined;
           const dateLabel = new Date(year, month, c.day).toLocaleDateString(undefined, {
             weekday: "short",
             month: "short",
             day: "numeric",
           });
           return (
-            <div key={`d-${c.day}`} className="group relative flex justify-center">
+            <div key={`d-${c.day}`} className="group relative flex items-center justify-center">
               <div
-                className={`relative flex aspect-square w-full items-center justify-center rounded-full text-base transition ${
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
                   entry
-                    ? "shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
-                    : "bg-brand-purple/10"
-                } ${
-                  isToday
-                    ? "ring-2 ring-brand-purple"
-                    : entry
-                      ? "ring-1 ring-brand-purple/30"
-                      : "ring-1 ring-brand-purple/15"
+                    ? "bg-brand-purple text-white shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    : isToday
+                      ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40"
+                      : "text-brand-purple-dark/70"
                 }`}
-                style={entry ? { backgroundColor: bg } : undefined}
               >
                 {entry ? (
-                  <span aria-hidden>{entry.intensityEmoji}</span>
-                ) : (
-                  <span className="text-[11px] font-semibold text-brand-purple-dark/55">
-                    {c.day}
+                  <span className="text-lg leading-none" aria-hidden>
+                    {entry.intensityEmoji}
                   </span>
+                ) : (
+                  <span>{c.day}</span>
                 )}
               </div>
               {entry && (
