@@ -47,6 +47,12 @@ export const Route = createFileRoute("/patterns_/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
       ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Lora:wght@600;700&display=swap",
+        },
+      ],
     };
   },
   component: PatternRunPage,
