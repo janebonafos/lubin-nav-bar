@@ -964,14 +964,14 @@ function MoodCalendar({
                     ? `Check in for ${dateLabel}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-[13px] transition ${
+                className={`relative flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-[13px] transition-all duration-200 ${
                   entry
-                    ? "bg-brand-lavender text-brand-purple-dark font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    ? "bg-gradient-to-br from-brand-lavender to-brand-purple/25 text-brand-purple-dark font-semibold shadow-[0_4px_12px_-2px_rgba(123,104,199,0.25)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_-2px_rgba(123,104,199,0.35)] cursor-default"
                     : isToday
-                      ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12),0_4px_18px_-4px_rgba(123,104,199,0.4)] hover:shadow-[0_0_0_5px_rgba(123,104,199,0.18),0_6px_22px_-4px_rgba(123,104,199,0.5)] cursor-pointer"
+                      ? "bg-gradient-to-br from-white to-brand-lavender/60 text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_5px_rgba(123,104,199,0.12),0_8px_24px_-4px_rgba(123,104,199,0.45)] hover:shadow-[0_0_0_6px_rgba(123,104,199,0.18),0_10px_28px_-4px_rgba(123,104,199,0.55)] hover:-translate-y-0.5 cursor-pointer"
                       : isPastDay
-                        ? "bg-brand-purple/[0.03] text-brand-purple-dark/35 ring-1 ring-brand-purple/8 cursor-not-allowed"
-                        : "text-brand-purple-dark/35 border border-dashed border-brand-purple/20 cursor-not-allowed"
+                        ? "bg-brand-lavender/45 text-brand-purple-dark/40 cursor-not-allowed"
+                        : "text-brand-purple-dark/30 border border-dashed border-brand-purple/25 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
