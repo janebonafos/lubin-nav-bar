@@ -24,6 +24,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
+  Clock,
+  ArrowRight,
+  PlayCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
