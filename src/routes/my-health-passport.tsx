@@ -10,6 +10,7 @@ import CheckInFlow, {
   MOOD_LABELS,
   MOOD_ACCENTS,
 } from "@/components/CheckInFlow";
+import TryHelpOverlay from "@/components/TryHelpOverlay";
 import {
   CalendarCheck,
   ClipboardList,
@@ -541,6 +542,7 @@ function Overview({
   const [pulseId, setPulseId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const [helpMood, setHelpMood] = useState<MoodKey | null>(null);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
