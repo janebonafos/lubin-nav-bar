@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -131,11 +131,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
       updatedAt: Date.now(),
     });
   }, [answers, currentIndex, phase, assessment.id]);
-
-  const runningTotal = useMemo(
-    () => answers.reduce<number>((sum, v) => sum + (v ?? 0), 0),
-    [answers],
-  );
 
   function startNow() {
     markIntroSeen(assessment.id);
