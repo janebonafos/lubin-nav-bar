@@ -914,19 +914,6 @@ function ResultView({
           )}
         </section>
 
-        <div className="mt-6 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            type="button"
-            onClick={handleShare}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
-          >
-            <Share2 className="h-4 w-4" strokeWidth={2.2} />
-            {copied ? "Copied to clipboard" : "Share results"}
-          </button>
-          <p className="text-[11.5px] text-brand-purple-dark/55">
-            Only shared when you choose to.
-          </p>
-        </div>
       </div>
     </motion.section>
   );
