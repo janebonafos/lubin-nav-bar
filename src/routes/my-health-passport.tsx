@@ -879,16 +879,23 @@ function MoodThisMonth({
 
 function MoodCalendar({
   inMonth,
-  now,
+  year,
+  month,
+  today,
 }: {
   inMonth: LiveCheckInLite[];
-  now: Date;
+  year: number;
+  month: number;
+  today: Date;
 }) {
-  const year = now.getFullYear();
-  const month = now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay(); // 0 = Sun
-  const todayDate = now.getDate();
+  const isCurrentMonth =
+    today.getFullYear() === year && today.getMonth() === month;
+  const isPastMonth =
+    year < today.getFullYear() ||
+    (year === today.getFullYear() && month < today.getMonth());
+  const todayDate = today.getDate();
 
   // Latest check-in per day-of-month
   const byDay = new Map<number, LiveCheckInLite>();
@@ -927,7 +934,9 @@ function MoodCalendar({
         {cells.map((c, i) => {
           if (c.day === null)
             return <div key={`pad-${i}`} className="aspect-square" />;
-          const isToday = c.day === todayDate;
+          const isToday = isCurrentMonth && c.day === todayDate;
+          const isPastDay =
+            isPastMonth || (isCurrentMonth && c.day < todayDate);
           const entry = c.entry;
           const dateLabel = new Date(year, month, c.day).toLocaleDateString(undefined, {
             weekday: "short",
@@ -939,10 +948,12 @@ function MoodCalendar({
               <div
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
                   entry
-                    ? "bg-brand-purple text-white shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
                       ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40"
-                      : "text-brand-purple-dark/70"
+                      : isPastDay
+                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10"
+                        : "text-brand-purple-dark/70"
                 }`}
               >
                 {entry ? (
