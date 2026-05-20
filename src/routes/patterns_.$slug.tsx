@@ -634,7 +634,7 @@ function QuestionView({
                   className={`flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-left transition ${
                     isSelected
                       ? "border-brand-purple bg-brand-lavender/80 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
-                      : "border-brand-purple/15 bg-white hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-brand-lavender/30"
+                      : "border-brand-purple/15 bg-white hover:border-brand-purple hover:bg-brand-lavender/80 hover:shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
                   }`}
                 >
                   <span className="text-[15px] font-medium text-brand-purple-dark">
