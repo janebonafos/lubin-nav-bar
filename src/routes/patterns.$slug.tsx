@@ -262,7 +262,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 selected={answers[currentIndex]}
                 onAnswer={handleAnswer}
                 onBack={goBack}
-                runningTotal={runningTotal}
               />
             )}
             {phase === "breathing" && (
@@ -449,7 +448,6 @@ function QuestionView({
   selected: number | null;
   onAnswer: (value: number) => void;
   onBack: () => void;
-  runningTotal: number;
 }) {
   const q = assessment.questions[index];
   const pct = Math.round(((index + (selected !== null ? 1 : 0)) / total) * 100);
