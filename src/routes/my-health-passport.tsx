@@ -20,6 +20,8 @@ import {
   Sparkles,
   Pencil,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
