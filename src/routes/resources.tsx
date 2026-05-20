@@ -105,12 +105,13 @@ function ResourcesPage() {
         </Link>
 
         {/* Header */}
-        <header className="mt-4 rounded-2xl border border-[#EDE7F6] bg-gradient-to-br from-white to-[#F1ECFA] p-6 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.05)]">
-          <h1 className="text-[18px] font-semibold text-[#3F3560]">
-            Support resources
+        <header className="mt-4 rounded-3xl border border-[#EDE7F6] bg-gradient-to-br from-white to-[#F1ECFA] p-8 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.05)]">
+          <h1 className="text-[34px] sm:text-[40px] font-bold leading-[1.1] tracking-tight text-[#3F3560]">
+            You don't have to face this alone.
           </h1>
-          <p className="mt-2 text-[14px] leading-relaxed text-[#5C5470]">
-            You're not alone. Here are people and places that can help — anytime.
+          <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-[#5C5470]">
+            Whatever brought you here — help is available right now. These
+            resources are free, confidential, and available any time.
           </p>
         </header>
 
