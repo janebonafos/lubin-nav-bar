@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Search,
   X,
+  ChevronDown,
+  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -69,6 +71,7 @@ function PatternsPage() {
   // Bump on focus / visibility so locked timers and completion state refresh.
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
+  const [timingOpen, setTimingOpen] = useState(false);
   useEffect(() => {
     const onFocus = () => setTick((t) => t + 1);
     window.addEventListener("focus", onFocus);
@@ -226,6 +229,96 @@ function PatternsPage() {
               </a>
             ))}
           </nav>
+
+          {/* Timing guide — quiet collapsible to explain cooldown cadence */}
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.15, ease: "easeOut" }}
+            className="mx-auto mt-6 w-full max-w-[680px] overflow-hidden rounded-2xl border border-white/70 bg-white/60 backdrop-blur-md"
+          >
+            <button
+              type="button"
+              onClick={() => setTimingOpen((v) => !v)}
+              aria-expanded={timingOpen}
+              aria-controls="timing-guide"
+              className="flex w-full items-center justify-between gap-4 px-5 py-3.5 text-left"
+            >
+              <span className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
+                  <Clock3 className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </span>
+                <span className="text-[13.5px] font-semibold text-brand-purple-dark">
+                  Why timing your check-ins matters
+                </span>
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 flex-none text-brand-purple-dark/60 transition-transform duration-300 ${
+                  timingOpen ? "rotate-180" : "rotate-0"
+                }`}
+                strokeWidth={2}
+              />
+            </button>
+
+            <div
+              id="timing-guide"
+              className={`grid transition-all duration-300 ease-out ${
+                timingOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="px-5 pb-5 pt-1">
+                  <p className="text-[13px] leading-[1.65] text-brand-purple-dark/70">
+                    These tools measure how you've been feeling over a specific
+                    period — usually the last 2 weeks. Taking the same check-in
+                    too soon means you're measuring the same period twice, which
+                    doesn't give you a true picture of change.
+                  </p>
+
+                  <ul className="mt-4 divide-y divide-brand-purple/10 rounded-xl border border-brand-purple/10 bg-white/70">
+                    {[
+                      {
+                        title: "Mood Check and Wellbeing Check",
+                        body: "Quick to change — weekly gives you a useful pattern",
+                        cadence: "Once a week",
+                      },
+                      {
+                        title: "Stress, Anxiety, and Mood Check-ins",
+                        body: "These measure the last 2 weeks — space them out for accuracy",
+                        cadence: "Every 2 weeks",
+                      },
+                      {
+                        title: "Focus, Eating, Alcohol, and Difficult Experiences Check-ins",
+                        body: "These reflect longer patterns — monthly is enough",
+                        cadence: "Once a month",
+                      },
+                    ].map((row) => (
+                      <li
+                        key={row.title}
+                        className="flex items-center justify-between gap-3 px-4 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-brand-purple-dark">
+                            {row.title}
+                          </p>
+                          <p className="mt-0.5 text-[12px] text-brand-purple-dark/60">
+                            {row.body}
+                          </p>
+                        </div>
+                        <span className="flex-none rounded-full border border-brand-purple/15 bg-brand-lavender/60 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                          {row.cadence}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className="mt-4 text-center text-[12px] italic text-brand-purple-dark/55">
+                    Spacing out your check-ins helps you see real change over time.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.section>
 
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
