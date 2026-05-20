@@ -668,6 +668,44 @@ function QuestionView({
 // Result
 // ============================================================
 
+function isCrisisResult(assessment: Assessment, attempt: Attempt): boolean {
+  const score = attempt.score;
+  const answers = attempt.answers;
+  switch (assessment.id) {
+    case "phq-9":
+      return score >= 20 || (answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
+    case "who-5":
+      // WHO-5 scaled score = raw * 4. Crisis when scaled ≤ 28 (raw ≤ 7).
+      return score * 4 <= 28;
+    case "mdq":
+      return score >= 7;
+    case "pss-10":
+      return score >= 27;
+    case "gad-7":
+      return score >= 15;
+    case "pcl-5":
+      return score >= 33;
+    case "oci-r":
+      return score >= 21;
+    case "pdss-sr":
+      return score >= 15;
+    case "spin":
+      return score >= 41;
+    case "sleep-rest":
+      // Higher = better, max 24. "Severe" = bottom band (ratio < 0.25).
+      return score <= 6;
+    case "asrs-6":
+      // 4 or more items marked "Sometimes" (value 2) or higher.
+      return answers.filter((v) => (v ?? 0) >= 2).length >= 4;
+    case "scoff":
+      return score >= 2;
+    case "audit":
+      return score >= 16;
+    default:
+      return false;
+  }
+}
+
 function ResultView({
   assessment,
   attempt,
@@ -915,6 +953,61 @@ function ResultView({
           </li>
         </ul>
       </div>
+
+      <SupportCard crisis={isCrisisResult(assessment, attempt)} />
     </motion.section>
+  );
+}
+
+function SupportCard({ crisis }: { crisis: boolean }) {
+  return (
+    <div
+      className={`mt-5 rounded-3xl p-6 md:p-8 ring-1 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ${
+        crisis
+          ? "bg-gradient-to-br from-white to-brand-lavender/60 ring-brand-purple/25"
+          : "bg-white ring-brand-purple/10"
+      }`}
+    >
+      {crisis && (
+        <p className="mb-5 rounded-2xl bg-brand-lavender/70 px-4 py-3 text-[14px] leading-[1.6] text-brand-purple-dark">
+          Your answers suggest you're carrying something really heavy right now.
+          Please reach out — you don't have to do this alone.
+        </p>
+      )}
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+        Need urgent help?
+      </p>
+      <ul className="mt-3 space-y-2">
+        <li>
+          <a
+            href="tel:2919"
+            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+          >
+            <span>📞 Hopeline PH</span>
+            <span className="font-semibold text-brand-purple">2919</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="tel:1553"
+            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+          >
+            <span>📞 NCMH</span>
+            <span className="font-semibold text-brand-purple">1553</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://findahelpline.com"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline text-brand-purple-dark transition hover:bg-brand-lavender/40"
+          >
+            <span>🌐 findahelpline.com</span>
+            <span className="font-semibold text-brand-purple">Visit →</span>
+          </a>
+        </li>
+      </ul>
+    </div>
   );
 }
