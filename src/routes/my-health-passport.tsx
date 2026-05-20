@@ -1050,10 +1050,11 @@ function MoodMix({
 }) {
   const order: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
   const sorted = [...order].sort((a, b) => counts[b] - counts[a]);
+  const topMood = total > 0 ? sorted[0] : null;
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/60 via-brand-lavender/30 to-white/40 p-6 ring-1 ring-brand-purple/10 shadow-[0_8px_24px_-12px_rgba(123,104,199,0.25)] backdrop-blur-sm">
+    <div className="relative flex w-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/60 via-brand-lavender/30 to-white/40 p-6 ring-1 ring-brand-purple/10 shadow-[0_8px_24px_-12px_rgba(123,104,199,0.25)] backdrop-blur-sm">
       <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/15 blur-2xl" />
-      <div className="relative">
+      <div className="relative flex flex-1 flex-col">
       <p className="text-[12px] font-bold tracking-tight text-brand-purple-dark">
         Mood Mix
       </p>
@@ -1095,13 +1096,38 @@ function MoodMix({
           );
         })}
       </ul>
-      {total === 0 && (
-        <div className="mt-6 border-t border-brand-purple/10 pt-5">
-          <p className="text-[12px] leading-relaxed text-brand-purple-dark/65">
-            No check-ins yet this month. Your first one will start building this view.
-          </p>
-        </div>
-      )}
+      <div className="mt-auto pt-6">
+        {total === 0 ? (
+          <div className="border-t border-brand-purple/10 pt-5">
+            <p className="text-[12px] leading-relaxed text-brand-purple-dark/65">
+              No check-ins yet this month. Your first one will start building this view.
+            </p>
+          </div>
+        ) : (
+          topMood && (
+            <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-brand-purple/10 backdrop-blur-sm">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark/45">
+                This month
+              </p>
+              <div className="mt-1.5 flex items-baseline justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    aria-hidden
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: MOOD_ACCENTS[topMood] }}
+                  />
+                  <p className="truncate text-sm font-bold text-brand-purple-dark">
+                    Mostly {MOOD_LABELS[topMood].toLowerCase()}
+                  </p>
+                </div>
+                <p className="shrink-0 text-[11px] font-semibold tabular-nums text-brand-purple-dark/55">
+                  {total} {total === 1 ? "check-in" : "check-ins"}
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </div>
       </div>
     </div>
   );
