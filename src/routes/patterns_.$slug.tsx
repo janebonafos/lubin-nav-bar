@@ -263,11 +263,17 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <main className="px-4 pb-20 pt-6">
         <div className="mx-auto w-full max-w-[760px]">
           <AnimatePresence mode="wait">
-            {phase === "intro" && (
-              <IntroView
-                key="intro"
+            {(phase === "intro" || phase === "questions") && (
+              <PatternCheckCard
+                key="pattern-card"
+                phase={phase}
                 assessment={assessment}
+                index={currentIndex}
+                total={total}
+                selected={answers[currentIndex]}
                 onStart={startNow}
+                onAnswer={handleAnswer}
+                onBack={goBack}
               />
             )}
             {phase === "preparing" && (
@@ -278,17 +284,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 key="locked"
                 assessment={assessment}
                 latest={latestLocked}
-              />
-            )}
-            {phase === "questions" && (
-              <QuestionView
-                key={`q-${currentIndex}`}
-                assessment={assessment}
-                index={currentIndex}
-                total={total}
-                selected={answers[currentIndex]}
-                onAnswer={handleAnswer}
-                onBack={goBack}
               />
             )}
             {phase === "breathing" && (
