@@ -612,9 +612,6 @@ function Overview({
           <div aria-hidden className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-brand-purple-accent/25 blur-3xl" />
           <div className="relative">
             <div className="inline-flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple/10 ring-1 ring-brand-purple/15">
-                <Sparkles className="h-3.5 w-3.5 text-brand-purple" />
-              </span>
               <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
                 What we're noticing
               </p>
