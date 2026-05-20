@@ -598,16 +598,13 @@ function QuestionView({
         className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
         style={{ fontFamily: "Inter, sans-serif" }}
       >
-        <p className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          {assessment.name}
-        </p>
         {assessment.id === "phq-9" || assessment.id === "gad-7" ? (
-          <p className="mt-2 text-[13px] text-brand-purple-dark/55">
+          <p className="text-[13px] text-brand-purple-dark/55">
             Over the last 2 weeks, how often have you been bothered by…
           </p>
         ) : null}
 
-        <h2 className="mt-4 text-[22px] font-semibold leading-[1.35] text-brand-purple-dark md:text-[24px]">
+        <h2 className="mt-3 text-[22px] font-semibold leading-[1.35] text-brand-purple-dark md:text-[24px]">
           {q.text}
         </h2>
 
