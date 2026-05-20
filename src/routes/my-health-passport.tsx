@@ -899,11 +899,13 @@ function MoodCalendar({
   year,
   month,
   today,
+  onLogToday,
 }: {
   inMonth: LiveCheckInLite[];
   year: number;
   month: number;
   today: Date;
+  onLogToday?: () => void;
 }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay(); // 0 = Sun
@@ -939,11 +941,11 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-y-2 gap-x-2 w-full">
+      <div className="mt-3 grid grid-cols-7 gap-2 w-full">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
+            className="text-center text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
           >
             {l}
           </p>
@@ -955,6 +957,7 @@ function MoodCalendar({
           const isPastDay =
             isPastMonth || (isCurrentMonth && c.day < todayDate);
           const entry = c.entry;
+          const isClickable = isToday && !entry && !!onLogToday;
           const dateLabel = new Date(year, month, c.day).toLocaleDateString(undefined, {
             weekday: "short",
             month: "short",
@@ -962,15 +965,23 @@ function MoodCalendar({
           });
           return (
             <div key={`d-${c.day}`} className="group relative flex items-center justify-center">
-              <div
+              <button
+                type="button"
+                disabled={!isClickable}
+                onClick={isClickable ? onLogToday : undefined}
+                aria-label={
+                  isClickable
+                    ? `Check in for ${dateLabel}`
+                    : dateLabel
+                }
                 className={`relative flex aspect-square w-full max-w-[52px] items-center justify-center rounded-full text-sm transition ${
                   entry
                     ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
-                      ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40"
+                      ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40 hover:bg-brand-purple/25 hover:ring-brand-purple cursor-pointer"
                       : isPastDay
-                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10"
-                        : "text-brand-purple-dark/70"
+                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10 cursor-not-allowed"
+                        : "text-brand-purple-dark/70 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
@@ -980,7 +991,7 @@ function MoodCalendar({
                 ) : (
                   <span>{c.day}</span>
                 )}
-              </div>
+              </button>
               {entry && (
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-brand-purple-dark px-2.5 py-1.5 text-[11px] font-medium text-white shadow-lg group-hover:block">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
