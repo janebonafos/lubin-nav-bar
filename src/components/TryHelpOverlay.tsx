@@ -474,3 +474,64 @@ export default function TryHelpOverlay({
     </AnimatePresence>
   );
 }
+
+function FeedbackResponse({
+  rated,
+  onClose,
+}: {
+  rated: FeedbackKey;
+  onClose: () => void;
+}) {
+  const r = FEEDBACK_RESPONSE[rated];
+  const toneStyles =
+    r.tone === "care"
+      ? "from-brand-lavender to-white ring-brand-purple-accent/40"
+      : r.tone === "light"
+        ? "from-white to-brand-lavender/70 ring-brand-purple-accent/30"
+        : "from-white to-brand-lavender/60 ring-brand-purple-accent/25";
+
+  return (
+    <motion.div
+      key={`response-${rated}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={`relative mx-auto max-w-[440px] rounded-3xl bg-gradient-to-br ${toneStyles} p-7 text-center ring-1 backdrop-blur-sm shadow-[0_18px_44px_-24px_rgba(126,107,175,0.45)]`}
+    >
+      <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple/80">
+        <span className="h-1 w-1 rounded-full bg-brand-purple-accent" />
+        {r.eyebrow}
+        <span className="h-1 w-1 rounded-full bg-brand-purple-accent" />
+      </div>
+      <h3 className="mt-4 text-[1.5rem] font-light leading-[1.2] tracking-tight text-brand-purple-dark">
+        {r.title}
+      </h3>
+      <p className="mx-auto mt-3 max-w-[360px] text-[15px] leading-[1.6] text-brand-purple-dark/75">
+        {r.message}
+      </p>
+
+      <div className="mx-auto mt-6 h-px w-10 bg-brand-purple-accent/40" />
+
+      <figure className="mt-5">
+        <blockquote className="text-[15px] font-light italic leading-[1.55] text-brand-purple-dark/85">
+          &ldquo;{r.quote}&rdquo;
+        </blockquote>
+        <figcaption className="mt-3 text-[11px] font-medium uppercase tracking-[0.22em] text-brand-purple/70">
+          — {r.author}
+        </figcaption>
+      </figure>
+
+      {rated === "heavier" && (
+        <Link
+          to="/chat"
+          onClick={onClose}
+          className="mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-3 text-sm font-medium text-white no-underline shadow-[0_10px_24px_-12px_rgba(126,107,175,0.6)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+        >
+          <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
+          Talk it through with Lubin
+        </Link>
+      )}
+    </motion.div>
+  );
+}
