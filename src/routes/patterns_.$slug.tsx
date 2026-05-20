@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Lock,
   MessageCircle,
+  RotateCcw,
   ShieldCheck,
   Share2,
   Sparkles,
@@ -753,41 +754,85 @@ function ResultView({
           thing to bring into a conversation with someone you trust.
         </p>
 
-        <div className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Link
-            to="/chat"
-            className="group flex items-center justify-between gap-4 rounded-2xl border border-brand-purple/15 bg-white p-5 no-underline transition hover:-translate-y-0.5 hover:border-brand-purple/40"
-          >
-            <div>
-              <p className="text-[15px] font-semibold text-brand-purple-dark">
-                Talk this through with Lubin
-              </p>
-              <p className="mt-1 text-[12.5px] text-brand-purple-dark/60">
-                Lubin already has the context.
-              </p>
-            </div>
-            <MessageCircle
-              className="h-5 w-5 flex-none text-brand-purple"
-              strokeWidth={1.9}
-            />
-          </Link>
-          <Link
-            to="/patterns"
-            className="group flex items-center justify-between gap-4 rounded-2xl border border-brand-purple/15 bg-white p-5 no-underline transition hover:-translate-y-0.5 hover:border-brand-purple/40"
-          >
-            <div>
-              <p className="text-[15px] font-semibold text-brand-purple-dark">
-                See more check-ins
-              </p>
-              <p className="mt-1 text-[12.5px] text-brand-purple-dark/60">
-                Explore other areas at your own pace.
-              </p>
-            </div>
-            <ArrowRight
-              className="h-5 w-5 flex-none text-brand-purple"
-              strokeWidth={1.9}
-            />
-          </Link>
+        <div className="mt-9 rounded-2xl border border-brand-purple/10 bg-white p-5 md:p-6">
+          <p className="text-[15px] font-semibold text-brand-purple-dark">
+            What you can do with this
+          </p>
+          <ul className="mt-4 space-y-1">
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") window.location.reload();
+                }}
+                className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition hover:bg-brand-lavender/30"
+              >
+                <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
+                  <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-[14px] font-semibold text-brand-purple-dark">
+                    Take this check again
+                  </span>
+                  <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
+                    Creates a brand new attempt, your history stays intact
+                  </span>
+                </span>
+                <ArrowRight
+                  className="h-4 w-4 flex-none text-brand-purple/60 transition group-hover:translate-x-0.5 group-hover:text-brand-purple"
+                  strokeWidth={2}
+                />
+              </button>
+            </li>
+            <li>
+              <div
+                aria-disabled
+                className="flex w-full items-center gap-4 rounded-xl p-3 opacity-60"
+              >
+                <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
+                  <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
+                </span>
+                <span className="flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-[14px] font-semibold text-brand-purple-dark">
+                      Talk through your results with AI
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-brand-lavender/80 px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-brand-purple">
+                      Coming soon
+                    </span>
+                  </span>
+                  <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
+                    Explore what your {dateLabel} results might mean for you
+                  </span>
+                </span>
+              </div>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition hover:bg-brand-lavender/30"
+              >
+                <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
+                  <Share2 className="h-4 w-4" strokeWidth={2.1} />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-[14px] font-semibold text-brand-purple-dark">
+                    Share these results with a provider
+                  </span>
+                  <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
+                    {copied
+                      ? "Copied to clipboard"
+                      : `Your provider will see your completed ${assessment.name} results`}
+                  </span>
+                </span>
+                <ArrowRight
+                  className="h-4 w-4 flex-none text-brand-purple/60 transition group-hover:translate-x-0.5 group-hover:text-brand-purple"
+                  strokeWidth={2}
+                />
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
 
