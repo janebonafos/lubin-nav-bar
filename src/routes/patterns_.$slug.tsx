@@ -1022,7 +1022,7 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             {...(h.external ? { target: "_blank", rel: "noreferrer" } : {})}
             className={`group -mx-3 block rounded-2xl px-3 py-2.5 no-underline ring-1 transition-all duration-200 hover:-translate-y-0.5 ${
               crisis
-                ? "ring-transparent hover:bg-white/70 hover:ring-[#E8C547]/60 hover:shadow-[0_10px_30px_-18px_rgba(214,180,40,0.55)]"
+                ? "ring-transparent hover:bg-[#F8E490] hover:ring-[#E8C547]/50"
                 : "ring-transparent hover:bg-brand-lavender/40 hover:ring-brand-purple/20 hover:shadow-[0_10px_30px_-18px_rgba(126,107,175,0.4)]"
             }`}
           >
