@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PatternsSlugRouteImport } from './routes/patterns.$slug'
 
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PatternsRoute = PatternsRouteImport.update({
+  id: '/patterns',
+  path: '/patterns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
@@ -34,38 +41,69 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PatternsSlugRoute = PatternsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PatternsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/patterns': typeof PatternsRouteWithChildren
   '/resources': typeof ResourcesRoute
+  '/patterns/$slug': typeof PatternsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/patterns': typeof PatternsRouteWithChildren
   '/resources': typeof ResourcesRoute
+  '/patterns/$slug': typeof PatternsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/patterns': typeof PatternsRouteWithChildren
   '/resources': typeof ResourcesRoute
+  '/patterns/$slug': typeof PatternsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/check-in' | '/my-health-passport' | '/resources'
+  fullPaths:
+    | '/'
+    | '/check-in'
+    | '/my-health-passport'
+    | '/patterns'
+    | '/resources'
+    | '/patterns/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/check-in' | '/my-health-passport' | '/resources'
-  id: '__root__' | '/' | '/check-in' | '/my-health-passport' | '/resources'
+  to:
+    | '/'
+    | '/check-in'
+    | '/my-health-passport'
+    | '/patterns'
+    | '/resources'
+    | '/patterns/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/check-in'
+    | '/my-health-passport'
+    | '/patterns'
+    | '/resources'
+    | '/patterns/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
+  PatternsRoute: typeof PatternsRouteWithChildren
   ResourcesRoute: typeof ResourcesRoute
 }
 
@@ -76,6 +114,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/patterns': {
+      id: '/patterns'
+      path: '/patterns'
+      fullPath: '/patterns'
+      preLoaderRoute: typeof PatternsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-health-passport': {
@@ -99,13 +144,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/patterns/$slug': {
+      id: '/patterns/$slug'
+      path: '/$slug'
+      fullPath: '/patterns/$slug'
+      preLoaderRoute: typeof PatternsSlugRouteImport
+      parentRoute: typeof PatternsRoute
+    }
   }
 }
+
+interface PatternsRouteChildren {
+  PatternsSlugRoute: typeof PatternsSlugRoute
+}
+
+const PatternsRouteChildren: PatternsRouteChildren = {
+  PatternsSlugRoute: PatternsSlugRoute,
+}
+
+const PatternsRouteWithChildren = PatternsRoute._addFileChildren(
+  PatternsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
+  PatternsRoute: PatternsRouteWithChildren,
   ResourcesRoute: ResourcesRoute,
 }
 export const routeTree = rootRouteImport

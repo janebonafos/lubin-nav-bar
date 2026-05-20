@@ -26,6 +26,7 @@ const NAV_LINKS: NavLinkItem[] = [
   { label: "How It Works", href: "/how-it-works", dropdown: "mega" },
   { label: "About", href: "/about" },
   { label: "Resources", href: "/resources" },
+  { label: "Patterns", href: "/patterns" },
   { label: "My Health Passport", href: "/my-health-passport" },
   {
     label: "Help",
