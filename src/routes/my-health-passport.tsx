@@ -878,9 +878,22 @@ function MoodThisMonth({
         </p>
       ) : (
         <div className="mt-4 grid grid-cols-3 gap-3">
-          <Metric label="Check-ins" value={String(total)} />
-          <Metric label="Most felt" value={topMood ? MOOD_LABELS[topMood] : "—"} />
-          <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+          <Metric
+            label="Check-ins"
+            value={String(total)}
+            hint={`Number of mood check-ins you've logged in ${monthName}${yearLabel}. One per day counts once.`}
+          />
+          <Metric
+            label="Most felt"
+            value={topMood ? MOOD_LABELS[topMood] : "—"}
+            hint="The mood you selected most often this month across your check-ins."
+          />
+          <Metric
+            label="Avg intensity"
+            value={avgIntensity}
+            suffix="of 5"
+            hint="Average intensity of your check-ins this month, on a 1 (very low) to 5 (very high) scale."
+          />
         </div>
       )}
 
