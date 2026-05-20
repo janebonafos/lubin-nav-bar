@@ -682,10 +682,17 @@ function Overview({
       <MoodThisMonth entries={liveEntries} onLogToday={onLogMood} />
 
       {/* Recent check-ins — full width */}
-      <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Recent check-ins
-        </p>
+      <Card className="relative overflow-hidden bg-gradient-to-br from-white via-white to-brand-lavender/30">
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full bg-brand-purple-accent/20 blur-3xl" />
+        <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple/10 ring-1 ring-brand-purple/15">
+            <ClipboardList className="h-3.5 w-3.5 text-brand-purple" />
+          </span>
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+            Recent check-ins
+          </p>
+        </div>
         {liveEntries.length > 0 ? (
           <div className="mt-4 space-y-3">
             <AnimatePresence initial={false}>
@@ -727,17 +734,24 @@ function Overview({
             </p>
           </>
         )}
+        </div>
       </Card>
 
       {/* Soft anchor CTA */}
       <Link
         to="/chat"
-        className="block rounded-2xl bg-gradient-to-r from-brand-purple/10 to-brand-purple-accent/15 px-6 py-5 text-center no-underline ring-1 ring-brand-purple/15 transition hover:from-brand-purple/15 hover:to-brand-purple-accent/25"
+        className="group relative block overflow-hidden rounded-3xl bg-gradient-to-br from-brand-purple/15 via-brand-lavender/40 to-brand-purple-accent/20 px-6 py-6 text-center no-underline ring-1 ring-brand-purple/15 transition hover:ring-brand-purple/30"
       >
-        <p className="text-sm font-medium text-brand-purple-dark">
-          Want to talk it through instead?{" "}
-          <span className="font-semibold text-brand-purple">Talk to Lubin →</span>
-        </p>
+        <div aria-hidden className="pointer-events-none absolute -top-12 left-1/4 h-32 w-32 rounded-full bg-brand-purple/15 blur-2xl transition group-hover:bg-brand-purple/25" />
+        <div className="relative inline-flex items-center gap-3">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-brand-purple/15">
+            <MessageCircle className="h-4 w-4 text-brand-purple" />
+          </span>
+          <p className="text-sm font-medium text-brand-purple-dark">
+            Want to talk it through instead?{" "}
+            <span className="font-bold text-brand-purple transition group-hover:text-brand-purple-dark">Talk to Lubin →</span>
+          </p>
+        </div>
       </Link>
       <AnimatePresence>
         {toast && (
