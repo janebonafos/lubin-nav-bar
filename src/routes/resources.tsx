@@ -40,7 +40,7 @@ export const Route = createFileRoute("/resources")({
 });
 
 type Row = {
-  icon: LucideIcon;
+  icon?: LucideIcon;
   title: string;
   detail: string;
   note?: string;
@@ -63,9 +63,11 @@ function ResourceRow({ icon: Icon, title, detail, note, href }: Row) {
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       className="group flex items-center gap-3 rounded-xl px-3 py-3 no-underline outline-none transition-all duration-150 hover:bg-[#F7F3FE] hover:scale-[0.99] active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-[#7E6BAF]/50"
     >
-      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F1ECFA] text-[#7E6BAF]">
-        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-      </span>
+      {Icon && (
+        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F1ECFA] text-[#7E6BAF]">
+          <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="text-[14px] font-medium text-[#3F3560]">{title}</p>
         <p className="text-[13px] text-[#5C5470]">{detail}</p>
@@ -210,21 +212,18 @@ function ResourcesPage() {
             <RegionLabel>Philippines</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Hospital}
                 title="Philippine Mental Health Association"
                 detail="pmha.org.ph"
                 note="Counseling and programs nationwide"
                 href="https://pmha.org.ph"
               />
               <ResourceRow
-                icon={MonitorSmartphone}
                 title="MindNation"
                 detail="mindnation.com"
                 note="Online therapy and mental health support"
                 href="https://www.mindnation.com"
               />
               <ResourceRow
-                icon={Compass}
                 title="DOH Mental Health Program"
                 detail="doh.gov.ph/mental-health"
                 note="Government-run mental health services"
@@ -235,28 +234,24 @@ function ResourcesPage() {
             <RegionLabel>United States</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Compass}
                 title="Psychology Today Therapist Finder"
                 detail="psychologytoday.com/us/therapists"
                 note="Search by location, insurance, and specialty"
                 href="https://www.psychologytoday.com/us/therapists"
               />
               <ResourceRow
-                icon={PhoneCall}
                 title="SAMHSA Helpline"
                 detail="1-800-662-4357"
                 note="Free, confidential treatment referrals"
                 href="tel:18006624357"
               />
               <ResourceRow
-                icon={HandCoins}
                 title="Open Path Collective"
                 detail="openpathcollective.org"
                 note="Affordable sessions $30–$80"
                 href="https://openpathcollective.org"
               />
               <ResourceRow
-                icon={LifeBuoy}
                 title="NAMI Helpline"
                 detail="nami.org"
                 note="Call 1-800-950-6264 for support and referrals"
