@@ -560,24 +560,24 @@ export default function TryHelpOverlay({
                   </section>
 
                   {/* When to seek professional help */}
-                  <section className="mt-4 rounded-2xl bg-brand-lavender/70 p-6 ring-1 ring-brand-purple-accent/35 backdrop-blur-sm">
-                    <div className="flex items-start gap-3">
-                      <LifeBuoy
-                        className="mt-0.5 h-4 w-4 flex-none text-brand-purple"
-                        strokeWidth={1.8}
-                      />
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-brand-purple-dark">
-                          When to consider talking to a professional
-                        </h3>
-                        <p className="mt-2 text-[14.5px] leading-[1.6] text-brand-purple-dark/80">
-                          {guide.whenToSeekHelp}
-                        </p>
-                        <p className="mt-3 text-[13.5px] italic text-brand-purple/80">
-                          Reaching out for help is a sign of strength — not weakness.
-                        </p>
-                      </div>
-                    </div>
+                  <section className="mt-4 rounded-2xl bg-[#FBF1DC] p-6 ring-1 ring-[#E7D4A8]/60">
+                    <h3 className="text-[15px] font-semibold text-[#6B4F1D]">
+                      When to consider talking to a professional
+                    </h3>
+                    <p className="mt-2 text-[14.5px] leading-[1.6] text-[#7A5C2A]">
+                      {guide.whenToSeekHelp}
+                    </p>
+                    <p className="mt-3 text-[13.5px] italic text-[#8A6A33]">
+                      Reaching out for help is a sign of strength — not weakness.
+                    </p>
+                    <Link
+                      to="/resources"
+                      onClick={onClose}
+                      className="mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#6B4F1D] no-underline transition hover:text-[#4F3A12]"
+                    >
+                      Find support resources
+                      <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                    </Link>
                   </section>
                 </motion.div>
               )}
