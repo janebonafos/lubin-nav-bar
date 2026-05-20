@@ -1379,7 +1379,7 @@ function LiveEntry({
           >
             <Link
               to="/chat"
-              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+              className="inline-flex items-center gap-1 font-semibold text-brand-purple-dark no-underline transition hover:text-brand-purple"
             >
               <MessageCircle className="h-3.5 w-3.5" />
               Talk this through with Lubin →
@@ -1387,7 +1387,7 @@ function LiveEntry({
             <button
               type="button"
               onClick={onTryHelp}
-              className="inline-flex items-center gap-1 font-medium text-brand-purple transition hover:text-brand-purple-dark"
+              className="inline-flex items-center gap-1 font-semibold text-brand-purple-dark transition hover:text-brand-purple"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Try something that might help →
