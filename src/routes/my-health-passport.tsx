@@ -327,16 +327,15 @@ function GuestBanner() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         {[
-          { emoji: "\uD83D\uDD12", text: "Private to you only" },
-          { emoji: "\uD83D\uDCC8", text: "Builds over time" },
-          { emoji: "\uD83D\uDC9C", text: "Shared only when you choose" },
-        ].map(({ emoji, text }) => (
+          "Private to you only",
+          "Builds over time",
+          "Shared only when you choose",
+        ].map((text) => (
           <span
             key={text}
-            className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+            className="inline-flex items-center rounded-full px-3.5 py-1.5 text-[13px] font-medium"
             style={{ background: "#EDE9FE", color: "#7E6BAF" }}
           >
-            <span aria-hidden>{emoji}</span>
             {text}
           </span>
         ))}
