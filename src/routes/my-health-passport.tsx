@@ -650,7 +650,7 @@ function Overview({
       </AnimatePresence>
 
       {/* Mood this month — full width */}
-      <MoodThisMonth entries={liveEntries} />
+      <MoodThisMonth entries={liveEntries} onLogToday={onLogMood} />
 
       {/* Recent check-ins — full width */}
       <Card>
