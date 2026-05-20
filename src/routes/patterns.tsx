@@ -54,6 +54,13 @@ export const Route = createFileRoute("/patterns")({
 
 const GROUP_ORDER: PatternGroup[] = ["core", "emotional", "patterns", "lifestyle"];
 
+const GROUP_ORNAMENT: Record<PatternGroup, string> = {
+  core: "01",
+  emotional: "02",
+  patterns: "03",
+  lifestyle: "04",
+};
+
 function PatternsPage() {
   // Bump on focus / visibility so locked timers and completion state refresh.
   const [tick, setTick] = useState(0);
@@ -82,10 +89,20 @@ function PatternsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-lavender/60">
+    <div
+      className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
+      style={{ fontFamily: "Inter, sans-serif" }}
+    >
+      {/* Decorative floating gradient blobs — matches the rest of Lubin */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-32 h-[440px] w-[440px] rounded-full bg-gradient-to-br from-brand-purple/30 to-brand-purple-accent/15 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-40 h-[460px] w-[460px] rounded-full bg-gradient-to-br from-[#C4B5FD]/30 to-[#9990C9]/15 blur-3xl animate-blob [animation-delay:-6s]" />
+        <div className="absolute bottom-0 left-1/4 h-[380px] w-[380px] rounded-full bg-gradient-to-br from-[#EAE6F4]/55 to-brand-purple/15 blur-3xl animate-blob [animation-delay:-12s]" />
+      </div>
+
       <Navbar />
 
-      <main className="px-4 pt-32 pb-20">
+      <main className="relative px-4 pt-32 pb-24">
         <div className="mx-auto w-full max-w-[920px]">
           {/* Header */}
           <motion.header
@@ -94,18 +111,18 @@ function PatternsPage() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="text-center"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-              <Sparkles className="h-3 w-3" strokeWidth={2.2} />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 px-4 py-1.5 text-[12px] font-medium text-brand-purple shadow-sm backdrop-blur-md">
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
               Patterns
             </span>
-            <h1 className="mt-5 text-[34px] font-semibold leading-tight text-brand-purple-dark md:text-[44px]">
+            <h1 className="mt-6 text-[36px] font-bold leading-[1.05] tracking-tight text-shimmer md:text-[52px]">
               Understand the patterns behind how you feel.
             </h1>
-            <p className="mx-auto mt-4 max-w-[560px] text-[15.5px] leading-[1.65] text-brand-purple-dark/70">
+            <p className="mx-auto mt-5 max-w-[560px] text-[15.5px] leading-[1.7] text-brand-purple-dark/65">
               Thirteen short check-ins drawn from trusted clinical tools — written in
               everyday language. Take what feels useful, skip what doesn't.
             </p>
-            <p className="mt-3 text-[12.5px] text-brand-purple-dark/55">
+            <p className="mt-3 text-[12.5px] text-brand-purple-dark/50">
               Each check is available again every {COOLDOWN_DAYS} days so your
               picture stays meaningful, not anxious.
             </p>
@@ -116,11 +133,12 @@ function PatternsPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
-            className="mx-auto mt-8 flex w-full max-w-[680px] flex-col items-stretch gap-3 rounded-2xl border border-brand-purple/15 bg-white/80 p-4 shadow-[0_10px_30px_-22px_rgba(126,107,175,0.45)] sm:flex-row sm:items-center sm:justify-between sm:gap-5"
+            className="mx-auto mt-10 flex w-full max-w-[680px] flex-col items-stretch gap-3 rounded-2xl border border-white/60 bg-white/75 p-4 shadow-[0_18px_50px_-28px_rgba(126,107,175,0.45)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:gap-5"
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
+              <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)]">
                 <PlayCircle className="h-4.5 w-4.5" strokeWidth={2} />
+                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
               </span>
               <div className="min-w-0">
                 <p className="text-[14px] font-semibold text-brand-purple-dark">
@@ -137,7 +155,7 @@ function PatternsPage() {
                 e.preventDefault();
                 scrollToGroup("core");
               }}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-10px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
             >
               Browse check-ins
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -147,7 +165,7 @@ function PatternsPage() {
           {/* Quick jump-to group chips */}
           <nav
             aria-label="Jump to a section"
-            className="mt-5 flex flex-wrap items-center justify-center gap-2"
+            className="mt-6 flex flex-wrap items-center justify-center gap-2"
           >
             {GROUP_ORDER.map((g) => (
               <a
@@ -157,7 +175,7 @@ function PatternsPage() {
                   e.preventDefault();
                   scrollToGroup(g);
                 }}
-                className="rounded-full border border-brand-purple/20 bg-white/70 px-3.5 py-1.5 text-[12.5px] font-medium text-brand-purple-dark no-underline transition hover:border-brand-purple/40 hover:bg-white"
+                className="rounded-full border border-white/70 bg-white/60 px-4 py-1.5 text-[12.5px] font-medium text-brand-purple-dark no-underline shadow-sm backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
               >
                 {GROUP_LABELS[g].title}
                 <span className="ml-1.5 text-brand-purple-dark/50">
@@ -169,7 +187,7 @@ function PatternsPage() {
 
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
-            <section className="mt-10">
+            <section className="mt-12">
               <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-purple-accent">
                 Continue where you left off
               </h2>
@@ -184,7 +202,7 @@ function PatternsPage() {
                       key={a.id}
                       to="/patterns/$slug"
                       params={{ slug: a.slug }}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-brand-purple/15 bg-white px-5 py-4 no-underline shadow-[0_10px_30px_-20px_rgba(126,107,175,0.4)] transition hover:-translate-y-0.5 hover:border-brand-purple/35"
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
                     >
                       <div className="min-w-0">
                         <p className="text-[14.5px] font-semibold text-brand-purple-dark">
@@ -195,7 +213,7 @@ function PatternsPage() {
                         </p>
                         <div className="mt-2 h-1.5 w-40 overflow-hidden rounded-full bg-brand-lavender">
                           <div
-                            className="h-full rounded-full bg-brand-purple"
+                            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-accent"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -219,24 +237,29 @@ function PatternsPage() {
               <section
                 key={group}
                 id={`group-${group}`}
-                className="mt-12 scroll-mt-28"
+                className="mt-16 scroll-mt-28"
                 data-tick={tick}
               >
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <h2 className="text-[20px] font-semibold text-brand-purple-dark">
-                      {label.title}
-                    </h2>
-                    <p className="mt-1 text-[14px] text-brand-purple-dark/65">
-                      {label.subtitle}
-                    </p>
+                <div className="flex items-end justify-between gap-4 border-b border-brand-purple/12 pb-4">
+                  <div className="flex items-end gap-4">
+                    <span className="hidden font-serif text-[40px] leading-none text-brand-purple/35 md:inline-block">
+                      {GROUP_ORNAMENT[group]}
+                    </span>
+                    <div>
+                      <h2 className="text-[22px] font-semibold tracking-tight text-brand-purple-dark">
+                        {label.title}
+                      </h2>
+                      <p className="mt-1 text-[14px] text-brand-purple-dark/60">
+                        {label.subtitle}
+                      </p>
+                    </div>
                   </div>
-                  <span className="hidden text-[12px] font-medium text-brand-purple-dark/55 md:inline">
+                  <span className="hidden whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55 md:inline">
                     {items.length} available
                   </span>
                 </div>
 
-                <ul className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <ul className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                   {items.map((a) => (
                     <li key={a.id}>
                       <AssessmentCard assessment={a} />
@@ -265,44 +288,48 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
 
   return (
     <div
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white p-5 transition ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white/85 p-6 backdrop-blur-md transition ${
         locked
-          ? "border-brand-purple/10 opacity-90"
-          : "border-brand-purple/15 hover:-translate-y-0.5 hover:border-brand-purple/35 hover:shadow-[0_18px_40px_-24px_rgba(126,107,175,0.5)]"
+          ? "border-white/60 opacity-90"
+          : "border-white/70 shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] hover:-translate-y-1 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_22px_48px_-24px_rgba(126,107,175,0.55)]"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Soft hover glow */}
+      {!locked && (
+        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+      )}
+      <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[16px] font-semibold leading-snug text-brand-purple-dark">
             {assessment.name}
           </p>
-          <p className="mt-0.5 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-brand-purple/60">
+          <p className="mt-1 inline-block rounded-md bg-brand-lavender/70 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple/75">
             {assessment.clinicalName}
           </p>
         </div>
         {trend && <TrendBadge direction={trend} />}
       </div>
 
-      <p className="mt-3 text-[13.5px] leading-[1.55] text-brand-purple-dark/70">
+      <p className="relative mt-4 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
         {assessment.blurb}
       </p>
 
-      <div className="mt-4 flex items-center gap-3 text-[12px] text-brand-purple-dark/55">
+      <div className="relative mt-4 flex items-center gap-3 text-[12px] text-brand-purple-dark/55">
         <span className="inline-flex items-center gap-1">
           <Clock className="h-3.5 w-3.5" strokeWidth={2} />
           {assessment.estMinutes} min
         </span>
-        <span>·</span>
+        <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
         <span>{assessment.questions.length} questions</span>
       </div>
 
       {latest && (
-        <p className="mt-4 rounded-xl bg-brand-lavender/60 px-3 py-2 text-[12.5px] italic leading-snug text-brand-purple-dark/75">
+        <p className="relative mt-4 rounded-xl border border-brand-purple/10 bg-brand-lavender/50 px-3 py-2 text-[12.5px] italic leading-snug text-brand-purple-dark/75">
           Last time: {latest.summary}
         </p>
       )}
 
-      <div className="mt-5 flex items-center justify-between gap-3 pt-1">
+      <div className="relative mt-auto flex items-center justify-between gap-3 pt-5">
         {locked ? (
           <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-purple-dark/55">
             <Lock className="h-3.5 w-3.5" strokeWidth={2} />
@@ -320,7 +347,7 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
           className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold no-underline transition ${
             locked
               ? "bg-brand-lavender text-brand-purple-dark/60"
-              : "bg-brand-purple text-white shadow-[0_8px_20px_-10px_rgba(126,107,175,0.7)] hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+              : "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
           }`}
         >
           {locked ? "View" : hasInProgress ? "Continue" : "Start"}
