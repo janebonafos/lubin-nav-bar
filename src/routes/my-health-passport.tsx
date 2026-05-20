@@ -1870,11 +1870,38 @@ function ModalShell({
 
 type GroupKey = "core" | "emotional" | "patterns" | "lifestyle";
 
-const GROUP_ICON: Record<GroupKey, { Icon: typeof Sun; short: string }> = {
-  core: { Icon: Sun, short: "Mood & energy" },
-  emotional: { Icon: Zap, short: "Stress & anxiety" },
-  patterns: { Icon: Compass, short: "Focus & patterns" },
-  lifestyle: { Icon: Leaf, short: "Lifestyle & body" },
+const GROUP_ICON: Record<
+  GroupKey,
+  { Icon: typeof Sun; short: string; tint: string; ring: string; iconColor: string }
+> = {
+  core: {
+    Icon: Sun,
+    short: "Mood & energy",
+    tint: "bg-amber-50",
+    ring: "ring-amber-200/70",
+    iconColor: "text-amber-600",
+  },
+  emotional: {
+    Icon: Zap,
+    short: "Stress & anxiety",
+    tint: "bg-rose-50",
+    ring: "ring-rose-200/70",
+    iconColor: "text-rose-500",
+  },
+  patterns: {
+    Icon: Compass,
+    short: "Focus & patterns",
+    tint: "bg-indigo-50",
+    ring: "ring-indigo-200/70",
+    iconColor: "text-indigo-500",
+  },
+  lifestyle: {
+    Icon: Leaf,
+    short: "Lifestyle & body",
+    tint: "bg-emerald-50",
+    ring: "ring-emerald-200/70",
+    iconColor: "text-emerald-600",
+  },
 };
 
 function UnderstandYourselfSection({
@@ -1886,56 +1913,148 @@ function UnderstandYourselfSection({
   const completedCount = ASSESSMENTS.filter((a) => completedIds.has(a.id)).length;
   const total = ASSESSMENTS.length;
   const groupOrder: GroupKey[] = ["core", "emotional", "patterns", "lifestyle"];
+  const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+  // SVG progress ring math
+  const ringSize = 64;
+  const stroke = 6;
+  const radius = (ringSize - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (pct / 100) * circumference;
 
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-lavender/55 via-white to-brand-lavender/35 p-5 sm:p-6 shadow-[0_14px_40px_-24px_rgba(126,107,175,0.4)] ring-1 ring-brand-purple/10">
-      <div className="pointer-events-none absolute -right-20 -top-24 h-52 w-52 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
-      <div className="pointer-events-none absolute -left-16 bottom-0 h-44 w-44 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
+    <section className="group/section relative overflow-hidden rounded-3xl p-[1.5px] shadow-[0_24px_60px_-32px_rgba(126,107,175,0.55)] transition-shadow hover:shadow-[0_30px_70px_-30px_rgba(126,107,175,0.7)]">
+      {/* Gradient border shell */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-brand-purple/35 via-white/40 to-[#C4B5FD]/40" />
 
-      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white/80 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple shadow-sm backdrop-blur-md">
-            <Leaf className="h-3 w-3" strokeWidth={2.4} />
-            {total} assessments
-          </span>
-          <h2 className="mt-2.5 text-[20px] sm:text-[22px] font-bold leading-tight tracking-tight text-brand-purple-dark">
-            Understand yourself better
-          </h2>
-          <p className="mt-1.5 text-[13px] leading-snug text-brand-purple-dark/60">
-            Short, science-backed check-ins across mood, stress, focus and lifestyle —
-            saved privately to your Health Passport.
-          </p>
+      <div className="relative overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-gradient-to-br from-white via-brand-lavender/30 to-white p-6 sm:p-7">
+        {/* Decorative animated blobs */}
+        <div className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-gradient-to-br from-brand-purple/25 to-brand-purple-accent/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 -bottom-16 h-56 w-56 rounded-full bg-gradient-to-br from-[#C4B5FD]/30 to-transparent blur-3xl" />
+        {/* Subtle grid texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgb(126 107 175) 1px, transparent 0)",
+            backgroundSize: "22px 22px",
+          }}
+        />
 
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {groupOrder.map((g) => {
-              const { Icon, short } = GROUP_ICON[g];
-              return (
-                <span
-                  key={g}
-                  className="inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[10.5px] font-medium text-brand-purple-dark/65 ring-1 ring-brand-purple/10 backdrop-blur-md"
-                >
-                  <Icon className="h-2.5 w-2.5" strokeWidth={2.4} />
-                  {short}
-                </span>
-              );
-            })}
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/85 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple shadow-sm backdrop-blur-md">
+                <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+                {total} assessments
+              </span>
+              <span className="hidden h-px flex-1 bg-gradient-to-r from-brand-purple/25 to-transparent sm:block" />
+            </div>
+
+            <h2 className="mt-3 text-[22px] sm:text-[26px] font-bold leading-[1.1] tracking-tight">
+              <span className="bg-gradient-to-br from-brand-purple-dark via-brand-purple to-brand-purple-dark bg-clip-text text-transparent">
+                Understand yourself better
+              </span>
+            </h2>
+            <p className="mt-2 max-w-[440px] text-[13.5px] leading-relaxed text-brand-purple-dark/65">
+              Short, science-backed check-ins across mood, stress, focus and lifestyle —
+              saved privately to your Health Passport.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap">
+              {groupOrder.map((g) => {
+                const { Icon, short, tint, ring, iconColor } = GROUP_ICON[g];
+                return (
+                  <span
+                    key={g}
+                    className={`inline-flex items-center gap-1.5 rounded-full ${tint} px-2.5 py-1 text-[11px] font-medium text-brand-purple-dark/75 ring-1 ${ring} transition hover:-translate-y-0.5`}
+                  >
+                    <Icon className={`h-3 w-3 ${iconColor}`} strokeWidth={2.4} />
+                    {short}
+                  </span>
+                );
+              })}
+            </div>
           </div>
 
-          {completedCount > 0 && (
-            <p className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] font-medium text-brand-purple-dark/55">
-              <CheckCircle2 className="h-3 w-3 text-emerald-600" strokeWidth={2.4} />
-              {completedCount} of {total} completed
-            </p>
-          )}
+          {/* Progress ring + CTA cluster */}
+          <div className="flex flex-row items-center gap-4 sm:flex-col sm:items-end sm:gap-3">
+            <div className="relative flex flex-none items-center justify-center">
+              <svg
+                width={ringSize}
+                height={ringSize}
+                viewBox={`0 0 ${ringSize} ${ringSize}`}
+                className="-rotate-90"
+              >
+                <defs>
+                  <linearGradient id="uys-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#A78BFA" />
+                    <stop offset="100%" stopColor="#7E6BAF" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx={ringSize / 2}
+                  cy={ringSize / 2}
+                  r={radius}
+                  fill="none"
+                  stroke="rgb(126 107 175 / 0.15)"
+                  strokeWidth={stroke}
+                />
+                <circle
+                  cx={ringSize / 2}
+                  cy={ringSize / 2}
+                  r={radius}
+                  fill="none"
+                  stroke="url(#uys-ring)"
+                  strokeWidth={stroke}
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={dashOffset}
+                  style={{ transition: "stroke-dashoffset 700ms ease" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[14px] font-bold leading-none text-brand-purple-dark">
+                  {completedCount}
+                </span>
+                <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+                  of {total}
+                </span>
+              </div>
+            </div>
+
+            <Link
+              to="/patterns"
+              className="group/cta relative inline-flex flex-none items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white no-underline shadow-[0_14px_30px_-12px_rgba(126,107,175,0.8)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_-12px_rgba(126,107,175,0.9)]"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full" />
+              <span className="relative">Browse all {total}</span>
+              <ArrowRight
+                className="relative h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5"
+                strokeWidth={2.2}
+              />
+            </Link>
+          </div>
         </div>
 
-        <Link
-          to="/patterns"
-          className="group inline-flex flex-none items-center justify-center gap-2 self-start rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white no-underline shadow-[0_12px_26px_-12px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-12px_rgba(126,107,175,0.85)] sm:self-center"
-        >
-          Browse all {total} check-ins
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.2} />
-        </Link>
+        {/* Progress bar at the bottom */}
+        {completedCount > 0 && (
+          <div className="relative mt-6 border-t border-brand-purple/10 pt-4">
+            <div className="flex items-center justify-between text-[11.5px] font-medium text-brand-purple-dark/65">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2.4} />
+                {completedCount} of {total} completed
+              </span>
+              <span className="font-semibold text-brand-purple">{pct}%</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-brand-lavender/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-brand-purple-accent via-brand-purple to-brand-purple-dark transition-[width] duration-700"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
