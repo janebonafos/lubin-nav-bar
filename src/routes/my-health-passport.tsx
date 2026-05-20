@@ -765,8 +765,6 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
     .slice(0, 3)
     .map(([t]) => t);
 
-  const maxCount = Math.max(1, ...moodOrder.map((m) => counts[m]));
-
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
@@ -796,40 +794,7 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
             <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
           </div>
 
-          <div className="mt-5">
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-                Mood mix
-              </p>
-              <p className="text-[11px] text-brand-purple-dark/45">
-                How often each mood came up in your {total} check-{total === 1 ? "in" : "ins"}
-              </p>
-            </div>
-            <div className="mt-3 space-y-2">
-              {moodOrder
-                .filter((m) => counts[m] > 0)
-                .map((m) => (
-                  <div key={m} className="flex items-center gap-3">
-                    <span className="w-16 shrink-0 text-xs font-medium text-brand-purple-dark/75">
-                      {MOOD_LABELS[m]}
-                    </span>
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-brand-purple/5">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${(counts[m] / maxCount) * 100}%`,
-                          backgroundColor: MOOD_ACCENTS[m],
-                          boxShadow: "inset 0 0 0 1px rgba(126,107,175,0.18)",
-                        }}
-                      />
-                    </div>
-                    <span className="w-6 text-right text-xs tabular-nums text-brand-purple-dark/55">
-                      {counts[m]}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </div>
+          <MoodCalendar inMonth={inMonth} now={now} />
 
           {topTopics.length > 0 && (
             <div className="mt-5">
@@ -856,6 +821,91 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
         </>
       )}
     </Card>
+  );
+}
+
+function MoodCalendar({
+  inMonth,
+  now,
+}: {
+  inMonth: LiveCheckInLite[];
+  now: Date;
+}) {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = new Date(year, month, 1).getDay(); // 0 = Sun
+  const todayDate = now.getDate();
+
+  // Latest check-in per day-of-month
+  const byDay = new Map<number, LiveCheckInLite>();
+  inMonth.forEach((e) => {
+    const d = new Date(e.savedAt).getDate();
+    const existing = byDay.get(d);
+    if (!existing || e.savedAt > existing.savedAt) byDay.set(d, e);
+  });
+
+  const cells: Array<{ day: number | null; entry?: LiveCheckInLite }> = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push({ day: null });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, entry: byDay.get(d) });
+
+  const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+  return (
+    <div className="mt-5">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+          Mood calendar
+        </p>
+        <p className="text-[11px] text-brand-purple-dark/45">
+          One emoji per day — log daily to fill the month
+        </p>
+      </div>
+
+      <div className="mt-3 grid grid-cols-7 gap-1.5">
+        {dayLabels.map((l, i) => (
+          <p
+            key={`hdr-${i}`}
+            className="text-center text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/40"
+          >
+            {l}
+          </p>
+        ))}
+        {cells.map((c, i) => {
+          if (c.day === null) return <div key={`pad-${i}`} className="aspect-square" />;
+          const isToday = c.day === todayDate;
+          const entry = c.entry;
+          const bg = entry ? MOOD_ACCENTS[entry.mood] : undefined;
+          return (
+            <div
+              key={`d-${c.day}`}
+              title={
+                entry
+                  ? `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`
+                  : `No check-in on ${c.day}`
+              }
+              className={`relative flex aspect-square items-center justify-center rounded-lg text-base transition ${
+                entry ? "" : "bg-brand-purple/[0.04]"
+              } ${isToday ? "ring-2 ring-brand-purple/60" : "ring-1 ring-brand-purple/10"}`}
+              style={entry ? { backgroundColor: bg } : undefined}
+            >
+              {entry ? (
+                <span aria-hidden>{entry.intensityEmoji}</span>
+              ) : (
+                <span className="text-[10px] font-medium text-brand-purple-dark/30">
+                  {c.day}
+                </span>
+              )}
+              {entry && (
+                <span className="absolute bottom-0.5 right-1 text-[9px] font-semibold text-brand-purple-dark/45">
+                  {c.day}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
