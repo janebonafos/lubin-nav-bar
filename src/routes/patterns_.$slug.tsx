@@ -94,7 +94,13 @@ function NotFound() {
   );
 }
 
-type Phase = "intro" | "locked" | "questions" | "breathing" | "result";
+type Phase =
+  | "intro"
+  | "locked"
+  | "preparing"
+  | "questions"
+  | "breathing"
+  | "result";
 
 function PatternRunPage() {
   const { slug } = Route.useParams();
@@ -157,7 +163,8 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
   function startNow() {
     markIntroSeen(assessment.id);
-    setPhase("questions");
+    setPhase("preparing");
+    window.setTimeout(() => setPhase("questions"), 700);
   }
 
   function handleAnswer(value: number) {
@@ -264,6 +271,9 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 onStart={startNow}
               />
             )}
+            {phase === "preparing" && (
+              <PreparingView key="preparing" />
+            )}
             {phase === "locked" && latestLocked && (
               <LockedView
                 key="locked"
@@ -326,24 +336,39 @@ function IntroView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="mt-6 rounded-3xl bg-white p-8 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10 md:p-10"
+      className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-white via-white to-brand-lavender/40 p-8 shadow-[0_30px_90px_-44px_rgba(126,107,175,0.55)] ring-1 ring-brand-purple/10 md:p-12"
     >
-      <p className="text-[11.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
-        Before you begin
-      </p>
-      <h1 className="mt-3 text-[28px] font-semibold leading-tight text-brand-purple-dark md:text-[32px]">
-        {assessment.name}
-      </h1>
-      <p className="mt-1 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-brand-purple/55">
-        Based on the {assessment.clinicalName}
-      </p>
+      {/* Decorative glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-gradient-to-br from-brand-purple/25 to-brand-purple-accent/10 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-gradient-to-br from-[#C4B5FD]/30 to-transparent blur-3xl"
+      />
 
-      <div className="mt-7 space-y-5 text-[15px] leading-[1.7] text-brand-purple-dark/80">
+      <div className="relative">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/80 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple shadow-sm backdrop-blur-md">
+          <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+          Before you begin
+        </span>
+        <h1 className="mt-5 text-[32px] font-bold leading-[1.1] tracking-tight md:text-[40px]">
+          <span className="bg-gradient-to-br from-brand-purple-dark via-brand-purple to-brand-purple-dark bg-clip-text text-transparent">
+            {assessment.name}
+          </span>
+        </h1>
+        <p className="mt-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55">
+          Based on the {assessment.clinicalName}
+        </p>
+      </div>
+
+      <div className="relative mt-7 space-y-5 text-[15px] leading-[1.75] text-brand-purple-dark/80">
         <p>{assessment.introWhat}</p>
         <p>{assessment.introWhy}</p>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="relative mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <InfoChip
           icon={<Clock className="h-3.5 w-3.5" strokeWidth={2.2} />}
           label={`About ${assessment.estMinutes} min`}
@@ -358,14 +383,48 @@ function IntroView({
         />
       </div>
 
-      <button
-        type="button"
-        onClick={onStart}
-        className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_12px_30px_-12px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark sm:w-auto"
-      >
-        I'm ready
-        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-      </button>
+      <div className="relative mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={onStart}
+          className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_34px_-14px_rgba(126,107,175,0.8)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-12px_rgba(126,107,175,0.9)] sm:w-auto"
+        >
+          I'm ready
+          <ArrowRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            strokeWidth={2.2}
+          />
+        </button>
+        <p className="text-[12.5px] text-brand-purple-dark/55">
+          You can pause or leave at any moment — nothing is saved until you finish.
+        </p>
+      </div>
+    </motion.section>
+  );
+}
+
+// ============================================================
+// Preparing (between intro and first question)
+// ============================================================
+
+function PreparingView() {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="mt-20 flex flex-col items-center gap-4"
+      role="status"
+      aria-label="Preparing your check-in"
+    >
+      <div className="relative h-12 w-12">
+        <div className="absolute inset-0 rounded-full border-2 border-brand-purple/15" />
+        <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-brand-purple" />
+      </div>
+      <p className="text-[13px] font-medium text-brand-purple-dark/60">
+        Getting your first question ready…
+      </p>
     </motion.section>
   );
 }
