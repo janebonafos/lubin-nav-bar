@@ -7,6 +7,7 @@ import {
   Clock,
   CalendarCheck,
   CheckCircle2,
+  ChevronDown,
   Lock,
   MessageCircle,
   ShieldCheck,
@@ -680,6 +681,7 @@ function ResultView({
   attempt: Attempt;
 }) {
   const [copied, setCopied] = useState(false);
+  const [showAnswers, setShowAnswers] = useState(false);
   const completedDate = new Date(attempt.takenAt);
   const dateLabel = completedDate.toLocaleDateString(undefined, {
     weekday: "long",
@@ -825,42 +827,54 @@ function ResultView({
           </p>
         </section>
 
-        <section className="mt-6">
-          <div className="flex items-center justify-between">
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
-              What you answered
-            </p>
-            <span className="text-[11.5px] text-brand-purple-dark/55">
-              {assessment.questions.length} questions
-            </span>
-          </div>
-          <ol className="mt-4 space-y-3">
-            {assessment.questions.map((q, i) => {
-              const ans = attempt.answers[i];
-              const opt = q.options.find((o) => o.value === ans);
-              return (
-                <li
-                  key={i}
-                  className="rounded-xl border border-brand-purple/10 bg-brand-lavender/20 p-4"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/60">
-                    Question {i + 1}
-                  </p>
-                  <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple-dark">
-                    {q.text}
-                  </p>
-                  <p className="mt-2.5 text-[13.5px] text-brand-purple-dark/75">
-                    <span className="text-brand-purple-dark/50">
-                      Your answer:{" "}
-                    </span>
-                    <span className="font-medium text-brand-purple-dark">
-                      {opt ? opt.label : "—"}
-                    </span>
-                  </p>
-                </li>
-              );
-            })}
-          </ol>
+        <section className="mt-6 rounded-2xl border border-brand-purple/10 bg-white p-5">
+          <p className="text-[15px] font-semibold text-brand-purple-dark">
+            What you answered
+          </p>
+          <p className="mt-1 text-[13px] text-brand-purple-dark/60">
+            Your responses from the latest attempt
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowAnswers((v) => !v)}
+            aria-expanded={showAnswers}
+            className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
+          >
+            {showAnswers ? "Hide my answers" : "Show my answers"}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${showAnswers ? "rotate-180" : ""}`}
+              strokeWidth={2.2}
+            />
+          </button>
+          {showAnswers && (
+            <ol className="mt-4 space-y-3">
+              {assessment.questions.map((q, i) => {
+                const ans = attempt.answers[i];
+                const opt = q.options.find((o) => o.value === ans);
+                return (
+                  <li
+                    key={i}
+                    className="rounded-xl border border-brand-purple/10 bg-brand-lavender/20 p-4"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/60">
+                      Question {i + 1}
+                    </p>
+                    <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple-dark">
+                      {q.text}
+                    </p>
+                    <p className="mt-2.5 text-[13.5px] text-brand-purple-dark/75">
+                      <span className="text-brand-purple-dark/50">
+                        Your answer:{" "}
+                      </span>
+                      <span className="font-medium text-brand-purple-dark">
+                        {opt ? opt.label : "—"}
+                      </span>
+                    </p>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
         </section>
 
         <div className="mt-6 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
