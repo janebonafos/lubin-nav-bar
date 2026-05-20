@@ -403,6 +403,17 @@ function IntroView({
         <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
+      {ABOUT_COPY[assessment.id] && (
+        <section className="mb-6 rounded-xl bg-brand-lavender/40 p-4">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+            About this check
+          </p>
+          <p className="text-[13.5px] leading-relaxed text-brand-purple-dark/80">
+            {ABOUT_COPY[assessment.id]}
+          </p>
+        </section>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {!started && (
           <button
