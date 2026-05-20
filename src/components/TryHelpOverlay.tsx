@@ -290,7 +290,6 @@ export default function TryHelpOverlay({
                 </p>
                 <div className="flex flex-wrap justify-center gap-2.5">
                   {list.map((item, i) => {
-                    const ItemIcon = item.Icon;
                     const active = i === idx;
                     return (
                       <button
@@ -300,16 +299,12 @@ export default function TryHelpOverlay({
                           setIdx(i);
                           setRated(null);
                         }}
-                        className={`group inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out ${
+                        className={`inline-flex items-center rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ease-out ${
                           active
-                            ? "bg-brand-purple-dark text-white shadow-[0_8px_22px_-10px_rgba(61,46,107,0.6)]"
-                            : "bg-white/70 text-brand-purple-dark/75 ring-1 ring-brand-purple/15 backdrop-blur-sm hover:-translate-y-0.5 hover:bg-white"
+                            ? "bg-white text-brand-purple-dark ring-2 ring-brand-purple shadow-[0_6px_18px_-10px_rgba(126,107,175,0.55)]"
+                            : "bg-white/60 text-brand-purple-dark/70 ring-1 ring-brand-purple/15 backdrop-blur-sm hover:-translate-y-0.5 hover:bg-white hover:text-brand-purple-dark"
                         }`}
                       >
-                        <ItemIcon
-                          className={`h-4 w-4 ${active ? "text-white" : "text-brand-purple/70"}`}
-                          strokeWidth={1.8}
-                        />
                         {item.name}
                       </button>
                     );
@@ -330,11 +325,15 @@ export default function TryHelpOverlay({
                   initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-[0_18px_40px_-20px_rgba(91,71,160,0.45)] ring-1 ring-brand-purple/15"
+                  className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-white to-brand-lavender shadow-[0_20px_44px_-22px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple-accent/40"
                 >
+                  <span
+                    aria-hidden
+                    className="absolute inset-1.5 rounded-full ring-1 ring-brand-purple-accent/20"
+                  />
                   <intervention.Icon
-                    className="h-9 w-9 text-brand-purple-dark"
-                    strokeWidth={1.5}
+                    className="relative h-10 w-10 text-brand-purple"
+                    strokeWidth={1.25}
                   />
                 </motion.div>
 
@@ -342,8 +341,8 @@ export default function TryHelpOverlay({
                   {intervention.name}
                 </h2>
 
-                <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-purple-dark/55 ring-1 ring-brand-purple/10">
-                  <Clock className="h-3 w-3" strokeWidth={2} />
+                <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-purple/80 ring-1 ring-brand-purple-accent/30">
+                  <Clock className="h-3 w-3" strokeWidth={1.8} />
                   About {intervention.duration} min
                 </div>
 
@@ -364,9 +363,9 @@ export default function TryHelpOverlay({
                       ease: "easeOut",
                       delay: 0.15 + i * 0.06,
                     }}
-                    className="flex items-start gap-4 rounded-2xl bg-white/65 p-4 ring-1 ring-brand-purple/10 backdrop-blur-sm transition-colors hover:bg-white/85"
+                    className="flex items-start gap-4 rounded-2xl bg-white/75 p-4 ring-1 ring-brand-purple-accent/20 backdrop-blur-sm transition-colors hover:bg-white"
                   >
-                    <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-purple-dark text-[13px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(61,46,107,0.5)]">
+                    <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-lavender text-[13px] font-semibold text-brand-purple-dark ring-1 ring-brand-purple-accent/40">
                       {i + 1}
                     </span>
                     <p className="pt-1 text-[16px] leading-[1.55] text-brand-purple-dark/85">
@@ -425,7 +424,7 @@ export default function TryHelpOverlay({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-brand-purple-dark px-6 py-4 text-sm font-medium tracking-wide text-white shadow-[0_10px_28px_-12px_rgba(61,46,107,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
+                  className="inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-brand-purple px-6 py-4 text-sm font-medium tracking-wide text-white shadow-[0_10px_28px_-12px_rgba(126,107,175,0.6)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple-dark"
                 >
                   Close this
                 </button>
