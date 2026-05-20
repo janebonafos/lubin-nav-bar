@@ -795,8 +795,10 @@ function MoodThisMonth({
     .map(([t]) => t);
 
   return (
-    <Card className={className}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <Card className={`${className ?? ""} relative overflow-hidden bg-gradient-to-br from-white via-white to-brand-lavender/25`}>
+      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-brand-purple/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-brand-lavender/40 blur-3xl" />
+      <div className="relative flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark">
             Mood this month
@@ -829,6 +831,7 @@ function MoodThisMonth({
         </div>
       </div>
 
+      <div className="relative">
       {total === 0 ? (
         <p className="mt-4 text-sm text-brand-purple-dark/55">
           {isCurrentMonth
@@ -880,6 +883,7 @@ function MoodThisMonth({
           </div>
         </div>
       )}
+      </div>
     </Card>
   );
 }
