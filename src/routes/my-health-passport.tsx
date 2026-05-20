@@ -1436,6 +1436,74 @@ function Progress({
 
   return (
     <div className="grid gap-5">
+      {/* 0. Take a check-in */}
+      <Card>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+              Take a check-in
+            </p>
+            <p className="mt-1 text-sm text-brand-purple-dark/60">
+              Short, science-backed checks. Pick whichever feels relevant.
+            </p>
+          </div>
+          <Link
+            to="/patterns"
+            className="hidden sm:inline-flex items-center gap-1 rounded-full bg-brand-purple px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+          >
+            See all 13 <span aria-hidden>→</span>
+          </Link>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {ASSESSMENTS.slice(0, 4).map((a) => {
+            const attemptsFor = patternAttempts.filter(
+              (x) => x.assessmentId === a.id,
+            );
+            const latest = attemptsFor[0] ?? null;
+            const locked = isLocked(latest);
+            const daysLeft = daysUntilAvailable(latest);
+            return (
+              <Link
+                key={a.id}
+                to="/patterns/$slug"
+                params={{ slug: a.slug }}
+                className="group flex items-center justify-between gap-4 rounded-xl border border-brand-purple/10 bg-white px-4 py-3 no-underline transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-brand-lavender/40"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-brand-purple-dark">
+                    {a.name}
+                    <span className="ml-1 text-brand-purple-dark/55">
+                      ({a.clinicalName})
+                    </span>
+                  </p>
+                  <p className="mt-0.5 text-xs text-brand-purple-dark/55">
+                    {a.estMinutes} min · {a.questions.length} questions
+                    {locked ? ` · ${formatDaysRemaining(daysLeft)}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={`flex-none text-xs font-semibold ${
+                    locked
+                      ? "text-brand-purple-dark/40"
+                      : "text-brand-purple group-hover:text-brand-purple-dark"
+                  }`}
+                >
+                  {locked ? "Resting" : latest ? "Retake →" : "Start →"}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <Link
+          to="/patterns"
+          className="mt-4 inline-flex sm:hidden items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+        >
+          See all 13 check-ins <span aria-hidden>→</span>
+        </Link>
+      </Card>
+
       {/* 1. Lubin noticed */}
       <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
