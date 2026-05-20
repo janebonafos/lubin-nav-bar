@@ -1227,6 +1227,7 @@ function LiveEntry({
   expanded,
   onToggle,
   onEdit,
+  onTryHelp,
 }: {
   entry: {
     id: string;
@@ -1243,6 +1244,7 @@ function LiveEntry({
   expanded: boolean;
   onToggle: () => void;
   onEdit: () => void;
+  onTryHelp: () => void;
 }) {
   const time = new Date(entry.savedAt).toLocaleTimeString([], {
     hour: "numeric",
@@ -1377,13 +1379,14 @@ function LiveEntry({
               <MessageCircle className="h-3.5 w-3.5" />
               Talk this through with Lubin →
             </Link>
-            <Link
-              to="/resources"
-              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            <button
+              type="button"
+              onClick={onTryHelp}
+              className="inline-flex items-center gap-1 font-medium text-brand-purple transition hover:text-brand-purple-dark"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Try something that might help →
-            </Link>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
