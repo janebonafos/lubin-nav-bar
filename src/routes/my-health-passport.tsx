@@ -846,7 +846,7 @@ function MoodThisMonth({
         </div>
       )}
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:items-start">
+      <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:items-stretch">
         <div className="lg:col-span-8">
           <MoodCalendar
             inMonth={inMonth}
@@ -856,7 +856,7 @@ function MoodThisMonth({
             onLogToday={onLogToday}
           />
         </div>
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex">
           <MoodMix counts={counts} total={total} />
         </div>
       </div>
