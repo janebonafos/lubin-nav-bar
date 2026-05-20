@@ -153,20 +153,25 @@ function PassportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-lavender" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-lavender via-brand-lavender to-[#EFEBFA]" style={{ fontFamily: "Inter, sans-serif" }}>
+      <div aria-hidden className="pointer-events-none absolute -top-32 -right-40 h-[480px] w-[480px] rounded-full bg-brand-purple/15 blur-[120px]" />
+      <div aria-hidden className="pointer-events-none absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-brand-purple-accent/20 blur-[120px]" />
       <Navbar />
-      <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
+      <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
         {/* Guest nudge banner */}
         <GuestBanner />
 
         {/* Header */}
         <header className="mt-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-              Your Health Passport
-            </p>
-            <h1 className="mt-2 text-3xl md:text-4xl font-bold text-brand-purple-dark">
-              Everything you share, gently remembered.
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
+              <Sparkles className="h-3 w-3 text-brand-purple" />
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+                Your Health Passport
+              </p>
+            </div>
+            <h1 className="mt-4 text-3xl md:text-[2.75rem] md:leading-[1.1] font-bold tracking-tight text-brand-purple-dark">
+              Everything you share,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">gently remembered.</span>
             </h1>
           </div>
         </header>
