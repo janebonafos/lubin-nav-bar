@@ -163,8 +163,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
   function startNow() {
     markIntroSeen(assessment.id);
-    setPhase("preparing");
-    window.setTimeout(() => setPhase("questions"), 700);
+    setPhase("questions");
   }
 
   function handleAnswer(value: number) {
