@@ -262,14 +262,14 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
       <main className="px-4 pb-20 pt-6">
         <div className="mx-auto w-full max-w-[760px]">
+          {(phase === "intro" || phase === "questions") && (
+            <IntroView
+              assessment={assessment}
+              onStart={startNow}
+              started={phase === "questions"}
+            />
+          )}
           <AnimatePresence mode="wait">
-            {phase === "intro" && (
-              <IntroView
-                key="intro"
-                assessment={assessment}
-                onStart={startNow}
-              />
-            )}
             {phase === "preparing" && (
               <PreparingView key="preparing" />
             )}
@@ -281,15 +281,16 @@ function Runner({ assessment }: { assessment: Assessment }) {
               />
             )}
             {phase === "questions" && (
-              <QuestionView
-                key={`q-${currentIndex}`}
-                assessment={assessment}
-                index={currentIndex}
-                total={total}
-                selected={answers[currentIndex]}
-                onAnswer={handleAnswer}
-                onBack={goBack}
-              />
+              <div key={`q-${currentIndex}`} className="mt-6">
+                <QuestionView
+                  assessment={assessment}
+                  index={currentIndex}
+                  total={total}
+                  selected={answers[currentIndex]}
+                  onAnswer={handleAnswer}
+                  onBack={goBack}
+                />
+              </div>
             )}
             {phase === "breathing" && (
               <BreathingPause
@@ -325,9 +326,11 @@ function Runner({ assessment }: { assessment: Assessment }) {
 function IntroView({
   assessment,
   onStart,
+  started = false,
 }: {
   assessment: Assessment;
   onStart: () => void;
+  started?: boolean;
 }) {
   return (
     <motion.section
@@ -376,9 +379,10 @@ function IntroView({
         <button
           type="button"
           onClick={onStart}
-          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+          disabled={started}
+          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0 disabled:cursor-default disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          I'm ready
+          {started ? "In progress" : "I'm ready"}
           <ArrowRight
             className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
             strokeWidth={2.2}
