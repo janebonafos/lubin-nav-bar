@@ -334,7 +334,6 @@ function IntroView({
 }) {
   return (
     <motion.section
-      layoutId="pattern-card"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
@@ -554,7 +553,6 @@ function QuestionView({
       </div>
 
       <motion.div
-        layoutId="pattern-card"
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
         style={{ fontFamily: "Inter, sans-serif" }}
