@@ -686,9 +686,6 @@ function Overview({
         <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full bg-brand-purple-accent/20 blur-3xl" />
         <div className="relative">
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple/10 ring-1 ring-brand-purple/15">
-            <ClipboardList className="h-3.5 w-3.5 text-brand-purple" />
-          </span>
           <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
             Recent check-ins
           </p>
