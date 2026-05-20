@@ -1060,33 +1060,66 @@ function MoodCalendar({
 function Metric({
   label,
   value,
+  suffix,
+  hint,
   muted = false,
 }: {
   label: string;
   value: string;
+  suffix?: string;
+  hint?: string;
   muted?: boolean;
 }) {
   return (
     <div
-      className={`rounded-xl px-3 py-3 ring-1 transition ${
+      className={`group relative rounded-xl px-3 py-3 ring-1 transition ${
         muted
           ? "bg-brand-purple/[0.04] ring-brand-purple/10 opacity-60"
           : "bg-brand-lavender/50 ring-brand-purple/10"
       }`}
     >
+      <div className="flex items-center justify-between gap-2">
+        <p
+          className={`text-[10px] font-semibold uppercase tracking-wider ${
+            muted ? "text-brand-purple-dark/40" : "text-brand-purple-dark/55"
+          }`}
+        >
+          {label}
+        </p>
+        {hint && !muted && (
+          <TooltipProvider delayDuration={150}>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`About ${label}`}
+                  className="inline-flex h-4 w-4 items-center justify-center rounded-full text-brand-purple-dark/35 transition hover:text-brand-purple"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[220px] text-xs leading-snug">
+                {hint}
+              </TooltipContent>
+            </UITooltip>
+          </TooltipProvider>
+        )}
+      </div>
       <p
-        className={`text-[10px] font-semibold uppercase tracking-wider ${
-          muted ? "text-brand-purple-dark/40" : "text-brand-purple-dark/55"
-        }`}
-      >
-        {label}
-      </p>
-      <p
-        className={`mt-1 text-lg font-semibold ${
+        className={`mt-1 flex items-baseline gap-1 text-lg font-semibold tabular-nums ${
           muted ? "text-brand-purple-dark/40" : "text-brand-purple-dark"
         }`}
       >
-        {value}
+        <span>{value}</span>
+        {suffix && (
+          <span
+            className={`text-xs font-medium ${
+              muted ? "text-brand-purple-dark/30" : "text-brand-purple-dark/45"
+            }`}
+          >
+            {suffix}
+          </span>
+        )}
       </p>
     </div>
   );
