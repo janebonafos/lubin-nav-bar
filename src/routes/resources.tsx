@@ -2,14 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
-  Phone,
-  MessageCircle,
-  Globe,
-  Building,
-  Video,
-  Search,
-  DollarSign,
-  Users,
+  PhoneCall,
+  MessageCircleHeart,
+  Globe2,
+  Hospital,
+  MonitorSmartphone,
+  Compass,
+  HandCoins,
+  LifeBuoy,
   HeartHandshake,
   Sparkles,
   ChevronRight,
@@ -127,16 +127,17 @@ function ResourcesPage() {
             <RegionLabel>Philippines</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Phone}
+                icon={PhoneCall}
                 title="NCMH Crisis Hotline"
                 detail="1553"
                 note="Toll-free • 24/7"
                 href="tel:1553"
               />
               <ResourceRow
-                icon={Phone}
+                icon={PhoneCall}
                 title="In Touch Crisis Line"
-                detail="(02) 8893-7603 / 0917-800-1123"
+                detail="(02) 8893-7603 • 0917-800-1123"
+                note="24/7 • free & confidential"
                 href="tel:+6328937603"
               />
             </div>
@@ -144,14 +145,14 @@ function ResourcesPage() {
             <RegionLabel>United States</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Phone}
+                icon={PhoneCall}
                 title="988 Suicide & Crisis Lifeline"
                 detail="Call or text 988"
                 note="24/7"
                 href="tel:988"
               />
               <ResourceRow
-                icon={MessageCircle}
+                icon={MessageCircleHeart}
                 title="Crisis Text Line"
                 detail="Text HOME to 741741"
                 href="sms:741741?body=HOME"
@@ -168,21 +169,21 @@ function ResourcesPage() {
             </h2>
             <div className="mt-3 space-y-1">
               <ResourceRow
-                icon={MessageCircle}
+                icon={MessageCircleHeart}
                 title="Crisis Text Line"
                 detail="Text HOME to 741741"
                 note="US & PH"
                 href="sms:741741?body=HOME"
               />
               <ResourceRow
-                icon={Globe}
+                icon={Globe2}
                 title="Befrienders Worldwide"
                 detail="befrienders.org"
                 note="Global directory of local centers"
                 href="https://befrienders.org"
               />
               <ResourceRow
-                icon={Globe}
+                icon={Globe2}
                 title="IASP Crisis Centres"
                 detail="iasp.info/resources/Crisis_Centres"
                 note="International"
@@ -205,53 +206,53 @@ function ResourcesPage() {
             <RegionLabel>Philippines</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Building}
+                icon={Hospital}
                 title="Philippine Mental Health Association"
                 detail="pmha.org.ph"
                 note="Counseling and programs nationwide"
                 href="https://pmha.org.ph"
               />
               <ResourceRow
-                icon={Video}
+                icon={MonitorSmartphone}
                 title="KonsultaMD"
-                detail="konsultamd.com"
+                detail="konsulta.md"
                 note="Online consultations with licensed professionals"
-                href="https://konsultamd.com"
+                href="https://konsulta.md"
               />
               <ResourceRow
-                icon={Search}
+                icon={Compass}
                 title="DOH Mental Health Program"
-                detail="doh.gov.ph"
+                detail="doh.gov.ph/mental-health"
                 note="Government-run mental health services"
-                href="https://doh.gov.ph"
+                href="https://doh.gov.ph/program/mental-health"
               />
             </div>
 
             <RegionLabel>United States</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={Search}
+                icon={Compass}
                 title="Psychology Today Therapist Finder"
                 detail="psychologytoday.com/us/therapists"
                 note="Search by location, insurance, and specialty"
                 href="https://www.psychologytoday.com/us/therapists"
               />
               <ResourceRow
-                icon={Phone}
+                icon={PhoneCall}
                 title="SAMHSA Helpline"
                 detail="1-800-662-4357"
                 note="Free, confidential treatment referrals"
                 href="tel:18006624357"
               />
               <ResourceRow
-                icon={DollarSign}
+                icon={HandCoins}
                 title="Open Path Collective"
                 detail="openpathcollective.org"
                 note="Affordable sessions $30–$80"
                 href="https://openpathcollective.org"
               />
               <ResourceRow
-                icon={Users}
+                icon={LifeBuoy}
                 title="NAMI Helpline"
                 detail="nami.org"
                 note="Call 1-800-950-6264 for support and referrals"
