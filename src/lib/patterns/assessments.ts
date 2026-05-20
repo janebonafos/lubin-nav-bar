@@ -6,88 +6,88 @@ import { warmBand } from "./scoring";
 // ============================================================
 
 const FREQ_0_3: AnswerOption[] = [
-  { label: "Not at all", value: 0 },
-  { label: "Several days", value: 1 },
-  { label: "More than half the days", value: 2 },
-  { label: "Nearly every day", value: 3 },
+  { label: "😌  Not at all", value: 0 },
+  { label: "🙂  Several days", value: 1 },
+  { label: "😐  More than half the days", value: 2 },
+  { label: "😣  Nearly every day", value: 3 },
 ];
 
 const FREQ_0_4_NEVER: AnswerOption[] = [
-  { label: "Never", value: 0 },
-  { label: "Almost never", value: 1 },
-  { label: "Sometimes", value: 2 },
-  { label: "Fairly often", value: 3 },
-  { label: "Very often", value: 4 },
+  { label: "😌  Never", value: 0 },
+  { label: "🙂  Almost never", value: 1 },
+  { label: "😐  Sometimes", value: 2 },
+  { label: "😟  Fairly often", value: 3 },
+  { label: "😣  Very often", value: 4 },
 ];
 
 const FREQ_0_4_NEVER_REVERSED: AnswerOption[] = [
-  { label: "Never", value: 4 },
-  { label: "Almost never", value: 3 },
-  { label: "Sometimes", value: 2 },
-  { label: "Fairly often", value: 1 },
-  { label: "Very often", value: 0 },
+  { label: "😌  Never", value: 4 },
+  { label: "🙂  Almost never", value: 3 },
+  { label: "😐  Sometimes", value: 2 },
+  { label: "😟  Fairly often", value: 1 },
+  { label: "😣  Very often", value: 0 },
 ];
 
 const WHO5_OPTIONS: AnswerOption[] = [
-  { label: "At no time", value: 0 },
-  { label: "Some of the time", value: 1 },
-  { label: "Less than half of the time", value: 2 },
-  { label: "More than half of the time", value: 3 },
-  { label: "Most of the time", value: 4 },
-  { label: "All of the time", value: 5 },
+  { label: "🌧️  At no time", value: 0 },
+  { label: "☁️  Some of the time", value: 1 },
+  { label: "🌥️  Less than half of the time", value: 2 },
+  { label: "⛅  More than half of the time", value: 3 },
+  { label: "☀️  Most of the time", value: 4 },
+  { label: "🌟  All of the time", value: 5 },
 ];
 
 const SLEEP_REST_OPTIONS: AnswerOption[] = [
-  { label: "Almost never", value: 0 },
-  { label: "Rarely", value: 1 },
-  { label: "Sometimes", value: 2 },
-  { label: "Often", value: 3 },
-  { label: "Almost always", value: 4 },
+  { label: "😴  Almost never", value: 0 },
+  { label: "🌙  Rarely", value: 1 },
+  { label: "🌗  Sometimes", value: 2 },
+  { label: "🌒  Often", value: 3 },
+  { label: "🥱  Almost always", value: 4 },
 ];
 
 const PCL5_OPTIONS: AnswerOption[] = [
-  { label: "Not at all", value: 0 },
-  { label: "A little bit", value: 1 },
-  { label: "Moderately", value: 2 },
-  { label: "Quite a bit", value: 3 },
-  { label: "Extremely", value: 4 },
+  { label: "😌  Not at all", value: 0 },
+  { label: "🙂  A little bit", value: 1 },
+  { label: "😐  Moderately", value: 2 },
+  { label: "😟  Quite a bit", value: 3 },
+  { label: "😣  Extremely", value: 4 },
 ];
 
 const OCIR_OPTIONS: AnswerOption[] = [
-  { label: "Not at all", value: 0 },
-  { label: "A little", value: 1 },
-  { label: "Moderately", value: 2 },
-  { label: "A lot", value: 3 },
-  { label: "Extremely", value: 4 },
+  { label: "😌  Not at all", value: 0 },
+  { label: "🙂  A little", value: 1 },
+  { label: "😐  Moderately", value: 2 },
+  { label: "😟  A lot", value: 3 },
+  { label: "😣  Extremely", value: 4 },
 ];
 
 const ASRS_OPTIONS: AnswerOption[] = [
-  { label: "Never", value: 0 },
-  { label: "Rarely", value: 1 },
-  { label: "Sometimes", value: 2 },
-  { label: "Often", value: 3 },
-  { label: "Very often", value: 4 },
+  { label: "😌  Never", value: 0 },
+  { label: "🙂  Rarely", value: 1 },
+  { label: "😐  Sometimes", value: 2 },
+  { label: "😟  Often", value: 3 },
+  { label: "😣  Very often", value: 4 },
 ];
 
 const SPIN_OPTIONS: AnswerOption[] = [
-  { label: "Not at all", value: 0 },
-  { label: "A little bit", value: 1 },
-  { label: "Somewhat", value: 2 },
-  { label: "Very much", value: 3 },
-  { label: "Extremely", value: 4 },
+  { label: "😌  Not at all", value: 0 },
+  { label: "🙂  A little bit", value: 1 },
+  { label: "😐  Somewhat", value: 2 },
+  { label: "😟  Very much", value: 3 },
+  { label: "😣  Extremely", value: 4 },
 ];
 
 const PDSS_OPTIONS: AnswerOption[] = [
-  { label: "None", value: 0 },
-  { label: "Mild", value: 1 },
-  { label: "Moderate", value: 2 },
-  { label: "Severe", value: 3 },
-  { label: "Extreme", value: 4 },
+  { label: "😌  None", value: 0 },
+  { label: "🙂  Mild", value: 1 },
+  { label: "😐  Moderate", value: 2 },
+  { label: "😟  Severe", value: 3 },
+  { label: "😣  Extreme", value: 4 },
 ];
 
 const YES_NO: AnswerOption[] = [
-  { label: "No", value: 0 },
-  { label: "Yes", value: 1 },
+  { label: "✖️  No", value: 0 },
+  { label: "✔️  Yes", value: 1 },
 ];
 
 // ============================================================
@@ -508,11 +508,11 @@ const scoff: Assessment = {
 // ============================================================
 
 const AUDIT_Q1: AnswerOption[] = [
-  { label: "Never", value: 0 },
-  { label: "Monthly or less", value: 1 },
-  { label: "2–4 times a month", value: 2 },
-  { label: "2–3 times a week", value: 3 },
-  { label: "4 or more times a week", value: 4 },
+  { label: "🚫  Never", value: 0 },
+  { label: "📆  Monthly or less", value: 1 },
+  { label: "🗓️  2–4 times a month", value: 2 },
+  { label: "📅  2–3 times a week", value: 3 },
+  { label: "⏰  4 or more times a week", value: 4 },
 ];
 
 const AUDIT_Q2: AnswerOption[] = [
@@ -524,17 +524,17 @@ const AUDIT_Q2: AnswerOption[] = [
 ];
 
 const AUDIT_FREQ: AnswerOption[] = [
-  { label: "Never", value: 0 },
-  { label: "Less than monthly", value: 1 },
-  { label: "Monthly", value: 2 },
-  { label: "Weekly", value: 3 },
-  { label: "Daily or almost daily", value: 4 },
+  { label: "🚫  Never", value: 0 },
+  { label: "📆  Less than monthly", value: 1 },
+  { label: "🗓️  Monthly", value: 2 },
+  { label: "📅  Weekly", value: 3 },
+  { label: "⏰  Daily or almost daily", value: 4 },
 ];
 
 const AUDIT_LAST: AnswerOption[] = [
-  { label: "No", value: 0 },
-  { label: "Yes, but not in the last year", value: 2 },
-  { label: "Yes, during the last year", value: 4 },
+  { label: "✖️  No", value: 0 },
+  { label: "⏳  Yes, but not in the last year", value: 2 },
+  { label: "✔️  Yes, during the last year", value: 4 },
 ];
 
 const audit: Assessment = {
