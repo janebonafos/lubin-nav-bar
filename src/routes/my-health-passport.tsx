@@ -344,7 +344,6 @@ function GuestBanner() {
         style={{
           color: "#5A4E8A",
           lineHeight: 1.7,
-          maxWidth: 720,
           fontFamily: "Inter, sans-serif",
         }}
       >
