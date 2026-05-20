@@ -733,7 +733,13 @@ function Overview({
 
 type LiveCheckInLite = CheckInPayload & { id: string; savedAt: number };
 
-function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
+function MoodThisMonth({
+  entries,
+  className = "",
+}: {
+  entries: LiveCheckInLite[];
+  className?: string;
+}) {
   const now = new Date();
   const monthName = now.toLocaleString(undefined, { month: "long" });
   const inMonth = entries.filter((e) => {
@@ -768,7 +774,7 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
     .map(([t]) => t);
 
   return (
-    <Card>
+    <Card className={className}>
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
