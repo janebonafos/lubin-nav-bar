@@ -578,7 +578,7 @@ function Overview({
   };
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
       {/* Greeting */}
       <Card>
         <h2 className="text-3xl font-bold text-brand-purple-dark">
@@ -608,7 +608,7 @@ function Overview({
       </Card>
 
       {/* Mood check-in CTA */}
-      <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <Card className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 lg:col-span-2">
         <div>
           <p className="text-lg font-semibold text-brand-purple-dark">
             How are you feeling today?
@@ -634,6 +634,7 @@ function Overview({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
+            className="lg:col-span-2"
           >
             <Card>
               <CheckInFlow
@@ -701,7 +702,7 @@ function Overview({
       {/* Soft anchor CTA */}
       <Link
         to="/chat"
-        className="block rounded-2xl bg-gradient-to-r from-brand-purple/10 to-brand-purple-accent/15 px-6 py-5 text-center no-underline ring-1 ring-brand-purple/15 transition hover:from-brand-purple/15 hover:to-brand-purple-accent/25"
+        className="block rounded-2xl bg-gradient-to-r from-brand-purple/10 to-brand-purple-accent/15 px-6 py-5 text-center no-underline ring-1 ring-brand-purple/15 transition hover:from-brand-purple/15 hover:to-brand-purple-accent/25 lg:col-span-2"
       >
         <p className="text-sm font-medium text-brand-purple-dark">
           Want to talk it through instead?{" "}
