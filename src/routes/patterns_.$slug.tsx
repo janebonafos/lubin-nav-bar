@@ -51,7 +51,30 @@ export const Route = createFileRoute("/patterns_/$slug")({
   },
   component: PatternRunPage,
   notFoundComponent: () => <NotFound />,
+  pendingComponent: () => <PatternLoading />,
+  pendingMs: 0,
+  pendingMinMs: 300,
 });
+
+function PatternLoading() {
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
+      role="status"
+      aria-label="Loading check-in"
+    >
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative h-12 w-12">
+          <div className="absolute inset-0 rounded-full border-2 border-brand-purple/15" />
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-brand-purple" />
+        </div>
+        <p className="text-[13px] font-medium text-brand-purple-dark/60">
+          Getting your check-in ready…
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function NotFound() {
   return (
