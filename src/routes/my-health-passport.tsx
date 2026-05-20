@@ -863,44 +863,60 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1">
+      <div className="mt-3 grid grid-cols-7 gap-1.5">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="text-center text-[9px] font-semibold uppercase tracking-wider text-brand-purple-dark/40"
+            className="text-center text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
           >
             {l}
           </p>
         ))}
         {cells.map((c, i) => {
-          if (c.day === null) return <div key={`pad-${i}`} className="h-9" />;
+          if (c.day === null) return <div key={`pad-${i}`} className="aspect-square" />;
           const isToday = c.day === todayDate;
           const entry = c.entry;
           const bg = entry ? MOOD_ACCENTS[entry.mood] : undefined;
+          const dateLabel = new Date(year, month, c.day).toLocaleDateString(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
           return (
-            <div
-              key={`d-${c.day}`}
-              title={
-                entry
-                  ? `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`
-                  : `No check-in on ${c.day}`
-              }
-              className={`relative flex h-9 items-center justify-center rounded-md text-sm transition ${
-                entry ? "" : "bg-brand-purple/[0.04]"
-              } ${isToday ? "ring-2 ring-brand-purple/60" : "ring-1 ring-brand-purple/10"}`}
-              style={entry ? { backgroundColor: bg } : undefined}
-            >
-              {entry ? (
-                <span aria-hidden>{entry.intensityEmoji}</span>
-              ) : (
-                <span className="text-[9px] font-medium text-brand-purple-dark/30">
-                  {c.day}
-                </span>
-              )}
+            <div key={`d-${c.day}`} className="group relative flex justify-center">
+              <div
+                className={`relative flex aspect-square w-full items-center justify-center rounded-full text-base transition ${
+                  entry
+                    ? "shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    : "bg-brand-purple/10"
+                } ${
+                  isToday
+                    ? "ring-2 ring-brand-purple"
+                    : entry
+                      ? "ring-1 ring-brand-purple/30"
+                      : "ring-1 ring-brand-purple/15"
+                }`}
+                style={entry ? { backgroundColor: bg } : undefined}
+              >
+                {entry ? (
+                  <span aria-hidden>{entry.intensityEmoji}</span>
+                ) : (
+                  <span className="text-[11px] font-semibold text-brand-purple-dark/55">
+                    {c.day}
+                  </span>
+                )}
+              </div>
               {entry && (
-                <span className="absolute bottom-0 right-0.5 text-[8px] font-semibold text-brand-purple-dark/45">
-                  {c.day}
-                </span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-brand-purple-dark px-2.5 py-1.5 text-[11px] font-medium text-white shadow-lg group-hover:block">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                    {dateLabel}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1.5">
+                    <span aria-hidden>{entry.intensityEmoji}</span>
+                    {MOOD_LABELS[entry.mood]} — {entry.intensityLabel}
+                  </p>
+                  <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-brand-purple-dark" />
+                </div>
               )}
             </div>
           );
