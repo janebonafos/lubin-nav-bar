@@ -935,7 +935,7 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-y-2 max-w-[520px]">
+      <div className="mt-3 grid grid-cols-7 gap-y-2 gap-x-2 w-full">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
@@ -959,7 +959,7 @@ function MoodCalendar({
           return (
             <div key={`d-${c.day}`} className="group relative flex items-center justify-center">
               <div
-                className={`relative flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
+                className={`relative flex aspect-square w-full max-w-[52px] items-center justify-center rounded-full text-sm transition ${
                   entry
                     ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
