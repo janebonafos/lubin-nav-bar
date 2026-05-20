@@ -473,7 +473,7 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
           className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
             locked
               ? "bg-brand-lavender text-brand-purple-dark/60"
-              : "bg-brand-purple-dark text-white hover:bg-brand-purple active:scale-95"
+              : "bg-brand-purple text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
           }`}
         >
           {locked ? "View" : hasInProgress ? "Continue" : "Start"}
