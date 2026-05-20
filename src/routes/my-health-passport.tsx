@@ -862,17 +862,17 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1.5">
+      <div className="mt-3 grid grid-cols-7 gap-1">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="text-center text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/40"
+            className="text-center text-[9px] font-semibold uppercase tracking-wider text-brand-purple-dark/40"
           >
             {l}
           </p>
         ))}
         {cells.map((c, i) => {
-          if (c.day === null) return <div key={`pad-${i}`} className="aspect-square" />;
+          if (c.day === null) return <div key={`pad-${i}`} className="h-9" />;
           const isToday = c.day === todayDate;
           const entry = c.entry;
           const bg = entry ? MOOD_ACCENTS[entry.mood] : undefined;
@@ -884,7 +884,7 @@ function MoodCalendar({
                   ? `${MOOD_LABELS[entry.mood]} — ${entry.intensityLabel}`
                   : `No check-in on ${c.day}`
               }
-              className={`relative flex aspect-square items-center justify-center rounded-lg text-base transition ${
+              className={`relative flex h-9 items-center justify-center rounded-md text-sm transition ${
                 entry ? "" : "bg-brand-purple/[0.04]"
               } ${isToday ? "ring-2 ring-brand-purple/60" : "ring-1 ring-brand-purple/10"}`}
               style={entry ? { backgroundColor: bg } : undefined}
@@ -892,12 +892,12 @@ function MoodCalendar({
               {entry ? (
                 <span aria-hidden>{entry.intensityEmoji}</span>
               ) : (
-                <span className="text-[10px] font-medium text-brand-purple-dark/30">
+                <span className="text-[9px] font-medium text-brand-purple-dark/30">
                   {c.day}
                 </span>
               )}
               {entry && (
-                <span className="absolute bottom-0.5 right-1 text-[9px] font-semibold text-brand-purple-dark/45">
+                <span className="absolute bottom-0 right-0.5 text-[8px] font-semibold text-brand-purple-dark/45">
                   {c.day}
                 </span>
               )}
