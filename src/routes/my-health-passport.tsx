@@ -827,10 +827,18 @@ function MoodThisMonth({
         </div>
       </div>
 
-      {total === 0 ? (
-        <p className="mt-4 text-sm text-brand-purple-dark/55">
-          No check-ins yet this month. Your first one will start building this view.
-        </p>
+      {total === 0 && isCurrentMonth ? (
+        <>
+          <p className="mt-4 text-sm text-brand-purple-dark/55">
+            No check-ins yet this month. Your first one will start building this view.
+          </p>
+          <MoodCalendar
+            inMonth={inMonth}
+            year={view.year}
+            month={view.month}
+            today={today}
+          />
+        </>
       ) : (
         <>
           <div className="mt-4 grid grid-cols-3 gap-3">
