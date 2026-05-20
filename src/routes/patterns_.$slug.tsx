@@ -964,16 +964,16 @@ function SupportCard({ crisis }: { crisis: boolean }) {
     <div
       className={`mt-5 rounded-3xl p-6 md:p-8 ${
         crisis
-          ? "bg-[#FCEFB4] text-[#5a3a1a] ring-1 ring-[#E8C547]/40 shadow-[0_18px_60px_-30px_rgba(214,180,40,0.4)]"
+          ? "bg-[#FEF3C7] text-[#7A5A2C] ring-1 ring-[#F5E4A1] shadow-[0_18px_60px_-30px_rgba(214,180,40,0.4)]"
           : "bg-white ring-1 ring-brand-purple/10 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)]"
       }`}
     >
       {crisis && (
         <div className="mb-6">
-          <p className="text-[16px] font-bold leading-[1.5] text-[#3a1f08]">
+          <p className="text-[16px] font-bold leading-[1.5] text-[#7A5A2C]">
             You don't have to do this alone.
           </p>
-          <p className="mt-2 text-[14px] leading-[1.6] text-[#5a3a1a]">
+          <p className="mt-2 text-[14px] leading-[1.6] text-[#7A5A2C]">
             Your answers suggest you're carrying something really heavy right
             now. Please reach out — kind people are ready to talk with you, any
             time.
@@ -982,14 +982,14 @@ function SupportCard({ crisis }: { crisis: boolean }) {
       )}
       <p
         className={`text-[15px] font-bold ${
-          crisis ? "text-[#3a1f08]" : "text-brand-purple-dark"
+          crisis ? "text-[#7A5A2C]" : "text-brand-purple-dark"
         }`}
       >
         Need urgent help?
       </p>
       <p
         className={`mt-1 text-[13.5px] leading-[1.6] ${
-          crisis ? "text-[#5a3a1a]/85" : "text-brand-purple-dark/70"
+          crisis ? "text-[#8A6A3C]" : "text-brand-purple-dark/70"
         }`}
       >
         Free, confidential support — any time, any reason.
@@ -1022,13 +1022,13 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             {...(h.external ? { target: "_blank", rel: "noreferrer" } : {})}
             className={`group -mx-3 block rounded-2xl px-3 py-2.5 no-underline ring-1 transition-all duration-200 hover:-translate-y-0.5 ${
               crisis
-                ? "ring-transparent hover:bg-[#F8E490] hover:ring-[#E8C547]/50"
+                ? "ring-transparent hover:bg-[#FBE89A] hover:ring-[#F5E4A1]"
                 : "ring-transparent hover:bg-brand-lavender/40 hover:ring-brand-purple/20 hover:shadow-[0_10px_30px_-18px_rgba(126,107,175,0.4)]"
             }`}
           >
             <p
               className={`text-[14px] font-bold underline-offset-4 group-hover:underline ${
-                crisis ? "text-[#3a1f08]" : "text-brand-purple-dark"
+                crisis ? "text-[#7A5A2C]" : "text-brand-purple-dark"
               }`}
             >
               {h.title}
@@ -1036,7 +1036,7 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             </p>
             <p
               className={`mt-0.5 text-[13.5px] leading-[1.55] ${
-                crisis ? "text-[#5a3a1a]/85" : "text-brand-purple-dark/70"
+                crisis ? "text-[#8A6A3C]" : "text-brand-purple-dark/70"
               }`}
             >
               {h.desc}
@@ -1050,7 +1050,7 @@ function SupportCard({ crisis }: { crisis: boolean }) {
         target="_blank"
         rel="noreferrer"
         className={`mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold no-underline ${
-          crisis ? "text-[#3a1f08]" : "text-brand-purple"
+          crisis ? "text-[#7A5A2C]" : "text-brand-purple"
         }`}
       >
         Find support near you →
