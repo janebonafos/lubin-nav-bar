@@ -765,8 +765,6 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
     .slice(0, 3)
     .map(([t]) => t);
 
-  const maxCount = Math.max(1, ...moodOrder.map((m) => counts[m]));
-
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
