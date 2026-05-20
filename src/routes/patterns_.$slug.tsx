@@ -349,8 +349,7 @@ function IntroView({
       />
 
       <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/80 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple shadow-sm backdrop-blur-md">
-          <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-brand-purple/70">
           Before you begin
         </span>
         <h1 className="mt-5 text-[32px] font-bold leading-[1.1] tracking-tight md:text-[40px]">
@@ -368,25 +367,11 @@ function IntroView({
         <p>{assessment.introWhy}</p>
       </div>
 
-      <div className="relative mt-8 overflow-hidden rounded-2xl border border-brand-purple/15 bg-white/60 backdrop-blur-sm">
-        <dl className="grid grid-cols-3 divide-x divide-brand-purple/10">
-          <InfoStat
-            icon={<Clock className="h-4 w-4" strokeWidth={2} />}
-            label="Time"
-            value={`~${assessment.estMinutes} min`}
-          />
-          <InfoStat
-            icon={<Sparkles className="h-4 w-4" strokeWidth={2} />}
-            label="Questions"
-            value={`${assessment.questions.length}`}
-          />
-          <InfoStat
-            icon={<ShieldCheck className="h-4 w-4" strokeWidth={2} />}
-            label="Privacy"
-            value="On-device"
-          />
-        </dl>
-      </div>
+      <dl className="relative mt-8 flex flex-wrap items-baseline gap-x-8 gap-y-3 border-t border-brand-purple/10 pt-6 text-[13px]">
+        <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
+        <InfoStat label="Questions" value={`${assessment.questions.length}`} />
+        <InfoStat label="Privacy" value="On-device" />
+      </dl>
 
       <div className="relative mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
         <button
@@ -434,21 +419,10 @@ function PreparingView() {
   );
 }
 
-function InfoStat({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function InfoStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 text-center">
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-lavender/60 text-brand-purple">
-        {icon}
-      </span>
-      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple/55">
+    <div className="flex items-baseline gap-2">
+      <dt className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55">
         {label}
       </dt>
       <dd className="text-[14px] font-semibold text-brand-purple-dark">
