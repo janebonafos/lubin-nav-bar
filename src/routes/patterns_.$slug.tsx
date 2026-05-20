@@ -5,9 +5,12 @@ import {
   ArrowLeft,
   ArrowRight,
   Clock,
+  CalendarCheck,
+  CheckCircle2,
   Lock,
   MessageCircle,
   ShieldCheck,
+  Share2,
   Sparkles,
   X,
 } from "lucide-react";
