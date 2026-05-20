@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sun, Minus, CloudRain } from "lucide-react";
+import { X, Sun, Minus, CloudRain, RefreshCw } from "lucide-react";
 import type { MoodKey } from "@/components/CheckInFlow";
 
 type Intervention = {
@@ -159,26 +159,33 @@ const LIBRARY: Record<MoodKey, Intervention[]> = {
   ],
 };
 
-type Stage = "intro" | "steps" | "done";
-
 const FEEDBACK_OPTIONS = [
   {
     key: "better",
     label: "A little better",
     Icon: Sun,
-    classes: "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100",
+    classes:
+      "bg-emerald-50/80 text-emerald-700 ring-emerald-200/70 hover:bg-emerald-100",
+    activeClasses:
+      "bg-emerald-100 text-emerald-800 ring-emerald-300 shadow-[0_6px_18px_-10px_rgba(16,185,129,0.5)]",
   },
   {
     key: "same",
     label: "About the same",
     Icon: Minus,
-    classes: "bg-slate-50 text-slate-700 ring-slate-200 hover:bg-slate-100",
+    classes:
+      "bg-slate-50/80 text-slate-700 ring-slate-200/70 hover:bg-slate-100",
+    activeClasses:
+      "bg-slate-100 text-slate-800 ring-slate-300 shadow-[0_6px_18px_-10px_rgba(100,116,139,0.45)]",
   },
   {
     key: "heavier",
     label: "Heavier than before",
     Icon: CloudRain,
-    classes: "bg-orange-50 text-orange-700 ring-orange-200 hover:bg-orange-100",
+    classes:
+      "bg-orange-50/80 text-orange-700 ring-orange-200/70 hover:bg-orange-100",
+    activeClasses:
+      "bg-orange-100 text-orange-800 ring-orange-300 shadow-[0_6px_18px_-10px_rgba(249,115,22,0.45)]",
   },
 ] as const;
 
@@ -193,14 +200,12 @@ export default function TryHelpOverlay({
 }) {
   const list = useMemo(() => (mood ? LIBRARY[mood] : []), [mood]);
   const [idx, setIdx] = useState(0);
-  const [stage, setStage] = useState<Stage>("intro");
   const [rated, setRated] = useState<string | null>(null);
 
   // Reset when opened or mood changes
   useEffect(() => {
     if (open) {
       setIdx(0);
-      setStage("intro");
       setRated(null);
     }
   }, [open, mood]);
@@ -236,172 +241,156 @@ export default function TryHelpOverlay({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-brand-lavender/95 backdrop-blur-sm"
+          className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-brand-lavender via-brand-lavender/90 to-white"
           role="dialog"
           aria-modal="true"
           aria-label="Something that might help"
         >
+          {/* Decorative orbs */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-brand-purple/15 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-1/3 -left-32 h-80 w-80 rounded-full bg-brand-purple-accent/25 blur-3xl"
+          />
+
           {/* Sticky close */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="sticky top-4 z-10 ml-auto mr-4 mt-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-brand-purple-dark shadow-sm ring-1 ring-brand-purple/15 backdrop-blur-sm transition hover:bg-white hover:-translate-y-0.5"
+            className="fixed top-5 right-5 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-brand-purple-dark ring-1 ring-brand-purple/15 backdrop-blur-sm transition hover:bg-white hover:-translate-y-0.5"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <div className="mx-auto w-full max-w-[560px] px-6 pb-16 pt-2">
-            <AnimatePresence mode="wait">
-              {stage === "intro" && (
-                <motion.div
-                  key="intro"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="flex flex-col items-center text-center"
-                >
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/45">
-                    Something that might help
-                  </p>
-                  <h2 className="mt-4 text-3xl font-medium tracking-tight text-brand-purple-dark">
-                    {intervention.name}
-                  </h2>
-                  <p className="mt-2 text-sm text-brand-purple-dark/55">
-                    Takes about {intervention.duration} minute
-                    {intervention.duration === 1 ? "" : "s"}
-                  </p>
-                  <p className="mt-6 max-w-[440px] text-base leading-relaxed text-brand-purple-dark/80">
-                    {intervention.blurb}
-                  </p>
+          <div className="relative mx-auto w-full max-w-[560px] px-6 pb-20 pt-16">
+            <motion.div
+              key={`${mood}-${idx}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {/* Header */}
+              <div className="text-center">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-purple/70">
+                  Something that might help
+                </p>
+                <h2 className="mt-4 text-[2rem] font-medium leading-tight tracking-tight text-brand-purple-dark">
+                  {intervention.name}
+                </h2>
+                <p className="mt-3 text-sm text-brand-purple-dark/55">
+                  About {intervention.duration} minute
+                  {intervention.duration === 1 ? "" : "s"} · read at your own pace
+                </p>
+                <p className="mx-auto mt-6 max-w-[440px] text-base leading-relaxed text-brand-purple-dark/75">
+                  {intervention.blurb}
+                </p>
+                {list.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => setStage("steps")}
-                    className="group mt-10 inline-flex w-full max-w-[280px] items-center justify-center gap-1.5 rounded-full bg-brand-purple-dark px-6 py-3.5 text-sm font-semibold text-white shadow-[0_6px_18px_-8px_rgba(91,71,160,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
+                    onClick={() => setIdx((i) => (i + 1) % list.length)}
+                    className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1.5 text-xs font-medium text-brand-purple-dark/65 ring-1 ring-brand-purple/10 backdrop-blur-sm transition hover:bg-white hover:text-brand-purple-dark"
                   >
-                    Begin
-                    <span
-                      aria-hidden
-                      className="transition-transform duration-200 group-hover:translate-x-0.5"
-                    >
-                      →
-                    </span>
+                    <RefreshCw className="h-3 w-3" />
+                    Try a different one
                   </button>
-                  {list.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setIdx((i) => (i + 1) % list.length)}
-                      className="mt-5 text-sm text-brand-purple-dark/55 underline-offset-4 transition hover:text-brand-purple-dark hover:underline"
-                    >
-                      Try a different one
-                    </button>
-                  )}
-                </motion.div>
-              )}
+                )}
+              </div>
 
-              {stage === "steps" && (
-                <motion.div
-                  key="steps"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                >
-                  <p className="text-center text-sm font-semibold text-brand-purple-dark/70">
-                    {intervention.name}
-                  </p>
-                  <ol className="mt-8 space-y-6">
-                    {intervention.steps.map((step, i) => (
-                      <li key={i} className="flex items-start gap-4">
-                        <span className="mt-0.5 inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-purple/15 text-sm font-semibold text-brand-purple-dark">
-                          {i + 1}
-                        </span>
-                        <p className="text-base leading-relaxed text-brand-purple-dark">
-                          {step}
-                        </p>
-                      </li>
-                    ))}
-                  </ol>
-                  <div className="mt-12 flex flex-col items-center gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setStage("done")}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-brand-purple-dark px-6 py-3.5 text-sm font-semibold text-white shadow-[0_6px_18px_-8px_rgba(91,71,160,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
-                    >
-                      Done
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="text-sm text-brand-purple-dark/55 underline-offset-4 transition hover:text-brand-purple-dark hover:underline"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </motion.div>
-              )}
+              {/* Steps */}
+              <ol className="mt-12 space-y-5">
+                {intervention.steps.map((step, i) => (
+                  <motion.li
+                    key={`${mood}-${idx}-${i}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      ease: "easeOut",
+                      delay: 0.15 + i * 0.06,
+                    }}
+                    className="flex items-start gap-4 rounded-2xl bg-white/55 px-5 py-4 ring-1 ring-brand-purple/10 backdrop-blur-sm"
+                  >
+                    <span className="mt-0.5 inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-purple/15 text-sm font-semibold text-brand-purple-dark">
+                      {i + 1}
+                    </span>
+                    <p className="text-[15px] leading-relaxed text-brand-purple-dark">
+                      {step}
+                    </p>
+                  </motion.li>
+                ))}
+              </ol>
 
-              {stage === "done" && (
-                <motion.div
-                  key="done"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="flex flex-col items-center text-center"
-                >
+              {/* Gentle feedback (optional, inline) */}
+              <div className="mt-12 rounded-3xl bg-white/65 p-6 ring-1 ring-brand-purple/10 backdrop-blur-sm">
+                <AnimatePresence mode="wait">
                   {!rated ? (
-                    <>
-                      <p className="text-sm font-medium text-brand-purple-dark/55">
-                        How does that feel?
+                    <motion.div
+                      key="ask"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <p className="text-center text-sm font-medium text-brand-purple-dark/70">
+                        How does that feel? <span className="font-normal text-brand-purple-dark/40">(optional)</span>
                       </p>
-                      <div className="mt-8 flex w-full flex-col gap-3">
+                      <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:gap-2">
                         {FEEDBACK_OPTIONS.map(({ key, label, Icon, classes }) => (
                           <button
                             key={key}
                             type="button"
                             onClick={() => setRated(key)}
-                            className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium ring-1 transition-all duration-200 ease-out hover:-translate-y-0.5 ${classes}`}
+                            className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium ring-1 transition-all duration-200 ease-out hover:-translate-y-0.5 ${classes}`}
                           >
                             <Icon className="h-4 w-4" />
                             {label}
                           </button>
                         ))}
                       </div>
-                    </>
+                    </motion.div>
                   ) : (
-                    <>
-                      <p className="text-base leading-relaxed text-brand-purple-dark">
-                        Thanks for taking that moment with yourself.
-                      </p>
-                      <div className="mt-10 flex w-full flex-col gap-3">
-                        <button
-                          type="button"
-                          onClick={onClose}
-                          className="inline-flex w-full items-center justify-center rounded-full bg-brand-purple-dark px-6 py-3.5 text-sm font-semibold text-white shadow-[0_6px_18px_-8px_rgba(91,71,160,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
-                        >
-                          Done
-                        </button>
-                        <Link
-                          to="/chat"
-                          onClick={onClose}
-                          className="group inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-brand-purple-dark no-underline ring-1 ring-brand-purple/15 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:ring-brand-purple/30"
-                        >
-                          Talk to Lubin
-                          <span
-                            aria-hidden
-                            className="transition-transform duration-200 group-hover:translate-x-0.5"
-                          >
-                            →
-                          </span>
-                        </Link>
-                      </div>
-                    </>
+                    <motion.p
+                      key="thanks"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-center text-[15px] leading-relaxed text-brand-purple-dark"
+                    >
+                      Thanks for taking that moment with yourself. 💜
+                    </motion.p>
                   )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </AnimatePresence>
+              </div>
+
+              {/* Closing actions */}
+              <div className="mt-8 flex flex-col items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="group inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-brand-purple-dark px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_22px_-10px_rgba(91,71,160,0.6)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
+                >
+                  I'm done
+                </button>
+                <Link
+                  to="/chat"
+                  onClick={onClose}
+                  className="group inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+                >
+                  Or talk it through with Lubin
+                  <span
+                    aria-hidden
+                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
       )}
