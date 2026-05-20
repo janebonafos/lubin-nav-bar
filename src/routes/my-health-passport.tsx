@@ -20,6 +20,8 @@ import {
   Sparkles,
   Pencil,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -738,12 +740,31 @@ function MoodThisMonth({
   entries: LiveCheckInLite[];
   className?: string;
 }) {
-  const now = new Date();
-  const monthName = now.toLocaleString(undefined, { month: "long" });
+  const today = useMemo(() => new Date(), []);
+  const [view, setView] = useState({
+    year: today.getFullYear(),
+    month: today.getMonth(),
+  });
+  const viewDate = new Date(view.year, view.month, 1);
+  const monthName = viewDate.toLocaleString(undefined, { month: "long" });
+  const yearLabel = view.year !== today.getFullYear() ? ` ${view.year}` : "";
+  const isCurrentMonth =
+    view.year === today.getFullYear() && view.month === today.getMonth();
   const inMonth = entries.filter((e) => {
     const d = new Date(e.savedAt);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return d.getMonth() === view.month && d.getFullYear() === view.year;
   });
+  const goPrev = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month - 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const goNext = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month + 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const canGoNext = !isCurrentMonth;
 
   const total = inMonth.length;
   const moodOrder: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
@@ -782,13 +803,42 @@ function MoodThisMonth({
             Built automatically from your daily check-ins this month.
           </p>
         </div>
-        <p className="text-[11px] text-brand-purple-dark/55">{monthName}</p>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={goPrev}
+            aria-label="Previous month"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <p className="min-w-[80px] text-center text-[12px] font-medium text-brand-purple-dark/70">
+            {monthName}{yearLabel}
+          </p>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canGoNext}
+            aria-label="Next month"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
-      {total === 0 ? (
-        <p className="mt-4 text-sm text-brand-purple-dark/55">
-          No check-ins yet this month. Your first one will start building this view.
-        </p>
+      {total === 0 && isCurrentMonth ? (
+        <>
+          <p className="mt-4 text-sm text-brand-purple-dark/55">
+            No check-ins yet this month. Your first one will start building this view.
+          </p>
+          <MoodCalendar
+            inMonth={inMonth}
+            year={view.year}
+            month={view.month}
+            today={today}
+          />
+        </>
       ) : (
         <>
           <div className="mt-4 grid grid-cols-3 gap-3">
@@ -800,7 +850,12 @@ function MoodThisMonth({
             <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
           </div>
 
-          <MoodCalendar inMonth={inMonth} now={now} />
+          <MoodCalendar
+            inMonth={inMonth}
+            year={view.year}
+            month={view.month}
+            today={today}
+          />
 
           {topTopics.length > 0 && (
             <div className="mt-5">
@@ -832,16 +887,23 @@ function MoodThisMonth({
 
 function MoodCalendar({
   inMonth,
-  now,
+  year,
+  month,
+  today,
 }: {
   inMonth: LiveCheckInLite[];
-  now: Date;
+  year: number;
+  month: number;
+  today: Date;
 }) {
-  const year = now.getFullYear();
-  const month = now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay(); // 0 = Sun
-  const todayDate = now.getDate();
+  const isCurrentMonth =
+    today.getFullYear() === year && today.getMonth() === month;
+  const isPastMonth =
+    year < today.getFullYear() ||
+    (year === today.getFullYear() && month < today.getMonth());
+  const todayDate = today.getDate();
 
   // Latest check-in per day-of-month
   const byDay = new Map<number, LiveCheckInLite>();
@@ -880,7 +942,9 @@ function MoodCalendar({
         {cells.map((c, i) => {
           if (c.day === null)
             return <div key={`pad-${i}`} className="aspect-square" />;
-          const isToday = c.day === todayDate;
+          const isToday = isCurrentMonth && c.day === todayDate;
+          const isPastDay =
+            isPastMonth || (isCurrentMonth && c.day < todayDate);
           const entry = c.entry;
           const dateLabel = new Date(year, month, c.day).toLocaleDateString(undefined, {
             weekday: "short",
@@ -892,10 +956,12 @@ function MoodCalendar({
               <div
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
                   entry
-                    ? "bg-brand-purple text-white shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
                       ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40"
-                      : "text-brand-purple-dark/70"
+                      : isPastDay
+                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10"
+                        : "text-brand-purple-dark/70"
                 }`}
               >
                 {entry ? (
