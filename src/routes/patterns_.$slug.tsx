@@ -165,12 +165,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
   // One-time browser bootstrap.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const latest = getLatestAttempt(assessment.id);
-    if (latest && isLocked(latest)) {
-      setLatestLocked(latest);
-      setPhase("locked");
-      return;
-    }
     const ip = loadInProgress(assessment.id);
     if (ip && ip.answers.length === total) {
       setAnswers(ip.answers);
