@@ -1883,144 +1883,61 @@ function UnderstandYourselfSection({
 }: {
   patternAttempts: PatternAttempt[];
 }) {
-  const groupOrder: GroupKey[] = [
-    "core",
-    "emotional",
-    "patterns",
-    "lifestyle",
-  ];
-
-  const grouped = groupOrder
-    .map((g) => ({
-      group: g,
-      items: ASSESSMENTS.filter((a) => a.group === g),
-    }))
-    .filter((g) => g.items.length > 0);
+  const completedIds = new Set(patternAttempts.map((a) => a.assessmentId));
+  const completedCount = ASSESSMENTS.filter((a) => completedIds.has(a.id)).length;
+  const total = ASSESSMENTS.length;
+  const groupOrder: GroupKey[] = ["core", "emotional", "patterns", "lifestyle"];
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/55 via-white to-brand-lavender/35 p-6 md:p-8 shadow-[0_18px_50px_-28px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
-      <div className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-lavender/55 via-white to-brand-lavender/35 p-5 sm:p-6 shadow-[0_14px_40px_-24px_rgba(126,107,175,0.4)] ring-1 ring-brand-purple/10">
+      <div className="pointer-events-none absolute -right-20 -top-24 h-52 w-52 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 bottom-0 h-44 w-44 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
 
-      {/* Header */}
-      <header className="relative">
-        <h2 className="text-[26px] md:text-[30px] font-bold leading-[1.1] tracking-tight text-brand-purple-dark">
-          Understand yourself better
-        </h2>
-        <p className="mt-2 text-[13.5px] text-brand-purple-dark/60">
-          Private · Saved to your Health Passport · Based on widely used wellbeing tools
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white/80 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple shadow-sm backdrop-blur-md">
-            <Leaf className="h-3.5 w-3.5" strokeWidth={2.2} />
-            {ASSESSMENTS.length} assessments available
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white/80 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple shadow-sm backdrop-blur-md">
+            <Leaf className="h-3 w-3" strokeWidth={2.4} />
+            {total} assessments
           </span>
-          <Link
-            to="/patterns"
-            className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-purple no-underline hover:text-brand-purple-dark"
-          >
-            <HelpCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
-            How these tools work
-          </Link>
-        </div>
-      </header>
+          <h2 className="mt-2.5 text-[20px] sm:text-[22px] font-bold leading-tight tracking-tight text-brand-purple-dark">
+            Understand yourself better
+          </h2>
+          <p className="mt-1.5 text-[13px] leading-snug text-brand-purple-dark/60">
+            Short, science-backed check-ins across mood, stress, focus and lifestyle —
+            saved privately to your Health Passport.
+          </p>
 
-      {/* Grouped catalogue */}
-      <div className="relative mt-8 space-y-9">
-        {grouped.map(({ group, items }) => {
-          const { Icon, short } = GROUP_ICON[group];
-          return (
-            <div key={group}>
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-white/80 text-brand-purple shadow-sm ring-1 ring-brand-purple/10 backdrop-blur-md">
-                  <Icon className="h-4 w-4" strokeWidth={2.2} />
-                </span>
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {groupOrder.map((g) => {
+              const { Icon, short } = GROUP_ICON[g];
+              return (
+                <span
+                  key={g}
+                  className="inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[10.5px] font-medium text-brand-purple-dark/65 ring-1 ring-brand-purple/10 backdrop-blur-md"
+                >
+                  <Icon className="h-2.5 w-2.5" strokeWidth={2.4} />
                   {short}
                 </span>
-                <span className="h-px flex-1 bg-gradient-to-r from-brand-purple/20 to-transparent" />
-              </div>
+              );
+            })}
+          </div>
 
-              <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {items.map((a) => {
-                  const attemptsFor = patternAttempts.filter(
-                    (x) => x.assessmentId === a.id,
-                  );
-                  const latest = attemptsFor[0] ?? null;
-                  const locked = isLocked(latest);
-                  const daysLeft = daysUntilAvailable(latest);
-                  return (
-                    <li key={a.id}>
-                      <Link
-                        to="/patterns/$slug"
-                        params={{ slug: a.slug }}
-                        className={`group relative flex h-full gap-3 rounded-2xl border bg-white/85 p-4 no-underline backdrop-blur-md transition ${
-                          locked
-                            ? "border-white/70 opacity-90"
-                            : "border-white/80 shadow-[0_6px_20px_-14px_rgba(126,107,175,0.4)] hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_16px_34px_-18px_rgba(126,107,175,0.55)]"
-                        }`}
-                      >
-                        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-brand-lavender/70 text-brand-purple">
-                          <Icon className="h-4.5 w-4.5" strokeWidth={2} />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-[14px] font-semibold leading-snug text-brand-purple-dark">
-                              {a.name}
-                            </p>
-                            <span className="flex-none text-[11.5px] font-medium text-brand-purple-dark/50">
-                              {a.estMinutes} min
-                            </span>
-                          </div>
-                          <p className="mt-1 text-[12.5px] leading-snug text-brand-purple-dark/65 line-clamp-2">
-                            {a.blurb}
-                          </p>
-                          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple-dark/40">
-                              {a.clinicalName}
-                            </span>
-                            {latest && !locked && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
-                                <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.4} />
-                                Completed
-                              </span>
-                            )}
-                            {locked && (
-                              <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-brand-purple-dark/45">
-                                <Lock className="h-2.5 w-2.5" strokeWidth={2.4} />
-                                {formatDaysRemaining(daysLeft)}
-                              </span>
-                            )}
-                          </div>
-                          {latest && (
-                            <p className="mt-1.5 text-[11.5px] text-brand-purple-dark/45">
-                              Last taken{" "}
-                              {new Date(latest.takenAt).toLocaleDateString(undefined, {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        })}
+          {completedCount > 0 && (
+            <p className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] font-medium text-brand-purple-dark/55">
+              <CheckCircle2 className="h-3 w-3 text-emerald-600" strokeWidth={2.4} />
+              {completedCount} of {total} completed
+            </p>
+          )}
+        </div>
+
+        <Link
+          to="/patterns"
+          className="group inline-flex flex-none items-center justify-center gap-2 self-start rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white no-underline shadow-[0_12px_26px_-12px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-12px_rgba(126,107,175,0.85)] sm:self-center"
+        >
+          Browse all {total} check-ins
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.2} />
+        </Link>
       </div>
-
-      {/* Bottom CTA */}
-      <Link
-        to="/patterns"
-        className="relative mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-6 py-3.5 text-[14px] font-semibold text-white no-underline shadow-[0_14px_30px_-12px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_-12px_rgba(126,107,175,0.85)]"
-      >
-        Browse all check-ins
-        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-      </Link>
     </section>
   );
 }
