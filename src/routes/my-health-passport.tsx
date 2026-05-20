@@ -27,6 +27,11 @@ import {
   Clock,
   ArrowRight,
   PlayCircle,
+  Sun,
+  Zap,
+  Compass,
+  Leaf,
+  HelpCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
@@ -44,7 +49,7 @@ import {
   Tooltip,
 } from "recharts";
 import { loadAttempts } from "@/lib/patterns/storage";
-import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { ASSESSMENTS, GROUP_LABELS } from "@/lib/patterns/assessments";
 import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
 
