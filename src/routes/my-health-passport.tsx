@@ -796,25 +796,25 @@ function MoodThisMonth({
 
   return (
     <Card className={className}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark">
             Mood this month
           </p>
-          <p className="mt-1 text-[12px] text-brand-purple-dark/55">
+          <p className="mt-1 text-[13px] font-medium text-brand-purple/80">
             Built automatically from your daily check-ins this month.
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 rounded-full bg-brand-lavender/50 p-1.5 ring-1 ring-brand-purple/10">
           <button
             type="button"
             onClick={goPrev}
             aria-label="Previous month"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <p className="min-w-[80px] text-center text-[12px] font-medium text-brand-purple-dark/70">
+          <p className="min-w-[88px] text-center text-[13px] font-semibold text-brand-purple-dark">
             {monthName}{yearLabel}
           </p>
           <button
@@ -822,48 +822,29 @@ function MoodThisMonth({
             onClick={goNext}
             disabled={!canGoNext}
             aria-label="Next month"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {total === 0 && isCurrentMonth ? (
-        <>
-          <p className="mt-4 text-sm text-brand-purple-dark/55">
-            No check-ins yet this month. Your first one will start building this view.
-          </p>
-          <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-start">
-            <MoodCalendar
-              inMonth={inMonth}
-              year={view.year}
-              month={view.month}
-              today={today}
-              onLogToday={onLogToday}
-            />
-            <MoodMix counts={counts} total={total} />
-          </div>
-        </>
+      {total === 0 ? (
+        <p className="mt-4 text-sm text-brand-purple-dark/55">
+          {isCurrentMonth
+            ? "No check-ins yet this month. Your first one will start building this view."
+            : `No check-ins logged for ${monthName}${yearLabel}.`}
+        </p>
       ) : (
-        <>
-          {total === 0 ? (
-            <div className="mt-4 rounded-xl bg-brand-purple/[0.04] px-4 py-5 text-center ring-1 ring-brand-purple/10">
-              <p className="text-sm text-brand-purple-dark/55">
-                No check-ins logged for {monthName}{yearLabel}.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <Metric label="Check-ins" value={String(total)} />
-              <Metric
-                label="Most felt"
-                value={topMood ? MOOD_LABELS[topMood] : "—"}
-              />
-              <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
-            </div>
-          )}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <Metric label="Check-ins" value={String(total)} />
+          <Metric label="Most felt" value={topMood ? MOOD_LABELS[topMood] : "—"} />
+          <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+        </div>
+      )}
 
+      <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:items-start">
+        <div className="lg:col-span-8">
           <MoodCalendar
             inMonth={inMonth}
             year={view.year}
@@ -871,30 +852,33 @@ function MoodThisMonth({
             today={today}
             onLogToday={onLogToday}
           />
+        </div>
+        <div className="lg:col-span-4">
+          <MoodMix counts={counts} total={total} />
+        </div>
+      </div>
 
-          {topTopics.length > 0 && (
-            <div className="mt-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-                  On your mind
-                </p>
-                <p className="text-[11px] text-brand-purple-dark/45">
-                  Topics you tagged most often
-                </p>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {topTopics.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+      {topTopics.length > 0 && (
+        <div className="mt-6">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+              On your mind
+            </p>
+            <p className="text-[11px] text-brand-purple-dark/45">
+              Topics you tagged most often
+            </p>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {topTopics.map((t) => (
+              <span
+                key={t}
+                className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
     </Card>
   );
@@ -939,19 +923,19 @@ function MoodCalendar({
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-brand-purple-dark/45">
           Mood calendar
         </p>
-        <p className="text-[11px] text-brand-purple-dark/45">
+        <p className="text-[11px] font-medium text-brand-purple-dark/45">
           One emoji per day — log daily to fill the month
         </p>
       </div>
 
-      <div className="mt-4 mx-auto grid w-full max-w-[480px] grid-cols-7 gap-1.5">
+      <div className="mt-6 grid w-full grid-cols-7 gap-y-5 gap-x-2">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="text-center text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
+            className="pb-1 text-center text-[11px] font-bold uppercase tracking-wider text-brand-purple-dark/45"
           >
             {l}
           </p>
@@ -980,14 +964,14 @@ function MoodCalendar({
                     ? `Check in for ${dateLabel}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[44px] items-center justify-center rounded-full text-[13px] transition ${
+                className={`relative flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-[13px] transition ${
                   entry
-                    ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    ? "bg-brand-lavender text-brand-purple-dark font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
-                      ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40 hover:bg-brand-purple/25 hover:ring-brand-purple cursor-pointer"
+                      ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12),0_4px_18px_-4px_rgba(123,104,199,0.4)] hover:shadow-[0_0_0_5px_rgba(123,104,199,0.18),0_6px_22px_-4px_rgba(123,104,199,0.5)] cursor-pointer"
                       : isPastDay
-                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10 cursor-not-allowed"
-                        : "text-brand-purple-dark/55 ring-1 ring-brand-purple/15 cursor-not-allowed"
+                        ? "bg-brand-purple/[0.03] text-brand-purple-dark/35 ring-1 ring-brand-purple/8 cursor-not-allowed"
+                        : "text-brand-purple-dark/35 border border-dashed border-brand-purple/20 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
@@ -1063,38 +1047,38 @@ function MoodMix({
   const order: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
   const sorted = [...order].sort((a, b) => counts[b] - counts[a]);
   return (
-    <div className="rounded-2xl bg-brand-lavender/40 p-4 ring-1 ring-brand-purple/10">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-        Mood mix
+    <div className="rounded-3xl bg-brand-lavender/30 p-6 ring-1 ring-brand-purple/8">
+      <p className="text-[12px] font-bold tracking-tight text-brand-purple-dark">
+        Mood Mix
       </p>
-      <p className="mt-0.5 text-[11px] text-brand-purple-dark/45">
+      <p className="mt-1 text-[11px] font-medium text-brand-purple/70">
         How your check-ins broke down
       </p>
-      <ul className="mt-3 space-y-2.5">
+      <ul className="mt-5 space-y-4">
         {sorted.map((m) => {
           const c = counts[m];
           const pct = total > 0 ? Math.round((c / total) * 100) : 0;
           const muted = c === 0;
           return (
-            <li key={m} className={muted ? "opacity-40" : undefined}>
-              <div className="flex items-center justify-between gap-2">
+            <li key={m} className={muted ? "opacity-50" : undefined}>
+              <div className="mb-1.5 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     aria-hidden
-                    className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-brand-purple/20"
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: MOOD_ACCENTS[m] }}
                   />
-                  <span className="truncate text-xs font-medium text-brand-purple-dark">
+                  <span className="truncate text-xs font-semibold text-brand-purple-dark">
                     {MOOD_LABELS[m]}
                   </span>
                 </div>
-                <span className="text-[11px] tabular-nums text-brand-purple-dark/60">
-                  {c} · {pct}%
+                <span className="text-[11px] font-bold tabular-nums text-brand-purple-dark/50">
+                  {pct}%
                 </span>
               </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
                 <div
-                  className="h-full rounded-full transition-all"
+                  className="h-full rounded-full transition-all duration-700"
                   style={{
                     width: `${pct}%`,
                     backgroundColor: MOOD_ACCENTS[m],
