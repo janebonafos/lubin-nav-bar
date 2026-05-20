@@ -625,17 +625,6 @@ function QuestionView({
                   <span className="text-[15px] font-medium text-brand-purple-dark">
                     {opt.label}
                   </span>
-                  <span
-                    className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
-                      isSelected
-                        ? "border-brand-purple bg-brand-purple"
-                        : "border-brand-purple/30 bg-white"
-                    }`}
-                  >
-                    {isSelected && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                    )}
-                  </span>
                 </button>
               </li>
             );
