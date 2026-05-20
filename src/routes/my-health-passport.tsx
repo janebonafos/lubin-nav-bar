@@ -768,6 +768,11 @@ function Overview({
           </motion.div>
         )}
       </AnimatePresence>
+      <TryHelpOverlay
+        open={helpMood !== null}
+        mood={helpMood}
+        onClose={() => setHelpMood(null)}
+      />
     </div>
   );
 }
