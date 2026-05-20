@@ -10,6 +10,7 @@ import CheckInFlow, {
   MOOD_LABELS,
   MOOD_ACCENTS,
 } from "@/components/CheckInFlow";
+import TryHelpOverlay from "@/components/TryHelpOverlay";
 import {
   CalendarCheck,
   ClipboardList,
@@ -541,6 +542,7 @@ function Overview({
   const [pulseId, setPulseId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const [helpMood, setHelpMood] = useState<MoodKey | null>(null);
 
   const editingEntry = editingId
     ? liveEntries.find((e) => e.id === editingId) ?? null
@@ -702,6 +704,7 @@ function Overview({
                     setExpandedId((c) => (c === entry.id ? null : entry.id))
                   }
                   onEdit={() => handleEdit(entry.id)}
+                  onTryHelp={() => setHelpMood(entry.mood)}
                 />
               ))}
             </AnimatePresence>
@@ -765,6 +768,11 @@ function Overview({
           </motion.div>
         )}
       </AnimatePresence>
+      <TryHelpOverlay
+        open={helpMood !== null}
+        mood={helpMood}
+        onClose={() => setHelpMood(null)}
+      />
     </div>
   );
 }
@@ -1224,6 +1232,7 @@ function LiveEntry({
   expanded,
   onToggle,
   onEdit,
+  onTryHelp,
 }: {
   entry: {
     id: string;
@@ -1240,6 +1249,7 @@ function LiveEntry({
   expanded: boolean;
   onToggle: () => void;
   onEdit: () => void;
+  onTryHelp: () => void;
 }) {
   const time = new Date(entry.savedAt).toLocaleTimeString([], {
     hour: "numeric",
@@ -1374,13 +1384,14 @@ function LiveEntry({
               <MessageCircle className="h-3.5 w-3.5" />
               Talk this through with Lubin →
             </Link>
-            <Link
-              to="/resources"
-              className="inline-flex items-center gap-1 font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            <button
+              type="button"
+              onClick={onTryHelp}
+              className="inline-flex items-center gap-1 font-medium text-brand-purple transition hover:text-brand-purple-dark"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Try something that might help →
-            </Link>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
