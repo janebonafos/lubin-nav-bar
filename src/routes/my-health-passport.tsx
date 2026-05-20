@@ -1047,38 +1047,38 @@ function MoodMix({
   const order: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
   const sorted = [...order].sort((a, b) => counts[b] - counts[a]);
   return (
-    <div className="rounded-2xl bg-brand-lavender/40 p-4 ring-1 ring-brand-purple/10">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-        Mood mix
+    <div className="rounded-3xl bg-brand-lavender/30 p-6 ring-1 ring-brand-purple/8">
+      <p className="text-[12px] font-bold tracking-tight text-brand-purple-dark">
+        Mood Mix
       </p>
-      <p className="mt-0.5 text-[11px] text-brand-purple-dark/45">
+      <p className="mt-1 text-[11px] font-medium text-brand-purple/70">
         How your check-ins broke down
       </p>
-      <ul className="mt-3 space-y-2.5">
+      <ul className="mt-5 space-y-4">
         {sorted.map((m) => {
           const c = counts[m];
           const pct = total > 0 ? Math.round((c / total) * 100) : 0;
           const muted = c === 0;
           return (
-            <li key={m} className={muted ? "opacity-40" : undefined}>
-              <div className="flex items-center justify-between gap-2">
+            <li key={m} className={muted ? "opacity-50" : undefined}>
+              <div className="mb-1.5 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     aria-hidden
-                    className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-brand-purple/20"
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: MOOD_ACCENTS[m] }}
                   />
-                  <span className="truncate text-xs font-medium text-brand-purple-dark">
+                  <span className="truncate text-xs font-semibold text-brand-purple-dark">
                     {MOOD_LABELS[m]}
                   </span>
                 </div>
-                <span className="text-[11px] tabular-nums text-brand-purple-dark/60">
-                  {c} · {pct}%
+                <span className="text-[11px] font-bold tabular-nums text-brand-purple-dark/50">
+                  {pct}%
                 </span>
               </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
                 <div
-                  className="h-full rounded-full transition-all"
+                  className="h-full rounded-full transition-all duration-700"
                   style={{
                     width: `${pct}%`,
                     backgroundColor: MOOD_ACCENTS[m],
