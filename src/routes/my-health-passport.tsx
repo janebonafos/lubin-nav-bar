@@ -740,12 +740,31 @@ function MoodThisMonth({
   entries: LiveCheckInLite[];
   className?: string;
 }) {
-  const now = new Date();
-  const monthName = now.toLocaleString(undefined, { month: "long" });
+  const today = useMemo(() => new Date(), []);
+  const [view, setView] = useState({
+    year: today.getFullYear(),
+    month: today.getMonth(),
+  });
+  const viewDate = new Date(view.year, view.month, 1);
+  const monthName = viewDate.toLocaleString(undefined, { month: "long" });
+  const yearLabel = view.year !== today.getFullYear() ? ` ${view.year}` : "";
+  const isCurrentMonth =
+    view.year === today.getFullYear() && view.month === today.getMonth();
   const inMonth = entries.filter((e) => {
     const d = new Date(e.savedAt);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return d.getMonth() === view.month && d.getFullYear() === view.year;
   });
+  const goPrev = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month - 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const goNext = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month + 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const canGoNext = !isCurrentMonth;
 
   const total = inMonth.length;
   const moodOrder: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
@@ -784,7 +803,28 @@ function MoodThisMonth({
             Built automatically from your daily check-ins this month.
           </p>
         </div>
-        <p className="text-[11px] text-brand-purple-dark/55">{monthName}</p>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={goPrev}
+            aria-label="Previous month"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <p className="min-w-[80px] text-center text-[12px] font-medium text-brand-purple-dark/70">
+            {monthName}{yearLabel}
+          </p>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canGoNext}
+            aria-label="Next month"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {total === 0 ? (
@@ -802,7 +842,12 @@ function MoodThisMonth({
             <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
           </div>
 
-          <MoodCalendar inMonth={inMonth} now={now} />
+          <MoodCalendar
+            inMonth={inMonth}
+            year={view.year}
+            month={view.month}
+            today={today}
+          />
 
           {topTopics.length > 0 && (
             <div className="mt-5">
