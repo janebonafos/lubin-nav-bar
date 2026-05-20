@@ -33,7 +33,7 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 
-export const Route = createFileRoute("/patterns/$slug")({
+export const Route = createFileRoute("/patterns_/$slug")({
   head: ({ params }) => {
     const a = ASSESSMENTS_BY_SLUG[params.slug];
     const title = a ? `${a.name} — Lubin` : "Check-in — Lubin";

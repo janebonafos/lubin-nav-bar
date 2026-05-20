@@ -14,7 +14,7 @@ import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PatternsSlugRouteImport } from './routes/patterns.$slug'
+import { Route as PatternsSlugRouteImport } from './routes/patterns_.$slug'
 
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
@@ -42,16 +42,16 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PatternsSlugRoute = PatternsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => PatternsRoute,
+  id: '/patterns_/$slug',
+  path: '/patterns/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRouteWithChildren
+  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
   '/patterns/$slug': typeof PatternsSlugRoute
 }
@@ -59,7 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRouteWithChildren
+  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
   '/patterns/$slug': typeof PatternsSlugRoute
 }
@@ -68,9 +68,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRouteWithChildren
+  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
-  '/patterns/$slug': typeof PatternsSlugRoute
+  '/patterns_/$slug': typeof PatternsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,15 +96,16 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/patterns'
     | '/resources'
-    | '/patterns/$slug'
+    | '/patterns_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
-  PatternsRoute: typeof PatternsRouteWithChildren
+  PatternsRoute: typeof PatternsRoute
   ResourcesRoute: typeof ResourcesRoute
+  PatternsSlugRoute: typeof PatternsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,35 +145,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/patterns/$slug': {
-      id: '/patterns/$slug'
-      path: '/$slug'
+    '/patterns_/$slug': {
+      id: '/patterns_/$slug'
+      path: '/patterns/$slug'
       fullPath: '/patterns/$slug'
       preLoaderRoute: typeof PatternsSlugRouteImport
-      parentRoute: typeof PatternsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface PatternsRouteChildren {
-  PatternsSlugRoute: typeof PatternsSlugRoute
-}
-
-const PatternsRouteChildren: PatternsRouteChildren = {
-  PatternsSlugRoute: PatternsSlugRoute,
-}
-
-const PatternsRouteWithChildren = PatternsRoute._addFileChildren(
-  PatternsRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
-  PatternsRoute: PatternsRouteWithChildren,
+  PatternsRoute: PatternsRoute,
   ResourcesRoute: ResourcesRoute,
+  PatternsSlugRoute: PatternsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
