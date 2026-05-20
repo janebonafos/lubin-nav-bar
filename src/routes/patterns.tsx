@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Search,
   X,
+  ChevronDown,
+  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -69,6 +71,7 @@ function PatternsPage() {
   // Bump on focus / visibility so locked timers and completion state refresh.
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
+  const [timingOpen, setTimingOpen] = useState(false);
   useEffect(() => {
     const onFocus = () => setTick((t) => t + 1);
     window.addEventListener("focus", onFocus);
