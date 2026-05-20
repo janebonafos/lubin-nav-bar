@@ -834,13 +834,16 @@ function MoodThisMonth({
           <p className="mt-4 text-sm text-brand-purple-dark/55">
             No check-ins yet this month. Your first one will start building this view.
           </p>
-          <MoodCalendar
-            inMonth={inMonth}
-            year={view.year}
-            month={view.month}
-            today={today}
-            onLogToday={onLogToday}
-          />
+          <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-start">
+            <MoodCalendar
+              inMonth={inMonth}
+              year={view.year}
+              month={view.month}
+              today={today}
+              onLogToday={onLogToday}
+            />
+            <MoodMix counts={counts} total={total} />
+          </div>
         </>
       ) : (
         <>
