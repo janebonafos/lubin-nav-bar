@@ -375,18 +375,19 @@ function IntroView({
       </dl>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={onStart}
-          disabled={started}
-          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0 disabled:cursor-default disabled:opacity-60 disabled:hover:translate-y-0"
-        >
-          {started ? "In progress" : "I'm ready"}
-          <ArrowRight
-            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-            strokeWidth={2.2}
-          />
-        </button>
+        {!started && (
+          <button
+            type="button"
+            onClick={onStart}
+            className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+          >
+            I'm ready
+            <ArrowRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              strokeWidth={2.2}
+            />
+          </button>
+        )}
         <p className="whitespace-nowrap text-[11.5px] leading-relaxed text-brand-purple/70">
           You can pause or leave at any moment — nothing is saved until you finish.
         </p>
