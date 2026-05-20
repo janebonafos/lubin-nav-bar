@@ -351,9 +351,7 @@ function PatternCheckCard({
       className="relative mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      {phase === "intro" ? (
-        <>
-      <header className="mb-5">
+      <header className="mb-5 text-center">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
         </span>
@@ -365,7 +363,7 @@ function PatternCheckCard({
         </p>
       </header>
 
-      <div className="mb-6 space-y-3">
+      <div className="mb-6 space-y-3 text-center">
         <p className="text-[15px] leading-relaxed text-brand-purple-dark">
           {assessment.introWhat}
         </p>
@@ -374,7 +372,7 @@ function PatternCheckCard({
         </p>
       </div>
 
-      <dl className="mb-6 flex flex-wrap items-center gap-y-3 border-y border-brand-lavender py-4">
+      <dl className="mb-8 flex flex-wrap items-center justify-center gap-y-3 border-y border-brand-lavender py-4">
         <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
         <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
         <InfoStat
@@ -386,26 +384,7 @@ function PatternCheckCard({
         <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={onStart}
-          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
-        >
-          I'm ready
-          <ArrowRight
-            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-            strokeWidth={2.2}
-          />
-        </button>
-        <p className="whitespace-nowrap text-[11.5px] leading-relaxed text-brand-purple/70">
-          You can pause or leave at any moment — nothing is saved until you finish.
-        </p>
-      </div>
-        </>
-      ) : (
-        <>
-          <div className="flex items-center gap-4">
+          <div className="mt-2 flex items-center gap-4 border-t border-brand-lavender pt-6">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-brand-lavender">
               <motion.div
                 className="h-full rounded-full bg-brand-purple"
@@ -481,8 +460,6 @@ function PatternCheckCard({
               Tap an answer to continue
             </p>
           </div>
-        </>
-      )}
     </motion.section>
   );
 }
