@@ -971,7 +971,7 @@ function MoodCalendar({
                       ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12),0_4px_18px_-4px_rgba(123,104,199,0.4)] hover:shadow-[0_0_0_5px_rgba(123,104,199,0.18),0_6px_22px_-4px_rgba(123,104,199,0.5)] cursor-pointer"
                       : isPastDay
                         ? "bg-brand-purple/[0.03] text-brand-purple-dark/35 ring-1 ring-brand-purple/8 cursor-not-allowed"
-                        : "text-brand-purple-dark/35 ring-1 ring-dashed ring-brand-purple/15 border border-dashed border-brand-purple/15 cursor-not-allowed"
+                        : "text-brand-purple-dark/35 border border-dashed border-brand-purple/20 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
