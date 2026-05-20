@@ -439,16 +439,9 @@ export default function TryHelpOverlay({
                             className="group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-brand-lavender/40"
                           >
                             <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-[16px] font-semibold text-brand-purple-dark">
-                                  {g.name}
-                                </p>
-                                {suggested && (
-                                  <span className="rounded-full bg-brand-lavender px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple ring-1 ring-brand-purple-accent/40">
-                                    Suggested for you
-                                  </span>
-                                )}
-                              </div>
+                              <p className="text-[16px] font-semibold text-brand-purple-dark">
+                                {g.name}
+                              </p>
                               <p className="mt-1 text-[14px] leading-[1.45] text-brand-purple-dark/60">
                                 {g.subtitle}
                               </p>
