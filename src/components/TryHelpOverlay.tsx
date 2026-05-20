@@ -164,28 +164,19 @@ const FEEDBACK_OPTIONS = [
     key: "better",
     label: "A little better",
     Icon: Sun,
-    classes:
-      "bg-emerald-50/80 text-emerald-700 ring-emerald-200/70 hover:bg-emerald-100",
-    activeClasses:
-      "bg-emerald-100 text-emerald-800 ring-emerald-300 shadow-[0_6px_18px_-10px_rgba(16,185,129,0.5)]",
+    iconClass: "text-emerald-500",
   },
   {
     key: "same",
     label: "About the same",
     Icon: Minus,
-    classes:
-      "bg-slate-50/80 text-slate-700 ring-slate-200/70 hover:bg-slate-100",
-    activeClasses:
-      "bg-slate-100 text-slate-800 ring-slate-300 shadow-[0_6px_18px_-10px_rgba(100,116,139,0.45)]",
+    iconClass: "text-brand-purple/60",
   },
   {
     key: "heavier",
     label: "Heavier than before",
     Icon: CloudRain,
-    classes:
-      "bg-orange-50/80 text-orange-700 ring-orange-200/70 hover:bg-orange-100",
-    activeClasses:
-      "bg-orange-100 text-orange-800 ring-orange-300 shadow-[0_6px_18px_-10px_rgba(249,115,22,0.45)]",
+    iconClass: "text-amber-500",
   },
 ] as const;
 
@@ -241,19 +232,19 @@ export default function TryHelpOverlay({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-brand-lavender via-brand-lavender/90 to-white"
+          className="fixed inset-0 z-50 overflow-y-auto bg-brand-lavender"
           role="dialog"
           aria-modal="true"
           aria-label="Something that might help"
         >
-          {/* Decorative orbs */}
+          {/* Atmospheric background */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-brand-purple/15 blur-3xl"
+            className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(168,155,208,0.45),transparent_60%),radial-gradient(ellipse_at_bottom,rgba(255,255,255,0.9),transparent_70%)]"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute top-1/3 -left-32 h-80 w-80 rounded-full bg-brand-purple-accent/25 blur-3xl"
+            className="pointer-events-none fixed -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-white/40 blur-3xl"
           />
 
           {/* Sticky close */}
@@ -261,12 +252,12 @@ export default function TryHelpOverlay({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="fixed top-5 right-5 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-brand-purple-dark ring-1 ring-brand-purple/15 backdrop-blur-sm transition hover:bg-white hover:-translate-y-0.5"
+            className="fixed top-6 right-6 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/70 text-brand-purple-dark/70 ring-1 ring-brand-purple/10 backdrop-blur-md transition hover:bg-white hover:text-brand-purple-dark"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" strokeWidth={2} />
           </button>
 
-          <div className="relative mx-auto w-full max-w-[560px] px-6 pb-20 pt-16">
+          <div className="relative mx-auto w-full max-w-[520px] px-6 pb-24 pt-20 sm:pt-24">
             <motion.div
               key={`${mood}-${idx}`}
               initial={{ opacity: 0, y: 12 }}
@@ -275,24 +266,27 @@ export default function TryHelpOverlay({
             >
               {/* Header */}
               <div className="text-center">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-purple/70">
-                  Something that might help
-                </p>
-                <h2 className="mt-4 text-[2rem] font-medium leading-tight tracking-tight text-brand-purple-dark">
+                <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple/70">
+                  <span className="h-1 w-1 rounded-full bg-brand-purple/60" />
+                  A gentle practice
+                  <span className="h-1 w-1 rounded-full bg-brand-purple/60" />
+                </div>
+                <h2 className="mt-6 text-[2.5rem] font-light leading-[1.1] tracking-tight text-brand-purple-dark">
                   {intervention.name}
                 </h2>
-                <p className="mt-3 text-sm text-brand-purple-dark/55">
+                <div className="mx-auto mt-5 h-px w-12 bg-brand-purple/25" />
+                <p className="mt-5 text-xs uppercase tracking-[0.18em] text-brand-purple-dark/45">
                   About {intervention.duration} minute
-                  {intervention.duration === 1 ? "" : "s"} · read at your own pace
+                  {intervention.duration === 1 ? "" : "s"}
                 </p>
-                <p className="mx-auto mt-6 max-w-[440px] text-base leading-relaxed text-brand-purple-dark/75">
+                <p className="mx-auto mt-7 max-w-[400px] text-[17px] leading-[1.7] text-brand-purple-dark/75">
                   {intervention.blurb}
                 </p>
                 {list.length > 1 && (
                   <button
                     type="button"
                     onClick={() => setIdx((i) => (i + 1) % list.length)}
-                    className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1.5 text-xs font-medium text-brand-purple-dark/65 ring-1 ring-brand-purple/10 backdrop-blur-sm transition hover:bg-white hover:text-brand-purple-dark"
+                    className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-brand-purple-dark/50 transition hover:text-brand-purple-dark"
                   >
                     <RefreshCw className="h-3 w-3" />
                     Try a different one
@@ -300,32 +294,39 @@ export default function TryHelpOverlay({
                 )}
               </div>
 
-              {/* Steps */}
-              <ol className="mt-12 space-y-5">
+              {/* Steps — timeline */}
+              <ol className="relative mt-14 space-y-7 pl-12">
+                <span
+                  aria-hidden
+                  className="absolute left-[14px] top-2 bottom-2 w-px bg-gradient-to-b from-brand-purple/30 via-brand-purple/15 to-transparent"
+                />
                 {intervention.steps.map((step, i) => (
                   <motion.li
                     key={`${mood}-${idx}-${i}`}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      duration: 0.35,
+                      duration: 0.4,
                       ease: "easeOut",
-                      delay: 0.15 + i * 0.06,
+                      delay: 0.2 + i * 0.08,
                     }}
-                    className="flex items-start gap-4 rounded-2xl bg-white/55 px-5 py-4 ring-1 ring-brand-purple/10 backdrop-blur-sm"
+                    className="relative"
                   >
-                    <span className="mt-0.5 inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-purple/15 text-sm font-semibold text-brand-purple-dark">
+                    <span className="absolute -left-12 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-[0_2px_6px_-2px_rgba(91,71,160,0.2)]">
                       {i + 1}
                     </span>
-                    <p className="text-[15px] leading-relaxed text-brand-purple-dark">
+                    <p className="text-[16px] leading-[1.7] text-brand-purple-dark/85">
                       {step}
                     </p>
                   </motion.li>
                 ))}
               </ol>
 
+              {/* Divider */}
+              <div className="mx-auto mt-16 h-px w-12 bg-brand-purple/20" />
+
               {/* Gentle feedback (optional, inline) */}
-              <div className="mt-12 rounded-3xl bg-white/65 p-6 ring-1 ring-brand-purple/10 backdrop-blur-sm">
+              <div className="mt-10">
                 <AnimatePresence mode="wait">
                   {!rated ? (
                     <motion.div
@@ -335,18 +336,18 @@ export default function TryHelpOverlay({
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <p className="text-center text-sm font-medium text-brand-purple-dark/70">
-                        How does that feel? <span className="font-normal text-brand-purple-dark/40">(optional)</span>
+                      <p className="text-center text-xs uppercase tracking-[0.2em] text-brand-purple-dark/50">
+                        How does that feel?
                       </p>
-                      <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:gap-2">
-                        {FEEDBACK_OPTIONS.map(({ key, label, Icon, classes }) => (
+                      <div className="mt-5 flex flex-wrap justify-center gap-2">
+                        {FEEDBACK_OPTIONS.map(({ key, label, Icon, iconClass }) => (
                           <button
                             key={key}
                             type="button"
                             onClick={() => setRated(key)}
-                            className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium ring-1 transition-all duration-200 ease-out hover:-translate-y-0.5 ${classes}`}
+                            className="group inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-medium text-brand-purple-dark/80 ring-1 ring-brand-purple/15 backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-brand-purple-dark hover:ring-brand-purple/30"
                           >
-                            <Icon className="h-4 w-4" />
+                            <Icon className={`h-4 w-4 ${iconClass}`} strokeWidth={2} />
                             {label}
                           </button>
                         ))}
@@ -359,27 +360,27 @@ export default function TryHelpOverlay({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="text-center text-[15px] leading-relaxed text-brand-purple-dark"
+                      className="text-center text-[15px] italic leading-relaxed text-brand-purple-dark/75"
                     >
-                      Thanks for taking that moment with yourself. 💜
+                      Thank you for taking that moment with yourself.
                     </motion.p>
                   )}
                 </AnimatePresence>
               </div>
 
               {/* Closing actions */}
-              <div className="mt-8 flex flex-col items-center gap-3">
+              <div className="mt-12 flex flex-col items-center gap-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="group inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-brand-purple-dark px-6 py-3.5 text-sm font-semibold text-white shadow-[0_8px_22px_-10px_rgba(91,71,160,0.6)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
+                  className="inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-brand-purple-dark px-6 py-4 text-sm font-medium tracking-wide text-white shadow-[0_10px_28px_-12px_rgba(61,46,107,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:shadow-[0_14px_32px_-12px_rgba(91,71,160,0.55)]"
                 >
-                  I'm done
+                  Close this
                 </button>
                 <Link
                   to="/chat"
                   onClick={onClose}
-                  className="group inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+                  className="group inline-flex items-center gap-1.5 text-sm text-brand-purple-dark/60 no-underline transition hover:text-brand-purple-dark"
                 >
                   Or talk it through with Lubin
                   <span
