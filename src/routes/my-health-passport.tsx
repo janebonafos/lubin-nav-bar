@@ -977,7 +977,7 @@ function MoodCalendar({
                     ? `Check in for ${dateLabel}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[52px] items-center justify-center rounded-full text-sm transition ${
+                className={`relative flex aspect-square w-full max-w-[60px] items-center justify-center rounded-full text-sm transition ${
                   entry
                     ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
