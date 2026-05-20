@@ -964,71 +964,103 @@ function SupportCard({ crisis }: { crisis: boolean }) {
     <div
       className={`mt-5 rounded-3xl p-6 md:p-8 ${
         crisis
-          ? "bg-[#FFF4B8] text-brand-purple-dark shadow-[0_24px_70px_-30px_rgba(214,180,40,0.55)] ring-2 ring-[#E8C547]/60"
+          ? "bg-[#FCEFB4] text-[#5a3d1f] ring-1 ring-[#E8C547]/40 shadow-[0_18px_60px_-30px_rgba(214,180,40,0.4)]"
           : "bg-white ring-1 ring-brand-purple/10 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)]"
       }`}
     >
       {crisis && (
         <div className="mb-6">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple-dark/10 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple-dark">
-            <span aria-hidden>💜</span> A gentle, urgent note
+          <p className="text-[16px] font-bold leading-[1.5] text-[#3d2810]">
+            You don't have to do this alone.
           </p>
-          <p className="mt-3 text-[17px] font-medium leading-[1.5] text-brand-purple-dark md:text-[18px]">
+          <p className="mt-2 text-[14px] leading-[1.6] text-[#5a3d1f]">
             Your answers suggest you're carrying something really heavy right
-            now. Please reach out — you don't have to do this alone.
+            now. Please reach out — kind people are ready to talk with you, any
+            time.
           </p>
         </div>
       )}
       <p
-        className={`text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
-          crisis ? "text-brand-purple-dark/70" : "text-brand-purple"
+        className={`text-[15px] font-bold ${
+          crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
         }`}
       >
         Need urgent help?
       </p>
-      <ul className="mt-3 space-y-2">
-        <li>
+      <p
+        className={`mt-1 text-[13.5px] leading-[1.6] ${
+          crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
+        }`}
+      >
+        Free, confidential support — any time, any reason.
+      </p>
+
+      <div className="mt-4 space-y-4">
+        <div>
           <a
             href="tel:2919"
-            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
-              crisis
-                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
-                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            className={`text-[14px] font-bold no-underline ${
+              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
             }`}
           >
-            <span>📞 Hopeline PH</span>
-            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>2919</span>
+            Hopeline PH — 2919
           </a>
-        </li>
-        <li>
+          <p
+            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
+              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
+            }`}
+          >
+            24/7 emotional support and crisis intervention in the Philippines.
+          </p>
+        </div>
+        <div>
           <a
             href="tel:1553"
-            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
-              crisis
-                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
-                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            className={`text-[14px] font-bold no-underline ${
+              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
             }`}
           >
-            <span>📞 NCMH</span>
-            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>1553</span>
+            NCMH Crisis Hotline — 1553
           </a>
-        </li>
-        <li>
+          <p
+            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
+              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
+            }`}
+          >
+            National Center for Mental Health — toll-free across the country.
+          </p>
+        </div>
+        <div>
           <a
             href="https://findahelpline.com"
             target="_blank"
             rel="noreferrer"
-            className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
-              crisis
-                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
-                : "text-brand-purple-dark hover:bg-brand-lavender/40"
+            className={`text-[14px] font-bold no-underline ${
+              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
             }`}
           >
-            <span>🌐 findahelpline.com</span>
-            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>Visit →</span>
+            findahelpline.com
           </a>
-        </li>
-      </ul>
+          <p
+            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
+              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
+            }`}
+          >
+            Find a free, confidential helpline anywhere in the world.
+          </p>
+        </div>
+      </div>
+
+      <a
+        href="https://findahelpline.com"
+        target="_blank"
+        rel="noreferrer"
+        className={`mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold no-underline ${
+          crisis ? "text-[#3d2810]" : "text-brand-purple"
+        }`}
+      >
+        Find support near you →
+      </a>
     </div>
   );
 }
