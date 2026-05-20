@@ -105,7 +105,7 @@ function ResourcesPage() {
         </Link>
 
         {/* Header */}
-        <header className="mt-4 rounded-3xl border border-[#EDE7F6] bg-gradient-to-br from-white to-[#F1ECFA] p-8 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.05)]">
+        <header className="mt-4 rounded-3xl border border-[#EDE7F6] bg-[#EFE9FB] p-8 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.05)]">
           <h1 className="text-[34px] sm:text-[40px] font-bold leading-[1.1] tracking-tight text-[#3F3560]">
             You don't have to face this alone.
           </h1>
