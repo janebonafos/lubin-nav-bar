@@ -163,8 +163,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
   function startNow() {
     markIntroSeen(assessment.id);
-    setPhase("preparing");
-    window.setTimeout(() => setPhase("questions"), 700);
+    setPhase("questions");
   }
 
   function handleAnswer(value: number) {
@@ -332,6 +331,7 @@ function IntroView({
 }) {
   return (
     <motion.section
+      layoutId="pattern-card"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
@@ -549,7 +549,12 @@ function QuestionView({
         </span>
       </div>
 
-      <div className="mt-8 rounded-3xl bg-white p-7 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10 md:p-10">
+      <motion.div
+        layoutId="pattern-card"
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
+        style={{ fontFamily: "Inter, sans-serif" }}
+      >
         <p className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           {assessment.name}
         </p>
@@ -611,7 +616,7 @@ function QuestionView({
             Tap an answer to continue
           </p>
         </div>
-      </div>
+      </motion.div>
     </motion.section>
   );
 }
