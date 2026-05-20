@@ -118,7 +118,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const total = assessment.questions.length;
 
   // Bootstrap from storage (browser-only).
-  const [phase, setPhase] = useState<Phase>("intro");
+  const [phase, setPhase] = useState<Phase>("questions");
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null),
   );
@@ -145,7 +145,8 @@ function Runner({ assessment }: { assessment: Assessment }) {
       setPhase("questions");
       return;
     }
-    setPhase(hasSeenIntro(assessment.id) ? "questions" : "intro");
+    markIntroSeen(assessment.id);
+    setPhase("questions");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assessment.id]);
 
