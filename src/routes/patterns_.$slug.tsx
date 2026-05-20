@@ -798,12 +798,10 @@ function ResultView({
       {/* Additional details — separate card so the original summary stays untouched */}
       <div className="mt-5 rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/70 px-3 py-1 text-[11.5px] font-semibold text-emerald-700">
-            <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.4} />
+          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[11.5px] font-semibold text-brand-purple-dark">
             Completed
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender/60 px-3 py-1 text-[11.5px] font-medium text-brand-purple-dark/70">
-            <CalendarCheck className="h-3.5 w-3.5 text-brand-purple" strokeWidth={2.2} />
+          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[11.5px] font-medium text-brand-purple-dark/75">
             {dateLabel} · {timeLabel}
           </span>
         </div>
