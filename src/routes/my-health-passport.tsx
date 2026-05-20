@@ -1877,30 +1877,30 @@ const GROUP_ICON: Record<
   core: {
     Icon: Sun,
     short: "Mood & energy",
-    tint: "bg-amber-50",
-    ring: "ring-amber-200/70",
-    iconColor: "text-amber-600",
+    tint: "bg-brand-purple/8",
+    ring: "ring-brand-purple/25",
+    iconColor: "text-brand-purple",
   },
   emotional: {
     Icon: Zap,
     short: "Stress & anxiety",
-    tint: "bg-rose-50",
-    ring: "ring-rose-200/70",
-    iconColor: "text-rose-500",
+    tint: "bg-brand-purple/8",
+    ring: "ring-brand-purple/25",
+    iconColor: "text-brand-purple",
   },
   patterns: {
     Icon: Compass,
     short: "Focus & patterns",
-    tint: "bg-indigo-50",
-    ring: "ring-indigo-200/70",
-    iconColor: "text-indigo-500",
+    tint: "bg-brand-purple/8",
+    ring: "ring-brand-purple/25",
+    iconColor: "text-brand-purple",
   },
   lifestyle: {
     Icon: Leaf,
     short: "Lifestyle & body",
-    tint: "bg-emerald-50",
-    ring: "ring-emerald-200/70",
-    iconColor: "text-emerald-600",
+    tint: "bg-brand-purple/8",
+    ring: "ring-brand-purple/25",
+    iconColor: "text-brand-purple",
   },
 };
 
@@ -1913,14 +1913,7 @@ function UnderstandYourselfSection({
   const completedCount = ASSESSMENTS.filter((a) => completedIds.has(a.id)).length;
   const total = ASSESSMENTS.length;
   const groupOrder: GroupKey[] = ["core", "emotional", "patterns", "lifestyle"];
-  const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-
-  // SVG progress ring math
-  const ringSize = 64;
-  const stroke = 6;
-  const radius = (ringSize - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference - (pct / 100) * circumference;
+  void completedCount;
 
   return (
     <section className="group/section relative overflow-hidden rounded-3xl p-[1.5px] shadow-[0_24px_60px_-32px_rgba(126,107,175,0.55)] transition-shadow hover:shadow-[0_30px_70px_-30px_rgba(126,107,175,0.7)]">
@@ -1945,7 +1938,6 @@ function UnderstandYourselfSection({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/85 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple shadow-sm backdrop-blur-md">
-                <Sparkles className="h-3 w-3" strokeWidth={2.4} />
                 {total} assessments
               </span>
               <span className="hidden h-px flex-1 bg-gradient-to-r from-brand-purple/25 to-transparent sm:block" />
@@ -1963,13 +1955,12 @@ function UnderstandYourselfSection({
 
             <div className="mt-4 grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap">
               {groupOrder.map((g) => {
-                const { Icon, short, tint, ring, iconColor } = GROUP_ICON[g];
+                const { short, tint, ring } = GROUP_ICON[g];
                 return (
                   <span
                     key={g}
-                    className={`inline-flex items-center gap-1.5 rounded-full ${tint} px-2.5 py-1 text-[11px] font-medium text-brand-purple-dark/75 ring-1 ${ring} transition hover:-translate-y-0.5`}
+                    className={`inline-flex items-center rounded-full ${tint} px-3 py-1 text-[11px] font-medium text-brand-purple ring-1 ${ring} transition hover:-translate-y-0.5`}
                   >
-                    <Icon className={`h-3 w-3 ${iconColor}`} strokeWidth={2.4} />
                     {short}
                   </span>
                 );
@@ -1977,84 +1968,20 @@ function UnderstandYourselfSection({
             </div>
           </div>
 
-          {/* Progress ring + CTA cluster */}
-          <div className="flex flex-row items-center gap-4 sm:flex-col sm:items-end sm:gap-3">
-            <div className="relative flex flex-none items-center justify-center">
-              <svg
-                width={ringSize}
-                height={ringSize}
-                viewBox={`0 0 ${ringSize} ${ringSize}`}
-                className="-rotate-90"
-              >
-                <defs>
-                  <linearGradient id="uys-ring" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#A78BFA" />
-                    <stop offset="100%" stopColor="#7E6BAF" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx={ringSize / 2}
-                  cy={ringSize / 2}
-                  r={radius}
-                  fill="none"
-                  stroke="rgb(126 107 175 / 0.15)"
-                  strokeWidth={stroke}
-                />
-                <circle
-                  cx={ringSize / 2}
-                  cy={ringSize / 2}
-                  r={radius}
-                  fill="none"
-                  stroke="url(#uys-ring)"
-                  strokeWidth={stroke}
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={dashOffset}
-                  style={{ transition: "stroke-dashoffset 700ms ease" }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[14px] font-bold leading-none text-brand-purple-dark">
-                  {completedCount}
-                </span>
-                <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-                  of {total}
-                </span>
-              </div>
-            </div>
-
+          {/* CTA */}
+          <div className="flex sm:items-center">
             <Link
               to="/patterns"
-              className="group/cta relative inline-flex flex-none items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white no-underline shadow-[0_14px_30px_-12px_rgba(126,107,175,0.8)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_-12px_rgba(126,107,175,0.9)]"
+              className="group/cta inline-flex flex-none items-center justify-center gap-1.5 rounded-full border border-brand-purple/30 bg-white/80 px-5 py-2.5 text-[13px] font-medium text-brand-purple no-underline shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-purple hover:bg-brand-purple hover:text-white hover:shadow-md hover:shadow-brand-purple/25"
             >
-              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full" />
-              <span className="relative">Browse all {total}</span>
+              Browse all {total}
               <ArrowRight
-                className="relative h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5"
+                className="h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5"
                 strokeWidth={2.2}
               />
             </Link>
           </div>
         </div>
-
-        {/* Progress bar at the bottom */}
-        {completedCount > 0 && (
-          <div className="relative mt-6 border-t border-brand-purple/10 pt-4">
-            <div className="flex items-center justify-between text-[11.5px] font-medium text-brand-purple-dark/65">
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2.4} />
-                {completedCount} of {total} completed
-              </span>
-              <span className="font-semibold text-brand-purple">{pct}%</span>
-            </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-brand-lavender/70">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-purple-accent via-brand-purple to-brand-purple-dark transition-[width] duration-700"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
