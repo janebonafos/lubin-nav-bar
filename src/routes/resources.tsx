@@ -218,10 +218,10 @@ function ResourcesPage() {
               />
               <ResourceRow
                 icon={MonitorSmartphone}
-                title="KonsultaMD"
-                detail="konsulta.md"
-                note="Online consultations with licensed professionals"
-                href="https://konsulta.md"
+                title="MindNation"
+                detail="mindnation.com"
+                note="Online therapy and mental health support"
+                href="https://www.mindnation.com"
               />
               <ResourceRow
                 icon={Compass}
