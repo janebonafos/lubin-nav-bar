@@ -1,82 +1,112 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sun, Minus, CloudRain, RefreshCw } from "lucide-react";
+import {
+  X,
+  Sun,
+  Minus,
+  CloudRain,
+  Wind,
+  Sparkles,
+  Heart,
+  Leaf,
+  Moon,
+  Hand,
+  Feather,
+  MessageCircle,
+  Eye,
+  Clock,
+  Check,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { MoodKey } from "@/components/CheckInFlow";
 
 type Intervention = {
+  id: string;
   name: string;
   duration: number;
   blurb: string;
   steps: string[];
+  Icon: LucideIcon;
 };
 
 const LIBRARY: Record<MoodKey, Intervention[]> = {
   calm: [
     {
+      id: "savor",
       name: "Savor the moment",
       duration: 1,
       blurb: "Sit with what's already feeling good — let it land more fully.",
+      Icon: Sparkles,
       steps: [
-        "Notice three things in your surroundings that feel good right now.",
-        "Spend a moment with each one — really notice it.",
-        "Set the feeling in your memory. You can come back to this.",
+        "Notice three things around you that feel good right now.",
+        "Spend a moment with each one.",
+        "Set the feeling in your memory.",
       ],
     },
     {
+      id: "gratitude",
       name: "Gratitude pause",
       duration: 1,
-      blurb: "Bring to mind three small things going well today.",
+      blurb: "Three small things going well today.",
+      Icon: Heart,
       steps: [
-        "They don't have to be big — a warm drink, a kind message, a small win.",
+        "Bring to mind three small things — a warm drink, a kind message, a small win.",
         "Hold each one for a few breaths.",
-        "Notice the steadiness that comes with paying attention to them.",
+        "Notice the steadiness that comes from paying attention.",
       ],
     },
   ],
   okay: [
     {
+      id: "body-scan",
       name: "Quick body scan",
       duration: 1,
       blurb: "A short pause to feel where you are right now.",
+      Icon: Leaf,
       steps: [
         "Sit comfortably. Let your shoulders drop.",
         "Notice your feet on the floor.",
         "Notice your breath without changing it.",
-        "Notice your hands resting where they are.",
-        "Stay here for as long as feels right.",
+        "Stay here as long as feels right.",
       ],
     },
     {
+      id: "tiny-intention",
       name: "Tiny intention",
       duration: 1,
-      blurb: "Set one quiet quality for the rest of your day.",
+      blurb: "One quiet quality for the rest of your day.",
+      Icon: Feather,
       steps: [
-        "Think of one quality you'd like to bring to the rest of your day.",
+        "Think of one quality for the rest of your day.",
         "Not a goal — just a quality. Calm. Curiosity. Patience.",
-        "Hold it lightly. You can return to it whenever you remember.",
+        "Hold it lightly. Return to it when you remember.",
       ],
     },
   ],
   drained: [
     {
+      id: "rest",
       name: "Permission to rest",
       duration: 1,
       blurb: "A small reminder that rest doesn't have to be earned.",
+      Icon: Moon,
       steps: [
-        "Pause for a moment. Notice you're tired.",
+        "Pause. Notice you're tired.",
         "Rest doesn't have to be earned.",
-        "Let yourself imagine what real rest would feel like right now.",
-        "If you can give it to yourself, even for ten minutes, do.",
+        "Imagine what real rest would feel like right now.",
+        "If you can give it to yourself, even ten minutes, do.",
       ],
     },
     {
+      id: "set-down",
       name: "Set something down",
       duration: 1,
-      blurb: "Pick one thing you're carrying — and put it down for now.",
+      blurb: "Pick one thing you're carrying — put it down for now.",
+      Icon: Hand,
       steps: [
-        "Bring to mind everything you're holding right now.",
-        "Pick one thing — even small — that doesn't need to be carried today.",
+        "Bring to mind everything you're holding.",
+        "Pick one thing that doesn't need to be carried today.",
         "Mentally set it down.",
         "Notice the difference, even slightly.",
       ],
@@ -84,34 +114,40 @@ const LIBRARY: Record<MoodKey, Intervention[]> = {
   ],
   stressed: [
     {
+      id: "4-7-8",
       name: "4-7-8 breath",
       duration: 2,
-      blurb: "A breath pattern that gently activates the body's calming response.",
+      blurb: "A breath pattern that gently calms the body.",
+      Icon: Wind,
       steps: [
         "Find a comfortable position.",
-        "Inhale through your nose for 4 counts.",
-        "Hold for 7 counts.",
-        "Exhale slowly through your mouth for 8 counts.",
+        "Inhale through your nose for 4.",
+        "Hold for 7.",
+        "Exhale through your mouth for 8.",
         "Repeat two more times.",
       ],
     },
     {
+      id: "brain-dump",
       name: "Brain dump",
       duration: 2,
       blurb: "Empty out what's spinning in your head onto a page.",
+      Icon: Feather,
       steps: [
-        "Take a minute to write down everything spinning in your head.",
+        "Write down everything spinning in your head.",
         "Don't organize it. Just empty it out.",
-        "When you stop, read it once.",
-        "Pick one thing that's actually for today. Let the rest wait.",
+        "Read it once.",
+        "Pick one thing for today. Let the rest wait.",
       ],
     },
   ],
   anxious: [
     {
+      id: "5-4-3-2-1",
       name: "5-4-3-2-1 grounding",
       duration: 2,
-      blurb: "A classic sensory grounding exercise to bring you back to the present.",
+      blurb: "A sensory grounding to bring you back to the present.",
+      Icon: Eye,
       steps: [
         "Name 5 things you can see.",
         "Name 4 things you can hear.",
@@ -121,38 +157,44 @@ const LIBRARY: Record<MoodKey, Intervention[]> = {
       ],
     },
     {
+      id: "box-breath",
       name: "Box breath",
       duration: 1,
       blurb: "A steady breath pattern to slow racing thoughts.",
+      Icon: Wind,
       steps: [
-        "Inhale slowly for 4 counts.",
-        "Hold for 4 counts.",
-        "Exhale slowly for 4 counts.",
-        "Hold for 4 counts.",
+        "Inhale slowly for 4.",
+        "Hold for 4.",
+        "Exhale slowly for 4.",
+        "Hold for 4.",
         "Repeat as long as it helps.",
       ],
     },
   ],
   low: [
     {
+      id: "kindness",
       name: "One small kindness",
       duration: 1,
-      blurb: "Choose one small thing you could give yourself right now.",
+      blurb: "One small thing you could give yourself right now.",
+      Icon: Heart,
       steps: [
-        "Bring to mind one small kindness you could give yourself right now.",
+        "Bring to mind one small kindness for yourself.",
         "A warm drink. A few minutes of music. Resting your eyes.",
         "Choose just one.",
         "Give it to yourself.",
       ],
     },
     {
+      id: "reach-out",
       name: "Reach out",
       duration: 1,
-      blurb: "A small bridge to someone you trust — no need to explain.",
+      blurb: "A small bridge to someone you trust.",
+      Icon: MessageCircle,
       steps: [
         "Think of one person you trust.",
         "You don't need to explain anything heavy.",
-        "Send a simple message — \u201cthinking of you,\u201d or anything that feels natural.",
+        "Send something simple — \u201cthinking of you.\u201d",
         "Letting someone in counts, even when it's small.",
       ],
     },
@@ -160,24 +202,9 @@ const LIBRARY: Record<MoodKey, Intervention[]> = {
 };
 
 const FEEDBACK_OPTIONS = [
-  {
-    key: "better",
-    label: "A little better",
-    Icon: Sun,
-    iconClass: "text-emerald-500",
-  },
-  {
-    key: "same",
-    label: "About the same",
-    Icon: Minus,
-    iconClass: "text-brand-purple/60",
-  },
-  {
-    key: "heavier",
-    label: "Heavier than before",
-    Icon: CloudRain,
-    iconClass: "text-amber-500",
-  },
+  { key: "better", label: "A little better", Icon: Sun, iconClass: "text-emerald-500" },
+  { key: "same", label: "About the same", Icon: Minus, iconClass: "text-brand-purple/60" },
+  { key: "heavier", label: "Heavier", Icon: CloudRain, iconClass: "text-amber-500" },
 ] as const;
 
 export default function TryHelpOverlay({
@@ -193,7 +220,6 @@ export default function TryHelpOverlay({
   const [idx, setIdx] = useState(0);
   const [rated, setRated] = useState<string | null>(null);
 
-  // Reset when opened or mood changes
   useEffect(() => {
     if (open) {
       setIdx(0);
@@ -201,7 +227,6 @@ export default function TryHelpOverlay({
     }
   }, [open, mood]);
 
-  // Lock background scroll while open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -211,7 +236,6 @@ export default function TryHelpOverlay({
     };
   }, [open]);
 
-  // Escape closes
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -252,81 +276,108 @@ export default function TryHelpOverlay({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="fixed top-6 right-6 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/70 text-brand-purple-dark/70 ring-1 ring-brand-purple/10 backdrop-blur-md transition hover:bg-white hover:text-brand-purple-dark"
+            className="fixed top-6 right-6 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-brand-purple-dark/70 ring-1 ring-brand-purple/10 backdrop-blur-md transition hover:bg-white hover:text-brand-purple-dark"
           >
             <X className="h-4 w-4" strokeWidth={2} />
           </button>
 
-          <div className="relative mx-auto w-full max-w-[520px] px-6 pb-24 pt-20 sm:pt-24">
+          <div className="relative mx-auto w-full max-w-[560px] px-5 pb-24 pt-16 sm:pt-20">
+            {/* Picker — visible options for this mood */}
+            {list.length > 1 && (
+              <div className="mb-10">
+                <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple-dark/45">
+                  Choose what feels right
+                </p>
+                <div className="flex flex-wrap justify-center gap-2.5">
+                  {list.map((item, i) => {
+                    const ItemIcon = item.Icon;
+                    const active = i === idx;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setIdx(i);
+                          setRated(null);
+                        }}
+                        className={`group inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out ${
+                          active
+                            ? "bg-brand-purple-dark text-white shadow-[0_8px_22px_-10px_rgba(61,46,107,0.6)]"
+                            : "bg-white/70 text-brand-purple-dark/75 ring-1 ring-brand-purple/15 backdrop-blur-sm hover:-translate-y-0.5 hover:bg-white"
+                        }`}
+                      >
+                        <ItemIcon
+                          className={`h-4 w-4 ${active ? "text-white" : "text-brand-purple/70"}`}
+                          strokeWidth={1.8}
+                        />
+                        {item.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <motion.div
               key={`${mood}-${idx}`}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              {/* Header */}
+              {/* Header with big icon */}
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-purple/70">
-                  <span className="h-1 w-1 rounded-full bg-brand-purple/60" />
-                  A gentle practice
-                  <span className="h-1 w-1 rounded-full bg-brand-purple/60" />
-                </div>
-                <h2 className="mt-6 text-[2.5rem] font-light leading-[1.1] tracking-tight text-brand-purple-dark">
+                <motion.div
+                  initial={{ scale: 0.85, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-[0_18px_40px_-20px_rgba(91,71,160,0.45)] ring-1 ring-brand-purple/15"
+                >
+                  <intervention.Icon
+                    className="h-9 w-9 text-brand-purple-dark"
+                    strokeWidth={1.5}
+                  />
+                </motion.div>
+
+                <h2 className="mt-7 text-[2.25rem] font-light leading-[1.1] tracking-tight text-brand-purple-dark">
                   {intervention.name}
                 </h2>
-                <div className="mx-auto mt-5 h-px w-12 bg-brand-purple/25" />
-                <p className="mt-5 text-xs uppercase tracking-[0.18em] text-brand-purple-dark/45">
-                  About {intervention.duration} minute
-                  {intervention.duration === 1 ? "" : "s"}
-                </p>
-                <p className="mx-auto mt-7 max-w-[400px] text-[17px] leading-[1.7] text-brand-purple-dark/75">
+
+                <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-purple-dark/55 ring-1 ring-brand-purple/10">
+                  <Clock className="h-3 w-3" strokeWidth={2} />
+                  About {intervention.duration} min
+                </div>
+
+                <p className="mx-auto mt-6 max-w-[380px] text-[16px] leading-[1.6] text-brand-purple-dark/75">
                   {intervention.blurb}
                 </p>
-                {list.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setIdx((i) => (i + 1) % list.length)}
-                    className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-brand-purple-dark/50 transition hover:text-brand-purple-dark"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Try a different one
-                  </button>
-                )}
               </div>
 
-              {/* Steps — timeline */}
-              <ol className="relative mt-14 space-y-7 pl-12">
-                <span
-                  aria-hidden
-                  className="absolute left-[14px] top-2 bottom-2 w-px bg-gradient-to-b from-brand-purple/30 via-brand-purple/15 to-transparent"
-                />
+              {/* Steps as visual cards */}
+              <ol className="mt-12 space-y-3">
                 {intervention.steps.map((step, i) => (
                   <motion.li
                     key={`${mood}-${idx}-${i}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      duration: 0.4,
+                      duration: 0.35,
                       ease: "easeOut",
-                      delay: 0.2 + i * 0.08,
+                      delay: 0.15 + i * 0.06,
                     }}
-                    className="relative"
+                    className="flex items-start gap-4 rounded-2xl bg-white/65 p-4 ring-1 ring-brand-purple/10 backdrop-blur-sm transition-colors hover:bg-white/85"
                   >
-                    <span className="absolute -left-12 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-[0_2px_6px_-2px_rgba(91,71,160,0.2)]">
+                    <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-purple-dark text-[13px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(61,46,107,0.5)]">
                       {i + 1}
                     </span>
-                    <p className="text-[16px] leading-[1.7] text-brand-purple-dark/85">
+                    <p className="pt-1 text-[16px] leading-[1.55] text-brand-purple-dark/85">
                       {step}
                     </p>
                   </motion.li>
                 ))}
               </ol>
 
-              {/* Divider */}
-              <div className="mx-auto mt-16 h-px w-12 bg-brand-purple/20" />
-
-              {/* Gentle feedback (optional, inline) */}
-              <div className="mt-10">
+              {/* Feedback */}
+              <div className="mt-12">
                 <AnimatePresence mode="wait">
                   {!rated ? (
                     <motion.div
@@ -336,16 +387,16 @@ export default function TryHelpOverlay({
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <p className="text-center text-xs uppercase tracking-[0.2em] text-brand-purple-dark/50">
+                      <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-purple-dark/50">
                         How does that feel?
                       </p>
-                      <div className="mt-5 flex flex-wrap justify-center gap-2">
+                      <div className="mt-4 flex flex-wrap justify-center gap-2">
                         {FEEDBACK_OPTIONS.map(({ key, label, Icon, iconClass }) => (
                           <button
                             key={key}
                             type="button"
                             onClick={() => setRated(key)}
-                            className="group inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-medium text-brand-purple-dark/80 ring-1 ring-brand-purple/15 backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-brand-purple-dark hover:ring-brand-purple/30"
+                            className="inline-flex items-center gap-2 rounded-full bg-white/75 px-4 py-2.5 text-sm font-medium text-brand-purple-dark/80 ring-1 ring-brand-purple/15 backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white"
                           >
                             <Icon className={`h-4 w-4 ${iconClass}`} strokeWidth={2} />
                             {label}
@@ -354,26 +405,27 @@ export default function TryHelpOverlay({
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.p
+                    <motion.div
                       key="thanks"
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="text-center text-[15px] italic leading-relaxed text-brand-purple-dark/75"
+                      className="flex items-center justify-center gap-2 text-[15px] italic text-brand-purple-dark/75"
                     >
-                      Thank you for taking that moment with yourself.
-                    </motion.p>
+                      <Check className="h-4 w-4 text-emerald-500" strokeWidth={2.4} />
+                      Thank you for taking that moment.
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
               {/* Closing actions */}
-              <div className="mt-12 flex flex-col items-center gap-4">
+              <div className="mt-10 flex flex-col items-center gap-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-brand-purple-dark px-6 py-4 text-sm font-medium tracking-wide text-white shadow-[0_10px_28px_-12px_rgba(61,46,107,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:shadow-[0_14px_32px_-12px_rgba(91,71,160,0.55)]"
+                  className="inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-brand-purple-dark px-6 py-4 text-sm font-medium tracking-wide text-white shadow-[0_10px_28px_-12px_rgba(61,46,107,0.55)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple"
                 >
                   Close this
                 </button>
