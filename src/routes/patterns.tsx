@@ -118,9 +118,9 @@ function PatternsPage() {
   const matches = (a: Assessment) =>
     !q ||
     a.name.toLowerCase().includes(q) ||
-    (a.clinicalName?.toLowerCase().includes(q) ?? false) ||
-    (a.shortDescription?.toLowerCase().includes(q) ?? false) ||
-    (a.tags?.some((t) => t.toLowerCase().includes(q)) ?? false);
+    a.clinicalName.toLowerCase().includes(q) ||
+    a.blurb.toLowerCase().includes(q) ||
+    GROUP_LABELS[a.group].title.toLowerCase().includes(q);
   const totalMatches = q ? ASSESSMENTS.filter(matches).length : ASSESSMENTS.length;
 
   const scrollToGroup = (group: PatternGroup) => {
