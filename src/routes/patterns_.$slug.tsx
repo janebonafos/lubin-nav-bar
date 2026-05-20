@@ -841,29 +841,27 @@ function ResultView({
             />
           </button>
           {showAnswers && (
-            <ol className="mt-4 space-y-3">
+            <ol className="mt-4 divide-y divide-brand-purple/10 border-t border-brand-purple/10">
               {assessment.questions.map((q, i) => {
                 const ans = attempt.answers[i];
                 const opt = q.options.find((o) => o.value === ans);
+                const cleanLabel = opt
+                  ? opt.label.replace(/^[^\p{L}\p{N}]+/u, "").trim()
+                  : "—";
                 return (
                   <li
                     key={i}
-                    className="rounded-xl border border-brand-purple/10 bg-brand-lavender/20 p-4"
+                    className="flex items-start gap-3 py-3"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/60">
-                      Question {i + 1}
-                    </p>
-                    <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple-dark">
+                    <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-brand-lavender/60 text-[11.5px] font-semibold text-brand-purple">
+                      {i + 1}
+                    </span>
+                    <p className="flex-1 text-[13.5px] leading-snug text-brand-purple-dark">
                       {q.text}
                     </p>
-                    <p className="mt-2.5 text-[13.5px] text-brand-purple-dark/75">
-                      <span className="text-brand-purple-dark/50">
-                        Your answer:{" "}
-                      </span>
-                      <span className="font-medium text-brand-purple-dark">
-                        {opt ? opt.label : "—"}
-                      </span>
-                    </p>
+                    <span className="ml-2 flex-none text-right text-[13px] font-semibold text-brand-purple">
+                      {cleanLabel}
+                    </span>
                   </li>
                 );
               })}
