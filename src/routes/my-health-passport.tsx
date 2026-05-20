@@ -27,6 +27,11 @@ import {
   Clock,
   ArrowRight,
   PlayCircle,
+  Sun,
+  Zap,
+  Compass,
+  Leaf,
+  HelpCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
@@ -1439,110 +1444,8 @@ function Progress({
 
   return (
     <div className="grid gap-5">
-      {/* 0. Take a check-in */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-brand-lavender/40 p-6 shadow-[0_8px_30px_-12px_rgba(126,107,175,0.18)] ring-1 ring-brand-purple/10">
-        {/* Soft decorative blobs */}
-        <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-16 bottom-0 h-44 w-44 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
-
-        <div className="relative flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/80 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple shadow-sm backdrop-blur-md">
-              <Sparkles className="h-3 w-3" strokeWidth={2.4} />
-              Take a check-in
-            </span>
-            <p className="mt-2.5 text-[15px] font-medium leading-snug text-brand-purple-dark">
-              Short, science-backed checks.
-              <span className="text-brand-purple-dark/55"> Pick whichever feels relevant.</span>
-            </p>
-          </div>
-          <Link
-            to="/patterns"
-            className="hidden sm:inline-flex flex-none items-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
-          >
-            See all 13
-            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </Link>
-        </div>
-
-        <ul className="relative mt-5 grid grid-cols-1 gap-2.5">
-          {ASSESSMENTS.slice(0, 4).map((a, i) => {
-            const attemptsFor = patternAttempts.filter(
-              (x) => x.assessmentId === a.id,
-            );
-            const latest = attemptsFor[0] ?? null;
-            const locked = isLocked(latest);
-            const daysLeft = daysUntilAvailable(latest);
-            const num = String(i + 1).padStart(2, "0");
-            return (
-              <li key={a.id}>
-                <Link
-                  to="/patterns/$slug"
-                  params={{ slug: a.slug }}
-                  className={`group relative flex items-center gap-4 rounded-xl border bg-white/85 px-4 py-3.5 no-underline backdrop-blur-md transition ${
-                    locked
-                      ? "border-white/70 opacity-85"
-                      : "border-white/80 shadow-[0_4px_18px_-12px_rgba(126,107,175,0.35)] hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(126,107,175,0.55)]"
-                  }`}
-                >
-                  <span
-                    className={`flex h-9 w-9 flex-none items-center justify-center rounded-full font-serif text-[13px] ${
-                      locked
-                        ? "bg-brand-lavender/60 text-brand-purple-dark/45"
-                        : "bg-gradient-to-br from-brand-purple/15 to-brand-purple-accent/10 text-brand-purple group-hover:from-brand-purple group-hover:to-brand-purple-dark group-hover:text-white transition-colors"
-                    }`}
-                  >
-                    {num}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[14px] font-semibold text-brand-purple-dark">
-                      {a.name}
-                      <span className="rounded-md bg-brand-lavender/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple/75">
-                        {a.clinicalName}
-                      </span>
-                    </p>
-                    <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-brand-purple-dark/55">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3" strokeWidth={2} />
-                        {a.estMinutes} min
-                      </span>
-                      <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
-                      <span>{a.questions.length} questions</span>
-                      {locked && (
-                        <>
-                          <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
-                          <span className="inline-flex items-center gap-1 text-brand-purple-dark/50">
-                            <Lock className="h-3 w-3" strokeWidth={2} />
-                            {formatDaysRemaining(daysLeft)}
-                          </span>
-                        </>
-                      )}
-                    </p>
-                  </div>
-                  <span
-                    className={`flex-none inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold transition ${
-                      locked
-                        ? "bg-brand-lavender/70 text-brand-purple-dark/50"
-                        : "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)] group-hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {locked ? "Resting" : latest ? "Retake" : "Start"}
-                    {!locked && <PlayCircle className="h-3 w-3" strokeWidth={2.4} />}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-
-        <Link
-          to="/patterns"
-          className="relative mt-4 inline-flex sm:hidden items-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
-        >
-          See all 13 check-ins
-          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-        </Link>
-      </section>
+      {/* 0. Understand yourself better */}
+      <UnderstandYourselfSection patternAttempts={patternAttempts} />
 
       {/* 1. Lubin noticed */}
       <Card>
@@ -1959,5 +1862,165 @@ function ModalShell({
         {children}
       </div>
     </div>
+  );
+}
+
+/* =============================================================
+   Understand yourself better — grouped assessments catalogue
+   ============================================================= */
+
+type GroupKey = "core" | "emotional" | "patterns" | "lifestyle";
+
+const GROUP_ICON: Record<GroupKey, { Icon: typeof Sun; short: string }> = {
+  core: { Icon: Sun, short: "Mood & energy" },
+  emotional: { Icon: Zap, short: "Stress & anxiety" },
+  patterns: { Icon: Compass, short: "Focus & patterns" },
+  lifestyle: { Icon: Leaf, short: "Lifestyle & body" },
+};
+
+function UnderstandYourselfSection({
+  patternAttempts,
+}: {
+  patternAttempts: PatternAttempt[];
+}) {
+  const groupOrder: GroupKey[] = [
+    "core",
+    "emotional",
+    "patterns",
+    "lifestyle",
+  ];
+
+  const grouped = groupOrder
+    .map((g) => ({
+      group: g,
+      items: ASSESSMENTS.filter((a) => a.group === g),
+    }))
+    .filter((g) => g.items.length > 0);
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/55 via-white to-brand-lavender/35 p-6 md:p-8 shadow-[0_18px_50px_-28px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10">
+      {/* Decorative blobs */}
+      <div className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
+
+      {/* Header */}
+      <header className="relative">
+        <h2 className="text-[26px] md:text-[30px] font-bold leading-[1.1] tracking-tight text-brand-purple-dark">
+          Understand yourself better
+        </h2>
+        <p className="mt-2 text-[13.5px] text-brand-purple-dark/60">
+          Private · Saved to your Health Passport · Based on widely used wellbeing tools
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white/80 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple shadow-sm backdrop-blur-md">
+            <Leaf className="h-3.5 w-3.5" strokeWidth={2.2} />
+            {ASSESSMENTS.length} assessments available
+          </span>
+          <Link
+            to="/patterns"
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-purple no-underline hover:text-brand-purple-dark"
+          >
+            <HelpCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
+            How these tools work
+          </Link>
+        </div>
+      </header>
+
+      {/* Grouped catalogue */}
+      <div className="relative mt-8 space-y-9">
+        {grouped.map(({ group, items }) => {
+          const { Icon, short } = GROUP_ICON[group];
+          return (
+            <div key={group}>
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-white/80 text-brand-purple shadow-sm ring-1 ring-brand-purple/10 backdrop-blur-md">
+                  <Icon className="h-4 w-4" strokeWidth={2.2} />
+                </span>
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                  {short}
+                </span>
+                <span className="h-px flex-1 bg-gradient-to-r from-brand-purple/20 to-transparent" />
+              </div>
+
+              <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {items.map((a) => {
+                  const attemptsFor = patternAttempts.filter(
+                    (x) => x.assessmentId === a.id,
+                  );
+                  const latest = attemptsFor[0] ?? null;
+                  const locked = isLocked(latest);
+                  const daysLeft = daysUntilAvailable(latest);
+                  return (
+                    <li key={a.id}>
+                      <Link
+                        to="/patterns/$slug"
+                        params={{ slug: a.slug }}
+                        className={`group relative flex h-full gap-3 rounded-2xl border bg-white/85 p-4 no-underline backdrop-blur-md transition ${
+                          locked
+                            ? "border-white/70 opacity-90"
+                            : "border-white/80 shadow-[0_6px_20px_-14px_rgba(126,107,175,0.4)] hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_16px_34px_-18px_rgba(126,107,175,0.55)]"
+                        }`}
+                      >
+                        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-brand-lavender/70 text-brand-purple">
+                          <Icon className="h-4.5 w-4.5" strokeWidth={2} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[14px] font-semibold leading-snug text-brand-purple-dark">
+                              {a.name}
+                            </p>
+                            <span className="flex-none text-[11.5px] font-medium text-brand-purple-dark/50">
+                              {a.estMinutes} min
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[12.5px] leading-snug text-brand-purple-dark/65 line-clamp-2">
+                            {a.blurb}
+                          </p>
+                          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple-dark/40">
+                              {a.clinicalName}
+                            </span>
+                            {latest && !locked && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700 ring-1 ring-emerald-200">
+                                <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.4} />
+                                Completed
+                              </span>
+                            )}
+                            {locked && (
+                              <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-brand-purple-dark/45">
+                                <Lock className="h-2.5 w-2.5" strokeWidth={2.4} />
+                                {formatDaysRemaining(daysLeft)}
+                              </span>
+                            )}
+                          </div>
+                          {latest && (
+                            <p className="mt-1.5 text-[11.5px] text-brand-purple-dark/45">
+                              Last taken{" "}
+                              {new Date(latest.takenAt).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Bottom CTA */}
+      <Link
+        to="/patterns"
+        className="relative mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-6 py-3.5 text-[14px] font-semibold text-white no-underline shadow-[0_14px_30px_-12px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_-12px_rgba(126,107,175,0.85)]"
+      >
+        Browse all check-ins
+        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+      </Link>
+    </section>
   );
 }
