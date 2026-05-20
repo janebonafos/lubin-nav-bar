@@ -33,6 +33,35 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 
+const ABOUT_COPY: Record<string, string> = {
+  "phq-9":
+    "This check is based on the PHQ-9 — one of the most widely used mood screening tools in the world, developed by Drs. Kroenke and Spitzer. It helps you notice patterns in how your mood and energy have been lately. It's used by doctors and therapists globally as a starting point for understanding low mood.",
+  "who-5":
+    "This check is based on the WHO-5 Wellbeing Index — developed by the World Health Organization. It's one of the simplest and most trusted tools for understanding your general sense of wellbeing. It's used internationally across healthcare settings.",
+  "pss-10":
+    "This check is based on the PSS-10 — a widely used stress measurement tool developed by researchers at Carnegie Mellon University. It helps you understand how much stress you've been carrying over the past month. It's used by health professionals worldwide to help people notice stress patterns.",
+  "gad-7":
+    "This check is based on the GAD-7 — a widely used anxiety screening tool developed and validated in 2006. It helps you understand how anxiety and worry have been showing up in your life recently. It's used by health professionals worldwide to help people recognise anxiety patterns.",
+  "pcl-5":
+    "This check is based on the PCL-5 — developed by the US National Center for PTSD. It helps you notice how past or recent difficult experiences may be affecting you. This check covers some sensitive topics — please go at your own pace and skip anything that feels too much right now.",
+  "oci-r":
+    "This check is based on the OCI-R — a widely used tool to help people notice patterns around intrusive or unwanted thoughts and behaviours. It covers some personal topics — go at your own pace.",
+  "pdss-sr":
+    "This check is based on the PDSS-SR — a self-report tool used to help people understand patterns around panic and intense anxiety episodes.",
+  spin:
+    "This check is based on the SPIN — developed to help people understand patterns around social situations and comfort. It's widely used to help people notice social anxiety patterns.",
+  "sleep-rest":
+    "This is a custom sleep check created by Lubin.AI based on widely recognised sleep quality indicators. It helps you reflect on how your sleep and rest have been affecting you lately.",
+  "asrs-v1-1":
+    "This check is based on the ASRS v1.1 — developed by the World Health Organization to help adults notice patterns around focus, attention, and restlessness. It's not a diagnosis tool — it simply helps surface patterns that might be worth exploring further.",
+  scoff:
+    "This check is based on the SCOFF — a brief screening tool developed to help people reflect on their relationship with food and their body. It covers some sensitive topics — please be gentle with yourself as you go through it.",
+  audit:
+    "This check is based on the AUDIT — developed by the World Health Organization to help people reflect on their relationship with alcohol over the past year. It's used by health professionals globally.",
+  mdq:
+    "This check is based on the MDQ — a screening tool used to help people notice significant patterns in energy, mood, and behaviour. It covers a range of experiences — answer as honestly as you can.",
+};
+
 export const Route = createFileRoute("/patterns_/$slug")({
   head: ({ params }) => {
     const a = ASSESSMENTS_BY_SLUG[params.slug];
