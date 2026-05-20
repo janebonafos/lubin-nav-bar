@@ -42,6 +42,7 @@ import {
 } from "recharts";
 import { loadAttempts } from "@/lib/patterns/storage";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/my-health-passport")({
