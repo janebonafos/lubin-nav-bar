@@ -262,14 +262,14 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
       <main className="px-4 pb-20 pt-6">
         <div className="mx-auto w-full max-w-[760px]">
+          {(phase === "intro" || phase === "questions") && (
+            <IntroView
+              assessment={assessment}
+              onStart={startNow}
+              started={phase === "questions"}
+            />
+          )}
           <AnimatePresence mode="wait">
-            {phase === "intro" && (
-              <IntroView
-                key="intro"
-                assessment={assessment}
-                onStart={startNow}
-              />
-            )}
             {phase === "preparing" && (
               <PreparingView key="preparing" />
             )}
@@ -281,15 +281,16 @@ function Runner({ assessment }: { assessment: Assessment }) {
               />
             )}
             {phase === "questions" && (
-              <QuestionView
-                key={`q-${currentIndex}`}
-                assessment={assessment}
-                index={currentIndex}
-                total={total}
-                selected={answers[currentIndex]}
-                onAnswer={handleAnswer}
-                onBack={goBack}
-              />
+              <div key={`q-${currentIndex}`} className="mt-6">
+                <QuestionView
+                  assessment={assessment}
+                  index={currentIndex}
+                  total={total}
+                  selected={answers[currentIndex]}
+                  onAnswer={handleAnswer}
+                  onBack={goBack}
+                />
+              </div>
             )}
             {phase === "breathing" && (
               <BreathingPause
