@@ -118,7 +118,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const total = assessment.questions.length;
 
   // Bootstrap from storage (browser-only).
-  const [phase, setPhase] = useState<Phase>("questions");
+  const [phase, setPhase] = useState<Phase>("intro");
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null),
   );
@@ -145,8 +145,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
       setPhase("questions");
       return;
     }
-    markIntroSeen(assessment.id);
-    setPhase("questions");
+    setPhase(hasSeenIntro(assessment.id) ? "questions" : "intro");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assessment.id]);
 
@@ -264,17 +263,11 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <main className="px-4 pb-20 pt-6">
         <div className="mx-auto w-full max-w-[760px]">
           <AnimatePresence mode="wait">
-            {(phase === "intro" || phase === "questions") && (
-              <PatternCheckCard
-                key="pattern-card"
-                phase={phase}
+            {phase === "intro" && (
+              <IntroView
+                key="intro"
                 assessment={assessment}
-                index={currentIndex}
-                total={total}
-                selected={answers[currentIndex]}
                 onStart={startNow}
-                onAnswer={handleAnswer}
-                onBack={goBack}
               />
             )}
             {phase === "preparing" && (
@@ -285,6 +278,17 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 key="locked"
                 assessment={assessment}
                 latest={latestLocked}
+              />
+            )}
+            {phase === "questions" && (
+              <QuestionView
+                key={`q-${currentIndex}`}
+                assessment={assessment}
+                index={currentIndex}
+                total={total}
+                selected={answers[currentIndex]}
+                onAnswer={handleAnswer}
+                onBack={goBack}
               />
             )}
             {phase === "breathing" && (
@@ -318,32 +322,16 @@ function Runner({ assessment }: { assessment: Assessment }) {
 // Intro
 // ============================================================
 
-function PatternCheckCard({
-  phase,
+function IntroView({
   assessment,
-  index,
-  total,
-  selected,
   onStart,
-  onAnswer,
-  onBack,
 }: {
-  phase: "intro" | "questions";
   assessment: Assessment;
-  index: number;
-  total: number;
-  selected: number | null;
   onStart: () => void;
-  onAnswer: (value: number) => void;
-  onBack: () => void;
 }) {
-  const q = assessment.questions[index];
-  const pct = Math.round(((index + (selected !== null ? 1 : 0)) / total) * 100);
-
   return (
     <motion.section
       layoutId="pattern-card"
-      layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
@@ -351,7 +339,7 @@ function PatternCheckCard({
       className="relative mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <header className="mb-5 text-center">
+      <header className="mb-5">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
         </span>
@@ -363,7 +351,7 @@ function PatternCheckCard({
         </p>
       </header>
 
-      <div className="mb-6 space-y-3 text-center">
+      <div className="mb-6 space-y-3">
         <p className="text-[15px] leading-relaxed text-brand-purple-dark">
           {assessment.introWhat}
         </p>
@@ -372,7 +360,7 @@ function PatternCheckCard({
         </p>
       </div>
 
-      <dl className="mb-8 flex flex-wrap items-center justify-center gap-y-3 border-y border-brand-lavender py-4">
+      <dl className="mb-6 flex flex-wrap items-center gap-y-3 border-y border-brand-lavender py-4">
         <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
         <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
         <InfoStat
@@ -384,82 +372,22 @@ function PatternCheckCard({
         <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
-          <div className="mt-2 flex items-center gap-4 border-t border-brand-lavender pt-6">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-brand-lavender">
-              <motion.div
-                className="h-full rounded-full bg-brand-purple"
-                initial={false}
-                animate={{ width: `${pct}%` }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-              />
-            </div>
-            <span className="text-[12px] font-medium tabular-nums text-brand-purple-dark/55">
-              {index + 1} / {total}
-            </span>
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-brand-purple">
-              {assessment.name}
-            </p>
-            <h2 className="mx-auto mt-3 max-w-[560px] text-[24px] font-bold leading-[1.3] text-brand-purple-dark md:text-[26px]">
-              {q.text}
-            </h2>
-            {assessment.id === "phq-9" || assessment.id === "gad-7" ? (
-              <p className="mx-auto mt-2 max-w-[440px] text-[13px] text-brand-purple-dark/55">
-                Over the last 2 weeks, how often have you been bothered by this?
-              </p>
-            ) : null}
-          </div>
-
-          <ul className="mx-auto mt-8 grid max-w-[640px] gap-3 sm:grid-cols-2">
-            {q.options.map((opt, i) => {
-              const isSelected = selected === opt.value;
-              return (
-                <li key={i}>
-                  <button
-                    type="button"
-                    onClick={() => onAnswer(opt.value)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-4 text-left transition ${
-                      isSelected
-                        ? "border-brand-purple bg-brand-lavender/70 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
-                        : "border-brand-purple/15 bg-white hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-brand-lavender/30"
-                    }`}
-                  >
-                    <span className="text-[14.5px] font-semibold text-brand-purple-dark">
-                      {opt.label}
-                    </span>
-                    <span
-                      className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
-                        isSelected
-                          ? "border-brand-purple bg-brand-purple"
-                          : "border-brand-purple/30 bg-white"
-                      }`}
-                    >
-                      {isSelected && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                      )}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-8 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={index === 0}
-              className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark disabled:opacity-30 disabled:hover:text-brand-purple-dark/55"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-              Back
-            </button>
-            <p className="text-[12px] text-brand-purple-dark/45">
-              Tap an answer to continue
-            </p>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={onStart}
+          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+        >
+          I'm ready
+          <ArrowRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            strokeWidth={2.2}
+          />
+        </button>
+        <p className="whitespace-nowrap text-[11.5px] leading-relaxed text-brand-purple/70">
+          You can pause or leave at any moment — nothing is saved until you finish.
+        </p>
+      </div>
     </motion.section>
   );
 }
@@ -600,17 +528,15 @@ function QuestionView({
 
   return (
     <motion.section
-      layoutId="pattern-card"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-10"
-      style={{ fontFamily: "Inter, sans-serif" }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="mt-2"
     >
       {/* Progress */}
       <div className="flex items-center gap-4">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-brand-lavender">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/70">
           <motion.div
             className="h-full rounded-full bg-brand-purple"
             initial={false}
@@ -623,68 +549,74 @@ function QuestionView({
         </span>
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-brand-purple">
+      <motion.div
+        layoutId="pattern-card"
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
+        style={{ fontFamily: "Inter, sans-serif" }}
+      >
+        <p className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           {assessment.name}
         </p>
-        <h2 className="mx-auto mt-3 max-w-[560px] text-[24px] font-bold leading-[1.3] text-brand-purple-dark md:text-[26px]">
-          {q.text}
-        </h2>
         {assessment.id === "phq-9" || assessment.id === "gad-7" ? (
-          <p className="mx-auto mt-2 max-w-[440px] text-[13px] text-brand-purple-dark/55">
-            Over the last 2 weeks, how often have you been bothered by this?
+          <p className="mt-2 text-[13px] text-brand-purple-dark/55">
+            Over the last 2 weeks, how often have you been bothered by…
           </p>
         ) : null}
-      </div>
 
-      <ul className="mx-auto mt-8 grid max-w-[640px] gap-3 sm:grid-cols-2">
-        {q.options.map((opt, i) => {
-          const isSelected = selected === opt.value;
-          return (
-            <li key={i}>
-              <button
-                type="button"
-                onClick={() => onAnswer(opt.value)}
-                className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-4 text-left transition ${
-                  isSelected
-                    ? "border-brand-purple bg-brand-lavender/70 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
-                    : "border-brand-purple/15 bg-white hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-brand-lavender/30"
-                }`}
-              >
-                <span className="text-[14.5px] font-semibold text-brand-purple-dark">
-                  {opt.label}
-                </span>
-                <span
-                  className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
+        <h2 className="mt-4 text-[22px] font-semibold leading-[1.35] text-brand-purple-dark md:text-[24px]">
+          {q.text}
+        </h2>
+
+        <ul className="mt-7 space-y-2.5">
+          {q.options.map((opt, i) => {
+            const isSelected = selected === opt.value;
+            return (
+              <li key={i}>
+                <button
+                  type="button"
+                  onClick={() => onAnswer(opt.value)}
+                  className={`flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-left transition ${
                     isSelected
-                      ? "border-brand-purple bg-brand-purple"
-                      : "border-brand-purple/30 bg-white"
+                      ? "border-brand-purple bg-brand-lavender/80 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
+                      : "border-brand-purple/15 bg-white hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-brand-lavender/30"
                   }`}
                 >
-                  {isSelected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                  )}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                  <span className="text-[15px] font-medium text-brand-purple-dark">
+                    {opt.label}
+                  </span>
+                  <span
+                    className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
+                      isSelected
+                        ? "border-brand-purple bg-brand-purple"
+                        : "border-brand-purple/30 bg-white"
+                    }`}
+                  >
+                    {isSelected && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                    )}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={index === 0}
-          className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark disabled:opacity-30 disabled:hover:text-brand-purple-dark/55"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-          Back
-        </button>
-        <p className="text-[12px] text-brand-purple-dark/45">
-          Tap an answer to continue
-        </p>
-      </div>
+        <div className="mt-7 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={index === 0}
+            className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark disabled:opacity-30 disabled:hover:text-brand-purple-dark/55"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Back
+          </button>
+          <p className="text-[12px] text-brand-purple-dark/45">
+            Tap an answer to continue
+          </p>
+        </div>
+      </motion.div>
     </motion.section>
   );
 }
