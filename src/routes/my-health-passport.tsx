@@ -600,12 +600,6 @@ function Overview({
             <p className="mt-3 text-sm text-brand-purple-dark/65">
               Hi there <span className="inline-block animate-pulse">👋</span> — {today}
             </p>
-            <Link
-              to="/chat"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3.5 py-1.5 text-sm font-semibold text-brand-purple no-underline ring-1 ring-brand-purple/15 transition hover:bg-brand-purple/15 hover:-translate-y-0.5"
-            >
-              Talk to Lubin <span aria-hidden>→</span>
-            </Link>
           </div>
         </Card>
         <Card className="relative h-full overflow-hidden bg-gradient-to-br from-white via-white to-brand-purple/[0.04]">
