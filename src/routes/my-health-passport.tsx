@@ -984,7 +984,7 @@ function MoodCalendar({
                       ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40 hover:bg-brand-purple/25 hover:ring-brand-purple cursor-pointer"
                       : isPastDay
                         ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10 cursor-not-allowed"
-                        : "text-brand-purple-dark/55 ring-1 ring-dashed ring-brand-purple/15 cursor-not-allowed"
+                        : "text-brand-purple-dark/55 ring-1 ring-brand-purple/15 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
