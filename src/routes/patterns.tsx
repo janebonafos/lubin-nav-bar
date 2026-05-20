@@ -313,25 +313,26 @@ function PatternsPage() {
               <section
                 key={group}
                 id={`group-${group}`}
-                className="mt-16 scroll-mt-28"
+                className="relative mt-20 scroll-mt-28"
                 data-tick={tick}
               >
-                <div className="flex items-end justify-between gap-4 border-b border-brand-purple/12 pb-4">
-                  <div className="flex items-end gap-4">
-                    <span className="hidden font-serif text-[40px] leading-none text-brand-purple/35 md:inline-block">
-                      {GROUP_ORNAMENT[group]}
-                    </span>
-                    <div>
-                      <h2 className="text-[22px] font-semibold tracking-tight text-brand-purple-dark">
-                        {label.title}
-                      </h2>
-                      <p className="mt-1 text-[14px] text-brand-purple-dark/60">
-                        {label.subtitle}
-                      </p>
-                    </div>
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -left-2 -top-10 select-none text-[88px] font-bold leading-none text-brand-purple/[0.06] md:-left-12"
+                >
+                  {GROUP_ORNAMENT[group]}
+                </span>
+                <div className="relative flex items-end justify-between gap-4 border-b border-brand-purple/15 pb-4">
+                  <div>
+                    <h2 className="text-[22px] font-semibold tracking-tight text-brand-purple-dark">
+                      {label.title}
+                    </h2>
+                    <p className="mt-1 text-[14px] text-brand-purple-dark/60">
+                      {label.subtitle}
+                    </p>
                   </div>
-                  <span className="hidden whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55 md:inline">
-                    {items.length} available
+                  <span className="hidden whitespace-nowrap pb-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-brand-purple/60 md:inline">
+                    {items.length} Available
                   </span>
                 </div>
 
