@@ -31,7 +31,6 @@ import {
   Zap,
   Compass,
   Leaf,
-  HelpCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
