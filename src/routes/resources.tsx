@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
+  Phone,
   PhoneCall,
   MessageCircleHeart,
   MessageCircle,
@@ -130,14 +131,14 @@ function ResourcesPage() {
             <RegionLabel>Philippines</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={PhoneCall}
+                icon={Phone}
                 title="NCMH Crisis Hotline"
                 detail="1553"
                 note="Toll-free • 24/7"
                 href="tel:1553"
               />
               <ResourceRow
-                icon={PhoneCall}
+                icon={Phone}
                 title="In Touch Crisis Line"
                 detail="(02) 8893-7603 • 0917-800-1123"
                 note="24/7 • free & confidential"
@@ -148,14 +149,14 @@ function ResourcesPage() {
             <RegionLabel>United States</RegionLabel>
             <div className="space-y-1">
               <ResourceRow
-                icon={PhoneCall}
+                icon={Phone}
                 title="988 Suicide & Crisis Lifeline"
                 detail="Call or text 988"
                 note="24/7"
                 href="tel:988"
               />
               <ResourceRow
-                icon={PhoneCall}
+                icon={Phone}
                 title="Crisis Text Line"
                 detail="Text HOME to 741741"
                 href="sms:741741?body=HOME"
