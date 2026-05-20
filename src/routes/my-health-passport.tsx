@@ -40,6 +40,9 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import { loadAttempts } from "@/lib/patterns/storage";
+import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
@@ -1409,6 +1412,17 @@ function Progress({
   assessments: Assessment[];
   streak: number;
 }) {
+  const [patternAttempts, setPatternAttempts] = useState<PatternAttempt[]>([]);
+  useEffect(() => {
+    setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+  }, []);
+
+  const assessmentBySlug = useMemo(() => {
+    const map: Record<string, (typeof ASSESSMENTS)[number]> = {};
+    for (const a of ASSESSMENTS) map[a.id] = a;
+    return map;
+  }, []);
+
   const moodSample = [
     { d: "Mon", m: 3 },
     { d: "Tue", m: 3.4 },
@@ -1479,24 +1493,88 @@ function Progress({
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           What you've explored
         </p>
-        <div
-          className="mt-4 flex items-center justify-between rounded-xl bg-brand-lavender/60 px-4 py-3 opacity-40 ring-1 ring-brand-purple/10"
-          aria-hidden
-        >
-          <div>
-            <p className="text-sm font-medium text-brand-purple-dark">
-              Mood Check <span className="text-brand-purple-dark/60">(PHQ-9)</span>
+        {patternAttempts.length === 0 ? (
+          <>
+            <div
+              className="mt-4 flex items-center justify-between rounded-xl bg-brand-lavender/60 px-4 py-3 opacity-40 ring-1 ring-brand-purple/10"
+              aria-hidden
+            >
+              <div>
+                <p className="text-sm font-medium text-brand-purple-dark">
+                  Mood Check <span className="text-brand-purple-dark/60">(PHQ-9)</span>
+                </p>
+                <p className="text-xs text-brand-purple-dark/55">May 14, 2026</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-medium text-brand-purple-dark">Mild</span>
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-brand-purple-dark/60">
+              Each check you complete will live here, ordered by date.
             </p>
-            <p className="text-xs text-brand-purple-dark/55">May 14, 2026</p>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-brand-purple-dark">Mild</span>
-            <TrendingUp className="h-4 w-4 text-emerald-600" />
-          </div>
-        </div>
-        <p className="mt-3 text-sm text-brand-purple-dark/60">
-          Each check you complete will live here, ordered by date.
-        </p>
+            <Link
+              to="/patterns"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              Take a check-in <span aria-hidden>→</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <div className="mt-4 space-y-2">
+              {patternAttempts.slice(0, 6).map((a) => {
+                const meta = assessmentBySlug[a.assessmentId];
+                const slug = meta?.slug ?? a.assessmentId;
+                return (
+                  <Link
+                    key={a.id}
+                    to="/patterns/$slug"
+                    params={{ slug }}
+                    className="flex items-start justify-between gap-4 rounded-xl bg-brand-lavender/60 px-4 py-3 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-brand-purple-dark">
+                        {a.assessmentName}
+                        {meta?.clinicalName ? (
+                          <span className="ml-1 text-brand-purple-dark/55">
+                            ({meta.clinicalName})
+                          </span>
+                        ) : null}
+                      </p>
+                      <p className="mt-0.5 text-xs text-brand-purple-dark/55">
+                        {new Date(a.takenAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p className="mt-1.5 line-clamp-2 text-xs italic text-brand-purple-dark/70">
+                        {a.summary}
+                      </p>
+                    </div>
+                    <div className="flex-none text-right">
+                      <p className="text-base font-semibold tabular-nums text-brand-purple-dark">
+                        {a.score}
+                        {meta ? (
+                          <span className="text-xs font-normal text-brand-purple-dark/55">
+                            /{meta.maxScore}
+                          </span>
+                        ) : null}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <Link
+              to="/patterns"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+            >
+              See all check-ins <span aria-hidden>→</span>
+            </Link>
+          </>
+        )}
       </Card>
 
       {/* 4. Streak */}
