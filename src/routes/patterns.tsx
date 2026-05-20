@@ -213,44 +213,6 @@ function PatternsPage() {
             ))}
           </nav>
 
-          {/* About the screening tools */}
-          <motion.section
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.15, ease: "easeOut" }}
-            aria-labelledby="about-tools-heading"
-            className="mt-10 rounded-2xl border border-[#EFEAFE] bg-white p-6 shadow-sm md:p-7"
-          >
-            <div className="flex items-start gap-4">
-              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F5F3FF] text-brand-purple">
-                <ShieldCheck className="h-4.5 w-4.5" strokeWidth={2} />
-              </span>
-              <div className="min-w-0">
-                <h2
-                  id="about-tools-heading"
-                  className="text-[15px] font-semibold text-brand-purple-dark"
-                >
-                  About these check-ins
-                </h2>
-                <p className="mt-2 text-[13.5px] leading-[1.7] text-brand-purple-dark/70">
-                  Each check uses an internationally recognised screening tool —
-                  like the <span className="font-semibold text-brand-purple-dark">PHQ-9</span> for
-                  mood or <span className="font-semibold text-brand-purple-dark">GAD-7</span> for
-                  anxiety. These are the same tools used by mental health
-                  professionals worldwide. The clinical name is shown so you
-                  can look them up if you're curious — but they've been adapted
-                  into everyday language so they're easy to answer. They help
-                  you understand patterns, not diagnose conditions.
-                </p>
-                <p className="mt-3 border-t border-[#F5F3FF] pt-3 text-[12px] italic leading-[1.65] text-brand-purple-dark/55">
-                  Based on internationally recognised screening tools developed
-                  by organisations like the World Health Organization. Adapted
-                  for everyday use, not intended as clinical diagnoses.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
             <section className="mt-12">
@@ -385,6 +347,54 @@ function PatternsPage() {
               </section>
             );
           })}
+
+          {/* About these check-ins — closing reassurance */}
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            aria-labelledby="about-tools-heading"
+            className="relative mt-24 overflow-hidden rounded-3xl border border-[#EFEAFE] bg-gradient-to-br from-white via-[#FBFAFF] to-[#F5F3FF] p-8 shadow-[0_24px_60px_-32px_rgba(126,107,175,0.35)] md:p-12"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-purple/10 blur-3xl"
+            />
+            <div className="relative grid gap-10 md:grid-cols-[200px_1fr] md:gap-14">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                  <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Trust
+                </span>
+                <h2
+                  id="about-tools-heading"
+                  className="mt-4 text-[22px] font-semibold leading-tight tracking-tight text-brand-purple-dark md:text-[26px]"
+                >
+                  About these check-ins
+                </h2>
+              </div>
+              <div className="md:border-l md:border-brand-purple/15 md:pl-12">
+                <p className="text-[15px] leading-[1.75] text-brand-purple-dark/75">
+                  Each check uses an internationally recognised screening tool —
+                  like the{" "}
+                  <span className="font-semibold text-brand-purple-dark">PHQ-9</span>{" "}
+                  for mood or{" "}
+                  <span className="font-semibold text-brand-purple-dark">GAD-7</span>{" "}
+                  for anxiety. These are the same tools used by mental health
+                  professionals worldwide. The clinical name is shown so you
+                  can look them up if you're curious — but they've been adapted
+                  into everyday language so they're easy to answer. They help
+                  you understand patterns, not diagnose conditions.
+                </p>
+                <p className="mt-6 border-t border-brand-purple/10 pt-5 text-[12.5px] italic leading-[1.7] text-brand-purple-dark/55">
+                  Based on internationally recognised screening tools developed
+                  by organisations like the World Health Organization. Adapted
+                  for everyday use, not intended as clinical diagnoses.
+                </p>
+              </div>
+            </div>
+          </motion.section>
         </div>
       </main>
     </div>
