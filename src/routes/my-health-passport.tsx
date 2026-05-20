@@ -1095,6 +1095,13 @@ function MoodMix({
           );
         })}
       </ul>
+      {total === 0 && (
+        <div className="mt-6 border-t border-brand-purple/10 pt-5">
+          <p className="text-[12px] leading-relaxed text-brand-purple-dark/65">
+            No check-ins yet this month. Your first one will start building this view.
+          </p>
+        </div>
+      )}
       </div>
     </div>
   );
