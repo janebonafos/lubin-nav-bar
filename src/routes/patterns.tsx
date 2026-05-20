@@ -365,66 +365,60 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
 
   return (
     <div
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white/85 p-6 backdrop-blur-md transition ${
+      className={`group flex h-full flex-col rounded-2xl border bg-white p-6 transition-all duration-300 ${
         locked
-          ? "border-white/60 opacity-90"
-          : "border-white/70 shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] hover:-translate-y-1 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_22px_48px_-24px_rgba(126,107,175,0.55)]"
+          ? "border-[#EFEAFE] opacity-90"
+          : "border-[#EFEAFE] shadow-sm hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-purple/10"
       }`}
     >
-      {/* Soft hover glow */}
-      {!locked && (
-        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-      )}
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[16px] font-semibold leading-snug text-brand-purple-dark">
-            {assessment.name}
-          </p>
-          <p className="mt-1 inline-block rounded-md bg-brand-lavender/70 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple/75">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-[17px] font-semibold leading-snug text-brand-purple-dark transition-colors group-hover:text-brand-purple">
+          {assessment.name}
+        </h3>
+        <div className="flex flex-none items-center gap-2">
+          {trend && <TrendBadge direction={trend} />}
+          <span className="rounded-md bg-[#F5F3FF] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
             {assessment.clinicalName}
-          </p>
+          </span>
         </div>
-        {trend && <TrendBadge direction={trend} />}
       </div>
 
-      <p className="relative mt-4 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
+      <p className="mt-3 flex-grow text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
         {assessment.blurb}
       </p>
 
-      <div className="relative mt-4 flex items-center gap-3 text-[12px] text-brand-purple-dark/55">
-        <span className="inline-flex items-center gap-1">
-          <Clock className="h-3.5 w-3.5" strokeWidth={2} />
-          {assessment.estMinutes} min
-        </span>
-        <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
-        <span>{assessment.questions.length} questions</span>
-      </div>
-
       {latest && (
-        <p className="relative mt-4 rounded-xl border border-brand-purple/10 bg-brand-lavender/50 px-3 py-2 text-[12.5px] italic leading-snug text-brand-purple-dark/75">
+        <p className="mt-4 rounded-xl border border-brand-purple/10 bg-brand-lavender/50 px-3 py-2 text-[12.5px] italic leading-snug text-brand-purple-dark/75">
           Last time: {latest.summary}
         </p>
       )}
 
-      <div className="relative mt-auto flex items-center justify-between gap-3 pt-5">
-        {locked ? (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-purple-dark/55">
-            <Lock className="h-3.5 w-3.5" strokeWidth={2} />
-            {formatDaysRemaining(daysLeft)}
-          </span>
-        ) : (
-          <span className="text-[12.5px] text-brand-purple-dark/55">
-            {hasInProgress ? "Saved progress available" : "Ready when you are"}
-          </span>
-        )}
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#F5F3FF] pt-5">
+        <div className="flex items-center gap-3 text-[11.5px] font-medium text-brand-purple">
+          {locked ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" strokeWidth={2} />
+              {formatDaysRemaining(daysLeft)}
+            </span>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" strokeWidth={2} />
+                {assessment.estMinutes} min
+              </span>
+              <span className="h-1 w-1 rounded-full bg-brand-purple/30" />
+              <span>{assessment.questions.length} questions</span>
+            </>
+          )}
+        </div>
 
         <Link
           to="/patterns/$slug"
           params={{ slug: assessment.slug }}
-          className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold no-underline transition ${
+          className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
             locked
               ? "bg-brand-lavender text-brand-purple-dark/60"
-              : "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
+              : "bg-brand-purple-dark text-white hover:bg-brand-purple active:scale-95"
           }`}
         >
           {locked ? "View" : hasInProgress ? "Continue" : "Start"}
