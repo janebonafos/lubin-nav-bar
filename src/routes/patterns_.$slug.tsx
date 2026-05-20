@@ -679,6 +679,47 @@ function ResultView({
   assessment: Assessment;
   attempt: Attempt;
 }) {
+  const [copied, setCopied] = useState(false);
+  const completedDate = new Date(attempt.takenAt);
+  const dateLabel = completedDate.toLocaleDateString(undefined, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const timeLabel = completedDate.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  async function handleShare() {
+    const lines = [
+      `${assessment.name} (${assessment.clinicalName})`,
+      `Completed ${dateLabel} at ${timeLabel}`,
+      `Score: ${attempt.score} / ${assessment.maxScore} ${
+        assessment.lowerIsBetter ? "(lower = lighter)" : "(higher = better)"
+      }`,
+      "",
+      attempt.summary,
+    ].join("\n");
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({
+          title: `${assessment.name} — my check-in`,
+          text: lines,
+        });
+        return;
+      }
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(lines);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2200);
+      }
+    } catch {
+      // user dismissed or share unavailable — silent
+    }
+  }
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
@@ -694,6 +735,17 @@ function ResultView({
         <h1 className="mt-3 text-[28px] font-semibold leading-tight text-brand-purple-dark md:text-[32px]">
           {assessment.name}
         </h1>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/70 px-3 py-1 text-[11.5px] font-semibold text-emerald-700">
+            <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.4} />
+            Completed
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11.5px] font-medium text-brand-purple-dark/70 ring-1 ring-brand-purple/10">
+            <CalendarCheck className="h-3.5 w-3.5 text-brand-purple" strokeWidth={2.2} />
+            {dateLabel} · {timeLabel}
+          </span>
+        </div>
 
         <div className="mt-7 flex items-end gap-4">
           <span className="text-[56px] font-semibold leading-none text-brand-purple-dark tabular-nums">
@@ -715,6 +767,77 @@ function ResultView({
           This isn't a diagnosis. It's a snapshot of one moment — and a useful
           thing to bring into a conversation with someone you trust.
         </p>
+
+        {/* What this means */}
+        <section className="mt-8 rounded-2xl border border-brand-purple/10 bg-white/70 p-5 md:p-6">
+          <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+            What this means
+          </p>
+          <p className="mt-3 text-[14px] leading-[1.65] text-brand-purple-dark/85">
+            {attempt.summary} Your score of{" "}
+            <span className="font-semibold text-brand-purple-dark">
+              {attempt.score}
+            </span>{" "}
+            out of {assessment.maxScore} reflects how you answered today — not
+            who you are. {assessment.lowerIsBetter
+              ? "Lower numbers tend to suggest things are feeling lighter; higher numbers can mean more is sitting with you right now."
+              : "Higher numbers tend to point toward more steadiness; lower numbers can suggest this area could use some care."}{" "}
+            Patterns matter more than any single check — try this again in a
+            couple of weeks to see how things shift.
+          </p>
+        </section>
+
+        {/* What you answered */}
+        <section className="mt-6 rounded-2xl border border-brand-purple/10 bg-white/70 p-5 md:p-6">
+          <div className="flex items-center justify-between">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+              What you answered
+            </p>
+            <span className="text-[11.5px] text-brand-purple-dark/55">
+              {assessment.questions.length} questions
+            </span>
+          </div>
+          <ol className="mt-4 space-y-3">
+            {assessment.questions.map((q, i) => {
+              const ans = attempt.answers[i];
+              const opt = q.options.find((o) => o.value === ans);
+              return (
+                <li
+                  key={i}
+                  className="rounded-xl border border-brand-purple/10 bg-white p-4"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-purple/60">
+                    Question {i + 1}
+                  </p>
+                  <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple-dark">
+                    {q.text}
+                  </p>
+                  <p className="mt-2.5 text-[13.5px] text-brand-purple-dark/75">
+                    <span className="text-brand-purple-dark/50">Your answer: </span>
+                    <span className="font-medium text-brand-purple-dark">
+                      {opt ? opt.label : "—"}
+                    </span>
+                  </p>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+
+        {/* Share */}
+        <div className="mt-6 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+          >
+            <Share2 className="h-4 w-4" strokeWidth={2.2} />
+            {copied ? "Copied to clipboard" : "Share results"}
+          </button>
+          <p className="text-[11.5px] text-brand-purple-dark/55">
+            Only shared when you choose to.
+          </p>
+        </div>
 
         <div className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Link
