@@ -839,6 +839,7 @@ function MoodThisMonth({
             year={view.year}
             month={view.month}
             today={today}
+            onLogToday={onLogToday}
           />
         </>
       ) : (
@@ -862,6 +863,7 @@ function MoodThisMonth({
             year={view.year}
             month={view.month}
             today={today}
+            onLogToday={onLogToday}
           />
 
           {topTopics.length > 0 && (
