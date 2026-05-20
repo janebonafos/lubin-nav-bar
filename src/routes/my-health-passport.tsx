@@ -1053,6 +1053,62 @@ function Metric({
   );
 }
 
+function MoodMix({
+  counts,
+  total,
+}: {
+  counts: Record<MoodKey, number>;
+  total: number;
+}) {
+  const order: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
+  const sorted = [...order].sort((a, b) => counts[b] - counts[a]);
+  return (
+    <div className="rounded-2xl bg-brand-lavender/40 p-4 ring-1 ring-brand-purple/10">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+        Mood mix
+      </p>
+      <p className="mt-0.5 text-[11px] text-brand-purple-dark/45">
+        How your check-ins broke down
+      </p>
+      <ul className="mt-3 space-y-2.5">
+        {sorted.map((m) => {
+          const c = counts[m];
+          const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+          const muted = c === 0;
+          return (
+            <li key={m} className={muted ? "opacity-40" : undefined}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    aria-hidden
+                    className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-brand-purple/20"
+                    style={{ backgroundColor: MOOD_ACCENTS[m] }}
+                  />
+                  <span className="truncate text-xs font-medium text-brand-purple-dark">
+                    {MOOD_LABELS[m]}
+                  </span>
+                </div>
+                <span className="text-[11px] tabular-nums text-brand-purple-dark/60">
+                  {c} · {pct}%
+                </span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: MOOD_ACCENTS[m],
+                  }}
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 function LiveEntry({
   entry,
   pulsing,
