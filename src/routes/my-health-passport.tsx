@@ -1412,6 +1412,17 @@ function Progress({
   assessments: Assessment[];
   streak: number;
 }) {
+  const [patternAttempts, setPatternAttempts] = useState<PatternAttempt[]>([]);
+  useEffect(() => {
+    setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+  }, []);
+
+  const assessmentBySlug = useMemo(() => {
+    const map: Record<string, (typeof ASSESSMENTS)[number]> = {};
+    for (const a of ASSESSMENTS) map[a.id] = a;
+    return map;
+  }, []);
+
   const moodSample = [
     { d: "Mon", m: 3 },
     { d: "Tue", m: 3.4 },
