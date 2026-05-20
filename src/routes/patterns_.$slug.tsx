@@ -263,11 +263,17 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <main className="px-4 pb-20 pt-6">
         <div className="mx-auto w-full max-w-[760px]">
           <AnimatePresence mode="wait">
-            {phase === "intro" && (
-              <IntroView
-                key="intro"
+            {(phase === "intro" || phase === "questions") && (
+              <PatternCheckCard
+                key="pattern-card"
+                phase={phase}
                 assessment={assessment}
+                index={currentIndex}
+                total={total}
+                selected={answers[currentIndex]}
                 onStart={startNow}
+                onAnswer={handleAnswer}
+                onBack={goBack}
               />
             )}
             {phase === "preparing" && (
@@ -278,17 +284,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
                 key="locked"
                 assessment={assessment}
                 latest={latestLocked}
-              />
-            )}
-            {phase === "questions" && (
-              <QuestionView
-                key={`q-${currentIndex}`}
-                assessment={assessment}
-                index={currentIndex}
-                total={total}
-                selected={answers[currentIndex]}
-                onAnswer={handleAnswer}
-                onBack={goBack}
               />
             )}
             {phase === "breathing" && (
@@ -322,16 +317,32 @@ function Runner({ assessment }: { assessment: Assessment }) {
 // Intro
 // ============================================================
 
-function IntroView({
+function PatternCheckCard({
+  phase,
   assessment,
+  index,
+  total,
+  selected,
   onStart,
+  onAnswer,
+  onBack,
 }: {
+  phase: "intro" | "questions";
   assessment: Assessment;
+  index: number;
+  total: number;
+  selected: number | null;
   onStart: () => void;
+  onAnswer: (value: number) => void;
+  onBack: () => void;
 }) {
+  const q = assessment.questions[index];
+  const pct = Math.round(((index + (selected !== null ? 1 : 0)) / total) * 100);
+
   return (
     <motion.section
       layoutId="pattern-card"
+      layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
@@ -339,6 +350,8 @@ function IntroView({
       className="relative mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
+      {phase === "intro" ? (
+        <>
       <header className="mb-5">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
@@ -388,6 +401,87 @@ function IntroView({
           You can pause or leave at any moment — nothing is saved until you finish.
         </p>
       </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-brand-lavender">
+              <motion.div
+                className="h-full rounded-full bg-brand-purple"
+                initial={false}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </div>
+            <span className="text-[12px] font-medium tabular-nums text-brand-purple-dark/55">
+              {index + 1} / {total}
+            </span>
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-brand-purple">
+              {assessment.name}
+            </p>
+            <h2 className="mx-auto mt-3 max-w-[560px] text-[24px] font-bold leading-[1.3] text-brand-purple-dark md:text-[26px]">
+              {q.text}
+            </h2>
+            {assessment.id === "phq-9" || assessment.id === "gad-7" ? (
+              <p className="mx-auto mt-2 max-w-[440px] text-[13px] text-brand-purple-dark/55">
+                Over the last 2 weeks, how often have you been bothered by this?
+              </p>
+            ) : null}
+          </div>
+
+          <ul className="mx-auto mt-8 grid max-w-[640px] gap-3 sm:grid-cols-2">
+            {q.options.map((opt, i) => {
+              const isSelected = selected === opt.value;
+              return (
+                <li key={i}>
+                  <button
+                    type="button"
+                    onClick={() => onAnswer(opt.value)}
+                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-4 text-left transition ${
+                      isSelected
+                        ? "border-brand-purple bg-brand-lavender/70 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
+                        : "border-brand-purple/15 bg-white hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-brand-lavender/30"
+                    }`}
+                  >
+                    <span className="text-[14.5px] font-semibold text-brand-purple-dark">
+                      {opt.label}
+                    </span>
+                    <span
+                      className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
+                        isSelected
+                          ? "border-brand-purple bg-brand-purple"
+                          : "border-brand-purple/30 bg-white"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-8 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={onBack}
+              disabled={index === 0}
+              className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-brand-purple-dark/55 transition hover:text-brand-purple-dark disabled:opacity-30 disabled:hover:text-brand-purple-dark/55"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
+              Back
+            </button>
+            <p className="text-[12px] text-brand-purple-dark/45">
+              Tap an answer to continue
+            </p>
+          </div>
+        </>
+      )}
     </motion.section>
   );
 }
