@@ -47,12 +47,6 @@ export const Route = createFileRoute("/patterns_/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
       ],
-      links: [
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Lora:wght@600;700&display=swap",
-        },
-      ],
     };
   },
   component: PatternRunPage,
@@ -342,33 +336,43 @@ function IntroView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="mt-6 rounded-[32px] border border-white bg-white p-10 shadow-[0_20px_50px_rgba(126,107,175,0.08)] md:p-12"
+      className="relative mx-auto mt-8 max-w-[520px] overflow-hidden rounded-[28px] bg-white p-7 shadow-[0_20px_50px_rgba(126,107,175,0.10)] md:p-9"
+      style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <header className="mb-8">
+      {/* Triangle accent */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rotate-45 bg-gradient-to-br from-brand-purple/15 to-brand-purple/0"
+        style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-6 -bottom-6 h-20 w-20 bg-brand-purple/5"
+        style={{ clipPath: "polygon(0 100%, 100% 100%, 0 0)" }}
+      />
+
+      <header className="relative mb-6">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
         </span>
-        <h1
-          style={{ fontFamily: "'Lora', Georgia, serif" }}
-          className="mt-3 text-4xl font-semibold leading-[1.1] text-brand-purple-dark"
-        >
+        <h1 className="mt-2 text-[28px] font-bold leading-[1.1] tracking-tight text-brand-purple-dark md:text-[32px]">
           {assessment.name}
         </h1>
-        <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-brand-purple/60">
+        <p className="mt-1.5 text-[10.5px] font-bold uppercase tracking-widest text-brand-purple/60">
           Based on the {assessment.clinicalName}
         </p>
       </header>
 
-      <div className="mb-10 space-y-4">
-        <p className="text-lg leading-relaxed text-brand-purple-dark">
+      <div className="relative mb-7 space-y-3">
+        <p className="text-[15px] leading-relaxed text-brand-purple-dark">
           {assessment.introWhat}
         </p>
-        <p className="text-base leading-relaxed text-brand-purple">
+        <p className="text-[14px] leading-relaxed text-brand-purple">
           {assessment.introWhy}
         </p>
       </div>
 
-      <dl className="mb-10 flex flex-wrap items-center gap-y-4 border-y border-brand-lavender py-6">
+      <dl className="relative mb-7 flex flex-wrap items-center gap-y-3 border-y border-brand-lavender py-4">
         <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
         <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
         <InfoStat
@@ -380,11 +384,11 @@ function IntroView({
         <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={onStart}
-          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-10 py-4 text-center text-[15px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-8 py-3.5 text-center text-[14.5px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
         >
           I'm ready
           <ArrowRight
@@ -392,7 +396,7 @@ function IntroView({
             strokeWidth={2.2}
           />
         </button>
-        <p className="max-w-[240px] text-xs leading-relaxed text-brand-purple/70">
+        <p className="max-w-[220px] text-[11.5px] leading-relaxed text-brand-purple/70">
           You can pause or leave at any moment — nothing is saved until you finish.
         </p>
       </div>
