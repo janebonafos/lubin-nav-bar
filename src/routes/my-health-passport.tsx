@@ -937,7 +937,7 @@ function MoodCalendar({
   const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
 
   return (
-    <div className="mt-5">
+    <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
           Mood calendar
