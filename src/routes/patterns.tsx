@@ -230,30 +230,19 @@ function PatternsPage() {
             ))}
           </nav>
 
-          {/* Timing guide — quiet collapsible to explain cooldown cadence */}
-          <motion.section
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.15, ease: "easeOut" }}
-            className="mx-auto mt-6 w-full max-w-[680px] overflow-hidden rounded-2xl border border-white/70 bg-white/60 backdrop-blur-md"
-          >
+          {/* Timing guide — quiet inline disclosure (text link) so it doesn't compete with the search */}
+          <div className="mx-auto mt-4 w-full max-w-[680px] text-center">
             <button
               type="button"
               onClick={() => setTimingOpen((v) => !v)}
               aria-expanded={timingOpen}
               aria-controls="timing-guide"
-              className="flex w-full items-center justify-between gap-4 px-5 py-3.5 text-left"
+              className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-purple-dark/60 transition hover:text-brand-purple-dark"
             >
-              <span className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
-                  <Clock3 className="h-3.5 w-3.5" strokeWidth={2.2} />
-                </span>
-                <span className="text-[13.5px] font-semibold text-brand-purple-dark">
-                  Why timing your check-ins matters
-                </span>
-              </span>
+              <Clock3 className="h-3.5 w-3.5" strokeWidth={2} />
+              Why timing your check-ins matters
               <ChevronDown
-                className={`h-4 w-4 flex-none text-brand-purple-dark/60 transition-transform duration-300 ${
+                className={`h-3.5 w-3.5 transition-transform duration-300 ${
                   timingOpen ? "rotate-180" : "rotate-0"
                 }`}
                 strokeWidth={2}
@@ -262,12 +251,12 @@ function PatternsPage() {
 
             <div
               id="timing-guide"
-              className={`grid transition-all duration-300 ease-out ${
-                timingOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              className={`grid text-left transition-all duration-300 ease-out ${
+                timingOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
             >
               <div className="overflow-hidden">
-                <div className="px-5 pb-5 pt-1">
+                <div className="rounded-2xl border border-brand-purple/10 bg-white/40 px-5 py-4 backdrop-blur-sm">
                   <p className="text-[13px] leading-[1.65] text-brand-purple-dark/70">
                     These tools measure how you've been feeling over a specific
                     period — usually the last 2 weeks. Taking the same check-in
@@ -275,7 +264,7 @@ function PatternsPage() {
                     doesn't give you a true picture of change.
                   </p>
 
-                  <ul className="mt-4 divide-y divide-brand-purple/10 rounded-xl border border-brand-purple/10 bg-white/70">
+                  <ul className="mt-4 divide-y divide-brand-purple/10 overflow-hidden rounded-xl border border-brand-purple/10 bg-white/70">
                     {[
                       {
                         title: "Mood Check and Wellbeing Check",
@@ -318,7 +307,7 @@ function PatternsPage() {
                 </div>
               </div>
             </div>
-          </motion.section>
+          </div>
 
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
