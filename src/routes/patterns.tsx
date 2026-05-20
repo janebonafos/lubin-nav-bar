@@ -11,6 +11,8 @@ import {
   TrendingDown,
   Minus,
   ShieldCheck,
+  Search,
+  X,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -66,6 +68,7 @@ const GROUP_ORNAMENT: Record<PatternGroup, string> = {
 function PatternsPage() {
   // Bump on focus / visibility so locked timers and completion state refresh.
   const [tick, setTick] = useState(0);
+  const [query, setQuery] = useState("");
   useEffect(() => {
     const onFocus = () => setTick((t) => t + 1);
     window.addEventListener("focus", onFocus);
@@ -110,6 +113,15 @@ function PatternsPage() {
     typeof window === "undefined"
       ? ASSESSMENTS.length
       : ASSESSMENTS.filter((a) => !isLocked(getLatestAttempt(a.id))).length;
+
+  const q = query.trim().toLowerCase();
+  const matches = (a: Assessment) =>
+    !q ||
+    a.name.toLowerCase().includes(q) ||
+    a.clinicalName.toLowerCase().includes(q) ||
+    a.blurb.toLowerCase().includes(q) ||
+    GROUP_LABELS[a.group].title.toLowerCase().includes(q);
+  const totalMatches = q ? ASSESSMENTS.filter(matches).length : ASSESSMENTS.length;
 
   const scrollToGroup = (group: PatternGroup) => {
     const el = document.getElementById(`group-${group}`);
@@ -156,38 +168,40 @@ function PatternsPage() {
             </p>
           </motion.header>
 
-          {/* Availability signpost — make it obvious any assessment can be taken */}
+          {/* Search — find a check-in by name, topic, or clinical tool */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
-            className="mx-auto mt-10 flex w-full max-w-[680px] flex-col items-stretch gap-3 rounded-2xl border border-white/60 bg-white/75 p-4 shadow-[0_18px_50px_-28px_rgba(126,107,175,0.45)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:gap-5"
+            className="mx-auto mt-10 w-full max-w-[680px]"
           >
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)]">
-                <PlayCircle className="h-4.5 w-4.5" strokeWidth={2} />
-                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
+            <div className="group relative flex items-center gap-3 rounded-2xl border border-white/60 bg-white/80 px-4 py-3 shadow-[0_18px_50px_-28px_rgba(126,107,175,0.45)] backdrop-blur-md transition focus-within:border-brand-purple/40 focus-within:shadow-[0_22px_56px_-26px_rgba(126,107,175,0.6)]">
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/15 to-brand-purple/5 text-brand-purple">
+                <Search className="h-4 w-4" strokeWidth={2.2} />
               </span>
-              <div className="min-w-0">
-                <p className="text-[14px] font-semibold text-brand-purple-dark">
-                  {availableNow} of {ASSESSMENTS.length} check-ins ready to take
-                </p>
-                <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/65">
-                  Pick any one below — there's no required order.
-                </p>
-              </div>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search check-ins — try ‘mood’, ‘sleep’, or ‘PHQ-9’"
+                aria-label="Search check-ins"
+                className="min-w-0 flex-1 bg-transparent text-[14px] text-brand-purple-dark placeholder:text-brand-purple-dark/45 focus:outline-none"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-brand-purple-dark/55 transition hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </button>
+              )}
             </div>
-            <a
-              href="#group-core"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToGroup("core");
-              }}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
-            >
-              Browse check-ins
-              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-            </a>
+            <p className="mt-2.5 text-center text-[12px] text-brand-purple-dark/55">
+              {q
+                ? `${totalMatches} ${totalMatches === 1 ? "match" : "matches"} for “${query}”`
+                : `${availableNow} of ${ASSESSMENTS.length} check-ins ready to take — pick any one, there's no required order.`}
+            </p>
           </motion.div>
 
           {/* Quick jump-to group chips */}
@@ -308,7 +322,8 @@ function PatternsPage() {
 
           {/* Groups */}
           {GROUP_ORDER.map((group) => {
-            const items = ASSESSMENTS.filter((a) => a.group === group);
+            const items = ASSESSMENTS.filter((a) => a.group === group && matches(a));
+            if (items.length === 0) return null;
             const label = GROUP_LABELS[group];
             return (
               <section
