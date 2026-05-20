@@ -868,7 +868,7 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1.5">
+      <div className="mt-3 grid grid-cols-7 gap-1.5 max-w-[560px]">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
