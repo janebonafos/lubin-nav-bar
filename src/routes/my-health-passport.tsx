@@ -704,6 +704,7 @@ function Overview({
                     setExpandedId((c) => (c === entry.id ? null : entry.id))
                   }
                   onEdit={() => handleEdit(entry.id)}
+                  onTryHelp={() => setHelpMood(entry.mood)}
                 />
               ))}
             </AnimatePresence>
