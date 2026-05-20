@@ -155,7 +155,7 @@ function ResourcesPage() {
                 href="tel:988"
               />
               <ResourceRow
-                icon={MessageCircleHeart}
+                icon={PhoneCall}
                 title="Crisis Text Line"
                 detail="Text HOME to 741741"
                 href="sms:741741?body=HOME"
