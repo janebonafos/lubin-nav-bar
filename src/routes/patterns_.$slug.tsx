@@ -964,16 +964,16 @@ function SupportCard({ crisis }: { crisis: boolean }) {
     <div
       className={`mt-5 rounded-3xl p-6 md:p-8 ${
         crisis
-          ? "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_28px_90px_-30px_rgba(126,107,175,0.7)] ring-2 ring-brand-purple/40"
+          ? "bg-[#FFF4B8] text-brand-purple-dark shadow-[0_24px_70px_-30px_rgba(214,180,40,0.55)] ring-2 ring-[#E8C547]/60"
           : "bg-white ring-1 ring-brand-purple/10 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)]"
       }`}
     >
       {crisis && (
         <div className="mb-6">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-white">
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple-dark/10 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple-dark">
             <span aria-hidden>💜</span> A gentle, urgent note
           </p>
-          <p className="mt-3 text-[17px] font-medium leading-[1.5] text-white md:text-[18px]">
+          <p className="mt-3 text-[17px] font-medium leading-[1.5] text-brand-purple-dark md:text-[18px]">
             Your answers suggest you're carrying something really heavy right
             now. Please reach out — you don't have to do this alone.
           </p>
@@ -981,7 +981,7 @@ function SupportCard({ crisis }: { crisis: boolean }) {
       )}
       <p
         className={`text-[10.5px] font-semibold uppercase tracking-[0.2em] ${
-          crisis ? "text-white/80" : "text-brand-purple"
+          crisis ? "text-brand-purple-dark/70" : "text-brand-purple"
         }`}
       >
         Need urgent help?
@@ -992,12 +992,12 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             href="tel:2919"
             className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
               crisis
-                ? "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
                 : "text-brand-purple-dark hover:bg-brand-lavender/40"
             }`}
           >
             <span>📞 Hopeline PH</span>
-            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>2919</span>
+            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>2919</span>
           </a>
         </li>
         <li>
@@ -1005,12 +1005,12 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             href="tel:1553"
             className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
               crisis
-                ? "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
                 : "text-brand-purple-dark hover:bg-brand-lavender/40"
             }`}
           >
             <span>📞 NCMH</span>
-            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>1553</span>
+            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>1553</span>
           </a>
         </li>
         <li>
@@ -1020,12 +1020,12 @@ function SupportCard({ crisis }: { crisis: boolean }) {
             rel="noreferrer"
             className={`flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-[14px] no-underline transition ${
               crisis
-                ? "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-white/60 text-brand-purple-dark hover:bg-white/90"
                 : "text-brand-purple-dark hover:bg-brand-lavender/40"
             }`}
           >
             <span>🌐 findahelpline.com</span>
-            <span className={`font-semibold ${crisis ? "text-white" : "text-brand-purple"}`}>Visit →</span>
+            <span className={`font-semibold ${crisis ? "text-brand-purple-dark" : "text-brand-purple"}`}>Visit →</span>
           </a>
         </li>
       </ul>
