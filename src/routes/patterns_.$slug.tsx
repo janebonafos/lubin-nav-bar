@@ -336,22 +336,10 @@ function IntroView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="relative mx-auto mt-8 max-w-[520px] overflow-hidden rounded-[28px] bg-white p-7 shadow-[0_20px_50px_rgba(126,107,175,0.10)] md:p-9"
+      className="relative mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      {/* Triangle accent */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rotate-45 bg-gradient-to-br from-brand-purple/15 to-brand-purple/0"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-6 -bottom-6 h-20 w-20 bg-brand-purple/5"
-        style={{ clipPath: "polygon(0 100%, 100% 100%, 0 0)" }}
-      />
-
-      <header className="relative mb-6">
+      <header className="mb-5">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
         </span>
@@ -363,7 +351,7 @@ function IntroView({
         </p>
       </header>
 
-      <div className="relative mb-7 space-y-3">
+      <div className="mb-6 space-y-3">
         <p className="text-[15px] leading-relaxed text-brand-purple-dark">
           {assessment.introWhat}
         </p>
@@ -372,7 +360,7 @@ function IntroView({
         </p>
       </div>
 
-      <dl className="relative mb-7 flex flex-wrap items-center gap-y-3 border-y border-brand-lavender py-4">
+      <dl className="mb-6 flex flex-wrap items-center gap-y-3 border-y border-brand-lavender py-4">
         <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
         <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
         <InfoStat
@@ -384,7 +372,7 @@ function IntroView({
         <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={onStart}
