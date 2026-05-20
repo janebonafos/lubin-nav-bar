@@ -749,7 +749,7 @@ function MoodThisMonth({
   });
   const viewDate = new Date(view.year, view.month, 1);
   const monthName = viewDate.toLocaleString(undefined, { month: "long" });
-  const yearLabel = view.year !== today.getFullYear() ? ` ${view.year}` : "";
+  const yearLabel = ` ${view.year}`;
   const isCurrentMonth =
     view.year === today.getFullYear() && view.month === today.getMonth();
   const inMonth = entries.filter((e) => {
