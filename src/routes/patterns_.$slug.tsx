@@ -996,59 +996,53 @@ function SupportCard({ crisis }: { crisis: boolean }) {
       </p>
 
       <div className="mt-4 space-y-4">
-        <div>
+        {[
+          {
+            href: "tel:2919",
+            title: "Hopeline PH — 2919",
+            desc: "24/7 emotional support and crisis intervention in the Philippines.",
+            external: false,
+          },
+          {
+            href: "tel:1553",
+            title: "NCMH Crisis Hotline — 1553",
+            desc: "National Center for Mental Health — toll-free across the country.",
+            external: false,
+          },
+          {
+            href: "https://findahelpline.com",
+            title: "findahelpline.com",
+            desc: "Find a free, confidential helpline anywhere in the world.",
+            external: true,
+          },
+        ].map((h) => (
           <a
-            href="tel:2919"
-            className={`text-[14px] font-bold no-underline ${
-              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
+            key={h.title}
+            href={h.href}
+            {...(h.external ? { target: "_blank", rel: "noreferrer" } : {})}
+            className={`group -mx-3 block rounded-2xl px-3 py-2.5 no-underline ring-1 transition-all duration-200 hover:-translate-y-0.5 ${
+              crisis
+                ? "ring-transparent hover:bg-white/70 hover:ring-[#E8C547]/60 hover:shadow-[0_10px_30px_-18px_rgba(214,180,40,0.55)]"
+                : "ring-transparent hover:bg-brand-lavender/40 hover:ring-brand-purple/20 hover:shadow-[0_10px_30px_-18px_rgba(126,107,175,0.4)]"
             }`}
           >
-            Hopeline PH — 2919
+            <p
+              className={`text-[14px] font-bold underline-offset-4 group-hover:underline ${
+                crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
+              }`}
+            >
+              {h.title}
+              <span aria-hidden className="ml-1 inline-block transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+            </p>
+            <p
+              className={`mt-0.5 text-[13.5px] leading-[1.55] ${
+                crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
+              }`}
+            >
+              {h.desc}
+            </p>
           </a>
-          <p
-            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
-              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
-            }`}
-          >
-            24/7 emotional support and crisis intervention in the Philippines.
-          </p>
-        </div>
-        <div>
-          <a
-            href="tel:1553"
-            className={`text-[14px] font-bold no-underline ${
-              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
-            }`}
-          >
-            NCMH Crisis Hotline — 1553
-          </a>
-          <p
-            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
-              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
-            }`}
-          >
-            National Center for Mental Health — toll-free across the country.
-          </p>
-        </div>
-        <div>
-          <a
-            href="https://findahelpline.com"
-            target="_blank"
-            rel="noreferrer"
-            className={`text-[14px] font-bold no-underline ${
-              crisis ? "text-[#3d2810]" : "text-brand-purple-dark"
-            }`}
-          >
-            findahelpline.com
-          </a>
-          <p
-            className={`mt-0.5 text-[13.5px] leading-[1.55] ${
-              crisis ? "text-[#5a3d1f]/85" : "text-brand-purple-dark/70"
-            }`}
-          >
-            Find a free, confidential helpline anywhere in the world.
-          </p>
-        </div>
+        ))}
       </div>
 
       <a
