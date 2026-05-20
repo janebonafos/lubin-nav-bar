@@ -477,7 +477,6 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
           }`}
         >
           {locked ? "View" : hasInProgress ? "Continue" : "Start"}
-          {!locked && <PlayCircle className="h-3.5 w-3.5" strokeWidth={2.2} />}
         </Link>
       </div>
     </div>
