@@ -842,12 +842,17 @@ function MoodThisMonth({
       ) : (
         <>
           <div className="mt-4 grid grid-cols-3 gap-3">
-            <Metric label="Check-ins" value={String(total)} />
+            <Metric label="Check-ins" value={String(total)} muted={total === 0} />
             <Metric
               label="Most felt"
               value={topMood ? MOOD_LABELS[topMood] : "—"}
+              muted={total === 0}
             />
-            <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+            <Metric
+              label="Avg intensity"
+              value={`${avgIntensity}/5`}
+              muted={total === 0}
+            />
           </div>
 
           <MoodCalendar
