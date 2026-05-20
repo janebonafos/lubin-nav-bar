@@ -153,7 +153,7 @@ function PassportPage() {
   return (
     <div className="min-h-screen bg-brand-lavender" style={{ fontFamily: "Inter, sans-serif" }}>
       <Navbar />
-      <main className="mx-auto w-full max-w-[900px] px-5 md:px-10 pt-32 pb-20">
+      <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
         {/* Guest nudge banner */}
         <GuestBanner />
 
