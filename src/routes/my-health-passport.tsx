@@ -49,7 +49,7 @@ import {
   Tooltip,
 } from "recharts";
 import { loadAttempts } from "@/lib/patterns/storage";
-import { ASSESSMENTS, GROUP_LABELS } from "@/lib/patterns/assessments";
+import { ASSESSMENTS } from "@/lib/patterns/assessments";
 import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
 
@@ -1869,24 +1869,21 @@ function ModalShell({
    Understand yourself better — grouped assessments catalogue
    ============================================================= */
 
-const GROUP_ICON: Record<
-  keyof typeof GROUP_LABELS,
-  { Icon: typeof Sun; short: string }
-> = {
+type GroupKey = "core" | "emotional" | "patterns" | "lifestyle";
+
+const GROUP_ICON: Record<GroupKey, { Icon: typeof Sun; short: string }> = {
   core: { Icon: Sun, short: "Mood & energy" },
   emotional: { Icon: Zap, short: "Stress & anxiety" },
   patterns: { Icon: Compass, short: "Focus & patterns" },
   lifestyle: { Icon: Leaf, short: "Lifestyle & body" },
 };
 
-const ASSESSMENT_ICONS: Record<string, typeof Sun> = {};
-
 function UnderstandYourselfSection({
   patternAttempts,
 }: {
   patternAttempts: PatternAttempt[];
 }) {
-  const groupOrder: Array<keyof typeof GROUP_LABELS> = [
+  const groupOrder: GroupKey[] = [
     "core",
     "emotional",
     "patterns",
