@@ -873,6 +873,8 @@ function ResultView({
 
       </div>
 
+      <SupportCard crisis={isCrisisResult(assessment, attempt)} />
+
       <div className="mt-5 rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
         <p className="text-[15px] font-semibold text-brand-purple-dark">
           What you can do with this
@@ -953,8 +955,6 @@ function ResultView({
           </li>
         </ul>
       </div>
-
-      <SupportCard crisis={isCrisisResult(assessment, attempt)} />
     </motion.section>
   );
 }
