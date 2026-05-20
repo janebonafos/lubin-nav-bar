@@ -647,10 +647,11 @@ function Overview({
         )}
       </AnimatePresence>
 
-      {/* Bottom row: mood-this-month + recent check-ins side by side */}
-      <div className="grid gap-5 lg:grid-cols-5 lg:items-stretch">
-        <MoodThisMonth entries={liveEntries} className="lg:col-span-2 h-full" />
-        <Card className="lg:col-span-3 h-full">
+      {/* Mood this month — full width */}
+      <MoodThisMonth entries={liveEntries} />
+
+      {/* Recent check-ins — full width */}
+      <Card>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
           Recent check-ins
         </p>
@@ -695,8 +696,7 @@ function Overview({
             </p>
           </>
         )}
-        </Card>
-      </div>
+      </Card>
 
       {/* Soft anchor CTA */}
       <Link
