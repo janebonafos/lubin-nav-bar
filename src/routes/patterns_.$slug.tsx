@@ -668,6 +668,44 @@ function QuestionView({
 // Result
 // ============================================================
 
+function isCrisisResult(assessment: Assessment, attempt: Attempt): boolean {
+  const score = attempt.score;
+  const answers = attempt.answers;
+  switch (assessment.id) {
+    case "phq-9":
+      return score >= 20 || (answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
+    case "who-5":
+      // WHO-5 scaled score = raw * 4. Crisis when scaled ≤ 28 (raw ≤ 7).
+      return score * 4 <= 28;
+    case "mdq":
+      return score >= 7;
+    case "pss-10":
+      return score >= 27;
+    case "gad-7":
+      return score >= 15;
+    case "pcl-5":
+      return score >= 33;
+    case "oci-r":
+      return score >= 21;
+    case "pdss-sr":
+      return score >= 15;
+    case "spin":
+      return score >= 41;
+    case "sleep-rest":
+      // Higher = better, max 24. "Severe" = bottom band (ratio < 0.25).
+      return score <= 6;
+    case "asrs-6":
+      // 4 or more items marked "Sometimes" (value 2) or higher.
+      return answers.filter((v) => (v ?? 0) >= 2).length >= 4;
+    case "scoff":
+      return score >= 2;
+    case "audit":
+      return score >= 16;
+    default:
+      return false;
+  }
+}
+
 function ResultView({
   assessment,
   attempt,
