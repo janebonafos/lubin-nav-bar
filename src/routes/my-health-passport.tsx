@@ -1051,7 +1051,7 @@ function MoodMix({
   const order: MoodKey[] = ["calm", "okay", "drained", "stressed", "anxious", "low"];
   const sorted = [...order].sort((a, b) => counts[b] - counts[a]);
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/60 via-brand-lavender/30 to-white/40 p-6 ring-1 ring-brand-purple/10 shadow-[0_8px_24px_-12px_rgba(123,104,199,0.25)] backdrop-blur-sm">
+    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-brand-lavender/60 via-brand-lavender/30 to-white/40 p-6 ring-1 ring-brand-purple/10 shadow-[0_8px_24px_-12px_rgba(123,104,199,0.25)] backdrop-blur-sm">
       <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/15 blur-2xl" />
       <div className="relative">
       <p className="text-[12px] font-bold tracking-tight text-brand-purple-dark">
