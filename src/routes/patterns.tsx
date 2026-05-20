@@ -29,6 +29,7 @@ import {
   getLatestAttempt,
   listAllInProgress,
   loadInProgress,
+  loadAttempts,
 } from "@/lib/patterns/storage";
 import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/types";
 
@@ -76,6 +77,32 @@ function PatternsPage() {
 
   const inProgressAll =
     typeof window === "undefined" ? [] : listAllInProgress(ASSESSMENT_IDS);
+
+  // Build a per-assessment history (number of attempts + in-progress flag).
+  const history =
+    typeof window === "undefined"
+      ? []
+      : (() => {
+          const all = loadAttempts();
+          const counts = new Map<string, number>();
+          for (const a of all) {
+            counts.set(a.assessmentId, (counts.get(a.assessmentId) ?? 0) + 1);
+          }
+          const inProgressIds = new Set(
+            listAllInProgress(ASSESSMENT_IDS).map((ip) => ip.assessmentId),
+          );
+          const ids = new Set<string>([...counts.keys(), ...inProgressIds]);
+          return Array.from(ids)
+            .map((id) => {
+              const a = ASSESSMENTS.find((x) => x.id === id);
+              if (!a) return null;
+              const attempts = counts.get(id) ?? 0;
+              const inProgress = inProgressIds.has(id);
+              return { assessment: a, attempts, inProgress };
+            })
+            .filter((x): x is { assessment: Assessment; attempts: number; inProgress: boolean } => !!x)
+            .sort((a, b) => b.attempts - a.attempts);
+        })();
 
   // Count how many check-ins are available to take right now (not in cooldown).
   const availableNow =
@@ -226,6 +253,55 @@ function PatternsPage() {
                   );
                 })}
               </div>
+            </section>
+          )}
+
+          {/* Your check-in history */}
+          {history.length > 0 && (
+            <section className="mt-12" data-tick={tick}>
+              <h2 className="text-[20px] font-semibold tracking-tight text-brand-purple-dark">
+                Your check-in history
+              </h2>
+              <p className="mt-1 text-[13.5px] text-brand-purple-dark/60">
+                Checks you've started or completed, saved privately to your passport.
+              </p>
+              <ul className="mt-5 space-y-3">
+                {history.map(({ assessment: a, attempts, inProgress }) => (
+                  <li key={a.id}>
+                    <Link
+                      to="/patterns/$slug"
+                      params={{ slug: a.slug }}
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgba(126,107,175,0.5)]"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-semibold text-brand-purple-dark">
+                          {a.name}
+                        </p>
+                        <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/55">
+                          {attempts === 0
+                            ? "Just started"
+                            : `${attempts} ${attempts === 1 ? "attempt" : "attempts"}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`rounded-full px-3 py-1 text-[11.5px] font-semibold ${
+                            inProgress
+                              ? "bg-brand-lavender text-brand-purple"
+                              : "bg-brand-purple/10 text-brand-purple-dark"
+                          }`}
+                        >
+                          {inProgress ? "In Progress" : "Completed"}
+                        </span>
+                        <ArrowRight
+                          className="h-4 w-4 text-brand-purple/60 transition-transform group-hover:translate-x-0.5"
+                          strokeWidth={2}
+                        />
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 
