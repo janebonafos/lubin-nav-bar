@@ -70,6 +70,17 @@ function PatternsPage() {
   const inProgressAll =
     typeof window === "undefined" ? [] : listAllInProgress(ASSESSMENT_IDS);
 
+  // Count how many check-ins are available to take right now (not in cooldown).
+  const availableNow =
+    typeof window === "undefined"
+      ? ASSESSMENTS.length
+      : ASSESSMENTS.filter((a) => !isLocked(getLatestAttempt(a.id))).length;
+
+  const scrollToGroup = (group: PatternGroup) => {
+    const el = document.getElementById(`group-${group}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="min-h-screen bg-brand-lavender/60">
       <Navbar />
@@ -99,6 +110,62 @@ function PatternsPage() {
               picture stays meaningful, not anxious.
             </p>
           </motion.header>
+
+          {/* Availability signpost — make it obvious any assessment can be taken */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
+            className="mx-auto mt-8 flex w-full max-w-[680px] flex-col items-stretch gap-3 rounded-2xl border border-brand-purple/15 bg-white/80 p-4 shadow-[0_10px_30px_-22px_rgba(126,107,175,0.45)] sm:flex-row sm:items-center sm:justify-between sm:gap-5"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
+                <PlayCircle className="h-4.5 w-4.5" strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[14px] font-semibold text-brand-purple-dark">
+                  {availableNow} of {ASSESSMENTS.length} check-ins ready to take
+                </p>
+                <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/65">
+                  Pick any one below — there's no required order.
+                </p>
+              </div>
+            </div>
+            <a
+              href="#group-core"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToGroup("core");
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-10px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+            >
+              Browse check-ins
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
+            </a>
+          </motion.div>
+
+          {/* Quick jump-to group chips */}
+          <nav
+            aria-label="Jump to a section"
+            className="mt-5 flex flex-wrap items-center justify-center gap-2"
+          >
+            {GROUP_ORDER.map((g) => (
+              <a
+                key={g}
+                href={`#group-${g}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToGroup(g);
+                }}
+                className="rounded-full border border-brand-purple/20 bg-white/70 px-3.5 py-1.5 text-[12.5px] font-medium text-brand-purple-dark no-underline transition hover:border-brand-purple/40 hover:bg-white"
+              >
+                {GROUP_LABELS[g].title}
+                <span className="ml-1.5 text-brand-purple-dark/50">
+                  {ASSESSMENTS.filter((a) => a.group === g).length}
+                </span>
+              </a>
+            ))}
+          </nav>
 
           {/* In-progress strip */}
           {inProgressAll.length > 0 && (
@@ -149,7 +216,12 @@ function PatternsPage() {
             const items = ASSESSMENTS.filter((a) => a.group === group);
             const label = GROUP_LABELS[group];
             return (
-              <section key={group} className="mt-12" data-tick={tick}>
+              <section
+                key={group}
+                id={`group-${group}`}
+                className="mt-12 scroll-mt-28"
+                data-tick={tick}
+              >
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     <h2 className="text-[20px] font-semibold text-brand-purple-dark">
@@ -159,6 +231,9 @@ function PatternsPage() {
                       {label.subtitle}
                     </p>
                   </div>
+                  <span className="hidden text-[12px] font-medium text-brand-purple-dark/55 md:inline">
+                    {items.length} available
+                  </span>
                 </div>
 
                 <ul className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
