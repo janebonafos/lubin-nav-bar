@@ -1,11 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
-  Sun,
-  Minus,
-  CloudRain,
   Heart,
   Moon,
   MessageCircle,
@@ -15,8 +12,9 @@ import {
   Activity,
   Layers,
   Quote,
-  Info,
   LifeBuoy,
+  ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MoodKey } from "@/components/CheckInFlow";
