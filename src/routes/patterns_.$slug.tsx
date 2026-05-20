@@ -47,6 +47,12 @@ export const Route = createFileRoute("/patterns_/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
       ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Lora:wght@600;700&display=swap",
+        },
+      ],
     };
   },
   component: PatternRunPage,
@@ -336,48 +342,49 @@ function IntroView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-white via-white to-brand-lavender/40 p-8 shadow-[0_30px_90px_-44px_rgba(126,107,175,0.55)] ring-1 ring-brand-purple/10 md:p-12"
+      className="mt-6 rounded-[32px] border border-white bg-white p-10 shadow-[0_20px_50px_rgba(126,107,175,0.08)] md:p-12"
     >
-      {/* Decorative glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-gradient-to-br from-brand-purple/25 to-brand-purple-accent/10 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-gradient-to-br from-[#C4B5FD]/30 to-transparent blur-3xl"
-      />
-
-      <div className="relative">
-        <span className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-brand-purple/70">
+      <header className="mb-8">
+        <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
           Before you begin
         </span>
-        <h1 className="mt-5 text-[32px] font-bold leading-[1.1] tracking-tight md:text-[40px]">
-          <span className="bg-gradient-to-br from-brand-purple-dark via-brand-purple to-brand-purple-dark bg-clip-text text-transparent">
-            {assessment.name}
-          </span>
+        <h1
+          style={{ fontFamily: "'Lora', Georgia, serif" }}
+          className="mt-3 text-4xl font-semibold leading-[1.1] text-brand-purple-dark"
+        >
+          {assessment.name}
         </h1>
-        <p className="mt-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55">
+        <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-brand-purple/60">
           Based on the {assessment.clinicalName}
+        </p>
+      </header>
+
+      <div className="mb-10 space-y-4">
+        <p className="text-lg leading-relaxed text-brand-purple-dark">
+          {assessment.introWhat}
+        </p>
+        <p className="text-base leading-relaxed text-brand-purple">
+          {assessment.introWhy}
         </p>
       </div>
 
-      <div className="relative mt-7 space-y-5 text-[15px] leading-[1.75] text-brand-purple-dark/80">
-        <p>{assessment.introWhat}</p>
-        <p>{assessment.introWhy}</p>
-      </div>
-
-      <dl className="relative mt-8 flex flex-wrap items-baseline gap-x-8 gap-y-3 border-t border-brand-purple/10 pt-6 text-[13px]">
+      <dl className="mb-10 flex flex-wrap items-center gap-y-4 border-y border-brand-lavender py-6">
         <InfoStat label="Time" value={`~${assessment.estMinutes} min`} />
-        <InfoStat label="Questions" value={`${assessment.questions.length}`} />
-        <InfoStat label="Privacy" value="On-device" />
+        <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
+        <InfoStat
+          label="Questions"
+          value={`${assessment.questions.length} total`}
+          indent
+        />
+        <span aria-hidden className="hidden h-8 w-px bg-brand-lavender sm:block" />
+        <InfoStat label="Privacy" value="On-device" indent />
       </dl>
 
-      <div className="relative mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={onStart}
-          className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0 sm:w-auto"
+          className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-10 py-4 text-center text-[15px] font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
         >
           I'm ready
           <ArrowRight
@@ -385,7 +392,7 @@ function IntroView({
             strokeWidth={2.2}
           />
         </button>
-        <p className="text-[12.5px] text-brand-purple-dark/55">
+        <p className="max-w-[240px] text-xs leading-relaxed text-brand-purple/70">
           You can pause or leave at any moment — nothing is saved until you finish.
         </p>
       </div>
@@ -419,13 +426,23 @@ function PreparingView() {
   );
 }
 
-function InfoStat({ label, value }: { label: string; value: string }) {
+function InfoStat({
+  label,
+  value,
+  indent = false,
+}: {
+  label: string;
+  value: string;
+  indent?: boolean;
+}) {
   return (
-    <div className="flex items-baseline gap-2">
-      <dt className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple/55">
+    <div
+      className={`flex min-w-[100px] flex-1 flex-col ${indent ? "sm:pl-8" : ""}`}
+    >
+      <dt className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-brand-purple/60">
         {label}
       </dt>
-      <dd className="text-[14px] font-semibold text-brand-purple-dark">
+      <dd className="text-[14px] font-medium text-brand-purple-dark">
         {value}
       </dd>
     </div>
