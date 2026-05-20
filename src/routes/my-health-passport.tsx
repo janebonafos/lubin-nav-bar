@@ -842,12 +842,17 @@ function MoodThisMonth({
       ) : (
         <>
           <div className="mt-4 grid grid-cols-3 gap-3">
-            <Metric label="Check-ins" value={String(total)} />
+            <Metric label="Check-ins" value={String(total)} muted={total === 0} />
             <Metric
               label="Most felt"
               value={topMood ? MOOD_LABELS[topMood] : "—"}
+              muted={total === 0}
             />
-            <Metric label="Avg intensity" value={`${avgIntensity}/5`} />
+            <Metric
+              label="Avg intensity"
+              value={`${avgIntensity}/5`}
+              muted={total === 0}
+            />
           </div>
 
           <MoodCalendar
@@ -992,13 +997,37 @@ function MoodCalendar({
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({
+  label,
+  value,
+  muted = false,
+}: {
+  label: string;
+  value: string;
+  muted?: boolean;
+}) {
   return (
-    <div className="rounded-xl bg-brand-lavender/50 px-3 py-3 ring-1 ring-brand-purple/10">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark/55">
+    <div
+      className={`rounded-xl px-3 py-3 ring-1 transition ${
+        muted
+          ? "bg-brand-purple/[0.04] ring-brand-purple/10 opacity-60"
+          : "bg-brand-lavender/50 ring-brand-purple/10"
+      }`}
+    >
+      <p
+        className={`text-[10px] font-semibold uppercase tracking-wider ${
+          muted ? "text-brand-purple-dark/40" : "text-brand-purple-dark/55"
+        }`}
+      >
         {label}
       </p>
-      <p className="mt-1 text-lg font-semibold text-brand-purple-dark">{value}</p>
+      <p
+        className={`mt-1 text-lg font-semibold ${
+          muted ? "text-brand-purple-dark/40" : "text-brand-purple-dark"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
