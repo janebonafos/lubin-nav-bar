@@ -944,7 +944,7 @@ function MoodCalendar({
         </p>
       </div>
 
-      <div className="mt-4 mx-auto grid w-full max-w-[640px] grid-cols-7 gap-x-3 gap-y-3">
+      <div className="mt-4 mx-auto grid w-full max-w-[480px] grid-cols-7 gap-1.5">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
@@ -977,14 +977,14 @@ function MoodCalendar({
                     ? `Check in for ${dateLabel}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[60px] items-center justify-center rounded-full text-sm transition ${
+                className={`relative flex aspect-square w-full max-w-[44px] items-center justify-center rounded-full text-[13px] transition ${
                   entry
                     ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
                       ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40 hover:bg-brand-purple/25 hover:ring-brand-purple cursor-pointer"
                       : isPastDay
                         ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10 cursor-not-allowed"
-                        : "text-brand-purple-dark/70 cursor-not-allowed"
+                        : "text-brand-purple-dark/55 ring-1 ring-brand-purple/15 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
