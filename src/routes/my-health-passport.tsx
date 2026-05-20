@@ -770,9 +770,14 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Mood this month
-        </p>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+            Mood this month
+          </p>
+          <p className="mt-1 text-[12px] text-brand-purple-dark/55">
+            Built automatically from your daily check-ins this month.
+          </p>
+        </div>
         <p className="text-[11px] text-brand-purple-dark/55">{monthName}</p>
       </div>
 
@@ -792,9 +797,14 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
           </div>
 
           <div className="mt-5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-              Mood mix
-            </p>
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+                Mood mix
+              </p>
+              <p className="text-[11px] text-brand-purple-dark/45">
+                How often each mood came up in your {total} check-{total === 1 ? "in" : "ins"}
+              </p>
+            </div>
             <div className="mt-3 space-y-2">
               {moodOrder
                 .filter((m) => counts[m] > 0)
@@ -823,9 +833,14 @@ function MoodThisMonth({ entries }: { entries: LiveCheckInLite[] }) {
 
           {topTopics.length > 0 && (
             <div className="mt-5">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
-                On your mind
-              </p>
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+                  On your mind
+                </p>
+                <p className="text-[11px] text-brand-purple-dark/45">
+                  Topics you tagged most often
+                </p>
+              </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {topTopics.map((t) => (
                   <span
