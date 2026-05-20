@@ -4,7 +4,9 @@ import {
   ArrowRight,
   PhoneCall,
   MessageCircleHeart,
+  MessageCircle,
   Globe2,
+  Globe,
   Hospital,
   MonitorSmartphone,
   Compass,
@@ -170,21 +172,21 @@ function ResourcesPage() {
             </h2>
             <div className="mt-3 space-y-1">
               <ResourceRow
-                icon={MessageCircleHeart}
+                icon={MessageCircle}
                 title="Crisis Text Line"
                 detail="Text HOME to 741741"
                 note="US & PH"
                 href="sms:741741?body=HOME"
               />
               <ResourceRow
-                icon={Globe2}
+                icon={Globe}
                 title="Befrienders Worldwide"
                 detail="befrienders.org"
                 note="Global directory of local centers"
                 href="https://befrienders.org"
               />
               <ResourceRow
-                icon={Globe2}
+                icon={Globe}
                 title="IASP Crisis Centres"
                 detail="iasp.info/resources/Crisis_Centres"
                 note="International"
