@@ -1440,72 +1440,109 @@ function Progress({
   return (
     <div className="grid gap-5">
       {/* 0. Take a check-in */}
-      <Card>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-brand-lavender/40 p-6 shadow-[0_8px_30px_-12px_rgba(126,107,175,0.18)] ring-1 ring-brand-purple/10">
+        {/* Soft decorative blobs */}
+        <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-purple-accent/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-16 bottom-0 h-44 w-44 rounded-full bg-gradient-to-br from-[#C4B5FD]/25 to-transparent blur-3xl" />
+
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/80 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple shadow-sm backdrop-blur-md">
+              <Sparkles className="h-3 w-3" strokeWidth={2.4} />
               Take a check-in
-            </p>
-            <p className="mt-1 text-sm text-brand-purple-dark/60">
-              Short, science-backed checks. Pick whichever feels relevant.
+            </span>
+            <p className="mt-2.5 text-[15px] font-medium leading-snug text-brand-purple-dark">
+              Short, science-backed checks.
+              <span className="text-brand-purple-dark/55"> Pick whichever feels relevant.</span>
             </p>
           </div>
           <Link
             to="/patterns"
-            className="hidden sm:inline-flex items-center gap-1 rounded-full bg-brand-purple px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+            className="hidden sm:inline-flex flex-none items-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-10px_rgba(126,107,175,0.85)]"
           >
-            See all 13 <span aria-hidden>→</span>
+            See all 13
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
           </Link>
         </div>
 
-        <div className="mt-4 space-y-2">
-          {ASSESSMENTS.slice(0, 4).map((a) => {
+        <ul className="relative mt-5 grid grid-cols-1 gap-2.5">
+          {ASSESSMENTS.slice(0, 4).map((a, i) => {
             const attemptsFor = patternAttempts.filter(
               (x) => x.assessmentId === a.id,
             );
             const latest = attemptsFor[0] ?? null;
             const locked = isLocked(latest);
             const daysLeft = daysUntilAvailable(latest);
+            const num = String(i + 1).padStart(2, "0");
             return (
-              <Link
-                key={a.id}
-                to="/patterns/$slug"
-                params={{ slug: a.slug }}
-                className="group flex items-center justify-between gap-4 rounded-xl border border-brand-purple/10 bg-white px-4 py-3 no-underline transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-brand-lavender/40"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-brand-purple-dark">
-                    {a.name}
-                    <span className="ml-1 text-brand-purple-dark/55">
-                      ({a.clinicalName})
-                    </span>
-                  </p>
-                  <p className="mt-0.5 text-xs text-brand-purple-dark/55">
-                    {a.estMinutes} min · {a.questions.length} questions
-                    {locked ? ` · ${formatDaysRemaining(daysLeft)}` : ""}
-                  </p>
-                </div>
-                <span
-                  className={`flex-none text-xs font-semibold ${
+              <li key={a.id}>
+                <Link
+                  to="/patterns/$slug"
+                  params={{ slug: a.slug }}
+                  className={`group relative flex items-center gap-4 rounded-xl border bg-white/85 px-4 py-3.5 no-underline backdrop-blur-md transition ${
                     locked
-                      ? "text-brand-purple-dark/40"
-                      : "text-brand-purple group-hover:text-brand-purple-dark"
+                      ? "border-white/70 opacity-85"
+                      : "border-white/80 shadow-[0_4px_18px_-12px_rgba(126,107,175,0.35)] hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_14px_30px_-16px_rgba(126,107,175,0.55)]"
                   }`}
                 >
-                  {locked ? "Resting" : latest ? "Retake →" : "Start →"}
-                </span>
-              </Link>
+                  <span
+                    className={`flex h-9 w-9 flex-none items-center justify-center rounded-full font-serif text-[13px] ${
+                      locked
+                        ? "bg-brand-lavender/60 text-brand-purple-dark/45"
+                        : "bg-gradient-to-br from-brand-purple/15 to-brand-purple-accent/10 text-brand-purple group-hover:from-brand-purple group-hover:to-brand-purple-dark group-hover:text-white transition-colors"
+                    }`}
+                  >
+                    {num}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[14px] font-semibold text-brand-purple-dark">
+                      {a.name}
+                      <span className="rounded-md bg-brand-lavender/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple/75">
+                        {a.clinicalName}
+                      </span>
+                    </p>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-brand-purple-dark/55">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" strokeWidth={2} />
+                        {a.estMinutes} min
+                      </span>
+                      <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
+                      <span>{a.questions.length} questions</span>
+                      {locked && (
+                        <>
+                          <span className="h-1 w-1 rounded-full bg-brand-purple/25" />
+                          <span className="inline-flex items-center gap-1 text-brand-purple-dark/50">
+                            <Lock className="h-3 w-3" strokeWidth={2} />
+                            {formatDaysRemaining(daysLeft)}
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <span
+                    className={`flex-none inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold transition ${
+                      locked
+                        ? "bg-brand-lavender/70 text-brand-purple-dark/50"
+                        : "bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)] group-hover:-translate-y-0.5"
+                    }`}
+                  >
+                    {locked ? "Resting" : latest ? "Retake" : "Start"}
+                    {!locked && <PlayCircle className="h-3 w-3" strokeWidth={2.4} />}
+                  </span>
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         <Link
           to="/patterns"
-          className="mt-4 inline-flex sm:hidden items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+          className="relative mt-4 inline-flex sm:hidden items-center gap-1.5 rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2 text-xs font-semibold text-white no-underline shadow-[0_10px_24px_-10px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
         >
-          See all 13 check-ins <span aria-hidden>→</span>
+          See all 13 check-ins
+          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
         </Link>
-      </Card>
+      </section>
 
       {/* 1. Lubin noticed */}
       <Card>
