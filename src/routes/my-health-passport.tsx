@@ -736,9 +736,11 @@ type LiveCheckInLite = CheckInPayload & { id: string; savedAt: number };
 function MoodThisMonth({
   entries,
   className = "",
+  onLogToday,
 }: {
   entries: LiveCheckInLite[];
   className?: string;
+  onLogToday?: () => void;
 }) {
   const today = useMemo(() => new Date(), []);
   const [view, setView] = useState({
