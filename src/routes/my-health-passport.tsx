@@ -923,19 +923,19 @@ function MoodCalendar({
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-brand-purple-dark/55">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-brand-purple-dark/45">
           Mood calendar
         </p>
-        <p className="text-[11px] text-brand-purple-dark/45">
+        <p className="text-[11px] font-medium text-brand-purple-dark/45">
           One emoji per day — log daily to fill the month
         </p>
       </div>
 
-      <div className="mt-4 mx-auto grid w-full max-w-[480px] grid-cols-7 gap-1.5">
+      <div className="mt-6 grid w-full grid-cols-7 gap-y-5 gap-x-2">
         {dayLabels.map((l, i) => (
           <p
             key={`hdr-${i}`}
-            className="text-center text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/55"
+            className="pb-1 text-center text-[11px] font-bold uppercase tracking-wider text-brand-purple-dark/45"
           >
             {l}
           </p>
@@ -964,14 +964,14 @@ function MoodCalendar({
                     ? `Check in for ${dateLabel}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[44px] items-center justify-center rounded-full text-[13px] transition ${
+                className={`relative flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-[13px] transition ${
                   entry
-                    ? "bg-brand-lavender text-brand-purple-dark ring-1 ring-brand-purple/20 shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
+                    ? "bg-brand-lavender text-brand-purple-dark font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-md cursor-default"
                     : isToday
-                      ? "bg-brand-purple/15 text-brand-purple-dark font-semibold ring-1 ring-brand-purple/40 hover:bg-brand-purple/25 hover:ring-brand-purple cursor-pointer"
+                      ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12),0_4px_18px_-4px_rgba(123,104,199,0.4)] hover:shadow-[0_0_0_5px_rgba(123,104,199,0.18),0_6px_22px_-4px_rgba(123,104,199,0.5)] cursor-pointer"
                       : isPastDay
-                        ? "bg-brand-purple/[0.06] text-brand-purple-dark/35 ring-1 ring-brand-purple/10 cursor-not-allowed"
-                        : "text-brand-purple-dark/55 ring-1 ring-brand-purple/15 cursor-not-allowed"
+                        ? "bg-brand-purple/[0.03] text-brand-purple-dark/35 ring-1 ring-brand-purple/8 cursor-not-allowed"
+                        : "text-brand-purple-dark/35 ring-1 ring-dashed ring-brand-purple/15 border border-dashed border-brand-purple/15 cursor-not-allowed"
                 }`}
               >
                 {entry ? (
