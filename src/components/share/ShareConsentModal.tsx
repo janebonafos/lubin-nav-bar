@@ -225,21 +225,14 @@ function Step1({
             return (
               <li key={opt.key}>
                 <label
-                  className={`flex items-start gap-3 rounded-xl border bg-white p-3 transition ${
+                  className={`flex items-center gap-3 rounded-xl border bg-white p-3.5 transition ${
                     disabled
                       ? "cursor-not-allowed border-[#ECE7F6] opacity-60"
-                      : "cursor-pointer border-[#ECE7F6] hover:border-[#7E6BAF]/40"
+                      : checked
+                        ? "cursor-pointer border-[#7E6BAF] bg-white shadow-sm"
+                        : "cursor-pointer border-[#ECE7F6] hover:border-[#7E6BAF]/40"
                   }`}
                 >
-                  <span
-                    className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition ${
-                      checked
-                        ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                        : "border-[#C4B5FD] bg-white"
-                    }`}
-                  >
-                    {checked && <Check className="h-3 w-3" />}
-                  </span>
                   <input
                     type="checkbox"
                     checked={checked}
@@ -253,6 +246,15 @@ function Step1({
                       {disabled ? "Nothing to share yet." : opt.description}
                     </p>
                   </div>
+                  <span
+                    className={`flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 transition ${
+                      checked
+                        ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                        : "border-[#D6CCEC] bg-white text-transparent"
+                    }`}
+                  >
+                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                  </span>
                 </label>
               </li>
             );
