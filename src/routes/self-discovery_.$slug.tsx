@@ -517,69 +517,6 @@ function InfoStat({
 }
 
 // ============================================================
-// Locked
-// ============================================================
-
-function LockedView({
-  assessment,
-  latest,
-}: {
-  assessment: Assessment;
-  latest: Attempt;
-}) {
-  const daysLeft = daysUntilAvailable(latest);
-  return (
-    <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="mt-6 rounded-3xl bg-white p-8 text-center shadow-[0_24px_80px_-40px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10 md:p-10"
-    >
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-lavender text-brand-purple">
-        <Lock className="h-5 w-5" strokeWidth={2} />
-      </div>
-      <h1 className="mt-5 text-[26px] font-semibold leading-tight text-brand-purple-dark">
-        {assessment.name} is resting.
-      </h1>
-      <p className="mt-3 text-[14.5px] leading-[1.65] text-brand-purple-dark/65">
-        Taking the same check too often can make small mood ripples feel like
-        big trends. {formatDaysRemaining(daysLeft)}.
-      </p>
-
-      <div className="mt-8 rounded-2xl bg-brand-lavender/50 p-5 text-left">
-        <p className="text-[11.5px] font-semibold uppercase tracking-[0.16em] text-brand-purple">
-          Last time
-        </p>
-        <p className="mt-2 text-[15px] italic leading-relaxed text-brand-purple-dark/85">
-          {latest.summary}
-        </p>
-        <p className="mt-2 text-[12.5px] text-brand-purple-dark/55">
-          Taken {new Date(latest.takenAt).toLocaleDateString()}
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Link
-          to="/self-discovery"
-          className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-[13.5px] font-semibold text-brand-purple-dark no-underline transition hover:border-brand-purple/50"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-          Other check-ins
-        </Link>
-        <Link
-          to="/chat"
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13.5px] font-semibold text-white no-underline shadow-[0_8px_20px_-10px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
-        >
-          <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
-          Talk it through
-        </Link>
-      </div>
-    </motion.section>
-  );
-}
-
-// ============================================================
 // Question
 // ============================================================
 
