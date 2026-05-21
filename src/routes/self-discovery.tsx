@@ -499,7 +499,7 @@ function PatternsPage() {
                   if (startOverId) clearInProgress(startOverId);
                   setStartOverId(null);
                 }}
-                className="w-full rounded-2xl bg-brand-purple px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:bg-brand-purple-dark"
+                className="w-full rounded-xl bg-brand-purple px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:bg-brand-purple-dark"
               >
                 Yes, start over
               </button>
