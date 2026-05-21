@@ -47,10 +47,14 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { loadAttempts } from "@/lib/patterns/storage";
-import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import {
+  INPROGRESS_EVENT,
+  loadAttempts,
+  readAllInProgress,
+} from "@/lib/patterns/storage";
+import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
-import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
+import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
@@ -110,6 +114,22 @@ function PassportPage() {
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
+  const [hasInProgress, setHasInProgress] = useState(false);
+
+  useEffect(() => {
+    const refresh = () =>
+      setHasInProgress(readAllInProgress(ASSESSMENT_IDS).length > 0);
+    refresh();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) refresh();
+    };
+    window.addEventListener(INPROGRESS_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(INPROGRESS_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // hydrate from localStorage
   useEffect(() => {
@@ -203,17 +223,24 @@ function PassportPage() {
             ["share", "Share"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
+            const showDot = key === "progress" && hasInProgress;
             return (
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className={`relative -mb-px pb-3 text-sm font-medium transition-colors ${
+                className={`relative -mb-px pb-3 text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
                   active
                     ? "text-brand-purple-dark"
                     : "text-brand-purple-dark/50 hover:text-brand-purple-dark/80"
                 }`}
               >
                 {label}
+                {showDot && (
+                  <span
+                    aria-label="In-progress check-in"
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple shadow-[0_0_0_3px_rgba(126,107,175,0.18)]"
+                  />
+                )}
                 {active && (
                   <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
                 )}
