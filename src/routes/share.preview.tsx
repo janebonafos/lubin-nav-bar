@@ -35,6 +35,7 @@ function PreviewPage() {
           summary={summary}
           includedKeys={includedKeys}
           recipient={recipient}
+          sharerName="Alex Morgan"
         />
       )}
     </div>
