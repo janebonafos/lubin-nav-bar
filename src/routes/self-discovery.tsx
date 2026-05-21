@@ -167,7 +167,7 @@ function PatternsPage() {
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 px-4 py-1.5 text-[12px] font-medium text-brand-purple shadow-sm backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
-              Patterns
+              Self Discovery
             </span>
             <h1 className="mt-6 text-[36px] font-bold leading-[1.05] tracking-tight text-shimmer md:text-[52px]">
               Understand the patterns behind how you feel.
