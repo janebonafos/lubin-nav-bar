@@ -585,7 +585,7 @@ function AssessmentCard({
         <div className="flex items-center gap-3 text-[11.5px] font-medium text-brand-purple">
           {inCooldown ? (
             <span
-              className="inline-flex items-center gap-1.5"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap"
               title="Spacing check-ins out gives a more accurate picture — but you can still retake any time."
             >
               <Clock3 className="h-3.5 w-3.5" strokeWidth={2} />
