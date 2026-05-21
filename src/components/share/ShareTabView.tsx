@@ -17,7 +17,7 @@ import type { RecipientId } from "@/lib/share/shareStore";
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
 
-const SERIF = "'Instrument Serif', ui-serif, Georgia, serif";
+const SITE_FONT = "Inter, sans-serif";
 
 export default function ShareTabView({
   checkins,
@@ -71,15 +71,10 @@ export default function ShareTabView({
 
   return (
     <div className="grid gap-6">
-      {/* Load editorial serif used for the document heading */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
-      />
       <header>
         <h2
-          className="text-3xl md:text-5xl text-[#2D245A] tracking-tight"
-          style={{ fontFamily: SERIF }}
+          className="text-2xl md:text-3xl font-bold text-[#3D2E6B] tracking-tight"
+          style={{ fontFamily: SITE_FONT }}
         >
           Share My Summary
         </h2>
@@ -147,8 +142,8 @@ export default function ShareTabView({
                     Lubin.AI • Wellbeing Summary
                   </p>
                   <h3
-                    className="text-4xl text-[#2D245A] leading-none"
-                    style={{ fontFamily: SERIF }}
+                    className="text-3xl font-bold text-[#2D245A] leading-none tracking-tight"
+                    style={{ fontFamily: SITE_FONT }}
                   >
                     {sharerName}
                   </h3>
@@ -164,10 +159,10 @@ export default function ShareTabView({
                   <SectionEyebrow>How you've been feeling</SectionEyebrow>
                   <div className="space-y-4">
                     <p
-                      className="max-w-2xl text-xl leading-relaxed text-[#4A3E7F] italic"
-                      style={{ fontFamily: SERIF }}
+                      className="max-w-2xl text-lg leading-relaxed text-[#4A3E7F]"
+                      style={{ fontFamily: SITE_FONT }}
                     >
-                      “{summary.insight}”
+                      {summary.insight}
                     </p>
                     <div className="flex flex-wrap gap-2.5">
                       <ArtifactChip label="Mood" value={summary.moodLabel} dot="#34D39A" />
@@ -341,8 +336,8 @@ function SupportStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-2xl border border-[#EFEAF8] bg-[#FBFAFE] p-5 text-center transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
       <div
-        className="text-3xl font-light text-[#2D245A]"
-        style={{ fontFamily: SERIF }}
+        className="text-3xl font-semibold text-[#2D245A]"
+        style={{ fontFamily: SITE_FONT }}
       >
         {value}
       </div>
