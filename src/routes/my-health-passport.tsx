@@ -1660,6 +1660,17 @@ function Progress({
           Showing up matters more than streaking. One check-in a week is plenty.
         </p>
       </Card>
+
+      <StartOverConfirm
+        target={startOverTarget}
+        onCancel={() => setStartOverTarget(null)}
+        onConfirm={() => {
+          if (startOverTarget) {
+            clearInProgress(startOverTarget.assessmentId);
+          }
+          setStartOverTarget(null);
+        }}
+      />
     </div>
   );
 }
