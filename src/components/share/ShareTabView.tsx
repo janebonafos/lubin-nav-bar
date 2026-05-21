@@ -50,10 +50,14 @@ export default function ShareTabView({
     return real;
   }, [range, checkins]);
 
-  // Show the preview to everyone (guests included). Sharing/downloading
-  // still requires an account — gated below via requireAccount().
-  const showEmpty = false;
-  void mounted;
+  // Empty state only when there's truly no data. Guests with no data see the
+  // empty state with a Create account CTA; guests with data see the preview
+  // and only get prompted to sign up when they click Share.
+  const hasData = useMemo(
+    () => buildSummary(range, { checkins }).hasAnyData,
+    [range, checkins],
+  );
+  const showEmpty = mounted && !hasData;
 
   const requireAccount = (action: () => void) => {
     if (isGuest) {
@@ -76,34 +80,12 @@ export default function ShareTabView({
         </p>
       </header>
 
-      {isGuest && (
-        <aside className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#ECE7F6] bg-[#F4F0FB] p-5 sm:flex-row sm:items-center">
-          <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-white text-[#7E6BAF] shadow-sm">
-              <Lock className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-[#3D2E6B]">
-                Create a free account to share
-              </p>
-              <p className="text-xs leading-normal text-[#7E6BAF]">
-                Sharing securely with a provider requires an account so your
-                data stays protected.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onRequestSignup}
-            className="inline-flex flex-none items-center gap-2 rounded-xl bg-[#7E6BAF] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
-          >
-            Create account
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </aside>
-      )}
       {showEmpty ? (
-        <EmptyState onStart={onStartCheckin} />
+        <EmptyState
+          onStart={onStartCheckin}
+          isGuest={isGuest}
+          onCreateAccount={onRequestSignup}
+        />
       ) : (
         <>
           {/* Range pill toggle */}
