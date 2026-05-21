@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
+import ShareTabView from "@/components/share/ShareTabView";
 import CheckInFlow, {
   type CheckInPayload,
   type MoodKey,
@@ -271,7 +272,13 @@ function PassportPage() {
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />
           )}
-          {tab === "share" && <ShareSnapshot onCreateAccount={() => openAuth("signup")} />}
+          {tab === "share" && (
+            <ShareTabView
+              checkins={checkins}
+              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+              onRequestSignup={() => openAuth("signup")}
+            />
+          )}
         </div>
 
         {/* Mobile registration CTA */}
