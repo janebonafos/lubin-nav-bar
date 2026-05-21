@@ -146,20 +146,6 @@ function ResourcesPage() {
                 note="24/7 • free & confidential"
                 href="tel:+6328937603"
               />
-              <ResourceRow
-                icon={Phone}
-                title="PNP Women & Children Protection (Domestic Violence)"
-                detail="Hotline 117 • (02) 8723-0401 loc. 3480"
-                note="24/7 • for VAWC & domestic abuse"
-                href="tel:117"
-              />
-              <ResourceRow
-                icon={Phone}
-                title="DSWD Domestic Violence Helpline"
-                detail="1343 Actionline Against Human Trafficking & VAWC"
-                note="24/7 • free & confidential"
-                href="tel:1343"
-              />
             </div>
 
             <RegionLabel>United States</RegionLabel>
@@ -177,6 +163,40 @@ function ResourcesPage() {
                 detail="Text HOME to 741741"
                 href="sms:741741?body=HOME"
               />
+            </div>
+          </SectionCard>
+        </div>
+
+        {/* Domestic violence support */}
+        <div className="mt-5">
+          <SectionCard accent>
+            <h2 className="text-[16px] font-semibold text-[#3F3560]">
+              Domestic violence support
+            </h2>
+            <p className="mt-1 text-[13.5px] text-[#6B6480]">
+              Confidential help for abuse, VAWC, and unsafe situations
+            </p>
+
+            <RegionLabel>Philippines</RegionLabel>
+            <div className="space-y-1">
+              <ResourceRow
+                icon={Phone}
+                title="PNP Women & Children Protection Center"
+                detail="Hotline 117 • (02) 8723-0401 loc. 3480"
+                note="24/7 • for VAWC & domestic abuse"
+                href="tel:117"
+              />
+              <ResourceRow
+                icon={Phone}
+                title="DSWD Actionline (1343)"
+                detail="1343 • Against Human Trafficking & VAWC"
+                note="24/7 • free & confidential"
+                href="tel:1343"
+              />
+            </div>
+
+            <RegionLabel>United States</RegionLabel>
+            <div className="space-y-1">
               <ResourceRow
                 icon={Phone}
                 title="National Domestic Violence Hotline"
