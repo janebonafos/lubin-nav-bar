@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle2,
   Copy,
   Download,
@@ -373,9 +374,10 @@ function EmailView({
         <button
           type="button"
           onClick={submit}
-          className="rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white"
+          className="inline-flex items-center gap-1.5 rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5"
         >
-          Open email draft
+          Send
+          <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>
