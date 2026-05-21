@@ -1534,7 +1534,7 @@ function Progress({
         ) : (
           <>
             <div className="mt-3 space-y-1.5">
-              {patternAttempts.slice(0, 4).map((a) => {
+              {(exploredExpanded ? patternAttempts : patternAttempts.slice(0, 5)).map((a) => {
                 const meta = assessmentBySlug[a.assessmentId];
                 const slug = meta?.slug ?? a.assessmentId;
                 return (
@@ -1575,12 +1575,18 @@ function Progress({
                 );
               })}
             </div>
-            <Link
-              to="/patterns"
-              className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
-            >
-              See all check-ins <span aria-hidden>→</span>
-            </Link>
+            {patternAttempts.length > 5 && (
+              <button
+                type="button"
+                onClick={() => setExploredExpanded((v) => !v)}
+                className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-brand-purple transition hover:text-brand-purple-dark"
+              >
+                {exploredExpanded
+                  ? "Show less"
+                  : `See more (${patternAttempts.length - 5})`}{" "}
+                <span aria-hidden>{exploredExpanded ? "↑" : "↓"}</span>
+              </button>
+            )}
           </>
         )}
       </Card>
