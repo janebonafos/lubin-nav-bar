@@ -1662,24 +1662,9 @@ function Progress({
         )}
       </Card>
 
-      {/* 4. Streak */}
+      {/* 4. Reflection rhythm */}
       <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Check-in streak
-        </p>
-        <div className="mt-4 grid grid-cols-7 gap-1.5 opacity-40" aria-hidden>
-          {[false, true, false, false, true, false, false].map((filled, i) => (
-            <div
-              key={i}
-              className={`aspect-square rounded-md ${
-                filled ? "bg-brand-purple" : "bg-brand-purple/15"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="mt-3 text-sm text-brand-purple-dark/60">
-          Showing up matters more than streaking. One check-in a week is plenty.
-        </p>
+        <ReflectionRhythm attempts={patternAttempts} />
       </Card>
 
       <StartOverConfirm
