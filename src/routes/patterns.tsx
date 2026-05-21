@@ -512,6 +512,46 @@ function PatternsPage() {
           </motion.section>
         </div>
       </main>
+
+      {startOverId && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setStartOverId(null)}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[18px] font-semibold text-brand-purple-dark">
+              Start over?
+            </h3>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-brand-purple-dark/70">
+              Your previous answers for this assessment will be cleared. This can't be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setStartOverId(null)}
+                className="rounded-full border border-brand-purple/20 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark/80 transition hover:border-brand-purple/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (startOverId) clearInProgress(startOverId);
+                  setStartOverId(null);
+                }}
+                className="rounded-full bg-rose-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-rose-700"
+              >
+                Start over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
