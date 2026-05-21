@@ -54,7 +54,12 @@ import {
   readAllInProgress,
 } from "@/lib/patterns/storage";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
-import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
+import {
+  isLocked,
+  formatDaysRemaining,
+  daysUntilAvailable,
+  statusTier,
+} from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/my-health-passport")({
@@ -1588,11 +1593,15 @@ function Progress({
               {(exploredExpanded ? patternAttempts : patternAttempts.slice(0, 5)).map((a) => {
                 const meta = assessmentBySlug[a.assessmentId];
                 const slug = meta?.slug ?? a.assessmentId;
+                const tier = meta
+                  ? statusTier(a.score, meta.maxScore, meta.lowerIsBetter)
+                  : null;
                 return (
                   <Link
                     key={a.id}
                     to="/patterns/$slug"
                     params={{ slug }}
+                    search={{ attempt: a.id }}
                     className="flex items-center justify-between gap-3 rounded-lg bg-brand-lavender/50 px-3 py-2 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
                   >
                     <div className="min-w-0 flex-1">
@@ -1612,7 +1621,14 @@ function Progress({
                         })}
                       </p>
                     </div>
-                    <div className="flex-none text-right">
+                    <div className="flex flex-none items-center gap-2">
+                      {tier && (
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ring-1 ${tier.tone}`}
+                        >
+                          {tier.label}
+                        </span>
+                      )}
                       <p className="text-[13px] font-semibold tabular-nums text-brand-purple-dark">
                         {a.score}
                         {meta ? (
