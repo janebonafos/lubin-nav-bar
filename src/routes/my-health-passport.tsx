@@ -1662,24 +1662,9 @@ function Progress({
         )}
       </Card>
 
-      {/* 4. Streak */}
+      {/* 4. Reflection rhythm */}
       <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Check-in streak
-        </p>
-        <div className="mt-4 grid grid-cols-7 gap-1.5 opacity-40" aria-hidden>
-          {[false, true, false, false, true, false, false].map((filled, i) => (
-            <div
-              key={i}
-              className={`aspect-square rounded-md ${
-                filled ? "bg-brand-purple" : "bg-brand-purple/15"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="mt-3 text-sm text-brand-purple-dark/60">
-          Showing up matters more than streaking. One check-in a week is plenty.
-        </p>
+        <ReflectionRhythm attempts={patternAttempts} />
       </Card>
 
       <StartOverConfirm
@@ -2206,6 +2191,114 @@ function StartOverConfirm({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ---------- Reflection rhythm calendar (Patterns tab) ----------
+function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const monthName = today.toLocaleDateString(undefined, { month: "long" });
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const todayDate = today.getDate();
+
+  // Count attempts per day-of-month (current month only)
+  const byDay = new Map<number, number>();
+  for (const a of attempts) {
+    const d = new Date(a.takenAt);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      const day = d.getDate();
+      byDay.set(day, (byDay.get(day) ?? 0) + 1);
+    }
+  }
+  const activeDays = byDay.size;
+
+  const cells: Array<{ day: number | null; count: number }> = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push({ day: null, count: 0 });
+  for (let d = 1; d <= daysInMonth; d++)
+    cells.push({ day: d, count: byDay.get(d) ?? 0 });
+
+  const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          Reflection rhythm
+        </p>
+        <p className="text-[11px] font-medium text-brand-purple-dark/45">
+          {activeDays} {activeDays === 1 ? "day" : "days"} in {monthName}
+        </p>
+      </div>
+
+      <div className="mt-5 grid w-full grid-cols-7 gap-y-3 gap-x-2">
+        {dayLabels.map((l, i) => (
+          <p
+            key={`rh-hdr-${i}`}
+            className="pb-1 text-center text-[11px] font-bold uppercase tracking-wider text-brand-purple-dark/45"
+          >
+            {l}
+          </p>
+        ))}
+        {cells.map((c, i) => {
+          if (c.day === null)
+            return <div key={`rh-pad-${i}`} className="aspect-square" />;
+          const isToday = c.day === todayDate;
+          const isFuture = c.day > todayDate;
+          const hasReflection = c.count > 0;
+          const dateLabel = new Date(year, month, c.day).toLocaleDateString(
+            undefined,
+            { weekday: "short", month: "short", day: "numeric" },
+          );
+          return (
+            <div
+              key={`rh-d-${c.day}`}
+              className="group relative flex items-center justify-center"
+            >
+              <div
+                aria-label={
+                  hasReflection
+                    ? `${dateLabel} — ${c.count} reflection${c.count > 1 ? "s" : ""}`
+                    : dateLabel
+                }
+                className={`relative flex aspect-square w-full max-w-[44px] items-center justify-center rounded-2xl text-[12px] font-medium transition-all duration-200 ${
+                  hasReflection
+                    ? "bg-gradient-to-br from-brand-lavender to-brand-purple/35 text-brand-purple-dark font-semibold shadow-[0_4px_12px_-2px_rgba(123,104,199,0.25)]"
+                    : isToday
+                      ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12)]"
+                      : isFuture
+                        ? "text-brand-purple-dark/25 border border-dashed border-brand-purple/20"
+                        : "bg-brand-lavender/40 text-brand-purple-dark/40"
+                }`}
+              >
+                {hasReflection ? (
+                  <span aria-hidden className="text-sm">✦</span>
+                ) : (
+                  <span>{c.day}</span>
+                )}
+              </div>
+              {hasReflection && (
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-brand-purple-dark px-2.5 py-1.5 text-[11px] font-medium text-white shadow-lg group-hover:block">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                    {dateLabel}
+                  </p>
+                  <p className="mt-0.5">
+                    {c.count} reflection{c.count > 1 ? "s" : ""}
+                  </p>
+                  <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-brand-purple-dark" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-4 text-sm text-brand-purple-dark/60">
+        A gentle map of the days you paused to reflect. There's no streak to keep — every dot is enough.
+      </p>
     </div>
   );
 }
