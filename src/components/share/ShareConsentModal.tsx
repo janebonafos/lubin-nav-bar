@@ -361,6 +361,17 @@ function Step3() {
           You can revoke access at any time from your settings.
         </p>
       </div>
+      <p className="mt-4 text-xs text-[#5A4A8A]">
+        Want the full details?{" "}
+        <a
+          href="/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+        >
+          View our privacy policy
+        </a>
+      </p>
     </div>
   );
 }
