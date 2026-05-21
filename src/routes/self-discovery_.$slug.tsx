@@ -167,6 +167,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedAttempt, setCompletedAttempt] = useState<Attempt | null>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
   const breathingShownRef = useRef(false);
   const crisisShownRef = useRef(false);
   const startedAtRef = useRef<number>(Date.now());
@@ -283,6 +284,14 @@ function Runner({ assessment }: { assessment: Assessment }) {
     clearInProgress(assessment.id);
     setCompletedAttempt(attempt);
     setPhase("result");
+    // Nudge guests to register so their results are saved properly.
+    if (typeof window !== "undefined") {
+      const isGuest =
+        window.localStorage.getItem("lubinai_guest_mode") !== "false";
+      if (isGuest) {
+        window.setTimeout(() => setRegisterOpen(true), 600);
+      }
+    }
   }
 
   function goBack() {
@@ -370,7 +379,76 @@ function Runner({ assessment }: { assessment: Assessment }) {
           />
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {registerOpen && (
+          <RegisterNudge
+            onClose={() => setRegisterOpen(false)}
+            onRegister={() => {
+              setRegisterOpen(false);
+              navigate({ to: "/my-health-passport", search: { auth: "signup" } as never });
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function RegisterNudge({
+  onClose,
+  onRegister,
+}: {
+  onClose: () => void;
+  onRegister: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] flex items-end justify-center p-4 md:items-center"
+    >
+      <div
+        className="absolute inset-0 bg-brand-purple-dark/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ y: 24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 12, opacity: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl md:p-7"
+      >
+        <div className="inline-flex items-center gap-2 rounded-full bg-[#F4F0FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+          <ShieldCheck className="h-3 w-3" /> Save securely
+        </div>
+        <h2 className="mt-3 text-xl font-semibold text-brand-purple-dark">
+          Create an account to save your results
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark/70">
+          Registering lets us properly handle and protect your check-in data so
+          you can return to it, track progress, and share it with someone you
+          trust — only when you choose.
+        </p>
+        <div className="mt-6 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={onRegister}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
+          >
+            Create free account <ArrowRight className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full px-5 py-2 text-xs text-brand-purple-dark/55 hover:text-brand-purple-dark/80"
+          >
+            Maybe later — keep on this device
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

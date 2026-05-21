@@ -114,6 +114,7 @@ function PassportPage() {
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkInActive, setCheckInActive] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
+  const [registerNudge, setRegisterNudge] = useState(false);
   // Avoid SSR/client mismatch: start undecided, decide after mount.
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
@@ -146,6 +147,24 @@ function PassportPage() {
       setShowIntro(window.localStorage.getItem(INTRO_SEEN_KEY) !== "true");
     } catch {
       setShowIntro(false);
+    }
+  }, []);
+
+  // Deep-link: ?auth=signup opens the auth modal (used from other routes
+  // like the assessment results screen to nudge guests to register).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const auth = params.get("auth");
+    if (auth === "signup" || auth === "signin") {
+      setAuthMode(auth as AuthMode);
+      params.delete("auth");
+      const next = params.toString();
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname + (next ? `?${next}` : "") + window.location.hash,
+      );
     }
   }, []);
 
@@ -264,6 +283,8 @@ function PassportPage() {
               onLogMood={() => setCheckInActive(true)}
               checkInActive={checkInActive}
               onCloseCheckIn={() => setCheckInActive(false)}
+              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+              onAfterSave={() => setRegisterNudge(true)}
             />
           )}
           {tab === "progress" && (
@@ -322,6 +343,17 @@ function PassportPage() {
         mode={authMode ?? "signup"}
         onClose={() => setAuthMode(null)}
       />
+
+      {registerNudge && (
+        <SaveProgressModal
+          onCreateAccount={() => {
+            setRegisterNudge(false);
+            openAuth("signup");
+          }}
+          onSaveLocal={() => setRegisterNudge(false)}
+          onDismiss={() => setRegisterNudge(false)}
+        />
+      )}
     </div>
   );
 }
@@ -578,12 +610,16 @@ function Overview({
   onLogMood,
   checkInActive,
   onCloseCheckIn,
+  isGuest,
+  onAfterSave,
 }: {
   today: string;
   checkins: CheckIn[];
   onLogMood: () => void;
   checkInActive: boolean;
   onCloseCheckIn: () => void;
+  isGuest?: boolean;
+  onAfterSave?: () => void;
 }) {
   type LiveCheckIn = CheckInPayload & { id: string; savedAt: number };
   const [liveEntries, setLiveEntries] = useState<LiveCheckIn[]>([]);
@@ -631,6 +667,9 @@ function Overview({
     );
     window.setTimeout(() => setPulseId((c) => (c === id ? null : c)), 1600);
     window.setTimeout(() => setLatestSavedId((c) => (c === id ? null : c)), 30000);
+    if (isGuest && onAfterSave) {
+      window.setTimeout(() => onAfterSave(), 400);
+    }
   };
 
   const handleEdit = (id: string) => {

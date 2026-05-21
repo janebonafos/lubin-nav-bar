@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
-import { buildSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
+import { buildSummary, mockSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
@@ -42,12 +42,18 @@ export default function ShareTabView({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const summary = useMemo(
-    () => buildSummary(range, { checkins }),
-    [range, checkins],
-  );
+  const summary = useMemo(() => {
+    const real = buildSummary(range, { checkins });
+    // Fall back to a populated mock so the user can preview what a shared
+    // summary will look like before they have enough real data.
+    if (!real.hasAnyData) return mockSummary();
+    return real;
+  }, [range, checkins]);
 
-  const showEmpty = mounted && isGuest;
+  // Show the preview to everyone (guests included). Sharing/downloading
+  // still requires an account — gated below via requireAccount().
+  const showEmpty = false;
+  void mounted;
 
   const requireAccount = (action: () => void) => {
     if (isGuest) {
@@ -70,6 +76,25 @@ export default function ShareTabView({
         </p>
       </header>
 
+      {isGuest && (
+        <aside className="flex flex-col gap-3 rounded-2xl border border-[#E0D4F7] bg-gradient-to-br from-[#F4F0FB] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Lock className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
+            <p className="text-sm leading-relaxed text-[#3D2E6B]">
+              <strong>Create a free account to share.</strong> Sharing securely
+              with a provider or someone you trust requires an account so your
+              data stays protected and only goes where you choose.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onRequestSignup}
+            className="inline-flex flex-none items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)]"
+          >
+            Create free account <span aria-hidden>→</span>
+          </button>
+        </aside>
+      )}
       {showEmpty ? (
         <EmptyState onStart={onStartCheckin} />
       ) : (
