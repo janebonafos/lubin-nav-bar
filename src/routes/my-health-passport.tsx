@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
 import ShareTabView from "@/components/share/ShareTabView";
+import PassportLoggedInView from "@/components/PassportLoggedInView";
 import CheckInFlow, {
   type CheckInPayload,
   type MoodKey,
@@ -120,6 +121,9 @@ function PassportPage() {
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
+  const [viewMode, setViewMode] = useState<"logged-out" | "logged-in">(
+    "logged-out",
+  );
 
   useEffect(() => {
     const refresh = () =>
@@ -203,7 +207,7 @@ function PassportPage() {
     return <div className="min-h-screen bg-brand-lavender" />;
   }
 
-  if (showIntro) {
+  if (showIntro && viewMode === "logged-out") {
     return (
       <IntroScreen
         onOpen={() => {
@@ -222,8 +226,135 @@ function PassportPage() {
       <div aria-hidden className="pointer-events-none absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-brand-purple-accent/20 blur-[120px]" />
       <Navbar />
       <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
-        {/* Guest nudge banner */}
-        <GuestBanner />
+        {/* Dev-only view toggle */}
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-brand-purple/30 bg-white/70 px-4 py-3 backdrop-blur-sm">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">
+              Developer preview
+            </p>
+            <p className="mt-0.5 text-xs text-brand-purple-dark/65">
+              Compare empty (logged-out) vs populated (logged-in) state.
+            </p>
+          </div>
+          <div className="inline-flex rounded-full bg-brand-lavender/60 p-1 ring-1 ring-brand-purple/10">
+            {(
+              [
+                ["logged-out", "Logged out view"],
+                ["logged-in", "Logged in view"],
+              ] as const
+            ).map(([key, label]) => {
+              const active = viewMode === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setViewMode(key)}
+                  className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
+                    active
+                      ? "bg-white text-brand-purple-dark shadow-sm"
+                      : "text-brand-purple-dark/55 hover:text-brand-purple-dark"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {viewMode === "logged-in" ? (
+          <PassportLoggedInView />
+        ) : (
+          <LoggedOutContent
+            tab={tab}
+            setTab={setTab}
+            hasInProgress={hasInProgress}
+            today={today}
+            checkins={checkins}
+            assessments={assessments}
+            streak={streak}
+            checkInActive={checkInActive}
+            setCheckInActive={setCheckInActive}
+            setRegisterNudge={setRegisterNudge}
+            openAuth={openAuth}
+          />
+        )}
+      </main>
+
+      {checkInOpen && (
+        <CheckInModal
+          onClose={() => setCheckInOpen(false)}
+          onSubmit={(c) => {
+            setCheckInOpen(false);
+            setSavePrompt({ kind: "checkin", payload: c });
+          }}
+        />
+      )}
+
+      {savePrompt && (
+        <SaveProgressModal
+          onCreateAccount={() => {
+            if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
+            setSavePrompt(null);
+            openAuth("signup");
+          }}
+          onSaveLocal={() => {
+            if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
+            setSavePrompt(null);
+          }}
+          onDismiss={() => setSavePrompt(null)}
+        />
+      )}
+
+      <AuthModal
+        open={authMode !== null}
+        mode={authMode ?? "signup"}
+        onClose={() => setAuthMode(null)}
+      />
+
+      {registerNudge && (
+        <SaveProgressModal
+          onCreateAccount={() => {
+            setRegisterNudge(false);
+            openAuth("signup");
+          }}
+          onSaveLocal={() => setRegisterNudge(false)}
+          onDismiss={() => setRegisterNudge(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---------- Logged-out content (original page body, factored out) ----------
+function LoggedOutContent({
+  tab,
+  setTab,
+  hasInProgress,
+  today,
+  checkins,
+  assessments,
+  streak,
+  checkInActive,
+  setCheckInActive,
+  setRegisterNudge,
+  openAuth,
+}: {
+  tab: "overview" | "progress" | "share";
+  setTab: (t: "overview" | "progress" | "share") => void;
+  hasInProgress: boolean;
+  today: string;
+  checkins: CheckIn[];
+  assessments: Assessment[];
+  streak: number;
+  checkInActive: boolean;
+  setCheckInActive: (v: boolean) => void;
+  setRegisterNudge: (v: boolean) => void;
+  openAuth: (mode?: AuthMode) => void;
+}) {
+  return (
+    <>
+      {/* Guest nudge banner */}
+      <GuestBanner />
 
         {/* Header */}
         <header className="mt-6 flex items-start justify-between gap-4">
@@ -310,51 +441,7 @@ function PassportPage() {
             Create your free account <span aria-hidden>→</span>
           </button>
         </div>
-      </main>
-
-      {checkInOpen && (
-        <CheckInModal
-          onClose={() => setCheckInOpen(false)}
-          onSubmit={(c) => {
-            setCheckInOpen(false);
-            setSavePrompt({ kind: "checkin", payload: c });
-          }}
-        />
-      )}
-
-      {savePrompt && (
-        <SaveProgressModal
-          onCreateAccount={() => {
-            // persist anyway so guest doesn't lose work, then navigate
-            if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
-            setSavePrompt(null);
-            openAuth("signup");
-          }}
-          onSaveLocal={() => {
-            if (savePrompt.kind === "checkin") persistCheckin(savePrompt.payload);
-            setSavePrompt(null);
-          }}
-          onDismiss={() => setSavePrompt(null)}
-        />
-      )}
-
-      <AuthModal
-        open={authMode !== null}
-        mode={authMode ?? "signup"}
-        onClose={() => setAuthMode(null)}
-      />
-
-      {registerNudge && (
-        <SaveProgressModal
-          onCreateAccount={() => {
-            setRegisterNudge(false);
-            openAuth("signup");
-          }}
-          onSaveLocal={() => setRegisterNudge(false)}
-          onDismiss={() => setRegisterNudge(false)}
-        />
-      )}
-    </div>
+    </>
   );
 }
 
