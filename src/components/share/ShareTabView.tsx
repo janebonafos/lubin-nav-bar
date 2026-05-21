@@ -158,10 +158,7 @@ export default function ShareTabView({
                 <section className="space-y-5">
                   <SectionEyebrow>How you've been feeling</SectionEyebrow>
                   <div className="space-y-4">
-                    <p
-                      className="max-w-2xl text-lg leading-relaxed text-[#4A3E7F]"
-                      style={{ fontFamily: SITE_FONT }}
-                    >
+                    <p className="max-w-2xl text-base leading-relaxed text-[#3D2E6B]">
                       {summary.insight}
                     </p>
                     <div className="flex flex-wrap gap-2.5">
