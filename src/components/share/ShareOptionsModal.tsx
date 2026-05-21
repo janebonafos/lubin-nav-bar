@@ -338,7 +338,7 @@ function EmailView({
   if (step === "result") {
     return (
       <div className="py-6 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[12px] bg-[#DCFCE7] text-[#166534]">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[12px] bg-[#F4F0FB] text-[#7E6BAF]">
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <h2 className="mt-4 text-lg font-bold text-[#3D2E6B]">Email draft opened</h2>
