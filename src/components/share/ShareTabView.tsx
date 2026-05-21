@@ -9,7 +9,6 @@ import {
   Send,
   Sparkles,
   Lightbulb,
-  ShieldCheck,
 } from "lucide-react";
 import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
