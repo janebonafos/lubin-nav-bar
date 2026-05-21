@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { X, ArrowLeft, ArrowRight, Lock, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Check } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
@@ -19,13 +19,11 @@ export type AssessmentContext = {
 
 export default function ShareConsentModal({
   open,
-  onClose,
   onConfirm,
   summary,
   assessmentContext,
 }: {
   open: boolean;
-  onClose: () => void;
   onConfirm: (result: ConsentResult) => void;
   summary: SummaryData;
   assessmentContext?: AssessmentContext;
@@ -59,13 +57,6 @@ export default function ShareConsentModal({
     }
   }, [open, defaultSelection]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
   if (!open) return null;
 
   const toggleIncluded = (key: string) => {
@@ -83,17 +74,11 @@ export default function ShareConsentModal({
   const canStep2Continue = recipient !== null;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+    <section
       aria-label="Share consent"
-      className="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4"
+      className="overflow-hidden rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
     >
-      <div
-        className="absolute inset-0 bg-[#3D2E6B]/45 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl md:h-auto md:max-h-[90vh] md:max-w-xl md:rounded-3xl">
+      <div>
         {/* Progress bar */}
         <div className="relative">
           <div className="h-1 w-full bg-[#F4F0FB]">
@@ -102,22 +87,14 @@ export default function ShareConsentModal({
               style={{ width: `${(step / 3) * 100}%` }}
             />
           </div>
-          <div className="flex items-center justify-between px-5 py-3">
+          <div className="px-5 py-3 md:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5A4A8A]">
               Step {step} of 3
             </p>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="rounded-full p-1.5 text-[#5A4A8A] transition hover:bg-[#F4F0FB] hover:text-[#3D2E6B]"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pb-6 md:px-7">
+        <div className="px-5 pb-6 md:px-7">
           {step === 1 && (
             <Step1
               included={included}
@@ -134,14 +111,18 @@ export default function ShareConsentModal({
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          <button
-            type="button"
-            onClick={() => (step === 1 ? onClose() : setStep(step - 1))}
-            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {step === 1 ? "Cancel" : "Back"}
-          </button>
+          {step > 1 ? (
+            <button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
+          ) : (
+            <span />
+          )}
           <button
             type="button"
             disabled={
@@ -159,7 +140,7 @@ export default function ShareConsentModal({
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

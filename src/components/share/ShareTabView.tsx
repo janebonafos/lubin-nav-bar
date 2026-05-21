@@ -239,56 +239,62 @@ export default function ShareTabView({
             </p>
           </aside>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col justify-center gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => requireAccount(() => window.print())}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E1DAF1] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] shadow-sm transition-all hover:border-[#7C69BA]/40 hover:bg-[#FBFAFE]"
-              >
-                <Download className="h-4 w-4" />
-                Download Summary
-              </button>
-              <button
-                type="button"
-                onClick={() => requireAccount(() => setConsentOpen(true))}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#7C69BA] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-10px_rgba(124,105,186,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[#6857A3]"
-              >
-                <Share2 className="h-4 w-4" />
-                Share with a provider
-              </button>
+          {/* Actions or expanded share flow */}
+          {!consentOpen && !optionsOpen && (
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col justify-center gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => requireAccount(() => window.print())}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E1DAF1] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] shadow-sm transition-all hover:border-[#7C69BA]/40 hover:bg-[#FBFAFE]"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Summary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => requireAccount(() => setConsentOpen(true))}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#7C69BA] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-10px_rgba(124,105,186,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share with a provider
+                </button>
+              </div>
+              <p className="text-center text-[11px] italic text-[#A29EB6]">
+                This summary helps you reflect and share context. It is not a
+                diagnosis.
+              </p>
             </div>
-            <p className="text-center text-[11px] italic text-[#A29EB6]">
-              This summary helps you reflect and share context. It is not a
-              diagnosis.
-            </p>
-          </div>
-        </>
-      )}
+          )}
 
-      <ShareConsentModal
-        open={consentOpen}
-        onClose={() => setConsentOpen(false)}
-        summary={summary}
-        onConfirm={(r) => {
-          setConfirmed(r);
-          setConsentOpen(false);
-          setOptionsOpen(true);
-        }}
-      />
-      {confirmed && (
-        <ShareOptionsModal
-          open={optionsOpen}
-          onBack={() => {
-            setOptionsOpen(false);
-            setConsentOpen(true);
-          }}
-          onClose={() => setOptionsOpen(false)}
-          includedKeys={confirmed.includedKeys}
-          recipient={confirmed.recipient}
-          summary={summary}
-        />
+          {consentOpen && (
+            <ShareConsentModal
+              open={consentOpen}
+              summary={summary}
+              onConfirm={(r) => {
+                setConfirmed(r);
+                setConsentOpen(false);
+                setOptionsOpen(true);
+              }}
+            />
+          )}
+          {optionsOpen && confirmed && (
+            <ShareOptionsModal
+              open={optionsOpen}
+              onBack={() => {
+                setOptionsOpen(false);
+                setConsentOpen(true);
+              }}
+              onClose={() => {
+                setOptionsOpen(false);
+                setConfirmed(null);
+              }}
+              includedKeys={confirmed.includedKeys}
+              recipient={confirmed.recipient}
+              summary={summary}
+            />
+          )}
+        </>
       )}
     </div>
   );

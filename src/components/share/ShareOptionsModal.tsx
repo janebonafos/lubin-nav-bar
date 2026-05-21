@@ -8,7 +8,6 @@ import {
   Link as LinkIcon,
   Lock,
   Mail,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -48,53 +47,30 @@ export default function ShareOptionsModal({
     if (open) setMode("menu");
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
   if (!open) return null;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+    <section
       aria-label="Share options"
-      className="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4"
+      className="overflow-hidden rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
     >
-      <div
-        className="absolute inset-0 bg-[#3D2E6B]/45 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl md:h-auto md:max-h-[90vh] md:max-w-xl md:rounded-3xl">
-        <div className="flex items-center justify-between border-b border-[#F4F0FB] px-5 py-4 md:px-7">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={mode === "menu" ? onBack : () => setMode("menu")}
-              aria-label="Back"
-              className="rounded-full p-1.5 text-[#5A4A8A] hover:bg-[#F4F0FB] hover:text-[#3D2E6B]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
-              <CheckCircle2 className="h-3 w-3" />
-              Consent confirmed
-            </span>
-          </div>
+      <div>
+        <div className="flex items-center gap-3 border-b border-[#F4F0FB] px-5 py-4 md:px-7">
           <button
             type="button"
-            onClick={onClose}
-            aria-label="Close"
+            onClick={mode === "menu" ? onBack : () => setMode("menu")}
+            aria-label="Back"
             className="rounded-full p-1.5 text-[#5A4A8A] hover:bg-[#F4F0FB] hover:text-[#3D2E6B]"
           >
-            <X className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
           </button>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
+            <CheckCircle2 className="h-3 w-3" />
+            Consent confirmed
+          </span>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6 md:px-7">
+        <div className="px-5 py-6 md:px-7">
           {mode === "menu" && (
             <MenuView onPick={setMode} summary={summary} />
           )}
@@ -121,7 +97,7 @@ export default function ShareOptionsModal({
           Your provider will only see what you selected in step 1.
         </p>
       </div>
-    </div>
+    </section>
   );
 }
 
