@@ -50,10 +50,14 @@ export default function ShareTabView({
     return real;
   }, [range, checkins]);
 
-  // Show the preview to everyone (guests included). Sharing/downloading
-  // still requires an account — gated below via requireAccount().
-  const showEmpty = false;
-  void mounted;
+  // Empty state only when there's truly no data. Guests with no data see the
+  // empty state with a Create account CTA; guests with data see the preview
+  // and only get prompted to sign up when they click Share.
+  const hasData = useMemo(
+    () => buildSummary(range, { checkins }).hasAnyData,
+    [range, checkins],
+  );
+  const showEmpty = mounted && !hasData;
 
   const requireAccount = (action: () => void) => {
     if (isGuest) {
@@ -76,34 +80,12 @@ export default function ShareTabView({
         </p>
       </header>
 
-      {isGuest && (
-        <aside className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#ECE7F6] bg-[#F4F0FB] p-5 sm:flex-row sm:items-center">
-          <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-white text-[#7E6BAF] shadow-sm">
-              <Lock className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-[#3D2E6B]">
-                Create a free account to share
-              </p>
-              <p className="text-xs leading-normal text-[#7E6BAF]">
-                Sharing securely with a provider requires an account so your
-                data stays protected.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onRequestSignup}
-            className="inline-flex flex-none items-center gap-2 rounded-xl bg-[#7E6BAF] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
-          >
-            Create account
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </aside>
-      )}
       {showEmpty ? (
-        <EmptyState onStart={onStartCheckin} />
+        <EmptyState
+          onStart={onStartCheckin}
+          isGuest={isGuest}
+          onCreateAccount={onRequestSignup}
+        />
       ) : (
         <>
           {/* Range pill toggle */}
@@ -143,7 +125,7 @@ export default function ShareTabView({
             {/* Paper stack shadow card behind */}
             <div
               aria-hidden
-              className="absolute inset-0 translate-y-1 -rotate-[0.5deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
+              className="absolute inset-0 -rotate-[0.4deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
             />
             <article
               id="share-summary-print"
@@ -329,7 +311,15 @@ function SupportStat({ value, label }: { value: number; label: string }) {
   );
 }
 
-function EmptyState({ onStart }: { onStart?: () => void }) {
+function EmptyState({
+  onStart,
+  isGuest,
+  onCreateAccount,
+}: {
+  onStart?: () => void;
+  isGuest?: boolean;
+  onCreateAccount?: () => void;
+}) {
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-[#ECE7F6] bg-white p-10 text-center shadow-[0_30px_80px_-30px_rgba(126,107,175,0.35)] md:p-16">
       {/* Decorative soft background blobs */}
@@ -382,7 +372,7 @@ function EmptyState({ onStart }: { onStart?: () => void }) {
       </div>
 
       {/* CTA */}
-      <div className="relative z-10 pt-7">
+      <div className="relative z-10 flex flex-col items-center gap-3 pt-7 sm:flex-row sm:justify-center">
         {onStart ? (
           <button
             type="button"
@@ -400,6 +390,16 @@ function EmptyState({ onStart }: { onStart?: () => void }) {
             Start your first check-in
             <ArrowRight className="h-4 w-4" />
           </Link>
+        )}
+        {isGuest && onCreateAccount && (
+          <button
+            type="button"
+            onClick={onCreateAccount}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#ECE7F6] bg-white px-7 py-3.5 text-sm font-semibold text-[#3D2E6B] transition-all duration-300 hover:bg-[#ECE7F6]"
+          >
+            Create an account
+            <ArrowRight className="h-4 w-4" />
+          </button>
         )}
       </div>
     </div>
