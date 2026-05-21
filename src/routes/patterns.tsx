@@ -32,6 +32,8 @@ import {
 import {
   getAttemptsFor,
   getLatestAttempt,
+  INPROGRESS_EVENT,
+  clearInProgress,
   listAllInProgress,
   loadInProgress,
   loadAttempts,
@@ -72,13 +74,22 @@ function PatternsPage() {
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
   const [timingOpen, setTimingOpen] = useState(false);
+  const [startOverId, setStartOverId] = useState<string | null>(null);
   useEffect(() => {
     const onFocus = () => setTick((t) => t + 1);
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
+    const onChange = () => setTick((t) => t + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) onChange();
+    };
+    window.addEventListener(INPROGRESS_EVENT, onChange);
+    window.addEventListener("storage", onStorage);
     return () => {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener(INPROGRESS_EVENT, onChange);
+      window.removeEventListener("storage", onStorage);
     };
   }, []);
 
