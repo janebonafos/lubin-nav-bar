@@ -134,7 +134,6 @@ function NotFound() {
 
 type Phase =
   | "intro"
-  | "locked"
   | "preparing"
   | "questions"
   | "breathing"
@@ -166,7 +165,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [crisisOpen, setCrisisOpen] = useState(false);
   const breathingShownRef = useRef(false);
   const crisisShownRef = useRef(false);
-  const [latestLocked, setLatestLocked] = useState<Attempt | null>(null);
   const startedAtRef = useRef<number>(Date.now());
 
   // One-time browser bootstrap.
@@ -326,13 +324,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
           <AnimatePresence mode="wait">
             {phase === "preparing" && (
               <PreparingView key="preparing" />
-            )}
-            {phase === "locked" && latestLocked && (
-              <LockedView
-                key="locked"
-                assessment={assessment}
-                latest={latestLocked}
-              />
             )}
             {phase === "questions" && (
               <div key={`q-${currentIndex}`} className="mt-6">
