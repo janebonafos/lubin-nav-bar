@@ -40,7 +40,7 @@ import {
 } from "@/lib/patterns/storage";
 import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/types";
 
-export const Route = createFileRoute("/patterns")({
+export const Route = createFileRoute("/self-discovery")({
   head: () => ({
     meta: [
       { title: "Patterns — Lubin" },

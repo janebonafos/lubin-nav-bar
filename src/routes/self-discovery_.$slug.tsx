@@ -68,7 +68,7 @@ const ABOUT_COPY: Record<string, string> = {
     "This check is based on the MDQ — a screening tool used to help people notice significant patterns in energy, mood, and behaviour. It covers a range of experiences — answer as honestly as you can.",
 };
 
-export const Route = createFileRoute("/patterns_/$slug")({
+export const Route = createFileRoute("/self-discovery_/$slug")({
   head: ({ params }) => {
     const a = ASSESSMENTS_BY_SLUG[params.slug];
     const title = a ? `${a.name} — Lubin` : "Check-in — Lubin";
