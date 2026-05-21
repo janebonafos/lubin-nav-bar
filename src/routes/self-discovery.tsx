@@ -14,7 +14,6 @@ import {
   X,
   ChevronDown,
   Clock3,
-  ShieldAlert,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -476,39 +475,32 @@ function PatternsPage() {
           onClick={() => setStartOverId(null)}
         >
           <div
-            className="w-full max-w-[440px] rounded-3xl bg-white p-7 shadow-2xl"
+            className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-amber-100">
-                <ShieldAlert className="h-5 w-5 text-amber-600" strokeWidth={2.2} />
-              </span>
-              <div className="pt-1.5">
-                <h3 className="text-[18px] font-semibold leading-tight text-brand-purple-dark">
-                  Start over?
-                </h3>
-              </div>
-            </div>
-            <p className="mt-4 text-[14px] leading-relaxed text-brand-purple-dark/70">
-              Starting over will clear your previous answers for this check-in. Are you sure?
+            <h3 className="text-[18px] font-semibold text-brand-purple-dark">
+              Start over?
+            </h3>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-brand-purple-dark/70">
+              Your previous answers for this assessment will be cleared. This can't be undone.
             </p>
-            <div className="mt-6 flex flex-col items-center gap-3">
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setStartOverId(null)}
+                className="rounded-full border border-brand-purple/20 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark/80 transition hover:border-brand-purple/40"
+              >
+                Cancel
+              </button>
               <button
                 type="button"
                 onClick={() => {
                   if (startOverId) clearInProgress(startOverId);
                   setStartOverId(null);
                 }}
-                className="w-full rounded-xl bg-brand-purple px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:bg-brand-purple-dark"
+                className="rounded-full bg-rose-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-rose-700"
               >
-                Yes, start over
-              </button>
-              <button
-                type="button"
-                onClick={() => setStartOverId(null)}
-                className="text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
-              >
-                Go back
+                Start over
               </button>
             </div>
           </div>
