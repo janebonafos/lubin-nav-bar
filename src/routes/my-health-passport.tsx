@@ -56,9 +56,6 @@ import {
 } from "@/lib/patterns/storage";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import {
-  isLocked,
-  formatDaysRemaining,
-  daysUntilAvailable,
   statusTier,
 } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
