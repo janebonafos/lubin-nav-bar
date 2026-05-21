@@ -8,6 +8,8 @@ import {
   Link as LinkIcon,
   ShieldCheck,
   Mail,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -213,47 +215,84 @@ function LinkView({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-[#3D2E6B]">Your link is ready</h2>
-      <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        Share this with{" "}
-        <strong>{recipientLabel(recipient).toLowerCase()}</strong>. It expires in
-        30 days.
-      </p>
-
-      <div className="mt-5 flex items-center gap-2 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-3">
-        <code className="flex-1 truncate text-xs text-[#3D2E6B]">{shareUrl}</code>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(shareUrl).then(
-              () => toast.success("Link copied"),
-              () => toast.error("Couldn't copy link"),
-            );
-          }}
-          className="inline-flex items-center gap-1 rounded-full bg-[#7E6BAF] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#6A5A98]"
-        >
-          <Copy className="h-3.5 w-3.5" /> Copy
-        </button>
-        <a
-          href={shareUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 rounded-full border border-[#ECE7F6] px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] hover:text-[#3D2E6B]"
-        >
-          <ExternalLink className="h-3.5 w-3.5" /> Open
-        </a>
+      <div className="flex items-start gap-3">
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-[#7E6BAF] to-[#6A5A98] text-white shadow-[0_10px_24px_-10px_rgba(126,107,175,0.7)]">
+          <Sparkles className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold text-[#3D2E6B]">
+            Your link is ready
+          </h2>
+          <p className="mt-1 text-sm text-[#5A4A8A]">
+            Share this with{" "}
+            <strong>{recipientLabel(recipient).toLowerCase()}</strong>.
+          </p>
+        </div>
       </div>
 
-      <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-2.5">
-        <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
-        <p className="text-xs text-[#5A4A8A]">
-          This link is safe — it expires automatically in{" "}
-          <strong className="text-[#3D2E6B]">30 days</strong> and is stored on
-          this device only.
+      <div className="mt-5 rounded-2xl border border-[#E5DDF4] bg-gradient-to-br from-white to-[#FAF8FD] p-4 shadow-[0_12px_30px_-20px_rgba(74,62,127,0.25)]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+          Shareable link
         </p>
+        <div className="mt-2 rounded-xl border border-[#ECE7F6] bg-white px-3 py-2.5">
+          <code className="block truncate font-mono text-xs text-[#3D2E6B]">
+            {shareUrl}
+          </code>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(shareUrl).then(
+                () => toast.success("Link copied"),
+                () => toast.error("Couldn't copy link"),
+              );
+            }}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
+          >
+            <Copy className="h-3.5 w-3.5" /> Copy link
+          </button>
+          <a
+            href={shareUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#5A4A8A] transition hover:border-[#7E6BAF]/40 hover:text-[#3D2E6B]"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Preview
+          </a>
+        </div>
       </div>
 
-      <p className="mt-3 text-xs text-[#5A4A8A]">
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-[#ECE7F6] bg-white p-3">
+          <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#F4F0FB] text-[#7E6BAF]">
+            <Clock className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-[#3D2E6B]">
+              Expires in 30 days
+            </p>
+            <p className="mt-0.5 text-[11px] text-[#5A4A8A]">
+              Auto-revokes after.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2.5 rounded-2xl border border-[#ECE7F6] bg-white p-3">
+          <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#F4F0FB] text-[#7E6BAF]">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-[#3D2E6B]">
+              Safe & private
+            </p>
+            <p className="mt-0.5 text-[11px] text-[#5A4A8A]">
+              Stored on this device only.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-4 text-xs text-[#5A4A8A]">
         Want the full details?{" "}
         <a
           href="/privacy-policy"
@@ -269,7 +308,7 @@ function LinkView({
         <button
           type="button"
           onClick={onDone}
-          className="rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5"
         >
           Done
         </button>
