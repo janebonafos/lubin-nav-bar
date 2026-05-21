@@ -1532,37 +1532,7 @@ function Progress({
         </Link>
       </Card>
 
-      {/* 2. Mood */}
-      <Card>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          How your mood has been
-        </p>
-        <div className="mt-4 h-40 w-full opacity-40" aria-hidden>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={moodSample} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <XAxis
-                dataKey="d"
-                tick={{ fontSize: 11, fill: "#5A4E8A" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis hide domain={[1, 5]} />
-              <Tooltip cursor={false} contentStyle={{ display: "none" }} />
-              <Line
-                type="monotone"
-                dataKey="m"
-                stroke="#7E6BAF"
-                strokeWidth={2}
-                dot={{ r: 3, fill: "#7E6BAF" }}
-                isAnimationActive={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="mt-3 text-sm text-brand-purple-dark/60">
-          Even a week of check-ins shows a shape. Yours will appear here.
-        </p>
-      </Card>
+      {/* 2. Mood — hidden for now */}
 
       {/* 3. Self Discovery */}
       <Card>
