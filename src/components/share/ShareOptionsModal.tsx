@@ -222,7 +222,7 @@ function LinkView({
 
   return (
     <div>
-      <span className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
+      <span className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
         <CheckCircle2 className="h-3 w-3" />
         Link ready
       </span>
