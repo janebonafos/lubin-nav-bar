@@ -76,6 +76,25 @@ export default function ShareTabView({
         </p>
       </header>
 
+      {isGuest && (
+        <aside className="flex flex-col gap-3 rounded-2xl border border-[#E0D4F7] bg-gradient-to-br from-[#F4F0FB] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Lock className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
+            <p className="text-sm leading-relaxed text-[#3D2E6B]">
+              <strong>Create a free account to share.</strong> Sharing securely
+              with a provider or someone you trust requires an account so your
+              data stays protected and only goes where you choose.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onRequestSignup}
+            className="inline-flex flex-none items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)]"
+          >
+            Create free account <span aria-hidden>→</span>
+          </button>
+        </aside>
+      )}
       {showEmpty ? (
         <EmptyState onStart={onStartCheckin} />
       ) : (
