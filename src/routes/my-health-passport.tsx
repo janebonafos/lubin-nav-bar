@@ -1420,6 +1420,7 @@ function Progress({
   streak: number;
 }) {
   const [patternAttempts, setPatternAttempts] = useState<PatternAttempt[]>([]);
+  const [exploredExpanded, setExploredExpanded] = useState<boolean>(false);
   useEffect(() => {
     setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
   }, []);
