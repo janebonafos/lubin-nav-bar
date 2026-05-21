@@ -8,6 +8,7 @@ import {
   Lock,
   Send,
   Sparkles,
+  Lightbulb,
 } from "lucide-react";
 import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
@@ -251,28 +252,61 @@ function Chip({ label, value }: { label: string; value: string }) {
 
 function EmptyState() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#ECE7F6] bg-white p-8 text-center shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)]">
-      {/* blurred ghost preview */}
+    <div className="relative overflow-hidden rounded-[32px] border border-[#ECE7F6] bg-white p-10 text-center shadow-[0_30px_80px_-30px_rgba(126,107,175,0.35)] md:p-16">
+      {/* Decorative soft background blobs */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-6 top-6 space-y-3 opacity-40 blur-[3px]"
-      >
-        <div className="h-4 w-1/3 rounded-full bg-[#ECE7F6]" />
-        <div className="h-20 rounded-2xl bg-gradient-to-br from-[#F4F0FB] to-white" />
-        <div className="h-12 rounded-2xl bg-[#FAF8FD]" />
+        className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-[#ECE7F6] opacity-30 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#F4F0FB] opacity-60 blur-3xl"
+      />
+
+      {/* Ghost preview + floating icon */}
+      <div className="relative mb-12 flex h-32 w-full flex-col items-center justify-center">
+        {/* Blurred skeleton layers behind the icon */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex -translate-y-2 flex-col items-center justify-center gap-3 opacity-20 blur-[8px]"
+        >
+          <div className="h-4 w-3/4 rounded-full bg-[#7E6BAF]" />
+          <div className="h-4 w-1/2 rounded-full bg-[#7E6BAF]" />
+          <div className="h-4 w-2/3 rounded-full bg-[#7E6BAF]" />
+        </div>
+
+        {/* Floating icon with soft halo */}
+        <div className="relative z-10">
+          <div
+            aria-hidden
+            className="absolute inset-0 scale-150 rounded-full bg-[#7E6BAF] opacity-10 blur-xl"
+          />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-[#F4F0FB] shadow-sm">
+            <Lightbulb className="h-7 w-7 text-[#7E6BAF]" strokeWidth={1.6} />
+            <Sparkles
+              className="absolute -right-2 -top-2 h-5 w-5 text-[#7E6BAF] opacity-70"
+              strokeWidth={2}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="relative pt-40">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F4F0FB] text-[#7E6BAF]">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-[#5A4A8A]">
+      {/* Copy */}
+      <div className="relative z-10 space-y-3">
+        <h3 className="text-2xl font-semibold text-[#3D2E6B]">
+          Your future summaries will live here
+        </h3>
+        <p className="mx-auto max-w-md text-base leading-relaxed text-[#7E6BAF]">
           Nothing to share yet — once you've checked in a few times, you'll be
           able to create a simple summary to share.
         </p>
+      </div>
+
+      {/* CTA */}
+      <div className="relative z-10 pt-7">
         <Link
           to="/check-in"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] hover:-translate-y-0.5 transition"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7E6BAF] px-7 py-3.5 text-sm font-semibold text-white no-underline shadow-[0_12px_24px_-8px_rgba(126,107,175,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3D2E6B] hover:shadow-[0_16px_28px_-10px_rgba(61,46,107,0.5)] active:translate-y-0"
         >
           Start your first check-in
           <ArrowRight className="h-4 w-4" />
