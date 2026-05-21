@@ -1,23 +1,65 @@
 import type { Assessment, Attempt, TrendDirection } from "./types";
 
-export const COOLDOWN_DAYS = 14;
 const DAY_MS = 86_400_000;
 
-export function daysUntilAvailable(latest: Attempt | null): number {
+/**
+ * Recommended wait period (in days) between attempts for each assessment.
+ * This is guidance — never a hard lock. The user can always retake.
+ */
+export const RECOMMENDED_DAYS: Record<string, number> = {
+  // Quick to change — weekly gives a useful pattern
+  "phq-9": 7,
+  "who-5": 7,
+  "mdq": 7,
+  // Measure the last 2 weeks — space them out
+  "pss-10": 14,
+  "gad-7": 14,
+  "sleep-rest": 14,
+  "asrs-6": 14,
+  "pdss-sr": 14,
+  "spin": 14,
+  // Reflect longer patterns — monthly is enough
+  "pcl-5": 30,
+  "oci-r": 30,
+  "scoff": 30,
+  "audit": 30,
+};
+
+const DEFAULT_RECOMMENDED_DAYS = 14;
+
+export function recommendedDaysFor(assessmentId: string): number {
+  return RECOMMENDED_DAYS[assessmentId] ?? DEFAULT_RECOMMENDED_DAYS;
+}
+
+/**
+ * Days remaining in the soft recommended-wait window. Zero when the window
+ * has elapsed or no attempts exist. This is NEVER used to disable the CTA —
+ * it only powers the soft guidance copy.
+ */
+export function cooldownDaysRemaining(
+  assessmentId: string,
+  latest: Attempt | null,
+): number {
   if (!latest) return 0;
+  const recommendedMs = recommendedDaysFor(assessmentId) * DAY_MS;
   const elapsed = Date.now() - latest.takenAt;
-  const remaining = COOLDOWN_DAYS * DAY_MS - elapsed;
+  const remaining = recommendedMs - elapsed;
   if (remaining <= 0) return 0;
   return Math.ceil(remaining / DAY_MS);
 }
 
-export function isLocked(latest: Attempt | null): boolean {
-  return daysUntilAvailable(latest) > 0;
+/** True when the latest attempt is still inside the recommended wait window. */
+export function isInCooldown(
+  assessmentId: string,
+  latest: Attempt | null,
+): boolean {
+  return cooldownDaysRemaining(assessmentId, latest) > 0;
 }
 
 /**
  * Compare latest vs previous attempt for the same assessment, but only when
- * the two attempts are at least 14 days apart. Returns up/down/stable or null.
+ * the two attempts are at least the recommended wait apart. Returns
+ * up/down/stable or null. Early retakes are saved but don't move the trend.
  * "Up" / "down" describe the *user-facing* direction: an improvement is
  * always shown as "up" regardless of whether higher or lower scoring is
  * clinically better.
@@ -29,7 +71,8 @@ export function computeTrend(
   if (attempts.length < 2) return null;
   const sorted = [...attempts].sort((a, b) => b.takenAt - a.takenAt);
   const [latest, previous] = sorted;
-  if (Math.abs(latest.takenAt - previous.takenAt) < COOLDOWN_DAYS * DAY_MS) {
+  const recommendedMs = recommendedDaysFor(assessment.id) * DAY_MS;
+  if (Math.abs(latest.takenAt - previous.takenAt) < recommendedMs) {
     return null;
   }
   const diff = latest.score - previous.score;
@@ -39,10 +82,13 @@ export function computeTrend(
   return improving ? "up" : "down";
 }
 
-export function formatDaysRemaining(days: number): string {
-  if (days <= 0) return "Available now";
-  if (days === 1) return "Available again in 1 day";
-  return `Available again in ${days} days`;
+/**
+ * Soft, non-blocking guidance copy. Phrased as a suggestion — never a lock.
+ */
+export function formatRetakeHint(days: number): string {
+  if (days <= 0) return "Ready to retake";
+  if (days === 1) return "Best retaken in 1 day";
+  return `Best retaken in ${days} days`;
 }
 
 /**
