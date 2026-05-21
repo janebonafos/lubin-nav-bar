@@ -79,19 +79,39 @@ export default function ShareConsentModal({
       className="overflow-hidden rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
     >
       <div>
-        {/* Progress bar */}
+        {/* Stepped progress indicator */}
         <div className="relative">
-          <div className="h-1 w-full bg-[#F4F0FB]">
-            <div
-              className="h-full bg-gradient-to-r from-[#7E6BAF] to-[#A89BD0] transition-all duration-300"
-              style={{ width: `${(step / 3) * 100}%` }}
-            />
-          </div>
-          <div className="px-5 py-3 md:px-7">
+          <div className="flex items-center justify-between gap-3 px-5 pt-4 md:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5A4A8A]">
               Step {step} of 3
             </p>
+            <p className="text-[11px] font-medium text-[#A29EB6]">
+              {step === 1
+                ? "Choose what to include"
+                : step === 2
+                  ? "Choose recipient"
+                  : "Confirm & consent"}
+            </p>
           </div>
+          <div
+            className="mt-3 flex w-full gap-1.5 px-5 md:px-7"
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={3}
+            aria-valuenow={step}
+          >
+            {[1, 2, 3].map((s) => (
+              <span
+                key={s}
+                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                  s <= step
+                    ? "bg-gradient-to-r from-[#7E6BAF] to-[#A89BD0]"
+                    : "bg-[#F4F0FB]"
+                }`}
+              />
+            ))}
+          </div>
+          <div className="h-3" />
         </div>
 
         <div className="px-5 pb-6 md:px-7">
