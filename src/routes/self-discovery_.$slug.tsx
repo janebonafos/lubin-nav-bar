@@ -128,10 +128,10 @@ function NotFound() {
           We couldn't find that check-in.
         </h1>
         <Link
-          to="/patterns"
+          to="/self-discovery"
           className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
         >
-          Back to Patterns
+          Back to Self Discovery
         </Link>
       </div>
     </div>
@@ -303,7 +303,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <header className="px-4 pt-6">
         <div className="mx-auto flex w-full max-w-[760px] items-center justify-between">
           <Link
-            to="/patterns"
+            to="/self-discovery"
             className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-2 text-[13px] font-medium text-brand-purple-dark no-underline shadow-sm transition hover:bg-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -311,7 +311,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
           </Link>
           <button
             type="button"
-            onClick={() => navigate({ to: "/patterns" })}
+            onClick={() => navigate({ to: "/self-discovery" })}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-white/60 hover:text-brand-purple-dark"
             aria-label="Close"
           >
@@ -576,7 +576,7 @@ function LockedView({
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
-          to="/patterns"
+          to="/self-discovery"
           className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-[13.5px] font-semibold text-brand-purple-dark no-underline transition hover:border-brand-purple/50"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />

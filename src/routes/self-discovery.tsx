@@ -43,13 +43,13 @@ import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/ty
 export const Route = createFileRoute("/self-discovery")({
   head: () => ({
     meta: [
-      { title: "Patterns — Lubin" },
+      { title: "Self Discovery — Lubin" },
       {
         name: "description",
         content:
           "Gentle, clinically grounded check-ins for mood, anxiety, sleep, focus and more — at your own pace.",
       },
-      { property: "og:title", content: "Patterns — Lubin" },
+      { property: "og:title", content: "Self Discovery — Lubin" },
       {
         property: "og:description",
         content:
@@ -365,7 +365,7 @@ function PatternsPage() {
                           Start over
                         </button>
                         <Link
-                          to="/patterns/$slug"
+                          to="/self-discovery/$slug"
                           params={{ slug: a.slug }}
                           className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white no-underline transition hover:bg-brand-purple-dark"
                         >
@@ -393,7 +393,7 @@ function PatternsPage() {
                 {history.map(({ assessment: a, attempts, inProgress }) => (
                   <li key={a.id}>
                     <Link
-                      to="/patterns/$slug"
+                      to="/self-discovery/$slug"
                       params={{ slug: a.slug }}
                       className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgba(126,107,175,0.5)]"
                     >
@@ -617,7 +617,7 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
         </div>
 
         <Link
-          to="/patterns/$slug"
+          to="/self-discovery/$slug"
           params={{ slug: assessment.slug }}
           className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
             locked

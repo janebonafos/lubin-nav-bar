@@ -1585,7 +1585,7 @@ function Progress({
               Each check you complete will live here, ordered by date.
             </p>
             <Link
-              to="/patterns"
+              to="/self-discovery"
               className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
             >
               Take a check-in <span aria-hidden>→</span>
@@ -1600,7 +1600,7 @@ function Progress({
                 return (
                   <Link
                     key={a.id}
-                    to="/patterns/$slug"
+                    to="/self-discovery/$slug"
                     params={{ slug }}
                     search={{ attempt: a.id }}
                     className="flex items-center justify-between gap-3 rounded-lg bg-brand-lavender/50 px-3 py-2 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
@@ -2031,7 +2031,7 @@ function UnderstandYourselfSection({
           {/* CTA */}
           <div className="flex sm:items-center">
             <Link
-              to="/patterns"
+              to="/self-discovery"
               className="group/cta inline-flex flex-none items-center justify-center gap-1.5 rounded-full border border-brand-purple/30 bg-white/80 px-5 py-2.5 text-[13px] font-medium text-brand-purple no-underline shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-purple hover:bg-brand-purple hover:text-white hover:shadow-md hover:shadow-brand-purple/25"
             >
               Browse all {total}
@@ -2103,7 +2103,7 @@ function ContinueWhereYouLeftOff({
             Start over
           </button>
           <Link
-            to="/patterns/$slug"
+            to="/self-discovery/$slug"
             params={{ slug }}
             className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3.5 py-1.5 text-[12.5px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
