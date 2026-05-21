@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -6,7 +6,7 @@ import {
   Download,
   ExternalLink,
   Link as LinkIcon,
-  Lock,
+  ShieldCheck,
   Mail,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,15 +15,9 @@ import {
   createShare,
   type RecipientId,
 } from "@/lib/share/shareStore";
-import {
-  clearSavedPin,
-  getSavedPin,
-  setSavedPin,
-} from "@/lib/share/savedPin";
 import { recipientLabel, type SummaryData } from "@/lib/share/summary";
 
 type Mode = "menu" | "pdf" | "link" | "email";
-type LinkStep = "passcode-choice" | "set-passcode" | "result";
 type EmailStep = "form" | "result";
 
 export default function ShareOptionsModal({
@@ -207,101 +201,15 @@ function LinkView({
   recipient: RecipientId;
   onDone: () => void;
 }) {
-  const [step, setStep] = useState<LinkStep>("passcode-choice");
-  const [pin, setPin] = useState<string | null>(getSavedPin());
-  const [shareUrl, setShareUrl] = useState<string>("");
-
-  const finalize = (finalPin: string | null) => {
+  const shareUrl = useMemo(() => {
     const created = createShare({
-      pin: finalPin,
+      pin: null,
       recipient,
       includedKeys,
     });
-    setShareUrl(buildShareUrl(created.token));
-    setStep("result");
-  };
-
-  if (step === "passcode-choice") {
-    const saved = getSavedPin();
-    return (
-      <div>
-        <h2 className="text-lg font-bold text-[#3D2E6B]">Add a passcode?</h2>
-        <p className="mt-1.5 text-sm text-[#5A4A8A]">
-          A short PIN keeps your link private — your provider enters it before
-          viewing.
-        </p>
-        <div className="mt-5 grid gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (saved) {
-                setPin(saved);
-                finalize(saved);
-              } else {
-                setStep("set-passcode");
-              }
-            }}
-            className="flex items-start gap-3 rounded-2xl border border-[#7E6BAF]/30 bg-[#FAF8FD] p-4 text-left transition hover:border-[#7E6BAF]/60"
-          >
-            <Lock className="mt-0.5 h-5 w-5 flex-none text-[#7E6BAF]" />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-[#3D2E6B]">
-                  Add a passcode
-                </p>
-                <span className="rounded-full bg-[#DCFCE7] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#166534]">
-                  Recommended
-                </span>
-              </div>
-              <p className="mt-0.5 text-xs text-[#5A4A8A]">
-                {saved
-                  ? `Using your saved passcode •••• — change in next step`
-                  : "4-digit code provider enters before viewing."}
-              </p>
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => finalize(null)}
-            className="flex items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-left transition hover:border-[#B45309]/40"
-          >
-            <span className="mt-0.5 h-5 w-5 flex-none rounded-full bg-[#FEF3C7] text-center text-xs font-bold leading-5 text-[#B45309]">
-              !
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-[#3D2E6B]">No passcode</p>
-              <p className="mt-0.5 text-xs text-[#B45309]">
-                Anyone with the link can view your summary.
-              </p>
-            </div>
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={onDone}
-          className="mt-5 text-xs font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
-        >
-          Cancel
-        </button>
-      </div>
-    );
-  }
-
-  if (step === "set-passcode") {
-    return (
-      <SetPasscodeForm
-        savedPin={pin}
-        onCancel={() => setStep("passcode-choice")}
-        onConfirm={(p, remember) => {
-          if (remember) setSavedPin(p);
-          else clearSavedPin();
-          setPin(p);
-          finalize(p);
-        }}
-        onSkip={() => finalize(null)}
-      />
-    );
-  }
+    return buildShareUrl(created.token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -336,15 +244,25 @@ function LinkView({
         </a>
       </div>
 
-      {pin && (
-        <p className="mt-3 text-xs text-[#5A4A8A]">
-          Passcode set: <strong>••••</strong>. Share it separately with your
-          provider.
+      <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-2.5">
+        <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
+        <p className="text-xs text-[#5A4A8A]">
+          This link is safe — it expires automatically in{" "}
+          <strong className="text-[#3D2E6B]">30 days</strong> and is stored on
+          this device only.
         </p>
-      )}
+      </div>
 
-      <p className="mt-4 text-[11px] italic text-[#5A4A8A]">
-        Note: this link is stored on this device only.
+      <p className="mt-3 text-xs text-[#5A4A8A]">
+        Want the full details?{" "}
+        <a
+          href="/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+        >
+          View our privacy policy
+        </a>
       </p>
 
       <div className="mt-6 flex justify-end">
