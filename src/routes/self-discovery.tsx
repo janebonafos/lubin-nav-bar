@@ -122,10 +122,8 @@ function PatternsPage() {
         })();
 
   // Count how many check-ins are available to take right now (not in cooldown).
-  const availableNow =
-    typeof window === "undefined"
-      ? ASSESSMENTS.length
-      : ASSESSMENTS.filter((a) => !isLocked(getLatestAttempt(a.id))).length;
+  // All check-ins are always available — recommended waits are guidance only.
+  const availableNow = ASSESSMENTS.length;
 
   const q = query.trim().toLowerCase();
   const matches = (a: Assessment) =>
