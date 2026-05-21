@@ -2174,10 +2174,10 @@ function StartOverConfirm({
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-[18px] font-semibold text-brand-purple-dark">
-          Start over?
+          Start this check over?
         </h3>
         <p className="mt-2 text-[13.5px] leading-relaxed text-brand-purple-dark/70">
-          Your previous answers for this assessment will be cleared. This can't be undone.
+          This will discard your unfinished attempt and start from Question 1. Your previous completed results will always be saved, this only removes what you haven't finished.
         </p>
         <div className="mt-5 flex justify-end gap-2">
           <button
@@ -2190,9 +2190,9 @@ function StartOverConfirm({
           <button
             type="button"
             onClick={onConfirm}
-            className="rounded-full bg-rose-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-rose-700"
+            className="rounded-full bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-brand-purple/90"
           >
-            Start over
+            Yes, start over
           </button>
         </div>
       </div>
