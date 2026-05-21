@@ -569,12 +569,6 @@ function AssessmentCard({
         {assessment.blurb}
       </p>
 
-      {latest && (
-        <p className="mt-4 rounded-xl border border-brand-purple/10 bg-brand-lavender/50 px-3 py-2 text-[12.5px] italic leading-snug text-brand-purple-dark/75">
-          Last time: {latest.summary}
-        </p>
-      )}
-
       {hasInProgress && (
         <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-lavender/40 px-3 py-2.5">
           <p className="text-[12px] font-medium text-brand-purple-dark/75">
