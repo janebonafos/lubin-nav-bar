@@ -341,6 +341,15 @@ function PassportPage() {
         open={authMode !== null}
         mode={authMode ?? "signup"}
         onClose={() => setAuthMode(null)}
+        onContinueWithGoogle={() => {
+          // Preview-only mock: flip guest mode off so the share preview
+          // reflects a signed-in user without a real auth backend.
+          try {
+            writeLS(GUEST_KEY, false);
+          } catch {}
+          setAuthMode(null);
+          if (typeof window !== "undefined") window.location.reload();
+        }}
       />
 
       {registerNudge && (
