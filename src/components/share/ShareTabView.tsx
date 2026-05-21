@@ -125,7 +125,7 @@ export default function ShareTabView({
             {/* Paper stack shadow card behind */}
             <div
               aria-hidden
-              className="absolute inset-0 translate-y-1 -rotate-[0.5deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
+              className="absolute inset-0 -rotate-[0.4deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
             />
             <article
               id="share-summary-print"
@@ -311,7 +311,15 @@ function SupportStat({ value, label }: { value: number; label: string }) {
   );
 }
 
-function EmptyState({ onStart }: { onStart?: () => void }) {
+function EmptyState({
+  onStart,
+  isGuest,
+  onCreateAccount,
+}: {
+  onStart?: () => void;
+  isGuest?: boolean;
+  onCreateAccount?: () => void;
+}) {
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-[#ECE7F6] bg-white p-10 text-center shadow-[0_30px_80px_-30px_rgba(126,107,175,0.35)] md:p-16">
       {/* Decorative soft background blobs */}
@@ -364,7 +372,7 @@ function EmptyState({ onStart }: { onStart?: () => void }) {
       </div>
 
       {/* CTA */}
-      <div className="relative z-10 pt-7">
+      <div className="relative z-10 flex flex-col items-center gap-3 pt-7 sm:flex-row sm:justify-center">
         {onStart ? (
           <button
             type="button"
@@ -382,6 +390,16 @@ function EmptyState({ onStart }: { onStart?: () => void }) {
             Start your first check-in
             <ArrowRight className="h-4 w-4" />
           </Link>
+        )}
+        {isGuest && onCreateAccount && (
+          <button
+            type="button"
+            onClick={onCreateAccount}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#ECE7F6] bg-white px-7 py-3.5 text-sm font-semibold text-[#3D2E6B] transition-all duration-300 hover:bg-[#ECE7F6]"
+          >
+            Create an account
+            <ArrowRight className="h-4 w-4" />
+          </button>
         )}
       </div>
     </div>
