@@ -21,11 +21,13 @@ export default function ShareTabView({
   checkins,
   isGuest,
   onRequestSignup,
+  onStartCheckin,
   sharerName = "You",
 }: {
   checkins: MoodCheckin[];
   isGuest: boolean;
   onRequestSignup: () => void;
+  onStartCheckin?: () => void;
   sharerName?: string;
 }) {
   const [range, setRange] = useState<RangeKey>("30d");
@@ -69,7 +71,7 @@ export default function ShareTabView({
       </header>
 
       {showEmpty ? (
-        <EmptyState />
+        <EmptyState onStart={onStartCheckin} />
       ) : (
         <>
           {/* Range pill toggle */}
@@ -250,7 +252,7 @@ function Chip({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ onStart }: { onStart?: () => void }) {
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-[#ECE7F6] bg-white p-10 text-center shadow-[0_30px_80px_-30px_rgba(126,107,175,0.35)] md:p-16">
       {/* Decorative soft background blobs */}
@@ -304,13 +306,24 @@ function EmptyState() {
 
       {/* CTA */}
       <div className="relative z-10 pt-7">
-        <Link
-          to="/check-in"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7E6BAF] px-7 py-3.5 text-sm font-semibold text-white no-underline shadow-[0_12px_24px_-8px_rgba(126,107,175,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3D2E6B] hover:shadow-[0_16px_28px_-10px_rgba(61,46,107,0.5)] active:translate-y-0"
-        >
-          Start your first check-in
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {onStart ? (
+          <button
+            type="button"
+            onClick={onStart}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7E6BAF] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_24px_-8px_rgba(126,107,175,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3D2E6B] hover:shadow-[0_16px_28px_-10px_rgba(61,46,107,0.5)] active:translate-y-0"
+          >
+            Start your first check-in
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <Link
+            to="/my-health-passport"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7E6BAF] px-7 py-3.5 text-sm font-semibold text-white no-underline shadow-[0_12px_24px_-8px_rgba(126,107,175,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3D2E6B] hover:shadow-[0_16px_28px_-10px_rgba(61,46,107,0.5)] active:translate-y-0"
+          >
+            Start your first check-in
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
       </div>
     </div>
   );
