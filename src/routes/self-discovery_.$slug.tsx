@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
-  Lock,
   MessageCircle,
   RotateCcw,
   ShieldCheck,
@@ -30,11 +29,6 @@ import {
   saveAttempt,
   saveInProgress,
 } from "@/lib/patterns/storage";
-import {
-  daysUntilAvailable,
-  formatDaysRemaining,
-  isLocked,
-} from "@/lib/patterns/scoring";
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
