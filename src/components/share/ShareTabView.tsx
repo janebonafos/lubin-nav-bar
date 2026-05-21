@@ -17,6 +17,8 @@ import type { RecipientId } from "@/lib/share/shareStore";
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
 
+const SERIF = "'Instrument Serif', ui-serif, Georgia, serif";
+
 export default function ShareTabView({
   checkins,
   isGuest,
@@ -69,11 +71,19 @@ export default function ShareTabView({
 
   return (
     <div className="grid gap-6">
+      {/* Load editorial serif used for the document heading */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+      />
       <header>
-        <h2 className="text-2xl md:text-3xl font-bold text-[#3D2E6B]">
+        <h2
+          className="text-3xl md:text-5xl text-[#2D245A] tracking-tight"
+          style={{ fontFamily: SERIF }}
+        >
           Share My Summary
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#5A4A8A]">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6B6684]">
           Create a summary you can share when you're ready, a simple recap of
           how you've been feeling, in plain language. You decide what to share
           and when.
@@ -93,7 +103,7 @@ export default function ShareTabView({
             <div
               role="tablist"
               aria-label="Time range"
-              className="inline-flex rounded-xl bg-[#ECE7F6] p-1"
+              className="inline-flex self-start rounded-full border border-[#E9E4F4] bg-white p-1 shadow-sm"
             >
               {RANGE_OPTIONS.map((opt) => {
                 const active = range === opt.id;
@@ -103,10 +113,10 @@ export default function ShareTabView({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setRange(opt.id)}
-                    className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition ${
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                       active
-                        ? "bg-white text-[#3D2E6B] shadow-sm"
-                        : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                        ? "bg-[#7C69BA] text-white shadow-sm"
+                        : "text-[#6B6684] hover:text-[#3D2E6B]"
                     }`}
                   >
                     {opt.label}
@@ -114,7 +124,7 @@ export default function ShareTabView({
                 );
               })}
             </div>
-            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]/70">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A29EB6]">
               <CalendarDays className="h-3.5 w-3.5" />
               Showing {summary.dateSpan}
             </p>
@@ -125,56 +135,60 @@ export default function ShareTabView({
             {/* Paper stack shadow card behind */}
             <div
               aria-hidden
-              className="absolute inset-0 -rotate-[0.4deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
+              className="absolute inset-0 -rotate-[0.5deg] translate-y-1 rounded-[28px] border border-[#ECE7F6] bg-white shadow-sm"
             />
             <article
               id="share-summary-print"
-              className="relative overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white shadow-xl"
+              className="relative overflow-hidden rounded-[28px] border border-white bg-white shadow-[0_24px_60px_-24px_rgba(74,62,127,0.18)] ring-1 ring-[#EFEAF8]"
             >
-              <header className="flex items-end justify-between gap-3 border-b border-[#ECE7F6] bg-gradient-to-br from-[#ECE7F6] to-white p-6">
+              <header className="flex items-start justify-between gap-3 border-b border-[#F0EDF8] bg-gradient-to-br from-[#F7F4FC] via-white to-white px-7 py-7 md:px-9">
                 <div>
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
                     Lubin.AI • Wellbeing Summary
                   </p>
-                  <h3 className="text-2xl font-bold text-[#3D2E6B]">{sharerName}</h3>
+                  <h3
+                    className="text-4xl text-[#2D245A] leading-none"
+                    style={{ fontFamily: SERIF }}
+                  >
+                    {sharerName}
+                  </h3>
                 </div>
-                <div className="rounded-full border border-[#ECE7F6] bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#7E6BAF] shadow-sm">
+                <div className="rounded-full border border-[#E1DAF1] bg-[#F5F1FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C69BA]">
                   {summary.rangeLabel}
                 </div>
               </header>
 
-              <div className="space-y-10 p-6 md:p-8">
+              <div className="space-y-12 p-7 md:p-10">
                 {/* Section 1: Feeling */}
-                <section className="space-y-4">
-                  <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
-                    How you've been feeling
-                  </h4>
+                <section className="space-y-5">
+                  <SectionEyebrow>How you've been feeling</SectionEyebrow>
                   <div className="space-y-4">
-                    <p className="text-base leading-relaxed text-[#3D2E6B]">
-                      {summary.insight}
+                    <p
+                      className="max-w-2xl text-xl leading-relaxed text-[#4A3E7F] italic"
+                      style={{ fontFamily: SERIF }}
+                    >
+                      “{summary.insight}”
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      <ArtifactChip label="Mood" value={summary.moodLabel} />
-                      <ArtifactChip label="Stress" value={summary.stressLabel} />
-                      <ArtifactChip label="Direction" value={summary.directionLabel} />
+                    <div className="flex flex-wrap gap-2.5">
+                      <ArtifactChip label="Mood" value={summary.moodLabel} dot="#34D39A" />
+                      <ArtifactChip label="Stress" value={summary.stressLabel} dot="#F5A35B" />
+                      <ArtifactChip label="Direction" value={summary.directionLabel} dot="#7AA7E8" />
                     </div>
                   </div>
                 </section>
 
                 {/* Section 2: Coming up */}
                 {summary.themes.length > 0 && (
-                  <section className="space-y-4">
-                    <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
-                      What's been coming up most
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
+                  <section className="space-y-5">
+                    <SectionEyebrow>What's been coming up most</SectionEyebrow>
+                    <div className="flex flex-wrap gap-2.5">
                       {summary.themes.map((t) => (
                         <div
                           key={t.label}
-                          className="cursor-default rounded-lg border border-[#7E6BAF]/30 bg-white px-3 py-1 text-xs font-bold text-[#7E6BAF] transition-all hover:bg-[#7E6BAF] hover:text-white"
+                          className="inline-flex items-center gap-2 rounded-xl border border-[#E1DAF1] bg-[#F8F5FE] px-3.5 py-2 text-xs font-semibold text-[#7C69BA]"
                         >
-                          {t.label}{" "}
-                          <span className="ml-1 font-normal opacity-60">
+                          {t.label}
+                          <span className="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-bold text-[#7C69BA] ring-1 ring-[#E9E4F4]">
                             {t.count}×
                           </span>
                         </div>
@@ -184,10 +198,8 @@ export default function ShareTabView({
                 )}
 
                 {/* Section 3: Support */}
-                <section className="space-y-4">
-                  <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
-                    Support &amp; care
-                  </h4>
+                <section className="space-y-5">
+                  <SectionEyebrow>Support &amp; care</SectionEyebrow>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <SupportStat
                       value={summary.support.resourcesAccessed}
@@ -209,11 +221,11 @@ export default function ShareTabView({
                 </section>
               </div>
 
-              <footer className="flex items-center justify-between border-t border-[#ECE7F6] bg-[#FAF8FD] px-6 py-4 md:px-8">
-                <p className="text-[9px] font-medium uppercase tracking-widest text-[#7E6BAF]">
+              <footer className="flex items-center justify-between border-t border-[#F0EDF8] bg-[#FBFAFE] px-7 py-4 md:px-9">
+                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
                   Generated by Health Passport
                 </p>
-                <div className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                <div className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.22em] text-[#7C69BA]">
                   <Lock className="h-3 w-3" />
                   User-owned data
                 </div>
@@ -222,16 +234,16 @@ export default function ShareTabView({
           </div>
 
           {/* Safety / review banner */}
-          <aside className="flex items-start gap-4 rounded-r-xl border-l-4 border-[#7E6BAF] bg-[#F4F0FB]/50 p-4">
-            <Eye className="mt-0.5 h-5 w-5 flex-none text-[#7E6BAF]" />
-            <p className="text-sm leading-relaxed">
-              <span className="font-bold text-[#3D2E6B]">
+          <aside className="flex items-center gap-4 rounded-2xl border border-[#E1DAF1] bg-[#F4F0FB] p-4 shadow-sm">
+            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-white text-[#7C69BA] shadow-inner">
+              <Eye className="h-5 w-5" />
+            </div>
+            <p className="text-sm leading-relaxed text-[#4A3E7F]">
+              <span className="font-bold">
                 Review this summary before sharing
               </span>
-              <span className="text-[#7E6BAF]">
-                {" "}— Only you choose what gets shared. Nothing is sent
-                automatically.
-              </span>
+              {" "}— Only you choose what gets shared. Nothing is sent
+              automatically.
             </p>
           </aside>
 
@@ -241,7 +253,7 @@ export default function ShareTabView({
               <button
                 type="button"
                 onClick={() => requireAccount(() => window.print())}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#ECE7F6] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] transition-all hover:bg-[#ECE7F6]"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E1DAF1] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] shadow-sm transition-all hover:border-[#7C69BA]/40 hover:bg-[#FBFAFE]"
               >
                 <Download className="h-4 w-4" />
                 Download Summary
@@ -249,13 +261,13 @@ export default function ShareTabView({
               <button
                 type="button"
                 onClick={() => requireAccount(() => setConsentOpen(true))}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#7E6BAF]/20 transition-all hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#7C69BA] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-10px_rgba(124,105,186,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[#6857A3]"
               >
                 <Send className="h-4 w-4" />
                 Share with a provider
               </button>
             </div>
-            <p className="text-center text-[11px] italic text-[#7E6BAF]">
+            <p className="text-center text-[11px] italic text-[#A29EB6]">
               This summary helps you reflect and share context. It is not a
               diagnosis.
             </p>
@@ -290,21 +302,51 @@ export default function ShareTabView({
   );
 }
 
-function ArtifactChip({ label, value }: { label: string; value: string }) {
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-1.5 text-xs font-medium text-[#3D2E6B]">
-      <span className="font-semibold text-[#7E6BAF]">{label}</span> {value}
+    <div className="flex items-center gap-4">
+      <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
+        {children}
+      </span>
+      <div className="h-px w-full bg-gradient-to-r from-[#EFEAF8] to-transparent" />
+    </div>
+  );
+}
+
+function ArtifactChip({
+  label,
+  value,
+  dot,
+}: {
+  label: string;
+  value: string;
+  dot?: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-xl border border-[#E9E4F4] bg-white px-3.5 py-2 text-xs font-medium text-[#3D2E6B] shadow-sm">
+      {dot ? (
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: dot }}
+        />
+      ) : null}
+      <span className="font-semibold text-[#4A3E7F]">{label}</span>
+      <span className="text-[#A29EB6]">{value}</span>
     </span>
   );
 }
 
 function SupportStat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-[#FAF8FD] p-3">
-      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-white text-base font-bold text-[#3D2E6B] ring-1 ring-[#ECE7F6]">
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-[#EFEAF8] bg-[#FBFAFE] p-5 text-center transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
+      <div
+        className="text-3xl font-light text-[#2D245A]"
+        style={{ fontFamily: SERIF }}
+      >
         {value}
       </div>
-      <p className="text-[11px] font-medium leading-tight text-[#7E6BAF]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B6684]">
         {label}
       </p>
     </div>
