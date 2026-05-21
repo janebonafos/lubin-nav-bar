@@ -47,7 +47,7 @@ export default function ShareTabView({
     [range, checkins],
   );
 
-  const showEmpty = mounted && (isGuest || !summary.hasAnyData);
+  const showEmpty = mounted && isGuest;
 
   const requireAccount = (action: () => void) => {
     if (isGuest) {
