@@ -34,7 +34,6 @@ import {
   getLatestAttempt,
   INPROGRESS_EVENT,
   clearInProgress,
-  listAllInProgress,
   loadInProgress,
   loadAttempts,
 } from "@/lib/patterns/storage";
@@ -93,10 +92,8 @@ function PatternsPage() {
     };
   }, []);
 
-  const inProgressAll =
-    typeof window === "undefined" ? [] : listAllInProgress(ASSESSMENT_IDS);
-
   // Build a per-assessment history (number of attempts + in-progress flag).
+  // An in-progress entry with 0 answers is not counted as progress.
   const history =
     typeof window === "undefined"
       ? []
@@ -107,7 +104,11 @@ function PatternsPage() {
             counts.set(a.assessmentId, (counts.get(a.assessmentId) ?? 0) + 1);
           }
           const inProgressIds = new Set(
-            listAllInProgress(ASSESSMENT_IDS).map((ip) => ip.assessmentId),
+            ASSESSMENT_IDS.filter((id) => {
+              const ip = loadInProgress(id);
+              if (!ip) return false;
+              return ip.answers.filter((v) => v !== null).length > 0;
+            }),
           );
           const ids = new Set<string>([...counts.keys(), ...inProgressIds]);
           return Array.from(ids)
@@ -325,61 +326,6 @@ function PatternsPage() {
             </div>
           </div>
 
-          {/* In-progress strip */}
-          {inProgressAll.length > 0 && (
-            <section className="mt-12">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-purple-accent">
-                Continue where you left off
-              </h2>
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                {inProgressAll.map((ip) => {
-                  const a = ASSESSMENTS.find((x) => x.id === ip.assessmentId);
-                  if (!a) return null;
-                  const answered = ip.answers.filter((v) => v !== null).length;
-                  const pct = Math.round((answered / a.questions.length) * 100);
-                  return (
-                    <div
-                      key={a.id}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-[14.5px] font-semibold text-brand-purple-dark">
-                          {a.name}
-                        </p>
-                        <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/60">
-                          {answered} of {a.questions.length} answered · {pct}%
-                        </p>
-                        <div className="mt-2 h-1.5 w-40 overflow-hidden rounded-full bg-brand-lavender">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-accent"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-none items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setStartOverId(a.id)}
-                          className="rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
-                        >
-                          Start over
-                        </button>
-                        <Link
-                          to="/self-discovery/$slug"
-                          params={{ slug: a.slug }}
-                          className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white no-underline transition hover:bg-brand-purple-dark"
-                        >
-                          Continue
-                          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
           {/* Your check-in history */}
           {history.length > 0 && (
             <section className="mt-12" data-tick={tick}>
@@ -464,7 +410,10 @@ function PatternsPage() {
                 <ul className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                   {items.map((a) => (
                     <li key={a.id}>
-                      <AssessmentCard assessment={a} />
+                      <AssessmentCard
+                        assessment={a}
+                        onStartOver={() => setStartOverId(a.id)}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -556,13 +505,27 @@ function PatternsPage() {
   );
 }
 
-function AssessmentCard({ assessment }: { assessment: Assessment }) {
+function AssessmentCard({
+  assessment,
+  onStartOver,
+}: {
+  assessment: Assessment;
+  onStartOver: () => void;
+}) {
   const latest =
     typeof window === "undefined" ? null : getLatestAttempt(assessment.id);
   const locked = isLocked(latest);
   const daysLeft = daysUntilAvailable(latest);
-  const hasInProgress =
-    typeof window !== "undefined" && !!loadInProgress(assessment.id);
+  const inProgress =
+    typeof window === "undefined" ? null : loadInProgress(assessment.id);
+  const answeredCount = inProgress
+    ? inProgress.answers.filter((v) => v !== null).length
+    : 0;
+  // Treat 0-answered as not started.
+  const hasInProgress = answeredCount > 0;
+  const pct = hasInProgress
+    ? Math.round((answeredCount / assessment.questions.length) * 100)
+    : 0;
   const allAttempts =
     typeof window === "undefined" ? [] : getAttemptsFor(assessment.id);
   const trend = computeTrend(assessment, allAttempts);
@@ -597,6 +560,20 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
         </p>
       )}
 
+      {hasInProgress && !locked && (
+        <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-lavender/40 px-3 py-2.5">
+          <p className="text-[12px] font-medium text-brand-purple-dark/75">
+            {answeredCount} of {assessment.questions.length} answered · {pct}%
+          </p>
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/70">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-accent"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#F5F3FF] pt-5">
         <div className="flex items-center gap-3 text-[11.5px] font-medium text-brand-purple">
           {locked ? (
@@ -616,17 +593,28 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
           )}
         </div>
 
-        <Link
-          to="/self-discovery/$slug"
-          params={{ slug: assessment.slug }}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
-            locked
-              ? "bg-brand-lavender text-brand-purple-dark/60"
-              : "bg-brand-purple text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
-          }`}
-        >
-          {locked ? "View" : hasInProgress ? "Continue" : "Start"}
-        </Link>
+        <div className="flex items-center gap-2">
+          {hasInProgress && !locked && (
+            <button
+              type="button"
+              onClick={onStartOver}
+              className="rounded-lg border border-brand-purple/25 bg-white px-3 py-2 text-[12.5px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
+            >
+              Start over
+            </button>
+          )}
+          <Link
+            to="/self-discovery/$slug"
+            params={{ slug: assessment.slug }}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
+              locked
+                ? "bg-brand-lavender text-brand-purple-dark/60"
+                : "bg-brand-purple text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+            }`}
+          >
+            {locked ? "View" : hasInProgress ? "Continue" : "Start"}
+          </Link>
+        </div>
       </div>
     </div>
   );
