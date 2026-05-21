@@ -77,21 +77,28 @@ export default function ShareTabView({
       </header>
 
       {isGuest && (
-        <aside className="flex flex-col gap-3 rounded-2xl border border-[#E0D4F7] bg-gradient-to-br from-[#F4F0FB] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <Lock className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
-            <p className="text-sm leading-relaxed text-[#3D2E6B]">
-              <strong>Create a free account to share.</strong> Sharing securely
-              with a provider or someone you trust requires an account so your
-              data stays protected and only goes where you choose.
-            </p>
+        <aside className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#ECE7F6] bg-[#F4F0FB] p-5 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-white text-[#7E6BAF] shadow-sm">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-[#3D2E6B]">
+                Create a free account to share
+              </p>
+              <p className="text-xs leading-normal text-[#7E6BAF]">
+                Sharing securely with a provider requires an account so your
+                data stays protected.
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onRequestSignup}
-            className="inline-flex flex-none items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)]"
+            className="inline-flex flex-none items-center gap-2 rounded-xl bg-[#7E6BAF] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
           >
-            Create free account <span aria-hidden>→</span>
+            Create account
+            <ArrowRight className="h-4 w-4" />
           </button>
         </aside>
       )}
@@ -100,11 +107,11 @@ export default function ShareTabView({
       ) : (
         <>
           {/* Range pill toggle */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-4 pt-2 md:flex-row md:items-center md:justify-between">
             <div
               role="tablist"
               aria-label="Time range"
-              className="inline-flex rounded-full border border-[#ECE7F6] bg-white p-1 shadow-[0_4px_20px_rgba(126,107,175,0.06)]"
+              className="inline-flex rounded-xl bg-[#ECE7F6] p-1"
             >
               {RANGE_OPTIONS.map((opt) => {
                 const active = range === opt.id;
@@ -114,10 +121,10 @@ export default function ShareTabView({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setRange(opt.id)}
-                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                    className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition ${
                       active
-                        ? "bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] text-white shadow-[0_6px_14px_-6px_rgba(126,107,175,0.55)]"
-                        : "text-[#5A4A8A] hover:text-[#3D2E6B]"
+                        ? "bg-white text-[#3D2E6B] shadow-sm"
+                        : "text-[#7E6BAF] hover:text-[#3D2E6B]"
                     }`}
                   >
                     {opt.label}
@@ -125,119 +132,152 @@ export default function ShareTabView({
                 );
               })}
             </div>
-            <p className="inline-flex items-center gap-1.5 text-xs text-[#5A4A8A]">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]/70">
               <CalendarDays className="h-3.5 w-3.5" />
-              Showing {summary.rangeLabel} · {summary.dateSpan}
+              Showing {summary.dateSpan}
             </p>
           </div>
 
-          {/* Document-style preview card */}
-          <article
-            id="share-summary-print"
-            className="overflow-hidden rounded-3xl bg-white shadow-[0_30px_80px_-30px_rgba(126,107,175,0.45)] ring-1 ring-[#ECE7F6]"
-          >
-            <header className="bg-gradient-to-br from-[#ECE7F6] via-[#F4F0FB] to-[#FAF8FD] px-6 py-5">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                Lubin.AI · Wellbeing summary
-              </p>
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <h3 className="text-lg font-bold text-[#3D2E6B]">{sharerName}</h3>
-                <span className="rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold text-[#5A4A8A] ring-1 ring-[#ECE7F6]">
-                  {summary.rangeLabel}
-                </span>
-              </div>
-            </header>
-
-            <div className="space-y-4 p-6">
-              <div className="rounded-2xl bg-gradient-to-br from-[#F4F0FB] to-white p-5 ring-1 ring-[#ECE7F6]">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-                  How you've been feeling
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-[#3D2E6B]">
-                  {summary.insight}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Chip label="Mood" value={summary.moodLabel} />
-                  <Chip label="Stress" value={summary.stressLabel} />
-                  <Chip label="Direction" value={summary.directionLabel} />
-                </div>
-              </div>
-
-              {summary.themes.length > 0 && (
-                <div className="rounded-2xl bg-[#FAF8FD] p-5 ring-1 ring-[#ECE7F6]">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-                    What's been coming up most
+          {/* Document — stacked paper artifact */}
+          <div className="relative">
+            {/* Paper stack shadow card behind */}
+            <div
+              aria-hidden
+              className="absolute inset-0 translate-y-1 -rotate-[0.5deg] rounded-2xl border border-[#ECE7F6] bg-white shadow-sm"
+            />
+            <article
+              id="share-summary-print"
+              className="relative overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white shadow-xl"
+            >
+              <header className="flex items-end justify-between gap-3 border-b border-[#ECE7F6] bg-gradient-to-br from-[#ECE7F6] to-white p-6">
+                <div>
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
+                    Lubin.AI • Wellbeing Summary
                   </p>
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {summary.themes.map((t) => (
-                      <li
-                        key={t.label}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
-                      >
-                        {t.label}
-                        <span className="text-[10px] font-semibold text-[#7E6BAF]">
-                          {t.count}×
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-2xl font-bold text-[#3D2E6B]">{sharerName}</h3>
                 </div>
-              )}
+                <div className="rounded-full border border-[#ECE7F6] bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#7E6BAF] shadow-sm">
+                  {summary.rangeLabel}
+                </div>
+              </header>
 
-              <div className="rounded-2xl bg-[#FAF8FD] p-5 ring-1 ring-[#ECE7F6]">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-                  Support & care
-                </p>
-                <ul className="mt-3 space-y-1.5 text-sm text-[#3D2E6B]">
-                  <li>📅 {summary.support.resourcesAccessed} resources accessed</li>
-                  <li>💬 {summary.support.checkinsCompleted} check-ins completed</li>
-                  <li>📋 {summary.support.appointmentsBooked} appointment{summary.support.appointmentsBooked === 1 ? "" : "s"} booked</li>
-                </ul>
+              <div className="space-y-10 p-6 md:p-8">
+                {/* Section 1: Feeling */}
+                <section className="space-y-4">
+                  <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
+                    How you've been feeling
+                  </h4>
+                  <div className="space-y-4">
+                    <p className="text-base leading-relaxed text-[#3D2E6B]">
+                      {summary.insight}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <ArtifactChip label="Mood" value={summary.moodLabel} />
+                      <ArtifactChip label="Stress" value={summary.stressLabel} />
+                      <ArtifactChip label="Direction" value={summary.directionLabel} />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Section 2: Coming up */}
+                {summary.themes.length > 0 && (
+                  <section className="space-y-4">
+                    <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
+                      What's been coming up most
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {summary.themes.map((t) => (
+                        <div
+                          key={t.label}
+                          className="cursor-default rounded-lg border border-[#7E6BAF]/30 bg-white px-3 py-1 text-xs font-bold text-[#7E6BAF] transition-all hover:bg-[#7E6BAF] hover:text-white"
+                        >
+                          {t.label}{" "}
+                          <span className="ml-1 font-normal opacity-60">
+                            {t.count}×
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* Section 3: Support */}
+                <section className="space-y-4">
+                  <h4 className="border-b border-dashed border-[#ECE7F6] pb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
+                    Support &amp; care
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <SupportStat
+                      value={summary.support.resourcesAccessed}
+                      label="Resources accessed"
+                    />
+                    <SupportStat
+                      value={summary.support.checkinsCompleted}
+                      label="Check-ins completed"
+                    />
+                    <SupportStat
+                      value={summary.support.appointmentsBooked}
+                      label={
+                        summary.support.appointmentsBooked === 1
+                          ? "Appointment"
+                          : "Appointments"
+                      }
+                    />
+                  </div>
+                </section>
               </div>
-            </div>
 
-            <footer className="flex items-center justify-between gap-3 border-t border-[#ECE7F6] bg-[#FAF8FD] px-6 py-3 text-[11px] text-[#5A4A8A]">
-              <span>Summary based on {summary.rangeLabel.toLowerCase()}</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
-                <Lock className="h-3 w-3" /> User-owned
-              </span>
-            </footer>
-          </article>
+              <footer className="flex items-center justify-between border-t border-[#ECE7F6] bg-[#FAF8FD] px-6 py-4 md:px-8">
+                <p className="text-[9px] font-medium uppercase tracking-widest text-[#7E6BAF]">
+                  Generated by Health Passport
+                </p>
+                <div className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                  <Lock className="h-3 w-3" />
+                  User-owned data
+                </div>
+              </footer>
+            </article>
+          </div>
 
-          {/* Review banner */}
-          <aside className="flex items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-[#F4F0FB] p-4">
+          {/* Safety / review banner */}
+          <aside className="flex items-start gap-4 rounded-r-xl border-l-4 border-[#7E6BAF] bg-[#F4F0FB]/50 p-4">
             <Eye className="mt-0.5 h-5 w-5 flex-none text-[#7E6BAF]" />
-            <p className="text-sm leading-relaxed text-[#3D2E6B]">
-              <strong>Review this summary before sharing</strong> — Only you
-              choose what gets shared and with whom. Nothing is sent
-              automatically.
+            <p className="text-sm leading-relaxed">
+              <span className="font-bold text-[#3D2E6B]">
+                Review this summary before sharing
+              </span>
+              <span className="text-[#7E6BAF]">
+                {" "}— Only you choose what gets shared. Nothing is sent
+                automatically.
+              </span>
             </p>
           </aside>
 
           {/* Actions */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <button
-              type="button"
-              onClick={() => requireAccount(() => window.print())}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#ECE7F6] bg-white px-5 py-2.5 text-sm font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40"
-            >
-              <Download className="h-4 w-4" />
-              Download Summary
-            </button>
-            <button
-              type="button"
-              onClick={() => requireAccount(() => setConsentOpen(true))}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
-            >
-              <Send className="h-4 w-4" />
-              Share with a provider
-            </button>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => requireAccount(() => window.print())}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#ECE7F6] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] transition-all hover:bg-[#ECE7F6]"
+              >
+                <Download className="h-4 w-4" />
+                Download Summary
+              </button>
+              <button
+                type="button"
+                onClick={() => requireAccount(() => setConsentOpen(true))}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#7E6BAF]/20 transition-all hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
+              >
+                <Send className="h-4 w-4" />
+                Share with a provider
+              </button>
+            </div>
+            <p className="text-center text-[11px] italic text-[#7E6BAF]">
+              This summary helps you reflect and share context. It is not a
+              diagnosis.
+            </p>
           </div>
-
-          <p className="text-center text-xs italic text-[#5A4A8A]">
-            This summary helps you reflect and share context. It is not a
-            diagnosis.
-          </p>
         </>
       )}
 
@@ -268,12 +308,24 @@ export default function ShareTabView({
   );
 }
 
-function Chip({ label, value }: { label: string; value: string }) {
+function ArtifactChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs text-[#5A4A8A] ring-1 ring-[#ECE7F6]">
-      <span className="font-semibold text-[#7E6BAF]">{label}</span>
-      <span className="text-[#3D2E6B]">{value}</span>
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-1.5 text-xs font-medium text-[#3D2E6B]">
+      <span className="font-semibold text-[#7E6BAF]">{label}</span> {value}
     </span>
+  );
+}
+
+function SupportStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl bg-[#FAF8FD] p-3">
+      <div className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-white text-base font-bold text-[#3D2E6B] ring-1 ring-[#ECE7F6]">
+        {value}
+      </div>
+      <p className="text-[11px] font-medium leading-tight text-[#7E6BAF]">
+        {label}
+      </p>
+    </div>
   );
 }
 
