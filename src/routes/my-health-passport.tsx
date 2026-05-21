@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
 import ShareTabView from "@/components/share/ShareTabView";
+import PassportLoggedInView from "@/components/PassportLoggedInView";
 import CheckInFlow, {
   type CheckInPayload,
   type MoodKey,
