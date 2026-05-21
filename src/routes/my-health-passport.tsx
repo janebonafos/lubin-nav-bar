@@ -1597,9 +1597,6 @@ function Progress({
               {(exploredExpanded ? patternAttempts : patternAttempts.slice(0, 5)).map((a) => {
                 const meta = assessmentBySlug[a.assessmentId];
                 const slug = meta?.slug ?? a.assessmentId;
-                const tier = meta
-                  ? statusTier(a.score, meta.maxScore, meta.lowerIsBetter)
-                  : null;
                 return (
                   <Link
                     key={a.id}
@@ -1626,13 +1623,6 @@ function Progress({
                       </p>
                     </div>
                     <div className="flex flex-none items-center gap-2">
-                      {tier && (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ring-1 ${tier.tone}`}
-                        >
-                          {tier.label}
-                        </span>
-                      )}
                       <p className="text-[13px] font-semibold tabular-nums text-brand-purple-dark">
                         {a.score}
                         {meta ? (
