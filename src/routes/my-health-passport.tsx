@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import AuthModal, { type AuthMode } from "@/components/AuthModal";
 import ShareTabView from "@/components/share/ShareTabView";
-import PassportLoggedInView from "@/components/PassportLoggedInView";
 import CheckInFlow, {
   type CheckInPayload,
   type MoodKey,
@@ -121,9 +120,6 @@ function PassportPage() {
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
-  const [viewMode, setViewMode] = useState<"logged-out" | "logged-in">(
-    "logged-out",
-  );
 
   useEffect(() => {
     const refresh = () =>
@@ -207,7 +203,7 @@ function PassportPage() {
     return <div className="min-h-screen bg-brand-lavender" />;
   }
 
-  if (showIntro && viewMode === "logged-out") {
+  if (showIntro) {
     return (
       <IntroScreen
         onOpen={() => {
@@ -226,58 +222,94 @@ function PassportPage() {
       <div aria-hidden className="pointer-events-none absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-brand-purple-accent/20 blur-[120px]" />
       <Navbar />
       <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
-        {/* Dev-only view toggle */}
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-dashed border-brand-purple/30 bg-white/70 px-4 py-3 backdrop-blur-sm">
+        {/* Guest nudge banner */}
+        <GuestBanner />
+
+        {/* Header */}
+        <header className="mt-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple">
-              Developer preview
-            </p>
-            <p className="mt-0.5 text-xs text-brand-purple-dark/65">
-              Compare empty (logged-out) vs populated (logged-in) state.
-            </p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
+              <Sparkles className="h-3 w-3 text-brand-purple" />
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+                Your Health Passport
+              </p>
+            </div>
+            <h1 className="mt-4 text-3xl md:text-[2.75rem] md:leading-[1.1] font-bold tracking-tight text-brand-purple-dark">
+              Everything you share,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">gently remembered.</span>
+            </h1>
           </div>
-          <div className="inline-flex rounded-full bg-brand-lavender/60 p-1 ring-1 ring-brand-purple/10">
-            {(
-              [
-                ["logged-out", "Logged out view"],
-                ["logged-in", "Logged in view"],
-              ] as const
-            ).map(([key, label]) => {
-              const active = viewMode === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setViewMode(key)}
-                  className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
-                    active
-                      ? "bg-white text-brand-purple-dark shadow-sm"
-                      : "text-brand-purple-dark/55 hover:text-brand-purple-dark"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+        </header>
+
+        {/* Tabs */}
+        <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
+          {([
+            ["overview", "Today"],
+            ["progress", "Patterns"],
+            ["share", "Share"],
+          ] as const).map(([key, label]) => {
+            const active = tab === key;
+            const showDot = key === "progress" && hasInProgress;
+            return (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                className={`relative -mb-px pb-3 text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
+                  active
+                    ? "text-brand-purple-dark"
+                    : "text-brand-purple-dark/50 hover:text-brand-purple-dark/80"
+                }`}
+              >
+                {label}
+                {showDot && (
+                  <span
+                    aria-label="In-progress check-in"
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple shadow-[0_0_0_3px_rgba(126,107,175,0.18)]"
+                  />
+                )}
+                {active && (
+                  <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {viewMode === "logged-in" ? (
-          <PassportLoggedInView />
-        ) : (
-          <LoggedOutContent
-            tab={tab}
-            setTab={setTab}
-            hasInProgress={hasInProgress}
-            today={today}
-            checkins={checkins}
-            assessments={assessments}
-            streak={streak}
-            checkInActive={checkInActive}
-            setCheckInActive={setCheckInActive}
-            setRegisterNudge={setRegisterNudge}
-            openAuth={openAuth}
-          />
-        )}
+        {/* Tab content */}
+        <div className="mt-8">
+          {tab === "overview" && (
+            <Overview
+              today={today}
+              checkins={checkins}
+              onLogMood={() => setCheckInActive(true)}
+              checkInActive={checkInActive}
+              onCloseCheckIn={() => setCheckInActive(false)}
+              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+              onAfterSave={() => setRegisterNudge(true)}
+            />
+          )}
+          {tab === "progress" && (
+            <Progress checkins={checkins} assessments={assessments} streak={streak} />
+          )}
+          {tab === "share" && (
+            <ShareTabView
+              checkins={checkins}
+              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+              onRequestSignup={() => openAuth("signup")}
+              onStartCheckin={() => setTab("overview")}
+            />
+          )}
+        </div>
+
+        {/* Mobile registration CTA */}
+        <div className="mt-6 flex sm:hidden">
+          <button
+            type="button"
+            onClick={() => openAuth("signup")}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-5 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_20px_-6px_rgba(168,155,208,0.55)]"
+          >
+            Create your free account <span aria-hidden>→</span>
+          </button>
+        </div>
       </main>
 
       {checkInOpen && (
