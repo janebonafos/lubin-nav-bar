@@ -83,6 +83,8 @@ export const Route = createFileRoute("/self-discovery_/$slug")({
       typeof search.attempt === "string" && search.attempt.length > 0
         ? search.attempt
         : undefined,
+    from:
+      search.from === "patterns" ? ("patterns" as const) : undefined,
   }),
   component: PatternRunPage,
   notFoundComponent: () => <NotFound />,
@@ -152,7 +154,9 @@ function PatternRunPage() {
 
 function Runner({ assessment }: { assessment: Assessment }) {
   const navigate = useNavigate();
-  const { attempt: attemptId } = Route.useSearch();
+  const { attempt: attemptId, from } = Route.useSearch();
+  const backTo = from === "patterns" ? "/my-health-passport" : "/self-discovery";
+  const backLabel = from === "patterns" ? "Back to Patterns" : "All check-ins";
   const total = assessment.questions.length;
 
   // Bootstrap from storage (browser-only).
@@ -295,15 +299,15 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <header className="px-4 pt-6">
         <div className="mx-auto flex w-full max-w-[760px] items-center justify-between">
           <Link
-            to="/self-discovery"
+            to={backTo}
             className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-2 text-[13px] font-medium text-brand-purple-dark no-underline shadow-sm transition hover:bg-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.2} />
-            All check-ins
+            {backLabel}
           </Link>
           <button
             type="button"
-            onClick={() => navigate({ to: "/self-discovery" })}
+            onClick={() => navigate({ to: backTo })}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-purple-dark/60 transition hover:bg-white/60 hover:text-brand-purple-dark"
             aria-label="Close"
           >
