@@ -608,7 +608,7 @@ function AssessmentCard({
             <button
               type="button"
               onClick={onStartOver}
-              className="rounded-lg border border-brand-purple/25 bg-white px-3 py-2 text-[12.5px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
+              className="whitespace-nowrap rounded-lg border border-brand-purple/25 bg-white px-3 py-2 text-[12.5px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
             >
               Start over
             </button>
@@ -616,7 +616,7 @@ function AssessmentCard({
           <Link
             to="/self-discovery/$slug"
             params={{ slug: assessment.slug }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-purple px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
           >
             {ctaLabel}
           </Link>
