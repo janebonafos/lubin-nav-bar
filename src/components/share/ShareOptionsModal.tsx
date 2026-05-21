@@ -169,12 +169,16 @@ function OptionCard({
 
 function PdfView({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = toast.loading("Preparing your PDF…");
+    const toastId = "share-pdf-preparing";
+    toast.loading("Preparing your PDF…", { id: toastId });
     const id = window.setTimeout(() => {
-      toast.success("PDF ready — opening your print dialog.", { id: t });
+      toast.success("PDF ready — opening your print dialog.", { id: toastId });
       window.print();
     }, 700);
-    return () => window.clearTimeout(id);
+    return () => {
+      window.clearTimeout(id);
+      toast.dismiss(toastId);
+    };
   }, []);
   return (
     <div className="py-6 text-center">
