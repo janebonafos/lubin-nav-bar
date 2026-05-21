@@ -155,7 +155,7 @@ export default function ShareConsentModal({
             }}
             className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {step < 3 ? "Continue" : "Confirm"}
+            {step < 3 ? "Continue" : "I agree"}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
