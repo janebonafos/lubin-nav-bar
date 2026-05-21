@@ -1448,8 +1448,24 @@ function Progress({
 }) {
   const [patternAttempts, setPatternAttempts] = useState<PatternAttempt[]>([]);
   const [exploredExpanded, setExploredExpanded] = useState<boolean>(false);
+  const [inProgressList, setInProgressList] = useState<InProgress[]>([]);
+  const [startOverTarget, setStartOverTarget] = useState<InProgress | null>(null);
+
   useEffect(() => {
-    setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+    const refresh = () => {
+      setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+      setInProgressList(readAllInProgress(ASSESSMENT_IDS));
+    };
+    refresh();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) refresh();
+    };
+    window.addEventListener(INPROGRESS_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(INPROGRESS_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   const assessmentBySlug = useMemo(() => {
@@ -1470,6 +1486,13 @@ function Progress({
 
   return (
     <div className="grid gap-5">
+      {inProgressList.length > 0 && (
+        <ContinueWhereYouLeftOff
+          items={inProgressList}
+          onStartOver={(ip) => setStartOverTarget(ip)}
+        />
+      )}
+
       {/* 0. Understand yourself better */}
       <UnderstandYourselfSection patternAttempts={patternAttempts} />
 
