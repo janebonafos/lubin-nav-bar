@@ -342,7 +342,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => openAuth("signin")}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/25 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white hover:text-brand-purple"
+            className="inline-flex items-center justify-center whitespace-nowrap px-2 py-2 text-sm font-medium text-brand-purple-dark/80 transition-colors duration-300 hover:text-brand-purple"
           >
             Sign in
           </button>
