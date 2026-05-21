@@ -327,13 +327,13 @@ function Step2({
                   </p>
                 </div>
                 <span
-                  className={`flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 ${
+                  className={`flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 transition ${
                     active
-                      ? "border-[#7E6BAF] bg-[#7E6BAF]"
-                      : "border-[#C4B5FD] bg-white"
+                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                      : "border-[#D6CCEC] bg-white text-transparent"
                   }`}
                 >
-                  {active && <span className="h-2 w-2 rounded-full bg-white" />}
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
                 </span>
               </label>
             </li>
