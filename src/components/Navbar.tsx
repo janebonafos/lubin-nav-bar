@@ -180,7 +180,7 @@ function SimpleDropdown({
 function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className="absolute left-1/2 top-full z-50 mt-3 w-[min(1100px,calc(100vw-2rem))] -translate-x-1/2 animate-fade-in"
+      className="fixed left-1/2 top-[72px] z-50 w-[min(1100px,calc(100vw-2rem))] -translate-x-1/2 animate-fade-in"
       onMouseLeave={onClose}
     >
       <div className="rounded-3xl border border-brand-purple/10 bg-white p-6 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)] md:p-8">
