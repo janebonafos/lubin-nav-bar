@@ -281,12 +281,12 @@ export default function Navbar() {
         className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 rounded-full border border-white/40 bg-white/70 pl-5 pr-5 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-6 md:pl-8 md:pr-6 md:py-2"
       >
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center md:mr-4" aria-label="Lubin home">
+        <Link to="/" className="flex shrink-0 items-center lg:mr-4" aria-label="Lubin home">
           <img src={lubinLogo} alt="Lubin" className="h-6 w-auto lg:h-7" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden md:flex flex-1 items-center justify-center gap-6 lg:gap-8">
+        <ul className="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -338,7 +338,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex shrink-0 items-center gap-3">
+        <div className="hidden lg:flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => openAuth("signin")}
@@ -366,7 +366,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="md:hidden inline-flex items-center justify-center text-brand-purple-dark"
+          className="lg:hidden inline-flex items-center justify-center text-brand-purple-dark"
         >
           <HamburgerIcon open={open} className="h-6 w-6" />
         </button>
@@ -374,7 +374,7 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
+        <div className="lg:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
