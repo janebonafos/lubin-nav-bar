@@ -361,7 +361,13 @@ function Runner({ assessment }: { assessment: Assessment }) {
 
       <AnimatePresence>
         {crisisOpen && (
-          <CrisisOverlay onDismiss={() => setCrisisOpen(false)} />
+          <CrisisOverlay
+            onDismiss={() => {
+              setCrisisOpen(false);
+              // Continue the flow: advance to next question, or finish if last.
+              advance(answers);
+            }}
+          />
         )}
       </AnimatePresence>
     </div>
