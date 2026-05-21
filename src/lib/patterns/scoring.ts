@@ -64,3 +64,30 @@ export function warmBand(score: number, max: number, lowerIsBetter: boolean): st
   if (ratio > 0.3) return "There's some balance, but also some heaviness.";
   return "It sounds like this area needs some extra care right now.";
 }
+
+export type StatusTier = {
+  label: string;
+  /** Tailwind utility classes for pill background + text. */
+  tone: string;
+};
+
+/**
+ * Soft, non-clinical status tier derived from raw score, intended for tiny
+ * status pills next to historical attempts.
+ */
+export function statusTier(
+  score: number,
+  max: number,
+  lowerIsBetter: boolean,
+): StatusTier {
+  const ratio = max > 0 ? Math.max(0, Math.min(1, score / max)) : 0;
+  // Normalize so higher "intensity" always means "heavier".
+  const intensity = lowerIsBetter ? ratio : 1 - ratio;
+  if (intensity < 0.25)
+    return { label: "Light", tone: "bg-emerald-50 text-emerald-700 ring-emerald-200/70" };
+  if (intensity < 0.5)
+    return { label: "Mild", tone: "bg-amber-50 text-amber-700 ring-amber-200/70" };
+  if (intensity < 0.75)
+    return { label: "Notable", tone: "bg-orange-50 text-orange-700 ring-orange-200/70" };
+  return { label: "Heavy", tone: "bg-rose-50 text-rose-700 ring-rose-200/70" };
+}
