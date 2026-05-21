@@ -14,6 +14,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SharePreviewRoute = SharePreviewRouteImport.update({
+  id: '/share/preview',
+  path: '/share/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShareTokenRoute = ShareTokenRouteImport.update({
   id: '/share/$token',
   path: '/share/$token',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
+  '/share/preview': typeof SharePreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
+  '/share/preview': typeof SharePreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
+  '/share/preview': typeof SharePreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/self-discovery/$slug'
     | '/share/$token'
+    | '/share/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/self-discovery/$slug'
     | '/share/$token'
+    | '/share/preview'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/self-discovery_/$slug'
     | '/share/$token'
+    | '/share/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
+  SharePreviewRoute: typeof SharePreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share/preview': {
+      id: '/share/preview'
+      path: '/share/preview'
+      fullPath: '/share/preview'
+      preLoaderRoute: typeof SharePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/share/$token': {
       id: '/share/$token'
       path: '/share/$token'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
+  SharePreviewRoute: SharePreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
