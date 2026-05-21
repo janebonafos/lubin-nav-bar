@@ -212,52 +212,49 @@ function LinkView({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-[#3D2E6B]">Your link is ready</h2>
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
+        <CheckCircle2 className="h-3 w-3" />
+        Link ready
+      </span>
+
+      <h2 className="mt-3 text-xl font-bold text-[#3D2E6B]">
+        Your secure link is ready
+      </h2>
       <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        Share this with{" "}
-        <strong>{recipientLabel(recipient).toLowerCase()}</strong>.
+        Share this link with{" "}
+        <strong>{recipientLabel(recipient).toLowerCase()}</strong>. The link
+        expires in 30 days.
       </p>
 
-      <div className="mt-5 rounded-2xl border border-[#E5DDF4] bg-gradient-to-br from-white to-[#FAF8FD] p-4 shadow-[0_12px_30px_-20px_rgba(74,62,127,0.25)]">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-          Shareable link
-        </p>
-        <div className="mt-2 rounded-xl border border-[#ECE7F6] bg-white px-3 py-2.5">
-          <code className="block truncate font-mono text-xs text-[#3D2E6B]">
-            {shareUrl}
-          </code>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              navigator.clipboard.writeText(shareUrl).then(
-                () => toast.success("Link copied"),
-                () => toast.error("Couldn't copy link"),
-              );
-            }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
-          >
-            <Copy className="h-3.5 w-3.5" /> Copy link
-          </button>
-          <a
-            href={shareUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#5A4A8A] transition hover:border-[#7E6BAF]/40 hover:text-[#3D2E6B]"
-          >
-            <ExternalLink className="h-3.5 w-3.5" /> Preview
-          </a>
-        </div>
+      <div className="mt-5 flex items-center gap-2 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-2 pl-3">
+        <code className="flex-1 truncate font-mono text-xs text-[#3D2E6B]">
+          {shareUrl}
+        </code>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText(shareUrl).then(
+              () => toast.success("Link copied"),
+              () => toast.error("Couldn't copy link"),
+            );
+          }}
+          className="inline-flex flex-none items-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
+        >
+          <Copy className="h-3.5 w-3.5" /> Copy link
+        </button>
       </div>
 
-      <p className="mt-4 text-xs text-[#5A4A8A]">
-        This link expires automatically in{" "}
-        <strong className="text-[#3D2E6B]">30 days</strong> and is stored on
-        this device only.
-      </p>
+      <a
+        href={shareUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+      >
+        Preview what your provider will see
+        <ExternalLink className="h-3.5 w-3.5" />
+      </a>
 
-      <p className="mt-2 text-xs text-[#5A4A8A]">
+      <p className="mt-5 text-xs text-[#5A4A8A]">
         Want the full details?{" "}
         <a
           href="/privacy-policy"
