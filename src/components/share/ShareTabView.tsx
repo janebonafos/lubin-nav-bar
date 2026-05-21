@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
-import { buildSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
+import { buildSummary, mockSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
@@ -42,12 +42,18 @@ export default function ShareTabView({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const summary = useMemo(
-    () => buildSummary(range, { checkins }),
-    [range, checkins],
-  );
+  const summary = useMemo(() => {
+    const real = buildSummary(range, { checkins });
+    // Fall back to a populated mock so the user can preview what a shared
+    // summary will look like before they have enough real data.
+    if (!real.hasAnyData) return mockSummary();
+    return real;
+  }, [range, checkins]);
 
-  const showEmpty = mounted && isGuest;
+  // Show the preview to everyone (guests included). Sharing/downloading
+  // still requires an account — gated below via requireAccount().
+  const showEmpty = false;
+  void mounted;
 
   const requireAccount = (action: () => void) => {
     if (isGuest) {
