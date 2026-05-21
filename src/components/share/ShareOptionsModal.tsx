@@ -64,7 +64,7 @@ export default function ShareOptionsModal({
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
             <CheckCircle2 className="h-3 w-3" />
             Consent confirmed
           </span>
