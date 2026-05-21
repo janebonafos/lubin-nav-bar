@@ -581,7 +581,7 @@ function AssessmentCard({
         </div>
       )}
 
-      <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#F5F3FF] pt-5">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-3 border-t border-[#F5F3FF] pt-5">
         <div className="flex items-center gap-3 text-[11.5px] font-medium text-brand-purple">
           {inCooldown ? (
             <span
@@ -616,7 +616,7 @@ function AssessmentCard({
           <Link
             to="/self-discovery/$slug"
             params={{ slug: assessment.slug }}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-purple px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
           >
             {ctaLabel}
           </Link>
