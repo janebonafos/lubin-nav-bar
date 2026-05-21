@@ -1532,8 +1532,8 @@ function Progress({
           </>
         ) : (
           <>
-            <div className="mt-4 space-y-2">
-              {patternAttempts.slice(0, 6).map((a) => {
+            <div className="mt-3 space-y-1.5">
+              {patternAttempts.slice(0, 4).map((a) => {
                 const meta = assessmentBySlug[a.assessmentId];
                 const slug = meta?.slug ?? a.assessmentId;
                 return (
@@ -1541,33 +1541,30 @@ function Progress({
                     key={a.id}
                     to="/patterns/$slug"
                     params={{ slug }}
-                    className="flex items-start justify-between gap-4 rounded-xl bg-brand-lavender/60 px-4 py-3 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
+                    className="flex items-center justify-between gap-3 rounded-lg bg-brand-lavender/50 px-3 py-2 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
                   >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-brand-purple-dark">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-brand-purple-dark">
                         {a.assessmentName}
                         {meta?.clinicalName ? (
-                          <span className="ml-1 text-brand-purple-dark/55">
+                          <span className="ml-1 text-[12px] text-brand-purple-dark/55">
                             ({meta.clinicalName})
                           </span>
                         ) : null}
                       </p>
-                      <p className="mt-0.5 text-xs text-brand-purple-dark/55">
+                      <p className="mt-0.5 text-[11px] text-brand-purple-dark/55">
                         {new Date(a.takenAt).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
                         })}
                       </p>
-                      <p className="mt-1.5 line-clamp-2 text-xs italic text-brand-purple-dark/70">
-                        {a.summary}
-                      </p>
                     </div>
                     <div className="flex-none text-right">
-                      <p className="text-base font-semibold tabular-nums text-brand-purple-dark">
+                      <p className="text-[13px] font-semibold tabular-nums text-brand-purple-dark">
                         {a.score}
                         {meta ? (
-                          <span className="text-xs font-normal text-brand-purple-dark/55">
+                          <span className="text-[11px] font-normal text-brand-purple-dark/55">
                             /{meta.maxScore}
                           </span>
                         ) : null}
@@ -1579,7 +1576,7 @@ function Progress({
             </div>
             <Link
               to="/patterns"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
+              className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
             >
               See all check-ins <span aria-hidden>→</span>
             </Link>
