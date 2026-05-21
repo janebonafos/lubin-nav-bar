@@ -32,6 +32,8 @@ import {
 import {
   getAttemptsFor,
   getLatestAttempt,
+  INPROGRESS_EVENT,
+  clearInProgress,
   listAllInProgress,
   loadInProgress,
   loadAttempts,
@@ -72,13 +74,22 @@ function PatternsPage() {
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
   const [timingOpen, setTimingOpen] = useState(false);
+  const [startOverId, setStartOverId] = useState<string | null>(null);
   useEffect(() => {
     const onFocus = () => setTick((t) => t + 1);
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
+    const onChange = () => setTick((t) => t + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) onChange();
+    };
+    window.addEventListener(INPROGRESS_EVENT, onChange);
+    window.addEventListener("storage", onStorage);
     return () => {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener(INPROGRESS_EVENT, onChange);
+      window.removeEventListener("storage", onStorage);
     };
   }, []);
 
@@ -327,11 +338,9 @@ function PatternsPage() {
                   const answered = ip.answers.filter((v) => v !== null).length;
                   const pct = Math.round((answered / a.questions.length) * 100);
                   return (
-                    <Link
+                    <div
                       key={a.id}
-                      to="/patterns/$slug"
-                      params={{ slug: a.slug }}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
                     >
                       <div className="min-w-0">
                         <p className="text-[14.5px] font-semibold text-brand-purple-dark">
@@ -347,11 +356,24 @@ function PatternsPage() {
                           />
                         </div>
                       </div>
-                      <ArrowRight
-                        className="h-4 w-4 flex-none text-brand-purple transition-transform group-hover:translate-x-0.5"
-                        strokeWidth={2}
-                      />
-                    </Link>
+                      <div className="flex flex-none items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setStartOverId(a.id)}
+                          className="rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
+                        >
+                          Start over
+                        </button>
+                        <Link
+                          to="/patterns/$slug"
+                          params={{ slug: a.slug }}
+                          className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white no-underline transition hover:bg-brand-purple-dark"
+                        >
+                          Continue
+                          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
+                        </Link>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -490,6 +512,46 @@ function PatternsPage() {
           </motion.section>
         </div>
       </main>
+
+      {startOverId && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setStartOverId(null)}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[18px] font-semibold text-brand-purple-dark">
+              Start over?
+            </h3>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-brand-purple-dark/70">
+              Your previous answers for this assessment will be cleared. This can't be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setStartOverId(null)}
+                className="rounded-full border border-brand-purple/20 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark/80 transition hover:border-brand-purple/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (startOverId) clearInProgress(startOverId);
+                  setStartOverId(null);
+                }}
+                className="rounded-full bg-rose-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-rose-700"
+              >
+                Start over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

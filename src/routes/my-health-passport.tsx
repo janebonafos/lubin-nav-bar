@@ -47,10 +47,15 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { loadAttempts } from "@/lib/patterns/storage";
-import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import {
+  INPROGRESS_EVENT,
+  clearInProgress,
+  loadAttempts,
+  readAllInProgress,
+} from "@/lib/patterns/storage";
+import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { isLocked, formatDaysRemaining, daysUntilAvailable } from "@/lib/patterns/scoring";
-import type { Attempt as PatternAttempt } from "@/lib/patterns/types";
+import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
@@ -110,6 +115,22 @@ function PassportPage() {
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
+  const [hasInProgress, setHasInProgress] = useState(false);
+
+  useEffect(() => {
+    const refresh = () =>
+      setHasInProgress(readAllInProgress(ASSESSMENT_IDS).length > 0);
+    refresh();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) refresh();
+    };
+    window.addEventListener(INPROGRESS_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(INPROGRESS_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // hydrate from localStorage
   useEffect(() => {
@@ -203,17 +224,24 @@ function PassportPage() {
             ["share", "Share"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
+            const showDot = key === "progress" && hasInProgress;
             return (
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className={`relative -mb-px pb-3 text-sm font-medium transition-colors ${
+                className={`relative -mb-px pb-3 text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
                   active
                     ? "text-brand-purple-dark"
                     : "text-brand-purple-dark/50 hover:text-brand-purple-dark/80"
                 }`}
               >
                 {label}
+                {showDot && (
+                  <span
+                    aria-label="In-progress check-in"
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple shadow-[0_0_0_3px_rgba(126,107,175,0.18)]"
+                  />
+                )}
                 {active && (
                   <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
                 )}
@@ -1421,8 +1449,24 @@ function Progress({
 }) {
   const [patternAttempts, setPatternAttempts] = useState<PatternAttempt[]>([]);
   const [exploredExpanded, setExploredExpanded] = useState<boolean>(false);
+  const [inProgressList, setInProgressList] = useState<InProgress[]>([]);
+  const [startOverTarget, setStartOverTarget] = useState<InProgress | null>(null);
+
   useEffect(() => {
-    setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+    const refresh = () => {
+      setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
+      setInProgressList(readAllInProgress(ASSESSMENT_IDS));
+    };
+    refresh();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubinai_inprogress_")) refresh();
+    };
+    window.addEventListener(INPROGRESS_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(INPROGRESS_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   const assessmentBySlug = useMemo(() => {
@@ -1443,6 +1487,13 @@ function Progress({
 
   return (
     <div className="grid gap-5">
+      {inProgressList.length > 0 && (
+        <ContinueWhereYouLeftOff
+          items={inProgressList}
+          onStartOver={(ip) => setStartOverTarget(ip)}
+        />
+      )}
+
       {/* 0. Understand yourself better */}
       <UnderstandYourselfSection patternAttempts={patternAttempts} />
 
@@ -1610,6 +1661,17 @@ function Progress({
           Showing up matters more than streaking. One check-in a week is plenty.
         </p>
       </Card>
+
+      <StartOverConfirm
+        target={startOverTarget}
+        onCancel={() => setStartOverTarget(null)}
+        onConfirm={() => {
+          if (startOverTarget) {
+            clearInProgress(startOverTarget.assessmentId);
+          }
+          setStartOverTarget(null);
+        }}
+      />
     </div>
   );
 }
@@ -1987,5 +2049,143 @@ function UnderstandYourselfSection({
         </div>
       </div>
     </section>
+  );
+}
+
+/* =============================================================
+   Continue where you left off (in-progress assessments)
+   ============================================================= */
+
+function ContinueWhereYouLeftOff({
+  items,
+  onStartOver,
+}: {
+  items: InProgress[];
+  onStartOver: (ip: InProgress) => void;
+}) {
+  const assessmentById = useMemo(() => {
+    const map: Record<string, (typeof ASSESSMENTS)[number]> = {};
+    for (const a of ASSESSMENTS) map[a.id] = a;
+    return map;
+  }, []);
+  const most = items[0];
+  const rest = items.slice(1);
+
+  const renderRow = (ip: InProgress, primary: boolean) => {
+    const meta = assessmentById[ip.assessmentId];
+    const slug = meta?.slug ?? ip.assessmentId;
+    const total = ip.total || meta?.questions.length || 1;
+    const answered = Math.min(ip.answeredCount, total);
+    const pct = Math.round((answered / total) * 100);
+    const name = ip.assessmentName || meta?.name || "Check-in";
+    return (
+      <div
+        key={ip.assessmentId}
+        className={`flex flex-col gap-3 rounded-2xl border border-brand-purple/15 bg-white/85 px-4 py-3.5 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between ${
+          primary ? "shadow-[0_14px_36px_-22px_rgba(126,107,175,0.45)]" : ""
+        }`}
+      >
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[14px] font-semibold text-brand-purple-dark">
+            {name}
+          </p>
+          <p className="mt-0.5 text-[12px] text-brand-purple-dark/60">
+            Question {Math.min(answered + 1, total)} of {total}
+          </p>
+          <div className="mt-2 h-1.5 w-full max-w-[260px] overflow-hidden rounded-full bg-brand-lavender">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-accent transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-none items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onStartOver(ip)}
+            className="rounded-full border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
+          >
+            Start over
+          </button>
+          <Link
+            to="/patterns/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3.5 py-1.5 text-[12.5px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+          >
+            Continue
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
+          </Link>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <section className="rounded-3xl border border-brand-purple/15 bg-gradient-to-br from-white via-brand-lavender/30 to-white p-5 sm:p-6 shadow-[0_18px_44px_-26px_rgba(126,107,175,0.45)]">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+          Continue where you left off
+        </p>
+        <span className="text-[11px] font-medium text-brand-purple-dark/55">
+          {items.length} in progress
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2.5">
+        {renderRow(most, true)}
+        {rest.map((ip) => renderRow(ip, false))}
+      </div>
+    </section>
+  );
+}
+
+/* =============================================================
+   Start over confirmation dialog
+   ============================================================= */
+
+function StartOverConfirm({
+  target,
+  onCancel,
+  onConfirm,
+}: {
+  target: InProgress | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!target) return null;
+  return (
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-[18px] font-semibold text-brand-purple-dark">
+          Start over?
+        </h3>
+        <p className="mt-2 text-[13.5px] leading-relaxed text-brand-purple-dark/70">
+          Your previous answers for this assessment will be cleared. This can't be undone.
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full border border-brand-purple/20 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark/80 transition hover:border-brand-purple/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="rounded-full bg-rose-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-rose-700"
+          >
+            Start over
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

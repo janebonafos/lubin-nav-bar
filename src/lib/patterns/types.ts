@@ -42,8 +42,13 @@ export type Attempt = {
 
 export type InProgress = {
   assessmentId: string;
+  assessmentName: string;
+  total: number;
+  answeredCount: number;
+  lastIndex: number;
   answers: (number | null)[];
   currentIndex: number;
+  startedAt: number;
   updatedAt: number;
 };
 

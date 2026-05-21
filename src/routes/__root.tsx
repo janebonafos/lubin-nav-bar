@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import SessionRestoreBanner from "@/components/SessionRestoreBanner";
 
 function NotFoundComponent() {
   return (
@@ -113,6 +114,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SessionRestoreBanner />
       <Outlet />
     </QueryClientProvider>
   );

@@ -162,6 +162,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const breathingShownRef = useRef(false);
   const crisisShownRef = useRef(false);
   const [latestLocked, setLatestLocked] = useState<Attempt | null>(null);
+  const startedAtRef = useRef<number>(Date.now());
 
   // One-time browser bootstrap.
   useEffect(() => {
@@ -170,6 +171,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
     if (ip && ip.answers.length === total) {
       setAnswers(ip.answers);
       setCurrentIndex(Math.min(ip.currentIndex, total - 1));
+      startedAtRef.current = ip.startedAt ?? Date.now();
       setPhase("questions");
       return;
     }
@@ -181,13 +183,23 @@ function Runner({ assessment }: { assessment: Assessment }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (phase !== "questions") return;
+    const answeredCount = answers.filter((v) => v !== null).length;
+    const lastIndex = answers.reduce<number>(
+      (acc, v, i) => (v !== null ? i : acc),
+      -1,
+    );
     saveInProgress({
       assessmentId: assessment.id,
+      assessmentName: assessment.name,
+      total,
+      answeredCount,
+      lastIndex: Math.max(0, lastIndex),
       answers,
       currentIndex,
+      startedAt: startedAtRef.current,
       updatedAt: Date.now(),
     });
-  }, [answers, currentIndex, phase, assessment.id]);
+  }, [answers, currentIndex, phase, assessment.id, assessment.name, total]);
 
   function startNow() {
     markIntroSeen(assessment.id);
