@@ -103,7 +103,7 @@ export default function ShareConsentModal({
             {[1, 2, 3].map((s) => (
               <span
                 key={s}
-                className={`h-1.5 flex-1 rounded-[123px] transition-all duration-300 ${
+                className={`h-1.5 flex-1 rounded-[12px] transition-all duration-300 ${
                   s <= step
                     ? "bg-gradient-to-r from-[#7E6BAF] to-[#A89BD0]"
                     : "bg-[#F4F0FB]"
@@ -135,7 +135,7 @@ export default function ShareConsentModal({
             <button
               type="button"
               onClick={() => setStep(step - 1)}
-              className="inline-flex items-center gap-1.5 rounded-[123px] px-4 py-2 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
+              className="inline-flex items-center gap-1.5 rounded-[12px] px-4 py-2 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -153,7 +153,7 @@ export default function ShareConsentModal({
               else if (recipient)
                 onConfirm({ includedKeys: included, recipient });
             }}
-            className="inline-flex items-center gap-1.5 rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {step < 3 ? "Continue" : "I agree"}
             <ArrowRight className="h-4 w-4" />
@@ -189,7 +189,7 @@ function Step1({
       <p className="mt-1.5 text-sm text-[#5A4A8A]">
         A quick look at what your provider will see, and what stays just with you.
       </p>
-      <span className="mt-3 inline-flex items-center gap-1.5 rounded-[123px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+      <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
         <Lock className="h-3 w-3" />
         Nothing is shared until you confirm
       </span>
@@ -248,7 +248,7 @@ function Step1({
                     </p>
                   </div>
                   <span
-                    className={`flex h-6 w-6 flex-none items-center justify-center rounded-[123px] border-2 transition ${
+                    className={`flex h-6 w-6 flex-none items-center justify-center rounded-[12px] border-2 transition ${
                       checked
                         ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                         : "border-[#D6CCEC] bg-white text-transparent"
@@ -327,7 +327,7 @@ function Step2({
                   </p>
                 </div>
                 <span
-                  className={`flex h-6 w-6 flex-none items-center justify-center rounded-[123px] border-2 transition ${
+                  className={`flex h-6 w-6 flex-none items-center justify-center rounded-[12px] border-2 transition ${
                     active
                       ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                       : "border-[#D6CCEC] bg-white text-transparent"
