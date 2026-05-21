@@ -125,13 +125,8 @@ export default function ShareTabView({
             </p>
           </div>
 
-          {/* Document — stacked paper artifact */}
+          {/* Document */}
           <div className="relative">
-            {/* Paper stack shadow card behind */}
-            <div
-              aria-hidden
-              className="absolute inset-0 -rotate-[0.5deg] translate-y-1 rounded-[28px] border border-[#ECE7F6] bg-white shadow-sm"
-            />
             <article
               id="share-summary-print"
               className="relative overflow-hidden rounded-[28px] border border-white bg-white shadow-[0_24px_60px_-24px_rgba(74,62,127,0.18)] ring-1 ring-[#EFEAF8]"
