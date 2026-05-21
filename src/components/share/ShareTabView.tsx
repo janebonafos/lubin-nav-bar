@@ -165,9 +165,9 @@ export default function ShareTabView({
                       {summary.insight}
                     </p>
                     <div className="flex flex-wrap gap-2.5">
-                      <ArtifactChip label="Mood" value={summary.moodLabel} dot="#34D39A" />
-                      <ArtifactChip label="Stress" value={summary.stressLabel} dot="#F5A35B" />
-                      <ArtifactChip label="Direction" value={summary.directionLabel} dot="#7AA7E8" />
+                      <ArtifactChip label="Mood" value={summary.moodLabel} dot="#7C69BA" />
+                      <ArtifactChip label="Stress" value={summary.stressLabel} dot="#7C69BA" />
+                      <ArtifactChip label="Direction" value={summary.directionLabel} dot="#7C69BA" />
                     </div>
                   </div>
                 </section>
