@@ -288,14 +288,56 @@ export function recipientLabel(id: import("./shareStore").RecipientId): string {
 }
 
 export function mockSummary(): SummaryData {
-  return buildSummary("30d", {
+  const base = buildSummary("30d", {
     checkins: [
       { id: "1", mood: 3, note: "Work stress and sleep have been tough.", date: new Date(Date.now() - 2 * 86400000).toISOString() },
       { id: "2", mood: 2, note: "Anxiety about money this week.", date: new Date(Date.now() - 5 * 86400000).toISOString() },
-      { id: "3", mood: 4, note: "Better sleep last night.", date: new Date(Date.now() - 10 * 86400000).toISOString() },
-      { id: "4", mood: 3, note: "Family call helped a bit.", date: new Date(Date.now() - 18 * 86400000).toISOString() },
+      { id: "3", mood: 4, note: "Better sleep last night, energy returning.", date: new Date(Date.now() - 6 * 86400000).toISOString() },
+      { id: "4", mood: 3, note: "Work felt heavy again, focus is hard.", date: new Date(Date.now() - 10 * 86400000).toISOString() },
+      { id: "5", mood: 2, note: "Family stress and money worries.", date: new Date(Date.now() - 14 * 86400000).toISOString() },
+      { id: "6", mood: 3, note: "Walked outside, mood lifted a little.", date: new Date(Date.now() - 18 * 86400000).toISOString() },
+      { id: "7", mood: 4, note: "Therapy session helped with anxiety.", date: new Date(Date.now() - 22 * 86400000).toISOString() },
+      { id: "8", mood: 3, note: "Sleep was off, work stress lingering.", date: new Date(Date.now() - 26 * 86400000).toISOString() },
     ],
-    resourcesAccessed: 3,
-    appointmentsBooked: 1,
+    resourcesAccessed: 4,
+    appointmentsBooked: 2,
   });
+
+  // Inject mock assessment attempts so the report has clinical content even
+  // when the device has no local pattern history.
+  const mockAttempts: Attempt[] = [
+    {
+      id: "mock-phq9",
+      assessmentId: "phq-9",
+      assessmentName: "Depression check (PHQ-9)",
+      score: 11,
+      summary: "Moderate range",
+      takenAt: Date.now() - 4 * 86400000,
+      answers: [],
+    },
+    {
+      id: "mock-gad7",
+      assessmentId: "gad-7",
+      assessmentName: "Anxiety check (GAD-7)",
+      score: 9,
+      summary: "Mild range",
+      takenAt: Date.now() - 12 * 86400000,
+      answers: [],
+    },
+    {
+      id: "mock-pss10",
+      assessmentId: "pss-10",
+      assessmentName: "Stress check (PSS-10)",
+      score: 22,
+      summary: "Elevated",
+      takenAt: Date.now() - 20 * 86400000,
+      answers: [],
+    },
+  ];
+
+  return {
+    ...base,
+    attemptsInRange: mockAttempts,
+    hasAnyData: true,
+  };
 }
