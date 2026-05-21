@@ -6,7 +6,7 @@ import {
   Download,
   Eye,
   Lock,
-  Send,
+  Share2,
   Sparkles,
   Lightbulb,
 } from "lucide-react";
@@ -258,7 +258,7 @@ export default function ShareTabView({
                 onClick={() => requireAccount(() => setConsentOpen(true))}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#7C69BA] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_14px_28px_-10px_rgba(124,105,186,0.55)] transition-all hover:-translate-y-0.5 hover:bg-[#6857A3]"
               >
-                <Send className="h-4 w-4" />
+                <Share2 className="h-4 w-4" />
                 Share with a provider
               </button>
             </div>
