@@ -586,7 +586,7 @@ function AssessmentCard({
           {inCooldown ? (
             <span
               className="inline-flex items-center gap-1.5"
-              title={`We suggest waiting at least ${assessment.estMinutes && ""}${daysLeft + (inCooldown ? 0 : 0)} days between check-ins for the most accurate picture.`}
+              title="Spacing check-ins out gives a more accurate picture — but you can still retake any time."
             >
               <Clock3 className="h-3.5 w-3.5" strokeWidth={2} />
               {formatRetakeHint(daysLeft)}
