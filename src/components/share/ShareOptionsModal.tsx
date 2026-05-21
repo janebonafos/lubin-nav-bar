@@ -278,130 +278,6 @@ function LinkView({
   );
 }
 
-function SetPasscodeForm({
-  savedPin,
-  onCancel,
-  onConfirm,
-  onSkip,
-}: {
-  savedPin: string | null;
-  onCancel: () => void;
-  onConfirm: (pin: string, remember: boolean) => void;
-  onSkip: () => void;
-}) {
-  const [pin1, setPin1] = useState("");
-  const [pin2, setPin2] = useState("");
-  const [remember, setRemember] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const submit = () => {
-    if (!/^\d{4}$/.test(pin1)) {
-      setError("Passcode must be 4 digits.");
-      return;
-    }
-    if (pin1 !== pin2) {
-      setError("Passcodes don't match.");
-      return;
-    }
-    setError(null);
-    onConfirm(pin1, remember);
-  };
-
-  return (
-    <div>
-      <h2 className="text-lg font-bold text-[#3D2E6B]">Set a passcode</h2>
-      <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        Use 4 digits. Share this passcode with your provider separately from
-        the link.
-      </p>
-
-      {savedPin && (
-        <p className="mt-3 rounded-xl border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-2 text-xs text-[#5A4A8A]">
-          Using your saved passcode <strong>••••</strong>.{" "}
-          <button
-            type="button"
-            onClick={() => {
-              clearSavedPin();
-              setPin1("");
-              setPin2("");
-            }}
-            className="font-semibold text-[#7E6BAF] hover:underline"
-          >
-            Change
-          </button>
-        </p>
-      )}
-
-      <div className="mt-5 space-y-3">
-        <label className="block">
-          <span className="text-xs font-medium text-[#5A4A8A]">New passcode</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="\d{4}"
-            maxLength={4}
-            value={pin1}
-            onChange={(e) => setPin1(e.target.value.replace(/\D/g, "").slice(0, 4))}
-            className="mt-1 w-full rounded-xl border border-[#ECE7F6] bg-white px-4 py-2.5 text-center text-lg font-semibold tracking-[0.5em] text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-            placeholder="••••"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-medium text-[#5A4A8A]">Confirm passcode</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="\d{4}"
-            maxLength={4}
-            value={pin2}
-            onChange={(e) => setPin2(e.target.value.replace(/\D/g, "").slice(0, 4))}
-            className="mt-1 w-full rounded-xl border border-[#ECE7F6] bg-white px-4 py-2.5 text-center text-lg font-semibold tracking-[0.5em] text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-            placeholder="••••"
-          />
-        </label>
-        <label className="inline-flex items-center gap-2 text-xs text-[#5A4A8A]">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="h-4 w-4 rounded border-[#C4B5FD] text-[#7E6BAF]"
-          />
-          Remember this passcode on this device
-        </label>
-        {error && (
-          <p className="text-xs font-medium text-[#B45309]">{error}</p>
-        )}
-      </div>
-
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="flex flex-col items-start gap-1">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="text-xs font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-xs font-medium text-[#7E6BAF] hover:underline"
-          >
-            Or share without a passcode
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={submit}
-          className="rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white"
-        >
-          Generate link
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function EmailView({
   includedKeys,
   recipient,
@@ -422,8 +298,7 @@ function EmailView({
       return;
     }
     setError(null);
-    const pin = getSavedPin();
-    const created = createShare({ pin, recipient, includedKeys });
+    const created = createShare({ pin: null, recipient, includedKeys });
     const url = buildShareUrl(created.token);
     const isTrusted = recipient === "trusted";
     const role =
@@ -441,8 +316,8 @@ function EmailView({
       ? "A short note I wanted to share"
       : `Wellbeing summary for your records`;
     const body = isTrusted
-      ? `Hi,\n\nI wanted to share how I have been feeling lately. You can read my summary here:\n${url}\n${pin ? `Passcode: ${pin}\n` : ""}\nThis link expires in 30 days.\n\nThanks for being there.`
-      : `Dear ${role},\n\nI use Lubin.AI to reflect on how I have been feeling. I've prepared a self-reported wellbeing summary for you:\n${url}\n${pin ? `Passcode: ${pin}\n` : ""}\nThis link expires in 30 days. The content is voluntarily shared, self-reported, and not a clinical diagnosis.\n\nThank you.`;
+      ? `Hi,\n\nI wanted to share how I have been feeling lately. You can read my summary here:\n${url}\n\nThis link expires in 30 days.\n\nThanks for being there.`
+      : `Dear ${role},\n\nI use Lubin.AI to reflect on how I have been feeling. I've prepared a self-reported wellbeing summary for you:\n${url}\n\nThis link expires in 30 days. The content is voluntarily shared, self-reported, and not a clinical diagnosis.\n\nThank you.`;
 
     const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
