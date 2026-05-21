@@ -52,7 +52,7 @@ export default function ShareOptionsModal({
           <button
             type="button"
             onClick={mode === "menu" ? onBack : () => setMode("menu")}
-            className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
+            className="inline-flex items-center gap-1.5 rounded-[123px] px-2 py-1 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -86,7 +86,7 @@ export default function ShareOptionsModal({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#F4F0FB] bg-white px-5 py-3 md:px-7">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+          <span className="inline-flex items-center gap-1.5 rounded-[123px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
             <CheckCircle2 className="h-3 w-3" />
             Consent confirmed
           </span>
@@ -155,7 +155,7 @@ function OptionCard({
       onClick={onClick}
       className="group flex items-start gap-4 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-[#7E6BAF]/40 hover:shadow-[0_18px_40px_-22px_rgba(126,107,175,0.5)]"
     >
-      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F4F0FB] text-[#7E6BAF]">
+      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[123px] bg-[#F4F0FB] text-[#7E6BAF]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
@@ -177,7 +177,7 @@ function PdfView({ onDone }: { onDone: () => void }) {
   }, []);
   return (
     <div className="py-6 text-center">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F4F0FB] text-[#7E6BAF]">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[123px] bg-[#F4F0FB] text-[#7E6BAF]">
         <Download className="h-6 w-6" />
       </div>
       <h2 className="mt-4 text-lg font-bold text-[#3D2E6B]">Preparing your PDF…</h2>
@@ -188,7 +188,7 @@ function PdfView({ onDone }: { onDone: () => void }) {
       <button
         type="button"
         onClick={onDone}
-        className="mt-6 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white"
+        className="mt-6 rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white"
       >
         Done
       </button>
@@ -217,7 +217,7 @@ function LinkView({
 
   return (
     <div>
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
+      <span className="inline-flex items-center gap-1.5 rounded-[123px] bg-[#DCFCE7] px-3 py-1 text-[11px] font-semibold text-[#166534]">
         <CheckCircle2 className="h-3 w-3" />
         Link ready
       </span>
@@ -243,7 +243,7 @@ function LinkView({
               () => toast.error("Couldn't copy link"),
             );
           }}
-          className="inline-flex flex-none items-center gap-1.5 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
+          className="inline-flex flex-none items-center gap-1.5 rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.7)] transition hover:-translate-y-0.5"
         >
           <Copy className="h-3.5 w-3.5" /> Copy link
         </button>
@@ -275,7 +275,7 @@ function LinkView({
         <button
           type="button"
           onClick={onDone}
-          className="rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5"
+          className="rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5"
         >
           Done
         </button>
@@ -333,7 +333,7 @@ function EmailView({
   if (step === "result") {
     return (
       <div className="py-6 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#DCFCE7] text-[#166534]">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[123px] bg-[#DCFCE7] text-[#166534]">
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <h2 className="mt-4 text-lg font-bold text-[#3D2E6B]">Email draft opened</h2>
@@ -343,7 +343,7 @@ function EmailView({
         <button
           type="button"
           onClick={onDone}
-          className="mt-6 rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white"
+          className="mt-6 rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2 text-sm font-semibold text-white"
         >
           Done
         </button>
@@ -373,7 +373,7 @@ function EmailView({
         <button
           type="button"
           onClick={submit}
-          className="rounded-full bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white"
+          className="rounded-[123px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white"
         >
           Open email draft
         </button>
