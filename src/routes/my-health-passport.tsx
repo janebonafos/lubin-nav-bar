@@ -2191,15 +2191,36 @@ function StartOverConfirm({
 
 // ---------- Reflection rhythm calendar (Patterns tab) ----------
 function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const monthName = today.toLocaleDateString(undefined, { month: "long" });
+  const today = useMemo(() => new Date(), []);
+  const [view, setView] = useState({
+    year: today.getFullYear(),
+    month: today.getMonth(),
+  });
+  const { year, month } = view;
+  const viewDate = new Date(year, month, 1);
+  const monthName = viewDate.toLocaleString(undefined, { month: "long" });
+  const yearLabel = ` ${year}`;
+  const isCurrentMonth =
+    year === today.getFullYear() && month === today.getMonth();
+  const isPastMonth =
+    year < today.getFullYear() ||
+    (year === today.getFullYear() && month < today.getMonth());
+  const goPrev = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month - 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const goNext = () =>
+    setView((v) => {
+      const d = new Date(v.year, v.month + 1, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  const canGoNext = !isCurrentMonth;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = new Date(year, month, 1).getDay();
   const todayDate = today.getDate();
 
-  // Count attempts per day-of-month (current month only)
+  // Count attempts per day-of-month for the viewed month
   const byDay = new Map<number, number>();
   for (const a of attempts) {
     const d = new Date(a.takenAt);
@@ -2219,13 +2240,37 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-brand-purple-dark/45">
-          Reflection rhythm
-        </p>
-        <p className="text-[11px] font-medium text-brand-purple-dark/45">
-          {activeDays} {activeDays === 1 ? "day" : "days"} in {monthName}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-brand-purple-dark/45">
+            Reflection rhythm
+          </p>
+          <p className="mt-1 text-[11px] font-medium text-brand-purple-dark/45">
+            {activeDays} {activeDays === 1 ? "day" : "days"} in {monthName}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 rounded-full bg-brand-lavender/50 p-1.5 ring-1 ring-brand-purple/10">
+          <button
+            type="button"
+            onClick={goPrev}
+            aria-label="Previous month"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <p className="min-w-[88px] text-center text-[13px] font-semibold text-brand-purple-dark">
+            {monthName}{yearLabel}
+          </p>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canGoNext}
+            aria-label="Next month"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark transition hover:bg-white hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 grid w-full grid-cols-7 gap-y-5 gap-x-2">
@@ -2240,8 +2285,9 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
         {cells.map((c, i) => {
           if (c.day === null)
             return <div key={`rh-pad-${i}`} className="aspect-square" />;
-          const isToday = c.day === todayDate;
-          const isFuture = c.day > todayDate;
+          const isToday = isCurrentMonth && c.day === todayDate;
+          const isFuture =
+            !isPastMonth && (!isCurrentMonth || c.day > todayDate);
           const hasReflection = c.count > 0;
           const dateLabel = new Date(year, month, c.day).toLocaleDateString(
             undefined,
