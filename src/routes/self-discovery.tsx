@@ -519,8 +519,8 @@ function AssessmentCard({
 }) {
   const latest =
     typeof window === "undefined" ? null : getLatestAttempt(assessment.id);
-  const locked = isLocked(latest);
-  const daysLeft = daysUntilAvailable(latest);
+  const daysLeft = cooldownDaysRemaining(assessment.id, latest);
+  const inCooldown = daysLeft > 0;
   const inProgress =
     typeof window === "undefined" ? null : loadInProgress(assessment.id);
   const answeredCount = inProgress
@@ -534,14 +534,16 @@ function AssessmentCard({
   const allAttempts =
     typeof window === "undefined" ? [] : getAttemptsFor(assessment.id);
   const trend = computeTrend(assessment, allAttempts);
+  const hasCompleted = allAttempts.length > 0;
+  const ctaLabel = hasInProgress
+    ? "Continue assessment"
+    : hasCompleted
+    ? "Retake assessment"
+    : "Start assessment";
 
   return (
     <div
-      className={`group flex h-full flex-col rounded-2xl border bg-white p-6 transition-all duration-300 ${
-        locked
-          ? "border-[#EFEAFE] opacity-90"
-          : "border-[#EFEAFE] shadow-sm hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-purple/10"
-      }`}
+      className="group flex h-full flex-col rounded-2xl border border-[#EFEAFE] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-purple/10"
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-[17px] font-semibold leading-snug text-brand-purple-dark transition-colors group-hover:text-brand-purple">
@@ -565,7 +567,7 @@ function AssessmentCard({
         </p>
       )}
 
-      {hasInProgress && !locked && (
+      {hasInProgress && (
         <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-lavender/40 px-3 py-2.5">
           <p className="text-[12px] font-medium text-brand-purple-dark/75">
             {answeredCount} of {assessment.questions.length} answered · {pct}%
@@ -581,10 +583,13 @@ function AssessmentCard({
 
       <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#F5F3FF] pt-5">
         <div className="flex items-center gap-3 text-[11.5px] font-medium text-brand-purple">
-          {locked ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5" strokeWidth={2} />
-              {formatDaysRemaining(daysLeft)}
+          {inCooldown ? (
+            <span
+              className="inline-flex items-center gap-1.5"
+              title={`We suggest waiting at least ${assessment.estMinutes && ""}${daysLeft + (inCooldown ? 0 : 0)} days between check-ins for the most accurate picture.`}
+            >
+              <Clock3 className="h-3.5 w-3.5" strokeWidth={2} />
+              {formatRetakeHint(daysLeft)}
             </span>
           ) : (
             <>
@@ -599,7 +604,7 @@ function AssessmentCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {hasInProgress && !locked && (
+          {hasInProgress && (
             <button
               type="button"
               onClick={onStartOver}
@@ -611,13 +616,9 @@ function AssessmentCard({
           <Link
             to="/self-discovery/$slug"
             params={{ slug: assessment.slug }}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
-              locked
-                ? "bg-brand-lavender text-brand-purple-dark/60"
-                : "bg-brand-purple text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
-            }`}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-5 py-2 text-[13px] font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:translate-y-0"
           >
-            {locked ? "View" : hasInProgress ? "Continue" : "Start"}
+            {ctaLabel}
           </Link>
         </div>
       </div>
