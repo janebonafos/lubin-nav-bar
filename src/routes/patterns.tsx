@@ -338,11 +338,9 @@ function PatternsPage() {
                   const answered = ip.answers.filter((v) => v !== null).length;
                   const pct = Math.round((answered / a.questions.length) * 100);
                   return (
-                    <Link
+                    <div
                       key={a.id}
-                      to="/patterns/$slug"
-                      params={{ slug: a.slug }}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-white"
                     >
                       <div className="min-w-0">
                         <p className="text-[14.5px] font-semibold text-brand-purple-dark">
@@ -358,11 +356,24 @@ function PatternsPage() {
                           />
                         </div>
                       </div>
-                      <ArrowRight
-                        className="h-4 w-4 flex-none text-brand-purple transition-transform group-hover:translate-x-0.5"
-                        strokeWidth={2}
-                      />
-                    </Link>
+                      <div className="flex flex-none items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setStartOverId(a.id)}
+                          className="rounded-full border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/75 transition hover:border-brand-purple/50 hover:text-brand-purple-dark"
+                        >
+                          Start over
+                        </button>
+                        <Link
+                          to="/patterns/$slug"
+                          params={{ slug: a.slug }}
+                          className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white no-underline transition hover:bg-brand-purple-dark"
+                        >
+                          Continue
+                          <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
+                        </Link>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
