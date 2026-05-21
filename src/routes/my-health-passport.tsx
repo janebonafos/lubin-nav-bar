@@ -2220,7 +2220,7 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-brand-purple-dark/45">
           Reflection rhythm
         </p>
         <p className="text-[11px] font-medium text-brand-purple-dark/45">
@@ -2228,7 +2228,7 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
         </p>
       </div>
 
-      <div className="mt-5 grid w-full grid-cols-7 gap-y-3 gap-x-2">
+      <div className="mt-6 grid w-full grid-cols-7 gap-y-5 gap-x-2">
         {dayLabels.map((l, i) => (
           <p
             key={`rh-hdr-${i}`}
@@ -2258,18 +2258,18 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
                     ? `${dateLabel} — ${c.count} reflection${c.count > 1 ? "s" : ""}`
                     : dateLabel
                 }
-                className={`relative flex aspect-square w-full max-w-[44px] items-center justify-center rounded-2xl text-[12px] font-medium transition-all duration-200 ${
+                className={`relative flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-[13px] transition-all duration-200 ${
                   hasReflection
-                    ? "bg-gradient-to-br from-brand-lavender to-brand-purple/35 text-brand-purple-dark font-semibold shadow-[0_4px_12px_-2px_rgba(123,104,199,0.25)]"
+                    ? "bg-gradient-to-br from-brand-lavender to-brand-purple/25 text-brand-purple-dark font-semibold shadow-[0_4px_12px_-2px_rgba(123,104,199,0.25)]"
                     : isToday
-                      ? "bg-white text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_4px_rgba(123,104,199,0.12)]"
+                      ? "bg-gradient-to-br from-white to-brand-lavender/60 text-brand-purple-dark font-bold ring-2 ring-brand-purple shadow-[0_0_0_5px_rgba(123,104,199,0.12),0_8px_24px_-4px_rgba(123,104,199,0.45)]"
                       : isFuture
-                        ? "text-brand-purple-dark/25 border border-dashed border-brand-purple/20"
-                        : "bg-brand-lavender/40 text-brand-purple-dark/40"
+                        ? "text-brand-purple-dark/30 border border-dashed border-brand-purple/25"
+                        : "bg-brand-lavender/45 text-brand-purple-dark/40"
                 }`}
               >
                 {hasReflection ? (
-                  <span aria-hidden className="text-sm">✦</span>
+                  <span aria-hidden className="text-base">✦</span>
                 ) : (
                   <span>{c.day}</span>
                 )}
