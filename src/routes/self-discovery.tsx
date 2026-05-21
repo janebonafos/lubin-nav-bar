@@ -336,7 +336,7 @@ function PatternsPage() {
                 Checks you've started or completed, saved privately to your passport.
               </p>
               <ul className="mt-5 space-y-3">
-                {history.map(({ assessment: a, attempts, inProgress }) => (
+                {history.slice(0, 4).map(({ assessment: a, attempts, inProgress }) => (
                   <li key={a.id}>
                     <Link
                       to="/self-discovery/$slug"
@@ -372,6 +372,15 @@ function PatternsPage() {
                   </li>
                 ))}
               </ul>
+              <div className="mt-5 flex justify-center">
+                <Link
+                  to="/my-health-passport"
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-white/80 px-5 py-2 text-[13px] font-semibold text-brand-purple-dark no-underline shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/40 hover:bg-white"
+                >
+                  View full history in your passport
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                </Link>
+              </div>
             </section>
           )}
 
