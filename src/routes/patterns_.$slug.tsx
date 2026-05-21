@@ -22,6 +22,7 @@ import {
 } from "@/lib/patterns/assessments";
 import {
   clearInProgress,
+  getAttemptsFor,
   getLatestAttempt,
   hasSeenIntro,
   loadInProgress,
@@ -83,6 +84,12 @@ export const Route = createFileRoute("/patterns_/$slug")({
       ],
     };
   },
+  validateSearch: (search: Record<string, unknown>) => ({
+    attempt:
+      typeof search.attempt === "string" && search.attempt.length > 0
+        ? search.attempt
+        : undefined,
+  }),
   component: PatternRunPage,
   notFoundComponent: () => <NotFound />,
   pendingComponent: () => <PatternLoading />,
@@ -149,6 +156,7 @@ function PatternRunPage() {
 
 function Runner({ assessment }: { assessment: Assessment }) {
   const navigate = useNavigate();
+  const { attempt: attemptId } = Route.useSearch();
   const total = assessment.questions.length;
 
   // Bootstrap from storage (browser-only).
@@ -167,6 +175,15 @@ function Runner({ assessment }: { assessment: Assessment }) {
   // One-time browser bootstrap.
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // If a specific past attempt is requested, jump straight to its result.
+    if (attemptId) {
+      const past = getAttemptsFor(assessment.id).find((a) => a.id === attemptId);
+      if (past) {
+        setCompletedAttempt(past);
+        setPhase("result");
+        return;
+      }
+    }
     const ip = loadInProgress(assessment.id);
     if (ip && ip.answers.length === total) {
       setAnswers(ip.answers);
@@ -177,7 +194,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
     }
     setPhase(hasSeenIntro(assessment.id) ? "questions" : "intro");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assessment.id]);
+  }, [assessment.id, attemptId]);
 
   // Persist progress whenever answers change in question phase.
   useEffect(() => {
