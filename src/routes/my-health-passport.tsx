@@ -1607,7 +1607,7 @@ function Progress({
                     key={a.id}
                     to="/self-discovery/$slug"
                     params={{ slug }}
-                    search={{ attempt: a.id }}
+                    search={{ attempt: a.id, from: "patterns" as const }}
                     className="flex items-center justify-between gap-3 rounded-lg bg-brand-lavender/50 px-3 py-2 ring-1 ring-brand-purple/10 no-underline transition hover:bg-brand-lavender/80"
                   >
                     <div className="min-w-0 flex-1">
@@ -2110,6 +2110,7 @@ function ContinueWhereYouLeftOff({
           <Link
             to="/self-discovery/$slug"
             params={{ slug }}
+            search={{ from: "patterns" as const }}
             className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3.5 py-1.5 text-[12.5px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
             Continue
