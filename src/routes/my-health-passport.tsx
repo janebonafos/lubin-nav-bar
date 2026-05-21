@@ -2317,12 +2317,8 @@ function ReflectionRhythm({ attempts }: { attempts: PatternAttempt[] }) {
                 {hasReflection ? (
                   <span
                     aria-hidden
-                    className="relative text-base bg-gradient-to-br from-brand-purple-dark via-brand-purple to-brand-purple-dark bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(123,104,199,0.55)] animate-pulse"
-                    style={{
-                      backgroundSize: "200% 200%",
-                      animation:
-                        "shinyShift 3s ease-in-out infinite, pulse 2.4s ease-in-out infinite",
-                    }}
+                    className="relative text-base font-bold text-brand-purple-dark drop-shadow-[0_0_4px_rgba(255,255,255,0.9)]"
+                    style={{ animation: "pulse 2.6s ease-in-out infinite" }}
                   >
                     ✦
                   </span>
