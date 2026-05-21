@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   Clock,
-  Lock,
   Sparkles,
   PlayCircle,
   TrendingUp,
@@ -23,11 +22,10 @@ import {
   GROUP_LABELS,
 } from "@/lib/patterns/assessments";
 import {
-  COOLDOWN_DAYS,
   computeTrend,
-  daysUntilAvailable,
-  formatDaysRemaining,
-  isLocked,
+  cooldownDaysRemaining,
+  formatRetakeHint,
+  isInCooldown,
 } from "@/lib/patterns/scoring";
 import {
   getAttemptsFor,
@@ -178,8 +176,8 @@ function PatternsPage() {
               everyday language. Take what feels useful, skip what doesn't.
             </p>
             <p className="mt-3 text-[12.5px] text-brand-purple-dark/50">
-              Each check is available again every {COOLDOWN_DAYS} days so your
-              picture stays meaningful, not anxious.
+              Spacing your check-ins out gives a more meaningful picture — we'll
+              gently suggest when to retake, but you're always in control.
             </p>
           </motion.header>
 
