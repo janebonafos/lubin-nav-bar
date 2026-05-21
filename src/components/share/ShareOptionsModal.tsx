@@ -48,19 +48,18 @@ export default function ShareOptionsModal({
       className="overflow-hidden rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
     >
       <div>
-        <div className="flex items-center gap-3 border-b border-[#F4F0FB] px-5 py-4 md:px-7">
+        <div className="flex items-center justify-between gap-3 border-b border-[#F4F0FB] px-5 py-4 md:px-7">
           <button
             type="button"
             onClick={mode === "menu" ? onBack : () => setMode("menu")}
-            aria-label="Back"
-            className="rounded-full p-1.5 text-[#5A4A8A] hover:bg-[#F4F0FB] hover:text-[#3D2E6B]"
+            className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
           >
             <ArrowLeft className="h-4 w-4" />
+            Back
           </button>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
-            <CheckCircle2 className="h-3 w-3" />
-            Consent confirmed
-          </span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
+            Share your summary
+          </p>
         </div>
 
         <div className="px-5 py-6 md:px-7">
@@ -86,9 +85,15 @@ export default function ShareOptionsModal({
           )}
         </div>
 
-        <p className="border-t border-[#F4F0FB] bg-white px-5 py-3 text-center text-[11px] text-[#5A4A8A] md:px-7">
-          Your provider will only see what you selected in step 1.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#F4F0FB] bg-white px-5 py-3 md:px-7">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+            <CheckCircle2 className="h-3 w-3" />
+            Consent confirmed
+          </span>
+          <p className="text-[11px] text-[#5A4A8A]">
+            Your provider only sees what you selected in step 1.
+          </p>
+        </div>
       </div>
     </section>
   );
