@@ -49,6 +49,7 @@ import {
 } from "recharts";
 import {
   INPROGRESS_EVENT,
+  clearInProgress,
   loadAttempts,
   readAllInProgress,
 } from "@/lib/patterns/storage";
