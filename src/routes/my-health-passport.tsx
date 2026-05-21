@@ -610,12 +610,16 @@ function Overview({
   onLogMood,
   checkInActive,
   onCloseCheckIn,
+  isGuest,
+  onAfterSave,
 }: {
   today: string;
   checkins: CheckIn[];
   onLogMood: () => void;
   checkInActive: boolean;
   onCloseCheckIn: () => void;
+  isGuest?: boolean;
+  onAfterSave?: () => void;
 }) {
   type LiveCheckIn = CheckInPayload & { id: string; savedAt: number };
   const [liveEntries, setLiveEntries] = useState<LiveCheckIn[]>([]);
@@ -663,6 +667,9 @@ function Overview({
     );
     window.setTimeout(() => setPulseId((c) => (c === id ? null : c)), 1600);
     window.setTimeout(() => setLatestSavedId((c) => (c === id ? null : c)), 30000);
+    if (isGuest && onAfterSave) {
+      window.setTimeout(() => onAfterSave(), 400);
+    }
   };
 
   const handleEdit = (id: string) => {
