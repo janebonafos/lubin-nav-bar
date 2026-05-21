@@ -98,11 +98,14 @@ export const Route = createFileRoute("/patterns_/$slug")({
 });
 
 function PatternLoading() {
+  const isViewingResult =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("attempt");
   return (
     <div
       className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
       role="status"
-      aria-label="Loading check-in"
+      aria-label={isViewingResult ? "Loading your result" : "Loading check-in"}
     >
       <div className="flex flex-col items-center gap-4">
         <div className="relative h-12 w-12">
@@ -110,7 +113,7 @@ function PatternLoading() {
           <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-brand-purple" />
         </div>
         <p className="text-[13px] font-medium text-brand-purple-dark/60">
-          Getting your check-in ready…
+          {isViewingResult ? "Loading your result…" : "Getting your check-in ready…"}
         </p>
       </div>
     </div>
