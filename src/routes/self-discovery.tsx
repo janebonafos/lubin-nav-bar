@@ -14,7 +14,6 @@ import {
   X,
   ChevronDown,
   Clock3,
-  ShieldAlert,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
