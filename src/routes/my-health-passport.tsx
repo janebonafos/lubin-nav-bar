@@ -124,7 +124,9 @@ function PassportPage() {
 
   useEffect(() => {
     const refresh = () =>
-      setHasInProgress(readAllInProgress(ASSESSMENT_IDS).length > 0);
+      setHasInProgress(
+        readAllInProgress(ASSESSMENT_IDS).some((ip) => ip.answeredCount > 0),
+      );
     refresh();
     const onStorage = (e: StorageEvent) => {
       if (!e.key || e.key.startsWith("lubinai_inprogress_")) refresh();
@@ -1460,7 +1462,9 @@ function Progress({
   useEffect(() => {
     const refresh = () => {
       setPatternAttempts(loadAttempts().sort((a, b) => b.takenAt - a.takenAt));
-      setInProgressList(readAllInProgress(ASSESSMENT_IDS));
+      setInProgressList(
+        readAllInProgress(ASSESSMENT_IDS).filter((ip) => ip.answeredCount > 0),
+      );
     };
     refresh();
     const onStorage = (e: StorageEvent) => {
