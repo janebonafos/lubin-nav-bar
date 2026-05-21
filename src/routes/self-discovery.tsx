@@ -40,16 +40,16 @@ import {
 } from "@/lib/patterns/storage";
 import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/types";
 
-export const Route = createFileRoute("/patterns")({
+export const Route = createFileRoute("/self-discovery")({
   head: () => ({
     meta: [
-      { title: "Patterns — Lubin" },
+      { title: "Self Discovery — Lubin" },
       {
         name: "description",
         content:
           "Gentle, clinically grounded check-ins for mood, anxiety, sleep, focus and more — at your own pace.",
       },
-      { property: "og:title", content: "Patterns — Lubin" },
+      { property: "og:title", content: "Self Discovery — Lubin" },
       {
         property: "og:description",
         content:
@@ -167,7 +167,7 @@ function PatternsPage() {
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 px-4 py-1.5 text-[12px] font-medium text-brand-purple shadow-sm backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
-              Patterns
+              Self Discovery
             </span>
             <h1 className="mt-6 text-[36px] font-bold leading-[1.05] tracking-tight text-shimmer md:text-[52px]">
               Understand the patterns behind how you feel.
@@ -365,7 +365,7 @@ function PatternsPage() {
                           Start over
                         </button>
                         <Link
-                          to="/patterns/$slug"
+                          to="/self-discovery/$slug"
                           params={{ slug: a.slug }}
                           className="inline-flex items-center gap-1 rounded-full bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white no-underline transition hover:bg-brand-purple-dark"
                         >
@@ -393,7 +393,7 @@ function PatternsPage() {
                 {history.map(({ assessment: a, attempts, inProgress }) => (
                   <li key={a.id}>
                     <Link
-                      to="/patterns/$slug"
+                      to="/self-discovery/$slug"
                       params={{ slug: a.slug }}
                       className="group flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 px-5 py-4 no-underline shadow-[0_10px_30px_-22px_rgba(126,107,175,0.35)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-brand-purple/25 hover:bg-white hover:shadow-[0_18px_40px_-22px_rgba(126,107,175,0.5)]"
                     >
@@ -617,7 +617,7 @@ function AssessmentCard({ assessment }: { assessment: Assessment }) {
         </div>
 
         <Link
-          to="/patterns/$slug"
+          to="/self-discovery/$slug"
           params={{ slug: assessment.slug }}
           className={`inline-flex items-center gap-1.5 rounded-lg px-5 py-2 text-[13px] font-semibold no-underline transition-all ${
             locked

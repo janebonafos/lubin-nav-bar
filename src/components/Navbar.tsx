@@ -32,7 +32,7 @@ const NAV_LINKS: NavLinkItem[] = [
     dropdown: "simple",
     simpleItems: [
       { label: "Health Passport", href: "/my-health-passport" },
-      { label: "Self Discovery", href: "/patterns" },
+      { label: "Self Discovery", href: "/self-discovery" },
     ],
   },
   {

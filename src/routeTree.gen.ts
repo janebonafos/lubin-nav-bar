@@ -9,21 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
 import { Route as ResourcesRouteImport } from './routes/resources'
-import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PatternsSlugRouteImport } from './routes/patterns_.$slug'
+import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 
+const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
+  id: '/self-discovery',
+  path: '/self-discovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PatternsRoute = PatternsRouteImport.update({
-  id: '/patterns',
-  path: '/patterns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
@@ -41,9 +41,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PatternsSlugRoute = PatternsSlugRouteImport.update({
-  id: '/patterns_/$slug',
-  path: '/patterns/$slug',
+const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
+  id: '/self-discovery_/$slug',
+  path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -51,26 +51,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
-  '/patterns/$slug': typeof PatternsSlugRoute
+  '/self-discovery': typeof SelfDiscoveryRoute
+  '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
-  '/patterns/$slug': typeof PatternsSlugRoute
+  '/self-discovery': typeof SelfDiscoveryRoute
+  '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/my-health-passport': typeof MyHealthPassportRoute
-  '/patterns': typeof PatternsRoute
   '/resources': typeof ResourcesRoute
-  '/patterns_/$slug': typeof PatternsSlugRoute
+  '/self-discovery': typeof SelfDiscoveryRoute
+  '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,50 +78,50 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/my-health-passport'
-    | '/patterns'
     | '/resources'
-    | '/patterns/$slug'
+    | '/self-discovery'
+    | '/self-discovery/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/check-in'
     | '/my-health-passport'
-    | '/patterns'
     | '/resources'
-    | '/patterns/$slug'
+    | '/self-discovery'
+    | '/self-discovery/$slug'
   id:
     | '__root__'
     | '/'
     | '/check-in'
     | '/my-health-passport'
-    | '/patterns'
     | '/resources'
-    | '/patterns_/$slug'
+    | '/self-discovery'
+    | '/self-discovery_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
-  PatternsRoute: typeof PatternsRoute
   ResourcesRoute: typeof ResourcesRoute
-  PatternsSlugRoute: typeof PatternsSlugRoute
+  SelfDiscoveryRoute: typeof SelfDiscoveryRoute
+  SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/self-discovery': {
+      id: '/self-discovery'
+      path: '/self-discovery'
+      fullPath: '/self-discovery'
+      preLoaderRoute: typeof SelfDiscoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/patterns': {
-      id: '/patterns'
-      path: '/patterns'
-      fullPath: '/patterns'
-      preLoaderRoute: typeof PatternsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-health-passport': {
@@ -145,11 +145,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/patterns_/$slug': {
-      id: '/patterns_/$slug'
-      path: '/patterns/$slug'
-      fullPath: '/patterns/$slug'
-      preLoaderRoute: typeof PatternsSlugRouteImport
+    '/self-discovery_/$slug': {
+      id: '/self-discovery_/$slug'
+      path: '/self-discovery/$slug'
+      fullPath: '/self-discovery/$slug'
+      preLoaderRoute: typeof SelfDiscoverySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -159,9 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
-  PatternsRoute: PatternsRoute,
   ResourcesRoute: ResourcesRoute,
-  PatternsSlugRoute: PatternsSlugRoute,
+  SelfDiscoveryRoute: SelfDiscoveryRoute,
+  SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
