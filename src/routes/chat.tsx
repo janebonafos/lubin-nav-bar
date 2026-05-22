@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import lubinLogo from "@/assets/lubin-logo.svg";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -60,6 +61,13 @@ const QUICK_ACTIONS = [
   { to: "/check-in", label: "How are you feeling?", Icon: Sun },
   { to: "/self-discovery", label: "Self Discovery", Icon: Sparkles },
 ] as const;
+
+const STARTERS = [
+  "I've been feeling overwhelmed lately…",
+  "My mind won't slow down",
+  "I'm not sure what I'm feeling",
+  "Help me reflect on my week",
+];
 
 function ChatPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
