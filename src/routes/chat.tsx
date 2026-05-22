@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import lubinLogo from "@/assets/lubin-logo.svg";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -60,6 +61,13 @@ const QUICK_ACTIONS = [
   { to: "/check-in", label: "How are you feeling?", Icon: Sun },
   { to: "/self-discovery", label: "Self Discovery", Icon: Sparkles },
 ] as const;
+
+const STARTERS = [
+  "I've been feeling overwhelmed lately…",
+  "My mind won't slow down",
+  "I'm not sure what I'm feeling",
+  "Help me reflect on my week",
+];
 
 function ChatPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -238,12 +246,13 @@ function ChatPage() {
 
   return (
     <div
-      className="relative flex h-screen overflow-hidden bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
+      className="relative flex h-screen overflow-hidden bg-gradient-to-br from-[#F7F4FF] via-[#EEE9FB] to-[#F4EEFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-brand-purple/30 to-brand-purple-accent/15 blur-3xl" />
-        <div className="absolute top-1/3 -right-40 h-[480px] w-[480px] rounded-full bg-gradient-to-br from-[#C4B5FD]/35 to-[#9990C9]/20 blur-3xl" />
+        <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-gradient-to-br from-brand-purple/25 to-brand-purple-accent/10 blur-[120px]" />
+        <div className="absolute top-1/4 -right-48 h-[560px] w-[560px] rounded-full bg-gradient-to-br from-[#C4B5FD]/30 to-[#9990C9]/15 blur-[120px]" />
+        <div className="absolute -bottom-40 left-1/3 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-[#E9D8FD]/40 to-transparent blur-[120px]" />
       </div>
 
       {/* Sidebar — thread list */}
@@ -255,17 +264,14 @@ function ChatPage() {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-brand-purple/10 bg-white/85 backdrop-blur-xl transition-transform duration-300 md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-brand-purple/10 bg-white/75 backdrop-blur-xl transition-transform duration-300 md:relative md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-4 pt-4 pb-3">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[12.5px] font-medium text-brand-purple-dark/70 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
+        {/* Brand */}
+        <div className="flex items-center justify-between px-4 pt-5 pb-4">
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src={lubinLogo} alt="Lubin" className="h-5 w-auto" />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -275,12 +281,19 @@ function ChatPage() {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="px-3">
+        <div className="px-3 pb-1">
+          <Link
+            to="/"
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-brand-purple-dark/60 transition-colors hover:text-brand-purple-dark"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to home
+          </Link>
           <button
             onClick={createNewThread}
-            className="flex w-full items-center gap-2 rounded-[12px] border border-brand-purple/20 bg-white px-3 py-2.5 text-[13.5px] font-medium text-brand-purple-dark transition-all hover:border-brand-purple/40 hover:shadow-sm"
+            className="flex w-full items-center gap-2 rounded-[12px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-3 py-2.5 text-[13.5px] font-medium text-white shadow-[0_6px_20px_-8px_rgba(126,107,175,0.6)] transition-all hover:shadow-[0_8px_24px_-8px_rgba(126,107,175,0.7)]"
           >
-            <Plus className="h-4 w-4 text-brand-purple" />
+            <Plus className="h-4 w-4" />
             New conversation
           </button>
         </div>
@@ -329,7 +342,7 @@ function ChatPage() {
               );
             })}
         </div>
-        <div className="border-t border-brand-purple/10 px-4 py-3 text-[11px] text-brand-purple-dark/55">
+        <div className="border-t border-brand-purple/10 bg-white/50 px-4 py-3 text-[11px] text-brand-purple-dark/55">
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             <Link to="/resources" className="hover:text-brand-purple-dark hover:underline">
               Terms
@@ -347,7 +360,7 @@ function ChatPage() {
       {/* Main chat column */}
       <main className="relative z-10 flex flex-1 flex-col">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b border-brand-purple/10 bg-white/60 px-4 py-3 backdrop-blur-md md:px-6">
+        <header className="flex items-center justify-between border-b border-brand-purple/10 bg-white/50 px-4 py-3 backdrop-blur-md md:px-6">
           <button
             onClick={() => setSidebarOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 hover:bg-brand-purple/10 md:hidden"
@@ -355,70 +368,111 @@ function ChatPage() {
           >
             <Menu className="h-4 w-4" />
           </button>
-          <Link
-            to="/"
-            className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 hover:bg-brand-purple/10 hover:text-brand-purple-dark md:inline-flex"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
-          <h1 className="truncate px-2 text-[14px] font-semibold text-brand-purple-dark">
-            {active?.title ?? "Chat with Lubin"}
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_4px_12px_-4px_rgba(126,107,175,0.6)]">
+                <Leaf className="h-4 w-4" strokeWidth={2.2} />
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+            </div>
+            <div className="leading-tight">
+              <p className="text-[13.5px] font-semibold text-brand-purple-dark">Lubin</p>
+              <p className="text-[10.5px] text-brand-purple-dark/55">Private &amp; encrypted</p>
+            </div>
+          </div>
           <button
             onClick={createNewThread}
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple hover:bg-brand-purple/15"
+            className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple-dark/80 ring-1 ring-brand-purple/15 transition-all hover:bg-white hover:ring-brand-purple/30"
           >
-            <Plus className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">New</span>
+            <Plus className="h-3.5 w-3.5 text-brand-purple" />
+            <span className="hidden sm:inline">New chat</span>
           </button>
         </header>
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 py-6 md:px-6">
-            {messages.map((m, i) => {
-              const isUser = m.role === "user";
-              return (
-                <div
-                  key={i}
-                  className={`flex ${isUser ? "justify-end" : "justify-start"}`}
-                  style={{ animation: "msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both" }}
-                >
-                  <div
-                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[14.5px] leading-relaxed ${
-                      isUser
-                        ? "rounded-br-md bg-brand-navy text-white shadow-sm"
-                        : "rounded-bl-md bg-brand-lavender text-brand-navy"
-                    }`}
-                  >
-                    {m.content || (
-                      <span className="inline-flex items-center gap-1">
-                        {[0, 150, 300].map((d) => (
-                          <span
-                            key={d}
-                            className="block h-1.5 w-1.5 rounded-full bg-brand-purple/60"
-                            style={{
-                              animation: "dot-bounce 1.2s ease-in-out infinite",
-                              animationDelay: `${d}ms`,
-                            }}
-                          />
-                        ))}
-                      </span>
-                    )}
-                  </div>
+        <div ref={scrollRef} className="relative flex-1 overflow-y-auto">
+          {/* Top fade */}
+          <div className="pointer-events-none sticky top-0 z-10 -mb-6 h-6 bg-gradient-to-b from-[#F4EEFB] to-transparent" />
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 md:px-6">
+            {messages.length === 1 && messages[0].role === "assistant" ? (
+              <div
+                className="flex flex-col items-center pt-8 pb-4 text-center"
+                style={{ animation: "msg-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both" }}
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_12px_30px_-10px_rgba(126,107,175,0.6)]">
+                  <Leaf className="h-7 w-7 text-white" strokeWidth={2.2} />
                 </div>
-              );
-            })}
+                <h2 className="mt-5 text-[22px] font-semibold tracking-tight text-brand-purple-dark">
+                  Hey, I'm Lubin.
+                </h2>
+                <p className="mt-1.5 max-w-md text-[14px] leading-relaxed text-brand-purple-dark/60">
+                  How have you been feeling lately? Take your time — there's no rush, and nothing
+                  you share leaves this space.
+                </p>
+                <div className="mt-7 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
+                  {STARTERS.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => {
+                        setInput(s);
+                        textareaRef.current?.focus();
+                      }}
+                      className="group rounded-2xl border border-brand-purple/15 bg-white/70 px-4 py-3 text-left text-[13px] leading-relaxed text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/35 hover:bg-white hover:shadow-[0_8px_24px_-12px_rgba(126,107,175,0.4)]"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              messages.map((m, i) => {
+                const isUser = m.role === "user";
+                return (
+                  <div
+                    key={i}
+                    className={`flex items-end gap-2 ${isUser ? "justify-end" : "justify-start"}`}
+                    style={{ animation: "msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both" }}
+                  >
+                    {!isUser && (
+                      <div className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-sm">
+                        <Leaf className="h-3.5 w-3.5 text-white" strokeWidth={2.4} />
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[82%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[14.5px] leading-relaxed ${
+                        isUser
+                          ? "rounded-br-md bg-gradient-to-br from-brand-navy to-[#1f1e3a] text-white shadow-[0_6px_20px_-12px_rgba(44,43,75,0.6)]"
+                          : "rounded-bl-md bg-white/90 text-brand-navy ring-1 ring-brand-purple/10 backdrop-blur-sm"
+                      }`}
+                    >
+                      {m.content || (
+                        <span className="inline-flex items-center gap-1">
+                          {[0, 150, 300].map((d) => (
+                            <span
+                              key={d}
+                              className="block h-1.5 w-1.5 rounded-full bg-brand-purple/60"
+                              style={{
+                                animation: "dot-bounce 1.2s ease-in-out infinite",
+                                animationDelay: `${d}ms`,
+                              }}
+                            />
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
         {/* Composer */}
-        <div className="border-t border-brand-purple/10 bg-white/70 px-4 pb-4 pt-3 backdrop-blur-md md:px-6">
+        <div className="px-4 pb-4 pt-2 md:px-6">
           <div className="mx-auto w-full max-w-3xl">
             <div
               suppressHydrationWarning
-              className="flex flex-col gap-2 rounded-2xl border border-brand-purple/20 bg-white px-3 py-2.5 shadow-[0_8px_30px_-15px_rgba(124,58,237,0.25)]"
+              className="group flex flex-col gap-2 rounded-2xl border border-brand-purple/20 bg-white/95 px-3.5 py-3 shadow-[0_12px_40px_-18px_rgba(124,58,237,0.35)] backdrop-blur-md transition-all focus-within:border-brand-purple/45 focus-within:shadow-[0_16px_50px_-18px_rgba(124,58,237,0.45)]"
             >
               <textarea
                 ref={textareaRef}
@@ -437,7 +491,7 @@ function ChatPage() {
                     <Link
                       key={to}
                       to={to}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/80 transition-colors hover:border-brand-purple/30 hover:bg-brand-purple/8 hover:text-brand-purple-dark"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-brand-purple/[0.04] px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-brand-purple/10 hover:text-brand-purple-dark"
                     >
                       <Icon className="h-3.5 w-3.5 text-brand-purple" />
                       {label}
@@ -447,14 +501,14 @@ function ChatPage() {
                 <button
                   onClick={send}
                   disabled={!input.trim() || isStreaming}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white transition-all hover:bg-brand-purple-dark disabled:cursor-not-allowed disabled:bg-brand-purple/30"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_4px_14px_-4px_rgba(126,107,175,0.7)] transition-all hover:scale-105 hover:shadow-[0_6px_18px_-4px_rgba(126,107,175,0.85)] disabled:cursor-not-allowed disabled:bg-none disabled:bg-brand-purple/25 disabled:shadow-none disabled:hover:scale-100"
                   aria-label="Send"
                 >
                   <ArrowUp className="h-4 w-4" />
                 </button>
               </div>
             </div>
-            <p className="mt-2 text-center text-[11px] text-brand-purple-dark/45">
+            <p className="mt-2.5 text-center text-[11px] text-brand-purple-dark/50">
               Lubin is here to listen. Not a substitute for professional care.{" "}
               <Link to="/resources" className="underline-offset-2 hover:underline">
                 Terms
