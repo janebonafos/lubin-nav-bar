@@ -238,7 +238,7 @@ function ChatPage() {
 
   return (
     <div
-      className="relative flex min-h-screen flex-col bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
+      className="relative flex h-screen overflow-hidden bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -246,37 +246,137 @@ function ChatPage() {
         <div className="absolute top-1/3 -right-40 h-[480px] w-[480px] rounded-full bg-gradient-to-br from-[#C4B5FD]/35 to-[#9990C9]/20 blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 border-b border-brand-purple/10 bg-white/70 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3 md:px-6">
+      {/* Sidebar — thread list */}
+      {sidebarOpen && (
+        <button
+          aria-label="Close sidebar"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-20 bg-brand-navy/30 backdrop-blur-sm md:hidden"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-brand-purple/10 bg-white/85 backdrop-blur-xl transition-transform duration-300 md:relative md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[12.5px] font-medium text-brand-purple-dark/70 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            Back to home
           </Link>
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-            <span className="text-[13px] font-semibold text-brand-purple-dark">
-              Lubin · listening
-            </span>
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-medium text-brand-purple">
-            <Sparkles className="h-3 w-3" />
-            Private
-          </span>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-      </header>
+        <div className="px-3">
+          <button
+            onClick={createNewThread}
+            className="flex w-full items-center gap-2 rounded-[12px] border border-brand-purple/20 bg-white px-3 py-2.5 text-[13.5px] font-medium text-brand-purple-dark transition-all hover:border-brand-purple/40 hover:shadow-sm"
+          >
+            <Plus className="h-4 w-4 text-brand-purple" />
+            New conversation
+          </button>
+        </div>
+        <div className="mt-4 flex-1 overflow-y-auto px-2 pb-3">
+          <p className="px-2 pb-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-brand-purple-dark/45">
+            Recent
+          </p>
+          {threads
+            .slice()
+            .sort((a, b) => b.updatedAt - a.updatedAt)
+            .map((t) => {
+              const isActive = t.id === activeId;
+              return (
+                <div
+                  key={t.id}
+                  className={`group flex items-center gap-2 rounded-[10px] px-2.5 py-2 transition-colors ${
+                    isActive ? "bg-brand-purple/12" : "hover:bg-brand-purple/8"
+                  }`}
+                >
+                  <button
+                    onClick={() => {
+                      setActiveId(t.id);
+                      setSidebarOpen(false);
+                    }}
+                    className="flex flex-1 items-center gap-2 text-left"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5 shrink-0 text-brand-purple/70" />
+                    <span
+                      className={`truncate text-[13px] ${
+                        isActive
+                          ? "font-semibold text-brand-purple-dark"
+                          : "text-brand-purple-dark/75"
+                      }`}
+                    >
+                      {t.title}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => deleteThread(t.id)}
+                    className="rounded p-1 text-brand-purple-dark/40 opacity-0 transition-opacity hover:bg-brand-purple/10 hover:text-brand-purple-dark group-hover:opacity-100"
+                    aria-label="Delete conversation"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+        </div>
+        <div className="border-t border-brand-purple/10 px-4 py-3 text-[11px] text-brand-purple-dark/55">
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            <Link to="/resources" className="hover:text-brand-purple-dark hover:underline">
+              Terms
+            </Link>
+            <Link to="/resources" className="hover:text-brand-purple-dark hover:underline">
+              Privacy
+            </Link>
+            <Link to="/resources" className="hover:text-brand-purple-dark hover:underline">
+              Need urgent help?
+            </Link>
+          </div>
+        </div>
+      </aside>
 
-      {/* Messages */}
-      <main className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 md:px-6">
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto py-6"
-          style={{ scrollBehavior: "smooth" }}
-        >
-          <div className="flex flex-col gap-3">
+      {/* Main chat column */}
+      <main className="relative z-10 flex flex-1 flex-col">
+        {/* Top bar */}
+        <header className="flex items-center justify-between border-b border-brand-purple/10 bg-white/60 px-4 py-3 backdrop-blur-md md:px-6">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 hover:bg-brand-purple/10 md:hidden"
+            aria-label="Open conversations"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+          <Link
+            to="/"
+            className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 hover:bg-brand-purple/10 hover:text-brand-purple-dark md:inline-flex"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
+          <h1 className="truncate px-2 text-[14px] font-semibold text-brand-purple-dark">
+            {active?.title ?? "Chat with Lubin"}
+          </h1>
+          <button
+            onClick={createNewThread}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple hover:bg-brand-purple/15"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">New</span>
+          </button>
+        </header>
+
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 py-6 md:px-6">
             {messages.map((m, i) => {
               const isUser = m.role === "user";
               return (
@@ -286,10 +386,10 @@ function ChatPage() {
                   style={{ animation: "msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both" }}
                 >
                   <div
-                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[14.5px] leading-relaxed shadow-sm ${
+                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[14.5px] leading-relaxed ${
                       isUser
-                        ? "rounded-br-sm bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white"
-                        : "rounded-bl-sm bg-white/90 text-[#2C2B4B] ring-1 ring-brand-purple/10 backdrop-blur-sm"
+                        ? "rounded-br-md bg-brand-navy text-white shadow-sm"
+                        : "rounded-bl-md bg-brand-lavender text-brand-navy"
                     }`}
                   >
                     {m.content || (
@@ -314,30 +414,57 @@ function ChatPage() {
         </div>
 
         {/* Composer */}
-        <div className="sticky bottom-0 z-10 pb-4 pt-2">
-          <div className="flex items-end gap-2 rounded-2xl border border-brand-purple/20 bg-white/90 p-2 shadow-[0_10px_40px_-15px_rgba(124,58,237,0.35)] backdrop-blur-md">
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKeyDown}
-              placeholder="Share what's on your mind…"
-              className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2 text-[14.5px] leading-relaxed text-[#2C2B4B] placeholder:text-brand-purple-dark/40 focus:outline-none"
-              disabled={isStreaming}
-            />
-            <button
-              onClick={send}
-              disabled={!input.trim() || isStreaming}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-sm transition-all hover:shadow-md disabled:opacity-40"
-              aria-label="Send"
+        <div className="border-t border-brand-purple/10 bg-white/70 px-4 pb-4 pt-3 backdrop-blur-md md:px-6">
+          <div className="mx-auto w-full max-w-3xl">
+            <div
+              suppressHydrationWarning
+              className="flex flex-col gap-2 rounded-2xl border border-brand-purple/20 bg-white px-3 py-2.5 shadow-[0_8px_30px_-15px_rgba(124,58,237,0.25)]"
             >
-              <Send className="h-4 w-4" />
-            </button>
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder="Ask anything…"
+                suppressHydrationWarning
+                className="max-h-40 w-full resize-none bg-transparent text-[14.5px] leading-relaxed text-brand-navy placeholder:text-brand-purple-dark/40 focus:outline-none"
+                disabled={isStreaming}
+              />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {QUICK_ACTIONS.map(({ to, label, Icon }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/80 transition-colors hover:border-brand-purple/30 hover:bg-brand-purple/8 hover:text-brand-purple-dark"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-brand-purple" />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+                <button
+                  onClick={send}
+                  disabled={!input.trim() || isStreaming}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white transition-all hover:bg-brand-purple-dark disabled:cursor-not-allowed disabled:bg-brand-purple/30"
+                  aria-label="Send"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <p className="mt-2 text-center text-[11px] text-brand-purple-dark/45">
+              Lubin is here to listen. Not a substitute for professional care.{" "}
+              <Link to="/resources" className="underline-offset-2 hover:underline">
+                Terms
+              </Link>{" "}
+              ·{" "}
+              <Link to="/resources" className="underline-offset-2 hover:underline">
+                Privacy
+              </Link>
+            </p>
           </div>
-          <p className="mt-2 text-center text-[11px] text-brand-purple-dark/45">
-            Lubin is here to listen. This is not a substitute for professional care.
-          </p>
         </div>
       </main>
     </div>
