@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
   id: '/self-discovery',
@@ -58,6 +59,11 @@ const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/api/chat': typeof ApiChatRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/api/chat': typeof ApiChatRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/api/chat': typeof ApiChatRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/resources'
     | '/self-discovery'
+    | '/api/chat'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/resources'
     | '/self-discovery'
+    | '/api/chat'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/resources'
     | '/self-discovery'
+    | '/api/chat'
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   MyHealthPassportRoute: typeof MyHealthPassportRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
+  ApiChatRoute: typeof ApiChatRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyHealthPassportRoute: MyHealthPassportRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
+  ApiChatRoute: ApiChatRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
