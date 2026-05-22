@@ -1,6 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Send, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUp,
+  Plus,
+  MessageSquare,
+  Trash2,
+  Leaf,
+  Sun,
+  Sparkles,
+  Menu,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/chat")({
@@ -23,19 +34,106 @@ export const Route = createFileRoute("/chat")({
 });
 
 type Msg = { role: "user" | "assistant"; content: string };
+type Thread = { id: string; title: string; messages: Msg[]; updatedAt: number };
+
+const STORAGE_KEY = "lubin.chat.threads.v1";
+const ACTIVE_KEY = "lubin.chat.activeId.v1";
+
+const WELCOME: Msg = {
+  role: "assistant",
+  content:
+    "Hey, I'm really glad you stopped by. How have you been feeling lately? Take your time — there's no rush.",
+};
+
+const newThread = (): Thread => ({
+  id:
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : String(Date.now()),
+  title: "New conversation",
+  messages: [WELCOME],
+  updatedAt: Date.now(),
+});
+
+const QUICK_ACTIONS = [
+  { to: "/my-health-passport", label: "My Health Passport", Icon: Leaf },
+  { to: "/check-in", label: "How are you feeling?", Icon: Sun },
+  { to: "/self-discovery", label: "Self Discovery", Icon: Sparkles },
+] as const;
 
 function ChatPage() {
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "assistant",
-      content:
-        "Hey, I'm really glad you stopped by. How have you been feeling lately? Take your time — there's no rush.",
-    },
-  ]);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [activeId, setActiveId] = useState<string>("");
+  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load threads from localStorage on mount (client-only to avoid hydration mismatch)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const savedActive = localStorage.getItem(ACTIVE_KEY) ?? "";
+      if (raw) {
+        const parsed: Thread[] = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setThreads(parsed);
+          setActiveId(parsed.find((t) => t.id === savedActive)?.id ?? parsed[0].id);
+          setHydrated(true);
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    const t = newThread();
+    setThreads([t]);
+    setActiveId(t.id);
+    setHydrated(true);
+  }, []);
+
+  // Persist threads
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
+      localStorage.setItem(ACTIVE_KEY, activeId);
+    } catch {
+      // ignore
+    }
+  }, [threads, activeId, hydrated]);
+
+  const active = threads.find((t) => t.id === activeId);
+  const messages = active?.messages ?? [WELCOME];
+
+  const updateActive = (updater: (t: Thread) => Thread) => {
+    setThreads((prev) =>
+      prev.map((t) => (t.id === activeId ? { ...updater(t), updatedAt: Date.now() } : t)),
+    );
+  };
+
+  const createNewThread = () => {
+    const t = newThread();
+    setThreads((prev) => [t, ...prev]);
+    setActiveId(t.id);
+    setInput("");
+    setSidebarOpen(false);
+  };
+
+  const deleteThread = (id: string) => {
+    setThreads((prev) => {
+      const filtered = prev.filter((t) => t.id !== id);
+      if (filtered.length === 0) {
+        const t = newThread();
+        setActiveId(t.id);
+        return [t];
+      }
+      if (id === activeId) setActiveId(filtered[0].id);
+      return filtered;
+    });
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -51,10 +149,15 @@ function ChatPage() {
 
   const send = async () => {
     const text = input.trim();
-    if (!text || isStreaming) return;
+    if (!text || isStreaming || !active) return;
     const userMsg: Msg = { role: "user", content: text };
     const next = [...messages, userMsg];
-    setMessages(next);
+    const isFirstUserMsg = messages.filter((m) => m.role === "user").length === 0;
+    updateActive((t) => ({
+      ...t,
+      title: isFirstUserMsg ? text.slice(0, 48) : t.title,
+      messages: next,
+    }));
     setInput("");
     setIsStreaming(true);
 
@@ -76,7 +179,7 @@ function ChatPage() {
       }
 
       let assistantSoFar = "";
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      updateActive((t) => ({ ...t, messages: [...next, { role: "assistant", content: "" }] }));
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
@@ -85,10 +188,10 @@ function ChatPage() {
 
       const flushChunk = (chunk: string) => {
         assistantSoFar += chunk;
-        setMessages((prev) => {
-          const copy = [...prev];
+        updateActive((t) => {
+          const copy = [...t.messages];
           copy[copy.length - 1] = { role: "assistant", content: assistantSoFar };
-          return copy;
+          return { ...t, messages: copy };
         });
       };
 
