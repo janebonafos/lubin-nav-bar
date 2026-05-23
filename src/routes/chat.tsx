@@ -336,23 +336,13 @@ function ChatPage() {
           <Link to="/" className="flex items-center gap-2 group">
             <img src={lubinLogo} alt="Lubin" className="h-5 w-auto" />
           </Link>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setDesktopCollapsed(true)}
-              className="hidden rounded-full p-1.5 text-brand-purple-dark/60 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark md:inline-flex"
-              aria-label="Collapse sidebar"
-              title="Collapse sidebar"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
         <div className="px-3 pb-1">
           <Link
@@ -446,20 +436,16 @@ function ChatPage() {
             aria-label="Toggle conversations"
           >
             <span className="md:hidden">
-              <Menu className="h-4.5 w-4.5" />
+              <Menu className="h-[18px] w-[18px]" />
             </span>
-            <span className="hidden md:inline">
-              {desktopCollapsed ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <PanelLeftClose className="h-4 w-4" />
-              )}
+            <span className="hidden md:inline-flex">
+              <SidebarGlyph open={!desktopCollapsed} />
             </span>
           </button>
           <div className="flex min-w-0 flex-1 items-center gap-2.5">
             <div className="relative">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_4px_12px_-4px_rgba(126,107,175,0.6)]">
-                <Leaf className="h-4 w-4" strokeWidth={2.2} />
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-purple shadow-[0_4px_14px_-4px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/15">
+                <LubinMark className="h-[18px] w-[18px]" />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
             </div>
@@ -486,8 +472,8 @@ function ChatPage() {
                 className="flex flex-col items-center pt-8 pb-4 text-center"
                 style={{ animation: "msg-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both" }}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_12px_30px_-10px_rgba(126,107,175,0.6)]">
-                  <Leaf className="h-7 w-7 text-white" strokeWidth={2.2} />
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-brand-purple shadow-[0_18px_40px_-14px_rgba(126,107,175,0.5)] ring-1 ring-brand-purple/15">
+                  <LubinMark className="h-9 w-9" />
                 </div>
                 <h2 className="mt-5 text-[22px] font-semibold tracking-tight text-brand-purple-dark">
                   Hey, I'm Lubin.
@@ -521,8 +507,8 @@ function ChatPage() {
                     style={{ animation: "msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both" }}
                   >
                     {!isUser && (
-                      <div className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-sm">
-                        <Leaf className="h-3.5 w-3.5 text-white" strokeWidth={2.4} />
+                      <div className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-brand-purple shadow-sm ring-1 ring-brand-purple/15">
+                        <LubinMark className="h-3.5 w-3.5" />
                       </div>
                     )}
                     <div
