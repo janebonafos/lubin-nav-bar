@@ -351,7 +351,7 @@ function ChatPage() {
                   <button
                     onClick={() => {
                       setActiveId(t.id);
-                      setSidebarOpen(false);
+                      setMobileOpen(false);
                     }}
                     className="flex flex-1 items-center gap-2 text-left"
                   >
