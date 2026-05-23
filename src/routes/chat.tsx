@@ -6,16 +6,37 @@ import {
   Plus,
   MessageSquare,
   Trash2,
-  Leaf,
+  HeartHandshake,
   Sun,
   Sparkles,
   Menu,
   X,
-  PanelLeftClose,
-  PanelLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import lubinLogo from "@/assets/lubin-logo.svg";
+
+// Minimal, refined sidebar toggle glyph
+const SidebarGlyph = ({ open = true }: { open?: boolean }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="4.5" width="18" height="15" rx="3" />
+    <line x1="9.5" y1="4.5" x2="9.5" y2="19.5" />
+    {open ? (
+      <path d="M14 9l-2 3 2 3" />
+    ) : (
+      <path d="M14 9l2 3-2 3" />
+    )}
+  </svg>
+);
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -59,7 +80,7 @@ const newThread = (): Thread => ({
 });
 
 const QUICK_ACTIONS = [
-  { to: "/my-health-passport", label: "My Health Passport", Icon: Leaf },
+  { to: "/my-health-passport", label: "My Health Passport", Icon: HeartHandshake },
   { to: "/check-in", label: "How are you feeling?", Icon: Sun },
   { to: "/self-discovery", label: "Self Discovery", Icon: Sparkles },
 ] as const;
