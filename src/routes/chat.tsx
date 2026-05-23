@@ -11,6 +11,8 @@ import {
   Sparkles,
   Menu,
   X,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import lubinLogo from "@/assets/lubin-logo.svg";
@@ -75,7 +77,10 @@ function ChatPage() {
   const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Mobile drawer (overlay) — closed by default
+  const [mobileOpen, setMobileOpen] = useState(false);
+  // Desktop sidebar collapsed state — persisted
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -127,7 +132,7 @@ function ChatPage() {
     setThreads((prev) => [t, ...prev]);
     setActiveId(t.id);
     setInput("");
-    setSidebarOpen(false);
+    setMobileOpen(false);
   };
 
   const deleteThread = (id: string) => {
@@ -142,6 +147,26 @@ function ChatPage() {
       return filtered;
     });
   };
+
+  // Load desktop collapsed pref
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("lubin.chat.sidebarCollapsed.v1");
+      if (v === "1") setDesktopCollapsed(true);
+    } catch {
+      // ignore
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "lubin.chat.sidebarCollapsed.v1",
+        desktopCollapsed ? "1" : "0",
+      );
+    } catch {
+      // ignore
+    }
+  }, [desktopCollapsed]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -256,30 +281,40 @@ function ChatPage() {
       </div>
 
       {/* Sidebar — thread list */}
-      {sidebarOpen && (
+      {mobileOpen && (
         <button
           aria-label="Close sidebar"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setMobileOpen(false)}
           className="fixed inset-0 z-20 bg-brand-navy/30 backdrop-blur-sm md:hidden"
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-brand-purple/10 bg-white/75 backdrop-blur-xl transition-transform duration-300 md:relative md:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-30 flex w-[82vw] max-w-[300px] flex-col border-r border-brand-purple/10 bg-white/80 backdrop-blur-xl transition-all duration-300 md:relative md:w-72 md:max-w-none md:translate-x-0 ${
+          mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+        } ${desktopCollapsed ? "md:hidden" : "md:flex"}`}
       >
         {/* Brand */}
         <div className="flex items-center justify-between px-4 pt-5 pb-4">
           <Link to="/" className="flex items-center gap-2 group">
             <img src={lubinLogo} alt="Lubin" className="h-5 w-auto" />
           </Link>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setDesktopCollapsed(true)}
+              className="hidden rounded-full p-1.5 text-brand-purple-dark/60 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark md:inline-flex"
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <div className="px-3 pb-1">
           <Link
@@ -360,33 +395,47 @@ function ChatPage() {
       {/* Main chat column */}
       <main className="relative z-10 flex flex-1 flex-col">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b border-brand-purple/10 bg-white/50 px-4 py-3 backdrop-blur-md md:px-6">
+        <header className="flex items-center gap-2 border-b border-brand-purple/10 bg-white/60 px-3 py-3 backdrop-blur-md md:px-6">
           <button
-            onClick={() => setSidebarOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] font-medium text-brand-purple-dark/70 hover:bg-brand-purple/10 md:hidden"
-            aria-label="Open conversations"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.innerWidth < 768) {
+                setMobileOpen(true);
+              } else {
+                setDesktopCollapsed((v) => !v);
+              }
+            }}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-purple-dark/70 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+            aria-label="Toggle conversations"
           >
-            <Menu className="h-4 w-4" />
+            <span className="md:hidden">
+              <Menu className="h-4.5 w-4.5" />
+            </span>
+            <span className="hidden md:inline">
+              {desktopCollapsed ? (
+                <PanelLeft className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </span>
           </button>
-          <div className="flex items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
             <div className="relative">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_4px_12px_-4px_rgba(126,107,175,0.6)]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-white shadow-[0_4px_12px_-4px_rgba(126,107,175,0.6)]">
                 <Leaf className="h-4 w-4" strokeWidth={2.2} />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
             </div>
-            <div className="leading-tight">
-              <p className="text-[13.5px] font-semibold text-brand-purple-dark">Lubin</p>
-              <p className="text-[10.5px] text-brand-purple-dark/55">Private &amp; encrypted</p>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-[14px] font-semibold text-brand-purple-dark">
+                {active?.title && active.title !== "New conversation"
+                  ? active.title
+                  : "Lubin"}
+              </p>
+              <p className="truncate text-[10.5px] text-brand-purple-dark/55">
+                Private &amp; encrypted
+              </p>
             </div>
           </div>
-          <button
-            onClick={createNewThread}
-            className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[12.5px] font-medium text-brand-purple-dark/80 ring-1 ring-brand-purple/15 transition-all hover:bg-white hover:ring-brand-purple/30"
-          >
-            <Plus className="h-3.5 w-3.5 text-brand-purple" />
-            <span className="hidden sm:inline">New chat</span>
-          </button>
         </header>
 
         {/* Messages */}
