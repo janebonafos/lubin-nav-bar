@@ -10,7 +10,7 @@ import {
   Sun,
   Sparkles,
   Menu,
-  X,
+  ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import lubinLogo from "@/assets/lubin-logo.svg";
@@ -332,26 +332,26 @@ function ChatPage() {
         } ${desktopCollapsed ? "md:hidden" : "md:flex"}`}
       >
         {/* Brand */}
-        <div className="flex items-center justify-between px-4 pt-5 pb-4">
-          <Link to="/" className="flex items-center gap-2 group">
-            <img src={lubinLogo} alt="Lubin" className="h-5 w-auto" />
+        <div className="flex items-center justify-between gap-2 px-4 pt-5 pb-4">
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-brand-purple-dark transition-colors hover:bg-brand-purple/8"
+            aria-label="Back to home"
+          >
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple transition-all group-hover:bg-brand-purple/15 group-hover:-translate-x-0.5">
+              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </span>
+            <img src={lubinLogo} alt="Lubin" className="h-[18px] w-auto" />
           </Link>
           <button
             onClick={() => setMobileOpen(false)}
-            className="rounded-full p-1.5 text-brand-purple-dark/60 hover:bg-brand-purple/10 md:hidden"
-            aria-label="Close"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-brand-purple-dark/60 transition-colors hover:bg-brand-purple/10 hover:text-brand-purple-dark md:hidden"
+            aria-label="Close conversations"
           >
-            <X className="h-4 w-4" />
+            <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />
           </button>
         </div>
         <div className="px-3 pb-1">
-          <Link
-            to="/"
-            className="mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-brand-purple-dark/60 transition-colors hover:text-brand-purple-dark"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to home
-          </Link>
           <button
             onClick={createNewThread}
             className="flex w-full items-center gap-2 rounded-[12px] bg-gradient-to-br from-brand-purple to-brand-purple-dark px-3 py-2.5 text-[13.5px] font-medium text-white shadow-[0_6px_20px_-8px_rgba(126,107,175,0.6)] transition-all hover:shadow-[0_8px_24px_-8px_rgba(126,107,175,0.7)]"
