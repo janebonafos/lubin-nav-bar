@@ -466,23 +466,23 @@ function ChatPage() {
         <div ref={scrollRef} className="relative flex-1 overflow-y-auto">
           {/* Top fade */}
           <div className="pointer-events-none sticky top-0 z-10 -mb-6 h-6 bg-gradient-to-b from-[#F4EEFB] to-transparent" />
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 md:px-6">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 md:px-6 md:py-8">
             {messages.length === 1 && messages[0].role === "assistant" ? (
               <div
-                className="flex flex-col items-center pt-8 pb-4 text-center"
+                className="flex flex-col items-center pt-2 pb-4 text-center md:pt-8"
                 style={{ animation: "msg-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both" }}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-brand-purple shadow-[0_18px_40px_-14px_rgba(126,107,175,0.5)] ring-1 ring-brand-purple/15">
-                  <LubinMark className="h-9 w-9" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-white text-brand-purple shadow-[0_18px_40px_-14px_rgba(126,107,175,0.5)] ring-1 ring-brand-purple/15 md:h-16 md:w-16 md:rounded-3xl">
+                  <LubinMark className="h-7 w-7 md:h-9 md:w-9" />
                 </div>
-                <h2 className="mt-5 text-[22px] font-semibold tracking-tight text-brand-purple-dark">
+                <h2 className="mt-4 text-[20px] font-semibold tracking-tight text-brand-purple-dark md:mt-5 md:text-[22px]">
                   Hey, I'm Lubin.
                 </h2>
-                <p className="mt-1.5 max-w-md text-[14px] leading-relaxed text-brand-purple-dark/60">
+                <p className="mt-1.5 max-w-md text-[13px] leading-relaxed text-brand-purple-dark/60 md:text-[14px]">
                   How have you been feeling lately? Take your time — there's no rush, and nothing
                   you share leaves this space.
                 </p>
-                <div className="mt-7 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="mt-6 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2 md:mt-7">
                   {STARTERS.map((s) => (
                     <button
                       key={s}
@@ -541,11 +541,11 @@ function ChatPage() {
         </div>
 
         {/* Composer */}
-        <div className="px-4 pb-4 pt-2 md:px-6">
+        <div className="px-3 pb-3 pt-2 md:px-6 md:pb-4">
           <div className="mx-auto w-full max-w-3xl">
             <div
               suppressHydrationWarning
-              className="group flex flex-col gap-2 rounded-2xl border border-brand-purple/20 bg-white/95 px-3.5 py-3 shadow-[0_12px_40px_-18px_rgba(124,58,237,0.35)] backdrop-blur-md transition-all focus-within:border-brand-purple/45 focus-within:shadow-[0_16px_50px_-18px_rgba(124,58,237,0.45)]"
+              className="group flex flex-col gap-2 rounded-2xl border border-brand-purple/20 bg-white/95 px-3 py-2.5 shadow-[0_12px_40px_-18px_rgba(124,58,237,0.35)] backdrop-blur-md transition-all focus-within:border-brand-purple/45 focus-within:shadow-[0_16px_50px_-18px_rgba(124,58,237,0.45)] md:px-3.5 md:py-3"
             >
               <textarea
                 ref={textareaRef}
@@ -558,13 +558,13 @@ function ChatPage() {
                 className="max-h-40 w-full resize-none bg-transparent text-[14.5px] leading-relaxed text-brand-navy placeholder:text-brand-purple-dark/40 focus:outline-none"
                 disabled={isStreaming}
               />
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <div className="-mx-1 flex flex-1 items-center gap-1.5 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {QUICK_ACTIONS.map(({ to, label, Icon }) => (
                     <Link
                       key={to}
                       to={to}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-brand-purple/[0.04] px-3 py-1.5 text-[12px] font-medium text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-brand-purple/10 hover:text-brand-purple-dark"
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand-purple/15 bg-brand-purple/[0.04] px-2.5 py-1.5 text-[11.5px] font-medium text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:bg-brand-purple/10 hover:text-brand-purple-dark md:px-3 md:text-[12px]"
                     >
                       <Icon className="h-3.5 w-3.5 text-brand-purple" />
                       {label}
