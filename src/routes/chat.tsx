@@ -469,20 +469,20 @@ function ChatPage() {
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 md:px-6 md:py-8">
             {messages.length === 1 && messages[0].role === "assistant" ? (
               <div
-                className="flex flex-col items-center pt-2 pb-4 text-center md:pt-8"
+                className="flex flex-col items-center pt-1 pb-2 text-center md:pt-8"
                 style={{ animation: "msg-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both" }}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-white text-brand-purple shadow-[0_18px_40px_-14px_rgba(126,107,175,0.5)] ring-1 ring-brand-purple/15 md:h-16 md:w-16 md:rounded-3xl">
-                  <LubinMark className="h-7 w-7 md:h-9 md:w-9" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-purple shadow-[0_18px_40px_-14px_rgba(126,107,175,0.5)] ring-1 ring-brand-purple/15 md:h-16 md:w-16 md:rounded-3xl">
+                  <LubinMark className="h-6 w-6 md:h-9 md:w-9" />
                 </div>
-                <h2 className="mt-4 text-[20px] font-semibold tracking-tight text-brand-purple-dark md:mt-5 md:text-[22px]">
+                <h2 className="mt-3 text-[18px] font-semibold tracking-tight text-brand-purple-dark md:mt-5 md:text-[22px]">
                   Hey, I'm Lubin.
                 </h2>
-                <p className="mt-1.5 max-w-md text-[13px] leading-relaxed text-brand-purple-dark/60 md:text-[14px]">
+                <p className="mt-1 max-w-md px-2 text-[12.5px] leading-relaxed text-brand-purple-dark/60 md:mt-1.5 md:px-0 md:text-[14px]">
                   How have you been feeling lately? Take your time — there's no rush, and nothing
                   you share leaves this space.
                 </p>
-                <div className="mt-6 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2 md:mt-7">
+                <div className="mt-4 grid w-full max-w-lg grid-cols-2 gap-1.5 md:mt-7 md:gap-2">
                   {STARTERS.map((s) => (
                     <button
                       key={s}
@@ -490,7 +490,7 @@ function ChatPage() {
                         setInput(s);
                         textareaRef.current?.focus();
                       }}
-                      className="group rounded-2xl border border-brand-purple/15 bg-white/70 px-4 py-3 text-left text-[13px] leading-relaxed text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/35 hover:bg-white hover:shadow-[0_8px_24px_-12px_rgba(126,107,175,0.4)]"
+                      className="group rounded-xl border border-brand-purple/15 bg-white/70 px-2.5 py-2 text-left text-[11.5px] leading-snug text-brand-purple-dark/80 transition-all hover:-translate-y-0.5 hover:border-brand-purple/35 hover:bg-white hover:shadow-[0_8px_24px_-12px_rgba(126,107,175,0.4)] md:rounded-2xl md:px-4 md:py-3 md:text-[13px] md:leading-relaxed"
                     >
                       {s}
                     </button>
