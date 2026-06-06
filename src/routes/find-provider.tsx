@@ -528,7 +528,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Footer: price + CTA */}
-      <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4 [margin-top:1.25rem]">
+      <div className="mt-auto flex items-end justify-between gap-3 pt-5 [margin-top:1.25rem]">
         <div className="flex flex-col">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Starting at
