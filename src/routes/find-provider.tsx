@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, CheckCircle2, Calendar } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/find-provider")({
@@ -331,7 +331,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
               </h3>
               {provider.verified && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[11px] font-medium text-brand-purple">
-                  <CheckCircle2 className="h-3 w-3" />
+                  <BadgeCheck className="h-3 w-3" />
                   Certified
                 </span>
               )}
@@ -344,7 +344,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
                 </span>
               </p>
               <div className="mt-1.5 flex items-center gap-1 text-[12px] text-slate-500">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <Star className="h-3 w-3 fill-brand-purple text-brand-purple" />
                 <span className="font-semibold text-slate-700">
                   {provider.rating}
                 </span>
