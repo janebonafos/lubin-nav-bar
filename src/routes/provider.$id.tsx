@@ -310,7 +310,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       )}
 
       {/* Meta pills */}
-      <div className="mt-4 flex flex-wrap gap-1.5">
+      <div className="mt-4 mb-6 flex flex-wrap gap-1.5">
         <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
           <User className="h-3 w-3" />
           {service.sessionType}
