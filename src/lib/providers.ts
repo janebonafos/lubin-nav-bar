@@ -21,6 +21,8 @@ export type Provider = {
   initials: string;
   verified?: boolean;
   expertise?: string;
+  experience: number;
+  languages: string[];
   services?: Service[];
 };
 
