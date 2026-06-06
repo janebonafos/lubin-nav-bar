@@ -374,7 +374,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
         {provider.location}
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-brand-purple/10 pt-4">
+      <div className="mt-auto flex items-center justify-between border-t border-brand-purple/10 pt-4 mt-5">
         <div>
           <p className="text-[11px] uppercase tracking-wider text-brand-purple-dark/55">
             Per session
