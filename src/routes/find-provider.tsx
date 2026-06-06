@@ -381,7 +381,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Location */}
-      <div className="mt-4 flex items-center gap-1.5 text-[13px] text-brand-purple-dark/70">
+      <div className="mt-4 mb-5 flex items-center gap-1.5 text-[13px] text-brand-purple-dark/70">
         <MapPin className="h-3.5 w-3.5 text-brand-purple/80" />
         {provider.location}
       </div>
@@ -390,7 +390,6 @@ function ProviderCard({ provider }: { provider: Provider }) {
       <button
         type="button"
         className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-[0.98]"
-        style={{ marginTop: "1.25rem" }}
       >
         <Calendar className="h-4 w-4" />
         Book session
