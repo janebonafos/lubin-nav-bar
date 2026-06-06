@@ -177,7 +177,7 @@ function ProviderProfilePage() {
 
                 {/* Tags */}
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {provider.tags.map((t) => (
+                  {provider.tags.map((t: string) => (
                     <span
                       key={t}
                       className="rounded-full bg-white/80 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-[#E9E6FA] backdrop-blur"
