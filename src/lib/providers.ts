@@ -41,6 +41,8 @@ export const PROVIDERS: Provider[] = [
     initials: "MS",
     verified: true,
     expertise: "Expert in Anxiety, Trauma & CBT",
+    experience: 12,
+    languages: ["English", "Filipino"],
   },
   {
     id: "2",
@@ -56,6 +58,8 @@ export const PROVIDERS: Provider[] = [
     initials: "JR",
     verified: true,
     expertise: "Expert in Relationships & LGBTQ+ Support",
+    experience: 9,
+    languages: ["English", "Filipino"],
   },
   {
     id: "3",
@@ -70,6 +74,8 @@ export const PROVIDERS: Provider[] = [
     price: 3200,
     initials: "AL",
     expertise: "Expert in Burnout & Mindfulness-Based Therapy",
+    experience: 7,
+    languages: ["English"],
   },
   {
     id: "4",
@@ -85,6 +91,8 @@ export const PROVIDERS: Provider[] = [
     initials: "PC",
     verified: true,
     expertise: "Expert in OCD, Anxiety & Family Therapy",
+    experience: 14,
+    languages: ["English", "Filipino", "Cebuano"],
   },
   {
     id: "5",
@@ -99,6 +107,8 @@ export const PROVIDERS: Provider[] = [
     price: 1400,
     initials: "BG",
     expertise: "Expert in Student & Career Counselling",
+    experience: 5,
+    languages: ["English", "Filipino"],
   },
   {
     id: "6",
@@ -114,6 +124,8 @@ export const PROVIDERS: Provider[] = [
     initials: "MT",
     verified: true,
     expertise: "Expert in Somatic & Trauma-Focused Therapy",
+    experience: 11,
+    languages: ["English", "Filipino"],
   },
 ];
 
