@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2 } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, Clock, Video, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/find-provider")({
@@ -185,6 +185,8 @@ function FindProviderPage() {
   const [practices, setPractices] = useState<string[]>([]);
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
+  const [profileProvider, setProfileProvider] = useState<Provider | null>(null);
+  const [bookingProvider, setBookingProvider] = useState<Provider | null>(null);
 
   // Smart location input: detect ZIP (PH: 4 digits, US-style: 5 digits) vs city name
   const locTrimmed = location.trim();
@@ -401,7 +403,12 @@ function FindProviderPage() {
             ) : (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {filtered.map((p) => (
-                  <ProviderCard key={p.id} provider={p} />
+                  <ProviderCard
+                    key={p.id}
+                    provider={p}
+                    onViewProfile={() => setProfileProvider(p)}
+                    onBook={() => setBookingProvider(p)}
+                  />
                 ))}
               </div>
             )}
@@ -447,11 +454,37 @@ function FindProviderPage() {
           onClose={() => setInvitee(null)}
         />
       )}
+
+      {profileProvider && (
+        <ProfileModal
+          provider={profileProvider}
+          onClose={() => setProfileProvider(null)}
+          onBook={() => {
+            setBookingProvider(profileProvider);
+            setProfileProvider(null);
+          }}
+        />
+      )}
+
+      {bookingProvider && (
+        <BookingModal
+          provider={bookingProvider}
+          onClose={() => setBookingProvider(null)}
+        />
+      )}
     </div>
   );
 }
 
-function ProviderCard({ provider }: { provider: Provider }) {
+function ProviderCard({
+  provider,
+  onViewProfile,
+  onBook,
+}: {
+  provider: Provider;
+  onViewProfile: () => void;
+  onBook: () => void;
+}) {
   const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
@@ -540,13 +573,24 @@ function ProviderCard({ provider }: { provider: Provider }) {
             </span>
           </p>
         </div>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          Book session
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onViewProfile}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-purple/30 bg-white px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition-all hover:bg-[#F3F0FF] active:scale-95"
+          >
+            <User className="h-3.5 w-3.5" />
+            View profile
+          </button>
+          <button
+            type="button"
+            onClick={onBook}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            Book session
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -719,6 +763,383 @@ function InviteModal({
             </div>
           </form>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ProfileModal({
+  provider,
+  onClose,
+  onBook,
+}: {
+  provider: Provider;
+  onClose: () => void;
+  onBook: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Hero */}
+        <div className="relative bg-gradient-to-br from-[#F3F0FF] via-white to-[#F9F8FF] p-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="flex items-start gap-4">
+            <div className="relative flex-none">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[22px] font-bold text-white shadow-[0_8px_22px_-8px_rgba(124,113,176,0.6)]">
+                {provider.initials}
+              </div>
+              {provider.verified && (
+                <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#E9E6FA]">
+                  <BadgeCheck className="h-4 w-4 text-brand-purple-accent" />
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1 pt-1">
+              <h3 className="text-[20px] font-bold leading-tight text-slate-900">
+                {provider.name}
+              </h3>
+              <p className="mt-1 text-[13.5px] text-slate-500">{provider.title}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px]">
+                <span className="inline-flex items-center gap-1.5 text-slate-500">
+                  <MapPin className="h-3.5 w-3.5 text-[#A799E2]" />
+                  {provider.location}
+                </span>
+                <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
+                <span className="inline-flex items-center gap-1">
+                  <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
+                  <span className="font-semibold text-slate-800">{provider.rating}</span>
+                  <span className="text-slate-400">({provider.reviews} reviews)</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="max-h-[55vh] space-y-5 overflow-y-auto px-6 pb-2 pt-5">
+          <section>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+              About
+            </h4>
+            <p className="mt-2 text-[14px] leading-relaxed text-slate-600">
+              {provider.bio}
+            </p>
+          </section>
+
+          <section>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+              Specialties
+            </h4>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <span className="rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
+                {provider.practice}
+              </span>
+              {provider.tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] text-slate-600 ring-1 ring-inset ring-slate-200/70"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-[#E9E6FA] bg-white p-3">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                <Video className="h-3.5 w-3.5" />
+                Session format
+              </div>
+              <p className="mt-1.5 text-[13px] text-slate-700">Online & in-person</p>
+            </div>
+            <div className="rounded-xl border border-[#E9E6FA] bg-white p-3">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                <Clock className="h-3.5 w-3.5" />
+                Duration
+              </div>
+              <p className="mt-1.5 text-[13px] text-slate-700">50 minutes</p>
+            </div>
+          </section>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 border-t border-[#E9E6FA] bg-[#FBFAFF] px-6 py-4">
+          <div>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Starting at
+            </span>
+            <p className="text-[18px] font-bold leading-none text-slate-900">
+              ₱{provider.price.toLocaleString()}
+              <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onBook}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] active:scale-95"
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            Book session
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BookingModal({
+  provider,
+  onClose,
+}: {
+  provider: Provider;
+  onClose: () => void;
+}) {
+  const today = new Date();
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [format, setFormat] = useState<"online" | "in-person">("online");
+  const [confirmed, setConfirmed] = useState(false);
+
+  const viewMonth = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const monthLabel = viewMonth.toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+  const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
+  const firstWeekday = viewMonth.getDay();
+  const cells: (Date | null)[] = [
+    ...Array(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) =>
+      new Date(viewMonth.getFullYear(), viewMonth.getMonth(), i + 1),
+    ),
+  ];
+  const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const times = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
+
+  const canConfirm = selectedDate && selectedTime;
+
+  if (confirmed) {
+    return (
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div
+          className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F3F0FF]">
+            <CheckCircle2 className="h-7 w-7 text-brand-purple" />
+          </div>
+          <h3 className="mt-4 text-[18px] font-bold text-slate-900">Session booked</h3>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-slate-500">
+            Your session with <span className="font-semibold text-slate-700">{provider.name}</span>{" "}
+            on{" "}
+            <span className="font-semibold text-slate-700">
+              {selectedDate?.toLocaleDateString(undefined, {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>{" "}
+            at <span className="font-semibold text-slate-700">{selectedTime}</span> is confirmed.
+            We've sent the details to your email.
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-6 w-full rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] hover:-translate-y-0.5 transition-all active:scale-95"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-[#E9E6FA] px-6 py-4">
+          <div>
+            <h3 className="text-[18px] font-bold text-slate-900">Book a session</h3>
+            <p className="mt-0.5 text-[13px] text-slate-500">
+              with <span className="font-semibold text-slate-700">{provider.name}</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5">
+          {/* Format */}
+          <div>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+              Session format
+            </h4>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {(["online", "in-person"] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFormat(f)}
+                  className={`rounded-xl border px-3 py-2.5 text-[13px] font-semibold capitalize transition-all ${
+                    format === f
+                      ? "border-brand-purple bg-[#F3F0FF] text-brand-purple"
+                      : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/30"
+                  }`}
+                >
+                  {f === "online" ? "Online (video)" : "In-person"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Calendar */}
+          <div>
+            <div className="flex items-center justify-between">
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                Pick a date
+              </h4>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setMonthOffset((v) => Math.max(0, v - 1))}
+                  disabled={monthOffset === 0}
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="min-w-[110px] text-center text-[13px] font-semibold text-slate-700">
+                  {monthLabel}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMonthOffset((v) => v + 1)}
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-slate-400">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                <div key={i} className="py-1">
+                  {d}
+                </div>
+              ))}
+            </div>
+            <div className="mt-1 grid grid-cols-7 gap-1">
+              {cells.map((d, i) => {
+                if (!d) return <div key={i} />;
+                const isPast = d < todayMid;
+                const isSelected =
+                  selectedDate && d.toDateString() === selectedDate.toDateString();
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={isPast}
+                    onClick={() => {
+                      setSelectedDate(d);
+                      setSelectedTime(null);
+                    }}
+                    className={`aspect-square rounded-lg text-[13px] font-medium transition-colors ${
+                      isSelected
+                        ? "bg-brand-purple text-white shadow-[0_6px_14px_-6px_rgba(124,113,176,0.7)]"
+                        : isPast
+                          ? "text-slate-300"
+                          : "text-slate-700 hover:bg-[#F3F0FF]"
+                    }`}
+                  >
+                    {d.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Times */}
+          {selectedDate && (
+            <div>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                Available times
+              </h4>
+              <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {times.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setSelectedTime(t)}
+                    className={`rounded-lg border px-2 py-2 text-[12.5px] font-semibold transition-all ${
+                      selectedTime === t
+                        ? "border-brand-purple bg-brand-purple text-white"
+                        : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/40"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 border-t border-[#E9E6FA] bg-[#FBFAFF] px-6 py-4">
+          <div>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Total
+            </span>
+            <p className="text-[17px] font-bold leading-none text-slate-900">
+              ₱{provider.price.toLocaleString()}
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled={!canConfirm}
+            onClick={() => setConfirmed(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Confirm booking
+          </button>
+        </div>
       </div>
     </div>
   );
