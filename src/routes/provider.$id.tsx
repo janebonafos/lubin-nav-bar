@@ -144,7 +144,7 @@ function ProviderProfilePage() {
               {/* Identity */}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-[28px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[38px]">
+                  <h1 className="font-serif-display text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
                     {provider.name}
                   </h1>
                   {provider.verified && (
@@ -154,7 +154,7 @@ function ProviderProfilePage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1.5 text-[14.5px] text-slate-500">{provider.title}</p>
+                <p className="mt-2 text-[15px] font-medium text-brand-purple">{provider.title}</p>
 
                 {provider.expertise && (
                   <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/15 backdrop-blur">
@@ -163,8 +163,8 @@ function ProviderProfilePage() {
                   </p>
                 )}
 
-                <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600">
-                  {provider.bio}
+                <p className="font-serif-display mt-5 max-w-2xl text-[18px] italic leading-relaxed text-slate-600">
+                  &ldquo;{provider.bio}&rdquo;
                 </p>
 
                 {/* Tags */}
@@ -236,7 +236,7 @@ function ProviderProfilePage() {
                 <Sparkles className="h-3 w-3" />
                 Sessions
               </span>
-              <h2 className="mt-3 text-[24px] font-bold tracking-tight text-slate-900 sm:text-[30px]">
+              <h2 className="font-serif-display mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
                 Services offered
               </h2>
               <p className="mt-1.5 text-[14.5px] text-slate-500">
@@ -284,7 +284,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
         <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F3F0FF] to-white text-brand-purple ring-1 ring-inset ring-brand-purple/15">
           <Sparkles className="h-4 w-4" />
         </span>
-        <h3 className="pt-1 text-[17px] font-bold leading-snug text-slate-900">
+        <h3 className="font-serif-display pt-1 text-[20px] font-semibold leading-snug text-slate-900">
           {service.title}
         </h3>
       </div>
