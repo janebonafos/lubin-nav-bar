@@ -326,7 +326,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       </div>
 
       {/* Price + CTA */}
-      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5 [margin-top:2rem]">
+      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Starting at
