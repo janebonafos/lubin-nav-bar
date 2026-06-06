@@ -147,15 +147,17 @@ function ProviderProfilePage() {
                 <h1 className="text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
                   {provider.name}
                 </h1>
-                <p className="mt-2 text-[15px] font-medium text-brand-purple">{provider.title}</p>
-
-                {/* Meta row: rating · location · languages · experience */}
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-slate-600">
-                  <span className="inline-flex items-center gap-1.5 font-semibold text-slate-900">
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium text-brand-purple">
+                  <span>{provider.title}</span>
+                  <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
                     <Star className="h-4 w-4 fill-brand-purple-accent text-brand-purple-accent" />
                     {provider.rating}
                     <span className="font-medium text-slate-400">({provider.reviews})</span>
                   </span>
+                </div>
+
+                {/* Meta row: location · languages · experience */}
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-slate-600">
                   <span className="inline-flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-brand-purple" />
                     {provider.location}
