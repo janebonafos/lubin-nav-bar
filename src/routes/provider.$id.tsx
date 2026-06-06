@@ -162,7 +162,7 @@ function ProviderProfilePage() {
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
-                    {provider.languages.join(", ")}
+                    Speaks {provider.languages.join(", ")}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <Award className="h-3.5 w-3.5 text-brand-purple" />
