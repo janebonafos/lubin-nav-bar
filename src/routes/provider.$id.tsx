@@ -182,16 +182,16 @@ function ProviderProfilePage() {
 
               {/* Stat card */}
               <aside className="w-full rounded-2xl border border-white bg-white/80 p-5 shadow-[0_20px_50px_-24px_rgba(124,113,176,0.35)] backdrop-blur lg:w-72">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 fill-brand-purple-accent text-brand-purple-accent" />
-                  <span className="text-[22px] font-bold leading-none text-slate-900">
+                <div className="flex items-baseline gap-2">
+                  <Star className="h-4 w-4 translate-y-[2px] fill-brand-purple-accent text-brand-purple-accent" />
+                  <span className="text-[20px] font-bold leading-none tracking-tight text-slate-900">
                     {provider.rating}
                   </span>
-                  <span className="text-[12.5px] text-slate-400">
+                  <span className="text-[12.5px] font-medium text-slate-500">
                     ({provider.reviews} reviews)
                   </span>
                 </div>
-                <div className="mt-4 space-y-3 border-t border-[#EFEBFA] pt-4 text-[13px]">
+                <div className="mt-4 space-y-2.5 border-t border-[#EFEBFA] pt-4 text-[13px]">
                   <div className="flex items-start gap-2.5 text-slate-600">
                     <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
                     <span>{provider.location}</span>
