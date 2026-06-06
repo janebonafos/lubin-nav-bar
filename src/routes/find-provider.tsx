@@ -164,7 +164,7 @@ function FindProviderPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
+      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
