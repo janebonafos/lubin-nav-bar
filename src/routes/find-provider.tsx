@@ -88,8 +88,6 @@ function FindProviderPage() {
   const [practices, setPractices] = useState<string[]>([]);
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
-  const [profileProvider, setProfileProvider] = useState<Provider | null>(null);
-  const [bookingProvider, setBookingProvider] = useState<Provider | null>(null);
 
   // Smart location input: detect ZIP (PH: 4 digits, US-style: 5 digits) vs city name
   const locTrimmed = location.trim();
@@ -306,11 +304,7 @@ function FindProviderPage() {
             ) : (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {filtered.map((p) => (
-                  <ProviderCard
-                    key={p.id}
-                    provider={p}
-                    onViewProfile={() => setProfileProvider(p)}
-                  />
+                  <ProviderCard key={p.id} provider={p} />
                 ))}
               </div>
             )}
@@ -356,35 +350,11 @@ function FindProviderPage() {
           onClose={() => setInvitee(null)}
         />
       )}
-
-      {profileProvider && (
-        <ProfileModal
-          provider={profileProvider}
-          onClose={() => setProfileProvider(null)}
-          onBook={() => {
-            setBookingProvider(profileProvider);
-            setProfileProvider(null);
-          }}
-        />
-      )}
-
-      {bookingProvider && (
-        <BookingModal
-          provider={bookingProvider}
-          onClose={() => setBookingProvider(null)}
-        />
-      )}
     </div>
   );
 }
 
-function ProviderCard({
-  provider,
-  onViewProfile,
-}: {
-  provider: Provider;
-  onViewProfile: () => void;
-}) {
+function ProviderCard({ provider }: { provider: Provider }) {
   const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
@@ -473,14 +443,15 @@ function ProviderCard({
             </span>
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onViewProfile}
+        <a
+          href={`/provider/${provider.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
         >
           <User className="h-3.5 w-3.5" />
           View profile
-        </button>
+        </a>
       </div>
     </article>
   );
