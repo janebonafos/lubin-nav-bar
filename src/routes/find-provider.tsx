@@ -456,40 +456,50 @@ function ProviderCard({ provider }: { provider: Provider }) {
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.35)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+      {/* Decorative top accent */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      />
+
       {/* Header: avatar + identity */}
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-brand-purple text-[15px] font-bold text-white">
-          {provider.initials}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
-              {provider.name}
-            </h3>
-            {provider.verified && (
-              <BadgeCheck
-                aria-label="Certified"
-                className="h-4 w-4 flex-none text-brand-purple-accent"
-              />
-            )}
+        <div className="relative flex-none">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[16px] font-bold text-white shadow-[0_8px_20px_-8px_rgba(124,113,176,0.6)]">
+            {provider.initials}
           </div>
-          <p className="mt-0.5 truncate text-[13px] text-slate-500">
+          {provider.verified && (
+            <span
+              aria-label="Certified"
+              className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#E9E6FA]"
+            >
+              <BadgeCheck className="h-3.5 w-3.5 text-brand-purple-accent" />
+            </span>
+          )}
+        </div>
+        <div className="min-w-0 flex-1 pt-0.5">
+          <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
+            {provider.name}
+          </h3>
+          <p className="mt-1 truncate text-[13px] text-slate-500">
             {provider.title}
           </p>
-          <div className="mt-2 flex items-center gap-2.5 text-[12.5px] leading-none text-slate-500">
-            <span className="inline-flex min-w-0 items-center gap-1 truncate">
-              <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
-              <span className="truncate">{provider.location}</span>
-            </span>
-            <span aria-hidden className="h-1 w-1 flex-none rounded-full bg-slate-300" />
-            <span className="inline-flex items-center gap-1">
-              <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
-              <span className="font-semibold text-slate-700">{provider.rating}</span>
-              <span className="text-slate-400">({provider.reviews})</span>
-            </span>
-          </div>
         </div>
+      </div>
+
+      {/* Meta row: location + rating */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px]">
+        <span className="inline-flex min-w-0 items-center gap-1.5 text-slate-500">
+          <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
+          <span className="truncate">{provider.location}</span>
+        </span>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
+        <span className="inline-flex items-center gap-1">
+          <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
+          <span className="font-semibold text-slate-800">{provider.rating}</span>
+          <span className="text-slate-400">({provider.reviews})</span>
+        </span>
       </div>
 
       {/* Bio */}
@@ -499,35 +509,40 @@ function ProviderCard({ provider }: { provider: Provider }) {
 
       {/* Tags — capped to reduce clutter */}
       <div className="mt-3 flex flex-wrap gap-1.5">
-        <span className="rounded-md bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple">
+        <span className="rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
           {provider.practice}
         </span>
         {visibleTags.map((t) => (
           <span
             key={t}
-            className="rounded-md bg-slate-50 px-2.5 py-1 text-[11.5px] text-slate-600"
+            className="rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] text-slate-600 ring-1 ring-inset ring-slate-200/70"
           >
             {t}
           </span>
         ))}
         {extraTags > 0 && (
-          <span className="rounded-md px-2 py-1 text-[11.5px] text-slate-400">
+          <span className="self-center px-1 text-[11.5px] font-medium text-slate-400">
             +{extraTags}
           </span>
         )}
       </div>
 
       {/* Footer: price + CTA */}
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-        <p className="whitespace-nowrap text-[15px] font-bold leading-none text-slate-900">
-          PHP {provider.price.toLocaleString()}
-          <span className="ml-0.5 text-[12px] font-normal text-slate-400">
-            /session
+      <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4 [margin-top:1.25rem]">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            Starting at
           </span>
-        </p>
+          <p className="mt-0.5 whitespace-nowrap text-[17px] font-bold leading-none text-slate-900">
+            ₱{provider.price.toLocaleString()}
+            <span className="ml-1 text-[12px] font-normal text-slate-400">
+              /session
+            </span>
+          </p>
+        </div>
         <button
           type="button"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_22px_-8px_rgba(124,113,176,0.7)] active:scale-95"
         >
           <Calendar className="h-3.5 w-3.5" />
           Book session
