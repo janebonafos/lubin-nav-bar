@@ -164,7 +164,7 @@ function FindProviderPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      className="min-h-screen bg-[#F9F8FF]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
@@ -184,32 +184,32 @@ function FindProviderPage() {
         {/* Search bar */}
         <section
           aria-label="Search"
-          className="rounded-2xl border border-white/60 bg-white/70 p-3 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:p-4"
+          className="rounded-2xl border border-[#E9E6FA] bg-white p-3 shadow-[0_10px_30px_-18px_rgba(124,113,176,0.18)]"
         >
           <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name, specialty, or keyword"
-                className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
             </div>
             <div className="relative md:w-[280px]">
-              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter location"
-                className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
             </div>
             <button
               type="button"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-6 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.45)] active:scale-95"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-brand-purple px-8 py-3 text-[14px] font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark active:scale-95"
             >
               Search
             </button>
@@ -219,24 +219,24 @@ function FindProviderPage() {
         {/* Body */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
           {/* Filters */}
-          <aside className="h-fit rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:sticky lg:top-28">
+          <aside className="h-fit rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm lg:sticky lg:top-28">
             <h2 className="text-[18px] font-bold text-slate-800">
               Quick Filters
             </h2>
 
             <div className="mt-5">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">
+              <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
                 Practice Areas
               </h3>
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 space-y-2.5">
                 {PRACTICE_AREAS.map((p) => (
                   <li key={p}>
-                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-slate-800">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-brand-purple">
                       <input
                         type="checkbox"
                         checked={practices.includes(p)}
                         onChange={() => setPractices((arr) => toggle(arr, p))}
-                        className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-brand-purple"
+                        className="h-[18px] w-[18px] cursor-pointer rounded border-[#DCD7F5] accent-brand-purple"
                       />
                       {p}
                     </label>
@@ -246,18 +246,18 @@ function FindProviderPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">
+              <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
                 Price Range
               </h3>
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 space-y-2.5">
                 {PRICE_RANGES.map((r, i) => (
                   <li key={r.label}>
-                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-slate-800">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-brand-purple">
                       <input
                         type="checkbox"
                         checked={priceIdx.includes(i)}
                         onChange={() => setPriceIdx((arr) => toggle(arr, i))}
-                        className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-brand-purple"
+                        className="h-[18px] w-[18px] cursor-pointer rounded border-[#DCD7F5] accent-brand-purple"
                       />
                       {r.label}
                     </label>
@@ -293,7 +293,7 @@ function FindProviderPage() {
             </div>
 
             {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-slate-100 bg-white/80 p-10 text-center shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)]">
+              <div className="rounded-2xl border border-[#E9E6FA] bg-white p-10 text-center shadow-sm">
                 <p className="text-[15px] font-medium text-slate-700">
                   No providers match your filters.
                 </p>
@@ -302,7 +302,7 @@ function FindProviderPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {filtered.map((p) => (
                   <ProviderCard key={p.id} provider={p} />
                 ))}
@@ -317,10 +317,10 @@ function FindProviderPage() {
 
 function ProviderCard({ provider }: { provider: Provider }) {
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/15 hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.1)]">
+    <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.35)]">
       {/* Top row: avatar + name/verified + price */}
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[16px] font-semibold text-white ring-2 ring-brand-purple/10">
+        <div className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-brand-purple text-[18px] font-bold text-white shadow-inner">
           {provider.initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -357,26 +357,26 @@ function ProviderCard({ provider }: { provider: Provider }) {
               </div>
             </div>
           </div>
-          <p className="mt-1.5 text-[14px] font-medium leading-snug text-slate-500">
+          <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple">
             {provider.title}
           </p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="mt-5 text-[13.5px] leading-relaxed text-slate-600">
+      <p className="mt-4 text-[13.5px] leading-relaxed text-slate-600">
         {provider.bio}
       </p>
 
       {/* Tags */}
       <div className="mt-4 flex flex-wrap gap-1.5">
-        <span className="rounded-full bg-brand-lavender px-3 py-1 text-[12px] font-medium text-brand-purple-accent">
+        <span className="rounded-lg bg-[#F3F0FF] px-3 py-1 text-[12px] font-semibold text-brand-purple">
           {provider.practice}
         </span>
         {provider.tags.map((t) => (
           <span
             key={t}
-            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[12px] text-slate-600"
+            className="rounded-lg bg-slate-100 px-3 py-1 text-[12px] text-slate-600"
           >
             {t}
           </span>
@@ -384,15 +384,15 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Location */}
-      <div className="mt-4 mb-5 flex items-center gap-1.5 text-[13px] text-slate-500">
-        <MapPin className="h-3.5 w-3.5 text-slate-400" />
+      <div className="mt-5 mb-4 flex items-center gap-1.5 text-[12.5px] text-slate-400">
+        <MapPin className="h-3.5 w-3.5 text-[#A799E2]" />
         {provider.location}
       </div>
 
       {/* Full-width CTA */}
       <button
         type="button"
-        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.45)] active:scale-[0.98]"
+        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-[14px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(124,113,176,0.5)] active:translate-y-0"
       >
         <Calendar className="h-4 w-4" />
         Book session
