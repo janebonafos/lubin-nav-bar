@@ -8,6 +8,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Globe2,
+  Heart,
+  MessageCircle,
   MapPin,
   Sparkles,
   Star,
@@ -97,7 +100,11 @@ function ProviderProfilePage() {
           {/* Decorative background */}
           <div
             aria-hidden
-            className="absolute inset-0 bg-gradient-to-br from-[#F3F0FF] via-[#FBFAFF] to-white"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#EFEAFF_0%,_#F9F8FF_45%,_#FFFFFF_100%)]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,_rgba(124,113,176,0.08)_1px,_transparent_1px),linear-gradient(to_bottom,_rgba(124,113,176,0.08)_1px,_transparent_1px)] [background-size:42px_42px] [mask-image:radial-gradient(ellipse_at_center,_black_30%,_transparent_75%)]"
           />
           <div
             aria-hidden
@@ -108,7 +115,7 @@ function ProviderProfilePage() {
             className="pointer-events-none absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-brand-purple-accent/15 blur-3xl"
           />
 
-          <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+          <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
             <Link
               to="/find-provider"
               className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
@@ -117,14 +124,18 @@ function ProviderProfilePage() {
               Back to providers
             </Link>
 
-            <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr_auto] lg:items-start">
               {/* Avatar */}
               <div className="relative flex-none">
-                <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[34px] font-bold text-white shadow-[0_18px_40px_-12px_rgba(124,113,176,0.55)] sm:h-32 sm:w-32">
+                <div
+                  aria-hidden
+                  className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-brand-purple/30 via-brand-purple-accent/20 to-transparent blur-xl"
+                />
+                <div className="relative flex h-32 w-32 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[38px] font-bold text-white shadow-[0_24px_50px_-14px_rgba(124,113,176,0.6)] ring-4 ring-white sm:h-40 sm:w-40 sm:text-[44px]">
                   {provider.initials}
                 </div>
                 {provider.verified && (
-                  <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-[#E9E6FA]">
+                  <span className="absolute -bottom-1.5 -right-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-[#E9E6FA]">
                     <BadgeCheck className="h-5 w-5 text-brand-purple-accent" />
                   </span>
                 )}
@@ -133,7 +144,7 @@ function ProviderProfilePage() {
               {/* Identity */}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-[26px] font-bold leading-tight text-slate-900 sm:text-[32px]">
+                  <h1 className="text-[28px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[38px]">
                     {provider.name}
                   </h1>
                   {provider.verified && (
@@ -143,62 +154,92 @@ function ProviderProfilePage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-[14px] text-slate-500">{provider.title}</p>
+                <p className="mt-1.5 text-[14.5px] text-slate-500">{provider.title}</p>
 
                 {provider.expertise && (
-                  <p className="mt-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-brand-purple">
+                  <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/15 backdrop-blur">
                     <Sparkles className="h-3.5 w-3.5" />
                     {provider.expertise}
                   </p>
                 )}
 
-                <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-slate-600">
+                <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-slate-600">
                   {provider.bio}
                 </p>
 
-                {/* Meta */}
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
-                  <span className="inline-flex items-center gap-1.5 text-slate-500">
-                    <MapPin className="h-3.5 w-3.5 text-[#A799E2]" />
-                    {provider.location}
-                  </span>
-                  <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
-                    <span className="font-semibold text-slate-800">{provider.rating}</span>
-                    <span className="text-slate-400">({provider.reviews} reviews)</span>
-                  </span>
-                  <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="inline-flex items-center gap-1.5 text-slate-500">
-                    <User className="h-3.5 w-3.5 text-[#A799E2]" />
-                    {provider.practice}
-                  </span>
-                </div>
-
                 {/* Tags */}
-                <div className="mt-4 flex flex-wrap gap-1.5">
+                <div className="mt-5 flex flex-wrap gap-1.5">
                   {provider.tags.map((t: string) => (
                     <span
                       key={t}
-                      className="rounded-full bg-white/80 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-[#E9E6FA] backdrop-blur"
+                      className="rounded-full bg-white px-3 py-1 text-[12px] font-medium text-slate-700 ring-1 ring-inset ring-[#E9E6FA] shadow-sm"
                     >
                       {t}
                     </span>
                   ))}
                 </div>
               </div>
+
+              {/* Stat card */}
+              <aside className="w-full rounded-2xl border border-white bg-white/80 p-5 shadow-[0_20px_50px_-24px_rgba(124,113,176,0.35)] backdrop-blur lg:w-72">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-brand-purple-accent text-brand-purple-accent" />
+                  <span className="text-[22px] font-bold leading-none text-slate-900">
+                    {provider.rating}
+                  </span>
+                  <span className="text-[12.5px] text-slate-400">
+                    ({provider.reviews} reviews)
+                  </span>
+                </div>
+                <div className="mt-4 space-y-3 border-t border-[#EFEBFA] pt-4 text-[13px]">
+                  <div className="flex items-start gap-2.5 text-slate-600">
+                    <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+                    <span>{provider.location}</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-600">
+                    <User className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+                    <span>{provider.practice}</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-600">
+                    <Globe2 className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+                    <span>English · Filipino</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-slate-600">
+                    <Heart className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+                    <span>Accepting new clients</span>
+                  </div>
+                </div>
+                <a
+                  href="#services"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-95"
+                >
+                  <Calendar className="h-3.5 w-3.5" />
+                  Book a session
+                </a>
+                <button
+                  type="button"
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Message
+                </button>
+              </aside>
             </div>
           </div>
         </section>
 
         {/* Services */}
-        <section className="mx-auto mt-12 w-full max-w-6xl px-4">
+        <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-[22px] font-bold tracking-tight text-slate-900 sm:text-[26px]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F0FF] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple">
+                <Sparkles className="h-3 w-3" />
+                Sessions
+              </span>
+              <h2 className="mt-3 text-[24px] font-bold tracking-tight text-slate-900 sm:text-[30px]">
                 Services offered
               </h2>
-              <p className="mt-1 text-[14px] text-slate-500">
+              <p className="mt-1.5 text-[14.5px] text-slate-500">
                 Choose a session that fits what you're working on right now.
               </p>
             </div>
@@ -230,18 +271,26 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+      {/* Gradient header band */}
+      <div className="relative h-2 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-purple/5 blur-2xl transition-opacity duration-300 group-hover:bg-brand-purple/15"
       />
 
-      <h3 className="text-[17px] font-bold leading-snug text-slate-900">
-        {service.title}
-      </h3>
+      <div className="flex flex-1 flex-col p-6">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F3F0FF] to-white text-brand-purple ring-1 ring-inset ring-brand-purple/15">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <h3 className="pt-1 text-[17px] font-bold leading-snug text-slate-900">
+          {service.title}
+        </h3>
+      </div>
 
       <p
-        className={`mt-3 text-[13.5px] leading-relaxed text-slate-600 ${
+        className={`mt-4 text-[13.5px] leading-relaxed text-slate-600 ${
           expanded ? "" : "line-clamp-3"
         }`}
       >
@@ -274,12 +323,12 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       </div>
 
       {/* Price + CTA */}
-      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
+      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5 mt-5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            Price
+            Starting at
           </span>
-          <p className="whitespace-nowrap text-[18px] font-bold leading-none text-slate-900">
+          <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
             ₱{service.price.toLocaleString()}
             <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
           </p>
@@ -292,6 +341,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
           <Calendar className="h-3.5 w-3.5" />
           Book now
         </button>
+      </div>
       </div>
     </article>
   );
