@@ -219,24 +219,24 @@ function FindProviderPage() {
         {/* Body */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
           {/* Filters */}
-          <aside className="h-fit rounded-2xl border border-white/60 bg-white/80 p-5 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.2)] backdrop-blur-xl lg:sticky lg:top-28">
-            <h2 className="text-[18px] font-bold text-brand-purple-dark">
+          <aside className="h-fit rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:sticky lg:top-28">
+            <h2 className="text-[18px] font-bold text-slate-800">
               Quick Filters
             </h2>
 
             <div className="mt-5">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-brand-purple-accent">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">
                 Practice Areas
               </h3>
               <ul className="mt-3 space-y-2">
                 {PRACTICE_AREAS.map((p) => (
                   <li key={p}>
-                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-brand-purple-dark/85 transition-colors hover:text-brand-purple-dark">
+                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-slate-800">
                       <input
                         type="checkbox"
                         checked={practices.includes(p)}
                         onChange={() => setPractices((arr) => toggle(arr, p))}
-                        className="h-4 w-4 cursor-pointer rounded border-brand-purple/30 accent-brand-purple"
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-brand-purple"
                       />
                       {p}
                     </label>
@@ -246,18 +246,18 @@ function FindProviderPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-brand-purple-accent">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">
                 Price Range
               </h3>
               <ul className="mt-3 space-y-2">
                 {PRICE_RANGES.map((r, i) => (
                   <li key={r.label}>
-                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-brand-purple-dark/85 transition-colors hover:text-brand-purple-dark">
+                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-slate-800">
                       <input
                         type="checkbox"
                         checked={priceIdx.includes(i)}
                         onChange={() => setPriceIdx((arr) => toggle(arr, i))}
-                        className="h-4 w-4 cursor-pointer rounded border-brand-purple/30 accent-brand-purple"
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-brand-purple"
                       />
                       {r.label}
                     </label>
@@ -283,9 +283,9 @@ function FindProviderPage() {
           {/* Results */}
           <section aria-label="Results">
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-[13.5px] text-brand-purple-dark/70">
+              <p className="text-[13.5px] text-slate-500">
                 Showing{" "}
-                <span className="font-semibold text-brand-purple-dark">
+                <span className="font-semibold text-slate-800">
                   {filtered.length}
                 </span>{" "}
                 provider{filtered.length === 1 ? "" : "s"}
@@ -293,11 +293,11 @@ function FindProviderPage() {
             </div>
 
             {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-white/60 bg-white/80 p-10 text-center shadow-[0_10px_30px_-18px_rgba(126,107,175,0.2)]">
-                <p className="text-[15px] font-medium text-brand-purple-dark">
+              <div className="rounded-2xl border border-slate-100 bg-white/80 p-10 text-center shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)]">
+                <p className="text-[15px] font-medium text-slate-700">
                   No providers match your filters.
                 </p>
-                <p className="mt-1 text-[13.5px] text-brand-purple-dark/65">
+                <p className="mt-1 text-[13.5px] text-slate-500">
                   Try clearing some filters or adjusting your search.
                 </p>
               </div>
