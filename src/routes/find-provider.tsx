@@ -317,16 +317,16 @@ function FindProviderPage() {
 
 function ProviderCard({ provider }: { provider: Provider }) {
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-white/60 bg-white/90 p-5 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.25)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/20 hover:shadow-[0_18px_40px_-18px_rgba(126,107,175,0.35)]">
+    <article className="group flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/15 hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.1)]">
       {/* Top row: avatar + name/verified + price */}
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[16px] font-semibold text-white ring-2 ring-brand-purple/15">
+        <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[16px] font-semibold text-white ring-2 ring-brand-purple/10">
           {provider.initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <h3 className="truncate text-[17px] font-bold leading-tight text-brand-purple-dark">
+              <h3 className="truncate text-[17px] font-bold leading-tight text-slate-800">
                 {provider.name}
               </h3>
               {provider.verified && (
@@ -337,31 +337,31 @@ function ProviderCard({ provider }: { provider: Provider }) {
               )}
             </div>
             <div className="flex flex-none flex-col items-end">
-              <p className="whitespace-nowrap text-[15px] font-bold leading-none text-brand-purple-dark">
+              <p className="whitespace-nowrap text-[15px] font-bold leading-none text-slate-800">
                 PHP {provider.price.toLocaleString()}
-                <span className="ml-0.5 text-[12px] font-normal text-brand-purple-dark/55">
+                <span className="ml-0.5 text-[12px] font-normal text-slate-400">
                   /session
                 </span>
               </p>
-              <div className="mt-1.5 flex items-center gap-1 text-[12px] text-brand-purple-dark/70">
-                <Star className="h-3 w-3 fill-brand-purple text-brand-purple" />
-                <span className="font-semibold text-brand-purple-dark">
+              <div className="mt-1.5 flex items-center gap-1 text-[12px] text-slate-500">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span className="font-semibold text-slate-700">
                   {provider.rating}
                 </span>
-                <span className="text-brand-purple-dark/55">
+                <span className="text-slate-400">
                   ({provider.reviews})
                 </span>
               </div>
             </div>
           </div>
-          <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple">
+          <p className="mt-1.5 text-[14px] font-medium leading-snug text-slate-500">
             {provider.title}
           </p>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="mt-5 text-[13.5px] leading-relaxed text-brand-purple-dark/75">
+      <p className="mt-5 text-[13.5px] leading-relaxed text-slate-600">
         {provider.bio}
       </p>
 
@@ -373,7 +373,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
         {provider.tags.map((t) => (
           <span
             key={t}
-            className="rounded-full border border-brand-purple/20 bg-white px-3 py-1 text-[12px] text-brand-purple"
+            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[12px] text-slate-600"
           >
             {t}
           </span>
@@ -381,15 +381,15 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Location */}
-      <div className="mt-4 mb-5 flex items-center gap-1.5 text-[13px] text-brand-purple-dark/70">
-        <MapPin className="h-3.5 w-3.5 text-brand-purple/80" />
+      <div className="mt-4 mb-5 flex items-center gap-1.5 text-[13px] text-slate-500">
+        <MapPin className="h-3.5 w-3.5 text-slate-400" />
         {provider.location}
       </div>
 
       {/* Full-width CTA */}
       <button
         type="button"
-        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-[0.98]"
+        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.45)] active:scale-[0.98]"
       >
         <Calendar className="h-4 w-4" />
         Book session
