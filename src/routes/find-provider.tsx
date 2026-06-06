@@ -24,8 +24,6 @@ export const Route = createFileRoute("/find-provider")({
   component: FindProviderPage,
 });
 
-];
-
 const PRACTICE_AREAS = ["Psychologist", "Counselling", "Therapist"] as const;
 
 const PRICE_RANGES = [
