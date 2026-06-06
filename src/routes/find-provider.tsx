@@ -330,9 +330,12 @@ function ProviderCard({ provider }: { provider: Provider }) {
                 {provider.name}
               </h3>
               {provider.verified && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[11px] font-medium text-brand-purple">
-                  <BadgeCheck className="h-3 w-3" />
-                  Certified
+                <span
+                  title="Certified"
+                  aria-label="Certified"
+                  className="inline-flex items-center justify-center text-brand-purple-accent"
+                >
+                  <BadgeCheck className="h-4 w-4" />
                 </span>
               )}
             </div>
@@ -344,7 +347,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
                 </span>
               </p>
               <div className="mt-1.5 flex items-center gap-1 text-[12px] text-slate-500">
-                <Star className="h-3 w-3 fill-brand-purple text-brand-purple" />
+                <Star className="h-3 w-3 fill-brand-purple-accent text-brand-purple-accent" />
                 <span className="font-semibold text-slate-700">
                   {provider.rating}
                 </span>
@@ -367,7 +370,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
 
       {/* Tags */}
       <div className="mt-4 flex flex-wrap gap-1.5">
-        <span className="rounded-full bg-brand-lavender px-3 py-1 text-[12px] font-medium text-brand-purple">
+        <span className="rounded-full bg-brand-lavender px-3 py-1 text-[12px] font-medium text-brand-purple-accent">
           {provider.practice}
         </span>
         {provider.tags.map((t) => (
