@@ -172,10 +172,10 @@ function FindProviderPage() {
       <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:pt-32">
         {/* Heading */}
         <header className="mb-6 max-w-3xl">
-          <h1 className="text-[28px] sm:text-[36px] font-bold leading-tight tracking-tight text-brand-purple-dark">
+          <h1 className="text-[28px] sm:text-[36px] font-bold leading-tight tracking-tight text-slate-900">
             Find a service provider
           </h1>
-          <p className="mt-2 text-[15px] leading-relaxed text-brand-purple-dark/70">
+          <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
             Browse verified psychologists, counsellors, and therapists. Filter by
             what matters most to you.
           </p>
