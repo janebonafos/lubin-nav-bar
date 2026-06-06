@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Calendar } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/find-provider")({
@@ -132,11 +132,59 @@ const PRICE_RANGES = [
   { label: "PHP 6,166+", min: 6166, max: Infinity },
 ];
 
+type ExternalProvider = {
+  id: string;
+  name: string;
+  title: string;
+  snippet: string;
+  location: string;
+  source: string; // e.g. "psychologytoday.com"
+  url: string;
+  initials: string;
+};
+
+const EXTERNAL_PROVIDERS: ExternalProvider[] = [
+  {
+    id: "e1",
+    name: "Dr. Rosa Mendoza",
+    title: "Clinical Psychologist",
+    snippet:
+      "Private practice focused on anxiety, depression, and women's mental health. Accepts in-person and online consults.",
+    location: "Alabang, Muntinlupa",
+    source: "psychologytoday.com",
+    url: "https://www.psychologytoday.com/",
+    initials: "RM",
+  },
+  {
+    id: "e2",
+    name: "Karlo Villanueva, RPsy",
+    title: "Counselling Psychologist",
+    snippet:
+      "Helping adults navigate burnout, identity, and relationship concerns through integrative therapy.",
+    location: "Iloilo City",
+    source: "linkedin.com",
+    url: "https://www.linkedin.com/",
+    initials: "KV",
+  },
+  {
+    id: "e3",
+    name: "Hope & Healing Center",
+    title: "Group practice · Therapists & Counsellors",
+    snippet:
+      "Multi-disciplinary clinic offering psychotherapy, child & family counselling, and psychiatric services.",
+    location: "Baguio City",
+    source: "google.com",
+    url: "https://www.google.com/",
+    initials: "HH",
+  },
+];
+
 function FindProviderPage() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [practices, setPractices] = useState<string[]>([]);
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
+  const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
 
   const toggle = <T,>(arr: T[], v: T) =>
     arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
@@ -161,6 +209,19 @@ function FindProviderPage() {
       return true;
     });
   }, [query, location, practices, priceIdx]);
+
+  const externalResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const loc = location.trim().toLowerCase();
+    return EXTERNAL_PROVIDERS.filter((p) => {
+      if (q) {
+        const hay = `${p.name} ${p.title} ${p.snippet}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (loc && !p.location.toLowerCase().includes(loc)) return false;
+      return true;
+    });
+  }, [query, location]);
 
   return (
     <div
@@ -308,9 +369,48 @@ function FindProviderPage() {
                 ))}
               </div>
             )}
+
+            {/* External (web) results — providers not yet on Lubin */}
+            {externalResults.length > 0 && (
+              <div className="mt-10">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-brand-purple" />
+                      <h2 className="text-[16px] font-bold text-slate-800">
+                        More providers from the web
+                      </h2>
+                    </div>
+                    <p className="mt-1 text-[13px] text-slate-500">
+                      Not on Lubin yet — invite them to join so you can book a session.
+                    </p>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
+                    <Sparkles className="h-3 w-3" />
+                    Web results
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {externalResults.map((p) => (
+                    <ExternalProviderCard
+                      key={p.id}
+                      provider={p}
+                      onInvite={() => setInvitee(p)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </main>
+
+      {invitee && (
+        <InviteModal
+          provider={invitee}
+          onClose={() => setInvitee(null)}
+        />
+      )}
     </div>
   );
 }
