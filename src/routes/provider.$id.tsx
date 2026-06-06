@@ -143,7 +143,7 @@ function ProviderProfilePage() {
 
               {/* Identity */}
               <div className="min-w-0 flex-1">
-                <h1 className="font-serif-display text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
+                <h1 className="text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
                   {provider.name}
                 </h1>
                 <p className="mt-2 text-[15px] font-medium text-brand-purple">{provider.title}</p>
@@ -155,7 +155,7 @@ function ProviderProfilePage() {
                   </p>
                 )}
 
-                <p className="font-serif-display mt-5 max-w-2xl text-[18px] italic leading-relaxed text-slate-600">
+                <p className="mt-5 max-w-2xl text-[18px] italic leading-relaxed text-slate-600">
                   &ldquo;{provider.bio}&rdquo;
                 </p>
 
@@ -177,7 +177,7 @@ function ProviderProfilePage() {
                 {/* Rating header */}
                 <div className="flex items-center justify-between gap-3 bg-gradient-to-br from-[#F6F3FF] to-[#EFEAFE] px-5 py-4">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="font-serif-display text-[28px] font-bold leading-none tracking-tight text-slate-900">
+                    <span className="text-[28px] font-bold leading-none tracking-tight text-slate-900">
                       {provider.rating}
                     </span>
                     <span className="text-[12px] font-medium text-slate-500">/ 5</span>
@@ -244,7 +244,7 @@ function ProviderProfilePage() {
                 <Sparkles className="h-3 w-3" />
                 Sessions
               </span>
-              <h2 className="font-serif-display mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
+              <h2 className="mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
                 Services offered
               </h2>
               <p className="mt-1.5 text-[14.5px] text-slate-500">
@@ -288,7 +288,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       />
 
       <div className="flex flex-1 flex-col p-6">
-      <h3 className="font-serif-display text-[20px] font-semibold leading-snug text-slate-900">
+      <h3 className="text-[20px] font-semibold leading-snug text-slate-900">
         {service.title}
       </h3>
 
