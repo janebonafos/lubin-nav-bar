@@ -289,8 +289,8 @@ function FindProviderPage() {
                 placeholder="City or ZIP code"
                 className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 pr-24 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
-              {/* Smart kind badge OR "Use my location" affordance */}
-              {locKind ? (
+              {/* Smart kind badge */}
+              {locKind && (
                 <span
                   className="pointer-events-none absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-[#E9E6FA]"
                   aria-label={locKind === "zip" ? "Detected ZIP code" : "Detected city"}
@@ -302,16 +302,6 @@ function FindProviderPage() {
                   )}
                   {locKind === "zip" ? "ZIP" : "City"}
                 </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleUseMyLocation}
-                  className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-brand-purple transition-colors hover:bg-[#F3F0FF]"
-                  aria-label="Use my current location"
-                >
-                  <Navigation className="h-3 w-3" />
-                  Near me
-                </button>
               )}
             </div>
             <button
