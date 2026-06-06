@@ -561,16 +561,11 @@ function ExternalProviderCard({
 }) {
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-dashed border-[#D9D2F2] bg-white/70 p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.25)]">
-      <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-brand-purple">
-        <Globe className="h-2.5 w-2.5" />
-        Not on Lubin
-      </div>
-
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl border border-[#E9E6FA] bg-[#F3F0FF] text-[15px] font-bold text-brand-purple">
           {provider.initials}
         </div>
-        <div className="min-w-0 flex-1 pr-20">
+        <div className="min-w-0 flex-1">
           <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
             {provider.name}
           </h3>
