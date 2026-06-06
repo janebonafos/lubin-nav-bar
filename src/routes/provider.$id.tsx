@@ -288,14 +288,9 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       />
 
       <div className="flex flex-1 flex-col p-6">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F3F0FF] to-white text-brand-purple ring-1 ring-inset ring-brand-purple/15">
-          <Sparkles className="h-4 w-4" />
-        </span>
-        <h3 className="font-serif-display pt-1 text-[20px] font-semibold leading-snug text-slate-900">
-          {service.title}
-        </h3>
-      </div>
+      <h3 className="font-serif-display text-[20px] font-semibold leading-snug text-slate-900">
+        {service.title}
+      </h3>
 
       <p
         className={`mt-4 text-[13.5px] leading-relaxed text-slate-600 ${
