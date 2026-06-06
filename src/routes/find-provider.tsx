@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, Clock, Video, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { PROVIDERS, type Provider } from "@/lib/providers";
 
 export const Route = createFileRoute("/find-provider")({
   head: () => ({
