@@ -180,8 +180,8 @@ function ProviderProfilePage() {
                   </p>
                 )}
 
-                <p className="mt-5 max-w-2xl text-[18px] italic leading-relaxed text-slate-600">
-                  &ldquo;{provider.bio}&rdquo;
+                <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-slate-600">
+                  {provider.bio}
                 </p>
 
                 {/* Tags */}
