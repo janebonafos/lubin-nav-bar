@@ -528,12 +528,12 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Footer: price + CTA */}
-      <div className="mt-auto flex items-center justify-between gap-3 pt-5 [margin-top:1.25rem]">
-        <div className="flex flex-col">
+      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
+        <div className="flex h-full flex-col justify-center gap-0.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Starting at
           </span>
-          <p className="mt-0.5 whitespace-nowrap text-[17px] font-bold leading-none text-slate-900">
+          <p className="whitespace-nowrap text-[17px] font-bold leading-none text-slate-900">
             ₱{provider.price.toLocaleString()}
             <span className="ml-1 text-[12px] font-normal text-slate-400">
               /session
