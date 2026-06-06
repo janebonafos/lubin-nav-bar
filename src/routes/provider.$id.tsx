@@ -240,11 +240,7 @@ function ProviderProfilePage() {
         <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F0FF] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple">
-                <Sparkles className="h-3 w-3" />
-                Sessions
-              </span>
-              <h2 className="mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
+              <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
                 Services offered
               </h2>
               <p className="mt-1.5 text-[14.5px] text-slate-500">
