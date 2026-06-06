@@ -573,24 +573,14 @@ function ProviderCard({
             </span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onViewProfile}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-purple/30 bg-white px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition-all hover:bg-[#F3F0FF] active:scale-95"
-          >
-            <User className="h-3.5 w-3.5" />
-            View profile
-          </button>
-          <button
-            type="button"
-            onClick={onBook}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
-          >
-            <Calendar className="h-3.5 w-3.5" />
-            Book session
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onViewProfile}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
+        >
+          <User className="h-3.5 w-3.5" />
+          View profile
+        </button>
       </div>
     </article>
   );
