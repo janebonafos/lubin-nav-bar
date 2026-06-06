@@ -478,15 +478,15 @@ function ProviderCard({ provider }: { provider: Provider }) {
             {provider.title}
           </p>
           <div className="mt-2 flex items-center gap-2.5 text-[12.5px] leading-none text-slate-500">
+            <span className="inline-flex min-w-0 items-center gap-1 truncate">
+              <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
+              <span className="truncate">{provider.location}</span>
+            </span>
+            <span aria-hidden className="h-1 w-1 flex-none rounded-full bg-slate-300" />
             <span className="inline-flex items-center gap-1">
               <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
               <span className="font-semibold text-slate-700">{provider.rating}</span>
               <span className="text-slate-400">({provider.reviews})</span>
-            </span>
-            <span aria-hidden className="h-1 w-1 flex-none rounded-full bg-slate-300" />
-            <span className="inline-flex min-w-0 items-center gap-1 truncate">
-              <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
-              <span className="truncate">{provider.location}</span>
             </span>
           </div>
         </div>
