@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Calendar, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/find-provider")({
@@ -186,6 +186,26 @@ function FindProviderPage() {
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
 
+  // Smart location input: detect ZIP (PH: 4 digits, US-style: 5 digits) vs city name
+  const locTrimmed = location.trim();
+  const isZip = /^\d{4,5}$/.test(locTrimmed);
+  const isCity = locTrimmed.length >= 2 && !isZip;
+  const locKind: "zip" | "city" | null = isZip ? "zip" : isCity ? "city" : null;
+
+  const POPULAR_CITIES = ["Makati", "Quezon City", "BGC", "Cebu", "Davao"];
+
+  const handleUseMyLocation = () => {
+    // Placeholder — wire to geolocation API later. For now nudge with a city.
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => setLocation("Near me"),
+        () => setLocation("Metro Manila"),
+      );
+    } else {
+      setLocation("Metro Manila");
+    }
+  };
+
   const toggle = <T,>(arr: T[], v: T) =>
     arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 
@@ -258,15 +278,41 @@ function FindProviderPage() {
                 className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
             </div>
-            <div className="relative md:w-[280px]">
+            <div className="relative md:w-[300px]">
               <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Enter location"
-                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+                inputMode="text"
+                aria-label="Location — city or ZIP"
+                placeholder="City or ZIP code"
+                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 pr-24 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
+              {/* Smart kind badge OR "Use my location" affordance */}
+              {locKind ? (
+                <span
+                  className="pointer-events-none absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-[#E9E6FA]"
+                  aria-label={locKind === "zip" ? "Detected ZIP code" : "Detected city"}
+                >
+                  {locKind === "zip" ? (
+                    <Hash className="h-3 w-3" />
+                  ) : (
+                    <Building2 className="h-3 w-3" />
+                  )}
+                  {locKind === "zip" ? "ZIP" : "City"}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleUseMyLocation}
+                  className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-brand-purple transition-colors hover:bg-[#F3F0FF]"
+                  aria-label="Use my current location"
+                >
+                  <Navigation className="h-3 w-3" />
+                  Near me
+                </button>
+              )}
             </div>
             <button
               type="button"
@@ -274,6 +320,41 @@ function FindProviderPage() {
             >
               Search
             </button>
+          </div>
+
+          {/* Popular city quick-pick */}
+          <div className="mt-3 flex flex-wrap items-center gap-2 px-1">
+            <span className="text-[11.5px] font-medium uppercase tracking-wider text-slate-400">
+              Popular
+            </span>
+            {POPULAR_CITIES.map((c) => {
+              const active = location.trim().toLowerCase() === c.toLowerCase();
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setLocation(active ? "" : c)}
+                  className={
+                    "rounded-full px-3 py-1 text-[12px] font-medium transition-colors " +
+                    (active
+                      ? "bg-brand-purple text-white"
+                      : "bg-[#F3F0FF] text-brand-purple hover:bg-[#E9E6FA]")
+                  }
+                >
+                  {c}
+                </button>
+              );
+            })}
+            {location && (
+              <button
+                type="button"
+                onClick={() => setLocation("")}
+                className="ml-auto inline-flex items-center gap-1 text-[12px] font-medium text-slate-400 hover:text-brand-purple"
+              >
+                <X className="h-3 w-3" />
+                Clear location
+              </button>
+            )}
           </div>
         </section>
 
