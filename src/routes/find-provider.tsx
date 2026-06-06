@@ -407,7 +407,6 @@ function FindProviderPage() {
                     key={p.id}
                     provider={p}
                     onViewProfile={() => setProfileProvider(p)}
-                    onBook={() => setBookingProvider(p)}
                   />
                 ))}
               </div>
@@ -479,11 +478,9 @@ function FindProviderPage() {
 function ProviderCard({
   provider,
   onViewProfile,
-  onBook,
 }: {
   provider: Provider;
   onViewProfile: () => void;
-  onBook: () => void;
 }) {
   const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
