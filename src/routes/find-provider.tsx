@@ -316,87 +316,87 @@ function FindProviderPage() {
 }
 
 function ProviderCard({ provider }: { provider: Provider }) {
+  const MAX_TAGS = 3;
+  const visibleTags = provider.tags.slice(0, MAX_TAGS);
+  const extraTags = provider.tags.length - visibleTags.length;
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.35)]">
-      {/* Top row: avatar + name/verified + price */}
+      {/* Header: avatar + identity */}
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-brand-purple text-[18px] font-bold text-white shadow-inner">
+        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-brand-purple text-[15px] font-bold text-white">
           {provider.initials}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <h3 className="truncate text-[17px] font-bold leading-tight text-slate-800">
-                {provider.name}
-              </h3>
-              {provider.verified && (
-                <span
-                  title="Certified"
-                  aria-label="Certified"
-                  className="inline-flex items-center justify-center text-brand-purple-accent"
-                >
-                  <BadgeCheck className="h-4 w-4" />
-                </span>
-              )}
-            </div>
-            <div className="flex flex-none flex-col items-end">
-              <p className="whitespace-nowrap text-[15px] font-bold leading-none text-slate-800">
-                PHP {provider.price.toLocaleString()}
-                <span className="ml-0.5 text-[12px] font-normal text-slate-400">
-                  /session
-                </span>
-              </p>
-              <div className="mt-1.5 flex items-center gap-1 text-[12px] text-slate-500">
-                <Star className="h-3 w-3 fill-brand-purple-accent text-brand-purple-accent" />
-                <span className="font-semibold text-slate-700">
-                  {provider.rating}
-                </span>
-                <span className="text-slate-400">
-                  ({provider.reviews})
-                </span>
-              </div>
-            </div>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
+              {provider.name}
+            </h3>
+            {provider.verified && (
+              <BadgeCheck
+                aria-label="Certified"
+                className="h-4 w-4 flex-none text-brand-purple-accent"
+              />
+            )}
           </div>
-          <p className="mt-1.5 text-[14px] font-medium leading-snug text-brand-purple">
+          <p className="mt-0.5 truncate text-[13px] text-slate-500">
             {provider.title}
           </p>
+          <div className="mt-1.5 flex items-center gap-3 text-[12px] text-slate-500">
+            <span className="inline-flex items-center gap-1">
+              <Star className="h-3 w-3 fill-brand-purple-accent text-brand-purple-accent" />
+              <span className="font-semibold text-slate-700">{provider.rating}</span>
+              <span className="text-slate-400">({provider.reviews})</span>
+            </span>
+            <span className="text-slate-300">·</span>
+            <span className="inline-flex min-w-0 items-center gap-1 truncate">
+              <MapPin className="h-3 w-3 flex-none text-[#A799E2]" />
+              <span className="truncate">{provider.location}</span>
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Bio */}
-      <p className="mt-4 text-[13.5px] leading-relaxed text-slate-600">
+      <p className="mt-4 line-clamp-2 text-[13.5px] leading-relaxed text-slate-600">
         {provider.bio}
       </p>
 
-      {/* Tags */}
-      <div className="mt-4 flex flex-wrap gap-1.5">
-        <span className="rounded-lg bg-[#F3F0FF] px-3 py-1 text-[12px] font-semibold text-brand-purple">
+      {/* Tags — capped to reduce clutter */}
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <span className="rounded-md bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple">
           {provider.practice}
         </span>
-        {provider.tags.map((t) => (
+        {visibleTags.map((t) => (
           <span
             key={t}
-            className="rounded-lg bg-slate-100 px-3 py-1 text-[12px] text-slate-600"
+            className="rounded-md bg-slate-50 px-2.5 py-1 text-[11.5px] text-slate-600"
           >
             {t}
           </span>
         ))}
+        {extraTags > 0 && (
+          <span className="rounded-md px-2 py-1 text-[11.5px] text-slate-400">
+            +{extraTags}
+          </span>
+        )}
       </div>
 
-      {/* Location */}
-      <div className="mt-5 mb-4 flex items-center gap-1.5 text-[12.5px] text-slate-400">
-        <MapPin className="h-3.5 w-3.5 text-[#A799E2]" />
-        {provider.location}
+      {/* Footer: price + CTA */}
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+        <p className="whitespace-nowrap text-[15px] font-bold leading-none text-slate-900">
+          PHP {provider.price.toLocaleString()}
+          <span className="ml-0.5 text-[12px] font-normal text-slate-400">
+            /session
+          </span>
+        </p>
+        <button
+          type="button"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95"
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          Book session
+        </button>
       </div>
-
-      {/* Full-width CTA */}
-      <button
-        type="button"
-        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-[14px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(124,113,176,0.5)] active:translate-y-0"
-      >
-        <Calendar className="h-4 w-4" />
-        Book session
-      </button>
     </article>
   );
 }
