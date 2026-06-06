@@ -198,11 +198,7 @@ function ProviderProfilePage() {
 
               {/* Action card */}
               <aside className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-[0_30px_60px_-30px_rgba(124,113,176,0.4)] backdrop-blur lg:w-72">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11.5px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Accepting new clients
-                </span>
-                <p className="mt-3 text-[13px] text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Book a session or send a quick message to get started.
                 </p>
                 <div className="mt-4 space-y-2">
