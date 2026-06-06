@@ -150,23 +150,20 @@ function ProviderProfilePage() {
                 <p className="mt-2 text-[15px] font-medium text-brand-purple">{provider.title}</p>
 
                 {/* Meta row: rating · location · languages · experience */}
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-slate-600">
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-slate-600">
                   <span className="inline-flex items-center gap-1.5 font-semibold text-slate-900">
                     <Star className="h-4 w-4 fill-brand-purple-accent text-brand-purple-accent" />
                     {provider.rating}
                     <span className="font-medium text-slate-400">({provider.reviews})</span>
                   </span>
-                  <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
                   <span className="inline-flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-brand-purple" />
                     {provider.location}
                   </span>
-                  <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
                   <span className="inline-flex items-center gap-1.5">
                     <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
-                    {provider.languages.join(" · ")}
+                    {provider.languages.join(", ")}
                   </span>
-                  <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
                   <span className="inline-flex items-center gap-1.5">
                     <Award className="h-3.5 w-3.5 text-brand-purple" />
                     {provider.experience}+ yrs experience
