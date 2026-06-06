@@ -310,7 +310,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       )}
 
       {/* Meta pills */}
-      <div className="mt-4 flex flex-wrap gap-1.5">
+      <div className="mt-4 mb-6 flex flex-wrap gap-1.5">
         <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
           <User className="h-3 w-3" />
           {service.sessionType}
@@ -326,7 +326,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       </div>
 
       {/* Price + CTA */}
-      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5 mt-5">
+      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Starting at
