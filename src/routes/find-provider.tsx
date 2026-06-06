@@ -452,19 +452,19 @@ function FindProviderPage() {
 }
 
 function ProviderCard({ provider }: { provider: Provider }) {
-  const MAX_TAGS = 2;
+  const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.25)]">
-      {/* Identity */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-brand-purple text-[13px] font-bold text-white">
+    <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.35)]">
+      {/* Header: avatar + identity */}
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-brand-purple text-[15px] font-bold text-white">
           {provider.initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5">
-            <h3 className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+            <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
               {provider.name}
             </h3>
             {provider.verified && (
@@ -474,9 +474,21 @@ function ProviderCard({ provider }: { provider: Provider }) {
               />
             )}
           </div>
-          <p className="mt-0.5 truncate text-[12.5px] text-slate-500">
+          <p className="mt-0.5 truncate text-[13px] text-slate-500">
             {provider.title}
           </p>
+          <div className="mt-2 flex items-center gap-2.5 text-[12.5px] leading-none text-slate-500">
+            <span className="inline-flex items-center gap-1">
+              <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
+              <span className="font-semibold text-slate-700">{provider.rating}</span>
+              <span className="text-slate-400">({provider.reviews})</span>
+            </span>
+            <span aria-hidden className="h-1 w-1 flex-none rounded-full bg-slate-300" />
+            <span className="inline-flex min-w-0 items-center gap-1 truncate">
+              <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
+              <span className="truncate">{provider.location}</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -485,53 +497,40 @@ function ProviderCard({ provider }: { provider: Provider }) {
         {provider.bio}
       </p>
 
-      {/* Meta + tags — single subtle row */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-slate-400">
-        <span className="inline-flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
-          <span className="font-semibold text-slate-700">{provider.rating}</span>
-          <span>({provider.reviews})</span>
-        </span>
-        <span aria-hidden className="h-1 w-1 rounded-full bg-slate-200" />
-        <span className="inline-flex min-w-0 items-center gap-1 truncate">
-          <MapPin className="h-3.5 w-3.5" />
-          <span className="truncate">{provider.location}</span>
-        </span>
-      </div>
-
+      {/* Tags — capped to reduce clutter */}
       <div className="mt-3 flex flex-wrap gap-1.5">
-        <span className="rounded-md bg-[#F3F0FF] px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
+        <span className="rounded-md bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple">
           {provider.practice}
         </span>
         {visibleTags.map((t) => (
           <span
             key={t}
-            className="rounded-md px-2 py-0.5 text-[11px] text-slate-500"
+            className="rounded-md bg-slate-50 px-2.5 py-1 text-[11.5px] text-slate-600"
           >
             {t}
           </span>
         ))}
         {extraTags > 0 && (
-          <span className="px-1 py-0.5 text-[11px] text-slate-400">
+          <span className="rounded-md px-2 py-1 text-[11.5px] text-slate-400">
             +{extraTags}
           </span>
         )}
       </div>
 
-      {/* Footer */}
-      <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-        <p className="whitespace-nowrap text-[14px] font-semibold leading-none text-slate-900">
+      {/* Footer: price + CTA */}
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+        <p className="whitespace-nowrap text-[15px] font-bold leading-none text-slate-900">
           PHP {provider.price.toLocaleString()}
-          <span className="ml-1 text-[11.5px] font-normal text-slate-400">
+          <span className="ml-0.5 text-[12px] font-normal text-slate-400">
             /session
           </span>
         </p>
         <button
           type="button"
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-[12.5px] font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95"
         >
           <Calendar className="h-3.5 w-3.5" />
-          Book
+          Book session
         </button>
       </div>
     </article>
