@@ -452,90 +452,86 @@ function FindProviderPage() {
 }
 
 function ProviderCard({ provider }: { provider: Provider }) {
-  const MAX_TAGS = 3;
+  const MAX_TAGS = 2;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.35)]">
-      {/* Body */}
-      <div className="flex flex-1 flex-col p-6">
-        {/* Identity */}
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl bg-brand-purple text-[16px] font-bold text-white">
-            {provider.initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
-                {provider.name}
-              </h3>
-              {provider.verified && (
-                <BadgeCheck
-                  aria-label="Certified"
-                  className="h-4 w-4 flex-none text-brand-purple-accent"
-                />
-              )}
-            </div>
-            <p className="mt-0.5 truncate text-[13px] font-medium text-slate-500">
-              {provider.title}
-            </p>
-            <div className="mt-2 flex items-center gap-2.5 text-[12px] font-medium leading-none text-slate-400">
-              <span className="inline-flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
-                <span className="text-slate-700">{provider.rating}</span>
-                <span>({provider.reviews})</span>
-              </span>
-              <span aria-hidden className="h-1 w-1 flex-none rounded-full bg-slate-200" />
-              <span className="inline-flex min-w-0 items-center gap-1 truncate">
-                <MapPin className="h-3.5 w-3.5 flex-none" />
-                <span className="truncate">{provider.location}</span>
-              </span>
-            </div>
-          </div>
+    <article className="group flex h-full flex-col rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.25)]">
+      {/* Identity */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-brand-purple text-[13px] font-bold text-white">
+          {provider.initials}
         </div>
-
-        {/* Bio — primary text */}
-        <p className="mt-5 line-clamp-2 text-[14px] leading-relaxed text-slate-600">
-          {provider.bio}
-        </p>
-
-        {/* Tags — compressed */}
-        <div className="mt-5 flex flex-wrap gap-1.5">
-          <span className="rounded-lg bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-bold text-brand-purple">
-            {provider.practice}
-          </span>
-          {visibleTags.map((t) => (
-            <span
-              key={t}
-              className="rounded-lg border border-[#EFEAFB] px-2.5 py-1 text-[11.5px] font-medium text-slate-500"
-            >
-              {t}
-            </span>
-          ))}
-          {extraTags > 0 && (
-            <span className="px-1.5 py-1 text-[11.5px] font-semibold text-slate-400">
-              +{extraTags}
-            </span>
-          )}
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+              {provider.name}
+            </h3>
+            {provider.verified && (
+              <BadgeCheck
+                aria-label="Certified"
+                className="h-4 w-4 flex-none text-brand-purple-accent"
+              />
+            )}
+          </div>
+          <p className="mt-0.5 truncate text-[12.5px] text-slate-500">
+            {provider.title}
+          </p>
         </div>
       </div>
 
-      {/* Grounded action footer */}
-      <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#EFEAFB] bg-[#FAF9FE] px-6 py-4">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Per session
-          </p>
-          <p className="text-[16px] font-bold leading-tight text-slate-900">
-            PHP {provider.price.toLocaleString()}
-          </p>
-        </div>
+      {/* Bio */}
+      <p className="mt-4 line-clamp-2 text-[13.5px] leading-relaxed text-slate-600">
+        {provider.bio}
+      </p>
+
+      {/* Meta + tags — single subtle row */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-slate-400">
+        <span className="inline-flex items-center gap-1">
+          <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
+          <span className="font-semibold text-slate-700">{provider.rating}</span>
+          <span>({provider.reviews})</span>
+        </span>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-slate-200" />
+        <span className="inline-flex min-w-0 items-center gap-1 truncate">
+          <MapPin className="h-3.5 w-3.5" />
+          <span className="truncate">{provider.location}</span>
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <span className="rounded-md bg-[#F3F0FF] px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
+          {provider.practice}
+        </span>
+        {visibleTags.map((t) => (
+          <span
+            key={t}
+            className="rounded-md px-2 py-0.5 text-[11px] text-slate-500"
+          >
+            {t}
+          </span>
+        ))}
+        {extraTags > 0 && (
+          <span className="px-1 py-0.5 text-[11px] text-slate-400">
+            +{extraTags}
+          </span>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+        <p className="whitespace-nowrap text-[14px] font-semibold leading-none text-slate-900">
+          PHP {provider.price.toLocaleString()}
+          <span className="ml-1 text-[11.5px] font-normal text-slate-400">
+            /session
+          </span>
+        </p>
         <button
           type="button"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark active:scale-95"
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-[12.5px] font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95"
         >
           <Calendar className="h-3.5 w-3.5" />
-          Book session
+          Book
         </button>
       </div>
     </article>
