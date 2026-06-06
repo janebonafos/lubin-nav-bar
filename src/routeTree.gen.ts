@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
@@ -71,6 +72,11 @@ const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProviderIdRoute = ProviderIdRouteImport.update({
+  id: '/provider/$id',
+  path: '/provider/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
+  '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
+  '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
+  '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
+    | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
+    | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
+    | '/provider/$id'
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   ApiChatRoute: typeof ApiChatRoute
+  ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provider/$id': {
+      id: '/provider/$id'
+      path: '/provider/$id'
+      fullPath: '/provider/$id'
+      preLoaderRoute: typeof ProviderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   ApiChatRoute: ApiChatRoute,
+  ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
@@ -271,3 +292,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
