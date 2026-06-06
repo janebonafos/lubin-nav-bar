@@ -173,8 +173,8 @@ function ProviderProfilePage() {
                 </div>
 
                 {provider.expertise && (
-                  <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/15 backdrop-blur">
-                    <Sparkles className="h-3.5 w-3.5" />
+                  <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-brand-purple ring-1 ring-inset ring-[#E9E6FA] shadow-sm">
+                    <Sparkles className="h-3 w-3" />
                     {provider.expertise}
                   </p>
                 )}
