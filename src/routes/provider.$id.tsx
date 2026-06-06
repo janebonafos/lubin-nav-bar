@@ -271,18 +271,26 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+      {/* Gradient header band */}
+      <div className="relative h-2 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-purple/5 blur-2xl transition-opacity duration-300 group-hover:bg-brand-purple/15"
       />
 
-      <h3 className="text-[17px] font-bold leading-snug text-slate-900">
-        {service.title}
-      </h3>
+      <div className="flex flex-1 flex-col p-6">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F3F0FF] to-white text-brand-purple ring-1 ring-inset ring-brand-purple/15">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <h3 className="pt-1 text-[17px] font-bold leading-snug text-slate-900">
+          {service.title}
+        </h3>
+      </div>
 
       <p
-        className={`mt-3 text-[13.5px] leading-relaxed text-slate-600 ${
+        className={`mt-4 text-[13.5px] leading-relaxed text-slate-600 ${
           expanded ? "" : "line-clamp-3"
         }`}
       >
@@ -315,12 +323,12 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       </div>
 
       {/* Price + CTA */}
-      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
+      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5 mt-5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            Price
+            Starting at
           </span>
-          <p className="whitespace-nowrap text-[18px] font-bold leading-none text-slate-900">
+          <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
             ₱{service.price.toLocaleString()}
             <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
           </p>
@@ -333,6 +341,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
           <Calendar className="h-3.5 w-3.5" />
           Book now
         </button>
+      </div>
       </div>
     </article>
   );
