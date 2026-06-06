@@ -143,17 +143,9 @@ function ProviderProfilePage() {
 
               {/* Identity */}
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-serif-display text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
-                    {provider.name}
-                  </h1>
-                  {provider.verified && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/15">
-                      <BadgeCheck className="h-3 w-3" />
-                      Verified
-                    </span>
-                  )}
-                </div>
+                <h1 className="font-serif-display text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
+                  {provider.name}
+                </h1>
                 <p className="mt-2 text-[15px] font-medium text-brand-purple">{provider.title}</p>
 
                 {provider.expertise && (
@@ -181,48 +173,64 @@ function ProviderProfilePage() {
               </div>
 
               {/* Stat card */}
-              <aside className="w-full rounded-2xl border border-white bg-white/80 p-5 shadow-[0_20px_50px_-24px_rgba(124,113,176,0.35)] backdrop-blur lg:w-72">
-                <div className="flex items-baseline gap-2">
-                  <Star className="h-4 w-4 translate-y-[2px] fill-brand-purple-accent text-brand-purple-accent" />
-                  <span className="text-[20px] font-bold leading-none tracking-tight text-slate-900">
-                    {provider.rating}
-                  </span>
-                  <span className="text-[12.5px] font-medium text-slate-500">
-                    ({provider.reviews} reviews)
-                  </span>
-                </div>
-                <div className="mt-4 space-y-2.5 border-t border-[#EFEBFA] pt-4 text-[13px]">
-                  <div className="flex items-start gap-2.5 text-slate-600">
-                    <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
-                    <span>{provider.location}</span>
+              <aside className="w-full overflow-hidden rounded-3xl border border-white/80 bg-white/90 shadow-[0_30px_60px_-30px_rgba(124,113,176,0.4)] backdrop-blur lg:w-80">
+                {/* Rating header */}
+                <div className="flex items-center justify-between gap-3 bg-gradient-to-br from-[#F6F3FF] to-[#EFEAFE] px-5 py-4">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-serif-display text-[28px] font-bold leading-none tracking-tight text-slate-900">
+                      {provider.rating}
+                    </span>
+                    <span className="text-[12px] font-medium text-slate-500">/ 5</span>
                   </div>
-                  <div className="flex items-start gap-2.5 text-slate-600">
-                    <User className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
-                    <span>{provider.practice}</span>
-                  </div>
-                  <div className="flex items-start gap-2.5 text-slate-600">
-                    <Globe2 className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
-                    <span>English · Filipino</span>
-                  </div>
-                  <div className="flex items-start gap-2.5 text-slate-600">
-                    <Heart className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
-                    <span>Accepting new clients</span>
+                  <div className="flex flex-col items-end">
+                    <div className="flex gap-0.5">
+                      {[0, 1, 2, 3, 4].map((i) => (
+                        <Star
+                          key={i}
+                          className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent"
+                        />
+                      ))}
+                    </div>
+                    <span className="mt-1 text-[11px] font-medium text-slate-500">
+                      {provider.reviews} reviews
+                    </span>
                   </div>
                 </div>
-                <a
-                  href="#services"
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-95"
-                >
-                  <Calendar className="h-3.5 w-3.5" />
-                  Book a session
-                </a>
-                <button
-                  type="button"
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-700 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
-                >
-                  <MessageCircle className="h-3.5 w-3.5" />
-                  Message
-                </button>
+
+                {/* Details */}
+                <div className="space-y-3 px-5 py-5 text-[13px]">
+                  {[
+                    { Icon: MapPin, text: provider.location },
+                    { Icon: User, text: provider.practice },
+                    { Icon: Globe2, text: "English · Filipino" },
+                    { Icon: Heart, text: "Accepting new clients" },
+                  ].map(({ Icon, text }) => (
+                    <div key={text} className="flex items-center gap-3 text-slate-700">
+                      <span className="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="font-medium">{text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-2 border-t border-[#EFEBFA] bg-white/60 px-5 py-4">
+                  <a
+                    href="#services"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-95"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Book a session
+                  </a>
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-4 py-3 text-[13px] font-semibold text-slate-700 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Message
+                  </button>
+                </div>
               </aside>
             </div>
           </div>
