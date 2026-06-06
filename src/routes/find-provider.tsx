@@ -184,32 +184,32 @@ function FindProviderPage() {
         {/* Search bar */}
         <section
           aria-label="Search"
-          className="rounded-2xl border border-white/60 bg-white/70 p-3 shadow-[0_10px_30px_-18px_rgba(126,107,175,0.25)] backdrop-blur-xl sm:p-4"
+          className="rounded-2xl border border-white/60 bg-white/70 p-3 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.08)] backdrop-blur-xl sm:p-4"
         >
           <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple/70" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name, specialty, or keyword"
-                className="w-full rounded-xl border border-brand-purple/15 bg-white px-11 py-3 text-[14px] text-brand-purple-dark placeholder:text-brand-purple-dark/40 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
             </div>
             <div className="relative md:w-[280px]">
-              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple/70" />
+              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter location"
-                className="w-full rounded-xl border border-brand-purple/15 bg-white px-11 py-3 text-[14px] text-brand-purple-dark placeholder:text-brand-purple-dark/40 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
             </div>
             <button
               type="button"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-6 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-dark px-6 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.45)] active:scale-95"
             >
               Search
             </button>
