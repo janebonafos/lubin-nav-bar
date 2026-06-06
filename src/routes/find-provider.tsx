@@ -500,3 +500,180 @@ function ProviderCard({ provider }: { provider: Provider }) {
     </article>
   );
 }
+
+function ExternalProviderCard({
+  provider,
+  onInvite,
+}: {
+  provider: ExternalProvider;
+  onInvite: () => void;
+}) {
+  return (
+    <article className="group relative flex h-full flex-col rounded-2xl border border-dashed border-[#D9D2F2] bg-white/70 p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.25)]">
+      <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-brand-purple">
+        <Globe className="h-2.5 w-2.5" />
+        Not on Lubin
+      </div>
+
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl border border-[#E9E6FA] bg-[#F3F0FF] text-[15px] font-bold text-brand-purple">
+          {provider.initials}
+        </div>
+        <div className="min-w-0 flex-1 pr-20">
+          <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
+            {provider.name}
+          </h3>
+          <p className="mt-0.5 truncate text-[13px] text-slate-500">
+            {provider.title}
+          </p>
+          <div className="mt-1.5 flex items-center gap-3 text-[12px] text-slate-500">
+            <span className="inline-flex min-w-0 items-center gap-1 truncate">
+              <MapPin className="h-3 w-3 flex-none text-[#A799E2]" />
+              <span className="truncate">{provider.location}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-4 line-clamp-2 text-[13.5px] leading-relaxed text-slate-600">
+        {provider.snippet}
+      </p>
+
+      <div className="mt-3 flex items-center gap-2 text-[12px] text-slate-500">
+        <span>Source:</span>
+        <a
+          href={provider.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 font-medium text-brand-purple hover:text-brand-purple-dark hover:underline"
+        >
+          {provider.source}
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-dashed border-[#E9E6FA] pt-4">
+        <p className="text-[12px] text-slate-500">
+          Help them join Lubin
+        </p>
+        <button
+          type="button"
+          onClick={onInvite}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand-purple bg-white px-4 py-2.5 text-[13px] font-semibold text-brand-purple transition-all hover:bg-brand-purple hover:text-white active:scale-95"
+        >
+          <Send className="h-3.5 w-3.5" />
+          Invite to Lubin
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function InviteModal({
+  provider,
+  onClose,
+}: {
+  provider: ExternalProvider;
+  onClose: () => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState(
+    `Hi ${provider.name.split(" ")[0]}, we'd love to invite you to join Lubin — a platform helping Filipinos find verified mental health providers.`,
+  );
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSent(true);
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-[18px] font-bold text-slate-900">
+              {sent ? "Invitation sent" : "Invite to Lubin"}
+            </h3>
+            <p className="mt-1 text-[13px] text-slate-500">
+              {sent
+                ? `We'll let you know when ${provider.name} joins.`
+                : `Send ${provider.name} an invitation to claim their profile on Lubin.`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {sent ? (
+          <div className="mt-6 flex justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-brand-purple-dark"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <div>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                Provider email
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="provider@example.com"
+                className="mt-2 w-full rounded-xl border border-[#E9E6FA] bg-white px-4 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+              />
+            </div>
+            <div>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                Personal note
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                className="mt-2 w-full resize-none rounded-xl border border-[#E9E6FA] bg-white px-4 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg px-4 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-brand-purple-dark active:scale-95"
+              >
+                <Send className="h-3.5 w-3.5" />
+                Send invitation
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
