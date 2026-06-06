@@ -369,12 +369,12 @@ function ProviderCard({ provider }: { provider: Provider }) {
         {provider.bio}
       </p>
 
-      <div className="mt-4 flex items-center gap-1.5 text-[13px] text-brand-purple-dark/70">
+      <div className="mt-4 mb-5 flex items-center gap-1.5 text-[13px] text-brand-purple-dark/70">
         <MapPin className="h-3.5 w-3.5 text-brand-purple/80" />
         {provider.location}
       </div>
 
-      <div className="mt-auto flex items-center justify-between border-t border-brand-purple/10 pt-4 mt-5">
+      <div className="mt-auto flex items-center justify-between border-t border-brand-purple/10 pt-4">
         <div>
           <p className="text-[11px] uppercase tracking-wider text-brand-purple-dark/55">
             Per session
