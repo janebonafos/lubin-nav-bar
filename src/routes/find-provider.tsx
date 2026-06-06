@@ -311,41 +311,6 @@ function FindProviderPage() {
               Search
             </button>
           </div>
-
-          {/* Popular city quick-pick */}
-          <div className="mt-3 flex flex-wrap items-center gap-2 px-1">
-            <span className="text-[11.5px] font-medium uppercase tracking-wider text-slate-400">
-              Popular
-            </span>
-            {POPULAR_CITIES.map((c) => {
-              const active = location.trim().toLowerCase() === c.toLowerCase();
-              return (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setLocation(active ? "" : c)}
-                  className={
-                    "rounded-full px-3 py-1 text-[12px] font-medium transition-colors " +
-                    (active
-                      ? "bg-brand-purple text-white"
-                      : "bg-[#F3F0FF] text-brand-purple hover:bg-[#E9E6FA]")
-                  }
-                >
-                  {c}
-                </button>
-              );
-            })}
-            {location && (
-              <button
-                type="button"
-                onClick={() => setLocation("")}
-                className="ml-auto inline-flex items-center gap-1 text-[12px] font-medium text-slate-400 hover:text-brand-purple"
-              >
-                <X className="h-3 w-3" />
-                Clear location
-              </button>
-            )}
-          </div>
         </section>
 
         {/* Body */}
