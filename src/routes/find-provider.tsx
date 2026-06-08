@@ -370,13 +370,10 @@ function AvailabilityStrip({
   const active = new Set(days);
   return (
     <div
-      className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px]"
+      className="mt-4 flex flex-wrap items-center justify-between gap-3"
       aria-label="Weekly availability"
     >
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-        Available
-      </span>
-      <div className="flex items-center gap-2 tabular-nums" role="list">
+      <div className="flex items-center gap-1" role="list">
         {DAY_ORDER.map((d) => {
           const on = active.has(d);
           return (
@@ -385,8 +382,10 @@ function AvailabilityStrip({
               role="listitem"
               aria-label={`${d}${on ? " available" : " unavailable"}`}
               className={
-                "min-w-[14px] text-center font-semibold leading-none " +
-                (on ? "text-brand-purple" : "text-slate-300")
+                "flex h-6 min-w-[24px] items-center justify-center rounded-full px-1.5 text-[10.5px] font-semibold leading-none tabular-nums transition-colors " +
+                (on
+                  ? "bg-brand-purple/10 text-brand-purple ring-1 ring-inset ring-brand-purple/20"
+                  : "text-slate-300")
               }
             >
               {d}
@@ -394,8 +393,23 @@ function AvailabilityStrip({
           );
         })}
       </div>
-      <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
-      <span className="text-slate-500">{modes.join(" · ")}</span>
+      <div className="flex items-center gap-1.5">
+        {modes.map((m) => (
+          <span
+            key={m}
+            className="inline-flex items-center gap-1 rounded-full bg-[#F6F3FF] px-2 py-1 text-[10.5px] font-medium text-brand-purple ring-1 ring-inset ring-[#E9E6FA]"
+          >
+            <span
+              aria-hidden
+              className={
+                "h-1.5 w-1.5 rounded-full " +
+                (m === "Online" ? "bg-brand-purple" : "bg-brand-purple/40")
+              }
+            />
+            {m}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
