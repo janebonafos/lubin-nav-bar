@@ -428,7 +428,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
         )}
       </div>
 
-      {/* Footer: price + CTA */}
+      {/* Availability glimpse */}
       <div
         className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl bg-emerald-50/60 px-3 py-2 text-[12px] ring-1 ring-inset ring-emerald-100"
         aria-label="Availability"
