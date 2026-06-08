@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarClock, Video, Users as UsersIcon } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, type Provider } from "@/lib/providers";
 
@@ -353,6 +353,54 @@ function FindProviderPage() {
 }
 
 function ProviderCard({ provider }: { provider: Provider }) {
+  // placeholder to keep file shape; component defined below
+  return <ProviderCardInner provider={provider} />;
+}
+
+const DAY_ORDER = ["M", "T", "W", "Th", "F", "S", "Su"] as const;
+type DayCode = (typeof DAY_ORDER)[number];
+
+function AvailabilityStrip({
+  days,
+  modes,
+}: {
+  days: readonly DayCode[];
+  modes: ("Online" | "In-person")[];
+}) {
+  const active = new Set(days);
+  return (
+    <div
+      className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F6F3FF] px-3 py-2 ring-1 ring-inset ring-[#E9E6FA]"
+      aria-label="Weekly availability"
+    >
+      <div className="flex items-center gap-1" role="list">
+        {DAY_ORDER.map((d) => {
+          const on = active.has(d);
+          return (
+            <span
+              key={d}
+              role="listitem"
+              aria-label={`${d}${on ? " available" : " unavailable"}`}
+              className={
+                "inline-flex h-5 min-w-[20px] items-center justify-center rounded-md px-1 text-[10.5px] font-semibold leading-none " +
+                (on
+                  ? "bg-brand-purple text-white"
+                  : "bg-white text-slate-400 ring-1 ring-inset ring-[#E9E6FA]")
+              }
+            >
+              {d}
+            </span>
+          );
+        })}
+      </div>
+      <span className="text-[11.5px] font-medium text-brand-purple">
+        {modes.join(" · ")}
+      </span>
+    </div>
+  );
+}
+
+function ProviderCardInner({ provider }: { provider: Provider }) {
   const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
@@ -429,37 +477,10 @@ function ProviderCard({ provider }: { provider: Provider }) {
       </div>
 
       {/* Availability glimpse */}
-      <div
-        className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl bg-emerald-50/60 px-3 py-2 text-[12px] ring-1 ring-inset ring-emerald-100"
-        aria-label="Availability"
-      >
-        <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          </span>
-          Next: {provider.nextAvailable}
-        </span>
-        <span aria-hidden className="h-1 w-1 rounded-full bg-emerald-300" />
-        <span className="inline-flex items-center gap-1.5 text-slate-600">
-          {provider.sessionModes.includes("Online") && (
-            <span className="inline-flex items-center gap-1">
-              <Video className="h-3 w-3 text-brand-purple" />
-              Online
-            </span>
-          )}
-          {provider.sessionModes.includes("Online") &&
-            provider.sessionModes.includes("In-person") && (
-              <span className="text-slate-300">·</span>
-            )}
-          {provider.sessionModes.includes("In-person") && (
-            <span className="inline-flex items-center gap-1">
-              <UsersIcon className="h-3 w-3 text-brand-purple" />
-              In-person
-            </span>
-          )}
-        </span>
-      </div>
+      <AvailabilityStrip
+        days={provider.availableDays}
+        modes={provider.sessionModes}
+      />
 
       <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
         <div className="flex h-full flex-col justify-center gap-0.5">

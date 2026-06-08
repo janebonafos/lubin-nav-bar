@@ -25,7 +25,7 @@ export type Provider = {
   languages: string[];
   services?: Service[];
   sessionModes: ("Online" | "In-person")[];
-  nextAvailable: string;
+  availableDays: ("M" | "T" | "W" | "Th" | "F" | "S" | "Su")[];
 };
 
 export const PROVIDERS: Provider[] = [
@@ -46,7 +46,7 @@ export const PROVIDERS: Provider[] = [
     experience: 12,
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
-    nextAvailable: "Today, 3:00 PM",
+    availableDays: ["M", "T", "W", "Th", "F"],
   },
   {
     id: "2",
@@ -65,7 +65,7 @@ export const PROVIDERS: Provider[] = [
     experience: 9,
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
-    nextAvailable: "Tomorrow, 10:00 AM",
+    availableDays: ["T", "W", "Th", "S"],
   },
   {
     id: "3",
@@ -83,7 +83,7 @@ export const PROVIDERS: Provider[] = [
     experience: 7,
     languages: ["English"],
     sessionModes: ["Online"],
-    nextAvailable: "Today, 6:30 PM",
+    availableDays: ["M", "W", "F"],
   },
   {
     id: "4",
@@ -102,7 +102,7 @@ export const PROVIDERS: Provider[] = [
     experience: 14,
     languages: ["English", "Filipino", "Cebuano"],
     sessionModes: ["Online", "In-person"],
-    nextAvailable: "Wed, 11:00 AM",
+    availableDays: ["M", "T", "W", "Th", "F", "S"],
   },
   {
     id: "5",
@@ -120,7 +120,7 @@ export const PROVIDERS: Provider[] = [
     experience: 5,
     languages: ["English", "Filipino"],
     sessionModes: ["Online"],
-    nextAvailable: "Today, 4:15 PM",
+    availableDays: ["M", "T", "Th", "F"],
   },
   {
     id: "6",
@@ -139,7 +139,7 @@ export const PROVIDERS: Provider[] = [
     experience: 11,
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
-    nextAvailable: "Thu, 2:00 PM",
+    availableDays: ["T", "Th", "S", "Su"],
   },
 ];
 
