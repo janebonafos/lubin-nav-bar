@@ -25,7 +25,7 @@ export type Provider = {
   languages: string[];
   services?: Service[];
   sessionModes: ("Online" | "In-person")[];
-  nextAvailable: string;
+  availableDays: ("M" | "T" | "W" | "Th" | "F" | "S" | "Su")[];
 };
 
 export const PROVIDERS: Provider[] = [
