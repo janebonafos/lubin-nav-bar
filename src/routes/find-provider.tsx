@@ -353,6 +353,54 @@ function FindProviderPage() {
 }
 
 function ProviderCard({ provider }: { provider: Provider }) {
+  // placeholder to keep file shape; component defined below
+  return <ProviderCardInner provider={provider} />;
+}
+
+const DAY_ORDER = ["M", "T", "W", "Th", "F", "S", "Su"] as const;
+type DayCode = (typeof DAY_ORDER)[number];
+
+function AvailabilityStrip({
+  days,
+  modes,
+}: {
+  days: readonly DayCode[];
+  modes: ("Online" | "In-person")[];
+}) {
+  const active = new Set(days);
+  return (
+    <div
+      className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F6F3FF] px-3 py-2 ring-1 ring-inset ring-[#E9E6FA]"
+      aria-label="Weekly availability"
+    >
+      <div className="flex items-center gap-1" role="list">
+        {DAY_ORDER.map((d) => {
+          const on = active.has(d);
+          return (
+            <span
+              key={d}
+              role="listitem"
+              aria-label={`${d}${on ? " available" : " unavailable"}`}
+              className={
+                "inline-flex h-5 min-w-[20px] items-center justify-center rounded-md px-1 text-[10.5px] font-semibold leading-none " +
+                (on
+                  ? "bg-brand-purple text-white"
+                  : "bg-white text-slate-400 ring-1 ring-inset ring-[#E9E6FA]")
+              }
+            >
+              {d}
+            </span>
+          );
+        })}
+      </div>
+      <span className="text-[11.5px] font-medium text-brand-purple">
+        {modes.join(" · ")}
+      </span>
+    </div>
+  );
+}
+
+function ProviderCardInner({ provider }: { provider: Provider }) {
   const MAX_TAGS = 3;
   const visibleTags = provider.tags.slice(0, MAX_TAGS);
   const extraTags = provider.tags.length - visibleTags.length;
