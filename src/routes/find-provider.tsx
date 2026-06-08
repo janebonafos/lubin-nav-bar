@@ -370,10 +370,13 @@ function AvailabilityStrip({
   const active = new Set(days);
   return (
     <div
-      className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F6F3FF] px-3 py-2 ring-1 ring-inset ring-[#E9E6FA]"
+      className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px]"
       aria-label="Weekly availability"
     >
-      <div className="flex items-center gap-1" role="list">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+        Available
+      </span>
+      <div className="flex items-center gap-2 tabular-nums" role="list">
         {DAY_ORDER.map((d) => {
           const on = active.has(d);
           return (
@@ -382,10 +385,8 @@ function AvailabilityStrip({
               role="listitem"
               aria-label={`${d}${on ? " available" : " unavailable"}`}
               className={
-                "inline-flex h-5 min-w-[20px] items-center justify-center rounded-md px-1 text-[10.5px] font-semibold leading-none " +
-                (on
-                  ? "bg-brand-purple text-white"
-                  : "bg-white text-slate-400 ring-1 ring-inset ring-[#E9E6FA]")
+                "min-w-[14px] text-center font-semibold leading-none " +
+                (on ? "text-brand-purple" : "text-slate-300")
               }
             >
               {d}
@@ -393,9 +394,8 @@ function AvailabilityStrip({
           );
         })}
       </div>
-      <span className="text-[11.5px] font-medium text-brand-purple">
-        {modes.join(" · ")}
-      </span>
+      <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
+      <span className="text-slate-500">{modes.join(" · ")}</span>
     </div>
   );
 }
