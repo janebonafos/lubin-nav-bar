@@ -24,6 +24,8 @@ export type Provider = {
   experience: number;
   languages: string[];
   services?: Service[];
+  sessionModes: ("Online" | "In-person")[];
+  nextAvailable: string;
 };
 
 export const PROVIDERS: Provider[] = [
@@ -43,6 +45,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in Anxiety, Trauma & CBT",
     experience: 12,
     languages: ["English", "Filipino"],
+    sessionModes: ["Online", "In-person"],
+    nextAvailable: "Today, 3:00 PM",
   },
   {
     id: "2",
@@ -60,6 +64,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in Relationships & LGBTQ+ Support",
     experience: 9,
     languages: ["English", "Filipino"],
+    sessionModes: ["Online", "In-person"],
+    nextAvailable: "Tomorrow, 10:00 AM",
   },
   {
     id: "3",
@@ -76,6 +82,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in Burnout & Mindfulness-Based Therapy",
     experience: 7,
     languages: ["English"],
+    sessionModes: ["Online"],
+    nextAvailable: "Today, 6:30 PM",
   },
   {
     id: "4",
@@ -93,6 +101,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in OCD, Anxiety & Family Therapy",
     experience: 14,
     languages: ["English", "Filipino", "Cebuano"],
+    sessionModes: ["Online", "In-person"],
+    nextAvailable: "Wed, 11:00 AM",
   },
   {
     id: "5",
@@ -109,6 +119,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in Student & Career Counselling",
     experience: 5,
     languages: ["English", "Filipino"],
+    sessionModes: ["Online"],
+    nextAvailable: "Today, 4:15 PM",
   },
   {
     id: "6",
@@ -126,6 +138,8 @@ export const PROVIDERS: Provider[] = [
     expertise: "Expert in Somatic & Trauma-Focused Therapy",
     experience: 11,
     languages: ["English", "Filipino"],
+    sessionModes: ["Online", "In-person"],
+    nextAvailable: "Thu, 2:00 PM",
   },
 ];
 
