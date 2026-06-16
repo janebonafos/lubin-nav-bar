@@ -121,6 +121,8 @@ export const PROVIDERS: Provider[] = [
     nextAvailable: "Thu, 2:00 PM",
     socialLinks: [
       { label: "Website", url: "https://joshuareyes-counselling.ph" },
+      { label: "Twitter", url: "https://twitter.com/joshuareyes" },
+      { label: "YouTube", url: "https://youtube.com/@joshuareyescounselling" },
     ],
     references: [
       { title: "Narrative Therapy with LGBTQ+ Youth in Manila", year: "2021", description: "Published in the Philippine Journal of Psychology" },
