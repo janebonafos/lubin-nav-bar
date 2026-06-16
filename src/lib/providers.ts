@@ -85,6 +85,8 @@ export const PROVIDERS: Provider[] = [
     socialLinks: [
       { label: "Website", url: "https://mariasantos-psych.com" },
       { label: "LinkedIn", url: "https://linkedin.com/in/maria-santos-phd" },
+      { label: "Instagram", url: "https://instagram.com/dr.mariasantos" },
+      { label: "Facebook", url: "https://facebook.com/mariasantospsych" },
     ],
     references: [
       { title: "Cultural Adaptations of CBT in Southeast Asia", year: "2022", description: "Published in the Asian Journal of Psychiatry" },
