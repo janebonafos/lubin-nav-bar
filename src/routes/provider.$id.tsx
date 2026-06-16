@@ -287,57 +287,73 @@ function ProviderProfilePage() {
 
         {/* Services */}
         <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
-          {/* Therapy modalities & practice — clean text layout, no cards */}
-          <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-            {/* Modalities */}
-            <div>
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Therapy modalities
-              </h3>
-              {provider.modalities && provider.modalities.length ? (
-                <ul className="mt-3 space-y-1.5">
-                  {provider.modalities.map((m: string) => (
-                    <li key={m} className="text-[14px] text-slate-700">
-                      {m}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-3 text-[14px] text-slate-500">Not listed</p>
-              )}
-            </div>
+          {/* Therapy modalities & practice — editorial panel */}
+          <div className="mb-14 overflow-hidden rounded-2xl border border-[#ECE7F7] bg-gradient-to-br from-white via-white to-[#FAF8FF] shadow-[0_1px_0_rgba(126,107,175,0.04),0_24px_60px_-40px_rgba(50,28,120,0.18)]">
+            <div className="grid grid-cols-1 md:grid-cols-5">
+              {/* Modalities — accent column */}
+              <div className="relative md:col-span-2 border-b border-[#ECE7F7] md:border-b-0 md:border-r p-7 sm:p-8">
+                <div className="absolute left-0 top-7 sm:top-8 h-7 w-[3px] rounded-r bg-[#7E6BAF]" />
+                <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                  Therapy modalities
+                </p>
+                <p className="mt-1 font-serif-display text-[13px] italic text-slate-400">
+                  Approaches used in session
+                </p>
+                {provider.modalities && provider.modalities.length ? (
+                  <ul className="mt-5 space-y-3">
+                    {provider.modalities.map((m: string) => (
+                      <li
+                        key={m}
+                        className="flex items-start gap-3 text-[14.5px] leading-snug text-slate-800"
+                      >
+                        <span className="mt-[7px] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#7E6BAF]" />
+                        <span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-5 text-[14px] text-slate-500">Not listed</p>
+                )}
+              </div>
 
-            {/* Practice details */}
-            <div>
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Practice
-              </h3>
-              <dl className="mt-3 space-y-2 text-[14px]">
-                <div className="flex justify-between gap-3">
-                  <dt className="text-slate-500">Experience</dt>
-                  <dd className="font-medium text-slate-900">{provider.experience}+ yrs</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt className="text-slate-500">Languages</dt>
-                  <dd className="text-right font-medium text-slate-900">
-                    {provider.languages.join(", ")}
-                  </dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt className="text-slate-500">Session formats</dt>
-                  <dd className="text-right font-medium text-slate-900">
-                    {provider.sessionModes.join(" · ")}
-                  </dd>
-                </div>
-                {provider.licenseBoard && (
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-slate-500">Board</dt>
-                    <dd className="text-right font-medium text-slate-900">
-                      {provider.licenseBoard}
+              {/* Practice details */}
+              <div className="md:col-span-3 p-7 sm:p-8">
+                <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                  Practice
+                </p>
+                <p className="mt-1 font-serif-display text-[13px] italic text-slate-400">
+                  At a glance
+                </p>
+                <dl className="mt-5 divide-y divide-[#EFEAF7]">
+                  <div className="flex items-baseline justify-between gap-4 py-3">
+                    <dt className="text-[12px] uppercase tracking-wider text-slate-400">Experience</dt>
+                    <dd className="font-serif-display text-[18px] text-slate-900">
+                      {provider.experience}<span className="text-slate-400">+</span>{" "}
+                      <span className="text-[13px] font-sans uppercase tracking-wider text-slate-500">yrs</span>
                     </dd>
                   </div>
-                )}
-              </dl>
+                  <div className="flex items-baseline justify-between gap-4 py-3">
+                    <dt className="text-[12px] uppercase tracking-wider text-slate-400">Languages</dt>
+                    <dd className="text-right text-[14.5px] font-medium text-slate-900">
+                      {provider.languages.join(" · ")}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4 py-3">
+                    <dt className="text-[12px] uppercase tracking-wider text-slate-400">Session formats</dt>
+                    <dd className="text-right text-[14.5px] font-medium text-slate-900">
+                      {provider.sessionModes.join(" · ")}
+                    </dd>
+                  </div>
+                  {provider.licenseBoard && (
+                    <div className="flex items-baseline justify-between gap-4 py-3">
+                      <dt className="text-[12px] uppercase tracking-wider text-slate-400">Board</dt>
+                      <dd className="text-right text-[14.5px] font-medium text-slate-900">
+                        {provider.licenseBoard}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
             </div>
           </div>
 
