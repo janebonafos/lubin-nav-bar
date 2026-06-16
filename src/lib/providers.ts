@@ -33,6 +33,12 @@ export type Provider = {
   availableDays: ("M" | "T" | "W" | "Th" | "F" | "S" | "Su")[];
   availableHours: string;
   availablePeriods: ("AM" | "PM")[];
+  licenseNumber?: string;
+  licenseBoard?: string;
+  licenseVerifiedOn?: string;
+  modalities?: string[];
+  cancellationPolicy?: string;
+  nextAvailable?: string;
 };
 
 export const PROVIDERS: Provider[] = [
@@ -56,6 +62,12 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["M", "T", "W", "Th", "F"],
     availableHours: "9am – 5pm",
     availablePeriods: ["AM", "PM"],
+    licenseNumber: "PRC #0012458",
+    licenseBoard: "PRC Board of Psychology",
+    licenseVerifiedOn: "Mar 2025",
+    modalities: ["Cognitive Behavioral Therapy (CBT)", "EMDR", "Acceptance & Commitment Therapy"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Tomorrow, 10:30 AM",
   },
   {
     id: "2",
@@ -77,6 +89,12 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["T", "W", "Th", "S"],
     availableHours: "1pm – 8pm",
     availablePeriods: ["PM"],
+    licenseNumber: "PRC #0019822",
+    licenseBoard: "PRC Board of Psychology (RPsy)",
+    licenseVerifiedOn: "Jan 2025",
+    modalities: ["Emotionally Focused Therapy", "Gottman Method", "Narrative Therapy"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Thu, 2:00 PM",
   },
   {
     id: "3",
@@ -97,6 +115,11 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["M", "W", "F"],
     availableHours: "8am – 12pm",
     availablePeriods: ["AM"],
+    licenseNumber: "Pending verification",
+    licenseBoard: "Psychological Association of the Philippines",
+    modalities: ["Acceptance & Commitment Therapy (ACT)", "Mindfulness-Based Stress Reduction"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Mon, 9:00 AM",
   },
   {
     id: "4",
@@ -118,6 +141,12 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["M", "T", "W", "Th", "F", "S"],
     availableHours: "10am – 7pm",
     availablePeriods: ["AM", "PM"],
+    licenseNumber: "PRC #0008741",
+    licenseBoard: "PRC Board of Psychology",
+    licenseVerifiedOn: "Feb 2025",
+    modalities: ["Exposure & Response Prevention (ERP)", "Cognitive Behavioral Therapy", "Family Systems Therapy"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Today, 4:30 PM",
   },
   {
     id: "5",
@@ -138,6 +167,12 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["M", "T", "Th", "F"],
     availableHours: "2pm – 6pm",
     availablePeriods: ["PM"],
+    licenseNumber: "PRC #0024109",
+    licenseBoard: "PRC Board of Guidance & Counselling (RGC)",
+    licenseVerifiedOn: "Apr 2025",
+    modalities: ["Solution-Focused Brief Therapy", "Motivational Interviewing"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Tomorrow, 3:00 PM",
   },
   {
     id: "6",
@@ -159,6 +194,12 @@ export const PROVIDERS: Provider[] = [
     availableDays: ["T", "Th", "S", "Su"],
     availableHours: "9am – 1pm",
     availablePeriods: ["AM"],
+    licenseNumber: "LPT #45128",
+    licenseBoard: "Professional Regulation Commission",
+    licenseVerifiedOn: "Dec 2024",
+    modalities: ["Somatic Experiencing", "Sensorimotor Psychotherapy", "Internal Family Systems"],
+    cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
+    nextAvailable: "Sat, 10:00 AM",
   },
 ];
 

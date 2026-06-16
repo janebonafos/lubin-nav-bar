@@ -19,6 +19,10 @@ import {
   CalendarDays,
   Video,
   X,
+  ShieldCheck,
+  Brain,
+  FileText,
+  Info,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
@@ -150,10 +154,17 @@ function ProviderProfilePage() {
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium text-brand-purple">
                   <span>{provider.title}</span>
-                  <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
-                    <Star className="h-4 w-4 fill-brand-purple-accent text-brand-purple-accent" />
+                  <span
+                    title="Sample rating shown for demo purposes. Real reviews launch with verified bookings."
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2 py-0.5 text-[12px] font-semibold text-slate-700 ring-1 ring-inset ring-[#E9E6FA]"
+                  >
+                    <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
                     {provider.rating}
                     <span className="font-medium text-slate-400">({provider.reviews})</span>
+                    <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                      <Info className="h-2.5 w-2.5" />
+                      Sample
+                    </span>
                   </span>
                 </div>
 
@@ -199,6 +210,22 @@ function ProviderProfilePage() {
 
               {/* Action card */}
               <aside className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-[0_30px_60px_-30px_rgba(124,113,176,0.4)] backdrop-blur lg:w-72">
+                {provider.nextAvailable && (
+                  <div className="mb-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 ring-1 ring-inset ring-emerald-100">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                        Next available
+                      </p>
+                      <p className="truncate text-[12.5px] font-semibold text-emerald-900">
+                        {provider.nextAvailable}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <p className="text-[13px] text-slate-500">
                   Book a session or send a quick message to get started.
                 </p>
@@ -231,6 +258,107 @@ function ProviderProfilePage() {
 
         {/* Services */}
         <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
+          {/* Credentials & practice — surfaced before booking so users can make an informed choice */}
+          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* License */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <ShieldCheck className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  License
+                </h3>
+              </div>
+              <p className="mt-3 text-[14px] font-semibold text-slate-900">
+                {provider.licenseNumber ?? "Not provided"}
+              </p>
+              {provider.licenseBoard && (
+                <p className="mt-0.5 text-[12px] text-slate-500">{provider.licenseBoard}</p>
+              )}
+              {provider.licenseVerifiedOn ? (
+                <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  <BadgeCheck className="h-3 w-3" />
+                  Verified · {provider.licenseVerifiedOn}
+                </p>
+              ) : (
+                <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-100">
+                  Verification pending
+                </p>
+              )}
+            </div>
+
+            {/* Modalities */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <Brain className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Therapy modalities
+                </h3>
+              </div>
+              {provider.modalities && provider.modalities.length ? (
+                <ul className="mt-3 space-y-1.5">
+                  {provider.modalities.map((m: string) => (
+                    <li key={m} className="flex items-start gap-1.5 text-[13px] text-slate-700">
+                      <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
+                      {m}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-[13px] text-slate-500">Not listed</p>
+              )}
+            </div>
+
+            {/* Practice details */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <User className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Practice
+                </h3>
+              </div>
+              <dl className="mt-3 space-y-2 text-[13px]">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Experience</dt>
+                  <dd className="font-semibold text-slate-900">{provider.experience}+ yrs</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Languages</dt>
+                  <dd className="text-right font-semibold text-slate-900">
+                    {provider.languages.join(", ")}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Session formats</dt>
+                  <dd className="text-right font-semibold text-slate-900">
+                    {provider.sessionModes.join(" · ")}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* Cancellation policy */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <FileText className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Cancellation policy
+                </h3>
+              </div>
+              <p className="mt-3 text-[13px] leading-relaxed text-slate-600">
+                {provider.cancellationPolicy ??
+                  "Free cancellation up to 24 hours before your session."}
+              </p>
+            </div>
+          </div>
+
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
