@@ -12,6 +12,7 @@ import {
   Heart,
   MessageCircle,
   MapPin,
+  Shield,
   Sparkles,
   Star,
   User,
@@ -119,168 +120,190 @@ function ProviderProfilePage() {
           />
 
           <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
-            <Link
-              to="/find-provider"
-              className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to providers
-            </Link>
-
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr_auto] lg:items-start">
-              {/* Avatar */}
-              <div className="relative flex-none">
-                <div
-                  aria-hidden
-                  className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-brand-purple/30 via-brand-purple-accent/20 to-transparent blur-xl"
-                />
-                <div className="relative flex h-32 w-32 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[38px] font-bold text-white shadow-[0_24px_50px_-14px_rgba(124,113,176,0.6)] ring-4 ring-white sm:h-40 sm:w-40 sm:text-[44px]">
-                  {provider.initials}
-                </div>
-                {provider.verified && (
-                  <span className="absolute -bottom-1.5 -right-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-[#E9E6FA]">
-                    <BadgeCheck className="h-5 w-5 text-brand-purple-accent" />
-                  </span>
-                )}
-              </div>
-
-              {/* Identity */}
-              <div className="min-w-0 flex-1">
-                {/* Kicker + Name */}
-                <div className="flex items-center gap-3 mb-3">
-                  {provider.verified && (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700">
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                      Verified Provider
-                    </span>
-                  )}
-                  <span className="h-px flex-1 bg-[#E9E4F5]" />
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                    <Info className="h-2.5 w-2.5" />
-                    Sample
-                  </span>
-                </div>
-
-                <h1 className="font-serif-display text-[42px] font-semibold leading-[1] tracking-tight text-[#1A1625] sm:text-[52px]">
-                  {provider.name}
-                </h1>
-
-                {/* Title + Rating */}
-                <div className="mt-3 flex flex-wrap items-center gap-4">
-                  <p className="text-[17px] font-normal italic text-[#7E6BAF] sm:text-[19px]">
-                    {provider.title}
-                  </p>
-                  <span className="h-4 w-px bg-[#D4CFE8]" />
-                  <div className="flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 fill-[#C4A35A] text-[#C4A35A]" />
-                    <span className="text-[13px] font-semibold text-[#1A1625]">{provider.rating}</span>
-                    <span className="text-[12px] text-[#9489B2]">({provider.reviews} reviews)</span>
-                  </div>
-                </div>
-
-                {/* Horizontal meta bar */}
-                <div className="mt-7 flex flex-wrap items-center gap-y-2 gap-x-6 border-y border-[#E9E4F5] py-4 text-[13px]">
-                  <div className="flex items-center gap-2 text-[#5A5270]">
-                    <MapPin className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
-                    <span className="font-medium">{provider.location}</span>
-                  </div>
-                  <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
-                  <div className="flex items-center gap-2 text-[#5A5270]">
-                    <Globe2 className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
-                    <span className="font-medium">{provider.languages.join(", ")}</span>
-                  </div>
-                  <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
-                  <div className="flex items-center gap-2 text-[#5A5270]">
-                    <Award className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
-                    <span className="font-medium">{provider.experience}+ yrs</span>
-                  </div>
-                  {provider.licenseNumber && (
-                    <>
-                      <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
-                      <div className="flex items-center gap-2 text-[#5A5270]">
-                        <BadgeCheck className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
-                        <span className="font-medium">{provider.licenseNumber}</span>
-                        {provider.licenseVerifiedOn ? (
-                          <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Verified</span>
-                        ) : (
-                          <span className="text-[10px] font-semibold text-amber-500 uppercase tracking-wider">Pending</span>
-                        )}
+            <div className="flex flex-col-reverse gap-12 lg:flex-row lg:items-start">
+              {/* LEFT: Action Card with Avatar */}
+              <aside className="w-full lg:w-80 lg:flex-shrink-0">
+                <div className="rounded-[2.5rem] border border-slate-100 bg-white p-6 shadow-[0_20px_50px_-12px_rgba(115,113,252,0.12)] sm:p-8 lg:sticky lg:top-28">
+                  {/* Avatar */}
+                  <div className="mb-8 flex flex-col items-center">
+                    <div className="relative">
+                      <div className="relative flex h-36 w-36 items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[40px] font-bold text-white shadow-xl ring-8 ring-white sm:h-40 sm:w-40 sm:text-[44px]">
+                        {provider.initials}
                       </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Expertise — editorial pull-quote style */}
-                {provider.expertise && (
-                  <div className="mt-8 border-l-2 border-[#7E6BAF] pl-5">
-                    <p className="text-[15px] font-medium italic leading-relaxed text-[#4A4458]">
-                      {provider.expertise}
-                    </p>
-                  </div>
-                )}
-
-                {/* Bio */}
-                <p className="mt-7 max-w-2xl text-[16px] leading-[1.7] text-[#4A4458]">
-                  {provider.bio}
-                </p>
-
-                {/* Tags */}
-                <div className="mt-7 flex flex-wrap gap-2">
-                  {provider.tags.map((t: string) => (
-                    <span
-                      key={t}
-                      className="cursor-default rounded-md border border-[#E9E4F5] bg-white px-3.5 py-1.5 text-[12px] font-semibold tracking-wide text-[#7E6BAF] uppercase transition-all hover:border-[#7E6BAF]/40 hover:bg-[#FAF9FF]"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action card */}
-              <aside className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-[0_30px_60px_-30px_rgba(124,113,176,0.4)] backdrop-blur lg:w-72">
-                {provider.nextAvailable && (
-                  <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#EAE7F5] px-3 py-2 ring-1 ring-inset ring-[#D4CFE8]">
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A89BD0] opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[#7E6BAF]" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B5B9A]">
-                        Next available
-                      </p>
-                      <p className="truncate text-[12.5px] font-semibold text-[#3D2E6B]">
-                        {provider.nextAvailable}
-                      </p>
+                      {provider.verified && (
+                        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg ring-4 ring-white">
+                          <BadgeCheck className="h-5 w-5 text-brand-purple-accent" />
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
-                <p className="text-[13px] text-slate-500">
-                  Book a session or send a quick message to get started.
-                </p>
-                <div className="mt-4 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setBookingService(services[0] ?? null)}
-                    disabled={services.length === 0}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-95"
-                  >
-                    <Calendar className="h-4 w-4" />
-                    Book a session
-                  </button>
-                  <button
-                    type="button"
-                    disabled
-                    className="group relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-semibold text-slate-400 transition-colors hover:border-slate-300"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    Message
-                    <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                      Coming soon
-                    </span>
-                  </button>
+
+                  {/* Availability — ONE LINE */}
+                  {provider.nextAvailable && (
+                    <div className="mb-6 flex items-center gap-2 rounded-2xl border border-[#EAE7F5] bg-[#F3F0FF] px-4 py-3">
+                      <span className="relative flex h-2 w-2 shrink-0">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-purple-accent opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-purple" />
+                      </span>
+                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-[#6B5B9A]">
+                        Next Available
+                      </span>
+                      <span className="truncate text-[13px] font-semibold text-[#3D2E6B]">
+                        {provider.nextAvailable}
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="mb-6 text-center text-[13px] text-slate-500">
+                    Book a session or send a quick message to get started.
+                  </p>
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setBookingService(services[0] ?? null)}
+                      disabled={services.length === 0}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-4 text-[13px] font-semibold text-white shadow-lg shadow-indigo-100 transition-all hover:-translate-y-0.5 active:scale-95"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Book a session
+                    </button>
+                    <button
+                      type="button"
+                      disabled
+                      className="group relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-[13px] font-semibold text-slate-400 transition-colors hover:border-slate-300"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Message
+                      <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                        Coming soon
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className="mt-6 flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <Shield className="h-3 w-3 text-slate-400" />
+                      <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
+                        Verified Secure Connection
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </aside>
+
+              {/* RIGHT: Identity Content */}
+              <div className="min-w-0 flex-1">
+                <Link
+                  to="/find-provider"
+                  className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Back to providers
+                </Link>
+
+                {/* Name area */}
+                <div className="mt-2 space-y-3">
+                  <div className="flex items-center gap-3">
+                    {provider.verified && (
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        Verified Provider
+                      </span>
+                    )}
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                      Sample
+                    </span>
+                  </div>
+
+                  <h1 className="font-serif-display text-[42px] font-semibold leading-[1.1] tracking-tight text-[#1A1625] sm:text-[56px]">
+                    {provider.name}
+                  </h1>
+
+                  <div className="flex flex-wrap items-center gap-4">
+                    <p className="text-[18px] font-normal italic text-[#7E6BAF] sm:text-[20px]">
+                      {provider.title}
+                    </p>
+                    <span className="hidden h-4 w-px bg-[#D4CFE8] sm:block" />
+                    <div className="flex items-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 fill-[#C4A35A] text-[#C4A35A]" />
+                      <span className="text-[13px] font-semibold text-[#1A1625]">
+                        {provider.rating}
+                      </span>
+                      <span className="text-[12px] text-[#9489B2]">
+                        ({provider.reviews} reviews)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Metadata grid */}
+                <div className="mt-10 grid grid-cols-2 gap-8 border-y border-slate-100 py-10">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Location
+                    </p>
+                    <p className="text-sm font-semibold text-slate-700">
+                      {provider.location}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Languages
+                    </p>
+                    <p className="text-sm font-semibold text-slate-700">
+                      {provider.languages.join(", ")}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Experience
+                    </p>
+                    <p className="text-sm font-semibold text-slate-700">
+                      {provider.experience}+ Years
+                    </p>
+                  </div>
+                  {provider.licenseNumber && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Licensure
+                      </p>
+                      <p className="text-sm font-semibold text-slate-700">
+                        {provider.licenseNumber}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bio with inline expertise */}
+                <div className="mt-10 space-y-6">
+                  {provider.expertise && (
+                    <p className="max-w-2xl text-xl leading-relaxed font-light text-slate-800">
+                      <span className="font-medium text-[#3D2E6B] border-b-2 border-[#E9E4F5]">
+                        {provider.expertise}.
+                      </span>{" "}
+                      {provider.bio}
+                    </p>
+                  )}
+                  {!provider.expertise && (
+                    <p className="max-w-2xl text-xl leading-relaxed font-light text-slate-800">
+                      {provider.bio}
+                    </p>
+                  )}
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2.5">
+                    {provider.tags.map((t: string) => (
+                      <span
+                        key={t}
+                        className="cursor-default rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
