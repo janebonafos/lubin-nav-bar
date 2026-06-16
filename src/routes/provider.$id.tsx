@@ -162,11 +162,9 @@ function ProviderProfilePage() {
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Availability</span>
                           <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
-                            {provider.sessionModes.includes("Online") && !provider.sessionModes.includes("In-person")
-                              ? "Available online"
-                              : provider.sessionModes.includes("In-person") && !provider.sessionModes.includes("Online")
-                              ? `${provider.location} area`
-                              : `Online · ${provider.location} area`}
+                            {provider.sessionModes.length === 1
+                              ? provider.sessionModes[0]
+                              : provider.sessionModes.join(" & ")}
                           </span>
                         </div>
                       </div>
