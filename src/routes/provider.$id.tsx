@@ -19,9 +19,6 @@ import {
   CalendarDays,
   Video,
   X,
-  ShieldCheck,
-  Brain,
-  FileText,
   Info,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
