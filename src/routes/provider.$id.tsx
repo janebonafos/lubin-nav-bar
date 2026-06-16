@@ -5,12 +5,10 @@ import {
   Award,
   BadgeCheck,
   Calendar,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
   ExternalLink,
-  FileText,
   Globe2,
   Heart,
   MessageCircle,
@@ -37,7 +35,6 @@ import {
   type Provider,
   type Service,
   type SocialLink,
-  type Reference,
 } from "@/lib/providers";
 
 export const Route = createFileRoute("/provider/$id")({
