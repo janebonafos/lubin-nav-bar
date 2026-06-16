@@ -714,8 +714,8 @@ function BookingModal({
             <div className="flex items-start gap-2.5 rounded-xl border border-[#E9E6FA] bg-[#FBFAFF] p-3.5">
               <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
-                <span className="font-semibold text-slate-700">In-person · {provider.location}.</span>{" "}
-                Exact clinic address is shared after your booking is confirmed.
+                <span className="font-semibold text-slate-700">In-person · {provider.location} area.</span>{" "}
+                For your provider's privacy, the exact clinic address is shared by email once your booking is confirmed.
               </p>
             </div>
           )}
