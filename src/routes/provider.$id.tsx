@@ -5,6 +5,7 @@ import {
   Award,
   BadgeCheck,
   Calendar,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -99,6 +100,11 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
+  const [showAllRefs, setShowAllRefs] = useState(false);
+
+  const refs = provider.references || [];
+  const visibleRefs = showAllRefs ? refs : refs.slice(0, 2);
+  const hiddenCount = refs.length - 2;
 
   return (
     <div
@@ -305,7 +311,7 @@ function ProviderProfilePage() {
                         Publications & References
                       </h3>
                       <div className="space-y-3">
-                        {provider.references.map((ref: Reference, i: number) => (
+                        {visibleRefs.map((ref: Reference, i: number) => (
                           <div
                             key={i}
                             className="rounded-2xl border border-[#EAE7F5] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_12px_rgba(126,107,175,0.08)]"
@@ -341,6 +347,25 @@ function ProviderProfilePage() {
                           </div>
                         ))}
                       </div>
+                      {hiddenCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllRefs((s) => !s)}
+                          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-purple transition-colors hover:text-brand-purple-dark"
+                        >
+                          {showAllRefs ? (
+                            <>
+                              Show less
+                              <ChevronDown className="h-3.5 w-3.5 rotate-180" />
+                            </>
+                          ) : (
+                            <>
+                              Show {hiddenCount} more
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            </>
+                          )}
+                        </button>
+                      )}
                     </section>
                   )}
 
