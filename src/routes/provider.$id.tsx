@@ -126,15 +126,15 @@ function ProviderProfilePage() {
             <div className="overflow-hidden rounded-3xl border border-indigo-50 bg-white shadow-[0_24px_60px_-20px_rgba(115,113,252,0.18)]">
               <div className="flex flex-col md:flex-row">
                 {/* LEFT: Identity column */}
-                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-10 md:w-2/5 md:border-b-0 md:border-r">
-                  <div className="relative mx-auto mb-8 h-56 w-56">
-                    <div className="flex h-full w-full items-center justify-center rounded-[2.5rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[52px] font-bold text-white shadow-xl ring-8 ring-white">
+                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-8 md:w-[36%] md:border-b-0 md:border-r">
+                  <div className="relative mx-auto mb-6 h-40 w-40">
+                    <div className="flex h-full w-full items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[40px] font-bold text-white shadow-xl ring-8 ring-white">
                       {provider.initials}
                     </div>
                   </div>
 
-                  <div className="space-y-3 text-center">
-                    <h1 className="font-serif-display text-[28px] font-semibold leading-tight tracking-tight text-slate-900">
+                  <div className="space-y-2 text-center">
+                    <h1 className="font-serif-display text-[24px] font-semibold leading-tight tracking-tight text-slate-900">
                       {provider.name}
                     </h1>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
@@ -151,28 +151,28 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  <div className="mt-10 space-y-4">
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
-                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  <div className="mt-7 space-y-3">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Experience
                       </p>
-                      <p className="text-[14.5px] font-semibold text-slate-800">
+                      <p className="text-[14px] font-semibold text-slate-800">
                         {provider.experience}+ Years Clinical Practice
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
-                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Location
                       </p>
-                      <p className="text-[14.5px] font-semibold text-slate-800">
+                      <p className="text-[14px] font-semibold text-slate-800">
                         {provider.location}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
-                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Languages
                       </p>
-                      <p className="text-[14.5px] font-semibold text-slate-800">
+                      <p className="text-[14px] font-semibold text-slate-800">
                         {provider.languages.join(", ")}
                       </p>
                     </div>
@@ -180,7 +180,7 @@ function ProviderProfilePage() {
                 </div>
 
                 {/* RIGHT: Details + Booking */}
-                <div className="flex-1 space-y-10 p-10 md:p-14">
+                <div className="flex-1 space-y-7 p-8 md:p-10">
                   <div className="flex flex-wrap items-center gap-2">
                     {provider.verified && (
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
@@ -268,7 +268,23 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-6">
+                  {/* Services preview pointer */}
+                  <a
+                    href="#services"
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-dashed border-brand-purple/30 bg-[#F8F6FF] px-5 py-4 transition-colors hover:border-brand-purple/60 hover:bg-[#F3F0FF]"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-brand-purple">
+                        {services.length} {services.length === 1 ? "service" : "services"} offered
+                      </p>
+                      <p className="mt-0.5 truncate text-[13.5px] text-slate-600">
+                        {services.slice(0, 3).map((s) => s.title).join(" · ")}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-brand-purple transition-transform group-hover:translate-x-0.5" />
+                  </a>
+
+                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-5">
                     <div className="flex h-9 items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 text-[12px] font-semibold text-brand-purple">
                       <Shield className="h-3.5 w-3.5" />
                       Secure & confidential
