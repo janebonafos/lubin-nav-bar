@@ -93,26 +93,15 @@ function ProviderProfilePage() {
 
   return (
     <div
-      className="min-h-screen bg-[#F9F8FF]"
-      style={{ fontFamily: "Inter, sans-serif" }}
+      className="min-h-screen bg-[#F8F9FD]"
+      style={{ fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}
     >
       <Navbar />
 
       <main className="pb-20 pt-24 sm:pt-28">
         {/* Hero — Indigo Trust Card */}
         <section className="relative overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#EFEAFF_0%,_#F9F8FF_55%,_#FFFFFF_100%)]"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-purple/10 blur-3xl"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-brand-purple-accent/15 blur-3xl"
-          />
+          <div aria-hidden className="absolute inset-0 bg-[#F8F9FD]" />
 
           <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
             <Link
@@ -123,10 +112,10 @@ function ProviderProfilePage() {
               Back to providers
             </Link>
 
-            <div className="overflow-hidden rounded-[2.5rem] border border-[#EAE7F5] bg-white shadow-[0_32px_80px_-24px_rgba(61,46,107,0.16)]">
+            <div className="overflow-hidden rounded-[2rem] border border-white bg-white shadow-[0_32px_64px_-16px_rgba(93,78,140,0.12)]">
               <div className="flex flex-col md:flex-row">
                 {/* LEFT: Identity column */}
-                <div className="border-b border-[#EAE7F5] bg-gradient-to-b from-[#F9F8FF] to-white p-10 md:w-[38%] md:border-b-0 md:border-r">
+                <div className="border-b border-slate-100 bg-[#FAF9FF] p-10 md:w-[360px] md:border-b-0 md:border-r">
                   <div className="relative mx-auto mb-8 h-44 w-44">
                     <div className="absolute inset-0 rounded-[2.25rem] bg-gradient-to-br from-brand-purple-accent/40 to-brand-purple/30 blur-xl" />
                     <div className="relative flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-2xl ring-[10px] ring-white">
@@ -216,11 +205,11 @@ function ProviderProfilePage() {
                     </span>
                   </div>
 
-                  <section className="border-l-2 border-[#EAE7F5] pl-5">
-                    <h3 className="mb-3 text-[18px] font-bold text-[#2C2B4B]">About</h3>
-                    <p className="text-[15.5px] leading-relaxed text-[#4A4868]">
+                  <section>
+                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
+                    <p className="text-[17px] leading-relaxed text-slate-600">
                       {provider.expertise && (
-                        <span className="font-semibold text-[#3D2E6B]">
+                        <span className="font-bold text-slate-900">
                           {provider.expertise}.{" "}
                         </span>
                       )}
@@ -245,24 +234,23 @@ function ProviderProfilePage() {
                   </section>
 
                   {/* Brand booking CTA block */}
-                  <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-purple-dark to-brand-purple p-8 text-white shadow-[0_24px_48px_-12px_rgba(61,46,107,0.35)]">
-                    <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-                    <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-brand-purple-accent/20 blur-2xl" />
+                  <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative flex flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-brand-lavender/60">
+                        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-100">
                           Starting at
                         </p>
-                        <p className="text-[26px] font-bold leading-none">
+                        <p className="text-[34px] font-bold leading-none">
                           {services[0] ? (
                             <>
                               ₱{services[0].price.toLocaleString()}{" "}
-                              <span className="text-[14px] font-normal text-brand-lavender/70">
+                              <span className="text-[14px] font-medium text-indigo-200/80">
                                 / {services[0].duration}
                               </span>
                             </>
                           ) : (
-                            <span className="text-[16px] font-normal text-brand-lavender/80">
+                            <span className="text-[16px] font-normal text-indigo-200/80">
                               Sessions available
                             </span>
                           )}
@@ -270,14 +258,14 @@ function ProviderProfilePage() {
                       </div>
                       <div className="flex flex-col items-stretch gap-3 sm:items-end">
                         {provider.nextAvailable && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-1">
                             <span className="relative flex h-2 w-2 shrink-0">
                               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                             </span>
-                            <span className="whitespace-nowrap text-[12.5px] text-brand-lavender/80">
+                            <span className="whitespace-nowrap text-[12px] font-medium text-white/90">
                               Next available:{" "}
-                              <span className="font-semibold text-white">
+                              <span className="font-bold text-white">
                                 {provider.nextAvailable}
                               </span>
                             </span>
@@ -287,7 +275,7 @@ function ProviderProfilePage() {
                           type="button"
                           onClick={() => setBookingService(services[0] ?? null)}
                           disabled={services.length === 0}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-[14px] font-bold text-brand-purple-dark shadow-xl shadow-brand-purple-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-lavender active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-10 py-4 text-[15px] font-bold text-[#5D4E8C] shadow-xl transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Calendar className="h-4 w-4" />
                           Book Session
@@ -299,27 +287,32 @@ function ProviderProfilePage() {
                   {/* Services preview pointer */}
                   <a
                     href="#services"
-                    className="group flex items-center justify-between gap-4 rounded-2xl border border-dashed border-brand-purple/25 bg-[#FAF8FF] px-6 py-5 transition-all hover:border-brand-purple/50 hover:bg-[#F5F2FE]"
+                    className="group flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
                   >
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-brand-purple">
-                        {services.length} {services.length === 1 ? "service" : "services"} offered
-                      </p>
-                      <p className="mt-1 truncate text-[14px] text-[#4A4868]">
-                        {services.slice(0, 3).map((s) => s.title).join(" · ")}
-                      </p>
+                    <div className="flex min-w-0 items-center gap-5">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-400">
+                        {String(services.length).padStart(2, "0")}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          Services Offered
+                        </p>
+                        <p className="mt-0.5 truncate text-[14px] font-semibold text-slate-700">
+                          {services.slice(0, 3).map((s) => s.title).join(" · ")}
+                        </p>
+                      </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-brand-purple transition-transform group-hover:translate-x-1" />
+                    <ChevronRight className="h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
                   </a>
 
-                  <div className="flex flex-wrap items-center gap-3 border-t border-[#EAE7F5] pt-6">
-                    <div className="flex h-9 items-center gap-1.5 rounded-full bg-[#F4F0FF] px-4 text-[12px] font-semibold text-brand-purple">
-                      <Shield className="h-3.5 w-3.5" />
-                      Secure & confidential
+                  <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
+                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-slate-500">
+                      <Shield className="h-4 w-4" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider">Secure & Confidential</span>
                     </div>
-                    <p className="text-[13px] text-[#A89BD0]">
+                    <p className="text-[11px] font-medium text-slate-400">
                       Verified by{" "}
-                      <span className="font-semibold text-[#7E6BAF]">Lubin</span>{" "}
+                      <span className="font-bold text-[#5D4E8C]">Lubin</span>{" "}
                       · Background-checked & credentialed
                     </p>
                   </div>
