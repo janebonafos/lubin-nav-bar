@@ -121,161 +121,160 @@ function ProviderProfilePage() {
               Back to providers
             </Link>
 
-            <div className="overflow-hidden rounded-[2rem] border border-white bg-white shadow-[0_32px_64px_-16px_rgba(93,78,140,0.12)]">
+            <div className="overflow-hidden rounded-[32px] border border-[#EAE7F5]/60 bg-white shadow-[0_32px_64px_-12px_rgba(102,94,175,0.10)]">
               <div className="flex flex-col md:flex-row">
-                {/* LEFT: Identity column */}
-                <div className="border-b border-slate-100 bg-[#FAF9FF] p-10 md:w-[360px] md:border-b-0 md:border-r">
-                  <div className="relative mx-auto mb-8 h-44 w-44">
-                    <div className="absolute inset-0 rounded-[2.25rem] bg-gradient-to-br from-brand-purple-accent/40 to-brand-purple/30 blur-xl" />
-                    <div className="relative flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-2xl ring-[10px] ring-white">
+                {/* LEFT: Identity & Booking */}
+                <div className="flex flex-col items-center border-b border-[#EAE7F5]/60 bg-gradient-to-b from-[#F4F0FF]/60 to-white/20 p-10 md:w-[340px] md:border-b-0 md:border-r">
+                  <div className="relative mb-8">
+                    <div className="flex h-32 w-32 items-center justify-center rounded-[2.5rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[40px] font-extrabold text-white shadow-xl shadow-[#A89BD0]/50 ring-4 ring-white">
                       {provider.initials}
                     </div>
+                    {provider.rating != null && (
+                      <div className="absolute -bottom-2 -right-2 rounded-2xl bg-white p-2 shadow-lg">
+                        <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1">
+                          <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                          <span className="text-xs font-bold text-amber-700">{provider.rating}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="space-y-2 text-center">
-                    <h1 className="text-[26px] font-bold leading-tight tracking-tight text-[#2C2B4B]">
-                      {provider.name}
-                    </h1>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple">
+                  <div className="mb-10 text-center">
+                    <h1 className="mb-1 text-2xl font-bold text-[#2C2B4B]">{provider.name}</h1>
+                    <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-brand-purple">
                       {provider.title}
                     </p>
                     {provider.rating != null && provider.reviews != null ? (
-                      <div className="flex items-center justify-center gap-1.5 pt-1.5">
-                        <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
-                        <span className="text-[15px] font-bold text-[#2C2B4B]">
-                          {provider.rating}
-                        </span>
-                        <span className="text-[13px] font-normal text-[#A89BD0]">
-                          ({provider.reviews} reviews)
-                        </span>
-                      </div>
+                      <p className="text-sm font-medium text-slate-400">
+                        ({provider.reviews} verified reviews)
+                      </p>
                     ) : (
-                      <div className="flex items-center justify-center gap-1.5 pt-1.5">
-                        <Star className="h-4 w-4 text-[#D4D0E0]" strokeWidth={1.5} />
-                        <span className="text-[13px] font-normal text-[#A89BD0]">
-                          No reviews yet
-                        </span>
-                      </div>
+                      <p className="text-sm font-medium text-slate-400">No reviews yet</p>
                     )}
                   </div>
 
-                  {/* Booking CTA */}
-                  <div className="relative mt-8 overflow-hidden rounded-2xl bg-[#5D4E8C] p-6 text-white">
-                    <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
-                    <div className="relative space-y-4">
-                      {provider.nextAvailable && (
-                        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-1">
-                          <span className="relative flex h-2 w-2 shrink-0">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                  <div className="w-full space-y-4">
+                    {provider.nextAvailable && (
+                      <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-[#F4F0FF]/50 p-4">
+                        <div className="relative">
+                          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                          <div className="absolute inset-0 h-2.5 w-2.5 animate-ping rounded-full bg-emerald-500 opacity-75" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Next Available
                           </span>
-                          <span className="whitespace-nowrap text-[11.5px] font-medium text-white/90">
-                            Next:{" "}
-                            <span className="font-bold text-white">
-                              {provider.nextAvailable}
-                            </span>
+                          <span className="text-sm font-semibold text-[#2C2B4B]">
+                            {provider.nextAvailable}
                           </span>
                         </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => setBookingService(services[0] ?? null)}
-                        disabled={services.length === 0}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-[14px] font-bold text-[#5D4E8C] shadow-xl transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Calendar className="h-4 w-4" />
-                        Book Session
-                      </button>
-                    </div>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setBookingService(services[0] ?? null)}
+                      disabled={services.length === 0}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-purple py-4 font-bold text-white shadow-lg shadow-[#A89BD0]/30 transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Calendar className="h-5 w-5" />
+                      Book Session
+                    </button>
                   </div>
                 </div>
 
-                {/* RIGHT: Details + Booking */}
-                <div className="flex-1 space-y-8 p-10 md:p-12">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {provider.verified && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1F7] bg-[#F4F0FF] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
-                        <BadgeCheck className="h-3.5 w-3.5" />
-                        Verified Provider
-                      </span>
-                    )}
-                  </div>
-
-                  <section>
-                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
-                    <p className="text-[17px] leading-relaxed text-slate-600">
-                      {provider.expertise && (
-                        <span className="font-bold text-slate-900">
-                          {provider.expertise}.{" "}
+                {/* RIGHT: Content */}
+                <div className="flex flex-1 flex-col p-10">
+                  {provider.verified && (
+                    <div className="mb-8 flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EAE7F5] bg-[#F4F0FF] px-3 py-1.5">
+                        <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brand-purple">
+                          Verified Provider
                         </span>
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="mb-8">
+                    <h2 className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
+                      About
+                    </h2>
+                    <p className="leading-relaxed text-slate-600">
+                      {provider.expertise && (
+                        <span className="font-bold text-slate-900">{provider.expertise}. </span>
                       )}
                       {provider.bio}
                     </p>
-                  </section>
+                  </div>
 
-                  <section>
-                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                  <div className="mb-8">
+                    <h2 className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
                       Provider Details
-                    </h3>
-                    <div className="space-y-0">
-                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <Award className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Experience</span>
+                    </h2>
+                    <div className="grid grid-cols-1 gap-y-5 gap-x-8 sm:grid-cols-2">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-[#F4F0FF] p-2 text-brand-purple">
+                          <Award className="h-4 w-4" strokeWidth={2} />
                         </div>
-                        <span className="text-[13px] font-semibold text-[#2C2B4B]">{provider.experience}+ years</span>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase text-slate-400">Experience</p>
+                          <p className="text-sm font-semibold text-slate-800">{provider.experience}+ years</p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <CalendarDays className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Availability</span>
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-[#F4F0FF] p-2 text-brand-purple">
+                          <CalendarDays className="h-4 w-4" strokeWidth={2} />
                         </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
-                          {compactDays(provider.availableDays.map((d: string) => dayLabels[d]))} · {provider.availableHours}
-                        </span>
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold uppercase text-slate-400">Availability</p>
+                          <p className="truncate text-sm font-semibold text-slate-800">
+                            {compactDays(provider.availableDays.map((d: string) => dayLabels[d]))} · {provider.availableHours}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <Languages className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Languages</span>
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-[#F4F0FF] p-2 text-brand-purple">
+                          <Languages className="h-4 w-4" strokeWidth={2} />
                         </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold uppercase text-slate-400">Languages</p>
+                          <p className="truncate text-sm font-semibold text-slate-800">{provider.languages.join(", ")}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <Video className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Session type</span>
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-[#F4F0FF] p-2 text-brand-purple">
+                          <Video className="h-4 w-4" strokeWidth={2} />
                         </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
-                          {provider.sessionModes.join(" & ")}
-                        </span>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase text-slate-400">Session type</p>
+                          <p className="text-sm font-semibold text-slate-800">{provider.sessionModes.join(" & ")}</p>
+                        </div>
                       </div>
                     </div>
-                  </section>
+                  </div>
 
-                  <section>
-                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                  <div className="mb-8">
+                    <h2 className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
                       Specialties
-                    </h3>
-                    <div className="flex flex-wrap gap-2.5">
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
                       {provider.tags.map((t: string) => (
                         <span
                           key={t}
-                          className="rounded-xl border border-[#EAE7F5] bg-[#F3F0FA] px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)]"
+                          className="rounded-xl border border-[#EAE7F5] bg-white px-4 py-2 text-sm font-semibold text-brand-purple shadow-sm transition-colors hover:border-brand-purple/30 hover:bg-[#F4F0FF]/40"
                         >
                           {t}
                         </span>
                       ))}
                     </div>
-                  </section>
+                  </div>
 
-                  {/* Social Links */}
                   {provider.socialLinks && provider.socialLinks.length > 0 && (
-                    <section>
-                      <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                    <div className="mb-8">
+                      <h2 className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
                         Connect
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2.5">
+                      </h2>
+                      <div className="flex flex-wrap gap-3">
                         {provider.socialLinks.map((link: SocialLink) => {
                           const label = link.label.toLowerCase();
                           const isWebsite = label === "website";
@@ -293,48 +292,48 @@ function ProviderProfilePage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               title={link.label}
-                              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F0FA] transition-all hover:bg-[#E9E1F7] hover:scale-105"
+                              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-slate-400 transition-all hover:border-brand-purple/30 hover:bg-[#F4F0FF] hover:text-brand-purple"
                             >
                               {isWebsite ? (
-                                <ExternalLink className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <Globe2 className="h-5 w-5" strokeWidth={2} />
                               ) : isLinkedIn ? (
-                                <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                                 </svg>
                               ) : isInstagram ? (
-                                <Instagram className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <Instagram className="h-5 w-5" strokeWidth={2} />
                               ) : isFacebook ? (
-                                <Facebook className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <Facebook className="h-5 w-5" strokeWidth={2} />
                               ) : isTwitter ? (
-                                <X className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <X className="h-4 w-4" strokeWidth={2} />
                               ) : isYouTube ? (
-                                <Youtube className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <Youtube className="h-5 w-5" strokeWidth={2} />
                               ) : isTikTok ? (
-                                <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                   <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.57-1.52-3.99-4.61-3.33-7.58.52-2.29 2.36-4.24 4.63-4.85.81-.21 1.66-.22 2.48-.06.01 1.64-.02 3.29.03 4.93-.16.03-.32-.03-.47-.08-.75-.28-1.29-1.04-1.29-1.86 0-.23.05-.46.14-.67.41-.96 1.54-1.39 2.49-1.01.72.29 1.22.99 1.23 1.77.02 1.32.01 2.64.01 3.96 0 .31-.02.62-.08.92-.32 1.52-1.83 2.56-3.35 2.28-1.21-.23-2.19-1.24-2.35-2.47-.02-.14-.03-.27-.03-.41.01-1.63.01-3.26.01-4.89-.04-.24.07-.48.29-.61.38-.23.81-.36 1.24-.45.62-.13 1.26-.14 1.89-.08.02-1.62-.01-3.24.02-4.86.04-1.18.33-2.35.87-3.4.86-1.63 2.4-2.95 4.2-3.48 1.22-.37 2.53-.4 3.78-.14z" />
                                 </svg>
                               ) : isGitHub ? (
-                                <Github className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <Github className="h-5 w-5" strokeWidth={2} />
                               ) : (
-                                <ExternalLink className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                                <ExternalLink className="h-5 w-5" strokeWidth={2} />
                               )}
                             </a>
                           );
                         })}
                       </div>
-                    </section>
+                    </div>
                   )}
 
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-slate-500">
-                      <Shield className="h-4 w-4" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider">Secure & Confidential</span>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
+                    <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-1.5">
+                      <Shield className="h-3.5 w-3.5 text-slate-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        Secure & Confidential
+                      </span>
                     </div>
                     {provider.verified && (
-                      <p className="text-[11px] font-medium text-slate-400">
-                        Verified by{" "}
-                        <span className="font-bold text-[#5D4E8C]">Lubin</span>{" "}
-                        · Background-checked & credentialed
+                      <p className="text-[10px] font-medium text-slate-400">
+                        Verified by <span className="font-bold text-slate-600">Lubin</span> · Background-checked & credentialed
                       </p>
                     )}
                   </div>
