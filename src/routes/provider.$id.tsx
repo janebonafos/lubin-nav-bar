@@ -220,22 +220,22 @@ function ProviderProfilePage() {
                     </div>
                   </section>
 
-                  {/* Dark booking CTA block */}
-                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-slate-900 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+                  {/* Brand booking CTA block */}
+                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-gradient-to-br from-brand-purple-dark to-brand-purple p-6 text-white sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+                      <p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-brand-lavender/70">
                         Starting at
                       </p>
                       <p className="text-[22px] font-bold leading-none">
                         {services[0] ? (
                           <>
                             ₱{services[0].price.toLocaleString()}{" "}
-                            <span className="text-[13px] font-normal text-slate-400">
+                            <span className="text-[13px] font-normal text-brand-lavender/70">
                               / {services[0].duration}
                             </span>
                           </>
                         ) : (
-                          <span className="text-[15px] font-normal text-slate-300">
+                          <span className="text-[15px] font-normal text-brand-lavender/80">
                             Sessions available
                           </span>
                         )}
@@ -248,7 +248,7 @@ function ProviderProfilePage() {
                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                           </span>
-                          <span className="whitespace-nowrap text-[12.5px] text-slate-300">
+                          <span className="whitespace-nowrap text-[12.5px] text-brand-lavender/80">
                             Next available:{" "}
                             <span className="font-semibold text-white">
                               {provider.nextAvailable}
@@ -260,7 +260,7 @@ function ProviderProfilePage() {
                         type="button"
                         onClick={() => setBookingService(services[0] ?? null)}
                         disabled={services.length === 0}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-7 py-3.5 text-[13.5px] font-bold text-white shadow-lg shadow-indigo-900/30 transition-all hover:-translate-y-0.5 hover:bg-brand-purple-accent active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3.5 text-[13.5px] font-bold text-brand-purple-dark shadow-lg shadow-brand-purple-dark/30 transition-all hover:-translate-y-0.5 hover:bg-brand-lavender active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Calendar className="h-4 w-4" />
                         Book Consultation
