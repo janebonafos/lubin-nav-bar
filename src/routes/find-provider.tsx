@@ -467,13 +467,19 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
           <div className="flex h-20 w-20 items-center justify-center rounded-[26px] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[22px] font-bold tracking-wide text-white shadow-[0_14px_28px_-10px_rgba(124,113,176,0.7)] ring-4 ring-white">
             {provider.initials}
           </div>
-          <span
-            aria-label={`Rated ${provider.rating} out of 5`}
-            className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-slate-800 shadow-[0_6px_14px_-4px_rgba(15,23,42,0.18)] ring-1 ring-slate-100"
-          >
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            {provider.rating}
-          </span>
+          {provider.rating ? (
+            <span
+              aria-label={`Rated ${provider.rating} out of 5`}
+              className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-slate-800 shadow-[0_6px_14px_-4px_rgba(15,23,42,0.18)] ring-1 ring-slate-100"
+            >
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              {provider.rating}
+            </span>
+          ) : (
+            <span className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-brand-purple shadow-[0_6px_14px_-4px_rgba(15,23,42,0.18)] ring-1 ring-slate-100">
+              New
+            </span>
+          )}
         </div>
         <div className="min-w-0 flex-1 pt-1">
           <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
@@ -491,12 +497,21 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
           <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
           <span className="truncate">{provider.location}</span>
         </span>
-        <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
-        <span className="inline-flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
-          <span className="font-semibold text-slate-800">{provider.rating}</span>
-          <span className="text-slate-400">({provider.reviews})</span>
-        </span>
+        {provider.rating ? (
+          <>
+            <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
+            <span className="inline-flex items-center gap-1">
+              <Star className="h-3.5 w-3.5 flex-none fill-brand-purple-accent text-brand-purple-accent" />
+              <span className="font-semibold text-slate-800">{provider.rating}</span>
+              <span className="text-slate-400">({provider.reviews})</span>
+            </span>
+          </>
+        ) : (
+          <>
+            <span aria-hidden className="h-1 w-1 rounded-full bg-slate-300" />
+            <span className="text-slate-400">No reviews yet</span>
+          </>
+        )}
       </div>
 
       {/* Bio */}
