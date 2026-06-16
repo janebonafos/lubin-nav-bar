@@ -206,8 +206,14 @@ function ProviderProfilePage() {
                       </p>
                       <div className="flex flex-wrap items-center gap-2.5">
                         {provider.socialLinks.map((link: SocialLink) => {
-                          const isWebsite = link.label.toLowerCase() === "website";
-                          const isLinkedIn = link.label.toLowerCase().includes("linkedin");
+                          const label = link.label.toLowerCase();
+                          const isWebsite = label === "website";
+                          const isLinkedIn = label.includes("linkedin");
+                          const isInstagram = label.includes("instagram");
+                          const isFacebook = label.includes("facebook");
+                          const isTwitter = label.includes("twitter") || label.includes("x");
+                          const isYouTube = label.includes("youtube");
+                          const isTikTok = label.includes("tiktok");
                           return (
                             <a
                               key={link.label}
@@ -222,6 +228,18 @@ function ProviderProfilePage() {
                               ) : isLinkedIn ? (
                                 <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                </svg>
+                              ) : isInstagram ? (
+                                <Instagram className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              ) : isFacebook ? (
+                                <Facebook className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              ) : isTwitter ? (
+                                <X className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              ) : isYouTube ? (
+                                <Youtube className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              ) : isTikTok ? (
+                                <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.57-1.52-3.99-4.61-3.33-7.58.52-2.29 2.36-4.24 4.63-4.85.81-.21 1.66-.22 2.48-.06.01 1.64-.02 3.29.03 4.93-.16.03-.32-.03-.47-.08-.75-.28-1.29-1.04-1.29-1.86 0-.23.05-.46.14-.67.41-.96 1.54-1.39 2.49-1.01.72.29 1.22.99 1.23 1.77.02 1.32.01 2.64.01 3.96 0 .31-.02.62-.08.92-.32 1.52-1.83 2.56-3.35 2.28-1.21-.23-2.19-1.24-2.35-2.47-.02-.14-.03-.27-.03-.41.01-1.63.01-3.26.01-4.89-.04-.24.07-.48.29-.61.38-.23.81-.36 1.24-.45.62-.13 1.26-.14 1.89-.08.02-1.62-.01-3.24.02-4.86.04-1.18.33-2.35.87-3.4.86-1.63 2.4-2.95 4.2-3.48 1.22-.37 2.53-.4 3.78-.14z" />
                                 </svg>
                               ) : (
                                 <ExternalLink className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
