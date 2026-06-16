@@ -9,7 +9,7 @@ import {
   ChevronRight,
   Clock,
   ExternalLink,
-  Globe2,
+  Globe,
   Github,
   Heart,
   MessageCircle,
