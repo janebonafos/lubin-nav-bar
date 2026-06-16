@@ -123,82 +123,104 @@ function ProviderProfilePage() {
               Back to providers
             </Link>
 
-            <div className="overflow-hidden rounded-3xl border border-indigo-50 bg-white shadow-[0_24px_60px_-20px_rgba(115,113,252,0.18)]">
+            <div className="overflow-hidden rounded-[2.5rem] border border-[#EAE7F5] bg-white shadow-[0_32px_80px_-24px_rgba(61,46,107,0.16)]">
               <div className="flex flex-col md:flex-row">
                 {/* LEFT: Identity column */}
-                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-8 md:w-[36%] md:border-b-0 md:border-r">
-                  <div className="relative mx-auto mb-6 h-40 w-40">
-                    <div className="flex h-full w-full items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[40px] font-bold text-white shadow-xl ring-8 ring-white">
+                <div className="border-b border-[#EAE7F5] bg-gradient-to-b from-[#F9F8FF] to-white p-10 md:w-[38%] md:border-b-0 md:border-r">
+                  <div className="relative mx-auto mb-8 h-44 w-44">
+                    <div className="absolute inset-0 rounded-[2.25rem] bg-gradient-to-br from-brand-purple-accent/40 to-brand-purple/30 blur-xl" />
+                    <div className="relative flex h-full w-full items-center justify-center rounded-[2.25rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-2xl ring-[10px] ring-white">
                       {provider.initials}
                     </div>
                   </div>
 
                   <div className="space-y-2 text-center">
-                    <h1 className="font-serif-display text-[24px] font-semibold leading-tight tracking-tight text-slate-900">
+                    <h1 className="font-serif-display text-[26px] font-semibold leading-tight tracking-tight text-[#2C2B4B]">
                       {provider.name}
                     </h1>
-                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple">
                       {provider.title}
                     </p>
-                    <div className="flex items-center justify-center gap-1.5 pt-1">
+                    <div className="flex items-center justify-center gap-1.5 pt-1.5">
                       <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
-                      <span className="text-[14px] font-bold text-slate-900">
+                      <span className="text-[15px] font-bold text-[#2C2B4B]">
                         {provider.rating}
                       </span>
-                      <span className="text-[13px] font-normal text-slate-500">
+                      <span className="text-[13px] font-normal text-[#A89BD0]">
                         ({provider.reviews} reviews)
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-7 space-y-3">
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                        Experience
-                      </p>
-                      <p className="text-[14px] font-semibold text-slate-800">
-                        {provider.experience}+ Years Clinical Practice
-                      </p>
+                  <div className="mt-8 space-y-3">
+                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
+                          <Award className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                            Experience
+                          </p>
+                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
+                            {provider.experience}+ Years
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                        Location
-                      </p>
-                      <p className="text-[14px] font-semibold text-slate-800">
-                        {provider.location}
-                      </p>
+                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
+                          <MapPin className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                            Location
+                          </p>
+                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
+                            {provider.location}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                        Languages
-                      </p>
-                      <p className="text-[14px] font-semibold text-slate-800">
-                        {provider.languages.join(", ")}
-                      </p>
+                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
+                          <Globe2 className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                            Languages
+                          </p>
+                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
+                            {provider.languages.join(", ")}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* RIGHT: Details + Booking */}
-                <div className="flex-1 space-y-7 p-8 md:p-10">
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex-1 space-y-8 p-10 md:p-12">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     {provider.verified && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1F7] bg-[#F4F0FF] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
                         <BadgeCheck className="h-3.5 w-3.5" />
                         Verified Provider
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D1FAE5] bg-[#ECFDF5] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
                       <Shield className="h-3 w-3" />
                       Licensed & Insured
                     </span>
                   </div>
 
-                  <section>
-                    <h3 className="mb-4 text-[16px] font-bold text-slate-900">About</h3>
-                    <p className="text-[15px] leading-relaxed text-slate-600">
+                  <section className="border-l-2 border-[#EAE7F5] pl-5">
+                    <h3 className="mb-3 text-[18px] font-bold text-[#2C2B4B]">About</h3>
+                    <p className="text-[15.5px] leading-relaxed text-[#4A4868]">
                       {provider.expertise && (
-                        <span className="font-medium text-[#3D2E6B] border-b-2 border-[#E9E4F5]">
+                        <span className="font-semibold text-[#3D2E6B]">
                           {provider.expertise}.{" "}
                         </span>
                       )}
@@ -207,12 +229,14 @@ function ProviderProfilePage() {
                   </section>
 
                   <section>
-                    <h3 className="mb-4 text-[16px] font-bold text-slate-900">Specialties</h3>
+                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                      Specialties
+                    </h3>
                     <div className="flex flex-wrap gap-2.5">
                       {provider.tags.map((t: string) => (
                         <span
                           key={t}
-                          className="rounded-full border border-indigo-100 bg-indigo-50 px-5 py-2 text-[13px] font-medium text-brand-purple-dark"
+                          className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
                         >
                           {t}
                         </span>
@@ -221,77 +245,82 @@ function ProviderProfilePage() {
                   </section>
 
                   {/* Brand booking CTA block */}
-                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-gradient-to-br from-brand-purple-dark to-brand-purple p-7 text-white sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-brand-lavender/70">
-                        Starting at
-                      </p>
-                      <p className="text-[22px] font-bold leading-none">
-                        {services[0] ? (
-                          <>
-                            ₱{services[0].price.toLocaleString()}{" "}
-                            <span className="text-[13px] font-normal text-brand-lavender/70">
-                              / {services[0].duration}
+                  <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-purple-dark to-brand-purple p-8 text-white shadow-[0_24px_48px_-12px_rgba(61,46,107,0.35)]">
+                    <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-brand-purple-accent/20 blur-2xl" />
+                    <div className="relative flex flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-brand-lavender/60">
+                          Starting at
+                        </p>
+                        <p className="text-[26px] font-bold leading-none">
+                          {services[0] ? (
+                            <>
+                              ₱{services[0].price.toLocaleString()}{" "}
+                              <span className="text-[14px] font-normal text-brand-lavender/70">
+                                / {services[0].duration}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-[16px] font-normal text-brand-lavender/80">
+                              Sessions available
                             </span>
-                          </>
-                        ) : (
-                          <span className="text-[15px] font-normal text-brand-lavender/80">
-                            Sessions available
-                          </span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-stretch gap-3 sm:items-end">
+                        {provider.nextAvailable && (
+                          <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2 shrink-0">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                            </span>
+                            <span className="whitespace-nowrap text-[12.5px] text-brand-lavender/80">
+                              Next available:{" "}
+                              <span className="font-semibold text-white">
+                                {provider.nextAvailable}
+                              </span>
+                            </span>
+                          </div>
                         )}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-stretch gap-3 sm:items-end">
-                      {provider.nextAvailable && (
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2 w-2 shrink-0">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                          </span>
-                          <span className="whitespace-nowrap text-[12.5px] text-brand-lavender/80">
-                            Next available:{" "}
-                            <span className="font-semibold text-white">
-                              {provider.nextAvailable}
-                            </span>
-                          </span>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => setBookingService(services[0] ?? null)}
-                        disabled={services.length === 0}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-lavender px-7 py-3.5 text-[13.5px] font-bold text-brand-purple-dark shadow-lg shadow-brand-purple-dark/20 transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Calendar className="h-4 w-4" />
-                        Book Session
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setBookingService(services[0] ?? null)}
+                          disabled={services.length === 0}
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-[14px] font-bold text-brand-purple-dark shadow-xl shadow-brand-purple-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-lavender active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Calendar className="h-4 w-4" />
+                          Book Session
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Services preview pointer */}
                   <a
                     href="#services"
-                    className="group flex items-center justify-between gap-4 rounded-2xl border border-dashed border-brand-purple/30 bg-[#F8F6FF] px-5 py-4 transition-colors hover:border-brand-purple/60 hover:bg-[#F3F0FF]"
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-dashed border-brand-purple/25 bg-[#FAF8FF] px-6 py-5 transition-all hover:border-brand-purple/50 hover:bg-[#F5F2FE]"
                   >
                     <div className="min-w-0">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-brand-purple">
                         {services.length} {services.length === 1 ? "service" : "services"} offered
                       </p>
-                      <p className="mt-0.5 truncate text-[13.5px] text-slate-600">
+                      <p className="mt-1 truncate text-[14px] text-[#4A4868]">
                         {services.slice(0, 3).map((s) => s.title).join(" · ")}
                       </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-brand-purple transition-transform group-hover:translate-x-0.5" />
+                    <ChevronRight className="h-5 w-5 shrink-0 text-brand-purple transition-transform group-hover:translate-x-1" />
                   </a>
 
-                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-5">
-                    <div className="flex h-9 items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 text-[12px] font-semibold text-brand-purple">
+                  <div className="flex flex-wrap items-center gap-3 border-t border-[#EAE7F5] pt-6">
+                    <div className="flex h-9 items-center gap-1.5 rounded-full bg-[#F4F0FF] px-4 text-[12px] font-semibold text-brand-purple">
                       <Shield className="h-3.5 w-3.5" />
                       Secure & confidential
                     </div>
-                    <p className="text-[13px] text-slate-500">
+                    <p className="text-[13px] text-[#A89BD0]">
                       Verified by{" "}
-                      <span className="font-semibold text-slate-700">Lubin</span> · Background-checked & credentialed
+                      <span className="font-semibold text-[#7E6BAF]">Lubin</span>{" "}
+                      · Background-checked & credentialed
                     </p>
                   </div>
                 </div>
