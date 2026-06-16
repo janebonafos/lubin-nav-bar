@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Award,
   BadgeCheck,
-  BadgeCheck,
   Calendar,
   ChevronLeft,
   ChevronRight,
