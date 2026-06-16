@@ -32,6 +32,8 @@ import {
   compactDays,
   type Provider,
   type Service,
+  type SocialLink,
+  type Reference,
 } from "@/lib/providers";
 
 export const Route = createFileRoute("/provider/$id")({
