@@ -325,22 +325,22 @@ function FindProviderPage() {
 
             {/* External (web) results — providers not yet on Lubin */}
             {externalResults.length > 0 && (
-              <div className="mt-10">
+              <div className="mt-12 border-t border-dashed border-slate-200 pt-8">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-brand-purple" />
-                      <h2 className="text-[16px] font-bold text-slate-800">
-                        More providers from the web
+                      <Globe className="h-4 w-4 text-slate-400" />
+                      <h2 className="text-[15px] font-semibold text-slate-600">
+                        From around the web
                       </h2>
                     </div>
                     <p className="mt-1 text-[13px] text-slate-500">
-                      Not on Lubin yet — invite them to join so you can book a session.
+                      These providers are <span className="font-semibold text-slate-700">not on Lubin</span> and cannot be booked here. They are unverified listings shown for reference only.
                     </p>
                   </div>
-                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
-                    <Sparkles className="h-3 w-3" />
-                    Web results
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ring-1 ring-inset ring-slate-200">
+                    <Globe className="h-3 w-3" />
+                    External
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -565,13 +565,16 @@ function ExternalProviderCard({
   onInvite: () => void;
 }) {
   return (
-    <article className="group relative flex h-full flex-col rounded-2xl border border-dashed border-[#D9D2F2] bg-white/70 p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_18px_40px_-18px_rgba(124,113,176,0.25)]">
+    <article className="group relative flex h-full flex-col rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-6 transition-all duration-300 hover:border-slate-400 hover:bg-slate-50">
+      <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 ring-1 ring-inset ring-slate-200">
+        Not bookable
+      </div>
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl border border-[#E9E6FA] bg-[#F3F0FF] text-[15px] font-bold text-brand-purple">
+        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl border border-slate-200 bg-white text-[15px] font-bold text-slate-500">
           {provider.initials}
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
+        <div className="min-w-0 flex-1 pr-20">
+          <h3 className="truncate text-[15px] font-semibold leading-tight text-slate-700">
             {provider.name}
           </h3>
           <p className="mt-0.5 truncate text-[13px] text-slate-500">
@@ -579,14 +582,14 @@ function ExternalProviderCard({
           </p>
           <div className="mt-1.5 flex items-center gap-3 text-[12px] text-slate-500">
             <span className="inline-flex min-w-0 items-center gap-1 truncate">
-              <MapPin className="h-3 w-3 flex-none text-[#A799E2]" />
+              <MapPin className="h-3 w-3 flex-none text-slate-400" />
               <span className="truncate">{provider.location}</span>
             </span>
           </div>
         </div>
       </div>
 
-      <p className="mt-4 line-clamp-2 text-[13.5px] leading-relaxed text-slate-600">
+      <p className="mt-4 line-clamp-2 text-[13px] leading-relaxed text-slate-600">
         {provider.snippet}
       </p>
 
@@ -596,23 +599,20 @@ function ExternalProviderCard({
           href={provider.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-brand-purple hover:text-brand-purple-dark hover:underline"
+          className="inline-flex items-center gap-1 font-medium text-slate-600 hover:text-slate-900 hover:underline"
         >
           {provider.source}
           <ExternalLink className="h-3 w-3" />
         </a>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-dashed border-[#E9E6FA] pt-4">
-        <p className="text-[12px] text-slate-500">
-          Help them join Lubin
-        </p>
+      <div className="mt-auto flex items-center justify-end pt-4">
         <button
           type="button"
           onClick={onInvite}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand-purple bg-white px-4 py-2.5 text-[13px] font-semibold text-brand-purple transition-all hover:bg-brand-purple hover:text-white active:scale-95"
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500 underline-offset-2 transition hover:text-brand-purple hover:underline"
         >
-          <Send className="h-3.5 w-3.5" />
+          <Send className="h-3 w-3" />
           Invite to Lubin
         </button>
       </div>
