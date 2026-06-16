@@ -425,6 +425,9 @@ function BookingModal({
               with <span className="font-semibold text-slate-700">{provider.name}</span> ·{" "}
               {service.duration}
             </p>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-500">
+              {service.description}
+            </p>
           </div>
           <button
             type="button"
