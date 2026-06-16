@@ -82,6 +82,14 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Cognitive Behavioral Therapy (CBT)", "EMDR", "Acceptance & Commitment Therapy"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Tomorrow, 10:30 AM",
+    socialLinks: [
+      { label: "Website", url: "https://mariasantos-psych.com" },
+      { label: "LinkedIn", url: "https://linkedin.com/in/maria-santos-phd" },
+    ],
+    references: [
+      { title: "Cultural Adaptations of CBT in Southeast Asia", year: "2022", description: "Published in the Asian Journal of Psychiatry" },
+      { title: "Trauma-Informed Care: A Philippine Framework", year: "2020", description: "Co-authored chapter in Oxford Handbook of Global Mental Health" },
+    ],
   },
   {
     id: "2",
@@ -109,6 +117,12 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Emotionally Focused Therapy", "Gottman Method", "Narrative Therapy"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Thu, 2:00 PM",
+    socialLinks: [
+      { label: "Website", url: "https://joshuareyes-counselling.ph" },
+    ],
+    references: [
+      { title: "Narrative Therapy with LGBTQ+ Youth in Manila", year: "2021", description: "Published in the Philippine Journal of Psychology" },
+    ],
   },
   {
     id: "3",
@@ -134,6 +148,9 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Acceptance & Commitment Therapy (ACT)", "Mindfulness-Based Stress Reduction"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Mon, 9:00 AM",
+    references: [
+      { title: "Mindfulness for Burnout: A Workplace Intervention Study", year: "2023", description: "Presented at the ASEAN Mental Health Summit" },
+    ],
   },
   {
     id: "4",
@@ -161,6 +178,14 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Exposure & Response Prevention (ERP)", "Cognitive Behavioral Therapy", "Family Systems Therapy"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Today, 4:30 PM",
+    socialLinks: [
+      { label: "Website", url: "https://paolocruz-psych.com" },
+      { label: "LinkedIn", url: "https://linkedin.com/in/paolo-cruz-phd" },
+    ],
+    references: [
+      { title: "ERP Protocols for OCD in Filipino Adolescents", year: "2019", description: "Published in the Journal of Child Psychology and Psychiatry" },
+      { title: "Family-Based CBT: A Cebu Practice Model", year: "2021", description: "Published in the Philippine Journal of Psychology" },
+    ],
   },
   {
     id: "5",
@@ -187,6 +212,9 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Solution-Focused Brief Therapy", "Motivational Interviewing"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Tomorrow, 3:00 PM",
+    socialLinks: [
+      { label: "LinkedIn", url: "https://linkedin.com/in/bea-gonzales-rgc" },
+    ],
   },
   {
     id: "6",
@@ -214,6 +242,12 @@ export const PROVIDERS: Provider[] = [
     modalities: ["Somatic Experiencing", "Sensorimotor Psychotherapy", "Internal Family Systems"],
     cancellationPolicy: "Free cancellation up to 24 hours before your session. Late cancellations are charged 50% of the session fee.",
     nextAvailable: "Sat, 10:00 AM",
+    socialLinks: [
+      { label: "Website", url: "https://migueltan-somatic.ph" },
+    ],
+    references: [
+      { title: "Somatic Approaches to Trauma Recovery in Post-Typhoon Communities", year: "2022", description: "Published in the International Journal of Disaster Risk Reduction" },
+    ],
   },
 ];
 
