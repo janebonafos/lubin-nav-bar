@@ -66,7 +66,8 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _navigate = useNavigate();
 
   const provider = getProviderById(search.providerId);
   const service = useMemo(() => {
@@ -78,6 +79,7 @@ function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   if (!provider || !service) {
     return (
@@ -118,17 +120,12 @@ function CheckoutPage() {
     setProcessing(true);
     // TODO: replace with real Stripe Checkout session redirect once Stripe is enabled.
     setTimeout(() => {
-      navigate({
-        to: "/checkout",
-        search: { ...search },
-        hash: "success",
-        replace: true,
-      });
+      setProcessing(false);
+      setSuccess(true);
     }, 900);
   };
 
-  // Render success state when hash is #success
-  if (typeof window !== "undefined" && window.location.hash === "#success") {
+  if (success) {
     return (
       <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
         <Navbar />
