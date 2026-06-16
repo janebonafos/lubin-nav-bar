@@ -133,25 +133,25 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-center">
-                    <h1 className="font-serif-display text-[26px] font-semibold leading-tight tracking-tight text-slate-900">
+                  <div className="space-y-3 text-center">
+                    <h1 className="font-serif-display text-[28px] font-semibold leading-tight tracking-tight text-slate-900">
                       {provider.name}
                     </h1>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
                       {provider.title}
                     </p>
                     <div className="flex items-center justify-center gap-1.5 pt-1">
                       <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
-                      <span className="text-[13px] font-bold text-slate-900">
+                      <span className="text-[14px] font-bold text-slate-900">
                         {provider.rating}
                       </span>
-                      <span className="text-[12px] font-normal text-slate-500">
+                      <span className="text-[13px] font-normal text-slate-500">
                         ({provider.reviews} reviews)
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-10 space-y-4">
                     <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
                       <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         Experience
