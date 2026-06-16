@@ -7,6 +7,9 @@ export type Service = {
   price: number;
   format: "Individual" | "Group" | "Both";
   schedule: string;
+  minParticipants?: number;
+  currentParticipants?: number;
+  maxParticipants?: number;
 };
 
 export type Provider = {
@@ -224,6 +227,7 @@ export function getServicesForProvider(p: Provider): Service[] {
   ];
   return base.map((focus, i) => {
     const t = templates[i % templates.length];
+    const isGroupCapable = t.format === "Group" || t.format === "Both";
     return {
       id: `${p.id}-s${i + 1}`,
       title: `${focus} ${t.titleSuffix}`,
@@ -233,6 +237,13 @@ export function getServicesForProvider(p: Provider): Service[] {
       price: i === 0 ? p.price : Math.round(p.price * (i === 1 ? 1.35 : 0.7)),
       format: t.format,
       schedule: scheduleVariants[i % scheduleVariants.length],
+      ...(isGroupCapable
+        ? {
+            minParticipants: 4,
+            currentParticipants: 2,
+            maxParticipants: 8,
+          }
+        : {}),
     };
   });
 }
