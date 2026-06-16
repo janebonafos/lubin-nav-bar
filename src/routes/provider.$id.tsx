@@ -96,6 +96,14 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
+  const hasReferences = !!(provider.references && provider.references.length > 0);
+  const [activeTab, setActiveTab] = useState<"overview" | "references" | "services">("overview");
+
+  const tabs = [
+    { id: "overview" as const, label: "Overview" },
+    ...(hasReferences ? [{ id: "references" as const, label: "References" }] : []),
+    { id: "services" as const, label: `Services (${services.length})` },
+  ];
 
   return (
     <div
