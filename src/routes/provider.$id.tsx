@@ -100,11 +100,9 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
-  const [showAllRefs, setShowAllRefs] = useState(false);
+  const [showRefs, setShowRefs] = useState(false);
 
   const refs = provider.references || [];
-  const visibleRefs = showAllRefs ? refs : refs.slice(0, 2);
-  const hiddenCount = refs.length - 2;
 
   return (
     <div
