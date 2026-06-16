@@ -99,208 +99,199 @@ function ProviderProfilePage() {
       <Navbar />
 
       <main className="pb-20 pt-24 sm:pt-28">
-        {/* Hero */}
+        {/* Hero — Indigo Trust Card */}
         <section className="relative overflow-hidden">
-          {/* Decorative background */}
           <div
             aria-hidden
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#EFEAFF_0%,_#F9F8FF_45%,_#FFFFFF_100%)]"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#EFEAFF_0%,_#F9F8FF_55%,_#FFFFFF_100%)]"
           />
           <div
             aria-hidden
-            className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,_rgba(124,113,176,0.08)_1px,_transparent_1px),linear-gradient(to_bottom,_rgba(124,113,176,0.08)_1px,_transparent_1px)] [background-size:42px_42px] [mask-image:radial-gradient(ellipse_at_center,_black_30%,_transparent_75%)]"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-purple/10 blur-3xl"
+            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-purple/10 blur-3xl"
           />
           <div
             aria-hidden
             className="pointer-events-none absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-brand-purple-accent/15 blur-3xl"
           />
 
-          <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
-            <div className="flex flex-col-reverse gap-12 lg:flex-row lg:items-start">
-              {/* LEFT: Action Card with Avatar */}
-              <aside className="w-full lg:w-80 lg:flex-shrink-0">
-                <div className="rounded-[2.5rem] border border-slate-100 bg-white p-6 shadow-[0_20px_50px_-12px_rgba(115,113,252,0.12)] sm:p-8 lg:sticky lg:top-28">
-                  {/* Avatar */}
-                  <div className="mb-8 flex flex-col items-center">
-                    <div className="relative">
-                      <div className="relative flex h-36 w-36 items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[40px] font-bold text-white shadow-xl ring-8 ring-white sm:h-40 sm:w-40 sm:text-[44px]">
-                        {provider.initials}
-                      </div>
-                      {provider.verified && (
-                        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg ring-4 ring-white">
-                          <BadgeCheck className="h-5 w-5 text-brand-purple-accent" />
-                        </span>
-                      )}
+          <div className="relative mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
+            <Link
+              to="/find-provider"
+              className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to providers
+            </Link>
+
+            <div className="overflow-hidden rounded-3xl border border-indigo-50 bg-white shadow-[0_24px_60px_-20px_rgba(115,113,252,0.18)]">
+              <div className="flex flex-col md:flex-row">
+                {/* LEFT: Identity column */}
+                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-8 md:w-1/3 md:border-b-0 md:border-r">
+                  <div className="relative mx-auto mb-6 h-44 w-44">
+                    <div className="flex h-full w-full items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-xl ring-8 ring-white">
+                      {provider.initials}
                     </div>
-                  </div>
-
-                  {/* Availability — ONE LINE */}
-                  {provider.nextAvailable && (
-                    <div className="mb-6 flex items-center gap-2 rounded-2xl border border-[#EAE7F5] bg-[#F3F0FF] px-4 py-3">
-                      <span className="relative flex h-2 w-2 shrink-0">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-purple-accent opacity-75" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-purple" />
-                      </span>
-                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-[#6B5B9A]">
-                        Next Available
-                      </span>
-                      <span className="truncate text-[13px] font-semibold text-[#3D2E6B]">
-                        {provider.nextAvailable}
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="mb-6 text-center text-[13px] text-slate-500">
-                    Book a session or send a quick message to get started.
-                  </p>
-
-                  <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={() => setBookingService(services[0] ?? null)}
-                      disabled={services.length === 0}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-4 text-[13px] font-semibold text-white shadow-lg shadow-indigo-100 transition-all hover:-translate-y-0.5 active:scale-95"
-                    >
-                      <Calendar className="h-4 w-4" />
-                      Book a session
-                    </button>
-                    <button
-                      type="button"
-                      disabled
-                      className="group relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-[13px] font-semibold text-slate-400 transition-colors hover:border-slate-300"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Message
-                      <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                        Coming soon
-                      </span>
-                    </button>
-                  </div>
-
-                  <div className="mt-6 flex flex-col items-center gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <Shield className="h-3 w-3 text-slate-400" />
-                      <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
-                        Verified Secure Connection
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-
-              {/* RIGHT: Identity Content */}
-              <div className="min-w-0 flex-1">
-                <Link
-                  to="/find-provider"
-                  className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Back to providers
-                </Link>
-
-                {/* Name area */}
-                <div className="mt-2 space-y-3">
-                  <div className="flex items-center gap-3">
                     {provider.verified && (
-                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
-                        <BadgeCheck className="h-3.5 w-3.5" />
-                        Verified Provider
+                      <span className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-purple text-white shadow-lg ring-4 ring-white">
+                        <BadgeCheck className="h-5 w-5" />
                       </span>
                     )}
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
-                      Sample
-                    </span>
                   </div>
 
-                  <h1 className="font-serif-display text-[42px] font-semibold leading-[1.1] tracking-tight text-[#1A1625] sm:text-[56px]">
-                    {provider.name}
-                  </h1>
-
-                  <div className="flex flex-wrap items-center gap-4">
-                    <p className="text-[18px] font-normal italic text-[#7E6BAF] sm:text-[20px]">
+                  <div className="space-y-2 text-center">
+                    <h1 className="font-serif-display text-[26px] font-semibold leading-tight tracking-tight text-slate-900">
+                      {provider.name}
+                    </h1>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
                       {provider.title}
                     </p>
-                    <span className="hidden h-4 w-px bg-[#D4CFE8] sm:block" />
-                    <div className="flex items-center gap-1.5">
-                      <Star className="h-3.5 w-3.5 fill-[#C4A35A] text-[#C4A35A]" />
-                      <span className="text-[13px] font-semibold text-[#1A1625]">
+                    <div className="flex items-center justify-center gap-1.5 pt-1">
+                      <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
+                      <span className="text-[13px] font-bold text-slate-900">
                         {provider.rating}
                       </span>
-                      <span className="text-[12px] text-[#9489B2]">
+                      <span className="text-[12px] font-normal text-slate-500">
                         ({provider.reviews} reviews)
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {/* Metadata grid */}
-                <div className="mt-10 grid grid-cols-2 gap-8 border-y border-slate-100 py-10">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Location
-                    </p>
-                    <p className="text-sm font-semibold text-slate-700">
-                      {provider.location}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Languages
-                    </p>
-                    <p className="text-sm font-semibold text-slate-700">
-                      {provider.languages.join(", ")}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Experience
-                    </p>
-                    <p className="text-sm font-semibold text-slate-700">
-                      {provider.experience}+ Years
-                    </p>
-                  </div>
-                  {provider.licenseNumber && (
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        Licensure
+                  <div className="mt-8 space-y-3">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Experience
                       </p>
-                      <p className="text-sm font-semibold text-slate-700">
-                        {provider.licenseNumber}
+                      <p className="text-[13.5px] font-semibold text-slate-800">
+                        {provider.experience}+ Years Clinical Practice
                       </p>
                     </div>
-                  )}
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Location
+                      </p>
+                      <p className="text-[13.5px] font-semibold text-slate-800">
+                        {provider.location}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Languages
+                      </p>
+                      <p className="text-[13.5px] font-semibold text-slate-800">
+                        {provider.languages.join(", ")}
+                      </p>
+                    </div>
+                    {provider.licenseNumber && (
+                      <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                        <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          Licensure
+                        </p>
+                        <p className="text-[13.5px] font-semibold text-slate-800">
+                          {provider.licenseNumber}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Bio with inline expertise */}
-                <div className="mt-10 space-y-6">
-                  {provider.expertise && (
-                    <p className="max-w-2xl text-xl leading-relaxed font-light text-slate-800">
-                      <span className="font-medium text-[#3D2E6B] border-b-2 border-[#E9E4F5]">
-                        {provider.expertise}.
-                      </span>{" "}
-                      {provider.bio}
-                    </p>
-                  )}
-                  {!provider.expertise && (
-                    <p className="max-w-2xl text-xl leading-relaxed font-light text-slate-800">
-                      {provider.bio}
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2.5">
-                    {provider.tags.map((t: string) => (
-                      <span
-                        key={t}
-                        className="cursor-default rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
-                      >
-                        {t}
+                {/* RIGHT: Details + Booking */}
+                <div className="flex-1 space-y-8 p-8 md:p-12">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {provider.verified && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        Verified Provider
                       </span>
-                    ))}
+                    )}
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+                      <Shield className="h-3 w-3" />
+                      Licensed & Insured
+                    </span>
+                  </div>
+
+                  <section>
+                    <h3 className="mb-3 text-[15px] font-bold text-slate-900">About</h3>
+                    <p className="leading-relaxed text-slate-600">
+                      {provider.expertise && (
+                        <span className="font-medium text-[#3D2E6B] border-b-2 border-[#E9E4F5]">
+                          {provider.expertise}.{" "}
+                        </span>
+                      )}
+                      {provider.bio}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="mb-3 text-[15px] font-bold text-slate-900">Specialties</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {provider.tags.map((t: string) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-[12.5px] font-medium text-brand-purple-dark"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Dark booking CTA block */}
+                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-slate-900 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-slate-400">
+                        Starting at
+                      </p>
+                      <p className="text-[22px] font-bold leading-none">
+                        {services[0] ? (
+                          <>
+                            ₱{services[0].price.toLocaleString()}{" "}
+                            <span className="text-[13px] font-normal text-slate-400">
+                              / {services[0].duration}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-[15px] font-normal text-slate-300">
+                            Sessions available
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-stretch gap-3 sm:items-end">
+                      {provider.nextAvailable && (
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                          </span>
+                          <span className="whitespace-nowrap text-[12.5px] text-slate-300">
+                            Next available:{" "}
+                            <span className="font-semibold text-white">
+                              {provider.nextAvailable}
+                            </span>
+                          </span>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setBookingService(services[0] ?? null)}
+                        disabled={services.length === 0}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-7 py-3.5 text-[13.5px] font-bold text-white shadow-lg shadow-indigo-900/30 transition-all hover:-translate-y-0.5 hover:bg-brand-purple-accent active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Book Consultation
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-5">
+                    <div className="flex h-8 items-center gap-1.5 rounded-full bg-indigo-50 px-3 text-[11px] font-semibold text-brand-purple">
+                      <Shield className="h-3 w-3" />
+                      Secure & confidential
+                    </div>
+                    <p className="text-[12.5px] text-slate-500">
+                      Verified by{" "}
+                      <span className="font-semibold text-slate-700">Lubin</span> · Background-checked & credentialed
+                    </p>
                   </div>
                 </div>
               </div>
