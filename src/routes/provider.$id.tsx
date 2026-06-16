@@ -131,11 +131,6 @@ function ProviderProfilePage() {
                     <div className="flex h-full w-full items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-xl ring-8 ring-white">
                       {provider.initials}
                     </div>
-                    {provider.verified && (
-                      <span className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-purple text-white shadow-lg ring-4 ring-white">
-                        <BadgeCheck className="h-5 w-5" />
-                      </span>
-                    )}
                   </div>
 
                   <div className="space-y-2 text-center">
