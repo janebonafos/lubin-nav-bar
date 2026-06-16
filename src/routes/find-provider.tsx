@@ -475,11 +475,7 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
               <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
               {provider.rating}
             </span>
-          ) : (
-            <span className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-brand-purple shadow-[0_6px_14px_-4px_rgba(15,23,42,0.18)] ring-1 ring-slate-100">
-              New
-            </span>
-          )}
+          ) : null}
         </div>
         <div className="min-w-0 flex-1 pt-1">
           <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
