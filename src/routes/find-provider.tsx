@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Sun, Moon } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, type Provider } from "@/lib/providers";
 
@@ -389,12 +389,10 @@ function AvailabilityStrip({
   days,
   modes,
   hours,
-  periods,
 }: {
   days: readonly DayCode[];
   modes: ("Online" | "In-person")[];
   hours: string;
-  periods: ("AM" | "PM")[];
 }) {
   return (
     <div className="mt-4 flex flex-col gap-2">
@@ -413,20 +411,6 @@ function AvailabilityStrip({
           Hours
         </span>
         <span className="text-[13px] font-medium text-slate-700">{hours}</span>
-        <span className="flex items-center gap-1">
-          {periods.includes("AM") && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-inset ring-amber-200/70">
-              <Sun className="h-2.5 w-2.5" />
-              AM
-            </span>
-          )}
-          {periods.includes("PM") && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-indigo-700 ring-1 ring-inset ring-indigo-200/70">
-              <Moon className="h-2.5 w-2.5" />
-              PM
-            </span>
-          )}
-        </span>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {modes.map((m) => (
