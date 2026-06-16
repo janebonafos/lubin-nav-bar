@@ -439,22 +439,22 @@ function BookingModal({
         <div className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5">
           {(service.format === "Group" || service.format === "Both") &&
             service.minParticipants != null && (
-              <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-4">
+              <div className="rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-amber-700" />
-                    <h4 className="text-[13px] font-semibold text-amber-900">
+                    <Users className="h-4 w-4 text-brand-purple-dark" />
+                    <h4 className="text-[13px] font-semibold text-brand-navy">
                       Group session
                     </h4>
                   </div>
-                  <span className="text-[11.5px] font-semibold text-amber-800">
+                  <span className="text-[11.5px] font-semibold text-brand-purple-dark">
                     {service.currentParticipants ?? 0} of{" "}
                     {service.minParticipants} joined
                   </span>
                 </div>
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-amber-100">
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-brand-purple/10">
                   <div
-                    className="h-full rounded-full bg-amber-500 transition-all"
+                    className="h-full rounded-full bg-brand-purple transition-all"
                     style={{
                       width: `${Math.min(
                         100,
@@ -465,7 +465,7 @@ function BookingModal({
                     }}
                   />
                 </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-amber-800/90">
+                <p className="mt-2 text-[12px] leading-relaxed text-brand-purple-dark/90">
                   Needs at least{" "}
                   <span className="font-semibold">
                     {service.minParticipants} participants
