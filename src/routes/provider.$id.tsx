@@ -211,10 +211,14 @@ function ProviderProfilePage() {
                   </a>
                   <button
                     type="button"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-4 py-3 text-[13px] font-semibold text-slate-700 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                    disabled
+                    className="relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-semibold text-slate-400"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Message
+                    <span className="absolute -top-2 right-3 rounded-full bg-brand-purple px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm">
+                      Coming soon
+                    </span>
                   </button>
                 </div>
               </aside>
