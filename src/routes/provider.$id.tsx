@@ -259,12 +259,6 @@ function ProviderProfilePage() {
                         Verified Provider
                       </span>
                     )}
-                    {provider.licenseNumber && !provider.licenseNumber.toLowerCase().includes("pending") && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D1FAE5] bg-[#ECFDF5] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                        <Shield className="h-3 w-3" />
-                        Licensed & Insured
-                      </span>
-                    )}
                   </div>
 
                   <section>
