@@ -698,9 +698,14 @@ function BookingModal({
 
           {selectedDate && (
             <div>
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
-                Available times
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                  Available times
+                </h4>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
+                  <Globe2 className="h-3 w-3" /> PHT · GMT+8
+                </span>
+              </div>
               <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {times.map((t) => (
                   <button
@@ -717,6 +722,28 @@ function BookingModal({
                   </button>
                 ))}
               </div>
+              <p className="mt-2 text-[11.5px] text-slate-500">
+                Times shown in Philippine Time (PHT, GMT+8).
+              </p>
+            </div>
+          )}
+
+          {/* Format-specific details */}
+          {format === "online" ? (
+            <div className="flex items-start gap-2.5 rounded-xl border border-[#E9E6FA] bg-[#FBFAFF] p-3.5">
+              <Video className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+              <p className="text-[12.5px] leading-relaxed text-slate-600">
+                <span className="font-semibold text-slate-700">Online session.</span> A secure
+                video link will be emailed after payment and again 30 minutes before your session.
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2.5 rounded-xl border border-[#E9E6FA] bg-[#FBFAFF] p-3.5">
+              <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
+              <p className="text-[12.5px] leading-relaxed text-slate-600">
+                <span className="font-semibold text-slate-700">In-person · {provider.location}.</span>{" "}
+                Exact clinic address is shared after your booking is confirmed.
+              </p>
             </div>
           )}
         </div>
