@@ -5,12 +5,10 @@ import {
   Award,
   BadgeCheck,
   Calendar,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
   ExternalLink,
-  FileText,
   Globe2,
   Heart,
   MessageCircle,
@@ -37,7 +35,6 @@ import {
   type Provider,
   type Service,
   type SocialLink,
-  type Reference,
 } from "@/lib/providers";
 
 export const Route = createFileRoute("/provider/$id")({
@@ -100,9 +97,6 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
-  const [showRefs, setShowRefs] = useState(false);
-
-  const refs = provider.references || [];
 
   return (
     <div
@@ -300,73 +294,6 @@ function ProviderProfilePage() {
                       ))}
                     </div>
                   </section>
-
-                  {/* References — collapsed by default to keep the page compact */}
-                  {refs.length > 0 && (
-                    <section>
-                      <button
-                        type="button"
-                        onClick={() => setShowRefs((s) => !s)}
-                        className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-[#EAE7F5] bg-white px-5 py-3.5 text-left transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.06)]"
-                        aria-expanded={showRefs}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
-                            <FileText className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                              Publications & References
-                            </p>
-                            <p className="text-[13px] font-semibold text-[#2C2B4B]">
-                              {refs.length} {refs.length === 1 ? "publication" : "publications"}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronDown
-                          className={`h-4 w-4 text-[#7C6DB1] transition-transform ${showRefs ? "rotate-180" : ""}`}
-                          strokeWidth={1.5}
-                        />
-                      </button>
-                      {showRefs && (
-                        <ul className="mt-3 space-y-2.5 px-1">
-                          {refs.map((ref: Reference, i: number) => (
-                            <li
-                              key={i}
-                              className="flex items-start justify-between gap-3 border-b border-[#EAE7F5] pb-2.5 last:border-0 last:pb-0"
-                            >
-                              <div className="min-w-0 flex-1">
-                                <p className="text-[13px] font-medium leading-snug text-[#2C2B4B]">
-                                  {ref.url ? (
-                                    <a
-                                      href={ref.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="hover:text-brand-purple hover:underline"
-                                    >
-                                      {ref.title}
-                                    </a>
-                                  ) : (
-                                    ref.title
-                                  )}
-                                </p>
-                                {ref.description && (
-                                  <p className="mt-0.5 text-[12px] leading-snug text-slate-500">
-                                    {ref.description}
-                                  </p>
-                                )}
-                              </div>
-                              {ref.year && (
-                                <span className="shrink-0 text-[11px] font-semibold tabular-nums text-[#A89BD0]">
-                                  {ref.year}
-                                </span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </section>
-                  )}
 
                   {/* Brand booking CTA block */}
                   <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
