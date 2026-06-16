@@ -114,7 +114,7 @@ function ProviderProfilePage() {
             className="pointer-events-none absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-brand-purple-accent/15 blur-3xl"
           />
 
-          <div className="relative mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
+          <div className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
             <Link
               to="/find-provider"
               className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
