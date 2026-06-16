@@ -306,7 +306,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
             className={
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset " +
               (service.format === "Group"
-                ? "bg-amber-50 text-amber-700 ring-amber-200/70"
+                ? "bg-brand-purple/8 text-brand-purple-dark ring-brand-purple/15"
                 : service.format === "Both"
                 ? "bg-brand-purple/8 text-brand-purple-dark ring-brand-purple/15"
                 : "bg-[#F3F0FF] text-brand-purple ring-brand-purple/10")
