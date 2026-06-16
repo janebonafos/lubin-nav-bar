@@ -19,6 +19,7 @@ import {
   User,
   Users,
   CalendarDays,
+  Languages,
   Video,
   X,
   Info,
@@ -162,7 +163,7 @@ function ProviderProfilePage() {
                       </div>
                       <div className="flex items-center justify-between gap-4 py-3">
                         <div className="flex items-center gap-3">
-                          <MapPin className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <CalendarDays className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
                           <span className="text-[13px] text-[#A89BD0]">Availability</span>
                         </div>
                         <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
@@ -171,7 +172,7 @@ function ProviderProfilePage() {
                       </div>
                       <div className="flex items-center justify-between gap-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Globe2 className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <Languages className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
                           <span className="text-[13px] text-[#A89BD0]">Languages</span>
                         </div>
                         <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
