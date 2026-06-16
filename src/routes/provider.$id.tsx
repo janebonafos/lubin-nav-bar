@@ -181,16 +181,6 @@ function ProviderProfilePage() {
                         {provider.languages.join(", ")}
                       </p>
                     </div>
-                    {provider.licenseNumber && (
-                      <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                        <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                          Licensure
-                        </p>
-                        <p className="text-[13.5px] font-semibold text-slate-800">
-                          {provider.licenseNumber}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
 
