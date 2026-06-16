@@ -146,69 +146,90 @@ function ProviderProfilePage() {
 
               {/* Identity */}
               <div className="min-w-0 flex-1">
-                <h1 className="text-[32px] font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-[44px]">
-                  {provider.name}
-                </h1>
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-medium text-brand-purple">
-                  <span>{provider.title}</span>
-                  <span
-                    title="Sample rating shown for demo purposes. Real reviews launch with verified bookings."
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2 py-0.5 text-[12px] font-semibold text-slate-700 ring-1 ring-inset ring-[#E9E6FA]"
-                  >
-                    <Star className="h-3.5 w-3.5 fill-brand-purple-accent text-brand-purple-accent" />
-                    {provider.rating}
-                    <span className="font-medium text-slate-400">({provider.reviews})</span>
-                    <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                {/* Name + Rating row */}
+                <div className="flex flex-wrap items-end gap-4">
+                  <h1 className="font-serif-display text-[36px] font-medium leading-[1.05] tracking-tight text-[#1A1625] sm:text-[46px]">
+                    {provider.name}
+                  </h1>
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span
+                      title="Sample rating shown for demo purposes. Real reviews launch with verified bookings."
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#FDFDFF] px-3 py-1 ring-1 ring-inset ring-[#E9E4F5]"
+                    >
+                      <Star className="h-3.5 w-3.5 fill-[#8B7BB1] text-[#8B7BB1]" />
+                      <span className="text-[13px] font-bold text-[#7C69A3]">{provider.rating}</span>
+                      <span className="text-[12px] font-medium text-[#9489B2]">({provider.reviews})</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                       <Info className="h-2.5 w-2.5" />
                       Sample
                     </span>
-                  </span>
+                  </div>
                 </div>
 
-                {/* Meta row: location · languages · experience · license */}
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-slate-600">
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-brand-purple" />
-                    {provider.location}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
-                    Speaks {provider.languages.join(", ")}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Award className="h-3.5 w-3.5 text-brand-purple" />
-                    {provider.experience}+ yrs experience
-                  </span>
+                {/* Title */}
+                <p className="mt-2 text-[18px] font-medium italic text-brand-purple sm:text-[20px]">
+                  {provider.title}
+                </p>
+
+                {/* Meta grid */}
+                <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-10 sm:grid-cols-2">
+                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
+                      <MapPin className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
+                    </div>
+                    <span className="font-medium">{provider.location}</span>
+                  </div>
+                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
+                      <Globe2 className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
+                    </div>
+                    <span className="font-medium">Speaks {provider.languages.join(", ")}</span>
+                  </div>
+                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
+                      <Award className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
+                    </div>
+                    <span className="font-medium">{provider.experience}+ yrs experience</span>
+                  </div>
                   {provider.licenseNumber && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />
-                      {provider.licenseNumber}
-                      {provider.licenseVerifiedOn ? (
-                        <span className="text-[11px] text-slate-400">· Verified</span>
-                      ) : (
-                        <span className="text-[11px] text-amber-500">· Pending</span>
-                      )}
-                    </span>
+                    <div className="group/verify relative flex items-center gap-3 text-[13px] text-[#5A5270]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFF] transition-colors group-hover/verify:bg-brand-lavender">
+                        <BadgeCheck className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
+                      </div>
+                      <span className="font-medium">
+                        {provider.licenseNumber}
+                        {provider.licenseVerifiedOn ? (
+                          <span className="ml-1.5 text-[11px] text-emerald-600">· Verified</span>
+                        ) : (
+                          <span className="ml-1.5 text-[11px] text-amber-500">· Pending</span>
+                        )}
+                      </span>
+                    </div>
                   )}
                 </div>
 
+                {/* Expertise highlight */}
                 {provider.expertise && (
-                  <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-brand-purple ring-1 ring-inset ring-[#E9E6FA] shadow-sm">
-                    <Sparkles className="h-3 w-3" />
-                    {provider.expertise}
-                  </p>
+                  <div className="group mt-6 inline-flex items-center gap-3 rounded-[1.25rem] border border-[#F0EDF9] bg-gradient-to-r from-brand-lavender/40 to-white px-5 py-3 shadow-sm transition-shadow hover:shadow-md">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-lavender bg-white text-brand-purple shadow-sm">
+                      <Sparkles className="h-4 w-4" />
+                    </span>
+                    <p className="text-[13px] font-bold tracking-wide text-[#6B5A91]">{provider.expertise}</p>
+                  </div>
                 )}
 
-                <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-slate-600">
+                {/* Bio */}
+                <p className="mt-7 max-w-2xl text-[15.5px] leading-relaxed text-[#4A4458]">
                   {provider.bio}
                 </p>
 
                 {/* Tags */}
-                <div className="mt-5 flex flex-wrap gap-1.5">
+                <div className="mt-6 flex flex-wrap gap-2.5">
                   {provider.tags.map((t: string) => (
                     <span
                       key={t}
-                      className="rounded-full bg-white px-3 py-1 text-[12px] font-medium text-slate-700 ring-1 ring-inset ring-[#E9E6FA] shadow-sm"
+                      className="cursor-default rounded-full border border-[#E9E4F5] bg-[#FAF9FF] px-5 py-2 text-[13px] font-semibold text-brand-purple transition-all hover:border-brand-purple/40 hover:bg-white hover:shadow-sm"
                     >
                       {t}
                     </span>
