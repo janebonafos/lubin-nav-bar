@@ -211,16 +211,16 @@ function ProviderProfilePage() {
               {/* Action card */}
               <aside className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-[0_30px_60px_-30px_rgba(124,113,176,0.4)] backdrop-blur lg:w-72">
                 {provider.nextAvailable && (
-                  <div className="mb-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 ring-1 ring-inset ring-emerald-100">
+                  <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#EAE7F5] px-3 py-2 ring-1 ring-inset ring-[#D4CFE8]">
                     <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A89BD0] opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[#7E6BAF]" />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B5B9A]">
                         Next available
                       </p>
-                      <p className="truncate text-[12.5px] font-semibold text-emerald-900">
+                      <p className="truncate text-[12.5px] font-semibold text-[#3D2E6B]">
                         {provider.nextAvailable}
                       </p>
                     </div>
