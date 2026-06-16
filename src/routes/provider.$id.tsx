@@ -276,82 +276,84 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       />
 
       <div className="flex flex-1 flex-col p-6">
-      <h3 className="text-[20px] font-semibold leading-snug text-slate-900">
-        {service.title}
-      </h3>
+        <h3 className="text-[20px] font-semibold leading-snug text-slate-900">
+          {service.title}
+        </h3>
 
-      <p
-        className={`mt-4 text-[13.5px] leading-relaxed text-slate-600 ${
-          expanded ? "" : "line-clamp-3"
-        }`}
-      >
-        {service.description}
-      </p>
-      {shouldClamp && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-1 self-start text-[12.5px] font-semibold text-brand-purple hover:text-brand-purple-dark"
-        >
-          {expanded ? "Show less" : "See more"}
-        </button>
-      )}
-
-      {/* Meta pills */}
-      <div className="mt-4 mb-6 flex flex-wrap gap-1.5">
-        <span
-          className={
-            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset " +
-            (service.format === "Group"
-              ? "bg-amber-50 text-amber-700 ring-amber-200/70"
-              : service.format === "Both"
-              ? "bg-emerald-50 text-emerald-700 ring-emerald-200/70"
-              : "bg-[#F3F0FF] text-brand-purple ring-brand-purple/10")
-          }
-        >
-          {service.format === "Group" ? (
-            <Users className="h-3 w-3" />
-          ) : service.format === "Both" ? (
-            <Users className="h-3 w-3" />
-          ) : (
-            <User className="h-3 w-3" />
-          )}
-          {service.format === "Both" ? "Individual or Group" : service.format}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
-          <Clock className="h-3 w-3 text-[#A799E2]" />
-          {service.duration}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
-          <Video className="h-3 w-3 text-[#A799E2]" />
-          Online · In-person
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
-          <CalendarDays className="h-3 w-3 text-[#A799E2]" />
-          {service.schedule}
-        </span>
-      </div>
-
-      {/* Price + CTA */}
-      <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            Starting at
-          </span>
-          <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
-            ₱{service.price.toLocaleString()}
-            <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
+        <div className="flex flex-1 flex-col">
+          <p
+            className={`mt-4 text-[13.5px] leading-relaxed text-slate-600 ${
+              expanded ? "" : "line-clamp-3"
+            }`}
+          >
+            {service.description}
           </p>
+          {shouldClamp && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-1 self-start text-[12.5px] font-semibold text-brand-purple hover:text-brand-purple-dark"
+            >
+              {expanded ? "Show less" : "See more"}
+            </button>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={onBook}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          Book now
-        </button>
-      </div>
+
+        {/* Meta pills */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          <span
+            className={
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset " +
+              (service.format === "Group"
+                ? "bg-amber-50 text-amber-700 ring-amber-200/70"
+                : service.format === "Both"
+                ? "bg-brand-purple/8 text-brand-purple-dark ring-brand-purple/15"
+                : "bg-[#F3F0FF] text-brand-purple ring-brand-purple/10")
+            }
+          >
+            {service.format === "Group" ? (
+              <Users className="h-3 w-3" />
+            ) : service.format === "Both" ? (
+              <Users className="h-3 w-3" />
+            ) : (
+              <User className="h-3 w-3" />
+            )}
+            {service.format === "Both" ? "Individual or Group" : service.format}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
+            <Clock className="h-3 w-3 text-[#A799E2]" />
+            {service.duration}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
+            <Video className="h-3 w-3 text-[#A799E2]" />
+            Online · In-person
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
+            <CalendarDays className="h-3 w-3 text-[#A799E2]" />
+            {service.schedule}
+          </span>
+        </div>
+
+        {/* Price + CTA */}
+        <div className="mt-5 grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Starting at
+            </span>
+            <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
+              ₱{service.price.toLocaleString()}
+              <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onBook}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            Book now
+          </button>
+        </div>
       </div>
     </article>
   );

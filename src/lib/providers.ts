@@ -196,10 +196,31 @@ export function getServicesForProvider(p: Provider): Service[] {
     M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri", S: "Sat", Su: "Sun",
   };
   const allDays = p.availableDays.map((d) => dayLabels[d]);
+  // Compact consecutive days into ranges when possible
+  function compactDays(days: string[]): string {
+    if (days.length === 0) return "";
+    const order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const idx = (d: string) => order.indexOf(d);
+    let groups: string[][] = [];
+    let current: string[] = [days[0]];
+    for (let i = 1; i < days.length; i++) {
+      if (idx(days[i]) === idx(days[i - 1]) + 1) {
+        current.push(days[i]);
+      } else {
+        groups.push(current);
+        current = [days[i]];
+      }
+    }
+    groups.push(current);
+    return groups
+      .map((g) => (g.length > 2 ? `${g[0]}–${g[g.length - 1]}` : g.join(", ")))
+      .join(", ");
+  }
+  const compacted = compactDays(allDays);
   const scheduleVariants = [
-    `${allDays.slice(0, Math.min(3, allDays.length)).join(", ")} · ${p.availableHours}`,
-    `${allDays.slice(-2).join(", ")} · ${p.availableHours}`,
-    `${allDays.join(", ")} · ${p.availableHours}`,
+    `${compacted} · ${p.availableHours}`,
+    `${compacted} · ${p.availableHours}`,
+    `${compacted} · ${p.availableHours}`,
   ];
   return base.map((focus, i) => {
     const t = templates[i % templates.length];
