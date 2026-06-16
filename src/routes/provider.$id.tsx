@@ -705,7 +705,7 @@ function BookingModal({
                   Available times
                 </h4>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
-                  <Globe2 className="h-3 w-3" /> PHT · GMT+8
+                  <Globe className="h-3 w-3" /> PHT · GMT+8
                 </span>
               </div>
               <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
