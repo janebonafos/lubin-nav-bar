@@ -33,6 +33,12 @@ export type Provider = {
   availableDays: ("M" | "T" | "W" | "Th" | "F" | "S" | "Su")[];
   availableHours: string;
   availablePeriods: ("AM" | "PM")[];
+  licenseNumber?: string;
+  licenseBoard?: string;
+  licenseVerifiedOn?: string;
+  modalities?: string[];
+  cancellationPolicy?: string;
+  nextAvailable?: string;
 };
 
 export const PROVIDERS: Provider[] = [
