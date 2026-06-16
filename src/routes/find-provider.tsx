@@ -566,17 +566,19 @@ function ExternalProviderCard({
 }) {
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-6 transition-all duration-300 hover:border-slate-400 hover:bg-slate-50">
-      <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 ring-1 ring-inset ring-slate-200">
-        Not bookable
-      </div>
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 flex-none items-center justify-center rounded-xl border border-slate-200 bg-white text-[15px] font-bold text-slate-500">
           {provider.initials}
         </div>
-        <div className="min-w-0 flex-1 pr-20">
-          <h3 className="truncate text-[15px] font-semibold leading-tight text-slate-700">
-            {provider.name}
-          </h3>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="min-w-0 truncate text-[15px] font-semibold leading-tight text-slate-700">
+              {provider.name}
+            </h3>
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 ring-1 ring-inset ring-slate-200">
+              Not bookable
+            </span>
+          </div>
           <p className="mt-0.5 truncate text-[13px] text-slate-500">
             {provider.title}
           </p>
