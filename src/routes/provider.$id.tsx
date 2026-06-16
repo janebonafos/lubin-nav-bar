@@ -290,11 +290,16 @@ function ProviderProfilePage() {
                           Services Offered
                         </p>
                         <div className="mt-1.5 space-y-0.5">
-                          {services.slice(0, 3).map((s) => (
+                          {services.slice(0, 1).map((s) => (
                             <p key={s.id} className="text-[14px] font-semibold text-slate-700">
                               {s.title}
                             </p>
                           ))}
+                          {services.length > 1 && (
+                            <p className="text-[13px] text-slate-400">
+                              +{services.length - 1} more
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
