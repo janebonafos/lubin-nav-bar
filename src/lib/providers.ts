@@ -26,6 +26,8 @@ export type Provider = {
   services?: Service[];
   sessionModes: ("Online" | "In-person")[];
   availableDays: ("M" | "T" | "W" | "Th" | "F" | "S" | "Su")[];
+  availableHours: string;
+  availablePeriods: ("AM" | "PM")[];
 };
 
 export const PROVIDERS: Provider[] = [
@@ -47,6 +49,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
     availableDays: ["M", "T", "W", "Th", "F"],
+    availableHours: "9am – 5pm",
+    availablePeriods: ["AM", "PM"],
   },
   {
     id: "2",
@@ -66,6 +70,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
     availableDays: ["T", "W", "Th", "S"],
+    availableHours: "1pm – 8pm",
+    availablePeriods: ["PM"],
   },
   {
     id: "3",
@@ -84,6 +90,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English"],
     sessionModes: ["Online"],
     availableDays: ["M", "W", "F"],
+    availableHours: "8am – 12pm",
+    availablePeriods: ["AM"],
   },
   {
     id: "4",
@@ -103,6 +111,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English", "Filipino", "Cebuano"],
     sessionModes: ["Online", "In-person"],
     availableDays: ["M", "T", "W", "Th", "F", "S"],
+    availableHours: "10am – 7pm",
+    availablePeriods: ["AM", "PM"],
   },
   {
     id: "5",
@@ -121,6 +131,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English", "Filipino"],
     sessionModes: ["Online"],
     availableDays: ["M", "T", "Th", "F"],
+    availableHours: "2pm – 6pm",
+    availablePeriods: ["PM"],
   },
   {
     id: "6",
@@ -140,6 +152,8 @@ export const PROVIDERS: Provider[] = [
     languages: ["English", "Filipino"],
     sessionModes: ["Online", "In-person"],
     availableDays: ["T", "Th", "S", "Su"],
+    availableHours: "9am – 1pm",
+    availablePeriods: ["AM"],
   },
 ];
 
