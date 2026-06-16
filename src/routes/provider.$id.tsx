@@ -356,11 +356,6 @@ function ProviderProfilePage() {
                         </span>
                       </div>
                     </div>
-                    {provider.verified && (
-                      <p className="text-sm font-medium text-slate-400">
-                        Background-checked & credentialed
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
