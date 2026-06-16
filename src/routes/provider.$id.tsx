@@ -126,9 +126,9 @@ function ProviderProfilePage() {
             <div className="overflow-hidden rounded-3xl border border-indigo-50 bg-white shadow-[0_24px_60px_-20px_rgba(115,113,252,0.18)]">
               <div className="flex flex-col md:flex-row">
                 {/* LEFT: Identity column */}
-                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-8 md:w-1/3 md:border-b-0 md:border-r">
-                  <div className="relative mx-auto mb-6 h-44 w-44">
-                    <div className="flex h-full w-full items-center justify-center rounded-[2rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[44px] font-bold text-white shadow-xl ring-8 ring-white">
+                <div className="border-b border-indigo-100/60 bg-[#F5F2FE]/60 p-10 md:w-2/5 md:border-b-0 md:border-r">
+                  <div className="relative mx-auto mb-8 h-56 w-56">
+                    <div className="flex h-full w-full items-center justify-center rounded-[2.5rem] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[52px] font-bold text-white shadow-xl ring-8 ring-white">
                       {provider.initials}
                     </div>
                   </div>
