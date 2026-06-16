@@ -16,6 +16,8 @@ import {
   Sparkles,
   Star,
   User,
+  Users,
+  CalendarDays,
   Video,
   X,
 } from "lucide-react";
@@ -297,9 +299,24 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
 
       {/* Meta pills */}
       <div className="mt-4 mb-6 flex flex-wrap gap-1.5">
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
-          <User className="h-3 w-3" />
-          {service.sessionType}
+        <span
+          className={
+            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset " +
+            (service.format === "Group"
+              ? "bg-amber-50 text-amber-700 ring-amber-200/70"
+              : service.format === "Both"
+              ? "bg-emerald-50 text-emerald-700 ring-emerald-200/70"
+              : "bg-[#F3F0FF] text-brand-purple ring-brand-purple/10")
+          }
+        >
+          {service.format === "Group" ? (
+            <Users className="h-3 w-3" />
+          ) : service.format === "Both" ? (
+            <Users className="h-3 w-3" />
+          ) : (
+            <User className="h-3 w-3" />
+          )}
+          {service.format === "Both" ? "Individual or Group" : service.format}
         </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
           <Clock className="h-3 w-3 text-[#A799E2]" />
@@ -308,6 +325,10 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
         <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
           <Video className="h-3 w-3 text-[#A799E2]" />
           Online · In-person
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-[11.5px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200/70">
+          <CalendarDays className="h-3 w-3 text-[#A799E2]" />
+          {service.schedule}
         </span>
       </div>
 

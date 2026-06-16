@@ -5,6 +5,8 @@ export type Service = {
   sessionType: "One on One Session" | "Group Session" | "Couples Session";
   duration: string;
   price: number;
+  format: "Individual" | "Group" | "Both";
+  schedule: string;
 };
 
 export type Provider = {
@@ -171,6 +173,7 @@ export function getServicesForProvider(p: Provider): Service[] {
         `A focused one-on-one session exploring ${focus.toLowerCase()} concerns. The provider works with you to identify patterns, set goals, and build a personalized plan grounded in evidence-based practice.`,
       sessionType: "One on One Session" as const,
       duration: "1 hour",
+      format: "Individual" as const,
     },
     {
       titleSuffix: "Deep-Dive Therapy",
@@ -178,6 +181,7 @@ export function getServicesForProvider(p: Provider): Service[] {
         `An in-depth therapy session for those navigating ${focus.toLowerCase()}. The provider creates a safe, judgment-free space to unpack what's coming up and work through it at your own pace.`,
       sessionType: "One on One Session" as const,
       duration: "1 hour 30 minutes",
+      format: "Individual" as const,
     },
     {
       titleSuffix: "Support Session",
@@ -185,7 +189,17 @@ export function getServicesForProvider(p: Provider): Service[] {
         `A supportive check-in around ${focus.toLowerCase()}. Useful for building on previous work, navigating a current challenge, or maintaining momentum between deeper sessions.`,
       sessionType: "One on One Session" as const,
       duration: "45 minutes",
+      format: "Both" as const,
     },
+  ];
+  const dayLabels: Record<string, string> = {
+    M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri", S: "Sat", Su: "Sun",
+  };
+  const allDays = p.availableDays.map((d) => dayLabels[d]);
+  const scheduleVariants = [
+    `${allDays.slice(0, Math.min(3, allDays.length)).join(", ")} · ${p.availableHours}`,
+    `${allDays.slice(-2).join(", ")} · ${p.availableHours}`,
+    `${allDays.join(", ")} · ${p.availableHours}`,
   ];
   return base.map((focus, i) => {
     const t = templates[i % templates.length];
@@ -196,6 +210,8 @@ export function getServicesForProvider(p: Provider): Service[] {
       sessionType: t.sessionType,
       duration: t.duration,
       price: i === 0 ? p.price : Math.round(p.price * (i === 1 ? 1.35 : 0.7)),
+      format: t.format,
+      schedule: scheduleVariants[i % scheduleVariants.length],
     };
   });
 }
