@@ -357,8 +357,33 @@ function ProviderCard({ provider }: { provider: Provider }) {
   return <ProviderCardInner provider={provider} />;
 }
 
+const DAY_MAP: Record<string, string> = {
+  M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri", S: "Sat", Su: "Sun",
+};
 const DAY_ORDER = ["M", "T", "W", "Th", "F", "S", "Su"] as const;
 type DayCode = (typeof DAY_ORDER)[number];
+
+function formatDays(days: readonly DayCode[]): string {
+  if (!days.length) return "By appointment";
+  const sorted = days.slice().sort((a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b));
+  const groups: string[] = [];
+  let start = sorted[0];
+  let prev = sorted[0];
+  for (let i = 1; i <= sorted.length; i++) {
+    const curr = sorted[i];
+    if (curr && DAY_ORDER.indexOf(curr) === DAY_ORDER.indexOf(prev) + 1) {
+      prev = curr;
+    } else {
+      if (start === prev) {
+        groups.push(DAY_MAP[start]);
+      } else {
+        groups.push(`${DAY_MAP[start]}–${DAY_MAP[prev]}`);
+      }
+      start = prev = curr;
+    }
+  }
+  return groups.join(", ");
+}
 
 function AvailabilityStrip({
   days,
@@ -367,37 +392,22 @@ function AvailabilityStrip({
   days: readonly DayCode[];
   modes: ("Online" | "In-person")[];
 }) {
-  const active = new Set(days);
   return (
-    <div
-      className="mt-4 flex flex-wrap items-center justify-between gap-3"
-      aria-label="Weekly availability"
-    >
-      <div className="flex items-center gap-1" role="list">
-        {DAY_ORDER.map((d) => {
-          const on = active.has(d);
-          return (
-            <span
-              key={d}
-              role="listitem"
-              aria-label={`${d}${on ? " available" : " unavailable"}`}
-              className={
-                "flex h-6 min-w-[24px] items-center justify-center rounded-full px-1.5 text-[10.5px] font-semibold leading-none tabular-nums transition-colors " +
-                (on
-                  ? "bg-brand-purple/10 text-brand-purple ring-1 ring-inset ring-brand-purple/20"
-                  : "text-slate-300")
-              }
-            >
-              {d}
-            </span>
-          );
-        })}
+    <div className="mt-4 flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <CalendarDays className="h-3 w-3" />
+          Schedule
+        </span>
+        <span className="text-[13px] font-medium text-slate-700">
+          {formatDays(days)}
+        </span>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {modes.map((m) => (
           <span
             key={m}
-            className="inline-flex items-center gap-1 rounded-full bg-[#F6F3FF] px-2 py-1 text-[10.5px] font-medium text-brand-purple ring-1 ring-inset ring-[#E9E6FA]"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#F6F3FF] px-2.5 py-1 text-[11px] font-medium text-brand-purple ring-1 ring-inset ring-[#E9E6FA]"
           >
             <span
               aria-hidden
