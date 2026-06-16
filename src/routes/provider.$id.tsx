@@ -163,25 +163,6 @@ function ProviderProfilePage() {
                   <div className="relative mt-8 overflow-hidden rounded-2xl bg-[#5D4E8C] p-6 text-white">
                     <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative space-y-4">
-                      <div>
-                        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-100">
-                          Starting at
-                        </p>
-                        <p className="text-[26px] font-bold leading-none">
-                          {services[0] ? (
-                            <>
-                              ₱{services[0].price.toLocaleString()}{" "}
-                              <span className="text-[12px] font-medium text-indigo-200/80">
-                                / {services[0].duration}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-[14px] font-normal text-indigo-200/80">
-                              Sessions available
-                            </span>
-                          )}
-                        </p>
-                      </div>
                       {provider.nextAvailable && (
                         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-1">
                           <span className="relative flex h-2 w-2 shrink-0">
@@ -207,46 +188,6 @@ function ProviderProfilePage() {
                       </button>
                     </div>
                   </div>
-
-                  <div className="mt-8">
-                    <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                      Provider Details
-                    </p>
-                    <div className="space-y-0">
-                      <div className="flex items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <Award className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Experience</span>
-                        </div>
-                        <span className="text-[13px] font-semibold text-[#2C2B4B]">{provider.experience}+ years</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <CalendarDays className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Availability</span>
-                        </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
-                          {compactDays(provider.availableDays.map((d: string) => dayLabels[d]))} · {provider.availableHours}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <Languages className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Languages</span>
-                        </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <Video className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Session type</span>
-                        </div>
-                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
-                          {provider.sessionModes.join(" & ")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* RIGHT: Details + Booking */}
@@ -270,6 +211,46 @@ function ProviderProfilePage() {
                       )}
                       {provider.bio}
                     </p>
+                  </section>
+
+                  <section>
+                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                      Provider Details
+                    </h3>
+                    <div className="space-y-0">
+                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <Award className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <span className="text-[13px] text-[#A89BD0]">Experience</span>
+                        </div>
+                        <span className="text-[13px] font-semibold text-[#2C2B4B]">{provider.experience}+ years</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <CalendarDays className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <span className="text-[13px] text-[#A89BD0]">Availability</span>
+                        </div>
+                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
+                          {compactDays(provider.availableDays.map((d: string) => dayLabels[d]))} · {provider.availableHours}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <Languages className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <span className="text-[13px] text-[#A89BD0]">Languages</span>
+                        </div>
+                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <Video className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
+                          <span className="text-[13px] text-[#A89BD0]">Session type</span>
+                        </div>
+                        <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
+                          {provider.sessionModes.join(" & ")}
+                        </span>
+                      </div>
+                    </div>
                   </section>
 
                   <section>
