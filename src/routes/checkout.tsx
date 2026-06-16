@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import {
   ArrowLeft,
@@ -66,8 +66,6 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const search = Route.useSearch();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _navigate = useNavigate();
 
   const provider = getProviderById(search.providerId);
   const service = useMemo(() => {
