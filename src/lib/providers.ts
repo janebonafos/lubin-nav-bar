@@ -85,6 +85,8 @@ export const PROVIDERS: Provider[] = [
     socialLinks: [
       { label: "Website", url: "https://mariasantos-psych.com" },
       { label: "LinkedIn", url: "https://linkedin.com/in/maria-santos-phd" },
+      { label: "Instagram", url: "https://instagram.com/dr.mariasantos" },
+      { label: "Facebook", url: "https://facebook.com/mariasantospsych" },
     ],
     references: [
       { title: "Cultural Adaptations of CBT in Southeast Asia", year: "2022", description: "Published in the Asian Journal of Psychiatry" },
@@ -119,6 +121,8 @@ export const PROVIDERS: Provider[] = [
     nextAvailable: "Thu, 2:00 PM",
     socialLinks: [
       { label: "Website", url: "https://joshuareyes-counselling.ph" },
+      { label: "Twitter", url: "https://twitter.com/joshuareyes" },
+      { label: "YouTube", url: "https://youtube.com/@joshuareyescounselling" },
     ],
     references: [
       { title: "Narrative Therapy with LGBTQ+ Youth in Manila", year: "2021", description: "Published in the Philippine Journal of Psychology" },
@@ -181,6 +185,8 @@ export const PROVIDERS: Provider[] = [
     socialLinks: [
       { label: "Website", url: "https://paolocruz-psych.com" },
       { label: "LinkedIn", url: "https://linkedin.com/in/paolo-cruz-phd" },
+      { label: "TikTok", url: "https://tiktok.com/@drpaolocruz" },
+      { label: "Instagram", url: "https://instagram.com/dr.paolocruz" },
     ],
     references: [
       { title: "ERP Protocols for OCD in Filipino Adolescents", year: "2019", description: "Published in the Journal of Child Psychology and Psychiatry" },
