@@ -342,15 +342,14 @@ function ProviderProfilePage() {
                   )}
 
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                    <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-1.5">
-                      <Shield className="h-3.5 w-3.5 text-slate-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                        Secure & Confidential
-                      </span>
-                    </div>
+                    <img
+                      src={secureConfidentialBadge.url}
+                      alt="Secure & Confidential — Verified by Lubin"
+                      className="h-8 w-auto"
+                    />
                     {provider.verified && (
                       <p className="text-[10px] font-medium text-slate-400">
-                        Verified by <span className="font-bold text-slate-600">Lubin</span> · Background-checked & credentialed
+                        Background-checked & credentialed
                       </p>
                     )}
                   </div>
