@@ -325,22 +325,22 @@ function FindProviderPage() {
 
             {/* External (web) results — providers not yet on Lubin */}
             {externalResults.length > 0 && (
-              <div className="mt-10">
+              <div className="mt-12 border-t border-dashed border-slate-200 pt-8">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-brand-purple" />
-                      <h2 className="text-[16px] font-bold text-slate-800">
-                        More providers from the web
+                      <Globe className="h-4 w-4 text-slate-400" />
+                      <h2 className="text-[15px] font-semibold text-slate-600">
+                        From around the web
                       </h2>
                     </div>
                     <p className="mt-1 text-[13px] text-slate-500">
-                      Not on Lubin yet — invite them to join so you can book a session.
+                      These providers are <span className="font-semibold text-slate-700">not on Lubin</span> and cannot be booked here. They are unverified listings shown for reference only.
                     </p>
                   </div>
-                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
-                    <Sparkles className="h-3 w-3" />
-                    Web results
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ring-1 ring-inset ring-slate-200">
+                    <Globe className="h-3 w-3" />
+                    External
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
