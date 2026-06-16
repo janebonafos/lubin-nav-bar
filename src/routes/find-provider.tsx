@@ -462,21 +462,20 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
       />
 
       {/* Header: avatar + identity */}
-      <div className="flex items-start gap-4">
-        <div className="relative flex-none">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[16px] font-bold text-white shadow-[0_8px_20px_-8px_rgba(124,113,176,0.6)]">
+      <div className="flex items-start gap-5">
+        <div className="relative flex-none pb-2 pr-3">
+          <div className="flex h-20 w-20 items-center justify-center rounded-[26px] bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[22px] font-bold tracking-wide text-white shadow-[0_14px_28px_-10px_rgba(124,113,176,0.7)] ring-4 ring-white">
             {provider.initials}
           </div>
-          {provider.verified && (
-            <span
-              aria-label="Certified"
-              className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#E9E6FA]"
-            >
-              <BadgeCheck className="h-3.5 w-3.5 text-brand-purple-accent" />
-            </span>
-          )}
+          <span
+            aria-label={`Rated ${provider.rating} out of 5`}
+            className="absolute -bottom-1 -right-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-slate-800 shadow-[0_6px_14px_-4px_rgba(15,23,42,0.18)] ring-1 ring-slate-100"
+          >
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {provider.rating}
+          </span>
         </div>
-        <div className="min-w-0 flex-1 pt-0.5">
+        <div className="min-w-0 flex-1 pt-1">
           <h3 className="truncate text-[16px] font-bold leading-tight text-slate-900">
             {provider.name}
           </h3>
@@ -486,7 +485,7 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
         </div>
       </div>
 
-      {/* Meta row: location + rating */}
+      {/* Meta row: location + reviews */}
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px]">
         <span className="inline-flex min-w-0 items-center gap-1.5 text-slate-500">
           <MapPin className="h-3.5 w-3.5 flex-none text-[#A799E2]" />
