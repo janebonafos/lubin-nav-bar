@@ -96,14 +96,6 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
-  const hasReferences = !!(provider.references && provider.references.length > 0);
-  const [activeTab, setActiveTab] = useState<"overview" | "references" | "services">("overview");
-
-  const tabs = [
-    { id: "overview" as const, label: "Overview" },
-    ...(hasReferences ? [{ id: "references" as const, label: "References" }] : []),
-    { id: "services" as const, label: `Services (${services.length})` },
-  ];
 
   return (
     <div
@@ -211,58 +203,8 @@ function ProviderProfilePage() {
                       </p>
                       <div className="flex flex-wrap items-center gap-2.5">
                         {provider.socialLinks.map((link: SocialLink) => {
-                          const labelLower = link.label.toLowerCase();
-                          const isWebsite = labelLower === "website";
-                          const isLinkedIn = labelLower.includes("linkedin");
-                          const isFacebook = labelLower.includes("facebook");
-                          const isInstagram = labelLower.includes("instagram");
-                          const isYouTube = labelLower.includes("youtube") || labelLower.includes("yt");
-                          const isX = labelLower.includes("x") || labelLower.includes("twitter");
-                          const isTikTok = labelLower.includes("tiktok");
-
-                          let icon = (
-                            <ExternalLink className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
-                          );
-                          if (isWebsite) {
-                            icon = <Globe2 className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />;
-                          } else if (isLinkedIn) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                              </svg>
-                            );
-                          } else if (isFacebook) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                              </svg>
-                            );
-                          } else if (isInstagram) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                              </svg>
-                            );
-                          } else if (isYouTube) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                              </svg>
-                            );
-                          } else if (isX) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                              </svg>
-                            );
-                          } else if (isTikTok) {
-                            icon = (
-                              <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.59-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.28-1.38-3.83-4.14-3.49-6.97.26-2.01 1.56-3.82 3.46-4.71.9-.43 1.89-.65 2.88-.64.42.01.84.06 1.24.15.01 1.49.01 2.98.01 4.47-.49-.09-.99-.12-1.49-.04-1.14.21-2.12 1.05-2.51 2.14-.39 1.09-.11 2.33.68 3.15.77.79 1.93 1.15 3.02.93.94-.19 1.77-.78 2.28-1.58.32-.48.5-1.04.53-1.61.05-1.07.02-2.14.03-3.21.01-3.13-.01-6.26.02-9.39z" />
-                              </svg>
-                            );
-                          }
-
+                          const isWebsite = link.label.toLowerCase() === "website";
+                          const isLinkedIn = link.label.toLowerCase().includes("linkedin");
                           return (
                             <a
                               key={link.label}
@@ -270,13 +212,17 @@ function ProviderProfilePage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               title={link.label}
-                              className="group relative flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F0FA] transition-all hover:bg-[#E9E1F7] hover:scale-105"
+                              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F0FA] transition-all hover:bg-[#E9E1F7] hover:scale-105"
                             >
-                              {icon}
-                              <span className="pointer-events-none absolute -top-9 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#2C2B4B] px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
-                                {link.label}
-                                <span className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-[#2C2B4B]" />
-                              </span>
+                              {isWebsite ? (
+                                <Globe2 className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              ) : isLinkedIn ? (
+                                <svg className="h-4 w-4 text-[#7C6DB1]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                </svg>
+                              ) : (
+                                <ExternalLink className="h-4 w-4 text-[#7C6DB1]" strokeWidth={1.5} />
+                              )}
                             </a>
                           );
                         })}
@@ -302,66 +248,43 @@ function ProviderProfilePage() {
                     )}
                   </div>
 
-                  {/* Tab navigation */}
-                  <div className="flex flex-wrap items-center gap-1.5 rounded-full bg-[#F3F0FA] p-1.5">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => setActiveTab(tab.id)}
-                        className={
-                          "rounded-full px-5 py-2 text-[12.5px] font-semibold transition-all " +
-                          (activeTab === tab.id
-                            ? "bg-white text-[#5D4E8C] shadow-[0_2px_8px_rgba(93,78,140,0.12)]"
-                            : "text-[#7C6DB1] hover:text-[#5D4E8C]")
-                        }
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
+                  <section>
+                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
+                    <p className="text-[17px] leading-relaxed text-slate-600">
+                      {provider.expertise && (
+                        <span className="font-bold text-slate-900">
+                          {provider.expertise}.{" "}
+                        </span>
+                      )}
+                      {provider.bio}
+                    </p>
+                  </section>
 
-                  {/* Tab panels */}
-                  {activeTab === "overview" && (
-                    <div className="space-y-8">
-                      <section>
-                        <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
-                        <p className="text-[17px] leading-relaxed text-slate-600">
-                          {provider.expertise && (
-                            <span className="font-bold text-slate-900">
-                              {provider.expertise}.{" "}
-                            </span>
-                          )}
-                          {provider.bio}
-                        </p>
-                      </section>
-
-                      <section>
-                        <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                          Specialties
-                        </h3>
-                        <div className="flex flex-wrap gap-2.5">
-                          {provider.tags.map((t: string) => (
-                            <span
-                              key={t}
-                              className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </section>
+                  <section>
+                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                      Specialties
+                    </h3>
+                    <div className="flex flex-wrap gap-2.5">
+                      {provider.tags.map((t: string) => (
+                        <span
+                          key={t}
+                          className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
+                        >
+                          {t}
+                        </span>
+                      ))}
                     </div>
-                  )}
+                  </section>
 
-                  {activeTab === "references" && hasReferences && (
+                  {/* References */}
+                  {provider.references && provider.references.length > 0 && (
                     <section>
                       <h3 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
                         <FileText className="h-4 w-4" />
                         Publications & References
                       </h3>
-                      <div className="max-h-[520px] space-y-3 overflow-y-auto pr-1">
-                        {provider.references!.map((ref: Reference, i: number) => (
+                      <div className="space-y-3">
+                        {provider.references.map((ref: Reference, i: number) => (
                           <div
                             key={i}
                             className="rounded-2xl border border-[#EAE7F5] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_12px_rgba(126,107,175,0.08)]"
@@ -400,25 +323,7 @@ function ProviderProfilePage() {
                     </section>
                   )}
 
-                  {activeTab === "services" && (
-                    <section>
-                      <div className="mb-4 flex items-end justify-between gap-4">
-                        <h3 className="text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                          Services offered
-                        </h3>
-                        <span className="rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
-                          {services.length} {services.length === 1 ? "service" : "services"}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {services.map((s) => (
-                          <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Brand booking CTA block — always visible */}
+                  {/* Brand booking CTA block */}
                   <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
                     <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative flex flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -469,6 +374,36 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
+                  {/* Services preview pointer */}
+                  <a
+                    href="#services"
+                    className="group flex items-start justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
+                  >
+                    <div className="flex min-w-0 items-start gap-5">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-400">
+                        {String(services.length).padStart(2, "0")}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          Services Offered
+                        </p>
+                        <div className="mt-1.5 space-y-0.5">
+                          {services.slice(0, 1).map((s) => (
+                            <p key={s.id} className="text-[14px] font-semibold text-slate-700">
+                              {s.title}
+                            </p>
+                          ))}
+                          {services.length > 1 && (
+                            <p className="text-[13px] text-slate-400">
+                              +{services.length - 1} more
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
+                  </a>
+
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
                     <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-slate-500">
                       <Shield className="h-4 w-4" />
@@ -488,6 +423,29 @@ function ProviderProfilePage() {
           </div>
         </section>
 
+        {/* Services */}
+        <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
+
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
+                Services offered
+              </h2>
+              <p className="mt-1.5 text-[14.5px] text-slate-500">
+                Choose a session that fits what you're working on right now.
+              </p>
+            </div>
+            <span className="hidden rounded-full bg-[#F3F0FF] px-3 py-1 text-[12px] font-semibold text-brand-purple sm:inline-flex">
+              {services.length} {services.length === 1 ? "service" : "services"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {services.map((s) => (
+              <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
+            ))}
+          </div>
+        </section>
       </main>
 
       {bookingService && (
