@@ -268,12 +268,12 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-5">
-                    <div className="flex h-8 items-center gap-1.5 rounded-full bg-indigo-50 px-3 text-[11px] font-semibold text-brand-purple">
-                      <Shield className="h-3 w-3" />
+                  <div className="flex flex-wrap items-center gap-3 border-t border-indigo-50 pt-6">
+                    <div className="flex h-9 items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 text-[12px] font-semibold text-brand-purple">
+                      <Shield className="h-3.5 w-3.5" />
                       Secure & confidential
                     </div>
-                    <p className="text-[12.5px] text-slate-500">
+                    <p className="text-[13px] text-slate-500">
                       Verified by{" "}
                       <span className="font-semibold text-slate-700">Lubin</span> · Background-checked & credentialed
                     </p>
