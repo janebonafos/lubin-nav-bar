@@ -139,15 +139,24 @@ function ProviderProfilePage() {
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple">
                       {provider.title}
                     </p>
-                    <div className="flex items-center justify-center gap-1.5 pt-1.5">
-                      <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
-                      <span className="text-[15px] font-bold text-[#2C2B4B]">
-                        {provider.rating}
-                      </span>
-                      <span className="text-[13px] font-normal text-[#A89BD0]">
-                        ({provider.reviews} reviews)
-                      </span>
-                    </div>
+                    {provider.rating != null && provider.reviews != null ? (
+                      <div className="flex items-center justify-center gap-1.5 pt-1.5">
+                        <Star className="h-4 w-4 fill-[#C4A35A] text-[#C4A35A]" />
+                        <span className="text-[15px] font-bold text-[#2C2B4B]">
+                          {provider.rating}
+                        </span>
+                        <span className="text-[13px] font-normal text-[#A89BD0]">
+                          ({provider.reviews} reviews)
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-1.5 pt-1.5">
+                        <Star className="h-4 w-4 text-[#D4D0E0]" strokeWidth={1.5} />
+                        <span className="text-[13px] font-normal text-[#A89BD0]">
+                          No reviews yet
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-8">
