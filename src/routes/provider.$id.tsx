@@ -38,6 +38,7 @@ import {
   type Service,
   type SocialLink,
 } from "@/lib/providers";
+import secureConfidentialBadge from "@/assets/secure-confidential-badge.png.asset.json";
 
 export const Route = createFileRoute("/provider/$id")({
   loader: ({ params }) => {
