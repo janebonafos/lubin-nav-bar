@@ -285,6 +285,23 @@ function ProviderProfilePage() {
                           const isYouTube = label.includes("youtube");
                           const isTikTok = label.includes("tiktok");
                           const isGitHub = label.includes("github");
+
+                          const brandStyle = isLinkedIn
+                            ? "bg-[#E8F4FF] text-[#0A66C2] border-[#0A66C2]/20 hover:bg-[#0A66C2] hover:text-white"
+                            : isInstagram
+                            ? "bg-[#FFF0F5] text-[#E1306C] border-[#E1306C]/20 hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E1306C] hover:to-[#FCAF45] hover:text-white"
+                            : isFacebook
+                            ? "bg-[#E8F2FF] text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2] hover:text-white"
+                            : isTwitter
+                            ? "bg-slate-100 text-slate-900 border-slate-200 hover:bg-slate-900 hover:text-white"
+                            : isYouTube
+                            ? "bg-[#FFF0F0] text-[#FF0000] border-[#FF0000]/20 hover:bg-[#FF0000] hover:text-white"
+                            : isTikTok
+                            ? "bg-[#F0F8FF] text-[#000000] border-slate-200 hover:bg-slate-900 hover:text-white"
+                            : isGitHub
+                            ? "bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-800 hover:text-white"
+                            : "bg-[#F4F0FF] text-brand-purple border-[#EAE7F5] hover:bg-brand-purple hover:text-white";
+
                           return (
                             <a
                               key={link.label}
@@ -292,7 +309,7 @@ function ProviderProfilePage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               title={link.label}
-                              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-slate-400 transition-all hover:border-brand-purple/30 hover:bg-[#F4F0FF] hover:text-brand-purple"
+                              className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all hover:-translate-y-0.5 hover:shadow-md ${brandStyle}`}
                             >
                               {isWebsite ? (
                                 <Globe2 className="h-5 w-5" strokeWidth={2} />
