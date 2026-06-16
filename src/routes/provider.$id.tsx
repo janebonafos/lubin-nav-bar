@@ -344,7 +344,7 @@ function ProviderProfilePage() {
                     </div>
                   )}
 
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
+                  <div className="mt-auto flex flex-wrap items-center justify-end gap-4 border-t border-slate-100 pt-6">
                     <div className="inline-flex items-center gap-3">
                       <ShieldCheck className="h-5 w-5 text-slate-400" strokeWidth={2} />
                       <div className="flex flex-col">
