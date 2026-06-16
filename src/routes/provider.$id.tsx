@@ -152,27 +152,27 @@ function ProviderProfilePage() {
                   </div>
 
                   <div className="mt-10 space-y-4">
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
+                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Experience
                       </p>
-                      <p className="text-[13.5px] font-semibold text-slate-800">
+                      <p className="text-[14.5px] font-semibold text-slate-800">
                         {provider.experience}+ Years Clinical Practice
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
+                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Location
                       </p>
-                      <p className="text-[13.5px] font-semibold text-slate-800">
+                      <p className="text-[14.5px] font-semibold text-slate-800">
                         {provider.location}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
+                      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400">
                         Languages
                       </p>
-                      <p className="text-[13.5px] font-semibold text-slate-800">
+                      <p className="text-[14.5px] font-semibold text-slate-800">
                         {provider.languages.join(", ")}
                       </p>
                     </div>
