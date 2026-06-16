@@ -207,12 +207,12 @@ function ProviderProfilePage() {
                   </section>
 
                   <section>
-                    <h3 className="mb-3 text-[15px] font-bold text-slate-900">Specialties</h3>
-                    <div className="flex flex-wrap gap-2">
+                    <h3 className="mb-4 text-[16px] font-bold text-slate-900">Specialties</h3>
+                    <div className="flex flex-wrap gap-2.5">
                       {provider.tags.map((t: string) => (
                         <span
                           key={t}
-                          className="rounded-full border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-[12.5px] font-medium text-brand-purple-dark"
+                          className="rounded-full border border-indigo-100 bg-indigo-50 px-5 py-2 text-[13px] font-medium text-brand-purple-dark"
                         >
                           {t}
                         </span>
