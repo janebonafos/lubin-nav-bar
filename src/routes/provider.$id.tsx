@@ -141,49 +141,39 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  <div className="mt-8 space-y-3">
-                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
-                          <Award className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                            Experience
-                          </p>
-                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
-                            {provider.experience}+ Years
-                          </p>
+                  <div className="mt-8">
+                    <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                      Provider Details
+                    </p>
+                    <div className="space-y-0">
+                      <div className="flex items-center gap-3 border-b border-slate-100 py-3">
+                        <Award className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                          <span className="text-[13px] text-slate-500">Experience</span>
+                          <span className="text-[13px] font-semibold text-[#2C2B4B]">{provider.experience}+ years</span>
                         </div>
                       </div>
-                    </div>
-                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
-                          <MapPin className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                            Location
-                          </p>
-                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
-                            {provider.location}
-                          </p>
+                      <div className="flex items-center gap-3 border-b border-slate-100 py-3">
+                        <MapPin className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                          <span className="text-[13px] text-slate-500">Location</span>
+                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">{provider.location}</span>
                         </div>
                       </div>
-                    </div>
-                    <div className="group rounded-2xl border border-[#EAE7F5] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:border-brand-purple/30 hover:shadow-[0_4px_16px_rgba(126,107,175,0.08)]">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FF] text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
-                          <Globe2 className="h-4 w-4" />
+                      <div className="flex items-center gap-3 border-b border-slate-100 py-3">
+                        <Globe2 className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                          <span className="text-[13px] text-slate-500">Languages</span>
+                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
                         </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                            Languages
-                          </p>
-                          <p className="text-[14px] font-semibold text-[#2C2B4B]">
-                            {provider.languages.join(", ")}
-                          </p>
+                      </div>
+                      <div className="flex items-center gap-3 py-3">
+                        <Video className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                          <span className="text-[13px] text-slate-500">Session format</span>
+                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
+                            {provider.sessionModes.join(" & ").toLowerCase()}
+                          </span>
                         </div>
                       </div>
                     </div>
