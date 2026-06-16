@@ -312,11 +312,13 @@ function ProviderProfilePage() {
                       <Shield className="h-4 w-4" />
                       <span className="text-[11px] font-bold uppercase tracking-wider">Secure & Confidential</span>
                     </div>
-                    <p className="text-[11px] font-medium text-slate-400">
-                      Verified by{" "}
-                      <span className="font-bold text-[#5D4E8C]">Lubin</span>{" "}
-                      · Background-checked & credentialed
-                    </p>
+                    {provider.verified && (
+                      <p className="text-[11px] font-medium text-slate-400">
+                        Verified by{" "}
+                        <span className="font-bold text-[#5D4E8C]">Lubin</span>{" "}
+                        · Background-checked & credentialed
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
