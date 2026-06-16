@@ -381,6 +381,27 @@ function PatternsPage() {
           )}
 
           {/* Groups */}
+          {q && totalMatches === 0 && (
+            <div className="mt-16 flex flex-col items-center text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-purple/8 text-brand-purple">
+                <Search className="h-6 w-6" strokeWidth={2} />
+              </div>
+              <p className="mt-4 text-[15px] font-semibold text-brand-purple-dark">
+                No check-ins match your search
+              </p>
+              <p className="mt-1 max-w-[320px] text-[13.5px] leading-relaxed text-brand-purple-dark/60">
+                Try a different keyword, or clear your search to browse all check-ins.
+              </p>
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-brand-purple-dark"
+              >
+                <X className="h-3.5 w-3.5" />
+                Clear search
+              </button>
+            </div>
+          )}
           {GROUP_ORDER.map((group) => {
             const items = ASSESSMENTS.filter((a) => a.group === group && matches(a));
             if (items.length === 0) return null;

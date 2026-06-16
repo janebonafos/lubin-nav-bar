@@ -291,13 +291,29 @@ function FindProviderPage() {
             </div>
 
             {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-[#E9E6FA] bg-white p-10 text-center shadow-sm">
-                <p className="text-[15px] font-medium text-slate-700">
-                  No providers match your filters.
+              <div className="flex flex-col items-center rounded-2xl border border-[#E9E6FA] bg-white p-10 text-center shadow-sm">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-purple/8 text-brand-purple">
+                  <Search className="h-6 w-6" strokeWidth={2} />
+                </div>
+                <p className="mt-4 text-[15px] font-semibold text-slate-800">
+                  No providers match your search
                 </p>
-                <p className="mt-1 text-[13.5px] text-slate-500">
-                  Try clearing some filters or adjusting your search.
+                <p className="mt-1 max-w-[320px] text-[13.5px] leading-relaxed text-slate-500">
+                  Try adjusting your filters, clearing your search, or broadening your location.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setLocation("");
+                    setPractices([]);
+                    setPriceIdx([]);
+                  }}
+                  className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-brand-purple-dark"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Clear all filters
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
