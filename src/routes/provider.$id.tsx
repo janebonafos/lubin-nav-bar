@@ -180,7 +180,7 @@ function ProviderProfilePage() {
                 </div>
 
                 {/* RIGHT: Details + Booking */}
-                <div className="flex-1 space-y-8 p-8 md:p-12">
+                <div className="flex-1 space-y-10 p-10 md:p-14">
                   <div className="flex flex-wrap items-center gap-2">
                     {provider.verified && (
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
