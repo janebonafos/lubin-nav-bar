@@ -201,8 +201,6 @@ export const PROVIDERS: Provider[] = [
     tags: ["Students", "Career", "Anxiety"],
     bio: "Supportive counselling for students and early-career professionals navigating overwhelm and direction.",
     location: "Pasig City",
-    rating: 4.6,
-    reviews: 41,
     price: 1400,
     initials: "BG",
     expertise: "Expert in Student & Career Counselling",
