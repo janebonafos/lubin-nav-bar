@@ -300,7 +300,7 @@ function ProviderProfilePage() {
               </div>
               {provider.modalities && provider.modalities.length ? (
                 <ul className="mt-3 space-y-1.5">
-                  {provider.modalities.map((m) => (
+                  {provider.modalities.map((m: string) => (
                     <li key={m} className="flex items-start gap-1.5 text-[13px] text-slate-700">
                       <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
                       {m}
