@@ -514,7 +514,6 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
         days={provider.availableDays}
         modes={provider.sessionModes}
         hours={provider.availableHours}
-        periods={provider.availablePeriods}
       />
 
       <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
