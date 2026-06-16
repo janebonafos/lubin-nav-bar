@@ -159,6 +159,55 @@ function ProviderProfilePage() {
                     )}
                   </div>
 
+                  {/* Booking CTA */}
+                  <div className="relative mt-8 overflow-hidden rounded-2xl bg-[#5D4E8C] p-6 text-white">
+                    <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
+                    <div className="relative space-y-4">
+                      <div>
+                        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-100">
+                          Starting at
+                        </p>
+                        <p className="text-[26px] font-bold leading-none">
+                          {services[0] ? (
+                            <>
+                              ₱{services[0].price.toLocaleString()}{" "}
+                              <span className="text-[12px] font-medium text-indigo-200/80">
+                                / {services[0].duration}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-[14px] font-normal text-indigo-200/80">
+                              Sessions available
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      {provider.nextAvailable && (
+                        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-1">
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                          </span>
+                          <span className="whitespace-nowrap text-[11.5px] font-medium text-white/90">
+                            Next:{" "}
+                            <span className="font-bold text-white">
+                              {provider.nextAvailable}
+                            </span>
+                          </span>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setBookingService(services[0] ?? null)}
+                        disabled={services.length === 0}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-[14px] font-bold text-[#5D4E8C] shadow-xl transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Book Session
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="mt-8">
                     <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
                       Provider Details
@@ -198,13 +247,53 @@ function ProviderProfilePage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* RIGHT: Details + Booking */}
+                <div className="flex-1 space-y-8 p-10 md:p-12">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {provider.verified && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1F7] bg-[#F4F0FF] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        Verified Provider
+                      </span>
+                    )}
+                  </div>
+
+                  <section>
+                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
+                    <p className="text-[17px] leading-relaxed text-slate-600">
+                      {provider.expertise && (
+                        <span className="font-bold text-slate-900">
+                          {provider.expertise}.{" "}
+                        </span>
+                      )}
+                      {provider.bio}
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                      Specialties
+                    </h3>
+                    <div className="flex flex-wrap gap-2.5">
+                      {provider.tags.map((t: string) => (
+                        <span
+                          key={t}
+                          className="rounded-xl border border-[#EAE7F5] bg-[#F3F0FA] px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
 
                   {/* Social Links */}
                   {provider.socialLinks && provider.socialLinks.length > 0 && (
-                    <div className="mt-8">
-                      <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                    <section>
+                      <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
                         Connect
-                      </p>
+                      </h3>
                       <div className="flex flex-wrap items-center gap-2.5">
                         {provider.socialLinks.map((link: SocialLink) => {
                           const label = link.label.toLowerCase();
@@ -252,129 +341,8 @@ function ProviderProfilePage() {
                           );
                         })}
                       </div>
-                    </div>
+                    </section>
                   )}
-                </div>
-
-                {/* RIGHT: Details + Booking */}
-                <div className="flex-1 space-y-8 p-10 md:p-12">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {provider.verified && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E1F7] bg-[#F4F0FF] px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple">
-                        <BadgeCheck className="h-3.5 w-3.5" />
-                        Verified Provider
-                      </span>
-                    )}
-                  </div>
-
-                  <section>
-                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
-                    <p className="text-[17px] leading-relaxed text-slate-600">
-                      {provider.expertise && (
-                        <span className="font-bold text-slate-900">
-                          {provider.expertise}.{" "}
-                        </span>
-                      )}
-                      {provider.bio}
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                      Specialties
-                    </h3>
-                    <div className="flex flex-wrap gap-2.5">
-                      {provider.tags.map((t: string) => (
-                        <span
-                          key={t}
-                          className="rounded-xl border border-[#EAE7F5] bg-[#F3F0FA] px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)]"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </section>
-
-                  {/* Brand booking CTA block */}
-                  <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
-                    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                    <div className="relative flex flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-100">
-                          Starting at
-                        </p>
-                        <p className="text-[34px] font-bold leading-none">
-                          {services[0] ? (
-                            <>
-                              ₱{services[0].price.toLocaleString()}{" "}
-                              <span className="text-[14px] font-medium text-indigo-200/80">
-                                / {services[0].duration}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-[16px] font-normal text-indigo-200/80">
-                              Sessions available
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-stretch gap-3 sm:items-end">
-                        {provider.nextAvailable && (
-                          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-1">
-                            <span className="relative flex h-2 w-2 shrink-0">
-                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                            </span>
-                            <span className="whitespace-nowrap text-[12px] font-medium text-white/90">
-                              Next available:{" "}
-                              <span className="font-bold text-white">
-                                {provider.nextAvailable}
-                              </span>
-                            </span>
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setBookingService(services[0] ?? null)}
-                          disabled={services.length === 0}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-10 py-4 text-[15px] font-bold text-[#5D4E8C] shadow-xl transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <Calendar className="h-4 w-4" />
-                          Book Session
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Services preview pointer */}
-                  <a
-                    href="#services"
-                    className="group flex items-start justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
-                  >
-                    <div className="flex min-w-0 items-start gap-5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-400">
-                        {String(services.length).padStart(2, "0")}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                          Services Offered
-                        </p>
-                        <div className="mt-1.5 space-y-0.5">
-                          {services.slice(0, 1).map((s) => (
-                            <p key={s.id} className="text-[14px] font-semibold text-slate-700">
-                              {s.title}
-                            </p>
-                          ))}
-                          {services.length > 1 && (
-                            <p className="text-[13px] text-slate-400">
-                              +{services.length - 1} more
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
-                  </a>
 
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
                     <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-slate-500">
