@@ -212,11 +212,11 @@ function ProviderProfilePage() {
                   <button
                     type="button"
                     disabled
-                    className="relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-semibold text-slate-400"
+                    className="group relative flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-semibold text-slate-400 transition-colors hover:border-slate-300"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Message
-                    <span className="absolute -top-2 right-3 rounded-full bg-brand-purple px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm">
+                    <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
                       Coming soon
                     </span>
                   </button>
