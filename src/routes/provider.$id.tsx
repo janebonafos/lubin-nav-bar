@@ -23,6 +23,9 @@ import {
   Video,
   X,
   Info,
+  Instagram,
+  Facebook,
+  Youtube,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
