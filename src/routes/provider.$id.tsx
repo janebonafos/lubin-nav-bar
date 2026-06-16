@@ -147,14 +147,18 @@ function ProviderProfilePage() {
                     </p>
                     <div className="space-y-0">
                       <div className="flex items-center gap-3 border-b border-slate-100 py-3">
-                        <Award className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
+                          <Award className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
+                        </div>
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Experience</span>
                           <span className="text-[13px] font-semibold text-[#2C2B4B]">{provider.experience}+ years</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 border-b border-slate-100 py-3">
-                        <MapPin className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
+                          <MapPin className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
+                        </div>
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Availability</span>
                           <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
@@ -167,14 +171,18 @@ function ProviderProfilePage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 border-b border-slate-100 py-3">
-                        <Globe2 className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
+                          <Globe2 className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
+                        </div>
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Languages</span>
                           <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">{provider.languages.join(", ")}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 py-3">
-                        <Video className="h-4 w-4 shrink-0 text-brand-purple" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
+                          <Video className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
+                        </div>
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Session format</span>
                           <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
