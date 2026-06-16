@@ -258,6 +258,107 @@ function ProviderProfilePage() {
 
         {/* Services */}
         <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
+          {/* Credentials & practice — surfaced before booking so users can make an informed choice */}
+          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* License */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <ShieldCheck className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  License
+                </h3>
+              </div>
+              <p className="mt-3 text-[14px] font-semibold text-slate-900">
+                {provider.licenseNumber ?? "Not provided"}
+              </p>
+              {provider.licenseBoard && (
+                <p className="mt-0.5 text-[12px] text-slate-500">{provider.licenseBoard}</p>
+              )}
+              {provider.licenseVerifiedOn ? (
+                <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  <BadgeCheck className="h-3 w-3" />
+                  Verified · {provider.licenseVerifiedOn}
+                </p>
+              ) : (
+                <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-inset ring-amber-100">
+                  Verification pending
+                </p>
+              )}
+            </div>
+
+            {/* Modalities */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <Brain className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Therapy modalities
+                </h3>
+              </div>
+              {provider.modalities && provider.modalities.length ? (
+                <ul className="mt-3 space-y-1.5">
+                  {provider.modalities.map((m) => (
+                    <li key={m} className="flex items-start gap-1.5 text-[13px] text-slate-700">
+                      <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
+                      {m}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-[13px] text-slate-500">Not listed</p>
+              )}
+            </div>
+
+            {/* Practice details */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <User className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Practice
+                </h3>
+              </div>
+              <dl className="mt-3 space-y-2 text-[13px]">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Experience</dt>
+                  <dd className="font-semibold text-slate-900">{provider.experience}+ yrs</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Languages</dt>
+                  <dd className="text-right font-semibold text-slate-900">
+                    {provider.languages.join(", ")}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500">Session formats</dt>
+                  <dd className="text-right font-semibold text-slate-900">
+                    {provider.sessionModes.join(" · ")}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* Cancellation policy */}
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3F0FF] text-brand-purple">
+                  <FileText className="h-4 w-4" />
+                </span>
+                <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">
+                  Cancellation policy
+                </h3>
+              </div>
+              <p className="mt-3 text-[13px] leading-relaxed text-slate-600">
+                {provider.cancellationPolicy ??
+                  "Free cancellation up to 24 hours before your session."}
+              </p>
+            </div>
+          </div>
+
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
