@@ -164,7 +164,7 @@ function ProviderProfilePage() {
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                           <span className="text-[13px] text-slate-500">Availability</span>
                           <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
-                            {compactDays(provider.availableDays.map((d) => dayLabels[d]))} · {provider.availableHours}
+                            {compactDays(provider.availableDays.map((d: string) => dayLabels[d]))} · {provider.availableHours}
                           </span>
                         </div>
                       </div>
