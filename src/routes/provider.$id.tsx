@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Award,
@@ -373,7 +373,7 @@ function BookingModal({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [format, setFormat] = useState<"online" | "in-person">("online");
-  const [confirmed, setConfirmed] = useState(false);
+  const navigate = useNavigate();
 
   const viewMonth = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
   const monthLabel = viewMonth.toLocaleDateString(undefined, {
@@ -392,46 +392,19 @@ function BookingModal({
   const times = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
   const canConfirm = selectedDate && selectedTime;
 
-  if (confirmed) {
-    return (
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
-        onClick={onClose}
-      >
-        <div
-          className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F3F0FF]">
-            <CheckCircle2 className="h-7 w-7 text-brand-purple" />
-          </div>
-          <h3 className="mt-4 text-[18px] font-bold text-slate-900">Session booked</h3>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-slate-500">
-            <span className="font-semibold text-slate-700">{service.title}</span> with{" "}
-            <span className="font-semibold text-slate-700">{provider.name}</span> on{" "}
-            <span className="font-semibold text-slate-700">
-              {selectedDate?.toLocaleDateString(undefined, {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}
-            </span>{" "}
-            at <span className="font-semibold text-slate-700">{selectedTime}</span> is
-            confirmed.
-          </p>
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-6 w-full rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 active:scale-95"
-          >
-            Done
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const goToCheckout = () => {
+    if (!canConfirm || !selectedDate) return;
+    navigate({
+      to: "/checkout",
+      search: {
+        providerId: provider.id,
+        serviceId: service.id,
+        date: selectedDate.toISOString().slice(0, 10),
+        time: selectedTime!,
+        format,
+      },
+    });
+  };
 
   return (
     <div
@@ -585,11 +558,11 @@ function BookingModal({
           <button
             type="button"
             disabled={!canConfirm}
-            onClick={() => setConfirmed(true)}
+            onClick={goToCheckout}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Confirm booking
+            Continue to payment
+            <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
