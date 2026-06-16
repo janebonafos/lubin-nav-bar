@@ -96,6 +96,14 @@ function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
   const [bookingService, setBookingService] = useState<Service | null>(null);
+  const hasReferences = !!(provider.references && provider.references.length > 0);
+  const [activeTab, setActiveTab] = useState<"overview" | "references" | "services">("overview");
+
+  const tabs = [
+    { id: "overview" as const, label: "Overview" },
+    ...(hasReferences ? [{ id: "references" as const, label: "References" }] : []),
+    { id: "services" as const, label: `Services (${services.length})` },
+  ];
 
   return (
     <div
@@ -248,43 +256,66 @@ function ProviderProfilePage() {
                     )}
                   </div>
 
-                  <section>
-                    <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
-                    <p className="text-[17px] leading-relaxed text-slate-600">
-                      {provider.expertise && (
-                        <span className="font-bold text-slate-900">
-                          {provider.expertise}.{" "}
-                        </span>
-                      )}
-                      {provider.bio}
-                    </p>
-                  </section>
+                  {/* Tab navigation */}
+                  <div className="flex flex-wrap items-center gap-1.5 rounded-full bg-[#F3F0FA] p-1.5">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveTab(tab.id)}
+                        className={
+                          "rounded-full px-5 py-2 text-[12.5px] font-semibold transition-all " +
+                          (activeTab === tab.id
+                            ? "bg-white text-[#5D4E8C] shadow-[0_2px_8px_rgba(93,78,140,0.12)]"
+                            : "text-[#7C6DB1] hover:text-[#5D4E8C]")
+                        }
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
 
-                  <section>
-                    <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
-                      Specialties
-                    </h3>
-                    <div className="flex flex-wrap gap-2.5">
-                      {provider.tags.map((t: string) => (
-                        <span
-                          key={t}
-                          className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
-                        >
-                          {t}
-                        </span>
-                      ))}
+                  {/* Tab panels */}
+                  {activeTab === "overview" && (
+                    <div className="space-y-8">
+                      <section>
+                        <h3 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-slate-400">About</h3>
+                        <p className="text-[17px] leading-relaxed text-slate-600">
+                          {provider.expertise && (
+                            <span className="font-bold text-slate-900">
+                              {provider.expertise}.{" "}
+                            </span>
+                          )}
+                          {provider.bio}
+                        </p>
+                      </section>
+
+                      <section>
+                        <h3 className="mb-4 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                          Specialties
+                        </h3>
+                        <div className="flex flex-wrap gap-2.5">
+                          {provider.tags.map((t: string) => (
+                            <span
+                              key={t}
+                              className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </section>
                     </div>
-                  </section>
+                  )}
 
-                  {/* References */}
-                  {provider.references && provider.references.length > 0 && (
+                  {activeTab === "references" && hasReferences && (
                     <section>
                       <h3 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
                         <FileText className="h-4 w-4" />
                         Publications & References
                       </h3>
-                      <div className="space-y-3">
-                        {provider.references.map((ref: Reference, i: number) => (
+                      <div className="max-h-[520px] space-y-3 overflow-y-auto pr-1">
+                        {provider.references!.map((ref: Reference, i: number) => (
                           <div
                             key={i}
                             className="rounded-2xl border border-[#EAE7F5] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_12px_rgba(126,107,175,0.08)]"
@@ -323,7 +354,25 @@ function ProviderProfilePage() {
                     </section>
                   )}
 
-                  {/* Brand booking CTA block */}
+                  {activeTab === "services" && (
+                    <section>
+                      <div className="mb-4 flex items-end justify-between gap-4">
+                        <h3 className="text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                          Services offered
+                        </h3>
+                        <span className="rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
+                          {services.length} {services.length === 1 ? "service" : "services"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {services.map((s) => (
+                          <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Brand booking CTA block — always visible */}
                   <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
                     <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative flex flex-col items-stretch gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -374,36 +423,6 @@ function ProviderProfilePage() {
                     </div>
                   </div>
 
-                  {/* Services preview pointer */}
-                  <a
-                    href="#services"
-                    className="group flex items-start justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
-                  >
-                    <div className="flex min-w-0 items-start gap-5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-400">
-                        {String(services.length).padStart(2, "0")}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                          Services Offered
-                        </p>
-                        <div className="mt-1.5 space-y-0.5">
-                          {services.slice(0, 1).map((s) => (
-                            <p key={s.id} className="text-[14px] font-semibold text-slate-700">
-                              {s.title}
-                            </p>
-                          ))}
-                          {services.length > 1 && (
-                            <p className="text-[13px] text-slate-400">
-                              +{services.length - 1} more
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
-                  </a>
-
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
                     <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-slate-500">
                       <Shield className="h-4 w-4" />
@@ -423,29 +442,6 @@ function ProviderProfilePage() {
           </div>
         </section>
 
-        {/* Services */}
-        <section id="services" className="mx-auto mt-14 w-full max-w-6xl px-4 scroll-mt-24">
-
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
-                Services offered
-              </h2>
-              <p className="mt-1.5 text-[14.5px] text-slate-500">
-                Choose a session that fits what you're working on right now.
-              </p>
-            </div>
-            <span className="hidden rounded-full bg-[#F3F0FF] px-3 py-1 text-[12px] font-semibold text-brand-purple sm:inline-flex">
-              {services.length} {services.length === 1 ? "service" : "services"}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
-            ))}
-          </div>
-        </section>
       </main>
 
       {bookingService && (
