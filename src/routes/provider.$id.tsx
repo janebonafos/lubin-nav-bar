@@ -391,7 +391,7 @@ function ProviderProfilePage() {
 
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
+              <h2 className="font-serif-display text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[36px]">
                 Services offered
               </h2>
               <p className="mt-1.5 text-[14.5px] text-slate-500">
@@ -435,7 +435,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
       />
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-[20px] font-semibold leading-snug text-slate-900">
+        <h3 className="font-serif-display text-[20px] font-semibold leading-snug text-slate-900">
           {service.title}
         </h3>
 
