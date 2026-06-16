@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   CreditCard,
+  Globe2,
   Lock,
   MapPin,
   ShieldCheck,
