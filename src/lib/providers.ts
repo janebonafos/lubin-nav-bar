@@ -12,6 +12,18 @@ export type Service = {
   maxParticipants?: number;
 };
 
+export type SocialLink = {
+  label: string;
+  url: string;
+};
+
+export type Reference = {
+  title: string;
+  url?: string;
+  description?: string;
+  year?: string;
+};
+
 export type Provider = {
   id: string;
   name: string;
@@ -39,6 +51,8 @@ export type Provider = {
   modalities?: string[];
   cancellationPolicy?: string;
   nextAvailable?: string;
+  socialLinks?: SocialLink[];
+  references?: Reference[];
 };
 
 export const PROVIDERS: Provider[] = [
