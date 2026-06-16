@@ -260,7 +260,7 @@ function ProviderProfilePage() {
                         type="button"
                         onClick={() => setBookingService(services[0] ?? null)}
                         disabled={services.length === 0}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3.5 text-[13.5px] font-bold text-brand-purple-dark shadow-lg shadow-brand-purple-dark/30 transition-all hover:-translate-y-0.5 hover:bg-brand-lavender active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-lavender px-7 py-3.5 text-[13.5px] font-bold text-brand-purple-dark shadow-lg shadow-brand-purple-dark/20 transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Calendar className="h-4 w-4" />
                         Book Session
