@@ -8,6 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  ExternalLink,
+  FileText,
   Globe2,
   Heart,
   MessageCircle,
@@ -190,6 +192,36 @@ function ProviderProfilePage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Social Links */}
+                  {provider.socialLinks && provider.socialLinks.length > 0 && (
+                    <div className="mt-8">
+                      <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                        Connect
+                      </p>
+                      <div className="space-y-0">
+                        {provider.socialLinks.map((link) => (
+                          <a
+                            key={link.label}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 py-3 transition-colors hover:text-brand-purple"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F3F0FA]">
+                              <ExternalLink className="h-3.5 w-3.5 text-[#7C6DB1]" strokeWidth={1.5} />
+                            </div>
+                            <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                              <span className="text-[13px] text-slate-500">{link.label}</span>
+                              <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
+                                {link.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                              </span>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* RIGHT: Details + Booking */}
@@ -236,6 +268,53 @@ function ProviderProfilePage() {
                       ))}
                     </div>
                   </section>
+
+                  {/* References */}
+                  {provider.references && provider.references.length > 0 && (
+                    <section>
+                      <h3 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                        <FileText className="h-4 w-4" />
+                        Publications & References
+                      </h3>
+                      <div className="space-y-3">
+                        {provider.references.map((ref, i) => (
+                          <div
+                            key={i}
+                            className="rounded-2xl border border-[#EAE7F5] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_12px_rgba(126,107,175,0.08)]"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[14px] font-semibold leading-snug text-[#2C2B4B]">
+                                  {ref.url ? (
+                                    <a
+                                      href={ref.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="hover:text-brand-purple hover:underline"
+                                    >
+                                      {ref.title}
+                                    </a>
+                                  ) : (
+                                    ref.title
+                                  )}
+                                </p>
+                                {ref.description && (
+                                  <p className="mt-1 text-[12.5px] leading-relaxed text-slate-500">
+                                    {ref.description}
+                                  </p>
+                                )}
+                              </div>
+                              {ref.year && (
+                                <span className="shrink-0 rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
+                                  {ref.year}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
 
                   {/* Brand booking CTA block */}
                   <div className="relative overflow-hidden rounded-3xl bg-[#5D4E8C] p-8 text-white">
