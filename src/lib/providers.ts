@@ -203,6 +203,30 @@ export const PROVIDERS: Provider[] = [
   },
 ];
 
+export const dayLabels: Record<string, string> = {
+  M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri", S: "Sat", Su: "Sun",
+};
+
+export function compactDays(days: string[]): string {
+  if (days.length === 0) return "";
+  const order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const idx = (d: string) => order.indexOf(d);
+  let groups: string[][] = [];
+  let current: string[] = [days[0]];
+  for (let i = 1; i < days.length; i++) {
+    if (idx(days[i]) === idx(days[i - 1]) + 1) {
+      current.push(days[i]);
+    } else {
+      groups.push(current);
+      current = [days[i]];
+    }
+  }
+  groups.push(current);
+  return groups
+    .map((g) => (g.length > 2 ? `${g[0]}\u2013${g[g.length - 1]}` : g.join(", ")))
+    .join(", ");
+}
+
 /**
  * Build a default set of services for a provider based on their specialties.
  * Used as a fallback when a provider hasn't authored explicit services yet.
@@ -236,30 +260,7 @@ export function getServicesForProvider(p: Provider): Service[] {
       format: "Both" as const,
     },
   ];
-  const dayLabels: Record<string, string> = {
-    M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri", S: "Sat", Su: "Sun",
-  };
   const allDays = p.availableDays.map((d) => dayLabels[d]);
-  // Compact consecutive days into ranges when possible
-  function compactDays(days: string[]): string {
-    if (days.length === 0) return "";
-    const order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const idx = (d: string) => order.indexOf(d);
-    let groups: string[][] = [];
-    let current: string[] = [days[0]];
-    for (let i = 1; i < days.length; i++) {
-      if (idx(days[i]) === idx(days[i - 1]) + 1) {
-        current.push(days[i]);
-      } else {
-        groups.push(current);
-        current = [days[i]];
-      }
-    }
-    groups.push(current);
-    return groups
-      .map((g) => (g.length > 2 ? `${g[0]}–${g[g.length - 1]}` : g.join(", ")))
-      .join(", ");
-  }
   const compacted = compactDays(allDays);
   const scheduleVariants = [
     `${compacted} · ${p.availableHours}`,
