@@ -156,8 +156,14 @@ function ProviderProfilePage() {
                       <div className="flex items-center gap-3 border-b border-slate-100 py-3">
                         <MapPin className="h-4 w-4 shrink-0 text-brand-purple" />
                         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                          <span className="text-[13px] text-slate-500">Location</span>
-                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">{provider.location}</span>
+                          <span className="text-[13px] text-slate-500">Availability</span>
+                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
+                            {provider.sessionModes.includes("Online") && !provider.sessionModes.includes("In-person")
+                              ? "Available online"
+                              : provider.sessionModes.includes("In-person") && !provider.sessionModes.includes("Online")
+                              ? `${provider.location} area`
+                              : `Online · ${provider.location} area`}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 border-b border-slate-100 py-3">
@@ -708,8 +714,8 @@ function BookingModal({
             <div className="flex items-start gap-2.5 rounded-xl border border-[#E9E6FA] bg-[#FBFAFF] p-3.5">
               <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
-                <span className="font-semibold text-slate-700">In-person · {provider.location}.</span>{" "}
-                Exact clinic address is shared after your booking is confirmed.
+                <span className="font-semibold text-slate-700">In-person · {provider.location} area.</span>{" "}
+                For your provider's privacy, the exact clinic address is shared by email once your booking is confirmed.
               </p>
             </div>
           )}
