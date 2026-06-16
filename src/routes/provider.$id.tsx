@@ -195,8 +195,8 @@ function ProviderProfilePage() {
                   </div>
 
                   <section>
-                    <h3 className="mb-3 text-[15px] font-bold text-slate-900">About</h3>
-                    <p className="leading-relaxed text-slate-600">
+                    <h3 className="mb-4 text-[16px] font-bold text-slate-900">About</h3>
+                    <p className="text-[15px] leading-relaxed text-slate-600">
                       {provider.expertise && (
                         <span className="font-medium text-[#3D2E6B] border-b-2 border-[#E9E4F5]">
                           {provider.expertise}.{" "}
