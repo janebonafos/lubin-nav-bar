@@ -203,13 +203,15 @@ function ProviderProfilePage() {
                   Book a session or send a quick message to get started.
                 </p>
                 <div className="mt-4 space-y-2">
-                  <a
-                    href="#services"
+                  <button
+                    type="button"
+                    onClick={() => setBookingService(services[0] ?? null)}
+                    disabled={services.length === 0}
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-95"
                   >
                     <Calendar className="h-4 w-4" />
                     Book a session
-                  </a>
+                  </button>
                   <button
                     type="button"
                     disabled
