@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Award,
   BadgeCheck,
+  BadgeCheck,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +16,7 @@ import {
   MessageCircle,
   MapPin,
   Shield,
+  ShieldCheck,
   Sparkles,
   Star,
   User,
@@ -38,7 +40,7 @@ import {
   type Service,
   type SocialLink,
 } from "@/lib/providers";
-import secureConfidentialBadge from "@/assets/secure-confidential-badge.png.asset.json";
+
 
 
 export const Route = createFileRoute("/provider/$id")({
@@ -344,13 +346,21 @@ function ProviderProfilePage() {
                   )}
 
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                    <img
-                      src={secureConfidentialBadge.url}
-                      alt="Secure & Confidential — Verified by Lubin"
-                      className="h-8 w-auto"
-                    />
+                    <div className="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300">
+                        <ShieldCheck className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
+                          Secure & Confidential
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-400">
+                          Verified by <span className="font-bold text-slate-600">Lubin</span>
+                        </span>
+                      </div>
+                    </div>
                     {provider.verified && (
-                      <p className="text-[10px] font-medium text-slate-400">
+                      <p className="text-sm font-medium text-slate-400">
                         Background-checked & credentialed
                       </p>
                     )}
