@@ -507,7 +507,7 @@ function BookingModal({
                       setSelectedDate(d);
                       setSelectedTime(null);
                     }}
-                    className={`aspect-square rounded-full text-[13px] font-medium transition-colors ${
+                    className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-medium transition-colors ${
                       isSelected
                         ? "bg-brand-purple text-white shadow-[0_6px_14px_-6px_rgba(124,113,176,0.7)]"
                         : isPast
