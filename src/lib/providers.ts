@@ -32,8 +32,8 @@ export type Provider = {
   tags: string[];
   bio: string;
   location: string;
-  rating: number;
-  reviews: number;
+  rating?: number;
+  reviews?: number;
   price: number;
   initials: string;
   verified?: boolean;
