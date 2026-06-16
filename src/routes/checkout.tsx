@@ -25,7 +25,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/checkout")({
-  validateSearch: searchSchema,
+  validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
   component: CheckoutPage,
   head: () => ({
     meta: [
