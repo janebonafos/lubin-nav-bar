@@ -202,7 +202,7 @@ function ProviderProfilePage() {
                         Connect
                       </p>
                       <div className="space-y-0">
-                        {provider.socialLinks.map((link) => (
+                        {provider.socialLinks.map((link: SocialLink) => (
                           <a
                             key={link.label}
                             href={link.url}
@@ -279,7 +279,7 @@ function ProviderProfilePage() {
                         Publications & References
                       </h3>
                       <div className="space-y-3">
-                        {provider.references.map((ref, i) => (
+                        {provider.references.map((ref: Reference, i: number) => (
                           <div
                             key={i}
                             className="rounded-2xl border border-[#EAE7F5] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_12px_rgba(126,107,175,0.08)]"
