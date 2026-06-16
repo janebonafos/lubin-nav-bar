@@ -180,7 +180,7 @@ function ProviderProfilePage() {
                       <div className="flex items-center justify-between gap-4 py-3">
                         <div className="flex items-center gap-3">
                           <Video className="h-4 w-4 text-[#A89BD0]" strokeWidth={1.5} />
-                          <span className="text-[13px] text-[#A89BD0]">Session format</span>
+                          <span className="text-[13px] text-[#A89BD0]">Session type</span>
                         </div>
                         <span className="truncate text-right text-[13px] font-semibold text-[#2C2B4B]">
                           {provider.sessionModes.join(" & ")}
