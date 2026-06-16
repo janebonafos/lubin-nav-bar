@@ -146,90 +146,90 @@ function ProviderProfilePage() {
 
               {/* Identity */}
               <div className="min-w-0 flex-1">
-                {/* Name + Rating row */}
-                <div className="flex flex-wrap items-end gap-4">
-                  <h1 className="font-serif-display text-[36px] font-medium leading-[1.05] tracking-tight text-[#1A1625] sm:text-[46px]">
-                    {provider.name}
-                  </h1>
-                  <div className="mb-1.5 flex items-center gap-2">
-                    <span
-                      title="Sample rating shown for demo purposes. Real reviews launch with verified bookings."
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#FDFDFF] px-3 py-1 ring-1 ring-inset ring-[#E9E4F5]"
-                    >
-                      <Star className="h-3.5 w-3.5 fill-[#8B7BB1] text-[#8B7BB1]" />
-                      <span className="text-[13px] font-bold text-[#7C69A3]">{provider.rating}</span>
-                      <span className="text-[12px] font-medium text-[#9489B2]">({provider.reviews})</span>
+                {/* Kicker + Name */}
+                <div className="flex items-center gap-3 mb-3">
+                  {provider.verified && (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700">
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      Verified Provider
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                      <Info className="h-2.5 w-2.5" />
-                      Sample
-                    </span>
+                  )}
+                  <span className="h-px flex-1 bg-[#E9E4F5]" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                    <Info className="h-2.5 w-2.5" />
+                    Sample
+                  </span>
+                </div>
+
+                <h1 className="font-serif-display text-[42px] font-semibold leading-[1] tracking-tight text-[#1A1625] sm:text-[52px]">
+                  {provider.name}
+                </h1>
+
+                {/* Title + Rating */}
+                <div className="mt-3 flex flex-wrap items-center gap-4">
+                  <p className="text-[17px] font-normal italic text-[#7E6BAF] sm:text-[19px]">
+                    {provider.title}
+                  </p>
+                  <span className="h-4 w-px bg-[#D4CFE8]" />
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5 fill-[#C4A35A] text-[#C4A35A]" />
+                    <span className="text-[13px] font-semibold text-[#1A1625]">{provider.rating}</span>
+                    <span className="text-[12px] text-[#9489B2]">({provider.reviews} reviews)</span>
                   </div>
                 </div>
 
-                {/* Title */}
-                <p className="mt-2 text-[18px] font-medium italic text-brand-purple sm:text-[20px]">
-                  {provider.title}
-                </p>
-
-                {/* Meta grid */}
-                <div className="mt-6 grid grid-cols-1 gap-y-4 gap-x-10 sm:grid-cols-2">
-                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
-                      <MapPin className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
-                    </div>
+                {/* Horizontal meta bar */}
+                <div className="mt-7 flex flex-wrap items-center gap-y-2 gap-x-6 border-y border-[#E9E4F5] py-4 text-[13px]">
+                  <div className="flex items-center gap-2 text-[#5A5270]">
+                    <MapPin className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
                     <span className="font-medium">{provider.location}</span>
                   </div>
-                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
-                      <Globe2 className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
-                    </div>
-                    <span className="font-medium">Speaks {provider.languages.join(", ")}</span>
+                  <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
+                  <div className="flex items-center gap-2 text-[#5A5270]">
+                    <Globe2 className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
+                    <span className="font-medium">{provider.languages.join(", ")}</span>
                   </div>
-                  <div className="group/item flex items-center gap-3 text-[13px] text-[#5A5270]">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#F0EDF9] bg-[#FDFDFF] transition-colors group-hover/item:border-brand-purple/30">
-                      <Award className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
-                    </div>
-                    <span className="font-medium">{provider.experience}+ yrs experience</span>
+                  <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
+                  <div className="flex items-center gap-2 text-[#5A5270]">
+                    <Award className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
+                    <span className="font-medium">{provider.experience}+ yrs</span>
                   </div>
                   {provider.licenseNumber && (
-                    <div className="group/verify relative flex items-center gap-3 text-[13px] text-[#5A5270]">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFF] transition-colors group-hover/verify:bg-brand-lavender">
-                        <BadgeCheck className="h-4 w-4 text-brand-purple" strokeWidth={1.5} />
-                      </div>
-                      <span className="font-medium">
-                        {provider.licenseNumber}
+                    <>
+                      <span className="hidden sm:inline h-3.5 w-px bg-[#D4CFE8]" />
+                      <div className="flex items-center gap-2 text-[#5A5270]">
+                        <BadgeCheck className="h-3.5 w-3.5 text-[#A89BD0]" strokeWidth={1.5} />
+                        <span className="font-medium">{provider.licenseNumber}</span>
                         {provider.licenseVerifiedOn ? (
-                          <span className="ml-1.5 text-[11px] text-emerald-600">· Verified</span>
+                          <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Verified</span>
                         ) : (
-                          <span className="ml-1.5 text-[11px] text-amber-500">· Pending</span>
+                          <span className="text-[10px] font-semibold text-amber-500 uppercase tracking-wider">Pending</span>
                         )}
-                      </span>
-                    </div>
+                      </div>
+                    </>
                   )}
                 </div>
 
-                {/* Expertise highlight */}
+                {/* Expertise — editorial pull-quote style */}
                 {provider.expertise && (
-                  <div className="group mt-6 inline-flex items-center gap-3 rounded-[1.25rem] border border-[#F0EDF9] bg-gradient-to-r from-brand-lavender/40 to-white px-5 py-3 shadow-sm transition-shadow hover:shadow-md">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-lavender bg-white text-brand-purple shadow-sm">
-                      <Sparkles className="h-4 w-4" />
-                    </span>
-                    <p className="text-[13px] font-bold tracking-wide text-[#6B5A91]">{provider.expertise}</p>
+                  <div className="mt-8 border-l-2 border-[#7E6BAF] pl-5">
+                    <p className="text-[15px] font-medium italic leading-relaxed text-[#4A4458]">
+                      {provider.expertise}
+                    </p>
                   </div>
                 )}
 
                 {/* Bio */}
-                <p className="mt-7 max-w-2xl text-[15.5px] leading-relaxed text-[#4A4458]">
+                <p className="mt-7 max-w-2xl text-[16px] leading-[1.7] text-[#4A4458]">
                   {provider.bio}
                 </p>
 
                 {/* Tags */}
-                <div className="mt-6 flex flex-wrap gap-2.5">
+                <div className="mt-7 flex flex-wrap gap-2">
                   {provider.tags.map((t: string) => (
                     <span
                       key={t}
-                      className="cursor-default rounded-full border border-[#E9E4F5] bg-[#FAF9FF] px-5 py-2 text-[13px] font-semibold text-brand-purple transition-all hover:border-brand-purple/40 hover:bg-white hover:shadow-sm"
+                      className="cursor-default rounded-md border border-[#E9E4F5] bg-white px-3.5 py-1.5 text-[12px] font-semibold tracking-wide text-[#7E6BAF] uppercase transition-all hover:border-[#7E6BAF]/40 hover:bg-[#FAF9FF]"
                     >
                       {t}
                     </span>
