@@ -289,9 +289,9 @@ function ProviderProfilePage() {
                   {/* Services preview pointer */}
                   <a
                     href="#services"
-                    className="group flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
+                    className="group flex items-start justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-5 transition-colors hover:bg-slate-100"
                   >
-                    <div className="flex min-w-0 items-center gap-5">
+                    <div className="flex min-w-0 items-start gap-5">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-400">
                         {String(services.length).padStart(2, "0")}
                       </div>
@@ -299,12 +299,16 @@ function ProviderProfilePage() {
                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                           Services Offered
                         </p>
-                        <p className="mt-0.5 truncate text-[14px] font-semibold text-slate-700">
-                          {services.slice(0, 3).map((s) => s.title).join(" · ")}
-                        </p>
+                        <div className="mt-1.5 space-y-0.5">
+                          {services.slice(0, 3).map((s) => (
+                            <p key={s.id} className="text-[14px] font-semibold text-slate-700">
+                              {s.title}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
+                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-[#5D4E8C]" />
                   </a>
 
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
