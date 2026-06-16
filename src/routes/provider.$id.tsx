@@ -40,6 +40,7 @@ import {
 } from "@/lib/providers";
 import secureConfidentialBadge from "@/assets/secure-confidential-badge.png.asset.json";
 
+
 export const Route = createFileRoute("/provider/$id")({
   loader: ({ params }) => {
     const provider = getProviderById(params.id);
