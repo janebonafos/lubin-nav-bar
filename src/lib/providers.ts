@@ -227,7 +227,7 @@ export function getServicesForProvider(p: Provider): Service[] {
   ];
   return base.map((focus, i) => {
     const t = templates[i % templates.length];
-    const isGroupCapable = t.format === "Group" || t.format === "Both";
+    const isGroupCapable = t.format === "Both";
     return {
       id: `${p.id}-s${i + 1}`,
       title: `${focus} ${t.titleSuffix}`,
