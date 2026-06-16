@@ -5,6 +5,7 @@ import {
   Award,
   BadgeCheck,
   Calendar,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
