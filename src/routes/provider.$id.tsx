@@ -345,7 +345,7 @@ function ProviderProfilePage() {
                   )}
 
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                    <div className="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+                    <div className="inline-flex items-center gap-3">
                       <ShieldCheck className="h-5 w-5 text-slate-400" strokeWidth={2} />
                       <div className="flex flex-col">
                         <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
