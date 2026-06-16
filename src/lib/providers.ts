@@ -185,6 +185,8 @@ export const PROVIDERS: Provider[] = [
     socialLinks: [
       { label: "Website", url: "https://paolocruz-psych.com" },
       { label: "LinkedIn", url: "https://linkedin.com/in/paolo-cruz-phd" },
+      { label: "TikTok", url: "https://tiktok.com/@drpaolocruz" },
+      { label: "Instagram", url: "https://instagram.com/dr.paolocruz" },
     ],
     references: [
       { title: "ERP Protocols for OCD in Filipino Adolescents", year: "2019", description: "Published in the Journal of Child Psychology and Psychiatry" },
