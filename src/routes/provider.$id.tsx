@@ -221,7 +221,7 @@ function ProviderProfilePage() {
                   </section>
 
                   {/* Brand booking CTA block */}
-                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-gradient-to-br from-brand-purple-dark to-brand-purple p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col items-stretch gap-5 rounded-3xl bg-gradient-to-br from-brand-purple-dark to-brand-purple p-7 text-white sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-brand-lavender/70">
                         Starting at
