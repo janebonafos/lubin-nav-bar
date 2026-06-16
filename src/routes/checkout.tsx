@@ -142,7 +142,7 @@ function CheckoutPage() {
           <div className="mt-6 rounded-2xl border border-[#E9E6FA] bg-white p-5 text-left shadow-sm">
             <p className="text-[13px] font-semibold text-slate-900">{service.title}</p>
             <p className="mt-1 text-[12.5px] text-slate-500">
-              with {provider.name} · {dateLabel} at {search.time}
+              with {provider.name} · {dateLabel} at {search.time} PHT (GMT+8)
             </p>
           </div>
           <Link
