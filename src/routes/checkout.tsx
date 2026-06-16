@@ -272,12 +272,30 @@ function CheckoutPage() {
                 {search.time} · {service.duration}
               </li>
               <li className="flex items-center gap-2">
+                <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
+                Philippine Time (PHT, GMT+8)
+              </li>
+              <li className="flex items-start gap-2">
                 {search.format === "online" ? (
-                  <Video className="h-3.5 w-3.5 text-brand-purple" />
+                  <Video className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 ) : (
-                  <MapPin className="h-3.5 w-3.5 text-brand-purple" />
+                  <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 )}
-                {search.format === "online" ? "Online (video)" : `In-person · ${provider.location}`}
+                <span>
+                  {search.format === "online" ? (
+                    <>
+                      <span className="font-semibold text-slate-700">Online (video).</span>{" "}
+                      Secure link emailed after payment.
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-semibold text-slate-700">
+                        In-person · {provider.location}.
+                      </span>{" "}
+                      Exact address shared after confirmation.
+                    </>
+                  )}
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <UserIcon className="h-3.5 w-3.5 text-brand-purple" />
