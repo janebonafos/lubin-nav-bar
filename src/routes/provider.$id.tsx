@@ -287,7 +287,7 @@ function ProviderProfilePage() {
                       {provider.tags.map((t: string) => (
                         <span
                           key={t}
-                          className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-[0_4px_12px_rgba(126,107,175,0.1)]"
+                          className="rounded-xl border border-[#EAE7F5] bg-[#F3F0FA] px-5 py-2.5 text-[13px] font-semibold text-[#3D2E6B] shadow-[0_1px_4px_rgba(0,0,0,0.02)]"
                         >
                           {t}
                         </span>
