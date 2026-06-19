@@ -365,11 +365,11 @@ function ProfilePage() {
                 ["discovery", "Discovery", Compass],
                 ["chat", "Chat", MessageCircle],
               ] as const).map(([key, label, Icon]) => {
-                const active = activeSpaceTab === key;
+                const active = activeSection === key;
                 return (
                   <button
                     key={key}
-                    onClick={() => setActiveSpaceTab(key)}
+                    onClick={() => setActiveSection(key)}
                     className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold transition ${
                       active
                         ? "bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/30"
@@ -385,7 +385,7 @@ function ProfilePage() {
 
             {/* Tab content */}
             <div className="flex-1">
-              {activeSpaceTab === "passport" && (
+              {activeSection === "passport" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -457,7 +457,7 @@ function ProfilePage() {
                 </div>
               )}
 
-              {activeSpaceTab === "discovery" && (
+              {activeSection === "discovery" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -512,7 +512,7 @@ function ProfilePage() {
                 </div>
               )}
 
-              {activeSpaceTab === "chat" && (
+              {activeSection === "chat" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
