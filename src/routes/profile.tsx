@@ -2,7 +2,6 @@ import { useState, type ChangeEvent, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Camera,
-  Pencil,
   Mail,
   Phone,
   Sparkles,
@@ -17,8 +16,8 @@ import {
   Plus,
   CalendarCheck,
   ClipboardList,
-  Lock,
   KeyRound,
+  Pencil,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
