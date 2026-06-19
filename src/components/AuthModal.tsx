@@ -235,7 +235,7 @@ export default function AuthModal({
 
         <h2
           id="auth-modal-title"
-          className={`text-[22px] font-bold leading-tight text-[#1F1B2E] ${isSignup ? "pl-10" : ""}`}
+          className={`text-[22px] font-bold leading-tight text-[#1F1B2E] ${isSignup ? "pl-8" : ""}`}
         >
           {title} <span className="text-[#7E6BAF]">{titleAccent}</span>
         </h2>
