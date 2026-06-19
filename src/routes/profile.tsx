@@ -9,7 +9,6 @@ import {
   HeartPulse,
   Compass,
   MessageCircle,
-  Sparkles,
   TrendingUp,
   MessageSquare,
   Plus,
