@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight, HeartPulse, Briefcase, ArrowLeft } from "lucide-react";
+import { X, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
@@ -146,9 +146,6 @@ export default function AuthModal({
               onClick={() => handleSelectRole("client")}
               className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
-                <HeartPulse className="h-6 w-6" />
-              </div>
               <div>
                 <span className="block text-[15px] font-semibold text-[#1F1B2E]">
                   I need support
@@ -165,9 +162,6 @@ export default function AuthModal({
               onClick={() => handleSelectRole("provider")}
               className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
-                <Briefcase className="h-6 w-6" />
-              </div>
               <div>
                 <span className="block text-[15px] font-semibold text-[#1F1B2E]">
                   I'm a provider
@@ -251,17 +245,7 @@ export default function AuthModal({
 
         {isSignup && selectedRole && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#F4EFFB] px-3 py-1.5 text-[12px] font-medium text-[#7E6BAF]">
-            {selectedRole === "client" ? (
-              <>
-                <HeartPulse className="h-3.5 w-3.5" />
-                I need support
-              </>
-            ) : (
-              <>
-                <Briefcase className="h-3.5 w-3.5" />
-                I'm a provider
-              </>
-            )}
+            {selectedRole === "client" ? "I need support" : "I'm a provider"}
           </div>
         )}
 
