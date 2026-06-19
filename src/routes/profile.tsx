@@ -4,7 +4,6 @@ import {
   Camera,
   Pencil,
   Check,
-  ShieldCheck,
   ArrowRight,
   HeartPulse,
   Compass,
@@ -14,7 +13,6 @@ import {
   Plus,
   CalendarCheck,
   ClipboardList,
-  KeyRound,
   Link2,
   Unlink,
 } from "lucide-react";
@@ -358,40 +356,6 @@ function ProfilePage() {
                       placeholder="000-000-0000"
                       onChange={(v) => update("mobile", v)}
                     />
-                  </div>
-                </Card>
-
-                {/* Security */}
-                <Card title="Security & Account">
-                  <div className="divide-y divide-[#F1EFFF]">
-                    <div className="flex items-center justify-between py-5 first:pt-0">
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F0FF] text-[#7E6BAF]">
-                          <KeyRound className="h-5 w-5" />
-                        </span>
-                        <div>
-                          <p className="font-medium text-[#3D2E6B]">Password</p>
-                          <p className="text-xs text-[#A89BD0]">Last updated —</p>
-                        </div>
-                      </div>
-                      <button className="text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-                        Change Password
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between py-5 last:pb-0">
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F0FF] text-[#7E6BAF]">
-                          <ShieldCheck className="h-5 w-5" />
-                        </span>
-                        <div>
-                          <p className="font-medium text-[#3D2E6B]">Two-factor authentication</p>
-                          <p className="text-xs text-[#A89BD0]">Extra layer of security for your account</p>
-                        </div>
-                      </div>
-                      <button className="rounded-full bg-[#F3F0FF] px-4 py-1.5 text-sm font-semibold text-[#7E6BAF] transition hover:bg-[#E9E1F8]">
-                        Enable
-                      </button>
-                    </div>
                   </div>
                 </Card>
 
