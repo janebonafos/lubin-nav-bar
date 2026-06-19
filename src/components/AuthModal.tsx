@@ -99,12 +99,12 @@ export default function AuthModal({
   const titleAccent = isSignup ? brandName : "back";
   const subtitle = isSignup
     ? "Tell us how you want to use Lubin so we can tailor the experience for you."
-    : "Choose how you'd like to sign in. Your data is right where you left it.";
+    : "Tell us who's signing in so we can take you to the right place.";
   const emailLabel = isSignup ? "Sign up with email" : "Sign in with email";
   const footerPrompt = isSignup ? "Already have an account?" : "New here?";
   const footerCta = isSignup ? "Sign in" : "Create an account";
 
-  const canShowAuthMethods = !isSignup || selectedRole !== null;
+  const canShowAuthMethods = selectedRole !== null;
 
   return (
     <div
@@ -140,11 +140,22 @@ export default function AuthModal({
           {subtitle}
         </p>
 
-        {isSignup && (
-          <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-3">
             {([
-              { role: "client" as UserRole, title: "I need support", desc: "Find providers, track your wellness, and access mental health resources" },
-              { role: "provider" as UserRole, title: "I'm a provider", desc: "Offer sessions, manage clients, and grow your practice" },
+              {
+                role: "client" as UserRole,
+                title: isSignup ? "I need support" : "I'm a client",
+                desc: isSignup
+                  ? "Find providers, track your wellness, and access mental health resources"
+                  : "Continue to your wellness space and providers",
+              },
+              {
+                role: "provider" as UserRole,
+                title: "I'm a provider",
+                desc: isSignup
+                  ? "Offer sessions, manage clients, and grow your practice"
+                  : "Continue to your provider dashboard and clients",
+              },
             ]).map((opt) => {
               const active = selectedRole === opt.role;
               return (
@@ -178,11 +189,10 @@ export default function AuthModal({
               );
             })}
           </div>
-        )}
 
         {canShowAuthMethods && (
         <>
-        <div className={`flex flex-col gap-2.5 ${isSignup ? "mt-6" : "mt-5"}`}>
+        <div className="mt-6 flex flex-col gap-2.5">
           <button
             type="button"
             onClick={() => onContinueWithGoogle?.(selectedRole ?? undefined)}
