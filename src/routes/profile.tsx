@@ -10,7 +10,6 @@ import {
   Heart,
   Sparkles,
   ShieldCheck,
-  CalendarCheck,
   ArrowRight,
   Check,
   X,
@@ -118,12 +117,16 @@ function ProfilePage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-[#F4EFFB] via-[#FBF8FF] to-white"
+      className="relative min-h-screen overflow-hidden bg-[#F4EFFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
+      {/* Ambient background glows */}
+      <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#7E6BAF]/10 blur-[120px]" />
+      <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#A89BD0]/15 blur-[120px]" />
+
       <Navbar />
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
+      <main className="relative z-10 mx-auto max-w-6xl space-y-6 px-4 pb-24 pt-28 sm:px-6 lg:px-8">
         {savedFlash && (
           <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2 animate-fade-in rounded-full border border-[#7E6BAF]/20 bg-white px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
             <Check className="mr-2 inline h-4 w-4 text-[#7E6BAF]" />
@@ -132,13 +135,10 @@ function ProfilePage() {
         )}
 
         {/* Header card */}
-        <section className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/70 p-6 shadow-[0_20px_60px_-20px_rgba(126,107,175,0.35)] backdrop-blur-xl sm:p-8">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gradient-to-br from-[#C9BEE5]/60 to-transparent blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-gradient-to-tr from-[#A89BD0]/40 to-transparent blur-2xl" />
-
+        <section className="relative overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/70 p-8 shadow-xl shadow-[#3D2E6B]/5 backdrop-blur-xl">
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
             <div className="relative">
-              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#A89BD0] to-[#7E6BAF] text-2xl font-bold text-white shadow-[0_10px_30px_-8px_rgba(126,107,175,0.55)] sm:h-28 sm:w-28">
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gradient-to-tr from-[#7E6BAF] to-[#A89BD0] text-4xl font-semibold text-white shadow-inner">
                 {profile.avatar ? (
                   <img
                     src={profile.avatar}
@@ -151,10 +151,10 @@ function ProfilePage() {
               </div>
               <label
                 htmlFor="avatar-upload"
-                className="absolute -bottom-1 -right-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[#E6DFF4] bg-white text-[#7E6BAF] shadow-md transition hover:bg-[#F4EFFB] hover:text-[#3D2E6B]"
+                className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#F4EFFB] bg-white text-[#7E6BAF] shadow-lg transition hover:scale-110"
                 aria-label="Upload photo"
               >
-                <Camera className="h-4 w-4" />
+                <Camera className="h-5 w-5" />
               </label>
               <input
                 id="avatar-upload"
@@ -165,37 +165,39 @@ function ProfilePage() {
               />
             </div>
 
-            <div className="flex-1">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
                 Client profile
               </p>
-              <h1 className="mt-1 text-[26px] font-bold leading-tight text-[#1F1B2E] sm:text-[30px]">
+              <h1 className="mt-1 text-4xl font-bold leading-tight text-[#3D2E6B]">
                 {displayName}
               </h1>
-              <p className="mt-1 text-[14px] text-[#5A4E8A]">
-                {profile.pronouns ? `${profile.pronouns} · ` : ""}
-                {profile.location || "Add your location"}
-              </p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#7E6BAF]/10 px-3 py-1 text-[12px] font-medium text-[#3D2E6B]">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Private — only you can see this
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+                <span className="text-sm text-[#7E6BAF]">
+                  {profile.pronouns ? `${profile.pronouns} · ` : ""}
+                  {profile.location || "Add your location"}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF]/10 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
+                  <ShieldCheck className="h-3 w-3" />
+                  Private — only you can see this
+                </span>
               </div>
             </div>
 
-            <div className="flex shrink-0 gap-2">
+            <div className="flex shrink-0 items-center gap-3">
               {editing ? (
                 <>
                   <button
                     type="button"
                     onClick={() => setEditing(false)}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#E6DFF4] bg-white px-4 py-2 text-sm font-medium text-[#5A4E8A] transition hover:border-[#C9BEE5] hover:text-[#3D2E6B]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#E6DFF4] bg-white/60 px-6 py-2.5 text-sm font-semibold text-[#7E6BAF] transition hover:bg-white"
                   >
                     <X className="h-4 w-4" /> Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A]"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#7E6BAF] px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A89BD0]/40 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B] hover:shadow-[#7E6BAF]/50"
                   >
                     <Check className="h-4 w-4" /> Save profile
                   </button>
@@ -204,7 +206,7 @@ function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setEditing(true)}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#7E6BAF]/30 bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:border-[#7E6BAF]/60 hover:text-[#7E6BAF]"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#7E6BAF] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A89BD0]/40 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
                 >
                   <Pencil className="h-4 w-4" /> Edit profile
                 </button>
@@ -213,10 +215,10 @@ function ProfilePage() {
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* About + contact */}
-          <section className="lg:col-span-2 flex flex-col gap-6">
-            <Card title="About you" icon={<Sparkles className="h-4 w-4" />}>
+        {/* Row 1: About (span 2) + Next Steps sidebar */}
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card title="About you" icon={<Sparkles className="h-5 w-5" />}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label="First name"
@@ -249,8 +251,8 @@ function ProfilePage() {
                 />
               </div>
 
-              <div className="mt-4">
-                <label className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+              <div className="mt-6">
+                <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
                   A little about you
                 </label>
                 {editing ? (
@@ -259,19 +261,44 @@ function ProfilePage() {
                     onChange={(e) => update("bio", e.target.value)}
                     rows={4}
                     placeholder="What brings you to Lubin? Share as much or as little as you'd like."
-                    className="mt-1.5 w-full rounded-2xl border border-[#E6DFF4] bg-white px-4 py-3 text-[14px] text-[#1F1B2E] placeholder:text-[#9F94C2] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+                    className="mt-1.5 w-full resize-none rounded-2xl border border-[#EEE9F8] bg-white/50 px-5 py-4 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
                   />
                 ) : (
-                  <p className="mt-1.5 whitespace-pre-wrap text-[14px] leading-relaxed text-[#3D2E6B]">
+                  <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed text-[#3D2E6B]">
                     {profile.bio || (
-                      <span className="text-[#9F94C2]">No bio yet.</span>
+                      <span className="text-[#A89BD0]">No bio yet.</span>
                     )}
                   </p>
                 )}
               </div>
             </Card>
+          </div>
 
-            <Card title="Contact" icon={<Mail className="h-4 w-4" />}>
+          {/* Next steps sidebar */}
+          <Card title="Next steps" icon={<ArrowRight className="h-5 w-5" />}>
+            <div className="flex flex-col gap-3">
+              <NextStep
+                to="/find-provider"
+                title="Find a provider"
+                desc="Browse verified therapists and counsellors."
+              />
+              <NextStep
+                to="/check-in"
+                title="Daily check-in"
+                desc="Log your mood and spot patterns."
+              />
+              <NextStep
+                to="/self-discovery"
+                title="Self discovery"
+                desc="Explore guided exercises and prompts."
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* Row 2: Contact + Support */}
+        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
+          <Card title="Contact" icon={<Mail className="h-5 w-5" />}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label="Email"
@@ -291,18 +318,23 @@ function ProfilePage() {
                   icon={<Phone className="h-4 w-4" />}
                   onChange={(v) => update("phone", v)}
                 />
-                <Field
-                  label="Location"
-                  value={profile.location}
-                  editing={editing}
-                  placeholder="Manila, Philippines"
-                  icon={<MapPin className="h-4 w-4" />}
-                  onChange={(v) => update("location", v)}
-                />
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Location"
+                    value={profile.location}
+                    editing={editing}
+                    placeholder="Manila, Philippines"
+                    icon={<MapPin className="h-4 w-4" />}
+                    onChange={(v) => update("location", v)}
+                  />
+                </div>
               </div>
             </Card>
 
-            <Card title="What you'd like support with" icon={<Heart className="h-4 w-4" />}>
+          <Card
+            title="Support focus areas"
+            icon={<Heart className="h-5 w-5" />}
+          >
               <div className="flex flex-wrap gap-2">
                 {FOCUS_AREAS.map((area) => {
                   const active = profile.focusAreas.includes(area);
@@ -312,10 +344,10 @@ function ProfilePage() {
                       type="button"
                       disabled={!editing && !active}
                       onClick={() => editing && toggleFocus(area)}
-                      className={`rounded-full border px-4 py-1.5 text-[13px] font-medium transition ${
+                      className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                         active
-                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.55)]"
-                          : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5] hover:text-[#3D2E6B]"
+                          ? "bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/30"
+                          : "bg-[#7E6BAF]/10 text-[#7E6BAF] hover:bg-[#7E6BAF]/20"
                       } ${!editing && !active ? "opacity-40" : ""}`}
                     >
                       {area}
@@ -325,7 +357,7 @@ function ProfilePage() {
               </div>
 
               <div className="mt-6">
-                <label className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
                   Session preference
                 </label>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -337,10 +369,10 @@ function ProfilePage() {
                         type="button"
                         disabled={!editing}
                         onClick={() => update("sessionPref", pref)}
-                        className={`rounded-full border px-4 py-1.5 text-[13px] font-medium transition ${
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                           active
-                            ? "border-[#7E6BAF] bg-[#7E6BAF]/10 text-[#3D2E6B]"
-                            : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5]"
+                            ? "bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/30"
+                            : "bg-[#7E6BAF]/10 text-[#7E6BAF] hover:bg-[#7E6BAF]/20"
                         } ${!editing ? "cursor-default" : ""}`}
                       >
                         {pref}
@@ -350,46 +382,28 @@ function ProfilePage() {
                 </div>
               </div>
             </Card>
-          </section>
+        </div>
 
-          {/* Side: next steps */}
-          <aside className="flex flex-col gap-6">
-            <Card title="Next steps" icon={<ArrowRight className="h-4 w-4" />}>
-              <ul className="flex flex-col gap-3">
-                <NextStep
-                  to="/find-provider"
-                  title="Find a provider"
-                  desc="Browse verified therapists and counsellors."
-                />
-                <NextStep
-                  to="/check-in"
-                  title="Daily check-in"
-                  desc="Log your mood and spot patterns."
-                />
-                <NextStep
-                  to="/self-discovery"
-                  title="Self discovery"
-                  desc="Explore guided exercises and prompts."
-                />
-              </ul>
-            </Card>
-
-            <div className="rounded-3xl border border-[#7E6BAF]/15 bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] p-6 text-white shadow-[0_20px_60px_-20px_rgba(61,46,107,0.55)]">
-              <h3 className="text-[16px] font-semibold">
+        {/* Row 3: CTA */}
+        <div className="group relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] p-8 text-white shadow-2xl shadow-[#3D2E6B]/20 sm:p-10">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+          <div className="relative z-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
                 Your journey, your pace
-              </h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-white/85">
-                Filling out your profile helps us recommend the right providers
-                and resources for you.
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-[15px]">
+                Filling out your profile helps us recommend the best tools and
+                support for your unique mental wellness path.
               </p>
-              <Link
-                to="/find-provider"
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#3D2E6B] no-underline transition hover:-translate-y-0.5"
-              >
-                Explore providers <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
             </div>
-          </aside>
+            <Link
+              to="/find-provider"
+              className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-white px-7 py-3 text-sm font-bold text-[#3D2E6B] no-underline shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-[#F4EFFB]"
+            >
+              Explore providers <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </main>
     </div>
@@ -406,12 +420,12 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-[0_12px_40px_-20px_rgba(126,107,175,0.3)] backdrop-blur-xl">
-      <div className="mb-4 flex items-center gap-2 text-[#7E6BAF]">
-        {icon}
-        <h2 className="text-[15px] font-semibold text-[#1F1B2E]">{title}</h2>
+    <section className="flex h-full flex-col rounded-[2.5rem] border border-white/40 bg-white/70 p-8 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+      <div className="mb-6 flex items-center gap-2 text-[#7E6BAF]">
+        <span className="text-[#7E6BAF]">{icon}</span>
+        <h2 className="text-lg font-bold text-[#3D2E6B]">{title}</h2>
       </div>
-      {children}
+      <div className="flex-1">{children}</div>
     </section>
   );
 }
@@ -435,13 +449,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+      <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
         {label}
       </label>
       {editing ? (
         <div className="relative mt-1.5">
           {icon && (
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9F94C2]">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#A89BD0]">
               {icon}
             </span>
           )}
@@ -450,15 +464,15 @@ function Field({
             value={value}
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
-            className={`w-full rounded-full border border-[#E6DFF4] bg-white py-2.5 text-[14px] text-[#1F1B2E] placeholder:text-[#9F94C2] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
-              icon ? "pl-10 pr-4" : "px-4"
+            className={`w-full rounded-2xl border border-[#EEE9F8] bg-white/50 py-3.5 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10 ${
+              icon ? "pl-11 pr-5" : "px-5"
             }`}
           />
         </div>
       ) : (
         <p className="mt-1.5 flex items-center gap-2 text-[14px] text-[#3D2E6B]">
-          {icon && <span className="text-[#9F94C2]">{icon}</span>}
-          {value || <span className="text-[#9F94C2]">Not set</span>}
+          {icon && <span className="text-[#A89BD0]">{icon}</span>}
+          {value || <span className="text-[#A89BD0]">Not set</span>}
         </p>
       )}
     </div>
@@ -475,21 +489,19 @@ function NextStep({
   desc: string;
 }) {
   return (
-    <li>
-      <Link
-        to={to}
-        className="group flex items-center gap-3 rounded-2xl border border-[#E6DFF4] bg-white p-3.5 no-underline transition hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_10px_24px_-12px_rgba(126,107,175,0.45)]"
-      >
-        <span className="flex-1">
-          <span className="block text-[14px] font-semibold text-[#1F1B2E]">
-            {title}
-          </span>
-          <span className="block text-[12px] leading-snug text-[#5A4E8A]">
-            {desc}
-          </span>
+    <Link
+      to={to}
+      className="group flex items-start justify-between gap-3 rounded-2xl border border-[#EEE9F8] bg-white p-5 no-underline transition hover:border-[#7E6BAF]/30 hover:shadow-md"
+    >
+      <span className="flex-1 space-y-1">
+        <span className="block text-[14px] font-bold text-[#3D2E6B] transition-colors group-hover:text-[#7E6BAF]">
+          {title}
         </span>
-        <ArrowRight className="h-4 w-4 text-[#C9BEE5] transition-transform group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
-      </Link>
-    </li>
+        <span className="block text-[13px] leading-relaxed text-[#A89BD0]">
+          {desc}
+        </span>
+      </span>
+      <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-[#A89BD0] transition-all group-hover:translate-x-1 group-hover:text-[#7E6BAF]" />
+    </Link>
   );
 }
