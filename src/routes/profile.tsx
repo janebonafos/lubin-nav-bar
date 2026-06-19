@@ -489,16 +489,23 @@ function NextStep({
   to,
   title,
   desc,
+  icon,
 }: {
   to: string;
   title: string;
   desc: string;
+  icon?: React.ReactNode;
 }) {
   return (
     <Link
       to={to}
       className="group flex items-start justify-between gap-3 rounded-2xl border border-[#EEE9F8] bg-white p-5 no-underline transition hover:border-[#7E6BAF]/30 hover:shadow-md"
     >
+      {icon && (
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7E6BAF]/10 text-[#7E6BAF] transition group-hover:bg-[#7E6BAF] group-hover:text-white">
+          {icon}
+        </span>
+      )}
       <span className="flex-1 space-y-1">
         <span className="block text-[14px] font-bold text-[#3D2E6B] transition-colors group-hover:text-[#7E6BAF]">
           {title}
