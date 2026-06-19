@@ -10,7 +10,6 @@ import {
   Heart,
   Sparkles,
   ShieldCheck,
-  BookOpen,
   CalendarCheck,
   ArrowRight,
   Check,
@@ -359,19 +358,16 @@ function ProfilePage() {
               <ul className="flex flex-col gap-3">
                 <NextStep
                   to="/find-provider"
-                  icon={<Sparkles className="h-4 w-4" />}
                   title="Find a provider"
                   desc="Browse verified therapists and counsellors."
                 />
                 <NextStep
                   to="/check-in"
-                  icon={<CalendarCheck className="h-4 w-4" />}
                   title="Daily check-in"
                   desc="Log your mood and spot patterns."
                 />
                 <NextStep
                   to="/self-discovery"
-                  icon={<BookOpen className="h-4 w-4" />}
                   title="Self discovery"
                   desc="Explore guided exercises and prompts."
                 />
@@ -471,12 +467,10 @@ function Field({
 
 function NextStep({
   to,
-  icon,
   title,
   desc,
 }: {
   to: string;
-  icon: React.ReactNode;
   title: string;
   desc: string;
 }) {
@@ -484,11 +478,8 @@ function NextStep({
     <li>
       <Link
         to={to}
-        className="group flex items-start gap-3 rounded-2xl border border-[#E6DFF4] bg-white p-3.5 no-underline transition hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_10px_24px_-12px_rgba(126,107,175,0.45)]"
+        className="group flex items-center gap-3 rounded-2xl border border-[#E6DFF4] bg-white p-3.5 no-underline transition hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_10px_24px_-12px_rgba(126,107,175,0.45)]"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#7E6BAF]/10 text-[#7E6BAF]">
-          {icon}
-        </span>
         <span className="flex-1">
           <span className="block text-[14px] font-semibold text-[#1F1B2E]">
             {title}
@@ -497,7 +488,7 @@ function NextStep({
             {desc}
           </span>
         </span>
-        <ArrowRight className="mt-2 h-4 w-4 text-[#C9BEE5] transition-transform group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+        <ArrowRight className="h-4 w-4 text-[#C9BEE5] transition-transform group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
       </Link>
     </li>
   );
