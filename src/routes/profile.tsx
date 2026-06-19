@@ -186,17 +186,17 @@ function ProfilePage() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-[#F4EFFB]"
+      className="relative min-h-screen overflow-hidden bg-[#F0EAFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#7E6BAF]/10 blur-[120px]" />
-      <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#A89BD0]/15 blur-[120px]" />
+      <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#7E6BAF]/20 blur-[120px]" />
+      <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#A89BD0]/30 blur-[120px]" />
 
       <Navbar />
 
       <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
         {savedFlash && (
-          <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2 animate-fade-in rounded-full border border-[#7E6BAF]/20 bg-white px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
+          <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2 animate-fade-in rounded-full border border-[#7E6BAF]/30 bg-white px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
             <Check className="mr-2 inline h-4 w-4 text-[#7E6BAF]" />
             Profile saved
           </div>
@@ -242,8 +242,8 @@ function ProfilePage() {
                       onClick={() => setActiveSection(key)}
                       className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
                         active
-                          ? "bg-[#7E6BAF]/10 text-[#7E6BAF]"
-                          : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/5 hover:text-[#3D2E6B]"
+                          ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                          : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                       }`}
                     >
                       {label}
