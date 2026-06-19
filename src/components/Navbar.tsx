@@ -437,25 +437,31 @@ export default function Navbar() {
         }}
         onContinueWithEmail={(role?: UserRole) => {
           setAuthOpen(false);
-          if (role === "client") {
+          const effectiveRole = role ?? "client";
+          if (effectiveRole === "client") {
             navigate({ to: "/profile" });
           }
         }}
         onContinueWithGoogle={(role?: UserRole) => {
           setAuthOpen(false);
-          if (role === "client") {
+          // Test bypass: Gmail skips real auth and treats user as client
+          const effectiveRole = role ?? "client";
+          if (effectiveRole === "client") {
             navigate({ to: "/profile" });
           }
         }}
         onContinueWithLinkedIn={(role?: UserRole) => {
           setAuthOpen(false);
-          if (role === "client") {
+          const effectiveRole = role ?? "client";
+          if (effectiveRole === "client") {
             navigate({ to: "/profile" });
           }
         }}
         onContinueWithFacebook={(role?: UserRole) => {
           setAuthOpen(false);
-          if (role === "client") {
+          // Test bypass: Facebook skips real auth and treats user as client
+          const effectiveRole = role ?? "client";
+          if (effectiveRole === "client") {
             navigate({ to: "/profile" });
           }
         }}
