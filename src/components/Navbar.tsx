@@ -437,35 +437,35 @@ export default function Navbar() {
         }}
         onContinueWithEmail={(role?: UserRole) => {
           setAuthOpen(false);
-          const effectiveRole = role ?? "client";
-          if (effectiveRole === "client") {
-            navigate({ to: "/profile" });
-          }
+          routeByRole(role);
         }}
         onContinueWithGoogle={(role?: UserRole) => {
           setAuthOpen(false);
-          // Test bypass: Gmail skips real auth and treats user as client
-          const effectiveRole = role ?? "client";
-          if (effectiveRole === "client") {
-            navigate({ to: "/profile" });
-          }
+          routeByRole(role);
         }}
         onContinueWithLinkedIn={(role?: UserRole) => {
           setAuthOpen(false);
-          const effectiveRole = role ?? "client";
-          if (effectiveRole === "client") {
-            navigate({ to: "/profile" });
-          }
+          routeByRole(role);
         }}
         onContinueWithFacebook={(role?: UserRole) => {
           setAuthOpen(false);
-          // Test bypass: Facebook skips real auth and treats user as client
-          const effectiveRole = role ?? "client";
-          if (effectiveRole === "client") {
-            navigate({ to: "/profile" });
-          }
+          routeByRole(role);
         }}
       />
     </header>
   );
+
+  function routeByRole(role?: UserRole) {
+    const effectiveRole = role ?? "client";
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("lubin.userRole", effectiveRole);
+      } catch { /* ignore */ }
+    }
+    if (effectiveRole === "provider") {
+      navigate({ to: "/provider-onboarding" });
+    } else {
+      navigate({ to: "/profile" });
+    }
+  }
 }
