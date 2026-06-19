@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Camera,
@@ -16,8 +16,16 @@ import {
   HeartPulse,
   Compass,
   MessageCircle,
+  TrendingUp,
+  MessageSquare,
+  Plus,
+  CalendarCheck,
+  ClipboardList,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
+import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
+import type { Attempt } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -92,6 +100,77 @@ function ProfilePage() {
   const initials =
     (profile.firstName.charAt(0) + profile.lastName.charAt(0)).toUpperCase() ||
     "Y";
+
+  const [activeSpaceTab, setActiveSpaceTab] = useState<
+    "passport" | "discovery" | "chat"
+  >("passport");
+
+  // Hydrate localStorage data for mini widgets
+  const [passportData, setPassportData] = useState<{
+    checkins: { id: string; mood: number; note: string; date: string }[];
+    streak: number;
+  }>({ checkins: [], streak: 0 });
+  const [discoveryData, setDiscoveryData] = useState<{
+    completed: number;
+    inProgress: { name: string; slug: string; answered: number; total: number }[];
+  }>({ completed: 0, inProgress: [] });
+  const [chatData, setChatData] = useState<{
+    threads: { id: string; title: string; updatedAt: number }[];
+  }>({ threads: [] });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // Passport
+    try {
+      const rawCheckins = window.localStorage.getItem("lubinai_checkins");
+      const checkins = rawCheckins ? JSON.parse(rawCheckins) : [];
+      const days = new Set(
+        checkins.map((c: { date: string }) => new Date(c.date).toDateString()),
+      );
+      let streak = 0;
+      const cur = new Date();
+      while (days.has(cur.toDateString())) {
+        streak += 1;
+        cur.setDate(cur.getDate() - 1);
+      }
+      setPassportData({ checkins: checkins.slice(0, 5), streak });
+    } catch {
+      /* ignore */
+    }
+    // Discovery
+    try {
+      const attempts: Attempt[] = loadAttempts();
+      const inProgress = ASSESSMENT_IDS
+        .map((id) => ({ id, ip: loadInProgress(id) }))
+        .filter((x) => x.ip && x.ip.answeredCount > 0)
+        .map((x) => {
+          const a = ASSESSMENTS.find((aa) => aa.id === x.id);
+          return {
+            name: a?.name ?? "Check-in",
+            slug: a?.slug ?? x.id,
+            answered: x.ip!.answeredCount,
+            total: x.ip!.total,
+          };
+        });
+      setDiscoveryData({ completed: attempts.length, inProgress });
+    } catch {
+      /* ignore */
+    }
+    // Chat
+    try {
+      const rawThreads = window.localStorage.getItem("lubin.chat.threads.v1");
+      const threads = rawThreads
+        ? JSON.parse(rawThreads).map((t: { id: string; title: string; updatedAt: number }) => ({
+            id: t.id,
+            title: t.title,
+            updatedAt: t.updatedAt,
+          }))
+        : [];
+      setChatData({ threads: threads.sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt).slice(0, 4) });
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const update = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -277,27 +356,208 @@ function ProfilePage() {
             </Card>
           </div>
 
-          {/* Your space sidebar */}
-          <Card title="Your space" icon={<ArrowRight className="h-5 w-5" />}>
-            <div className="flex flex-col gap-3">
-              <NextStep
-                to="/my-health-passport"
-                title="Health passport"
-                desc="Your wellness record in one secure place."
-                icon={<HeartPulse className="h-5 w-5" />}
-              />
-              <NextStep
-                to="/self-discovery"
-                title="Self discovery"
-                desc="Explore guided exercises and prompts."
-                icon={<Compass className="h-5 w-5" />}
-              />
-              <NextStep
-                to="/chat"
-                title="Chat"
-                desc="Talk things through, anytime you need."
-                icon={<MessageCircle className="h-5 w-5" />}
-              />
+          {/* Your space — tabbed */}
+          <Card title="Your space" icon={<Sparkles className="h-5 w-5" />}>
+            {/* Tab buttons */}
+            <div className="mb-5 flex gap-2">
+              {([
+                ["passport", "Passport", HeartPulse],
+                ["discovery", "Discovery", Compass],
+                ["chat", "Chat", MessageCircle],
+              ] as const).map(([key, label, Icon]) => {
+                const active = activeSpaceTab === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveSpaceTab(key)}
+                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold transition ${
+                      active
+                        ? "bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/30"
+                        : "bg-white/50 text-[#7E6BAF] hover:bg-white"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tab content */}
+            <div className="flex-1">
+              {activeSpaceTab === "passport" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        Current streak
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
+                        {passportData.streak}{" "}
+                        <span className="text-base font-medium text-[#A89BD0]">
+                          day{passportData.streak === 1 ? "" : "s"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
+                      <TrendingUp className="h-6 w-6" />
+                    </div>
+                  </div>
+
+                  {passportData.checkins.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        Recent check-ins
+                      </p>
+                      <div className="mt-2 flex gap-2">
+                        {passportData.checkins.map((c) => {
+                          const moodMap: Record<number, string> = {
+                            1: "😞",
+                            2: "😕",
+                            3: "😐",
+                            4: "🙂",
+                            5: "😄",
+                          };
+                          return (
+                            <div
+                              key={c.id}
+                              className="flex flex-col items-center gap-1"
+                              title={new Date(c.date).toLocaleDateString()}
+                            >
+                              <span className="text-xl">
+                                {moodMap[c.mood] ?? "😐"}
+                              </span>
+                              <span className="text-[10px] text-[#A89BD0]">
+                                {new Date(c.date).toLocaleDateString(undefined, {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to="/check-in"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
+                    >
+                      <CalendarCheck className="h-4 w-4" /> Check in today
+                    </Link>
+                    <Link
+                      to="/my-health-passport"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#EEE9F8] bg-white/60 px-4 py-2.5 text-sm font-semibold text-[#7E6BAF] transition hover:bg-white"
+                    >
+                      View full passport <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {activeSpaceTab === "discovery" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        Completed
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
+                        {discoveryData.completed}{" "}
+                        <span className="text-base font-medium text-[#A89BD0]">
+                          check-in{discoveryData.completed === 1 ? "" : "s"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
+                      <ClipboardList className="h-6 w-6" />
+                    </div>
+                  </div>
+
+                  {discoveryData.inProgress.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        In progress
+                      </p>
+                      <div className="mt-2 space-y-2">
+                        {discoveryData.inProgress.map((ip) => (
+                          <Link
+                            key={ip.slug}
+                            to="/self-discovery/$slug"
+                            params={{ slug: ip.slug }}
+                            className="group flex items-center justify-between rounded-xl border border-[#EEE9F8] bg-white/50 px-3 py-2.5 no-underline transition hover:border-[#7E6BAF]/30 hover:bg-white"
+                          >
+                            <span className="truncate text-[13px] font-medium text-[#3D2E6B]">
+                              {ip.name}
+                            </span>
+                            <span className="shrink-0 rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[11px] font-semibold text-[#7E6BAF]">
+                              {ip.answered}/{ip.total}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to="/self-discovery"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
+                    >
+                      <Compass className="h-4 w-4" /> Explore check-ins
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {activeSpaceTab === "chat" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        Conversations
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
+                        {chatData.threads.length}{" "}
+                        <span className="text-base font-medium text-[#A89BD0]">
+                          thread{chatData.threads.length === 1 ? "" : "s"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
+                      <MessageSquare className="h-6 w-6" />
+                    </div>
+                  </div>
+
+                  {chatData.threads.length > 0 && (
+                    <div className="space-y-2">
+                      {chatData.threads.map((t) => (
+                        <Link
+                          key={t.id}
+                          to="/chat"
+                          className="group flex items-center gap-2 rounded-xl border border-[#EEE9F8] bg-white/50 px-3 py-2.5 no-underline transition hover:border-[#7E6BAF]/30 hover:bg-white"
+                        >
+                          <MessageCircle className="h-4 w-4 shrink-0 text-[#A89BD0] group-hover:text-[#7E6BAF]" />
+                          <span className="truncate text-[13px] font-medium text-[#3D2E6B]">
+                            {t.title}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to="/chat"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
+                    >
+                      <Plus className="h-4 w-4" /> Open chat
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -482,39 +742,5 @@ function Field({
         </p>
       )}
     </div>
-  );
-}
-
-function NextStep({
-  to,
-  title,
-  desc,
-  icon,
-}: {
-  to: string;
-  title: string;
-  desc: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Link
-      to={to}
-      className="group flex items-start justify-between gap-3 rounded-2xl border border-[#EEE9F8] bg-white p-5 no-underline transition hover:border-[#7E6BAF]/30 hover:shadow-md"
-    >
-      {icon && (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7E6BAF]/10 text-[#7E6BAF] transition group-hover:bg-[#7E6BAF] group-hover:text-white">
-          {icon}
-        </span>
-      )}
-      <span className="flex-1 space-y-1">
-        <span className="block text-[14px] font-bold text-[#3D2E6B] transition-colors group-hover:text-[#7E6BAF]">
-          {title}
-        </span>
-        <span className="block text-[13px] leading-relaxed text-[#A89BD0]">
-          {desc}
-        </span>
-      </span>
-      <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-[#A89BD0] transition-all group-hover:translate-x-1 group-hover:text-[#7E6BAF]" />
-    </Link>
   );
 }
