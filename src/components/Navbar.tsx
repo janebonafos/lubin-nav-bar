@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   CalendarCheck,
   Sparkles,
@@ -256,6 +256,7 @@ export default function Navbar() {
   const [authOpen, setAuthOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
 
   const openAuth = (mode: AuthMode) => {
     setAuthMode(mode);
@@ -433,6 +434,30 @@ export default function Navbar() {
         onClose={() => setAuthOpen(false)}
         onSelectRole={(role: UserRole) => {
           console.log("Selected role:", role);
+        }}
+        onContinueWithEmail={(role?: UserRole) => {
+          setAuthOpen(false);
+          if (role === "client") {
+            navigate({ to: "/profile" });
+          }
+        }}
+        onContinueWithGoogle={(role?: UserRole) => {
+          setAuthOpen(false);
+          if (role === "client") {
+            navigate({ to: "/profile" });
+          }
+        }}
+        onContinueWithLinkedIn={(role?: UserRole) => {
+          setAuthOpen(false);
+          if (role === "client") {
+            navigate({ to: "/profile" });
+          }
+        }}
+        onContinueWithFacebook={(role?: UserRole) => {
+          setAuthOpen(false);
+          if (role === "client") {
+            navigate({ to: "/profile" });
+          }
         }}
       />
     </header>

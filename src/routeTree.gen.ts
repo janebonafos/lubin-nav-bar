@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -31,6 +32,11 @@ const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/profile': typeof ProfileRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/api/chat': typeof ApiChatRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/profile'
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/profile'
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/profile'
     | '/resources'
     | '/self-discovery'
     | '/api/chat'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
+  ProfileRoute: typeof ProfileRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -213,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-health-passport': {
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
+  ProfileRoute: ProfileRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   ApiChatRoute: ApiChatRoute,
