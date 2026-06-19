@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
-import AuthModal, { type AuthMode } from "@/components/AuthModal";
+import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
 
 interface NavLinkItem {
   label: string;
