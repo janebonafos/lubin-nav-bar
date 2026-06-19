@@ -9,7 +9,6 @@ import {
   HeartPulse,
   Compass,
   MessageCircle,
-  Sparkles,
   TrendingUp,
   MessageSquare,
   Plus,
@@ -157,11 +156,11 @@ function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1800);
   };
 
-  const NAV: { key: Section; label: string; icon: typeof Sparkles }[] = [
-    { key: "profile", label: "Profile Overview", icon: Sparkles },
-    { key: "passport", label: "Health Passport", icon: HeartPulse },
-    { key: "discovery", label: "Self Discovery", icon: Compass },
-    { key: "chat", label: "Chat", icon: MessageCircle },
+  const NAV: { key: Section; label: string }[] = [
+    { key: "profile", label: "Profile Overview" },
+    { key: "passport", label: "Health Passport" },
+    { key: "discovery", label: "Self Discovery" },
+    { key: "chat", label: "Chat" },
   ];
 
   const sectionMeta: Record<Section, { title: string; subtitle: string }> = {
@@ -210,7 +209,7 @@ function ProfilePage() {
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
                 <div className="relative">
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-tr from-[#7E6BAF] to-[#A89BD0] text-lg font-semibold text-white">
+                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-lg font-semibold text-white shadow-inner">
                     {profile.avatar ? (
                       <img
                         src={profile.avatar}
@@ -226,8 +225,8 @@ function ProfilePage() {
                   <p className="truncate text-sm font-bold text-[#3D2E6B]">
                     {displayName}
                   </p>
-                  <p className="inline-flex items-center gap-1 text-[11px] font-medium text-[#7E6BAF]">
-                    <Sparkles className="h-3 w-3" /> Lubin Member
+                  <p className="text-[11px] font-medium text-[#7E6BAF]">
+                    Lubin Member
                   </p>
                 </div>
               </div>
@@ -235,19 +234,18 @@ function ProfilePage() {
               <div className="border-t border-[#EEE9F8]" />
 
               <nav className="mt-4 space-y-1">
-                {NAV.map(({ key, label, icon: Icon }) => {
+                {NAV.map(({ key, label }) => {
                   const active = activeSection === key;
                   return (
                     <button
                       key={key}
                       onClick={() => setActiveSection(key)}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
                         active
                           ? "bg-[#7E6BAF]/10 text-[#7E6BAF]"
                           : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/5 hover:text-[#3D2E6B]"
                       }`}
                     >
-                      <Icon className="h-4 w-4" />
                       {label}
                     </button>
                   );
