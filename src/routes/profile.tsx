@@ -13,6 +13,9 @@ import {
   ArrowRight,
   Check,
   X,
+  HeartPulse,
+  Compass,
+  MessageCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -274,23 +277,26 @@ function ProfilePage() {
             </Card>
           </div>
 
-          {/* Next steps sidebar */}
-          <Card title="Next steps" icon={<ArrowRight className="h-5 w-5" />}>
+          {/* Your space sidebar */}
+          <Card title="Your space" icon={<ArrowRight className="h-5 w-5" />}>
             <div className="flex flex-col gap-3">
               <NextStep
-                to="/find-provider"
-                title="Find a provider"
-                desc="Browse verified therapists and counsellors."
-              />
-              <NextStep
-                to="/check-in"
-                title="Daily check-in"
-                desc="Log your mood and spot patterns."
+                to="/my-health-passport"
+                title="Health passport"
+                desc="Your wellness record in one secure place."
+                icon={<HeartPulse className="h-5 w-5" />}
               />
               <NextStep
                 to="/self-discovery"
                 title="Self discovery"
                 desc="Explore guided exercises and prompts."
+                icon={<Compass className="h-5 w-5" />}
+              />
+              <NextStep
+                to="/chat"
+                title="Chat"
+                desc="Talk things through, anytime you need."
+                icon={<MessageCircle className="h-5 w-5" />}
               />
             </div>
           </Card>
