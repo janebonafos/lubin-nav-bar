@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
-import AuthModal, { type AuthMode } from "@/components/AuthModal";
+import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
 
 interface NavLinkItem {
   label: string;
@@ -431,6 +431,9 @@ export default function Navbar() {
         open={authOpen}
         mode={authMode}
         onClose={() => setAuthOpen(false)}
+        onSelectRole={(role: UserRole) => {
+          console.log("Selected role:", role);
+        }}
       />
     </header>
   );

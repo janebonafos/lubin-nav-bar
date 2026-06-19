@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight } from "lucide-react";
+import { X, Mail, ArrowRight, HeartPulse, Briefcase, ArrowLeft } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
+export type UserRole = "client" | "provider";
 
 interface AuthModalProps {
   open: boolean;
@@ -10,11 +11,12 @@ interface AuthModalProps {
   brandName?: string;
   termsHref?: string;
   privacyHref?: string;
-  onContinueWithGoogle?: () => void;
-  onContinueWithLinkedIn?: () => void;
-  onContinueWithFacebook?: () => void;
-  onContinueWithEmail?: () => void;
+  onContinueWithGoogle?: (role?: UserRole) => void;
+  onContinueWithLinkedIn?: (role?: UserRole) => void;
+  onContinueWithFacebook?: (role?: UserRole) => void;
+  onContinueWithEmail?: (role?: UserRole) => void;
   onSwitchMode?: (mode: AuthMode) => void;
+  onSelectRole?: (role: UserRole) => void;
 }
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -55,13 +57,20 @@ export default function AuthModal({
   onContinueWithFacebook,
   onContinueWithEmail,
   onSwitchMode,
+  onSelectRole,
 }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [signupStep, setSignupStep] = useState<"role-select" | "signup-form">("role-select");
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSignupStep("role-select");
+      setSelectedRole(null);
+      return;
+    }
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -75,6 +84,117 @@ export default function AuthModal({
   if (!open) return null;
 
   const isSignup = mode === "signup";
+
+  const handleSelectRole = (role: UserRole) => {
+    setSelectedRole(role);
+    setSignupStep("signup-form");
+    onSelectRole?.(role);
+  };
+
+  const goBackToRoleSelect = () => {
+    setSignupStep("role-select");
+    setSelectedRole(null);
+  };
+
+  const switchMode = () => {
+    const next: AuthMode = isSignup ? "signin" : "signup";
+    setMode(next);
+    setSignupStep("role-select");
+    setSelectedRole(null);
+    onSwitchMode?.(next);
+  };
+
+  // Role Selection Step (signup only)
+  if (isSignup && signupStep === "role-select") {
+    return (
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
+        style={{ fontFamily: "Inter, sans-serif" }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+      >
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
+        />
+        <div className="relative w-full max-w-[460px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <h2
+            id="auth-modal-title"
+            className="text-[22px] font-bold leading-tight text-[#1F1B2E]"
+          >
+            Join <span className="text-[#7E6BAF]">Lubin</span>
+          </h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#5A4E8A]">
+            Tell us how you want to use Lubin so we can tailor the experience for you.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => handleSelectRole("client")}
+              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+                <HeartPulse className="h-6 w-6" />
+              </div>
+              <div>
+                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
+                  I need support
+                </span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                  Find providers, track your wellness, and access mental health resources
+                </span>
+              </div>
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectRole("provider")}
+              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+                <Briefcase className="h-6 w-6" />
+              </div>
+              <div>
+                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
+                  I'm a provider
+                </span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                  Offer sessions, manage clients, and grow your practice
+                </span>
+              </div>
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+            </button>
+          </div>
+
+          <p className="mt-5 text-center text-[13px] text-[#5A4E8A]">
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={switchMode}
+              className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]"
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const title = isSignup ? "Create your" : "Welcome";
   const titleAccent = isSignup ? "free account" : "back";
   const subtitle = isSignup
@@ -83,12 +203,6 @@ export default function AuthModal({
   const emailLabel = isSignup ? "Sign up with email" : "Sign in with email";
   const footerPrompt = isSignup ? "Already have an account?" : "New here?";
   const footerCta = isSignup ? "Sign in" : "Create an account";
-
-  const switchMode = () => {
-    const next: AuthMode = isSignup ? "signin" : "signup";
-    setMode(next);
-    onSwitchMode?.(next);
-  };
 
   return (
     <div
@@ -114,6 +228,17 @@ export default function AuthModal({
           <X className="h-5 w-5" />
         </button>
 
+        {isSignup && (
+          <button
+            type="button"
+            onClick={goBackToRoleSelect}
+            aria-label="Back"
+            className="absolute left-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        )}
+
         <h2
           id="auth-modal-title"
           className="text-[22px] font-bold leading-tight text-[#1F1B2E]"
@@ -124,10 +249,26 @@ export default function AuthModal({
           {subtitle}
         </p>
 
+        {isSignup && selectedRole && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#F4EFFB] px-3 py-1.5 text-[12px] font-medium text-[#7E6BAF]">
+            {selectedRole === "client" ? (
+              <>
+                <HeartPulse className="h-3.5 w-3.5" />
+                I need support
+              </>
+            ) : (
+              <>
+                <Briefcase className="h-3.5 w-3.5" />
+                I'm a provider
+              </>
+            )}
+          </div>
+        )}
+
         <div className="mt-5 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={onContinueWithGoogle}
+            onClick={() => onContinueWithGoogle?.(selectedRole ?? undefined)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <GoogleIcon className="h-5 w-5" />
@@ -135,7 +276,7 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            onClick={onContinueWithLinkedIn}
+            onClick={() => onContinueWithLinkedIn?.(selectedRole ?? undefined)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <LinkedInIcon className="h-5 w-5" />
@@ -143,7 +284,7 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            onClick={onContinueWithFacebook}
+            onClick={() => onContinueWithFacebook?.(selectedRole ?? undefined)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <FacebookIcon className="h-5 w-5" />
@@ -161,7 +302,7 @@ export default function AuthModal({
 
         <button
           type="button"
-          onClick={onContinueWithEmail}
+          onClick={() => onContinueWithEmail?.(selectedRole ?? undefined)}
           className="group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.55)]"
         >
           <Mail className="h-4 w-4" />
