@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Camera,
@@ -16,8 +16,17 @@ import {
   HeartPulse,
   Compass,
   MessageCircle,
+  TrendingUp,
+  MessageSquare,
+  Plus,
+  CalendarCheck,
+  ClipboardList,
+  Clock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
+import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
+import type { Attempt } from "@/lib/patterns/types";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
