@@ -101,9 +101,9 @@ function ProfilePage() {
     (profile.firstName.charAt(0) + profile.lastName.charAt(0)).toUpperCase() ||
     "Y";
 
-  const [activeSpaceTab, setActiveSpaceTab] = useState<
-    "passport" | "discovery" | "chat"
-  >("passport");
+  const [activeSection, setActiveSection] = useState<
+    "profile" | "passport" | "discovery" | "chat"
+  >("profile");
 
   // Hydrate localStorage data for mini widgets
   const [passportData, setPassportData] = useState<{
