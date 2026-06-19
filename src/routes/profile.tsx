@@ -102,6 +102,77 @@ function ProfilePage() {
     (profile.firstName.charAt(0) + profile.lastName.charAt(0)).toUpperCase() ||
     "Y";
 
+  const [activeSpaceTab, setActiveSpaceTab] = useState<
+    "passport" | "discovery" | "chat"
+  >("passport");
+
+  // Hydrate localStorage data for mini widgets
+  const [passportData, setPassportData] = useState<{
+    checkins: { id: string; mood: number; note: string; date: string }[];
+    streak: number;
+  }>({ checkins: [], streak: 0 });
+  const [discoveryData, setDiscoveryData] = useState<{
+    completed: number;
+    inProgress: { name: string; slug: string; answered: number; total: number }[];
+  }>({ completed: 0, inProgress: [] });
+  const [chatData, setChatData] = useState<{
+    threads: { id: string; title: string; updatedAt: number }[];
+  }>({ threads: [] });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // Passport
+    try {
+      const rawCheckins = window.localStorage.getItem("lubinai_checkins");
+      const checkins = rawCheckins ? JSON.parse(rawCheckins) : [];
+      const days = new Set(
+        checkins.map((c: { date: string }) => new Date(c.date).toDateString()),
+      );
+      let streak = 0;
+      const cur = new Date();
+      while (days.has(cur.toDateString())) {
+        streak += 1;
+        cur.setDate(cur.getDate() - 1);
+      }
+      setPassportData({ checkins: checkins.slice(0, 5), streak });
+    } catch {
+      /* ignore */
+    }
+    // Discovery
+    try {
+      const attempts: Attempt[] = loadAttempts();
+      const inProgress = ASSESSMENT_IDS
+        .map((id) => ({ id, ip: loadInProgress(id) }))
+        .filter((x) => x.ip && x.ip.answeredCount > 0)
+        .map((x) => {
+          const a = ASSESSMENTS.find((aa) => aa.id === x.id);
+          return {
+            name: a?.name ?? "Check-in",
+            slug: a?.slug ?? x.id,
+            answered: x.ip!.answeredCount,
+            total: x.ip!.total,
+          };
+        });
+      setDiscoveryData({ completed: attempts.length, inProgress });
+    } catch {
+      /* ignore */
+    }
+    // Chat
+    try {
+      const rawThreads = window.localStorage.getItem("lubin.chat.threads.v1");
+      const threads = rawThreads
+        ? JSON.parse(rawThreads).map((t: { id: string; title: string; updatedAt: number }) => ({
+            id: t.id,
+            title: t.title,
+            updatedAt: t.updatedAt,
+          }))
+        : [];
+      setChatData({ threads: threads.sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt).slice(0, 4) });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const update = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
 
