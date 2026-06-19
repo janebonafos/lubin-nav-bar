@@ -118,100 +118,78 @@ export default function AuthModal({
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="absolute inset-0 bg-[#1B2B1F]/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
         />
-        <div className="relative w-full max-w-[480px] overflow-hidden bg-white p-10 sm:p-12 shadow-[0_20px_50px_rgba(27,43,31,0.18)] border border-stone-200 animate-scale-in">
-          {/* Decorative circle */}
-          <div className="pointer-events-none absolute -top-12 -right-12 h-48 w-48 rounded-full bg-[#1B2B1F]/[0.04]" />
-
+        <div className="relative w-full max-w-[460px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-6 top-6 z-10 text-stone-400 transition-colors hover:text-[#1B2B1F]"
+            className="absolute right-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
           >
-            <X className="h-6 w-6" strokeWidth={1.5} />
+            <X className="h-5 w-5" />
           </button>
 
-          <div className="relative">
-            <div className="mb-6 inline-block border border-stone-200 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-stone-500">
-              Step One
-            </div>
-            <h2
-              id="auth-modal-title"
-              className="mb-4 text-4xl leading-tight text-[#1B2B1F]"
-              style={{ fontFamily: '"Playfair Display", serif' }}
-            >
-              Join Lubin
-            </h2>
-            <p className="text-[14px] leading-relaxed text-stone-500">
-              Select your path to begin. We tailor the experience to your unique wellness journey.
-            </p>
-          </div>
+          <h2
+            id="auth-modal-title"
+            className="text-[22px] font-bold leading-tight text-[#1F1B2E]"
+          >
+            Join <span className="text-[#7E6BAF]">Lubin</span>
+          </h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#5A4E8A]">
+            Tell us how you want to use Lubin so we can tailor the experience for you.
+          </p>
 
-          <div className="relative mt-10 space-y-4">
+          <div className="mt-6 flex flex-col gap-3">
             <button
               type="button"
               onClick={() => handleSelectRole("client")}
-              className="group flex w-full items-center border border-stone-200 p-6 text-left transition-all duration-300 hover:border-[#1B2B1F] hover:bg-[#1B2B1F]/[0.02]"
+              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
             >
-              <div className="mr-5 flex h-12 w-12 shrink-0 items-center justify-center bg-[#F7F6F2] text-[#1B2B1F] transition-colors duration-300 group-hover:bg-[#1B2B1F] group-hover:text-white">
-                <HeartPulse className="h-6 w-6" strokeWidth={1.25} />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+                <HeartPulse className="h-6 w-6" />
               </div>
-              <div className="flex-1">
-                <h3
-                  className="mb-0.5 text-lg text-[#1B2B1F]"
-                  style={{ fontFamily: '"Playfair Display", serif' }}
-                >
+              <div>
+                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
                   I need support
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Access mental health resources and find your provider.
-                </p>
+                </span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                  Find providers, track your wellness, and access mental health resources
+                </span>
               </div>
-              <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-stone-300 transition-colors group-hover:text-[#1B2B1F]" strokeWidth={1.5} />
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
             </button>
 
             <button
               type="button"
               onClick={() => handleSelectRole("provider")}
-              className="group flex w-full items-center border border-stone-200 p-6 text-left transition-all duration-300 hover:border-[#1B2B1F] hover:bg-[#1B2B1F]/[0.02]"
+              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
             >
-              <div className="mr-5 flex h-12 w-12 shrink-0 items-center justify-center bg-[#F7F6F2] text-[#1B2B1F] transition-colors duration-300 group-hover:bg-[#1B2B1F] group-hover:text-white">
-                <Briefcase className="h-6 w-6" strokeWidth={1.25} />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+                <Briefcase className="h-6 w-6" />
               </div>
-              <div className="flex-1">
-                <h3
-                  className="mb-0.5 text-lg text-[#1B2B1F]"
-                  style={{ fontFamily: '"Playfair Display", serif' }}
-                >
+              <div>
+                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
                   I'm a provider
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Grow your practice and manage clients with ease.
-                </p>
+                </span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                  Offer sessions, manage clients, and grow your practice
+                </span>
               </div>
-              <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-stone-300 transition-colors group-hover:text-[#1B2B1F]" strokeWidth={1.5} />
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
             </button>
           </div>
 
-          <div className="relative mt-10 text-center">
-            <div className="mb-6 flex items-center justify-center gap-4">
-              <div className="h-px w-12 bg-stone-200" />
-              <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-stone-400">or</span>
-              <div className="h-px w-12 bg-stone-200" />
-            </div>
-            <p className="text-sm text-stone-500">
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={switchMode}
-                className="ml-1 border-b border-[#1B2B1F] pb-0.5 font-medium text-[#1B2B1F]"
-              >
-                Sign in
-              </button>
-            </p>
-          </div>
+          <p className="mt-5 text-center text-[13px] text-[#5A4E8A]">
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={switchMode}
+              className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]"
+            >
+              Sign in
+            </button>
+          </p>
         </div>
       </div>
     );
