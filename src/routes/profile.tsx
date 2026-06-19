@@ -644,33 +644,6 @@ function Card({
   );
 }
 
-function Row({
-  icon,
-  title,
-  subtitle,
-  action,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4 border-b border-[#EEE9F8] py-4 last:border-b-0 last:pb-0 first:pt-0">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7E6BAF]/10 text-[#7E6BAF]">
-          {icon}
-        </span>
-        <div>
-          <p className="text-sm font-semibold text-[#3D2E6B]">{title}</p>
-          {subtitle && <p className="text-xs text-[#A89BD0]">{subtitle}</p>}
-        </div>
-      </div>
-      {action}
-    </div>
-  );
-}
-
 function Field({
   label,
   value,
