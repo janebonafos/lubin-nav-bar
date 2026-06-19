@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight, HeartPulse, Briefcase, ArrowLeft } from "lucide-react";
+import { X, Mail, ArrowRight, HeartPulse, Briefcase, ArrowLeft, Sparkles } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
@@ -120,67 +120,88 @@ export default function AuthModal({
           onClick={onClose}
           className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
         />
-        <div className="relative w-full max-w-[460px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
+        <div className="relative w-full max-w-[480px] overflow-hidden rounded-[28px] bg-gradient-to-br from-white via-[#F8F4FE] to-[#EFE6FB] p-7 shadow-[0_40px_100px_-20px_rgba(61,46,107,0.55)] ring-1 ring-white/60 animate-scale-in sm:p-9">
+          {/* Decorative glows */}
+          <div className="pointer-events-none absolute -top-24 -right-20 h-56 w-56 rounded-full bg-gradient-to-br from-[#B79CFF]/40 to-[#7E6BAF]/0 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 -left-16 h-56 w-56 rounded-full bg-gradient-to-tr from-[#F4C7E1]/50 to-transparent blur-3xl" />
+
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+            className="absolute right-4 top-4 z-10 rounded-full bg-white/70 p-1.5 text-[#7E6BAF] backdrop-blur transition hover:bg-white hover:text-[#3D2E6B] hover:rotate-90 duration-300"
           >
             <X className="h-5 w-5" />
           </button>
 
-          <h2
-            id="auth-modal-title"
-            className="text-[22px] font-bold leading-tight text-[#1F1B2E]"
-          >
-            Join <span className="text-[#7E6BAF]">Lubin</span>
-          </h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-[#5A4E8A]">
-            Tell us how you want to use Lubin so we can tailor the experience for you.
-          </p>
+          <div className="relative">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF] ring-1 ring-[#E6DFF4] backdrop-blur">
+              <Sparkles className="h-3 w-3" />
+              Welcome
+            </span>
+            <h2
+              id="auth-modal-title"
+              className="mt-3 text-[28px] font-bold leading-tight tracking-tight text-[#1F1B2E]"
+            >
+              Join{" "}
+              <span className="bg-gradient-to-r from-[#7E6BAF] via-[#A48BD9] to-[#7E6BAF] bg-clip-text text-transparent">
+                Lubin
+              </span>
+            </h2>
+            <p className="mt-2.5 text-[14px] leading-relaxed text-[#5A4E8A]">
+              Tell us how you want to use Lubin so we can tailor the experience for you.
+            </p>
+          </div>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="relative mt-7 flex flex-col gap-3.5">
             <button
               type="button"
               onClick={() => handleSelectRole("client")}
-              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
+              className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-[#E6DFF4] bg-white/90 p-5 text-left backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-white hover:shadow-[0_18px_40px_-12px_rgba(126,107,175,0.55)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#F4EFFB] via-transparent to-[#FDF2F8] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F4EFFB] to-[#E6DFF4] text-[#7E6BAF] shadow-inner ring-1 ring-white/80 transition-all duration-300 group-hover:from-[#7E6BAF] group-hover:to-[#A48BD9] group-hover:text-white group-hover:shadow-[0_8px_20px_-6px_rgba(126,107,175,0.6)]">
                 <HeartPulse className="h-6 w-6" />
               </div>
               <div>
-                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
+                <span className="block text-[16px] font-semibold text-[#1F1B2E]">
                   I need support
                 </span>
-                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                <span className="mt-1 block text-[13px] leading-snug text-[#5A4E8A]">
                   Find providers, track your wellness, and access mental health resources
                 </span>
               </div>
-              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#7E6BAF]" />
             </button>
 
             <button
               type="button"
               onClick={() => handleSelectRole("provider")}
-              className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
+              className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-[#E6DFF4] bg-white/90 p-5 text-left backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-white hover:shadow-[0_18px_40px_-12px_rgba(126,107,175,0.55)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
+              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#EFE9FB] via-transparent to-[#EAF4FB] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F4EFFB] to-[#E6DFF4] text-[#7E6BAF] shadow-inner ring-1 ring-white/80 transition-all duration-300 group-hover:from-[#7E6BAF] group-hover:to-[#A48BD9] group-hover:text-white group-hover:shadow-[0_8px_20px_-6px_rgba(126,107,175,0.6)]">
                 <Briefcase className="h-6 w-6" />
               </div>
               <div>
-                <span className="block text-[15px] font-semibold text-[#1F1B2E]">
+                <span className="block text-[16px] font-semibold text-[#1F1B2E]">
                   I'm a provider
                 </span>
-                <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                <span className="mt-1 block text-[13px] leading-snug text-[#5A4E8A]">
                   Offer sessions, manage clients, and grow your practice
                 </span>
               </div>
-              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+              <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#7E6BAF]" />
             </button>
           </div>
 
-          <p className="mt-5 text-center text-[13px] text-[#5A4E8A]">
+          <div className="relative mt-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#E6DFF4] to-transparent" />
+            <span className="text-[11px] uppercase tracking-[0.14em] text-[#9A8DC0]">or</span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#E6DFF4] to-transparent" />
+          </div>
+
+          <p className="relative mt-4 text-center text-[13px] text-[#5A4E8A]">
             Already have an account?{" "}
             <button
               type="button"
