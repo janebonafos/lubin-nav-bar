@@ -21,7 +21,6 @@ import {
   Plus,
   CalendarCheck,
   ClipboardList,
-  Clock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
