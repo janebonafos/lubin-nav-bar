@@ -146,9 +146,6 @@ export default function AuthModal({
               onClick={() => handleSelectRole("client")}
               className="group flex items-center gap-4 rounded-2xl border border-[#E6DFF4] bg-white p-5 text-left transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)]"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F4EFFB] text-[#7E6BAF] transition-colors group-hover:bg-[#7E6BAF] group-hover:text-white">
-                <HeartPulse className="h-6 w-6" />
-              </div>
               <div>
                 <span className="block text-[15px] font-semibold text-[#1F1B2E]">
                   I need support
