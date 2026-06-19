@@ -614,6 +614,52 @@ function Card({
   );
 }
 
+function DailyMoodCard({
+  loggedToday,
+  streak,
+}: {
+  loggedToday: boolean;
+  streak: number;
+}) {
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-[#E3DBF5]/60 bg-gradient-to-r from-[#E9E0FB] via-[#D8C9F2]/60 to-[#E9E0FB] p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
+      <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#7E6BAF]/15 blur-3xl" />
+      <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-[#7E6BAF]/15 backdrop-blur-sm">
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                loggedToday ? "bg-emerald-500" : "bg-amber-400 animate-pulse"
+              }`}
+            />
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#3D2E6B]/80">
+              Daily mood log
+            </p>
+          </div>
+          <p className="mt-3 text-xl font-bold text-[#3D2E6B]">
+            {loggedToday
+              ? "You've logged your mood today"
+              : "You haven't logged your mood yet today"}
+          </p>
+          <p className="mt-1 text-sm text-[#3D2E6B]/65">
+            {loggedToday
+              ? `Nice work — ${streak}-day streak and counting.`
+              : "Takes 15 seconds. Builds your passport over time."}
+          </p>
+        </div>
+        <Link
+          to="/check-in"
+          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#3D2E6B] shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-[#7E6BAF]/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#7E6BAF] hover:text-white hover:ring-[#7E6BAF] hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)] no-underline"
+        >
+          {loggedToday ? "View today's log" : "Check in"}{" "}
+          <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function Field({
   label,
   value,
