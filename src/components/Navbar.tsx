@@ -431,6 +431,9 @@ export default function Navbar() {
         open={authOpen}
         mode={authMode}
         onClose={() => setAuthOpen(false)}
+        onSelectRole={(role: UserRole) => {
+          console.log("Selected role:", role);
+        }}
       />
     </header>
   );
