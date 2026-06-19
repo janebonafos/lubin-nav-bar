@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight, HeartPulse, Briefcase, ArrowLeft } from "lucide-react";
+import { X, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
