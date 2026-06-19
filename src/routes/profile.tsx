@@ -205,7 +205,7 @@ function ProfilePage() {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
           {/* Sidebar */}
           <aside className="lg:col-span-1">
-            <section className="sticky top-28 rounded-[2rem] border border-white/40 bg-white/70 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+            <section className="sticky top-28 rounded-[2rem] border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
                 <div className="relative">
@@ -629,7 +629,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/40 bg-white/80 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+    <section className="rounded-[2rem] border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-[#3D2E6B]">
           {icon && <span className="text-[#7E6BAF]">{icon}</span>}
