@@ -264,6 +264,14 @@ function ProfilePage() {
 
             {activeSection === "profile" && (
               <>
+                {/* Daily mood check-in status */}
+                <DailyMoodCard
+                  loggedToday={passportData.checkins.some(
+                    (c) => new Date(c.date).toDateString() === new Date().toDateString(),
+                  )}
+                  streak={passportData.streak}
+                />
+
                 {/* Basic Information */}
                 <Card
                   title="Basic Information"
