@@ -5,14 +5,10 @@ import {
   Pencil,
   Mail,
   Phone,
-  MapPin,
-  Calendar,
-  Heart,
   Sparkles,
   ShieldCheck,
   ArrowRight,
   Check,
-  X,
   HeartPulse,
   Compass,
   MessageCircle,
@@ -21,6 +17,8 @@ import {
   Plus,
   CalendarCheck,
   ClipboardList,
+  Lock,
+  KeyRound,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
