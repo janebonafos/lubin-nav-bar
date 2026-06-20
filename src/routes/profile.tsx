@@ -398,7 +398,7 @@ function ProfilePage() {
           {/* Main */}
           <div className="space-y-6 lg:col-span-3">
             {/* Page header */}
-            {activeSection !== "chat" && (
+            {activeSection !== "chat" && activeSection !== "share" && (
               <header className="px-1">
                 <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
                   {meta.title}
