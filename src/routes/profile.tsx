@@ -24,6 +24,10 @@ import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
+import {
+  UnderstandYourselfSection,
+  ReflectionRhythm,
+} from "@/components/discovery/SelfDiscoveryPanels";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -125,7 +129,8 @@ function ProfilePage() {
   const [discoveryData, setDiscoveryData] = useState<{
     completed: number;
     inProgress: { name: string; slug: string; answered: number; total: number }[];
-  }>({ completed: 0, inProgress: [] });
+    attempts: Attempt[];
+  }>({ completed: 0, inProgress: [], attempts: [] });
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -156,7 +161,7 @@ function ProfilePage() {
             total: x.ip!.total,
           };
         });
-      setDiscoveryData({ completed: attempts.length, inProgress });
+      setDiscoveryData({ completed: attempts.length, inProgress, attempts });
     } catch { /* ignore */ }
   }, []);
 
