@@ -579,9 +579,30 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
-                <EmbeddedChat />
-              </Card>
+              <>
+                {/* Compact section nav for chat mode */}
+                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-2">
+                  {NAV.map(({ key, label }) => {
+                    const active = activeSection === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setActiveSection(key)}
+                        className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          active
+                            ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                            : "text-[#3D2E6B]/70 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
+                  <EmbeddedChat />
+                </Card>
+              </>
             )}
           </div>
         </div>
