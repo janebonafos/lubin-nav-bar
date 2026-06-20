@@ -16,6 +16,8 @@ import {
   Unlink,
   Trash2,
   User,
+  Plus,
+  MessagesSquare,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -60,6 +62,10 @@ const DEFAULT_PROFILE: Profile = {
 
 type Section = "profile" | "passport" | "discovery" | "chat";
 
+type ChatThreadMeta = { id: string; title: string; updatedAt: number };
+const CHAT_THREADS_KEY = "lubin.chat.threads.v1";
+const CHAT_ACTIVE_KEY = "lubin.chat.activeId.v1";
+
 function ProfilePage() {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [editing, setEditing] = useState<boolean>(false);
@@ -70,6 +76,38 @@ function ProfilePage() {
   const [facebookConnected] = useState(false);
 
   const [checkInActive, setCheckInActive] = useState(false);
+
+  // Chat thread list (mirrors EmbeddedChat localStorage)
+  const [chatThreads, setChatThreads] = useState<ChatThreadMeta[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>("");
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem(CHAT_THREADS_KEY);
+        const list: ChatThreadMeta[] = raw ? JSON.parse(raw) : [];
+        const sorted = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+        setChatThreads(sorted);
+        setActiveChatId(localStorage.getItem(CHAT_ACTIVE_KEY) ?? "");
+      } catch { /* ignore */ }
+    };
+    read();
+    const handler = () => read();
+    window.addEventListener("lubin:chat:update", handler);
+    return () => window.removeEventListener("lubin:chat:update", handler);
+  }, []);
+
+  const selectChat = (id: string) => {
+    setActiveSection("chat");
+    window.dispatchEvent(new CustomEvent("lubin:chat:select", { detail: id }));
+  };
+  const newChat = () => {
+    setActiveSection("chat");
+    window.dispatchEvent(new CustomEvent("lubin:chat:new"));
+  };
+  const deleteChat = (id: string) => {
+    window.dispatchEvent(new CustomEvent("lubin:chat:delete", { detail: id }));
+  };
 
   const displayName = profile.fullName.trim() || "Your name";
   const initials =
@@ -266,17 +304,78 @@ function ProfilePage() {
                 {NAV.map(({ key, label }) => {
                   const active = activeSection === key;
                   return (
-                    <button
-                      key={key}
-                      onClick={() => setActiveSection(key)}
-                      className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
-                        active
-                          ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
-                          : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
-                      }`}
-                    >
-                      {label}
-                    </button>
+                    <div key={key}>
+                      <button
+                        onClick={() => setActiveSection(key)}
+                        className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
+                          active
+                            ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                            : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                      {key === "chat" && activeSection === "chat" && (
+                        <div className="mt-2 ml-1 space-y-2">
+                          <button
+                            onClick={newChat}
+                            className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[#7E6BAF]/30 px-3 py-2 text-xs font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF]/60 hover:bg-[#7E6BAF]/5"
+                          >
+                            <Plus className="h-3.5 w-3.5" /> New conversation
+                          </button>
+                          <div className="flex items-center gap-1.5 px-1 pt-1">
+                            <MessagesSquare className="h-3 w-3 text-[#A89BD0]" />
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                              Recent
+                            </p>
+                          </div>
+                          <div className="max-h-72 space-y-0.5 overflow-y-auto pr-1">
+                            {chatThreads.length === 0 ? (
+                              <p className="px-2 py-1.5 text-[11px] text-[#A89BD0]/80">
+                                No conversations yet.
+                              </p>
+                            ) : (
+                              chatThreads.map((t) => {
+                                const isActive = t.id === activeChatId;
+                                return (
+                                  <div
+                                    key={t.id}
+                                    className={`group flex items-center gap-1 rounded-lg pr-1 transition ${
+                                      isActive
+                                        ? "bg-[#7E6BAF]/10"
+                                        : "hover:bg-[#7E6BAF]/5"
+                                    }`}
+                                  >
+                                    <button
+                                      onClick={() => selectChat(t.id)}
+                                      className={`flex-1 truncate rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition ${
+                                        isActive
+                                          ? "font-semibold text-[#3D2E6B]"
+                                          : "text-[#3D2E6B]/75"
+                                      }`}
+                                      title={t.title}
+                                    >
+                                      {t.title || "New conversation"}
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteChat(t.id);
+                                      }}
+                                      className="shrink-0 rounded-md p-1 text-[#A89BD0] opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                                      title="Delete conversation"
+                                      aria-label="Delete conversation"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </nav>
