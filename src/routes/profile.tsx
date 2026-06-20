@@ -73,6 +73,16 @@ function ProfilePage() {
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
 
+  const todayLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    [],
+  );
+
   const [googleConnected] = useState(true);
   const [facebookConnected] = useState(false);
 
