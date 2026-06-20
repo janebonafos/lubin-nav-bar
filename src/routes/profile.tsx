@@ -18,6 +18,7 @@ import {
   Trash2,
   User,
   Plus,
+  Share2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -26,6 +27,7 @@ import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
+import ShareTabView from "@/components/share/ShareTabView";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
