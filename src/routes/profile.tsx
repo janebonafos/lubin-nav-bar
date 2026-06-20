@@ -185,11 +185,11 @@ function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1800);
   };
 
-  const NAV: { key: Section; label: string }[] = [
-    { key: "profile", label: "Profile Overview" },
-    { key: "passport", label: "Health Passport" },
-    { key: "discovery", label: "Self Discovery" },
-    { key: "chat", label: "Chat" },
+  const NAV: { key: Section; label: string; icon: React.ReactNode }[] = [
+    { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
+    { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
+    { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
+    { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
   ];
 
   const sectionMeta: Record<Section, { title: string; subtitle: string }> = {
