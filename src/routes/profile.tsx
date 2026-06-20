@@ -10,8 +10,6 @@ import {
   Compass,
   MessageCircle,
   TrendingUp,
-  MessageSquare,
-  Plus,
   CalendarCheck,
   ClipboardList,
   Link2,
@@ -22,6 +20,7 @@ import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
+import EmbeddedChat from "@/components/EmbeddedChat";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -88,10 +87,6 @@ function ProfilePage() {
     completed: number;
     inProgress: { name: string; slug: string; answered: number; total: number }[];
   }>({ completed: 0, inProgress: [] });
-  const [chatData, setChatData] = useState<{
-    threads: { id: string; title: string; updatedAt: number }[];
-  }>({ threads: [] });
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -123,21 +118,6 @@ function ProfilePage() {
           };
         });
       setDiscoveryData({ completed: attempts.length, inProgress });
-    } catch { /* ignore */ }
-    try {
-      const rawThreads = window.localStorage.getItem("lubin.chat.threads.v1");
-      const threads = rawThreads
-        ? JSON.parse(rawThreads).map((t: { id: string; title: string; updatedAt: number }) => ({
-            id: t.id,
-            title: t.title,
-            updatedAt: t.updatedAt,
-          }))
-        : [];
-      setChatData({
-        threads: threads
-          .sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt)
-          .slice(0, 4),
-      });
     } catch { /* ignore */ }
   }, []);
 
@@ -588,49 +568,8 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <Card title="Conversations" icon={<MessageCircle className="h-5 w-5" />}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      Active
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
-                      {chatData.threads.length}{" "}
-                      <span className="text-base font-medium text-[#A89BD0]">
-                        thread{chatData.threads.length === 1 ? "" : "s"}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
-                    <MessageSquare className="h-6 w-6" />
-                  </div>
-                </div>
-
-                {chatData.threads.length > 0 && (
-                  <div className="mt-5 space-y-2">
-                    {chatData.threads.map((t) => (
-                      <Link
-                        key={t.id}
-                        to="/chat"
-                        className="group flex items-center gap-2 rounded-xl border border-[#EEE9F8] bg-white/50 px-3 py-2.5 no-underline transition hover:border-[#7E6BAF]/30 hover:bg-white"
-                      >
-                        <MessageCircle className="h-4 w-4 shrink-0 text-[#A89BD0] group-hover:text-[#7E6BAF]" />
-                        <span className="truncate text-[13px] font-medium text-[#3D2E6B]">
-                          {t.title}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-6">
-                  <Link
-                    to="/chat"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
-                  >
-                    <Plus className="h-4 w-4" /> Open chat
-                  </Link>
-                </div>
+              <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
+                <EmbeddedChat />
               </Card>
             )}
           </div>
