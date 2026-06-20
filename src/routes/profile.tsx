@@ -622,27 +622,27 @@ function DailyMoodCard({
   streak: number;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-[#D8D0E8]/60 bg-gradient-to-r from-[#E6E1F0] via-[#DDD8EC] to-[#E6E1F0] p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
+    <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#7E6BAF]/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
       <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-[#7E6BAF]/15 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-brand-purple/15 backdrop-blur-sm">
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                loggedToday ? "bg-emerald-500" : "bg-amber-400 animate-pulse"
+                loggedToday ? "bg-emerald-400 animate-pulse" : "bg-amber-400 animate-pulse"
               }`}
             />
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#3D2E6B]/80">
-              Daily mood log
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark/80">
+              Daily check-in
             </p>
           </div>
-          <p className="mt-3 text-xl font-bold text-[#3D2E6B]">
+          <p className="mt-3 text-xl font-bold text-brand-purple-dark">
             {loggedToday
-              ? "You've logged your mood today"
-              : "You haven't logged your mood yet today"}
+              ? "You've checked in today"
+              : "How are you feeling today?"}
           </p>
-          <p className="mt-1 text-sm text-[#3D2E6B]/65">
+          <p className="mt-1 text-sm text-brand-purple-dark/65">
             {loggedToday
               ? `Nice work — ${streak}-day streak and counting.`
               : "Takes 15 seconds. Builds your passport over time."}
@@ -650,7 +650,7 @@ function DailyMoodCard({
         </div>
         <Link
           to="/check-in"
-          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#3D2E6B] shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-[#7E6BAF]/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#7E6BAF] hover:text-white hover:ring-[#7E6BAF] hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)] no-underline"
+          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)] no-underline"
         >
           {loggedToday ? "View today's log" : "Check in"}{" "}
           <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
