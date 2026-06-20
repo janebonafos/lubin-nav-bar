@@ -250,7 +250,7 @@ function ProfilePage() {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
           {/* Sidebar */}
           <aside className="lg:col-span-1">
-            <section className="sticky top-28 rounded-[2rem] border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+            <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
                 <div className="relative">
@@ -652,7 +652,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+    <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-[#3D2E6B]">
           {icon && <span className="text-[#7E6BAF]">{icon}</span>}
@@ -682,7 +682,7 @@ function DailyMoodCard({
 }) {
   return (
     <div className="flex flex-col gap-5">
-    <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
       <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -725,7 +725,7 @@ function DailyMoodCard({
             transition={{ duration: 0.3, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
           >
-            <div className="rounded-xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+            <div className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
               <CheckInFlow onClose={onClose} onSave={onSave} />
             </div>
           </motion.div>
