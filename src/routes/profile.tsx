@@ -580,13 +580,9 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <section className="relative overflow-hidden rounded-3xl border border-[#E3DBF5]/60 bg-gradient-to-br from-white/80 via-[#FBF9FF]/90 to-[#F3EEFC]/80 shadow-xl shadow-[#3D2E6B]/10 backdrop-blur-xl">
-                <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#A89BD0]/25 blur-3xl" />
-                <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#7E6BAF]/15 blur-3xl" />
-                <div className="relative h-[calc(100vh-12rem)] min-h-[600px]">
-                  <EmbeddedChat />
-                </div>
-              </section>
+              <div className="overflow-hidden rounded-3xl shadow-xl shadow-[#3D2E6B]/10">
+                <EmbeddedChat />
+              </div>
             )}
           </div>
         </div>
