@@ -613,7 +613,7 @@ function IntroScreen({ onOpen }: { onOpen: () => void }) {
 }
 
 // ---------- Overview ----------
-function Overview({
+export function Overview({
   today,
   checkins: _checkins,
   onLogMood,
@@ -1498,7 +1498,7 @@ function LiveEntry({
 }
 
 // ---------- Progress ----------
-function Progress({
+export function Progress({
   checkins: _checkins,
   assessments: _assessments,
   streak: _streak,

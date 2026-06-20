@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, useEffect } from "react";
+import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -24,10 +25,7 @@ import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
-import {
-  UnderstandYourselfSection,
-  ReflectionRhythm,
-} from "@/components/discovery/SelfDiscoveryPanels";
+import { Overview, Progress } from "@/routes/my-health-passport";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -74,6 +72,16 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+
+  const todayLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    [],
+  );
 
   const [googleConnected] = useState(true);
   const [facebookConnected] = useState(false);
@@ -560,128 +568,22 @@ function ProfilePage() {
             )}
 
             {activeSection === "passport" && (
-              <Card title="Daily check-ins" icon={<HeartPulse className="h-5 w-5" />}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      Current streak
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
-                      {passportData.streak}{" "}
-                      <span className="text-base font-medium text-[#A89BD0]">
-                        day{passportData.streak === 1 ? "" : "s"}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
-                    <TrendingUp className="h-6 w-6" />
-                  </div>
-                </div>
-
-                {passportData.checkins.length > 0 && (
-                  <div className="mt-5">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      Recent check-ins
-                    </p>
-                    <div className="mt-2 flex gap-3">
-                      {passportData.checkins.map((c) => {
-                        const moodMap: Record<number, string> = {
-                          1: "😞", 2: "😕", 3: "😐", 4: "🙂", 5: "😄",
-                        };
-                        return (
-                          <div key={c.id} className="flex flex-col items-center gap-1">
-                            <span className="text-xl">{moodMap[c.mood] ?? "😐"}</span>
-                            <span className="text-[10px] text-[#A89BD0]">
-                              {new Date(c.date).toLocaleDateString(undefined, {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-                  <Link
-                    to="/check-in"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
-                  >
-                    <CalendarCheck className="h-4 w-4" /> Check in today
-                  </Link>
-                  <Link
-                    to="/my-health-passport"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#EEE9F8] bg-white/60 px-4 py-2.5 text-sm font-semibold text-[#7E6BAF] transition hover:bg-white"
-                  >
-                    View full passport <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </Card>
+              <Overview
+                today={todayLabel}
+                checkins={passportData.checkins as never}
+                onLogMood={() => setCheckInActive(true)}
+                checkInActive={checkInActive}
+                onCloseCheckIn={() => setCheckInActive(false)}
+                isGuest={false}
+              />
             )}
 
             {activeSection === "discovery" && (
-              <div className="space-y-5">
-                <UnderstandYourselfSection />
-
-                <Card title="Assessments" icon={<Compass className="h-5 w-5" />}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      Completed
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-[#3D2E6B]">
-                      {discoveryData.completed}{" "}
-                      <span className="text-base font-medium text-[#A89BD0]">
-                        check-in{discoveryData.completed === 1 ? "" : "s"}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7E6BAF]/10 text-[#7E6BAF]">
-                    <ClipboardList className="h-6 w-6" />
-                  </div>
-                </div>
-
-                {discoveryData.inProgress.length > 0 && (
-                  <div className="mt-5">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      In progress
-                    </p>
-                    <div className="mt-2 space-y-2">
-                      {discoveryData.inProgress.map((ip) => (
-                        <Link
-                          key={ip.slug}
-                          to="/self-discovery/$slug"
-                          params={{ slug: ip.slug }}
-                          className="group flex items-center justify-between rounded-xl border border-[#EEE9F8] bg-white/50 px-3 py-2.5 no-underline transition hover:border-[#7E6BAF]/30 hover:bg-white"
-                        >
-                          <span className="truncate text-[13px] font-medium text-[#3D2E6B]">
-                            {ip.name}
-                          </span>
-                          <span className="shrink-0 rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[11px] font-semibold text-[#7E6BAF]">
-                            {ip.answered}/{ip.total}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-6">
-                  <Link
-                    to="/self-discovery"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#A89BD0]/30 transition hover:-translate-y-0.5 hover:bg-[#3D2E6B]"
-                  >
-                    <Compass className="h-4 w-4" /> Explore check-ins
-                  </Link>
-                </div>
-                </Card>
-
-                <Card title="Reflection rhythm" icon={<CalendarCheck className="h-5 w-5" />}>
-                  <ReflectionRhythm attempts={discoveryData.attempts} />
-                </Card>
-              </div>
+              <Progress
+                checkins={passportData.checkins as never}
+                assessments={[] as never}
+                streak={passportData.streak}
+              />
             )}
 
             {activeSection === "chat" && (
