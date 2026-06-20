@@ -16,6 +16,8 @@ import {
   Unlink,
   Trash2,
   User,
+  Plus,
+  MessagesSquare,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -60,6 +62,10 @@ const DEFAULT_PROFILE: Profile = {
 
 type Section = "profile" | "passport" | "discovery" | "chat";
 
+type ChatThreadMeta = { id: string; title: string; updatedAt: number };
+const CHAT_THREADS_KEY = "lubin.chat.threads.v1";
+const CHAT_ACTIVE_KEY = "lubin.chat.activeId.v1";
+
 function ProfilePage() {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [editing, setEditing] = useState<boolean>(false);
@@ -70,6 +76,38 @@ function ProfilePage() {
   const [facebookConnected] = useState(false);
 
   const [checkInActive, setCheckInActive] = useState(false);
+
+  // Chat thread list (mirrors EmbeddedChat localStorage)
+  const [chatThreads, setChatThreads] = useState<ChatThreadMeta[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>("");
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem(CHAT_THREADS_KEY);
+        const list: ChatThreadMeta[] = raw ? JSON.parse(raw) : [];
+        const sorted = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+        setChatThreads(sorted);
+        setActiveChatId(localStorage.getItem(CHAT_ACTIVE_KEY) ?? "");
+      } catch { /* ignore */ }
+    };
+    read();
+    const handler = () => read();
+    window.addEventListener("lubin:chat:update", handler);
+    return () => window.removeEventListener("lubin:chat:update", handler);
+  }, []);
+
+  const selectChat = (id: string) => {
+    setActiveSection("chat");
+    window.dispatchEvent(new CustomEvent("lubin:chat:select", { detail: id }));
+  };
+  const newChat = () => {
+    setActiveSection("chat");
+    window.dispatchEvent(new CustomEvent("lubin:chat:new"));
+  };
+  const deleteChat = (id: string) => {
+    window.dispatchEvent(new CustomEvent("lubin:chat:delete", { detail: id }));
+  };
 
   const displayName = profile.fullName.trim() || "Your name";
   const initials =
