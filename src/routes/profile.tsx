@@ -668,11 +668,20 @@ function Card({
 function DailyMoodCard({
   loggedToday,
   streak,
+  active,
+  onOpen,
+  onClose,
+  onSave,
 }: {
   loggedToday: boolean;
   streak: number;
+  active: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onSave: (data: CheckInPayload) => void;
 }) {
   return (
+    <div className="flex flex-col gap-5">
     <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
@@ -697,15 +706,32 @@ function DailyMoodCard({
               : "Takes 15 seconds. Builds your passport over time."}
           </p>
         </div>
-        <Link
-          to="/check-in"
-          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)] no-underline"
+        <button
+          onClick={active ? onClose : onOpen}
+          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)]"
         >
-          {loggedToday ? "View today's log" : "Check in"}{" "}
+          {active ? "Close" : loggedToday ? "Check in again" : "Check in"}{" "}
           <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-        </Link>
+        </button>
       </div>
     </section>
+      <AnimatePresence initial={false}>
+        {active && (
+          <motion.div
+            key="profile-checkin-flow"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="rounded-[2rem] border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+              <CheckInFlow onClose={onClose} onSave={onSave} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
