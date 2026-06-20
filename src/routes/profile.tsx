@@ -622,9 +622,9 @@ function DailyMoodCard({
   streak: number;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-[#E3DBF5]/60 bg-gradient-to-r from-[#E9E0FB] via-[#D8C9F2]/60 to-[#E9E0FB] p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
+    <section className="relative overflow-hidden rounded-[2rem] border border-[#D8D0E8]/60 bg-gradient-to-r from-[#E6E1F0] via-[#DDD8EC] to-[#E6E1F0] p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#7E6BAF]/15 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[#7E6BAF]/10 blur-3xl" />
       <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-[#7E6BAF]/15 backdrop-blur-sm">
