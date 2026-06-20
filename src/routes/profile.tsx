@@ -307,13 +307,15 @@ function ProfilePage() {
 
           {/* Main */}
           <div className={`space-y-6 ${activeSection === "chat" ? "" : "lg:col-span-3"}`}>
-            {/* Page header */}
-            <header className="px-1">
-              <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                {meta.title}
-              </h1>
-              <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-            </header>
+            {/* Page header — hidden in chat mode for maximum space */}
+            {activeSection !== "chat" && (
+              <header className="px-1">
+                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
+                  {meta.title}
+                </h1>
+                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
+              </header>
+            )}
 
             {activeSection === "profile" && (
               <>
