@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Camera,
   Pencil,
@@ -20,6 +21,7 @@ import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
+import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -65,6 +67,8 @@ function ProfilePage() {
 
   const [googleConnected] = useState(true);
   const [facebookConnected] = useState(false);
+
+  const [checkInActive, setCheckInActive] = useState(false);
 
   const displayName = profile.fullName.trim() || "Your name";
   const initials =
@@ -136,6 +140,49 @@ function ProfilePage() {
       });
     } catch { /* ignore */ }
   }, []);
+
+  const refreshPassport = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const rawCheckins = window.localStorage.getItem("lubinai_checkins");
+      const checkins = rawCheckins ? JSON.parse(rawCheckins) : [];
+      const days = new Set(
+        checkins.map((c: { date: string }) => new Date(c.date).toDateString()),
+      );
+      let streak = 0;
+      const cur = new Date();
+      while (days.has(cur.toDateString())) {
+        streak += 1;
+        cur.setDate(cur.getDate() - 1);
+      }
+      setPassportData({ checkins: checkins.slice(0, 5), streak });
+    } catch { /* ignore */ }
+  };
+
+  const handleSaveCheckIn = (data: CheckInPayload) => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("lubinai_checkins");
+      const list = raw ? JSON.parse(raw) : [];
+      const entry = {
+        id: typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()),
+        mood: data.intensityIdx + 1,
+        note: data.note,
+        date: new Date().toISOString(),
+        moodKey: data.mood,
+        intensityIdx: data.intensityIdx,
+        intensityEmoji: data.intensityEmoji,
+        intensityLabel: data.intensityLabel,
+        topics: data.topics,
+      };
+      window.localStorage.setItem(
+        "lubinai_checkins",
+        JSON.stringify([entry, ...list]),
+      );
+    } catch { /* ignore */ }
+    setCheckInActive(false);
+    refreshPassport();
+  };
 
   const update = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -365,6 +412,10 @@ function ProfilePage() {
                     (c) => new Date(c.date).toDateString() === new Date().toDateString(),
                   )}
                   streak={passportData.streak}
+                  active={checkInActive}
+                  onOpen={() => setCheckInActive(true)}
+                  onClose={() => setCheckInActive(false)}
+                  onSave={handleSaveCheckIn}
                 />
 
                 {/* Connected accounts */}
