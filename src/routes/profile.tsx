@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Camera,
   Pencil,
@@ -20,6 +21,7 @@ import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
+import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -65,6 +67,8 @@ function ProfilePage() {
 
   const [googleConnected] = useState(true);
   const [facebookConnected] = useState(false);
+
+  const [checkInActive, setCheckInActive] = useState(false);
 
   const displayName = profile.fullName.trim() || "Your name";
   const initials =
@@ -136,6 +140,49 @@ function ProfilePage() {
       });
     } catch { /* ignore */ }
   }, []);
+
+  const refreshPassport = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const rawCheckins = window.localStorage.getItem("lubinai_checkins");
+      const checkins = rawCheckins ? JSON.parse(rawCheckins) : [];
+      const days = new Set(
+        checkins.map((c: { date: string }) => new Date(c.date).toDateString()),
+      );
+      let streak = 0;
+      const cur = new Date();
+      while (days.has(cur.toDateString())) {
+        streak += 1;
+        cur.setDate(cur.getDate() - 1);
+      }
+      setPassportData({ checkins: checkins.slice(0, 5), streak });
+    } catch { /* ignore */ }
+  };
+
+  const handleSaveCheckIn = (data: CheckInPayload) => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("lubinai_checkins");
+      const list = raw ? JSON.parse(raw) : [];
+      const entry = {
+        id: typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()),
+        mood: data.intensityIdx + 1,
+        note: data.note,
+        date: new Date().toISOString(),
+        moodKey: data.mood,
+        intensityIdx: data.intensityIdx,
+        intensityEmoji: data.intensityEmoji,
+        intensityLabel: data.intensityLabel,
+        topics: data.topics,
+      };
+      window.localStorage.setItem(
+        "lubinai_checkins",
+        JSON.stringify([entry, ...list]),
+      );
+    } catch { /* ignore */ }
+    setCheckInActive(false);
+    refreshPassport();
+  };
 
   const update = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -365,6 +412,10 @@ function ProfilePage() {
                     (c) => new Date(c.date).toDateString() === new Date().toDateString(),
                   )}
                   streak={passportData.streak}
+                  active={checkInActive}
+                  onOpen={() => setCheckInActive(true)}
+                  onClose={() => setCheckInActive(false)}
+                  onSave={handleSaveCheckIn}
                 />
 
                 {/* Connected accounts */}
@@ -617,11 +668,20 @@ function Card({
 function DailyMoodCard({
   loggedToday,
   streak,
+  active,
+  onOpen,
+  onClose,
+  onSave,
 }: {
   loggedToday: boolean;
   streak: number;
+  active: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onSave: (data: CheckInPayload) => void;
 }) {
   return (
+    <div className="flex flex-col gap-5">
     <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-brand-lavender via-brand-purple-accent/40 to-brand-lavender p-6 shadow-md shadow-[#3D2E6B]/5 sm:p-8">
       <div aria-hidden className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
@@ -646,15 +706,32 @@ function DailyMoodCard({
               : "Takes 15 seconds. Builds your passport over time."}
           </p>
         </div>
-        <Link
-          to="/check-in"
-          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)] no-underline"
+        <button
+          onClick={active ? onClose : onOpen}
+          className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)]"
         >
-          {loggedToday ? "View today's log" : "Check in"}{" "}
+          {active ? "Close" : loggedToday ? "Check in again" : "Check in"}{" "}
           <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-        </Link>
+        </button>
       </div>
     </section>
+      <AnimatePresence initial={false}>
+        {active && (
+          <motion.div
+            key="profile-checkin-flow"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="rounded-[2rem] border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+              <CheckInFlow onClose={onClose} onSave={onSave} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
