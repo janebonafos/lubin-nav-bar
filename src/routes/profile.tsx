@@ -22,6 +22,7 @@ import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
+import EmbeddedChat from "@/components/EmbeddedChat";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
