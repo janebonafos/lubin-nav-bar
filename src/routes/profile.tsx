@@ -286,12 +286,14 @@ function ProfilePage() {
           {/* Main */}
           <div className="space-y-6 lg:col-span-3">
             {/* Page header */}
-            <header className="px-1">
-              <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                {meta.title}
-              </h1>
-              <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-            </header>
+            {activeSection !== "chat" && (
+              <header className="px-1">
+                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
+                  {meta.title}
+                </h1>
+                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
+              </header>
+            )}
 
             {activeSection === "profile" && (
               <>
@@ -578,9 +580,13 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <div className="-mx-4 -my-6 sm:-mx-8 sm:-my-8">
-                <EmbeddedChat />
-              </div>
+              <section className="relative overflow-hidden rounded-3xl border border-[#E3DBF5]/60 bg-gradient-to-br from-white/80 via-[#FBF9FF]/90 to-[#F3EEFC]/80 shadow-xl shadow-[#3D2E6B]/10 backdrop-blur-xl">
+                <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#A89BD0]/25 blur-3xl" />
+                <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#7E6BAF]/15 blur-3xl" />
+                <div className="relative h-[calc(100vh-12rem)] min-h-[600px]">
+                  <EmbeddedChat />
+                </div>
+              </section>
             )}
           </div>
         </div>
