@@ -24,6 +24,10 @@ import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
+import {
+  UnderstandYourselfSection,
+  ReflectionRhythm,
+} from "@/components/discovery/SelfDiscoveryPanels";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -125,7 +129,8 @@ function ProfilePage() {
   const [discoveryData, setDiscoveryData] = useState<{
     completed: number;
     inProgress: { name: string; slug: string; answered: number; total: number }[];
-  }>({ completed: 0, inProgress: [] });
+    attempts: Attempt[];
+  }>({ completed: 0, inProgress: [], attempts: [] });
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -156,7 +161,7 @@ function ProfilePage() {
             total: x.ip!.total,
           };
         });
-      setDiscoveryData({ completed: attempts.length, inProgress });
+      setDiscoveryData({ completed: attempts.length, inProgress, attempts });
     } catch { /* ignore */ }
   }, []);
 
@@ -617,7 +622,10 @@ function ProfilePage() {
             )}
 
             {activeSection === "discovery" && (
-              <Card title="Assessments" icon={<Compass className="h-5 w-5" />}>
+              <div className="space-y-5">
+                <UnderstandYourselfSection />
+
+                <Card title="Assessments" icon={<Compass className="h-5 w-5" />}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
@@ -668,7 +676,12 @@ function ProfilePage() {
                     <Compass className="h-4 w-4" /> Explore check-ins
                   </Link>
                 </div>
-              </Card>
+                </Card>
+
+                <Card title="Reflection rhythm" icon={<CalendarCheck className="h-5 w-5" />}>
+                  <ReflectionRhythm attempts={discoveryData.attempts} />
+                </Card>
+              </div>
             )}
 
             {activeSection === "chat" && (
