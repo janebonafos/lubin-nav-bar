@@ -14,6 +14,8 @@ import {
   ClipboardList,
   Link2,
   Unlink,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -175,6 +177,8 @@ function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
+  const handleRemoveAvatar = () => update("avatar", null);
+
   const handleSave = () => {
     setEditing(false);
     setSavedFlash(true);
@@ -324,30 +328,47 @@ function ProfilePage() {
                   }
                 >
                   <div className="flex items-center gap-6">
-                    <label htmlFor="avatar-upload" className="group relative cursor-pointer">
-                      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-3xl font-bold text-white shadow-inner">
-                        {profile.avatar ? (
-                          <img
-                            src={profile.avatar}
-                            alt={displayName}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span>{initials}</span>
-                        )}
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-[#3D2E6B]/30 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Camera className="h-6 w-6 text-white" />
-                      </div>
-                    </label>
+                    <div className="relative">
+                      <label htmlFor="avatar-upload" className="group relative cursor-pointer">
+                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-3xl font-bold text-white shadow-inner">
+                          {profile.avatar ? (
+                            <img
+                              src={profile.avatar}
+                              alt={displayName}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span>{initials}</span>
+                          )}
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-[#3D2E6B]/30 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Camera className="h-6 w-6 text-white" />
+                        </div>
+                      </label>
+                    </div>
                     <div>
                       <p className="text-sm font-medium text-[#7E6BAF]">Profile Photo</p>
-                      <label
-                        htmlFor="avatar-upload"
-                        className="mt-1 inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
-                      >
-                        Change Photo
-                      </label>
+                      <div className="mt-2 flex items-center gap-2">
+                        <label
+                          htmlFor="avatar-upload"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#7E6BAF]/10 px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] transition hover:bg-[#7E6BAF]/20 hover:text-[#3D2E6B]"
+                          title="Upload or change photo"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                          {profile.avatar ? "Change" : "Upload"}
+                        </label>
+                        {profile.avatar && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveAvatar}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-100 hover:text-red-600"
+                            title="Remove photo"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <input
                       id="avatar-upload"
