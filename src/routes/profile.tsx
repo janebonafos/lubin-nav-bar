@@ -423,7 +423,7 @@ function ProfilePage() {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="flex items-center justify-between rounded-2xl border border-[#F1EFFF] bg-white/50 p-5">
                       <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EA4335]/10 text-sm font-bold text-[#EA4335]">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EA4335]/10 text-lg font-bold text-[#EA4335]">
                           G
                         </span>
                         <div>
@@ -445,7 +445,7 @@ function ProfilePage() {
                     </div>
                     <div className="flex items-center justify-between rounded-2xl border border-[#F1EFFF] bg-white/50 p-5">
                       <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1877F2]/10 text-sm font-bold text-[#1877F2]">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1877F2]/10 text-lg font-bold text-[#1877F2]">
                           f
                         </span>
                         <div>
