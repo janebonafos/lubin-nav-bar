@@ -17,7 +17,6 @@ import {
   Trash2,
   User,
   Plus,
-  MessagesSquare,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
