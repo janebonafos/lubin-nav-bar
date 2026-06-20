@@ -593,6 +593,16 @@ function ProfilePage() {
               />
             )}
 
+            {activeSection === "share" && (
+              <ShareTabView
+                checkins={passportData.checkins as never}
+                isGuest={false}
+                onRequestSignup={() => {}}
+                onStartCheckin={() => setCheckInActive(true)}
+                sharerName={profile.fullName.trim() || "You"}
+              />
+            )}
+
             {activeSection === "chat" && (
               <div className="overflow-hidden rounded-3xl shadow-xl shadow-[#3D2E6B]/10">
                 <EmbeddedChat />
