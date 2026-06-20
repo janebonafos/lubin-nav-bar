@@ -725,7 +725,7 @@ function DailyMoodCard({
             transition={{ duration: 0.3, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
           >
-            <div className="rounded-[2rem] border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+            <div className="rounded-xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
               <CheckInFlow onClose={onClose} onSave={onSave} />
             </div>
           </motion.div>
