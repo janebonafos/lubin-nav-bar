@@ -15,6 +15,7 @@ import {
   Link2,
   Unlink,
   Trash2,
+  User,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -184,11 +185,11 @@ function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1800);
   };
 
-  const NAV: { key: Section; label: string }[] = [
-    { key: "profile", label: "Profile Overview" },
-    { key: "passport", label: "Health Passport" },
-    { key: "discovery", label: "Self Discovery" },
-    { key: "chat", label: "Chat" },
+  const NAV: { key: Section; label: string; icon: React.ReactNode }[] = [
+    { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
+    { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
+    { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
+    { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
   ];
 
   const sectionMeta: Record<Section, { title: string; subtitle: string }> = {
@@ -230,9 +231,29 @@ function ProfilePage() {
           </div>
         )}
 
-        <div className={`grid grid-cols-1 items-start gap-6 ${activeSection === "chat" ? "" : "lg:grid-cols-4"}`}>
-          {/* Sidebar */}
-          {activeSection !== "chat" && (
+        <div className={`grid grid-cols-1 items-start gap-6 ${activeSection === "chat" ? "lg:grid-cols-[auto_1fr]" : "lg:grid-cols-4"}`}>
+          {/* Sidebar — thin icon strip in chat mode, full sidebar otherwise */}
+          {activeSection === "chat" ? (
+            <aside className="hidden lg:flex flex-col items-center gap-2 sticky top-28 self-start rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-3 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+              {NAV.map(({ key, label, icon }) => {
+                const active = activeSection === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveSection(key)}
+                    title={label}
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl transition ${
+                      active
+                        ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                        : "text-[#3D2E6B]/60 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                    }`}
+                  >
+                    {icon}
+                  </button>
+                );
+              })}
+            </aside>
+          ) : (
             <aside className="lg:col-span-1">
               <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
                 {/* avatar + name */}
@@ -286,13 +307,15 @@ function ProfilePage() {
 
           {/* Main */}
           <div className={`space-y-6 ${activeSection === "chat" ? "" : "lg:col-span-3"}`}>
-            {/* Page header */}
-            <header className="px-1">
-              <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                {meta.title}
-              </h1>
-              <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-            </header>
+            {/* Page header — hidden in chat mode for maximum space */}
+            {activeSection !== "chat" && (
+              <header className="px-1">
+                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
+                  {meta.title}
+                </h1>
+                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
+              </header>
+            )}
 
             {activeSection === "profile" && (
               <>
@@ -579,30 +602,9 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <>
-                {/* Compact section nav for chat mode */}
-                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-2">
-                  {NAV.map(({ key, label }) => {
-                    const active = activeSection === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => setActiveSection(key)}
-                        className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                          active
-                            ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
-                            : "text-[#3D2E6B]/70 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
-                  <EmbeddedChat />
-                </Card>
-              </>
+              <div className="-mx-4 -my-6 sm:-mx-8 sm:-my-8">
+                <EmbeddedChat />
+              </div>
             )}
           </div>
         </div>
