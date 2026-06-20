@@ -63,7 +63,7 @@ const DEFAULT_PROFILE: Profile = {
   avatar: null,
 };
 
-type Section = "profile" | "passport" | "discovery" | "chat";
+type Section = "profile" | "passport" | "discovery" | "chat" | "share";
 
 type ChatThreadMeta = { id: string; title: string; updatedAt: number };
 const CHAT_THREADS_KEY = "lubin.chat.threads.v1";
