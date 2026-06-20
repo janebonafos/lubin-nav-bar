@@ -231,9 +231,29 @@ function ProfilePage() {
           </div>
         )}
 
-        <div className={`grid grid-cols-1 items-start gap-6 ${activeSection === "chat" ? "" : "lg:grid-cols-4"}`}>
-          {/* Sidebar */}
-          {activeSection !== "chat" && (
+        <div className={`grid grid-cols-1 items-start gap-6 ${activeSection === "chat" ? "lg:grid-cols-[auto_1fr]" : "lg:grid-cols-4"}`}>
+          {/* Sidebar — thin icon strip in chat mode, full sidebar otherwise */}
+          {activeSection === "chat" ? (
+            <aside className="hidden lg:flex flex-col items-center gap-2 sticky top-28 self-start rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-3 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+              {NAV.map(({ key, label, icon }) => {
+                const active = activeSection === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveSection(key)}
+                    title={label}
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl transition ${
+                      active
+                        ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                        : "text-[#3D2E6B]/60 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                    }`}
+                  >
+                    {icon}
+                  </button>
+                );
+              })}
+            </aside>
+          ) : (
             <aside className="lg:col-span-1">
               <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
                 {/* avatar + name */}
