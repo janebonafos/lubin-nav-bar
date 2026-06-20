@@ -10,8 +10,6 @@ import {
   Compass,
   MessageCircle,
   TrendingUp,
-  MessageSquare,
-  Plus,
   CalendarCheck,
   ClipboardList,
   Link2,
@@ -89,10 +87,6 @@ function ProfilePage() {
     completed: number;
     inProgress: { name: string; slug: string; answered: number; total: number }[];
   }>({ completed: 0, inProgress: [] });
-  const [chatData, setChatData] = useState<{
-    threads: { id: string; title: string; updatedAt: number }[];
-  }>({ threads: [] });
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -124,21 +118,6 @@ function ProfilePage() {
           };
         });
       setDiscoveryData({ completed: attempts.length, inProgress });
-    } catch { /* ignore */ }
-    try {
-      const rawThreads = window.localStorage.getItem("lubin.chat.threads.v1");
-      const threads = rawThreads
-        ? JSON.parse(rawThreads).map((t: { id: string; title: string; updatedAt: number }) => ({
-            id: t.id,
-            title: t.title,
-            updatedAt: t.updatedAt,
-          }))
-        : [];
-      setChatData({
-        threads: threads
-          .sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt)
-          .slice(0, 4),
-      });
     } catch { /* ignore */ }
   }, []);
 
