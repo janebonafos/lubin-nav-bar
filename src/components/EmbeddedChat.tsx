@@ -8,6 +8,7 @@ type Thread = { id: string; title: string; messages: Msg[]; updatedAt: number };
 
 const STORAGE_KEY = "lubin.chat.threads.v1";
 const ACTIVE_KEY = "lubin.chat.activeId.v1";
+const UPDATE_EVENT = "lubin:chat:update";
 
 const WELCOME: Msg = {
   role: "assistant",
@@ -77,7 +78,45 @@ export default function EmbeddedChat() {
     } catch {
       /* ignore */
     }
+    try {
+      window.dispatchEvent(new CustomEvent(UPDATE_EVENT));
+    } catch { /* ignore */ }
   }, [threads, activeId, hydrated]);
+
+  // Listen to sidebar actions: select / new / delete
+  useEffect(() => {
+    const onSelect = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (typeof id === "string" && id) setActiveId(id);
+    };
+    const onNew = () => {
+      const t = newThread();
+      setThreads((prev) => [t, ...prev]);
+      setActiveId(t.id);
+    };
+    const onDelete = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      if (typeof id !== "string" || !id) return;
+      setThreads((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        if (next.length === 0) {
+          const t = newThread();
+          setActiveId(t.id);
+          return [t];
+        }
+        if (id === activeId) setActiveId(next[0].id);
+        return next;
+      });
+    };
+    window.addEventListener("lubin:chat:select", onSelect as EventListener);
+    window.addEventListener("lubin:chat:new", onNew as EventListener);
+    window.addEventListener("lubin:chat:delete", onDelete as EventListener);
+    return () => {
+      window.removeEventListener("lubin:chat:select", onSelect as EventListener);
+      window.removeEventListener("lubin:chat:new", onNew as EventListener);
+      window.removeEventListener("lubin:chat:delete", onDelete as EventListener);
+    };
+  }, [activeId]);
 
   const active = threads.find((t) => t.id === activeId);
   const messages = active?.messages ?? [WELCOME];
