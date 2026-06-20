@@ -241,6 +241,7 @@ function ProfilePage() {
     { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
     { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
     { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
+    { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
     { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
   ];
 
@@ -256,6 +257,10 @@ function ProfilePage() {
     discovery: {
       title: "Self Discovery",
       subtitle: "Track your assessments and progress",
+    },
+    share: {
+      title: "Share My Summary",
+      subtitle: "Create a summary you can share when you're ready",
     },
     chat: {
       title: "Chat",
