@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, useEffect } from "react";
+import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -24,10 +25,7 @@ import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
-import {
-  UnderstandYourselfSection,
-  ReflectionRhythm,
-} from "@/components/discovery/SelfDiscoveryPanels";
+import { Overview, Progress } from "@/routes/my-health-passport";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
