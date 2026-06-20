@@ -194,7 +194,7 @@ export default function EmbeddedChat() {
   const isEmpty = messages.length === 1 && messages[0].role === "assistant";
 
   return (
-    <div className="flex h-[640px] flex-col overflow-hidden rounded-2xl border border-[#E3DBF5]/60 bg-gradient-to-br from-[#F7F4FF] via-[#EEE9FB] to-[#F4EEFB]">
+    <div className="flex h-[calc(100vh-220px)] min-h-[720px] flex-col overflow-hidden rounded-2xl border border-[#E3DBF5]/60 bg-gradient-to-br from-[#F7F4FF] via-[#EEE9FB] to-[#F4EEFB]">
       <div ref={scrollRef} className="relative flex-1 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6">
           {isEmpty ? (
