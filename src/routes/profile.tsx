@@ -223,7 +223,7 @@ function ProfilePage() {
 
       <Navbar />
 
-      <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
+      <main className="relative z-10 mx-auto max-w-[1600px] px-4 pb-24 pt-28 sm:px-6 lg:px-8">
         {savedFlash && (
           <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2 animate-fade-in rounded-full border border-[#7E6BAF]/30 bg-white px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
             <Check className="mr-2 inline h-4 w-4 text-[#7E6BAF]" />
