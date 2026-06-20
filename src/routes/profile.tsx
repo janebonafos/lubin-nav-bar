@@ -629,9 +629,7 @@ function DailyMoodCard({
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-brand-purple/15 backdrop-blur-sm">
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                loggedToday ? "bg-emerald-400 animate-pulse" : "bg-amber-400 animate-pulse"
-              }`}
+              className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"
             />
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark/80">
               Daily check-in
