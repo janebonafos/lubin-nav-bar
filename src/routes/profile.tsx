@@ -230,60 +230,62 @@ function ProfilePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
+        <div className={`grid grid-cols-1 items-start gap-6 ${activeSection === "chat" ? "" : "lg:grid-cols-4"}`}>
           {/* Sidebar */}
-          <aside className="lg:col-span-1">
-            <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
-              {/* avatar + name */}
-              <div className="flex items-center gap-3 pb-5">
-                <div className="relative">
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-lg font-semibold text-white shadow-inner">
-                    {profile.avatar ? (
-                      <img
-                        src={profile.avatar}
-                        alt={displayName}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span>{initials}</span>
-                    )}
+          {activeSection !== "chat" && (
+            <aside className="lg:col-span-1">
+              <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+                {/* avatar + name */}
+                <div className="flex items-center gap-3 pb-5">
+                  <div className="relative">
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-lg font-semibold text-white shadow-inner">
+                      {profile.avatar ? (
+                        <img
+                          src={profile.avatar}
+                          alt={displayName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span>{initials}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-[#3D2E6B]">
+                      {displayName}
+                    </p>
+                    <p className="text-[11px] font-medium text-[#7E6BAF]">
+                      Lubin Member
+                    </p>
                   </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-[#3D2E6B]">
-                    {displayName}
-                  </p>
-                  <p className="text-[11px] font-medium text-[#7E6BAF]">
-                    Lubin Member
-                  </p>
-                </div>
-              </div>
 
-              <div className="border-t border-[#EEE9F8]" />
+                <div className="border-t border-[#EEE9F8]" />
 
-              <nav className="mt-4 space-y-1">
-                {NAV.map(({ key, label }) => {
-                  const active = activeSection === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setActiveSection(key)}
-                      className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
-                        active
-                          ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
-                          : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </nav>
-            </section>
-          </aside>
+                <nav className="mt-4 space-y-1">
+                  {NAV.map(({ key, label }) => {
+                    const active = activeSection === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setActiveSection(key)}
+                        className={`flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${
+                          active
+                            ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                            : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </section>
+            </aside>
+          )}
 
           {/* Main */}
-          <div className="space-y-6 lg:col-span-3">
+          <div className={`space-y-6 ${activeSection === "chat" ? "" : "lg:col-span-3"}`}>
             {/* Page header */}
             <header className="px-1">
               <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
@@ -577,9 +579,30 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
-                <EmbeddedChat />
-              </Card>
+              <>
+                {/* Compact section nav for chat mode */}
+                <div className="flex items-center gap-2 overflow-x-auto px-1 pb-2">
+                  {NAV.map(({ key, label }) => {
+                    const active = activeSection === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setActiveSection(key)}
+                        className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          active
+                            ? "bg-[#7E6BAF]/15 text-[#7E6BAF]"
+                            : "text-[#3D2E6B]/70 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <Card title="Chat with Lubin" icon={<MessageCircle className="h-5 w-5" />}>
+                  <EmbeddedChat />
+                </Card>
+              </>
             )}
           </div>
         </div>
