@@ -286,12 +286,14 @@ function ProfilePage() {
           {/* Main */}
           <div className="space-y-6 lg:col-span-3">
             {/* Page header */}
-            <header className="px-1">
-              <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                {meta.title}
-              </h1>
-              <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-            </header>
+            {activeSection !== "chat" && (
+              <header className="px-1">
+                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
+                  {meta.title}
+                </h1>
+                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
+              </header>
+            )}
 
             {activeSection === "profile" && (
               <>
@@ -578,7 +580,7 @@ function ProfilePage() {
             )}
 
             {activeSection === "chat" && (
-              <div className="-mx-4 -my-6 sm:-mx-8 sm:-my-8">
+              <div className="overflow-hidden rounded-3xl shadow-xl shadow-[#3D2E6B]/10">
                 <EmbeddedChat />
               </div>
             )}
