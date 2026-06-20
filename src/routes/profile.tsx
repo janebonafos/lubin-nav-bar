@@ -345,30 +345,19 @@ function ProfilePage() {
                           <Camera className="h-6 w-6 text-white" />
                         </div>
                       </label>
+                      {profile.avatar && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveAvatar}
+                          className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-red-500 shadow-md ring-1 ring-red-100 transition hover:bg-red-50 hover:text-red-600"
+                          title="Remove photo"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-[#7E6BAF]">Profile Photo</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <label
-                          htmlFor="avatar-upload"
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#7E6BAF]/10 px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] transition hover:bg-[#7E6BAF]/20 hover:text-[#3D2E6B]"
-                          title="Upload or change photo"
-                        >
-                          <Upload className="h-3.5 w-3.5" />
-                          {profile.avatar ? "Change" : "Upload"}
-                        </label>
-                        {profile.avatar && (
-                          <button
-                            type="button"
-                            onClick={handleRemoveAvatar}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-100 hover:text-red-600"
-                            title="Remove photo"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </button>
-                        )}
-                      </div>
                     </div>
                     <input
                       id="avatar-upload"
