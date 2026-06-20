@@ -17,7 +17,6 @@ import {
   Trash2,
   User,
   Plus,
-  MessagesSquare,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -316,22 +315,16 @@ function ProfilePage() {
                         {label}
                       </button>
                       {key === "chat" && activeSection === "chat" && (
-                        <div className="mt-2 ml-1 space-y-2">
+                        <div className="mt-2 space-y-1">
                           <button
                             onClick={newChat}
-                            className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[#7E6BAF]/30 px-3 py-2 text-xs font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF]/60 hover:bg-[#7E6BAF]/5"
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                           >
-                            <Plus className="h-3.5 w-3.5" /> New conversation
+                            <Plus className="h-4 w-4" /> New conversation
                           </button>
-                          <div className="flex items-center gap-1.5 px-1 pt-1">
-                            <MessagesSquare className="h-3 w-3 text-[#A89BD0]" />
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                              Recent
-                            </p>
-                          </div>
-                          <div className="max-h-72 space-y-0.5 overflow-y-auto pr-1">
+                          <div className="max-h-72 space-y-0.5 overflow-y-auto pr-1 pt-1">
                             {chatThreads.length === 0 ? (
-                              <p className="px-2 py-1.5 text-[11px] text-[#A89BD0]/80">
+                              <p className="px-3 py-2 text-sm text-[#A89BD0]/80">
                                 No conversations yet.
                               </p>
                             ) : (
@@ -340,7 +333,7 @@ function ProfilePage() {
                                 return (
                                   <div
                                     key={t.id}
-                                    className={`group flex items-center gap-1 rounded-lg pr-1 transition ${
+                                    className={`group flex items-center gap-1 rounded-xl pr-1 transition ${
                                       isActive
                                         ? "bg-[#7E6BAF]/10"
                                         : "hover:bg-[#7E6BAF]/5"
@@ -348,9 +341,9 @@ function ProfilePage() {
                                   >
                                     <button
                                       onClick={() => selectChat(t.id)}
-                                      className={`flex-1 truncate rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition ${
+                                      className={`flex-1 truncate rounded-xl px-3 py-2 text-left text-sm transition ${
                                         isActive
-                                          ? "font-semibold text-[#3D2E6B]"
+                                          ? "font-medium text-[#3D2E6B]"
                                           : "text-[#3D2E6B]/75"
                                       }`}
                                       title={t.title}
@@ -362,11 +355,11 @@ function ProfilePage() {
                                         e.stopPropagation();
                                         deleteChat(t.id);
                                       }}
-                                      className="shrink-0 rounded-md p-1 text-[#A89BD0] opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                                      className="shrink-0 rounded-lg p-1.5 text-[#A89BD0] opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
                                       title="Delete conversation"
                                       aria-label="Delete conversation"
                                     >
-                                      <Trash2 className="h-3 w-3" />
+                                      <Trash2 className="h-3.5 w-3.5" />
                                     </button>
                                   </div>
                                 );
