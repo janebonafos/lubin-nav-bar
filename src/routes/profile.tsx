@@ -622,7 +622,10 @@ function ProfilePage() {
             )}
 
             {activeSection === "discovery" && (
-              <Card title="Assessments" icon={<Compass className="h-5 w-5" />}>
+              <div className="space-y-5">
+                <UnderstandYourselfSection />
+
+                <Card title="Assessments" icon={<Compass className="h-5 w-5" />}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
@@ -673,7 +676,12 @@ function ProfilePage() {
                     <Compass className="h-4 w-4" /> Explore check-ins
                   </Link>
                 </div>
-              </Card>
+                </Card>
+
+                <Card title="Reflection rhythm" icon={<CalendarCheck className="h-5 w-5" />}>
+                  <ReflectionRhythm attempts={discoveryData.attempts} />
+                </Card>
+              </div>
             )}
 
             {activeSection === "chat" && (
