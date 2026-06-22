@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { ArrowUp, HeartHandshake, Sun, Sparkles } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -25,12 +24,6 @@ const newThread = (): Thread => ({
   messages: [WELCOME],
   updatedAt: Date.now(),
 });
-
-const QUICK_ACTIONS = [
-  { to: "/my-health-passport", label: "My Health Passport", Icon: HeartHandshake },
-  { to: "/check-in", label: "How are you feeling?", Icon: Sun },
-  { to: "/self-discovery", label: "Self Discovery", Icon: Sparkles },
-] as const;
 
 const STARTERS = [
   { title: "Release Stress", text: "I've been feeling overwhelmed lately…" },
