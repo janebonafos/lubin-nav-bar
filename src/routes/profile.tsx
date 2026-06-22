@@ -86,8 +86,34 @@ function ProfilePage() {
     [],
   );
 
-  const [googleConnected] = useState(true);
-  const [facebookConnected] = useState(false);
+  type ConnStatus = "connected" | "not_connected" | "error";
+  const [connections, setConnections] = useState<{
+    google: ConnStatus;
+    facebook: ConnStatus;
+    linkedin: ConnStatus;
+  }>({
+    google: "connected",
+    facebook: "not_connected",
+    linkedin: "not_connected",
+  });
+
+  const toggleConnection = (provider: keyof typeof connections) => {
+    setConnections((prev) => {
+      const next = { ...prev };
+      if (next[provider] === "connected") {
+        next[provider] = "not_connected";
+      } else if (next[provider] === "not_connected") {
+        next[provider] = "connected";
+      } else {
+        next[provider] = "not_connected";
+      }
+      return next;
+    });
+  };
+
+  const setConnectionError = (provider: keyof typeof connections) => {
+    setConnections((prev) => ({ ...prev, [provider]: "error" }));
+  };
 
   const [checkInActive, setCheckInActive] = useState(false);
 
