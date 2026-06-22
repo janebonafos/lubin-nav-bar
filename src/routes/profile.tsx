@@ -501,7 +501,7 @@ function ProfilePage() {
                       label="Full Name"
                       value={profile.fullName}
                       editing={editing}
-                      placeholder="Jane Doe"
+                      placeholder="Add your full name"
                       onChange={(v) => update("fullName", v)}
                     />
                     <Field
@@ -509,7 +509,7 @@ function ProfilePage() {
                       value={profile.email}
                       editing={editing}
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder="Add your email"
                       verified={Boolean(profile.email)}
                       onChange={(v) => update("email", v)}
                     />
@@ -518,7 +518,7 @@ function ProfilePage() {
                       value={profile.mobile}
                       editing={editing}
                       type="tel"
-                      placeholder="000-000-0000"
+                      placeholder="Add your mobile number"
                       onChange={(v) => update("mobile", v)}
                     />
                   </div>
