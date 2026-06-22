@@ -19,6 +19,7 @@ import {
   User,
   Plus,
   Share2,
+  AlertCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -85,8 +86,34 @@ function ProfilePage() {
     [],
   );
 
-  const [googleConnected] = useState(true);
-  const [facebookConnected] = useState(false);
+  type ConnStatus = "connected" | "not_connected" | "error";
+  const [connections, setConnections] = useState<{
+    google: ConnStatus;
+    facebook: ConnStatus;
+    linkedin: ConnStatus;
+  }>({
+    google: "connected",
+    facebook: "not_connected",
+    linkedin: "not_connected",
+  });
+
+  const toggleConnection = (provider: keyof typeof connections) => {
+    setConnections((prev) => {
+      const next = { ...prev };
+      if (next[provider] === "connected") {
+        next[provider] = "not_connected";
+      } else if (next[provider] === "not_connected") {
+        next[provider] = "connected";
+      } else {
+        next[provider] = "not_connected";
+      }
+      return next;
+    });
+  };
+
+  const setConnectionError = (provider: keyof typeof connections) => {
+    setConnections((prev) => ({ ...prev, [provider]: "error" }));
+  };
 
   const [checkInActive, setCheckInActive] = useState(false);
 
@@ -538,51 +565,103 @@ function ProfilePage() {
 
                 {/* Connected accounts */}
                 <Card title="Connected Accounts">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="flex items-center justify-between rounded-2xl border border-[#F1EFFF] bg-white/50 p-5">
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EA4335]/10 text-lg font-bold text-[#EA4335]">
-                          G
-                        </span>
-                        <div>
-                          <p className="font-medium text-[#3D2E6B]">Google</p>
-                          <p className={`text-xs font-medium ${googleConnected ? "text-emerald-600" : "text-[#A89BD0]"}`}>
-                            {googleConnected ? "Connected" : "Not connected"}
-                          </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {([
+                      {
+                        key: "google" as const,
+                        name: "Google",
+                        color: "#EA4335",
+                        bg: "bg-[#EA4335]/10",
+                        text: "text-[#EA4335]",
+                        icon: (
+                          <span className="text-lg font-bold">G</span>
+                        ),
+                      },
+                      {
+                        key: "facebook" as const,
+                        name: "Facebook",
+                        color: "#1877F2",
+                        bg: "bg-[#1877F2]/10",
+                        text: "text-[#1877F2]",
+                        icon: (
+                          <span className="text-lg font-bold">f</span>
+                        ),
+                      },
+                      {
+                        key: "linkedin" as const,
+                        name: "LinkedIn",
+                        color: "#0A66C2",
+                        bg: "bg-[#0A66C2]/10",
+                        text: "text-[#0A66C2]",
+                        icon: (
+                          <span className="text-lg font-bold">in</span>
+                        ),
+                      },
+                    ]).map((provider) => {
+                      const status = connections[provider.key];
+                      const isConnected = status === "connected";
+                      const isError = status === "error";
+                      return (
+                        <div
+                          key={provider.key}
+                          className={`flex items-center justify-between rounded-2xl border p-5 transition ${
+                            isError
+                              ? "border-red-200 bg-red-50/50"
+                              : "border-[#F1EFFF] bg-white/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <span
+                              className={`flex h-12 w-12 items-center justify-center rounded-full ${provider.bg} ${provider.text}`}
+                            >
+                              {provider.icon}
+                            </span>
+                            <div>
+                              <p className="font-medium text-[#3D2E6B]">
+                                {provider.name}
+                              </p>
+                              <p
+                                className={`text-xs font-medium ${
+                                  isConnected
+                                    ? "text-emerald-600"
+                                    : isError
+                                    ? "text-red-500"
+                                    : "text-[#A89BD0]"
+                                }`}
+                              >
+                                {isConnected
+                                  ? "Connected"
+                                  : isError
+                                  ? "Connection error"
+                                  : "Not connected"}
+                              </p>
+                            </div>
+                          </div>
+                          {isConnected ? (
+                            <button
+                              onClick={() => toggleConnection(provider.key)}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#A89BD0] hover:text-[#DC2626]"
+                            >
+                              <Unlink className="h-3.5 w-3.5" /> Disconnect
+                            </button>
+                          ) : isError ? (
+                            <button
+                              onClick={() => toggleConnection(provider.key)}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600"
+                            >
+                              <AlertCircle className="h-3.5 w-3.5" /> Retry
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => toggleConnection(provider.key)}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                            >
+                              <Link2 className="h-3.5 w-3.5" /> Connect
+                            </button>
+                          )}
                         </div>
-                      </div>
-                      {googleConnected ? (
-                        <button className="inline-flex items-center gap-1 text-xs font-semibold text-[#A89BD0] hover:text-[#DC2626]">
-                          <Unlink className="h-3.5 w-3.5" /> Disconnect
-                        </button>
-                      ) : (
-                        <button className="text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-                          Connect
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl border border-[#F1EFFF] bg-white/50 p-5">
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1877F2]/10 text-lg font-bold text-[#1877F2]">
-                          f
-                        </span>
-                        <div>
-                          <p className="font-medium text-[#3D2E6B]">Facebook</p>
-                          <p className={`text-xs font-medium ${facebookConnected ? "text-emerald-600" : "text-[#A89BD0]"}`}>
-                            {facebookConnected ? "Connected" : "Not connected"}
-                          </p>
-                        </div>
-                      </div>
-                      {facebookConnected ? (
-                        <button className="inline-flex items-center gap-1 text-xs font-semibold text-[#A89BD0] hover:text-[#DC2626]">
-                          <Unlink className="h-3.5 w-3.5" /> Disconnect
-                        </button>
-                      ) : (
-                        <button className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-                          <Link2 className="h-3.5 w-3.5" /> Connect
-                        </button>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
                 </Card>
               </>
