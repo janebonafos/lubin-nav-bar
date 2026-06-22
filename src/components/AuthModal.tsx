@@ -106,6 +106,11 @@ export default function AuthModal({
 
   const canShowAuthMethods = selectedRole !== null;
 
+  const safeContinue = (cb?: (role?: UserRole) => void) => {
+    if (!selectedRole) return; // never route without an explicit role
+    cb?.(selectedRole);
+  };
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
@@ -195,7 +200,7 @@ export default function AuthModal({
         <div className="mt-6 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={() => onContinueWithGoogle?.(selectedRole ?? undefined)}
+            onClick={() => safeContinue(onContinueWithGoogle)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <GoogleIcon className="h-5 w-5" />
@@ -203,7 +208,7 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            onClick={() => onContinueWithLinkedIn?.(selectedRole ?? undefined)}
+            onClick={() => safeContinue(onContinueWithLinkedIn)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <LinkedInIcon className="h-5 w-5" />
@@ -211,7 +216,7 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            onClick={() => onContinueWithFacebook?.(selectedRole ?? undefined)}
+            onClick={() => safeContinue(onContinueWithFacebook)}
             className="group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
           >
             <FacebookIcon className="h-5 w-5" />
@@ -229,7 +234,7 @@ export default function AuthModal({
 
         <button
           type="button"
-          onClick={() => onContinueWithEmail?.(selectedRole ?? undefined)}
+          onClick={() => safeContinue(onContinueWithEmail)}
           className="group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition-all hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.55)]"
         >
           <Mail className="h-4 w-4" />

@@ -261,6 +261,7 @@ export default function Navbar() {
   const [signedIn, setSignedIn] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole>("client");
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -293,6 +294,8 @@ export default function Navbar() {
         setSignedIn(window.localStorage.getItem("lubin.signedIn") === "1");
         setUserName(window.localStorage.getItem("lubin.userName") ?? "");
         setUserAvatar(window.localStorage.getItem("lubin.userAvatar"));
+        const storedRole = window.localStorage.getItem("lubin.userRole");
+        setUserRole(storedRole === "provider" ? "provider" : "client");
       } catch {
         /* ignore */
       }
@@ -336,6 +339,12 @@ export default function Navbar() {
     setUserMenuOpen(false);
     navigate({ to: "/" });
   };
+
+  const isProvider = userRole === "provider";
+  const homeDestination: "/provider-onboarding" | "/profile" = isProvider
+    ? "/provider-onboarding"
+    : "/profile";
+  const homeLabel = isProvider ? "Provider dashboard" : "Profile";
 
   const displayName = userName.trim() || "My account";
   const initials = (userName.trim() || "U")
@@ -466,19 +475,19 @@ export default function Navbar() {
                     role="menuitem"
                     onClick={() => {
                       setUserMenuOpen(false);
-                      navigate({ to: "/profile" });
+                      navigate({ to: homeDestination });
                     }}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
                   >
                     <UserIcon className="h-4 w-4" />
-                    Profile
+                    {homeLabel}
                   </button>
                   <button
                     type="button"
                     role="menuitem"
                     onClick={() => {
                       setUserMenuOpen(false);
-                      navigate({ to: "/profile" });
+                      navigate({ to: homeDestination });
                     }}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
                   >
@@ -558,16 +567,16 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    to="/profile"
+                    to={homeDestination}
                     onClick={() => setOpen(false)}
                     className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
                   >
-                    Profile
+                    {homeLabel}
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/profile"
+                    to={homeDestination}
                     onClick={() => setOpen(false)}
                     className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
                   >
@@ -637,15 +646,20 @@ export default function Navbar() {
   );
 
   function routeByRole(role?: UserRole) {
-    const effectiveRole = role ?? "client";
+    // Never silently fall back to "client" — a provider sign-in with a
+    // missing role must NOT land on the client profile.
+    if (role !== "client" && role !== "provider") {
+      console.warn("routeByRole called without an explicit role; aborting.");
+      return;
+    }
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.setItem("lubin.userRole", effectiveRole);
+        window.localStorage.setItem("lubin.userRole", role);
         window.localStorage.setItem("lubin.signedIn", "1");
         window.dispatchEvent(new Event("lubin:auth-change"));
       } catch { /* ignore */ }
     }
-    if (effectiveRole === "provider") {
+    if (role === "provider") {
       navigate({ to: "/provider-onboarding" });
     } else {
       navigate({ to: "/profile" });
