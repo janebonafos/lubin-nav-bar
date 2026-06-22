@@ -340,6 +340,22 @@ function ProfilePage() {
             Profile saved
           </div>
         )}
+        {connectionWarning && (
+          <div className="fixed left-1/2 top-24 z-50 w-[90%] max-w-md -translate-x-1/2 animate-fade-in rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-medium text-amber-800 shadow-[0_10px_30px_-10px_rgba(180,140,50,0.35)]">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <div>
+                <p>{connectionWarning}</p>
+                <button
+                  onClick={() => setConnectionWarning(null)}
+                  className="mt-1 text-xs font-semibold text-amber-700 underline hover:text-amber-900"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
           {/* Sidebar — always show full sidebar with avatar + nav */}
