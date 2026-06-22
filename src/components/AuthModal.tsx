@@ -199,8 +199,18 @@ export default function AuthModal({
 
         {canShowAuthMethods && (
         <>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedRole(null);
+            setLoadingProvider(null);
+          }}
+          className="mt-5 flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to role selection
+        </button>
         {isSignup && (
-          <p className="mt-5 text-center text-[12px] text-[#7E6BAF]">
+          <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
             By continuing with Google, LinkedIn, Facebook or email, you agree to {brandName}'s{" "}
             <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
               Terms
