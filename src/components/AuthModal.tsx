@@ -199,7 +199,20 @@ export default function AuthModal({
 
         {canShowAuthMethods && (
         <>
-        <div className="mt-6 flex flex-col gap-2.5">
+        {isSignup && (
+          <p className="mt-5 text-center text-[12px] text-[#7E6BAF]">
+            By continuing with Google, LinkedIn, Facebook or email, you agree to {brandName}'s{" "}
+            <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
+              Terms
+            </a>{" "}
+            and{" "}
+            <a href={privacyHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        )}
+        <div className="mt-4 flex flex-col gap-2.5">
           <button
             type="button"
             disabled={loadingProvider !== null}
@@ -291,19 +304,6 @@ export default function AuthModal({
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </button>
 
-        {isSignup && (
-          <p className="mt-4 text-center text-[12px] text-[#7E6BAF]">
-            By continuing, you agree to {brandName}'s{" "}
-            <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-              Terms
-            </a>{" "}
-            and{" "}
-            <a href={privacyHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-              Privacy Policy
-            </a>
-            .
-          </p>
-        )}
         </>
         )}
 
