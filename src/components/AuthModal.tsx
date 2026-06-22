@@ -68,6 +68,7 @@ export default function AuthModal({
   useEffect(() => {
     if (!open) {
       setSelectedRole(null);
+      setLoadingProvider(null);
       return;
     }
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
