@@ -304,19 +304,7 @@ export default function EmbeddedChat() {
               className="max-h-40 w-full resize-none bg-transparent text-[14px] leading-relaxed text-[#3D2E6B] placeholder:text-[#7E6BAF]/40 focus:outline-none"
               disabled={isStreaming}
             />
-            <div className="flex items-center gap-2">
-              <div className="-mx-1 flex flex-1 items-center gap-1.5 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {QUICK_ACTIONS.map(({ to, label, Icon }) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#7E6BAF]/15 bg-[#7E6BAF]/[0.04] px-2.5 py-1.5 text-[11.5px] font-medium text-[#3D2E6B]/80 transition hover:-translate-y-0.5 hover:border-[#7E6BAF]/30 hover:bg-[#7E6BAF]/10"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-[#7E6BAF]" />
-                    {label}
-                  </Link>
-                ))}
-              </div>
+            <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => send()}
                 disabled={!input.trim() || isStreaming}
