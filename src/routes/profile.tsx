@@ -102,11 +102,22 @@ function ProfilePage() {
     setConnections((prev) => {
       const next = { ...prev };
       if (next[provider] === "connected") {
+        const connectedCount = Object.values(next).filter(
+          (s) => s === "connected"
+        ).length;
+        if (connectedCount <= 1) {
+          setConnectionWarning(
+            "Add another sign-in method before disconnecting this one."
+          );
+          return prev;
+        }
         next[provider] = "not_connected";
       } else if (next[provider] === "not_connected") {
         next[provider] = "connected";
+        setConnectionWarning(null);
       } else {
         next[provider] = "not_connected";
+        setConnectionWarning(null);
       }
       return next;
     });
