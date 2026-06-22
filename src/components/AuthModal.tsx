@@ -61,6 +61,7 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
