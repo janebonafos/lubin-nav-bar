@@ -75,6 +75,7 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
 
   const todayLabel = useMemo(
     () =>
@@ -101,11 +102,22 @@ function ProfilePage() {
     setConnections((prev) => {
       const next = { ...prev };
       if (next[provider] === "connected") {
+        const connectedCount = Object.values(next).filter(
+          (s) => s === "connected"
+        ).length;
+        if (connectedCount <= 1) {
+          setConnectionWarning(
+            "Add another sign-in method before disconnecting this one."
+          );
+          return prev;
+        }
         next[provider] = "not_connected";
       } else if (next[provider] === "not_connected") {
         next[provider] = "connected";
+        setConnectionWarning(null);
       } else {
         next[provider] = "not_connected";
+        setConnectionWarning(null);
       }
       return next;
     });
@@ -326,6 +338,22 @@ function ProfilePage() {
           <div className="fixed left-1/2 top-24 z-50 -translate-x-1/2 animate-fade-in rounded-full border border-[#7E6BAF]/30 bg-white px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
             <Check className="mr-2 inline h-4 w-4 text-[#7E6BAF]" />
             Profile saved
+          </div>
+        )}
+        {connectionWarning && (
+          <div className="fixed left-1/2 top-24 z-50 w-[90%] max-w-md -translate-x-1/2 animate-fade-in rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-medium text-amber-800 shadow-[0_10px_30px_-10px_rgba(180,140,50,0.35)]">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <div>
+                <p>{connectionWarning}</p>
+                <button
+                  onClick={() => setConnectionWarning(null)}
+                  className="mt-1 text-xs font-semibold text-amber-700 underline hover:text-amber-900"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
