@@ -19,6 +19,7 @@ import {
   User,
   Plus,
   Share2,
+  AlertCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
