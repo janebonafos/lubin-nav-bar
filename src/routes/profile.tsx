@@ -741,23 +741,33 @@ function Field({
   verified?: boolean;
   onChange: (v: string) => void;
 }) {
+  const isEmpty = !value.trim();
   return (
     <div>
       <label className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
         {label}
       </label>
       <div className="relative mt-1.5">
-        <input
-          type={type}
-          value={value}
-          placeholder={placeholder}
-          disabled={!editing}
-          onChange={(e) => onChange(e.target.value)}
-          className={`w-full rounded-xl border border-[#EEE9F8] bg-white/70 px-4 py-2.5 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10 disabled:cursor-default disabled:bg-transparent ${
-            verified ? "pr-10" : ""
-          }`}
-        />
-        {verified && (
+        {editing ? (
+          <input
+            type={type}
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+            className={`w-full rounded-xl border border-[#EEE9F8] bg-white px-4 py-2.5 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10 ${
+              verified ? "pr-10" : ""
+            }`}
+          />
+        ) : isEmpty ? (
+          <div className="w-full rounded-xl border border-dashed border-[#E3DBF5] bg-white/40 px-4 py-2.5 text-[14px] text-[#A89BD0]/70 italic">
+            Not set
+          </div>
+        ) : (
+          <div className="w-full rounded-xl border border-[#EEE9F8] bg-white/70 px-4 py-2.5 text-[14px] text-[#3D2E6B]">
+            {value}
+          </div>
+        )}
+        {!editing && !isEmpty && verified && (
           <span
             className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#E3F4EA] text-[#5BAF7E]"
             title="Verified"
