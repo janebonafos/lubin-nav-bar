@@ -11,6 +11,9 @@ import {
   Users,
   ShieldCheck,
   ChevronDown,
+  User as UserIcon,
+  Settings as SettingsIcon,
+  LogOut,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
@@ -255,6 +258,11 @@ export default function Navbar() {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
+  const [signedIn, setSignedIn] = useState<boolean>(false);
+  const [userName, setUserName] = useState<string>("");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
@@ -278,6 +286,65 @@ export default function Navbar() {
       if (closeTimer.current) clearTimeout(closeTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        setSignedIn(window.localStorage.getItem("lubin.signedIn") === "1");
+        setUserName(window.localStorage.getItem("lubin.userName") ?? "");
+        setUserAvatar(window.localStorage.getItem("lubin.userAvatar"));
+      } catch {
+        /* ignore */
+      }
+    };
+    read();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lubin.")) read();
+    };
+    const onCustom = () => read();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("lubin:auth-change", onCustom);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("lubin:auth-change", onCustom);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setUserMenuOpen(false);
+    window.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [userMenuOpen]);
+
+  const handleSignOut = () => {
+    try {
+      window.localStorage.removeItem("lubin.signedIn");
+      window.localStorage.removeItem("lubin.userRole");
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
+    setSignedIn(false);
+    setUserMenuOpen(false);
+    navigate({ to: "/" });
+  };
+
+  const displayName = userName.trim() || "My account";
+  const initials = (userName.trim() || "U")
+    .split(/\s+/)
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <header
@@ -347,13 +414,15 @@ export default function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden lg:flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={() => openAuth("signin")}
-            className="inline-flex items-center justify-center whitespace-nowrap px-2 py-2 text-sm font-medium text-brand-purple-dark/80 transition-colors duration-300 hover:text-brand-purple"
-          >
-            Sign in
-          </button>
+          {!signedIn && (
+            <button
+              type="button"
+              onClick={() => openAuth("signin")}
+              className="inline-flex items-center justify-center whitespace-nowrap px-2 py-2 text-sm font-medium text-brand-purple-dark/80 transition-colors duration-300 hover:text-brand-purple"
+            >
+              Sign in
+            </button>
+          )}
           <a
             href="/find-provider"
             className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
@@ -366,6 +435,70 @@ export default function Navbar() {
           >
             Talk to Lubin
           </Link>
+          {signedIn && (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={userMenuOpen}
+                className="ml-1 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-white/70 py-1 pl-1 pr-3 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white"
+              >
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-brand-purple text-[12px] font-semibold text-white">
+                  {userAvatar ? (
+                    <img src={userAvatar} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    initials
+                  )}
+                </span>
+                <span className="max-w-[120px] truncate">{displayName}</span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform duration-300 ${userMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {userMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-56 animate-fade-in rounded-2xl border border-brand-purple/10 bg-white p-2 shadow-[0_20px_60px_-15px_rgba(126,107,175,0.25)]"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate({ to: "/profile" });
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    Profile
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate({ to: "/profile" });
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
+                  >
+                    <SettingsIcon className="h-4 w-4" />
+                    Settings
+                  </button>
+                  <div className="my-1 h-px bg-brand-purple/10" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleSignOut}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -395,18 +528,66 @@ export default function Navbar() {
                 </a>
               </li>
             ))}
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  openAuth("signin");
-                }}
-                className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
-              >
-                Sign in
-              </button>
-            </li>
+            {!signedIn && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openAuth("signin");
+                  }}
+                  className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
+                >
+                  Sign in
+                </button>
+              </li>
+            )}
+            {signedIn && (
+              <>
+                <li className="flex items-center gap-3 rounded-2xl bg-brand-purple/5 px-3 py-2.5">
+                  <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-brand-purple text-[12px] font-semibold text-white">
+                    {userAvatar ? (
+                      <img src={userAvatar} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      initials
+                    )}
+                  </span>
+                  <span className="text-[14px] font-semibold text-brand-purple-dark">
+                    {displayName}
+                  </span>
+                </li>
+                <li>
+                  <Link
+                    to="/profile"
+                    onClick={() => setOpen(false)}
+                    className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
+                  >
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/profile"
+                    onClick={() => setOpen(false)}
+                    className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
+                  >
+                    Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      handleSignOut();
+                    }}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/25 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
+                  >
+                    Sign out
+                  </button>
+                </li>
+              </>
+            )}
             <li>
               <a
                 href="/find-provider"
@@ -460,6 +641,8 @@ export default function Navbar() {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem("lubin.userRole", effectiveRole);
+        window.localStorage.setItem("lubin.signedIn", "1");
+        window.dispatchEvent(new Event("lubin:auth-change"));
       } catch { /* ignore */ }
     }
     if (effectiveRole === "provider") {
