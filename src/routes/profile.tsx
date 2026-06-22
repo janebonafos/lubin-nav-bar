@@ -122,14 +122,14 @@ function ProfilePage() {
     window.dispatchEvent(new CustomEvent("lubin:chat:delete", { detail: id }));
   };
 
-  const displayName = profile.fullName.trim() || "Your name";
+  const displayName = profile.fullName.trim() || "Your profile";
   const initials =
     profile.fullName
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)
       .map((p) => p.charAt(0).toUpperCase())
-      .join("") || "Y";
+      .join("") || "?";
 
   // Mini widget data
   const [passportData, setPassportData] = useState<{
