@@ -75,6 +75,7 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
 
   const todayLabel = useMemo(
     () =>
