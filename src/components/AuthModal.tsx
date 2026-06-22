@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight, Check, Loader2 } from "lucide-react";
+import { X, Mail, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
@@ -103,8 +103,8 @@ export default function AuthModal({
     ? "Tell us how you want to use Lubin so we can tailor the experience for you."
     : "Tell us who's signing in so we can take you to the right place.";
   const emailLabel = isSignup ? "Sign up with email" : "Sign in with email";
-  const footerPrompt = isSignup ? "Already have an account?" : "New here?";
-  const footerCta = isSignup ? "Sign in" : "Create an account";
+  const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
+  const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
   const canShowAuthMethods = selectedRole !== null;
 
@@ -199,8 +199,18 @@ export default function AuthModal({
 
         {canShowAuthMethods && (
         <>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedRole(null);
+            setLoadingProvider(null);
+          }}
+          className="mt-5 flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to role selection
+        </button>
         {isSignup && (
-          <p className="mt-5 text-center text-[12px] text-[#7E6BAF]">
+          <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
             By continuing with Google, LinkedIn, Facebook or email, you agree to {brandName}'s{" "}
             <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
               Terms
