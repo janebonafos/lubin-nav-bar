@@ -221,6 +221,20 @@ function ProfilePage() {
   const update = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setProfile((p) => ({ ...p, [key]: value }));
 
+  // Sync profile name & avatar to localStorage so the nav avatar menu can show them.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem("lubin.userName", profile.fullName);
+      if (profile.avatar) {
+        window.localStorage.setItem("lubin.userAvatar", profile.avatar);
+      } else {
+        window.localStorage.removeItem("lubin.userAvatar");
+      }
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
+  }, [profile.fullName, profile.avatar]);
+
   const handleAvatar = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
