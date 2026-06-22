@@ -261,6 +261,7 @@ export default function Navbar() {
   const [signedIn, setSignedIn] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole>("client");
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -293,6 +294,8 @@ export default function Navbar() {
         setSignedIn(window.localStorage.getItem("lubin.signedIn") === "1");
         setUserName(window.localStorage.getItem("lubin.userName") ?? "");
         setUserAvatar(window.localStorage.getItem("lubin.userAvatar"));
+        const storedRole = window.localStorage.getItem("lubin.userRole");
+        setUserRole(storedRole === "provider" ? "provider" : "client");
       } catch {
         /* ignore */
       }
@@ -336,6 +339,12 @@ export default function Navbar() {
     setUserMenuOpen(false);
     navigate({ to: "/" });
   };
+
+  const isProvider = userRole === "provider";
+  const homeDestination: "/provider-onboarding" | "/profile" = isProvider
+    ? "/provider-onboarding"
+    : "/profile";
+  const homeLabel = isProvider ? "Provider dashboard" : "Profile";
 
   const displayName = userName.trim() || "My account";
   const initials = (userName.trim() || "U")
