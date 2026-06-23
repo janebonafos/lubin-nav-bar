@@ -468,6 +468,26 @@ function ProfilePage() {
                   );
                 })}
               </nav>
+
+              <div className="mt-6 border-t border-[#EEE9F8] pt-4">
+                <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                  Legal
+                </p>
+                <div className="mt-1 space-y-0.5">
+                  <Link
+                    to="/terms"
+                    className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                  >
+                    Terms &amp; Conditions
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+                  >
+                    Privacy Policy
+                  </Link>
+                </div>
+              </div>
             </section>
           </aside>
 
