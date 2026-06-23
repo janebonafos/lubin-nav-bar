@@ -397,12 +397,114 @@ function FindProviderPage() {
               </ul>
             </div>
 
-            {(practices.length > 0 || priceIdx.length > 0) && (
+            <FilterGroup title="Concern / Specialty">
+              {CONCERNS.map((c) => (
+                <CheckboxRow
+                  key={c}
+                  label={c}
+                  checked={concerns.includes(c)}
+                  onChange={() => setConcerns((arr) => toggle(arr, c))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Modality">
+              {MODALITIES.map((m) => (
+                <CheckboxRow
+                  key={m}
+                  label={m}
+                  checked={modalities.includes(m)}
+                  onChange={() => setModalities((arr) => toggle(arr, m))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Availability">
+              <p className="mb-1.5 mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Session mode</p>
+              {SESSION_MODES.map((m) => (
+                <CheckboxRow
+                  key={m}
+                  label={m}
+                  checked={sessionModes.includes(m)}
+                  onChange={() => setSessionModes((arr) => toggle(arr, m))}
+                />
+              ))}
+              <p className="mb-1.5 mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Days</p>
+              {AVAILABILITY_DAYS.map((d) => (
+                <CheckboxRow
+                  key={d.code}
+                  label={d.label}
+                  checked={availDays.includes(d.code)}
+                  onChange={() => setAvailDays((arr) => toggle(arr, d.code))}
+                />
+              ))}
+              <p className="mb-1.5 mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Time of day</p>
+              {AVAILABILITY_PERIODS.map((p) => (
+                <CheckboxRow
+                  key={p}
+                  label={p === "AM" ? "Mornings (AM)" : "Afternoons / Evenings (PM)"}
+                  checked={availPeriods.includes(p)}
+                  onChange={() => setAvailPeriods((arr) => toggle(arr, p))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Language">
+              {LANGUAGES.map((l) => (
+                <CheckboxRow
+                  key={l}
+                  label={l}
+                  checked={languages.includes(l)}
+                  onChange={() => setLanguages((arr) => toggle(arr, l))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Age group">
+              {AGE_GROUPS.map((g) => (
+                <CheckboxRow
+                  key={g.code}
+                  label={g.label}
+                  checked={ageGroups.includes(g.code)}
+                  onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Credentials / License">
+              {CREDENTIALS.map((c) => (
+                <CheckboxRow
+                  key={c.code}
+                  label={c.label}
+                  checked={credentials.includes(c.code)}
+                  onChange={() => setCredentials((arr) => toggle(arr, c.code))}
+                />
+              ))}
+            </FilterGroup>
+
+            {(practices.length > 0 ||
+              priceIdx.length > 0 ||
+              modalities.length > 0 ||
+              sessionModes.length > 0 ||
+              availDays.length > 0 ||
+              availPeriods.length > 0 ||
+              languages.length > 0 ||
+              concerns.length > 0 ||
+              ageGroups.length > 0 ||
+              credentials.length > 0) && (
               <button
                 type="button"
                 onClick={() => {
                   setPractices([]);
                   setPriceIdx([]);
+                  setModalities([]);
+                  setSessionModes([]);
+                  setAvailDays([]);
+                  setAvailPeriods([]);
+                  setLanguages([]);
+                  setConcerns([]);
+                  setAgeGroups([]);
+                  setCredentials([]);
                 }}
                 className="mt-6 text-[13px] font-semibold text-brand-purple no-underline hover:text-brand-purple-dark"
               >
@@ -421,6 +523,18 @@ function FindProviderPage() {
                 </span>{" "}
                 provider{filtered.length === 1 ? "" : "s"}
               </p>
+              <label className="flex items-center gap-2 text-[13px] text-slate-500">
+                <span className="hidden sm:inline">Sort by</span>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortValue)}
+                  className="rounded-lg border border-[#E9E6FA] bg-white px-3 py-1.5 text-[13px] font-medium text-slate-700 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             {filtered.length === 0 ? (
