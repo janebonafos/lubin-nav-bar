@@ -33,6 +33,79 @@ const PRICE_RANGES = [
   { label: "₱6,000+", min: 6000, max: Infinity },
 ];
 
+const MODALITIES = [
+  "Cognitive Behavioral Therapy (CBT)",
+  "EMDR",
+  "Acceptance & Commitment Therapy (ACT)",
+  "Emotionally Focused Therapy",
+  "Gottman Method",
+  "Narrative Therapy",
+  "Mindfulness-Based Stress Reduction",
+  "Exposure & Response Prevention (ERP)",
+  "Family Systems Therapy",
+  "Solution-Focused Brief Therapy",
+  "Motivational Interviewing",
+  "Somatic Experiencing",
+  "Internal Family Systems",
+] as const;
+
+const SESSION_MODES = ["Online", "In-person"] as const;
+const AVAILABILITY_PERIODS = ["AM", "PM"] as const;
+const AVAILABILITY_DAYS = [
+  { code: "weekdays", label: "Weekdays", days: ["M", "T", "W", "Th", "F"] },
+  { code: "weekends", label: "Weekends", days: ["S", "Su"] },
+] as const;
+
+const LANGUAGES = ["English", "Filipino", "Cebuano"] as const;
+
+const CONCERNS = [
+  "Anxiety", "Depression", "Trauma", "PTSD", "Grief",
+  "Burnout", "Stress", "OCD", "Relationships", "Couples",
+  "LGBTQ+", "Career", "Mindfulness",
+] as const;
+
+const AGE_GROUPS = [
+  { code: "teens", label: "Teens (13–17)", match: ["Teens"] },
+  { code: "young", label: "Young adults (18–25)", match: ["Young adults", "Students"] },
+  { code: "adults", label: "Adults (26–59)", match: ["Couples", "Career", "Burnout", "Relationships"] },
+  { code: "family", label: "Family", match: ["Family"] },
+] as const;
+
+const CREDENTIALS = [
+  { code: "PhD", label: "PhD / Doctorate" },
+  { code: "RPsy", label: "RPsy (Psychologist)" },
+  { code: "RGC", label: "RGC (Guidance Counsellor)" },
+  { code: "LPT", label: "LPT (Therapist)" },
+  { code: "MA", label: "MA / Master's" },
+] as const;
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Most relevant" },
+  { value: "rating", label: "Highest rated" },
+  { value: "reviews", label: "Most reviewed" },
+  { value: "price-asc", label: "Price: low to high" },
+  { value: "price-desc", label: "Price: high to low" },
+  { value: "experience", label: "Most experienced" },
+] as const;
+type SortValue = (typeof SORT_OPTIONS)[number]["value"];
+
+function providerCredentials(p: Provider): string[] {
+  const out = new Set<string>();
+  const hay = `${p.title} ${p.name} ${p.licenseBoard ?? ""} ${p.licenseNumber ?? ""}`;
+  if (/PhD|Ph\.D|Doctorate/i.test(hay)) out.add("PhD");
+  if (/RPsy/i.test(hay)) out.add("RPsy");
+  if (/RGC/i.test(hay)) out.add("RGC");
+  if (/LPT/i.test(hay)) out.add("LPT");
+  if (/\bMA\b|Master/i.test(hay)) out.add("MA");
+  return [...out];
+}
+
+function providerAgeGroups(p: Provider): string[] {
+  return AGE_GROUPS.filter((g) =>
+    g.match.some((m) => p.tags.some((t) => t.toLowerCase() === m.toLowerCase()))
+  ).map((g) => g.code);
+}
+
 type ExternalProvider = {
   id: string;
   name: string;
@@ -85,6 +158,15 @@ function FindProviderPage() {
   const [location, setLocation] = useState("");
   const [practices, setPractices] = useState<string[]>([]);
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
+  const [modalities, setModalities] = useState<string[]>([]);
+  const [sessionModes, setSessionModes] = useState<string[]>([]);
+  const [availDays, setAvailDays] = useState<string[]>([]);
+  const [availPeriods, setAvailPeriods] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [concerns, setConcerns] = useState<string[]>([]);
+  const [ageGroups, setAgeGroups] = useState<string[]>([]);
+  const [credentials, setCredentials] = useState<string[]>([]);
+  const [sort, setSort] = useState<SortValue>("relevance");
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
 
   // Smart location input: detect PH postal code (4 digits) vs city/province/area name
@@ -113,7 +195,7 @@ function FindProviderPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const loc = location.trim().toLowerCase();
-    return PROVIDERS.filter((p) => {
+    const result = PROVIDERS.filter((p) => {
       if (q) {
         const hay = `${p.name} ${p.title} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -127,9 +209,60 @@ function FindProviderPage() {
         });
         if (!inRange) return false;
       }
+      if (modalities.length) {
+        const mods = (p.modalities ?? []).join(" | ").toLowerCase();
+        if (!modalities.some((m) => mods.includes(m.toLowerCase()))) return false;
+      }
+      if (sessionModes.length && !sessionModes.some((m) => p.sessionModes.includes(m as "Online" | "In-person"))) {
+        return false;
+      }
+      if (availDays.length) {
+        const ok = availDays.some((code) => {
+          const group = AVAILABILITY_DAYS.find((g) => g.code === code);
+          return group?.days.some((d) => p.availableDays.includes(d as never));
+        });
+        if (!ok) return false;
+      }
+      if (availPeriods.length && !availPeriods.some((per) => p.availablePeriods.includes(per as "AM" | "PM"))) {
+        return false;
+      }
+      if (languages.length && !languages.some((l) => p.languages.includes(l))) return false;
+      if (concerns.length) {
+        const tags = p.tags.map((t) => t.toLowerCase());
+        if (!concerns.some((c) => tags.includes(c.toLowerCase()))) return false;
+      }
+      if (ageGroups.length) {
+        const provGroups = providerAgeGroups(p);
+        if (!ageGroups.some((g) => provGroups.includes(g))) return false;
+      }
+      if (credentials.length) {
+        const provCreds = providerCredentials(p);
+        if (!credentials.some((c) => provCreds.includes(c))) return false;
+      }
       return true;
     });
-  }, [query, location, practices, priceIdx]);
+    const sorted = [...result];
+    switch (sort) {
+      case "rating":
+        sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      case "reviews":
+        sorted.sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0));
+        break;
+      case "price-asc":
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case "experience":
+        sorted.sort((a, b) => b.experience - a.experience);
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [query, location, practices, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
 
   const externalResults = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -264,12 +397,114 @@ function FindProviderPage() {
               </ul>
             </div>
 
-            {(practices.length > 0 || priceIdx.length > 0) && (
+            <FilterGroup title="Concern / Specialty">
+              {CONCERNS.map((c) => (
+                <CheckboxRow
+                  key={c}
+                  label={c}
+                  checked={concerns.includes(c)}
+                  onChange={() => setConcerns((arr) => toggle(arr, c))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Modality">
+              {MODALITIES.map((m) => (
+                <CheckboxRow
+                  key={m}
+                  label={m}
+                  checked={modalities.includes(m)}
+                  onChange={() => setModalities((arr) => toggle(arr, m))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Availability">
+              <p className="mb-1.5 mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Session mode</p>
+              {SESSION_MODES.map((m) => (
+                <CheckboxRow
+                  key={m}
+                  label={m}
+                  checked={sessionModes.includes(m)}
+                  onChange={() => setSessionModes((arr) => toggle(arr, m))}
+                />
+              ))}
+              <p className="mb-1.5 mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Days</p>
+              {AVAILABILITY_DAYS.map((d) => (
+                <CheckboxRow
+                  key={d.code}
+                  label={d.label}
+                  checked={availDays.includes(d.code)}
+                  onChange={() => setAvailDays((arr) => toggle(arr, d.code))}
+                />
+              ))}
+              <p className="mb-1.5 mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Time of day</p>
+              {AVAILABILITY_PERIODS.map((p) => (
+                <CheckboxRow
+                  key={p}
+                  label={p === "AM" ? "Mornings (AM)" : "Afternoons / Evenings (PM)"}
+                  checked={availPeriods.includes(p)}
+                  onChange={() => setAvailPeriods((arr) => toggle(arr, p))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Language">
+              {LANGUAGES.map((l) => (
+                <CheckboxRow
+                  key={l}
+                  label={l}
+                  checked={languages.includes(l)}
+                  onChange={() => setLanguages((arr) => toggle(arr, l))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Age group">
+              {AGE_GROUPS.map((g) => (
+                <CheckboxRow
+                  key={g.code}
+                  label={g.label}
+                  checked={ageGroups.includes(g.code)}
+                  onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
+                />
+              ))}
+            </FilterGroup>
+
+            <FilterGroup title="Credentials / License">
+              {CREDENTIALS.map((c) => (
+                <CheckboxRow
+                  key={c.code}
+                  label={c.label}
+                  checked={credentials.includes(c.code)}
+                  onChange={() => setCredentials((arr) => toggle(arr, c.code))}
+                />
+              ))}
+            </FilterGroup>
+
+            {(practices.length > 0 ||
+              priceIdx.length > 0 ||
+              modalities.length > 0 ||
+              sessionModes.length > 0 ||
+              availDays.length > 0 ||
+              availPeriods.length > 0 ||
+              languages.length > 0 ||
+              concerns.length > 0 ||
+              ageGroups.length > 0 ||
+              credentials.length > 0) && (
               <button
                 type="button"
                 onClick={() => {
                   setPractices([]);
                   setPriceIdx([]);
+                  setModalities([]);
+                  setSessionModes([]);
+                  setAvailDays([]);
+                  setAvailPeriods([]);
+                  setLanguages([]);
+                  setConcerns([]);
+                  setAgeGroups([]);
+                  setCredentials([]);
                 }}
                 className="mt-6 text-[13px] font-semibold text-brand-purple no-underline hover:text-brand-purple-dark"
               >
@@ -288,6 +523,18 @@ function FindProviderPage() {
                 </span>{" "}
                 provider{filtered.length === 1 ? "" : "s"}
               </p>
+              <label className="flex items-center gap-2 text-[13px] text-slate-500">
+                <span className="hidden sm:inline">Sort by</span>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortValue)}
+                  className="rounded-lg border border-[#E9E6FA] bg-white px-3 py-1.5 text-[13px] font-medium text-slate-700 focus:border-brand-purple/40 focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             {filtered.length === 0 ? (
@@ -738,5 +985,40 @@ function InviteModal({
         )}
       </div>
     </div>
+  );
+}
+
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-6">
+      <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
+        {title}
+      </h3>
+      <ul className="mt-3 space-y-2">{children}</ul>
+    </div>
+  );
+}
+
+function CheckboxRow({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <li>
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1 text-[13.5px] text-slate-600 transition-colors hover:text-brand-purple">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          className="h-[18px] w-[18px] cursor-pointer rounded border-[#DCD7F5] accent-brand-purple"
+        />
+        <span className="leading-snug">{label}</span>
+      </label>
+    </li>
   );
 }
