@@ -804,28 +804,6 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
             </div>
           </div>
         )}
-        {provider.licenseNumber && (
-          <div className="flex items-start gap-2">
-            <ShieldCheck
-              className={
-                "mt-0.5 h-3.5 w-3.5 flex-none " +
-                (provider.licenseVerifiedOn ? "text-brand-purple" : "text-amber-500")
-              }
-            />
-            <div className="min-w-0">
-              <dt className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                License
-              </dt>
-              <dd className="truncate text-[12.5px] font-medium text-slate-700">
-                {provider.licenseVerifiedOn ? (
-                  <span className="text-emerald-600">Verified</span>
-                ) : (
-                  <span className="text-amber-600">Pending</span>
-                )}
-              </dd>
-            </div>
-          </div>
-        )}
         {provider.languages.length > 0 && (
           <div className="flex items-start gap-2 sm:col-span-2">
             <Languages className="mt-0.5 h-3.5 w-3.5 flex-none text-[#A799E2]" />
