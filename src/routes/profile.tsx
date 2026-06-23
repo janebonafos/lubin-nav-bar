@@ -480,7 +480,7 @@ function ProfilePage() {
                     rel="noopener noreferrer"
                     className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                   >
-                    Terms &amp; Conditions ↗
+                    Terms &amp; Conditions
                   </a>
                   <a
                     href="/privacy"
@@ -488,7 +488,7 @@ function ProfilePage() {
                     rel="noopener noreferrer"
                     className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                   >
-                    Privacy Policy ↗
+                    Privacy Policy
                   </a>
                 </div>
               </div>
