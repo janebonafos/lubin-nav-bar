@@ -87,11 +87,11 @@ function FindProviderPage() {
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
 
-  // Smart location input: detect ZIP (PH: 4 digits, US-style: 5 digits) vs city name
+  // Smart location input: detect PH postal code (4 digits) vs city/province/area name
   const locTrimmed = location.trim();
-  const isZip = /^\d{4,5}$/.test(locTrimmed);
-  const isCity = locTrimmed.length >= 2 && !isZip;
-  const locKind: "zip" | "city" | null = isZip ? "zip" : isCity ? "city" : null;
+  const isPostal = /^\d{4}$/.test(locTrimmed);
+  const isArea = locTrimmed.length >= 2 && !isPostal;
+  const locKind: "postal" | "area" | null = isPostal ? "postal" : isArea ? "area" : null;
 
   const POPULAR_CITIES = ["Makati", "Quezon City", "BGC", "Cebu", "Davao"];
 
@@ -186,22 +186,22 @@ function FindProviderPage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 inputMode="text"
-                aria-label="Location — city or ZIP"
-                placeholder="City or ZIP code"
+                aria-label="Location — city, province, or area"
+                placeholder="City, province, or area"
                 className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 pr-24 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
               />
               {/* Smart kind badge */}
               {locKind && (
                 <span
                   className="pointer-events-none absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-[#E9E6FA]"
-                  aria-label={locKind === "zip" ? "Detected ZIP code" : "Detected city"}
+                  aria-label={locKind === "postal" ? "Detected postal code" : "Detected area"}
                 >
-                  {locKind === "zip" ? (
+                  {locKind === "postal" ? (
                     <Hash className="h-3 w-3" />
                   ) : (
                     <Building2 className="h-3 w-3" />
                   )}
-                  {locKind === "zip" ? "ZIP" : "City"}
+                  {locKind === "postal" ? "Postal" : "Area"}
                 </span>
               )}
             </div>
