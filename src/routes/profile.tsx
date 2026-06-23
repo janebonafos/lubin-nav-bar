@@ -566,6 +566,8 @@ function ProfilePage() {
                       type="email"
                       placeholder="Add your email"
                       verified={Boolean(profile.email)}
+                      locked
+                      lockedHint="Synced from your connected sign-in account. To change it, connect a different account below."
                       onChange={(v) => update("email", v)}
                     />
                     <Field
@@ -838,6 +840,8 @@ function Field({
   placeholder,
   type = "text",
   verified,
+  locked,
+  lockedHint,
   onChange,
 }: {
   label: string;
@@ -846,16 +850,19 @@ function Field({
   placeholder?: string;
   type?: string;
   verified?: boolean;
+  locked?: boolean;
+  lockedHint?: string;
   onChange: (v: string) => void;
 }) {
   const isEmpty = !value.trim();
+  const isLocked = Boolean(locked);
   return (
     <div>
       <label className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
         {label}
       </label>
       <div className="relative mt-1.5">
-        {editing ? (
+        {editing && !isLocked ? (
           <input
             type={type}
             value={value}
@@ -870,11 +877,15 @@ function Field({
             Not set
           </div>
         ) : (
-          <div className="w-full rounded-xl border border-[#EEE9F8] bg-white/70 px-4 py-2.5 text-[14px] text-[#3D2E6B]">
+          <div
+            className={`w-full rounded-xl border border-[#EEE9F8] px-4 py-2.5 text-[14px] text-[#3D2E6B] ${
+              isLocked ? "bg-[#F6F2FB]" : "bg-white/70"
+            } ${verified || isLocked ? "pr-10" : ""}`}
+          >
             {value}
           </div>
         )}
-        {!editing && !isEmpty && verified && (
+        {(!editing || isLocked) && !isEmpty && verified && (
           <span
             className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[#E3F4EA] text-[#5BAF7E]"
             title="Verified"
@@ -883,6 +894,11 @@ function Field({
           </span>
         )}
       </div>
+      {isLocked && lockedHint && (
+        <p className="mt-1.5 text-[11.5px] leading-snug text-[#A89BD0]">
+          {lockedHint}
+        </p>
+      )}
     </div>
   );
 }
