@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, type Provider } from "@/lib/providers";
 
@@ -788,6 +788,57 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
         modes={provider.sessionModes}
         hours={provider.availableHours}
       />
+
+      {/* Decision info: next slot, license, languages */}
+      <dl className="mt-4 grid grid-cols-1 gap-x-4 gap-y-2 rounded-xl bg-[#FAF8FF] p-3 ring-1 ring-inset ring-[#EEEAFB] sm:grid-cols-2">
+        {provider.nextAvailable && (
+          <div className="flex items-start gap-2">
+            <Zap className="mt-0.5 h-3.5 w-3.5 flex-none text-emerald-500" />
+            <div className="min-w-0">
+              <dt className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                Next available
+              </dt>
+              <dd className="truncate text-[12.5px] font-semibold text-slate-800">
+                {provider.nextAvailable}
+              </dd>
+            </div>
+          </div>
+        )}
+        {provider.licenseNumber && (
+          <div className="flex items-start gap-2">
+            <ShieldCheck
+              className={
+                "mt-0.5 h-3.5 w-3.5 flex-none " +
+                (provider.licenseVerifiedOn ? "text-brand-purple" : "text-amber-500")
+              }
+            />
+            <div className="min-w-0">
+              <dt className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                License
+              </dt>
+              <dd className="truncate text-[12.5px] font-medium text-slate-700">
+                {provider.licenseNumber}
+                {provider.licenseVerifiedOn && (
+                  <span className="ml-1 text-[11px] font-normal text-emerald-600">· verified</span>
+                )}
+              </dd>
+            </div>
+          </div>
+        )}
+        {provider.languages.length > 0 && (
+          <div className="flex items-start gap-2 sm:col-span-2">
+            <Languages className="mt-0.5 h-3.5 w-3.5 flex-none text-[#A799E2]" />
+            <div className="min-w-0">
+              <dt className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                Languages
+              </dt>
+              <dd className="truncate text-[12.5px] font-medium text-slate-700">
+                {provider.languages.join(" · ")}
+              </dd>
+            </div>
+          </div>
+        )}
+      </dl>
 
       <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-3 pt-5">
         <div className="flex h-full flex-col justify-center gap-0.5">
