@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
@@ -25,6 +26,11 @@ import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
   id: '/self-discovery',
   path: '/self-discovery',
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery_/$slug'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   ProviderOnboardingRoute: typeof ProviderOnboardingRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
+  TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -227,6 +240,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/self-discovery': {
       id: '/self-discovery'
       path: '/self-discovery'
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProviderOnboardingRoute: ProviderOnboardingRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
+  TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
