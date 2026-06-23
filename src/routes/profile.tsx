@@ -557,6 +557,12 @@ function ProfilePage() {
                       value={profile.fullName}
                       editing={editing}
                       placeholder="Add your full name"
+                      locked={nameFromAccount}
+                      lockedHint={
+                        nameFromAccount
+                          ? "Synced from your connected sign-in account."
+                          : undefined
+                      }
                       onChange={(v) => update("fullName", v)}
                     />
                     <Field
