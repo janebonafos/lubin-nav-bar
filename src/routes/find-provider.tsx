@@ -987,3 +987,38 @@ function InviteModal({
     </div>
   );
 }
+
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-6">
+      <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
+        {title}
+      </h3>
+      <ul className="mt-3 space-y-2">{children}</ul>
+    </div>
+  );
+}
+
+function CheckboxRow({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <li>
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1 text-[13.5px] text-slate-600 transition-colors hover:text-brand-purple">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onChange}
+          className="h-[18px] w-[18px] cursor-pointer rounded border-[#DCD7F5] accent-brand-purple"
+        />
+        <span className="leading-snug">{label}</span>
+      </label>
+    </li>
+  );
+}
