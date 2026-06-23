@@ -466,7 +466,7 @@ export default function Navbar() {
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
-                className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white xl:gap-2 xl:pl-1 xl:pr-3"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white 2xl:gap-2 2xl:pl-1 2xl:pr-3"
                 title={displayName}
                 aria-label={displayName}
               >
@@ -477,9 +477,9 @@ export default function Navbar() {
                     initials
                   )}
                 </span>
-                <span className="hidden max-w-[120px] truncate xl:inline">{displayName}</span>
+                <span className="hidden max-w-[120px] truncate 2xl:inline">{displayName}</span>
                 <ChevronDown
-                  className={`mr-1 h-3.5 w-3.5 transition-transform duration-300 xl:mr-0 ${userMenuOpen ? "rotate-180" : ""}`}
+                  className={`mr-1 h-3.5 w-3.5 transition-transform duration-300 2xl:mr-0 ${userMenuOpen ? "rotate-180" : ""}`}
                 />
               </button>
               {userMenuOpen && (
