@@ -817,9 +817,10 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
                 License
               </dt>
               <dd className="truncate text-[12.5px] font-medium text-slate-700">
-                {provider.licenseNumber}
-                {provider.licenseVerifiedOn && (
-                  <span className="ml-1 text-[11px] font-normal text-emerald-600">· verified</span>
+                {provider.licenseVerifiedOn ? (
+                  <span className="text-emerald-600">Verified</span>
+                ) : (
+                  <span className="text-amber-600">Pending</span>
                 )}
               </dd>
             </div>
