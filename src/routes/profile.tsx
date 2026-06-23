@@ -474,18 +474,22 @@ function ProfilePage() {
                   Legal
                 </p>
                 <div className="mt-1 space-y-0.5">
-                  <Link
-                    to="/terms"
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                   >
-                    Terms &amp; Conditions
-                  </Link>
-                  <Link
-                    to="/privacy"
+                    Terms &amp; Conditions ↗
+                  </a>
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="block rounded-xl px-3 py-2 text-sm font-medium text-[#3D2E6B]/75 transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                   >
-                    Privacy Policy
-                  </Link>
+                    Privacy Policy ↗
+                  </a>
                 </div>
               </div>
             </section>
