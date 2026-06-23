@@ -158,6 +158,15 @@ function FindProviderPage() {
   const [location, setLocation] = useState("");
   const [practices, setPractices] = useState<string[]>([]);
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
+  const [modalities, setModalities] = useState<string[]>([]);
+  const [sessionModes, setSessionModes] = useState<string[]>([]);
+  const [availDays, setAvailDays] = useState<string[]>([]);
+  const [availPeriods, setAvailPeriods] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [concerns, setConcerns] = useState<string[]>([]);
+  const [ageGroups, setAgeGroups] = useState<string[]>([]);
+  const [credentials, setCredentials] = useState<string[]>([]);
+  const [sort, setSort] = useState<SortValue>("relevance");
   const [invitee, setInvitee] = useState<ExternalProvider | null>(null);
 
   // Smart location input: detect PH postal code (4 digits) vs city/province/area name
