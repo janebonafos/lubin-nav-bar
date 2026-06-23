@@ -127,6 +127,12 @@ function ProfilePage() {
     setConnections((prev) => ({ ...prev, [provider]: "error" }));
   };
 
+  const anyConnected =
+    connections.google === "connected" ||
+    connections.facebook === "connected" ||
+    connections.linkedin === "connected";
+  const nameFromAccount = anyConnected;
+
   const [checkInActive, setCheckInActive] = useState(false);
 
   // Chat thread list (mirrors EmbeddedChat localStorage)
