@@ -27,10 +27,10 @@ export const Route = createFileRoute("/find-provider")({
 const PRACTICE_AREAS = ["Psychologist", "Counselling", "Therapist"] as const;
 
 const PRICE_RANGES = [
-  { label: "Up to PHP 1,480", min: 0, max: 1480 },
-  { label: "PHP 1,542–3,083", min: 1542, max: 3083 },
-  { label: "PHP 3,145–6,104", min: 3145, max: 6104 },
-  { label: "PHP 6,166+", min: 6166, max: Infinity },
+  { label: "Up to ₱1,500", min: 0, max: 1500 },
+  { label: "₱1,500–₱3,000", min: 1500, max: 3000 },
+  { label: "₱3,000–₱6,000", min: 3000, max: 6000 },
+  { label: "₱6,000+", min: 6000, max: Infinity },
 ];
 
 type ExternalProvider = {
