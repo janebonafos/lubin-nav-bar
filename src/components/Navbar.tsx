@@ -12,8 +12,8 @@ import {
   ShieldCheck,
   ChevronDown,
   User as UserIcon,
-  Settings as SettingsIcon,
   LogOut,
+  Repeat,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
