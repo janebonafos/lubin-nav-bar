@@ -377,15 +377,15 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 rounded-full border border-white/40 bg-white/70 pl-5 pr-5 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:gap-6 md:pl-8 md:pr-6 md:py-2"
+        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 2xl:gap-6 2xl:pl-8 2xl:pr-6"
       >
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center lg:mr-4" aria-label="Lubin home">
+        <Link to="/" className="flex shrink-0 items-center 2xl:mr-4" aria-label="Lubin home">
           <img src={lubinLogo} alt="Lubin" className="h-6 w-auto lg:h-7" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7">
+        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-center gap-4 2xl:gap-7">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -437,7 +437,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden lg:flex shrink-0 items-center gap-2">
+        <div className="hidden xl:flex shrink-0 items-center gap-2">
           {!signedIn && (
             <button
               type="button"
@@ -466,7 +466,7 @@ export default function Navbar() {
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
-                className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white 2xl:gap-2 2xl:pl-1 2xl:pr-3"
+                className="ml-1 inline-flex max-w-[44px] items-center gap-0 overflow-hidden rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white 2xl:max-w-[190px] 2xl:gap-2 2xl:pl-1 2xl:pr-3"
                 title={displayName}
                 aria-label={displayName}
               >
@@ -479,7 +479,7 @@ export default function Navbar() {
                 </span>
                 <span className="hidden max-w-[120px] truncate 2xl:inline">{displayName}</span>
                 <ChevronDown
-                  className={`mr-1 h-3.5 w-3.5 transition-transform duration-300 2xl:mr-0 ${userMenuOpen ? "rotate-180" : ""}`}
+                  className={`hidden h-3.5 w-3.5 shrink-0 transition-transform duration-300 2xl:block ${userMenuOpen ? "rotate-180" : ""}`}
                 />
               </button>
               {userMenuOpen && (
@@ -530,7 +530,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="lg:hidden inline-flex items-center justify-center text-brand-purple-dark"
+          className="xl:hidden inline-flex items-center justify-center text-brand-purple-dark"
         >
           <HamburgerIcon open={open} className="h-6 w-6" />
         </button>
@@ -538,7 +538,7 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="lg:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
+        <div className="xl:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
