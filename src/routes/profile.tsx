@@ -58,8 +58,8 @@ type Profile = {
 };
 
 const DEFAULT_PROFILE: Profile = {
-  fullName: "",
-  email: "",
+  fullName: "Maria Santos",
+  email: "maria.santos@gmail.com",
   mobile: "",
   avatar: null,
 };
@@ -126,6 +126,12 @@ function ProfilePage() {
   const setConnectionError = (provider: keyof typeof connections) => {
     setConnections((prev) => ({ ...prev, [provider]: "error" }));
   };
+
+  const anyConnected =
+    connections.google === "connected" ||
+    connections.facebook === "connected" ||
+    connections.linkedin === "connected";
+  const nameFromAccount = anyConnected;
 
   const [checkInActive, setCheckInActive] = useState(false);
 
@@ -557,6 +563,12 @@ function ProfilePage() {
                       value={profile.fullName}
                       editing={editing}
                       placeholder="Add your full name"
+                      locked={nameFromAccount}
+                      lockedHint={
+                        nameFromAccount
+                          ? "Synced from your connected sign-in account."
+                          : undefined
+                      }
                       onChange={(v) => update("fullName", v)}
                     />
                     <Field
