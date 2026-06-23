@@ -886,14 +886,14 @@ function Field({
             }`}
           />
         ) : isEmpty ? (
-          <div className="w-full rounded-xl border border-dashed border-[#E3DBF5] bg-white/40 px-4 py-2.5 text-[14px] text-[#A89BD0]/70 italic">
+          <div className="w-full px-1 py-2.5 text-[14px] text-[#A89BD0]/70 italic">
             Not set
           </div>
         ) : (
           <div
-            className={`w-full rounded-xl border border-[#EEE9F8] px-4 py-2.5 text-[14px] text-[#3D2E6B] ${
-              isLocked ? "bg-[#F6F2FB]" : "bg-white/70"
-            } ${verified || isLocked ? "pr-10" : ""}`}
+            className={`w-full px-1 py-2.5 text-[14px] font-medium text-[#3D2E6B] ${
+              verified || isLocked ? "pr-10" : ""
+            }`}
           >
             {value}
           </div>
