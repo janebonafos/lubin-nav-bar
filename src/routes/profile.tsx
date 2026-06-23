@@ -566,6 +566,8 @@ function ProfilePage() {
                       type="email"
                       placeholder="Add your email"
                       verified={Boolean(profile.email)}
+                      locked
+                      lockedHint="Synced from your connected sign-in account. To change it, connect a different account below."
                       onChange={(v) => update("email", v)}
                     />
                     <Field
