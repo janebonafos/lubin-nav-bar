@@ -22,6 +22,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import lubinMark from "@/assets/lubin-mark.png.asset.json";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
