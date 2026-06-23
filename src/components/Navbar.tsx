@@ -12,8 +12,8 @@ import {
   ShieldCheck,
   ChevronDown,
   User as UserIcon,
-  Settings as SettingsIcon,
   LogOut,
+  Repeat,
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
@@ -345,6 +345,21 @@ export default function Navbar() {
     ? "/provider-onboarding"
     : "/profile";
   const homeLabel = isProvider ? "Provider dashboard" : "Profile";
+  const switchLabel = isProvider ? "Switch to client account" : "Switch to provider account";
+  const switchDestination: "/provider-onboarding" | "/profile" = isProvider
+    ? "/profile"
+    : "/provider-onboarding";
+
+  const handleSwitchRole = () => {
+    const nextRole: UserRole = isProvider ? "client" : "provider";
+    try {
+      window.localStorage.setItem("lubin.userRole", nextRole);
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
+    setUserRole(nextRole);
+    setUserMenuOpen(false);
+    navigate({ to: switchDestination });
+  };
 
   const displayName = userName.trim() || "My account";
   const initials = (userName.trim() || "U")
@@ -485,14 +500,11 @@ export default function Navbar() {
                   <button
                     type="button"
                     role="menuitem"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate({ to: homeDestination });
-                    }}
+                    onClick={handleSwitchRole}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
                   >
-                    <SettingsIcon className="h-4 w-4" />
-                    Settings
+                    <Repeat className="h-4 w-4" />
+                    {switchLabel}
                   </button>
                   <div className="my-1 h-px bg-brand-purple/10" />
                   <button
@@ -575,13 +587,16 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to={homeDestination}
-                    onClick={() => setOpen(false)}
-                    className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      handleSwitchRole();
+                    }}
+                    className="block w-full text-left text-[15px] font-medium text-brand-purple-dark/80"
                   >
-                    Settings
-                  </Link>
+                    {switchLabel}
+                  </button>
                 </li>
                 <li>
                   <button
