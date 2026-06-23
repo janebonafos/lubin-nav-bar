@@ -195,7 +195,7 @@ function FindProviderPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const loc = location.trim().toLowerCase();
-    return PROVIDERS.filter((p) => {
+    const result = PROVIDERS.filter((p) => {
       if (q) {
         const hay = `${p.name} ${p.title} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -209,9 +209,60 @@ function FindProviderPage() {
         });
         if (!inRange) return false;
       }
+      if (modalities.length) {
+        const mods = (p.modalities ?? []).join(" | ").toLowerCase();
+        if (!modalities.some((m) => mods.includes(m.toLowerCase()))) return false;
+      }
+      if (sessionModes.length && !sessionModes.some((m) => p.sessionModes.includes(m as "Online" | "In-person"))) {
+        return false;
+      }
+      if (availDays.length) {
+        const ok = availDays.some((code) => {
+          const group = AVAILABILITY_DAYS.find((g) => g.code === code);
+          return group?.days.some((d) => p.availableDays.includes(d as never));
+        });
+        if (!ok) return false;
+      }
+      if (availPeriods.length && !availPeriods.some((per) => p.availablePeriods.includes(per as "AM" | "PM"))) {
+        return false;
+      }
+      if (languages.length && !languages.some((l) => p.languages.includes(l))) return false;
+      if (concerns.length) {
+        const tags = p.tags.map((t) => t.toLowerCase());
+        if (!concerns.some((c) => tags.includes(c.toLowerCase()))) return false;
+      }
+      if (ageGroups.length) {
+        const provGroups = providerAgeGroups(p);
+        if (!ageGroups.some((g) => provGroups.includes(g))) return false;
+      }
+      if (credentials.length) {
+        const provCreds = providerCredentials(p);
+        if (!credentials.some((c) => provCreds.includes(c))) return false;
+      }
       return true;
     });
-  }, [query, location, practices, priceIdx]);
+    const sorted = [...result];
+    switch (sort) {
+      case "rating":
+        sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      case "reviews":
+        sorted.sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0));
+        break;
+      case "price-asc":
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case "experience":
+        sorted.sort((a, b) => b.experience - a.experience);
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [query, location, practices, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
 
   const externalResults = useMemo(() => {
     const q = query.trim().toLowerCase();
