@@ -58,8 +58,8 @@ type Profile = {
 };
 
 const DEFAULT_PROFILE: Profile = {
-  fullName: "",
-  email: "",
+  fullName: "Maria Santos",
+  email: "maria.santos@gmail.com",
   mobile: "",
   avatar: null,
 };
