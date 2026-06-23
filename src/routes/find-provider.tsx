@@ -33,6 +33,79 @@ const PRICE_RANGES = [
   { label: "₱6,000+", min: 6000, max: Infinity },
 ];
 
+const MODALITIES = [
+  "Cognitive Behavioral Therapy (CBT)",
+  "EMDR",
+  "Acceptance & Commitment Therapy (ACT)",
+  "Emotionally Focused Therapy",
+  "Gottman Method",
+  "Narrative Therapy",
+  "Mindfulness-Based Stress Reduction",
+  "Exposure & Response Prevention (ERP)",
+  "Family Systems Therapy",
+  "Solution-Focused Brief Therapy",
+  "Motivational Interviewing",
+  "Somatic Experiencing",
+  "Internal Family Systems",
+] as const;
+
+const SESSION_MODES = ["Online", "In-person"] as const;
+const AVAILABILITY_PERIODS = ["AM", "PM"] as const;
+const AVAILABILITY_DAYS = [
+  { code: "weekdays", label: "Weekdays", days: ["M", "T", "W", "Th", "F"] },
+  { code: "weekends", label: "Weekends", days: ["S", "Su"] },
+] as const;
+
+const LANGUAGES = ["English", "Filipino", "Cebuano"] as const;
+
+const CONCERNS = [
+  "Anxiety", "Depression", "Trauma", "PTSD", "Grief",
+  "Burnout", "Stress", "OCD", "Relationships", "Couples",
+  "LGBTQ+", "Career", "Mindfulness",
+] as const;
+
+const AGE_GROUPS = [
+  { code: "teens", label: "Teens (13–17)", match: ["Teens"] },
+  { code: "young", label: "Young adults (18–25)", match: ["Young adults", "Students"] },
+  { code: "adults", label: "Adults (26–59)", match: ["Couples", "Career", "Burnout", "Relationships"] },
+  { code: "family", label: "Family", match: ["Family"] },
+] as const;
+
+const CREDENTIALS = [
+  { code: "PhD", label: "PhD / Doctorate" },
+  { code: "RPsy", label: "RPsy (Psychologist)" },
+  { code: "RGC", label: "RGC (Guidance Counsellor)" },
+  { code: "LPT", label: "LPT (Therapist)" },
+  { code: "MA", label: "MA / Master's" },
+] as const;
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Most relevant" },
+  { value: "rating", label: "Highest rated" },
+  { value: "reviews", label: "Most reviewed" },
+  { value: "price-asc", label: "Price: low to high" },
+  { value: "price-desc", label: "Price: high to low" },
+  { value: "experience", label: "Most experienced" },
+] as const;
+type SortValue = (typeof SORT_OPTIONS)[number]["value"];
+
+function providerCredentials(p: Provider): string[] {
+  const out = new Set<string>();
+  const hay = `${p.title} ${p.name} ${p.licenseBoard ?? ""} ${p.licenseNumber ?? ""}`;
+  if (/PhD|Ph\.D|Doctorate/i.test(hay)) out.add("PhD");
+  if (/RPsy/i.test(hay)) out.add("RPsy");
+  if (/RGC/i.test(hay)) out.add("RGC");
+  if (/LPT/i.test(hay)) out.add("LPT");
+  if (/\bMA\b|Master/i.test(hay)) out.add("MA");
+  return [...out];
+}
+
+function providerAgeGroups(p: Provider): string[] {
+  return AGE_GROUPS.filter((g) =>
+    g.match.some((m) => p.tags.some((t) => t.toLowerCase() === m.toLowerCase()))
+  ).map((g) => g.code);
+}
+
 type ExternalProvider = {
   id: string;
   name: string;
