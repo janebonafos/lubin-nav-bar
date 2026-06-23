@@ -587,13 +587,16 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to={homeDestination}
-                    onClick={() => setOpen(false)}
-                    className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      handleSwitchRole();
+                    }}
+                    className="block w-full text-left text-[15px] font-medium text-brand-purple-dark/80"
                   >
-                    Settings
-                  </Link>
+                    {switchLabel}
+                  </button>
                 </li>
                 <li>
                   <button
