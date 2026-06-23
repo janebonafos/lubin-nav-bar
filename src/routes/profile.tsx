@@ -22,6 +22,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import lubinMark from "@/assets/lubin-mark.png.asset.json";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
 import type { Attempt } from "@/lib/patterns/types";
@@ -127,12 +128,6 @@ function ProfilePage() {
     setConnections((prev) => ({ ...prev, [provider]: "error" }));
   };
 
-  const anyConnected =
-    connections.google === "connected" ||
-    connections.facebook === "connected" ||
-    connections.linkedin === "connected";
-  const nameFromAccount = anyConnected;
-
   const [checkInActive, setCheckInActive] = useState(false);
 
   // Chat thread list (mirrors EmbeddedChat localStorage)
@@ -168,13 +163,13 @@ function ProfilePage() {
   };
 
   const displayName = profile.fullName.trim() || "Your profile";
-  const initials =
-    profile.fullName
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p.charAt(0).toUpperCase())
-      .join("") || "?";
+  const initials = profile.fullName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p.charAt(0).toUpperCase())
+    .join("");
+  const hasInitials = initials.length > 0;
 
   // Mini widget data
   const [passportData, setPassportData] = useState<{
@@ -377,8 +372,14 @@ function ProfilePage() {
                         alt={displayName}
                         className="h-full w-full object-cover"
                       />
-                    ) : (
+                    ) : hasInitials ? (
                       <span>{initials}</span>
+                    ) : (
+                      <img
+                        src={lubinMark.url}
+                        alt="Lubin"
+                        className="h-7 w-7 object-contain opacity-90"
+                      />
                     )}
                   </div>
                 </div>
@@ -526,9 +527,15 @@ function ProfilePage() {
                               alt={displayName}
                               className="h-full w-full object-cover"
                             />
-                          ) : (
+                        ) : hasInitials ? (
                             <span>{initials}</span>
-                          )}
+                        ) : (
+                          <img
+                            src={lubinMark.url}
+                            alt="Lubin"
+                            className="h-12 w-12 object-contain opacity-90"
+                          />
+                        )}
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-[#3D2E6B]/30 opacity-0 transition-opacity group-hover:opacity-100">
                           <Camera className="h-6 w-6 text-white" />
@@ -563,12 +570,6 @@ function ProfilePage() {
                       value={profile.fullName}
                       editing={editing}
                       placeholder="Add your full name"
-                      locked={nameFromAccount}
-                      lockedHint={
-                        nameFromAccount
-                          ? "Synced from your connected sign-in account."
-                          : undefined
-                      }
                       onChange={(v) => update("fullName", v)}
                     />
                     <Field
