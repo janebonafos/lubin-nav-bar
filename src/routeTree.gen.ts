@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -25,6 +27,11 @@ import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
   id: '/self-discovery',
   path: '/self-discovery',
@@ -43,6 +50,11 @@ const ProviderOnboardingRoute = ProviderOnboardingRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
@@ -108,10 +120,12 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -125,10 +139,12 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -143,10 +159,12 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
+  '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
@@ -162,10 +180,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/privacy'
     | '/profile'
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -179,10 +199,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/privacy'
     | '/profile'
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -196,10 +218,12 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/privacy'
     | '/profile'
     | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
+    | '/terms'
     | '/api/chat'
     | '/provider/$id'
     | '/self-discovery_/$slug'
@@ -214,10 +238,12 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ProviderOnboardingRoute: typeof ProviderOnboardingRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
+  TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -227,6 +253,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/self-discovery': {
       id: '/self-discovery'
       path: '/self-discovery'
@@ -253,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-health-passport': {
@@ -342,10 +382,12 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ProviderOnboardingRoute: ProviderOnboardingRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
+  TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
