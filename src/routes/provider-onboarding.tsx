@@ -186,12 +186,12 @@ function ProviderOnboardingPage() {
               />
               {linkedInImported && (
                 <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0A66C2] text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
                     <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-[#3D2E6B]">
-                      Imported from LinkedIn
+                      Synced from your LinkedIn profile
                     </p>
                     <p className="text-[12px] text-[#A89BD0]">
                       Tap the sparkle to refine any field with AI.
