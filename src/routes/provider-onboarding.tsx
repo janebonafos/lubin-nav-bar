@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2 } from "lucide-react";
+import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, X, RefreshCw, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -83,8 +83,7 @@ function ProviderOnboardingPage() {
 
   // Simulated LinkedIn import — in production this comes from the OAuth callback.
   const [linkedInImported, setLinkedInImported] = useState(false);
-  const [enhancing, setEnhancing] = useState<null | "headline" | "bio">(null);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [enhanceOpen, setEnhanceOpen] = useState<null | "headline" | "bio">(null);
 
   useEffect(() => {
     // Simulate LinkedIn prefill on first mount
@@ -104,33 +103,31 @@ function ProviderOnboardingPage() {
     return () => clearTimeout(t);
   }, []);
 
-  const enhanceField = async (field: "headline" | "bio") => {
-    setEnhancing(field);
-    setAiError(null);
-    try {
-      const res = await fetch("/api/enhance-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          field,
-          current: field === "headline" ? headline : bio,
-          context: {
-            fullName,
-            specialty: specialty ?? undefined,
-            focus: focus ?? undefined,
-          },
-        }),
-      });
-      const data = (await res.json()) as { text?: string; error?: string };
-      if (!res.ok || !data.text) {
-        setAiError(data.error || "Couldn't enhance right now. Try again in a moment.");
-      } else if (field === "headline") setHeadline(data.text);
-      else setBio(data.text);
-    } catch {
-      setAiError("Network hiccup — please try again.");
-    } finally {
-      setEnhancing(null);
+  const requestEnhancement = async (opts: {
+    field: "headline" | "bio";
+    tone?: string;
+    instruction?: string;
+  }) => {
+    const res = await fetch("/api/enhance-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        field: opts.field,
+        current: opts.field === "headline" ? headline : bio,
+        tone: opts.tone,
+        instruction: opts.instruction,
+        context: {
+          fullName,
+          specialty: specialty ?? undefined,
+          focus: focus ?? undefined,
+        },
+      }),
+    });
+    const data = (await res.json()) as { text?: string; error?: string };
+    if (!res.ok || !data.text) {
+      throw new Error(data.error || "Couldn't enhance right now. Try again in a moment.");
     }
+    return data.text;
   };
 
   const canNext =
@@ -199,11 +196,6 @@ function ProviderOnboardingPage() {
                   </div>
                 </div>
               )}
-              {aiError && (
-                <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3 text-[13px] text-rose-700">
-                  {aiError}
-                </div>
-              )}
               <div className="space-y-8">
                 <TextField
                   label="Full name"
@@ -227,8 +219,7 @@ function ProviderOnboardingPage() {
                   placeholder="Clinical psychologist · Anxiety & burnout"
                   inputAction={
                     <AiAssistButton
-                      loading={enhancing === "headline"}
-                      onClick={() => enhanceField("headline")}
+                      onClick={() => setEnhanceOpen("headline")}
                       title="Enhance with AI"
                     />
                   }
@@ -241,8 +232,7 @@ function ProviderOnboardingPage() {
                   placeholder="Share a couple of sentences about your approach..."
                   inputAction={
                     <AiAssistButton
-                      loading={enhancing === "bio"}
-                      onClick={() => enhanceField("bio")}
+                      onClick={() => setEnhanceOpen("bio")}
                       title="Enhance with AI"
                     />
                   }
@@ -351,6 +341,21 @@ function ProviderOnboardingPage() {
           </div>
         </div>
       </main>
+      {enhanceOpen && (
+        <EnhanceModal
+          field={enhanceOpen}
+          current={enhanceOpen === "headline" ? headline : bio}
+          onClose={() => setEnhanceOpen(null)}
+          onApply={(text) => {
+            if (enhanceOpen === "headline") setHeadline(text);
+            else setBio(text);
+            setEnhanceOpen(null);
+          }}
+          generate={(tone, instruction) =>
+            requestEnhancement({ field: enhanceOpen, tone, instruction })
+          }
+        />
+      )}
     </div>
   );
 }
@@ -523,89 +528,25 @@ function TextAreaField({
 
 function AiAssistButton({
   onClick,
-  loading,
   title,
 }: {
   onClick: () => void;
-  loading: boolean;
   title: string;
 }) {
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [helpSeen, setHelpSeen] = useState(false);
-
-  useEffect(() => {
-    if (!helpOpen) return;
-    const close = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest("[data-ai-help-root]")) setHelpOpen(false);
-    };
-    window.addEventListener("mousedown", close);
-    return () => window.removeEventListener("mousedown", close);
-  }, [helpOpen]);
-
-  const handleClick = () => {
-    if (loading) return;
-    if (!helpSeen) {
-      setHelpOpen(true);
-      setHelpSeen(true);
-      return;
-    }
-    onClick();
-  };
-
-  const runNow = () => {
-    setHelpOpen(false);
-    onClick();
-  };
-
   return (
-    <span className="relative inline-block" data-ai-help-root>
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={loading}
-        title={title}
-        aria-label={title}
-        className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95 disabled:cursor-wait disabled:opacity-70"
-      >
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Sparkles
-            className="h-4 w-4 transition-transform group-hover:rotate-12"
-            fill="currentColor"
-            strokeWidth={1.5}
-          />
-        )}
-      </button>
-      {helpOpen && (
-        <div className="absolute right-0 top-10 z-20 w-64 rounded-xl border border-[#E3DBF5] bg-white p-3.5 text-left shadow-xl shadow-[#3D2E6B]/15">
-          <p className="mb-1 text-[12px] font-semibold text-[#3D2E6B]">
-            Use AI to enhance
-          </p>
-          <p className="mb-3 text-[11px] leading-relaxed text-[#7E6BAF]">
-            Write a rough draft first, then tap to let AI polish the tone,
-            clarity, and flow. You can always edit the result.
-          </p>
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setHelpOpen(false)}
-              className="rounded-md px-2 py-1 text-[11px] font-medium text-[#A89BD0] hover:text-[#7E6BAF]"
-            >
-              Got it
-            </button>
-            <button
-              type="button"
-              onClick={runNow}
-              className="rounded-md bg-[#7E6BAF] px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#9A88C7]"
-            >
-              Enhance now
-            </button>
-          </div>
-        </div>
-      )}
-    </span>
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95"
+    >
+      <Sparkles
+        className="h-4 w-4 transition-transform group-hover:rotate-12"
+        fill="currentColor"
+        strokeWidth={1.5}
+      />
+    </button>
   );
 }
 
@@ -641,5 +582,215 @@ function Toggle({
         />
       </span>
     </button>
+  );
+}
+
+const TONE_PRESETS = [
+  { id: "warmer", label: "Warmer", hint: "Softer, more personal" },
+  { id: "concise", label: "More concise", hint: "Tighter and clearer" },
+  { id: "professional", label: "More professional", hint: "Polished and credible" },
+  { id: "specific", label: "More specific", hint: "Sharper details" },
+  { id: "inviting", label: "More inviting", hint: "Welcoming first impression" },
+];
+
+function EnhanceModal({
+  field,
+  current,
+  onClose,
+  onApply,
+  generate,
+}: {
+  field: "headline" | "bio";
+  current: string;
+  onClose: () => void;
+  onApply: (text: string) => void;
+  generate: (tone?: string, instruction?: string) => Promise<string>;
+}) {
+  const [tone, setTone] = useState<string | null>("warmer");
+  const [instruction, setInstruction] = useState("");
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const run = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const preset = TONE_PRESETS.find((t) => t.id === tone);
+      const text = await generate(preset?.label.toLowerCase(), instruction);
+      setSuggestion(text);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't enhance right now.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const label = field === "headline" ? "headline" : "short bio";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-[#3D2E6B]/40 backdrop-blur-sm"
+      />
+      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl shadow-[#3D2E6B]/25">
+        <div className="flex items-start justify-between gap-4 border-b border-[#E3DBF5]/70 bg-white/80 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#9A88C7] to-[#7E6BAF] text-white">
+              <Sparkles className="h-4 w-4" fill="currentColor" strokeWidth={1.5} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[#3D2E6B]">
+                Enhance your {label} with AI
+              </p>
+              <p className="text-[12px] text-[#A89BD0]">
+                Pick a direction or add your own instruction.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-1.5 text-[#A89BD0] transition hover:bg-[#F0EAFB] hover:text-[#7E6BAF]"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-5 px-6 py-5">
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Your current {label}
+            </p>
+            <p className="max-h-28 overflow-auto rounded-lg border border-[#E3DBF5]/70 bg-white/70 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+              {current?.trim() ? current : <span className="italic text-[#A89BD0]">No draft yet — AI will write one from scratch.</span>}
+            </p>
+          </div>
+
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Tone
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {TONE_PRESETS.map((t) => {
+                const active = tone === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTone(active ? null : t.id)}
+                    title={t.hint}
+                    className={`rounded-full border px-3 py-1.5 text-[12px] font-medium transition-all ${
+                      active
+                        ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                        : "border-[#E3DBF5] bg-white/80 text-[#7E6BAF] hover:border-[#A89BD0]"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Anything else? <span className="font-normal normal-case text-[#A89BD0]">(optional)</span>
+            </p>
+            <textarea
+              rows={2}
+              value={instruction}
+              onChange={(e) => setInstruction(e.target.value)}
+              placeholder="e.g. mention I work with new parents, or keep it under two sentences"
+              className="w-full resize-none rounded-lg border border-[#E3DBF5]/70 bg-white/70 px-3.5 py-2.5 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+            />
+          </div>
+
+          {suggestion && (
+            <div className="rounded-xl border border-[#7E6BAF]/40 bg-gradient-to-br from-white to-[#F0EAFB] p-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                <Sparkles className="h-3 w-3" fill="currentColor" strokeWidth={1.5} />
+                AI suggestion
+              </div>
+              <p className="text-[14px] leading-relaxed text-[#3D2E6B]">{suggestion}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-rose-200 bg-rose-50/80 px-3.5 py-2.5 text-[12px] text-rose-700">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-[#E3DBF5]/70 bg-white/60 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[13px] font-medium text-[#A89BD0] transition hover:text-[#7E6BAF]"
+          >
+            Cancel
+          </button>
+          <div className="flex items-center gap-2">
+            {suggestion ? (
+              <>
+                <button
+                  type="button"
+                  onClick={run}
+                  disabled={loading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E3DBF5] bg-white px-3.5 py-2 text-[13px] font-medium text-[#7E6BAF] transition hover:border-[#7E6BAF] disabled:opacity-50"
+                >
+                  {loading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  Try again
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onApply(suggestion)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-4 py-2 text-[13px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7]"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  Use this
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={run}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-4 py-2 text-[13px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Generating…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" fill="currentColor" strokeWidth={1.5} />
+                    Generate suggestion
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

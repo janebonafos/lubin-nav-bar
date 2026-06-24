@@ -14,11 +14,14 @@ export const Route = createFileRoute("/api/enhance-profile")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          const { field, current, context } = (await request.json()) as {
-            field: EnhanceField;
-            current?: string;
-            context?: { fullName?: string; specialty?: string; focus?: string };
-          };
+          const { field, current, context, tone, instruction } =
+            (await request.json()) as {
+              field: EnhanceField;
+              current?: string;
+              context?: { fullName?: string; specialty?: string; focus?: string };
+              tone?: string;
+              instruction?: string;
+            };
           if (field !== "headline" && field !== "bio") {
             return new Response(JSON.stringify({ error: "Invalid field" }), { status: 400 });
           }
@@ -31,7 +34,11 @@ export const Route = createFileRoute("/api/enhance-profile")({
             context?.fullName && `Name: ${context.fullName}`,
             context?.specialty && `Profession: ${context.specialty}`,
             context?.focus && `Focus area: ${context.focus}`,
-            current?.trim() ? `Current draft: ${current.trim()}` : "No current draft — write a fresh one.",
+            tone && `Desired tone/style: ${tone}`,
+            instruction?.trim() && `Extra instruction: ${instruction.trim()}`,
+            current?.trim()
+              ? `Current draft: ${current.trim()}`
+              : "No current draft — write a fresh one.",
           ]
             .filter(Boolean)
             .join("\n");
