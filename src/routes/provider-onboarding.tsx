@@ -341,6 +341,21 @@ function ProviderOnboardingPage() {
           </div>
         </div>
       </main>
+      {enhanceOpen && (
+        <EnhanceModal
+          field={enhanceOpen}
+          current={enhanceOpen === "headline" ? headline : bio}
+          onClose={() => setEnhanceOpen(null)}
+          onApply={(text) => {
+            if (enhanceOpen === "headline") setHeadline(text);
+            else setBio(text);
+            setEnhanceOpen(null);
+          }}
+          generate={(tone, instruction) =>
+            requestEnhancement({ field: enhanceOpen, tone, instruction })
+          }
+        />
+      )}
     </div>
   );
 }
