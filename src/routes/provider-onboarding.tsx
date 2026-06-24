@@ -99,7 +99,7 @@ function ProviderOnboardingPage() {
           </span>
           <h1
             className="mt-5 text-5xl tracking-tight text-[#3D2E6B] sm:text-6xl"
-            style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400 }}
+            style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600 }}
           >
             Welcome to{" "}
             <span className="italic text-[#7E6BAF]">Lubin</span>
@@ -300,7 +300,7 @@ function StepHeader({
       </div>
       <h2
         className="text-2xl tracking-tight text-[#3D2E6B]"
-        style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400 }}
+        style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600 }}
       >
         {title}
       </h2>
