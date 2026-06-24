@@ -64,6 +64,14 @@ const FOCUS_AREAS: { id: FocusArea; label: string }[] = [
   { id: "sleep", label: "Sleep & Rest" },
 ];
 
+const YEARS_BANDS: { id: string; label: string }[] = [
+  { id: "0-2", label: "Just starting (0–2 yrs)" },
+  { id: "3-5", label: "3–5 yrs" },
+  { id: "6-10", label: "6–10 yrs" },
+  { id: "11-20", label: "11–20 yrs" },
+  { id: "20+", label: "20+ yrs" },
+];
+
 function ProviderOnboardingPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
