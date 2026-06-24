@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -81,6 +81,58 @@ function ProviderOnboardingPage() {
   });
   const [rate, setRate] = useState("");
 
+  // Simulated LinkedIn import — in production this comes from the OAuth callback.
+  const [linkedInImported, setLinkedInImported] = useState(false);
+  const [enhancing, setEnhancing] = useState<null | "headline" | "bio">(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Simulate LinkedIn prefill on first mount
+    const t = setTimeout(() => {
+      setFullName((v) => v || "Dr. Jane Doe");
+      setSpecialty((v) => v ?? "psychologist");
+      setHeadline(
+        (v) => v || "Clinical psychologist · Helping adults navigate anxiety and burnout",
+      );
+      setBio(
+        (v) =>
+          v ||
+          "I'm a licensed clinical psychologist with over 8 years of experience supporting adults through anxiety, stress, and life transitions. My approach blends evidence-based therapy with warmth and curiosity.",
+      );
+      setLinkedInImported(true);
+    }, 400);
+    return () => clearTimeout(t);
+  }, []);
+
+  const enhanceField = async (field: "headline" | "bio") => {
+    setEnhancing(field);
+    setAiError(null);
+    try {
+      const res = await fetch("/api/enhance-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          field,
+          current: field === "headline" ? headline : bio,
+          context: {
+            fullName,
+            specialty: specialty ?? undefined,
+            focus: focus ?? undefined,
+          },
+        }),
+      });
+      const data = (await res.json()) as { text?: string; error?: string };
+      if (!res.ok || !data.text) {
+        setAiError(data.error || "Couldn't enhance right now. Try again in a moment.");
+      } else if (field === "headline") setHeadline(data.text);
+      else setBio(data.text);
+    } catch {
+      setAiError("Network hiccup — please try again.");
+    } finally {
+      setEnhancing(null);
+    }
+  };
+
   const canNext =
     step === 0
       ? fullName.trim().length > 1 && specialty !== null
@@ -132,6 +184,28 @@ function ProviderOnboardingPage() {
                 title="Tell us about yourself"
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
+              {linkedInImported && (
+                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-gradient-to-r from-[#F0EAFB] to-[#FBF9FF] p-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] text-white">
+                    <Linkedin className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-[#3D2E6B]">
+                      Imported from LinkedIn
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
+                      We've pre-filled a few fields from your profile. Tap{" "}
+                      <Sparkles className="inline h-3 w-3 -translate-y-px" /> to polish
+                      your headline or bio with AI.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {aiError && (
+                <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3 text-[13px] text-rose-700">
+                  {aiError}
+                </div>
+              )}
               <div className="space-y-8">
                 <TextField
                   label="Full name"
@@ -153,6 +227,13 @@ function ProviderOnboardingPage() {
                   value={headline}
                   onChange={setHeadline}
                   placeholder="Clinical psychologist · Anxiety & burnout"
+                  action={
+                    <AiAssistButton
+                      loading={enhancing === "headline"}
+                      onClick={() => enhanceField("headline")}
+                      label="Enhance"
+                    />
+                  }
                 />
 
                 <TextAreaField
@@ -160,6 +241,13 @@ function ProviderOnboardingPage() {
                   value={bio}
                   onChange={setBio}
                   placeholder="Share a couple of sentences about your approach..."
+                  action={
+                    <AiAssistButton
+                      loading={enhancing === "bio"}
+                      onClick={() => enhanceField("bio")}
+                      label="Make it more appealing"
+                    />
+                  }
                 />
               </div>
             </>
@@ -349,6 +437,7 @@ function TextField({
   placeholder,
   type = "text",
   icon,
+  action,
 }: {
   label: string;
   value: string;
@@ -356,12 +445,16 @@ function TextField({
   placeholder?: string;
   type?: string;
   icon?: React.ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </label>
+      <div className="flex items-center justify-between gap-3">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+          {label}
+        </label>
+        {action}
+      </div>
       <div className="relative">
         {icon && (
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#A89BD0]">
@@ -387,17 +480,22 @@ function TextAreaField({
   value,
   onChange,
   placeholder,
+  action,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  action?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </label>
+      <div className="flex items-center justify-between gap-3">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+          {label}
+        </label>
+        {action}
+      </div>
       <textarea
         rows={3}
         value={value}
@@ -406,6 +504,32 @@ function TextAreaField({
         className="w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
       />
     </div>
+  );
+}
+
+function AiAssistButton({
+  onClick,
+  loading,
+  label,
+}: {
+  onClick: () => void;
+  loading: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5]/80 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] transition-all hover:border-[#7E6BAF] hover:bg-[#3D2E6B] hover:text-white disabled:cursor-wait disabled:opacity-70"
+    >
+      {loading ? (
+        <Loader2 className="h-3 w-3 animate-spin" />
+      ) : (
+        <Sparkles className="h-3 w-3 transition-transform group-hover:scale-110" />
+      )}
+      {loading ? "Polishing…" : label}
+    </button>
   );
 }
 
