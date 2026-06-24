@@ -2,22 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
-  ArrowLeft,
-  Check,
-  Briefcase,
   GraduationCap,
-  UserCircle2,
-  Sparkles,
-  Stethoscope,
-  HeartHandshake,
-  Brain,
-  Users,
-  Flower2,
-  Leaf,
-  Moon,
-  Sun,
-  Heart,
-  Wind,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -48,13 +33,13 @@ type Specialty =
   | "counselor"
   | "other";
 
-const SPECIALTIES: { id: Specialty; label: string; icon: typeof Brain }[] = [
-  { id: "therapist", label: "Therapist", icon: HeartHandshake },
-  { id: "psychologist", label: "Psychologist", icon: Brain },
-  { id: "counselor", label: "Counselor", icon: Users },
-  { id: "psychiatrist", label: "Psychiatrist", icon: Stethoscope },
-  { id: "coach", label: "Wellness coach", icon: Sparkles },
-  { id: "other", label: "Other", icon: UserCircle2 },
+const SPECIALTIES: { id: Specialty; label: string }[] = [
+  { id: "therapist", label: "Therapist" },
+  { id: "psychologist", label: "Psychologist" },
+  { id: "counselor", label: "Counselor" },
+  { id: "psychiatrist", label: "Psychiatrist" },
+  { id: "coach", label: "Wellness coach" },
+  { id: "other", label: "Other" },
 ];
 
 const STEPS = ["Registration", "Profile Customization", "Calendar Integration"] as const;
@@ -70,16 +55,16 @@ type FocusArea =
   | "mindfulness"
   | "sleep";
 
-const FOCUS_AREAS: { id: FocusArea; label: string; icon: typeof Brain }[] = [
-  { id: "anxiety", label: "Anxiety & Panic", icon: Wind },
-  { id: "depression", label: "Depression & Mood", icon: Moon },
-  { id: "trauma", label: "Trauma & PTSD", icon: HeartHandshake },
-  { id: "relationships", label: "Relationships", icon: Heart },
-  { id: "stress", label: "Stress & Burnout", icon: Leaf },
-  { id: "selfesteem", label: "Self-esteem", icon: Sun },
-  { id: "grief", label: "Grief & Loss", icon: Flower2 },
-  { id: "mindfulness", label: "Mindfulness", icon: Brain },
-  { id: "sleep", label: "Sleep & Rest", icon: Users },
+const FOCUS_AREAS: { id: FocusArea; label: string }[] = [
+  { id: "anxiety", label: "Anxiety & Panic" },
+  { id: "depression", label: "Depression & Mood" },
+  { id: "trauma", label: "Trauma & PTSD" },
+  { id: "relationships", label: "Relationships" },
+  { id: "stress", label: "Stress & Burnout" },
+  { id: "selfesteem", label: "Self-esteem" },
+  { id: "grief", label: "Grief & Loss" },
+  { id: "mindfulness", label: "Mindfulness" },
+  { id: "sleep", label: "Sleep & Rest" },
 ];
 
 function ProviderOnboardingPage() {
