@@ -231,7 +231,7 @@ function ProviderOnboardingPage() {
                     <AiAssistButton
                       loading={enhancing === "headline"}
                       onClick={() => enhanceField("headline")}
-                      label="Enhance"
+                      title="Enhance with AI"
                     />
                   }
                 />
@@ -245,7 +245,7 @@ function ProviderOnboardingPage() {
                     <AiAssistButton
                       loading={enhancing === "bio"}
                       onClick={() => enhanceField("bio")}
-                      label="Improve"
+                      title="Improve with AI"
                     />
                   }
                 />
@@ -470,10 +470,10 @@ function TextField({
           onChange={(e) => onChange(e.target.value)}
           className={`w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
-          } ${inputAction ? "pr-32" : ""}`}
+          } ${inputAction ? "pr-14" : ""}`}
         />
         {inputAction && (
-          <span className="absolute right-2 top-1/2 -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2">
             {inputAction}
           </span>
         )}
@@ -512,11 +512,11 @@ function TextAreaField({
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
-            inputAction ? "pb-12" : ""
+            inputAction ? "pr-14" : ""
           }`}
         />
         {inputAction && (
-          <span className="absolute bottom-2.5 right-2.5">{inputAction}</span>
+          <span className="absolute right-3 top-3">{inputAction}</span>
         )}
       </div>
     </div>
@@ -526,25 +526,29 @@ function TextAreaField({
 function AiAssistButton({
   onClick,
   loading,
-  label,
+  title,
 }: {
   onClick: () => void;
   loading: boolean;
-  label: string;
+  title: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white/90 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition-all hover:border-[#7E6BAF] hover:text-[#3D2E6B] disabled:cursor-wait disabled:opacity-70"
+      title={title}
+      aria-label={title}
+      className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#9A88C7] to-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/40 ring-2 ring-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#7E6BAF]/50 active:scale-95 disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <Sparkles className="h-3 w-3 transition-transform group-hover:scale-110" />
+        <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12" fill="currentColor" strokeWidth={1.5} />
       )}
-      {loading ? "Polishing…" : label}
+      <span className="pointer-events-none absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-[#3D2E6B] px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+        {loading ? "Polishing…" : title}
+      </span>
     </button>
   );
 }
