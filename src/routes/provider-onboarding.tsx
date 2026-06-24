@@ -231,7 +231,7 @@ function ProviderOnboardingPage() {
                     <AiAssistButton
                       loading={enhancing === "headline"}
                       onClick={() => enhanceField("headline")}
-                      label="Enhance"
+                      title="Enhance with AI"
                     />
                   }
                 />
@@ -245,7 +245,7 @@ function ProviderOnboardingPage() {
                     <AiAssistButton
                       loading={enhancing === "bio"}
                       onClick={() => enhanceField("bio")}
-                      label="Improve"
+                      title="Improve with AI"
                     />
                   }
                 />
@@ -526,25 +526,29 @@ function TextAreaField({
 function AiAssistButton({
   onClick,
   loading,
-  label,
+  title,
 }: {
   onClick: () => void;
   loading: boolean;
-  label: string;
+  title: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white/90 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition-all hover:border-[#7E6BAF] hover:text-[#3D2E6B] disabled:cursor-wait disabled:opacity-70"
+      title={title}
+      aria-label={title}
+      className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#9A88C7] to-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/40 ring-2 ring-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#7E6BAF]/50 active:scale-95 disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <Sparkles className="h-3 w-3 transition-transform group-hover:scale-110" />
+        <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12" fill="currentColor" strokeWidth={1.5} />
       )}
-      {loading ? "Polishing…" : label}
+      <span className="pointer-events-none absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-[#3D2E6B] px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+        {loading ? "Polishing…" : title}
+      </span>
     </button>
   );
 }
