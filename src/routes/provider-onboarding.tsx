@@ -185,18 +185,16 @@ function ProviderOnboardingPage() {
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
               {linkedInImported && (
-                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-white/70 p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E3DBF5] bg-white text-[#0A66C2]">
+                <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0A66C2] text-white">
                     <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-[#7E6BAF]">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-medium text-[#3D2E6B]">
                       Imported from LinkedIn
                     </p>
-                    <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
-                      We've pre-filled a few fields from your profile. Tap{" "}
-                      <Sparkles className="inline h-3 w-3 -translate-y-px" /> to polish
-                      your headline or bio with AI.
+                    <p className="text-[12px] text-[#A89BD0]">
+                      Tap the sparkle to refine any field with AI.
                     </p>
                   </div>
                 </div>
@@ -245,7 +243,7 @@ function ProviderOnboardingPage() {
                     <AiAssistButton
                       loading={enhancing === "bio"}
                       onClick={() => enhanceField("bio")}
-                      title="Improve with AI"
+                      title="Enhance with AI"
                     />
                   }
                 />
