@@ -584,3 +584,213 @@ function Toggle({
     </button>
   );
 }
+
+const TONE_PRESETS = [
+  { id: "warmer", label: "Warmer", hint: "Softer, more personal" },
+  { id: "concise", label: "More concise", hint: "Tighter and clearer" },
+  { id: "professional", label: "More professional", hint: "Polished and credible" },
+  { id: "specific", label: "More specific", hint: "Sharper details" },
+  { id: "inviting", label: "More inviting", hint: "Welcoming first impression" },
+];
+
+function EnhanceModal({
+  field,
+  current,
+  onClose,
+  onApply,
+  generate,
+}: {
+  field: "headline" | "bio";
+  current: string;
+  onClose: () => void;
+  onApply: (text: string) => void;
+  generate: (tone?: string, instruction?: string) => Promise<string>;
+}) {
+  const [tone, setTone] = useState<string | null>("warmer");
+  const [instruction, setInstruction] = useState("");
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const run = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const preset = TONE_PRESETS.find((t) => t.id === tone);
+      const text = await generate(preset?.label.toLowerCase(), instruction);
+      setSuggestion(text);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't enhance right now.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const label = field === "headline" ? "headline" : "short bio";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-[#3D2E6B]/40 backdrop-blur-sm"
+      />
+      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl shadow-[#3D2E6B]/25">
+        <div className="flex items-start justify-between gap-4 border-b border-[#E3DBF5]/70 bg-white/80 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#9A88C7] to-[#7E6BAF] text-white">
+              <Sparkles className="h-4 w-4" fill="currentColor" strokeWidth={1.5} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[#3D2E6B]">
+                Enhance your {label} with AI
+              </p>
+              <p className="text-[12px] text-[#A89BD0]">
+                Pick a direction or add your own instruction.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-1.5 text-[#A89BD0] transition hover:bg-[#F0EAFB] hover:text-[#7E6BAF]"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-5 px-6 py-5">
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Your current {label}
+            </p>
+            <p className="max-h-28 overflow-auto rounded-lg border border-[#E3DBF5]/70 bg-white/70 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+              {current?.trim() ? current : <span className="italic text-[#A89BD0]">No draft yet — AI will write one from scratch.</span>}
+            </p>
+          </div>
+
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Tone
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {TONE_PRESETS.map((t) => {
+                const active = tone === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTone(active ? null : t.id)}
+                    title={t.hint}
+                    className={`rounded-full border px-3 py-1.5 text-[12px] font-medium transition-all ${
+                      active
+                        ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                        : "border-[#E3DBF5] bg-white/80 text-[#7E6BAF] hover:border-[#A89BD0]"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+              Anything else? <span className="font-normal normal-case text-[#A89BD0]">(optional)</span>
+            </p>
+            <textarea
+              rows={2}
+              value={instruction}
+              onChange={(e) => setInstruction(e.target.value)}
+              placeholder="e.g. mention I work with new parents, or keep it under two sentences"
+              className="w-full resize-none rounded-lg border border-[#E3DBF5]/70 bg-white/70 px-3.5 py-2.5 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+            />
+          </div>
+
+          {suggestion && (
+            <div className="rounded-xl border border-[#7E6BAF]/40 bg-gradient-to-br from-white to-[#F0EAFB] p-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                <Sparkles className="h-3 w-3" fill="currentColor" strokeWidth={1.5} />
+                AI suggestion
+              </div>
+              <p className="text-[14px] leading-relaxed text-[#3D2E6B]">{suggestion}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-rose-200 bg-rose-50/80 px-3.5 py-2.5 text-[12px] text-rose-700">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-[#E3DBF5]/70 bg-white/60 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[13px] font-medium text-[#A89BD0] transition hover:text-[#7E6BAF]"
+          >
+            Cancel
+          </button>
+          <div className="flex items-center gap-2">
+            {suggestion ? (
+              <>
+                <button
+                  type="button"
+                  onClick={run}
+                  disabled={loading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E3DBF5] bg-white px-3.5 py-2 text-[13px] font-medium text-[#7E6BAF] transition hover:border-[#7E6BAF] disabled:opacity-50"
+                >
+                  {loading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  Try again
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onApply(suggestion)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-4 py-2 text-[13px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7]"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  Use this
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={run}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-4 py-2 text-[13px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Generating…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" fill="currentColor" strokeWidth={1.5} />
+                    Generate suggestion
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
