@@ -287,29 +287,110 @@ function ProviderOnboardingPage() {
                 subtitle="This helps us match you with clients whose needs align with your care."
               />
               <div className="space-y-8">
-                <Field label="Primary focus area">
-                  <PillGrid
+                <Field
+                  label="Focus areas"
+                  hint="Select all that apply — we use this to match you with the right clients."
+                >
+                  <PillGridMulti
                     options={FOCUS_AREAS}
-                    value={focus}
-                    onChange={(v) => setFocus(v as FocusArea)}
+                    value={focusAreas}
+                    onChange={setFocusAreas}
                   />
                 </Field>
 
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <TextField
-                    label="Years of experience"
-                    value={yearsExp}
-                    onChange={setYearsExp}
-                    placeholder="e.g. 6"
-                    type="number"
-                  />
-                  <TextField
-                    label="License / credentials"
-                    value={credentials}
-                    onChange={setCredentials}
-                    placeholder="LMFT #12345"
-                    icon={<GraduationCap className="h-4 w-4" />}
-                  />
+                <Field
+                  label="Years of experience"
+                  hint="A rough range is enough — clients see this as context, not a credential."
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {YEARS_BANDS.map((b) => {
+                      const active = yearsBand === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setYearsBand(active ? null : b.id)}
+                          className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-all ${
+                            active
+                              ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm shadow-[#7E6BAF]/25"
+                              : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                          }`}
+                        >
+                          {b.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Field>
+
+                <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white/60 p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F4EEFB]">
+                      <ShieldCheck className="h-4 w-4 text-[#7E6BAF]" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <p className="text-[14px] font-semibold text-[#3D2E6B]">
+                          Verify your license
+                        </p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4EEFB] px-2 py-0.5 text-[10px] font-medium text-[#7E6BAF]">
+                          <Lock className="h-2.5 w-2.5" /> Private · optional
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                        You don't need to share your license number to set up your profile.
+                        When you're ready, our verification team handles it through a secure
+                        channel — never on a public form. Your number is never shown on your
+                        profile.
+                      </p>
+
+                      <div className="mt-4 space-y-2">
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E3DBF5] bg-white p-3 transition hover:border-[#A89BD0]">
+                          <input
+                            type="radio"
+                            name="verify"
+                            checked={verifyLater}
+                            onChange={() => setVerifyLater(true)}
+                            className="mt-0.5 h-4 w-4 accent-[#7E6BAF]"
+                          />
+                          <span className="flex-1">
+                            <span className="block text-[13px] font-medium text-[#3D2E6B]">
+                              Verify later
+                            </span>
+                            <span className="block text-[12px] text-[#7E6BAF]">
+                              Finish setup now. We'll email you a secure link when you're ready.
+                            </span>
+                          </span>
+                        </label>
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E3DBF5] bg-white p-3 transition hover:border-[#A89BD0]">
+                          <input
+                            type="radio"
+                            name="verify"
+                            checked={!verifyLater}
+                            onChange={() => setVerifyLater(false)}
+                            className="mt-0.5 h-4 w-4 accent-[#7E6BAF]"
+                          />
+                          <span className="flex-1">
+                            <span className="block text-[13px] font-medium text-[#3D2E6B]">
+                              Share now (encrypted)
+                            </span>
+                            <span className="block text-[12px] text-[#7E6BAF]">
+                              Add your license type & number. Stored encrypted, used only for verification.
+                            </span>
+                            {!verifyLater && (
+                              <input
+                                type="text"
+                                value={credentials}
+                                onChange={(e) => setCredentials(e.target.value)}
+                                placeholder="e.g. LMFT #12345"
+                                className="mt-2.5 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/15"
+                              />
+                            )}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </>
