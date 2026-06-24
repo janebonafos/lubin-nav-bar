@@ -4,7 +4,7 @@ type EnhanceField = "headline" | "bio";
 
 const PROMPTS: Record<EnhanceField, string> = {
   headline:
-    "You write concise, warm professional headlines for mental health providers on a wellness platform. Return a single headline of 60-90 characters, no quotes, no emojis, no trailing punctuation. Use a middle dot (·) to separate role and focus when natural.",
+    "You write concise, warm professional headlines for mental health providers on a wellness platform. Return a single natural-sounding headline of 60-100 characters as one short phrase or sentence. No quotes, no emojis, no trailing punctuation, no separator characters (do not use middle dots ·, pipes |, slashes /, or em dashes — to join clauses). Prefer flowing wording like 'Clinical psychologist helping adults navigate anxiety and burnout'.",
   bio:
     "You write short, warm provider bios (2-3 sentences, 280-380 characters) for a mental health platform. Plain prose, no headings, no emojis, no quotes, first person. Convey approach, warmth, and who they help — never invent credentials or numbers.",
 };
