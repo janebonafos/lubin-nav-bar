@@ -335,11 +335,12 @@ function ProviderOnboardingPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-semibold text-[#3D2E6B]">
-                      License verification comes later
+                      Add a verified badge later (optional)
                     </p>
                     <p className="mt-0.5 text-[12px] leading-relaxed text-[#7E6BAF]">
-                      We'll email you a secure link from your dashboard when you're ready —
-                      no need to share your license number on a public form today.
+                      Whether you're a licensed clinician, coach, or peer practitioner —
+                      you can join Lubin today. If you'd like a verified badge on your
+                      profile, you can submit credentials anytime from your dashboard.
                     </p>
                   </div>
                 </div>
