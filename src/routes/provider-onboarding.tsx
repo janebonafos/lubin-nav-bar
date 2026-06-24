@@ -12,6 +12,12 @@ import {
   HeartHandshake,
   Brain,
   Users,
+  Flower2,
+  Leaf,
+  Moon,
+  Sun,
+  Heart,
+  Wind,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -51,7 +57,30 @@ const SPECIALTIES: { id: Specialty; label: string; icon: typeof Brain }[] = [
   { id: "other", label: "Other", icon: UserCircle2 },
 ];
 
-const STEPS = ["About you", "Practice", "Availability"] as const;
+const STEPS = ["Registration", "Profile Customization", "Calendar Integration"] as const;
+
+type FocusArea =
+  | "anxiety"
+  | "depression"
+  | "trauma"
+  | "relationships"
+  | "stress"
+  | "selfesteem"
+  | "grief"
+  | "mindfulness"
+  | "sleep";
+
+const FOCUS_AREAS: { id: FocusArea; label: string; icon: typeof Brain }[] = [
+  { id: "anxiety", label: "Anxiety & Panic", icon: Wind },
+  { id: "depression", label: "Depression & Mood", icon: Moon },
+  { id: "trauma", label: "Trauma & PTSD", icon: HeartHandshake },
+  { id: "relationships", label: "Relationships", icon: Heart },
+  { id: "stress", label: "Stress & Burnout", icon: Leaf },
+  { id: "selfesteem", label: "Self-esteem", icon: Sun },
+  { id: "grief", label: "Grief & Loss", icon: Flower2 },
+  { id: "mindfulness", label: "Mindfulness", icon: Brain },
+  { id: "sleep", label: "Sleep & Rest", icon: Users },
+];
 
 function ProviderOnboardingPage() {
   const navigate = useNavigate();
@@ -61,6 +90,7 @@ function ProviderOnboardingPage() {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
+  const [focus, setFocus] = useState<FocusArea | null>(null);
   const [yearsExp, setYearsExp] = useState("");
   const [credentials, setCredentials] = useState("");
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
@@ -73,7 +103,7 @@ function ProviderOnboardingPage() {
     step === 0
       ? fullName.trim().length > 1
       : step === 1
-      ? specialty !== null && credentials.trim().length > 0
+      ? specialty !== null && focus !== null && credentials.trim().length > 0
       : (sessionTypes.video || sessionTypes.inPerson) && rate.trim().length > 0;
 
   const handleNext = () => {
@@ -91,42 +121,43 @@ function ProviderOnboardingPage() {
 
       <Navbar />
 
-      <main className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-12 px-4 pb-24 pt-28 sm:px-6">
-        <header className="space-y-4 text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A89BD0]/30 bg-white/50 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7E6BAF]">
-            <Sparkles className="h-3 w-3" /> Provider onboarding
-          </span>
-          <h1 className="text-4xl font-bold tracking-tight text-[#3D2E6B] md:text-5xl">
-            Welcome to <span className="text-[#7E6BAF]">Lubin</span>
-          </h1>
-          <p className="mx-auto max-w-md text-lg font-light leading-relaxed text-[#7E6BAF]">
-            A few quiet steps to set up your provider profile so the right clients can find you.
-          </p>
-        </header>
-
-        {/* Stepper */}
-        <ol className="relative flex w-full max-w-sm items-center justify-between">
-          <span className="pointer-events-none absolute left-0 right-0 top-5 -z-0 h-px bg-[#A89BD0]/30" />
+      <main className="relative z-10 mx-auto flex max-w-3xl flex-col gap-12 px-4 pb-24 pt-24 sm:px-6">
+        {/* Top horizontal stepper with connecting line */}
+        <ol className="relative mx-auto flex w-full max-w-2xl items-start justify-between">
           {STEPS.map((label, i) => {
-            const reached = i <= step;
             const done = i < step;
             const active = i === step;
+            const reached = i <= step;
+            const isLast = i === STEPS.length - 1;
             return (
-              <li key={label} className="relative z-10 flex flex-col items-center gap-3">
+              <li key={label} className="relative flex flex-1 flex-col items-center">
+                {!isLast && (
+                  <span
+                    className={`pointer-events-none absolute left-1/2 top-5 h-px w-full ${
+                      i < step ? "bg-[#7E6BAF]" : "bg-[#A89BD0]/30"
+                    }`}
+                  />
+                )}
                 <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
-                    active
-                      ? "bg-[#3D2E6B] font-semibold text-white shadow-xl shadow-[#3D2E6B]/20"
-                      : done
-                      ? "bg-[#7E6BAF] font-semibold text-white shadow-md shadow-[#A89BD0]/40"
-                      : "border border-[#A89BD0]/30 bg-white font-medium text-[#A89BD0]"
+                  className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
+                    done
+                      ? "bg-[#7E6BAF] font-semibold text-white"
+                      : active
+                      ? "border-2 border-[#7E6BAF] bg-white font-semibold text-[#3D2E6B]"
+                      : "border border-[#A89BD0]/40 bg-white font-medium text-[#A89BD0]"
                   }`}
                 >
-                  {done ? <Check className="h-4 w-4" /> : i + 1}
+                  {done ? (
+                    <Check className="h-4 w-4" strokeWidth={2.5} />
+                  ) : active ? (
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#7E6BAF]" />
+                  ) : (
+                    i + 1
+                  )}
                 </span>
                 <span
-                  className={`text-[10px] uppercase tracking-[0.2em] ${
-                    reached ? "font-bold text-[#3D2E6B]" : "font-medium text-[#A89BD0]"
+                  className={`mt-3 text-center text-[13px] ${
+                    reached ? "font-semibold text-[#3D2E6B]" : "font-medium text-[#A89BD0]"
                   }`}
                 >
                   {label}
@@ -136,10 +167,23 @@ function ProviderOnboardingPage() {
           })}
         </ol>
 
-        <section className="w-full rounded-[48px] border border-white/80 bg-white/70 p-8 shadow-[0_40px_80px_-20px_rgba(61,46,107,0.08)] backdrop-blur-2xl md:p-14">
+        {/* Back arrow */}
+        <button
+          type="button"
+          onClick={() => (step === 0 ? navigate({ to: "/" }) : setStep(step - 1))}
+          className="group -mt-4 inline-flex w-fit items-center gap-2 text-sm font-medium text-[#3D2E6B] transition hover:text-[#7E6BAF]"
+        >
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+          Back
+        </button>
+
+        <section className="w-full">
           {step === 0 && (
-            <div className="space-y-7">
-              <StepHeader icon={UserCircle2} title="Tell us about yourself" />
+            <div className="space-y-8">
+              <PageHeader
+                title="Tell us about yourself"
+                subtitle="A gentle introduction helps clients feel safe before they ever book a session."
+              />
               <TextField
                 label="Full name"
                 value={fullName}
@@ -162,13 +206,16 @@ function ProviderOnboardingPage() {
           )}
 
           {step === 1 && (
-            <div className="space-y-7">
-              <StepHeader icon={Briefcase} title="Your practice" />
+            <div className="space-y-10">
+              <PageHeader
+                title="Tell Us About Your Practice"
+                subtitle="This helps us match you with the clients whose needs align with your care."
+              />
               <div>
-                <p className="mb-3 ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
-                  Primary specialty
+                <p className="mb-5 text-[15px] font-semibold text-[#3D2E6B]">
+                  Select your specialty
                 </p>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {SPECIALTIES.map((s) => {
                     const Icon = s.icon;
                     const active = specialty === s.id;
@@ -177,18 +224,19 @@ function ProviderOnboardingPage() {
                         key={s.id}
                         type="button"
                         onClick={() => setSpecialty(s.id)}
-                        className={`flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
+                        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border p-6 text-center transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
                           active
-                            ? "border-[#7E6BAF] bg-gradient-to-br from-[#F3F0FF] to-white shadow-md shadow-[#A89BD0]/30"
+                            ? "border-[#7E6BAF] bg-[#EFE9FB] shadow-md shadow-[#A89BD0]/30"
                             : "border-[#EEE9F8] bg-white/70 hover:border-[#C9BEE5]"
                         }`}
                       >
                         <Icon
-                          className={`h-5 w-5 ${
+                          className={`h-6 w-6 ${
                             active ? "text-[#7E6BAF]" : "text-[#A89BD0]"
                           }`}
+                          strokeWidth={1.75}
                         />
-                        <span className="text-[13px] font-semibold text-[#3D2E6B]">
+                        <span className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
                           {s.label}
                         </span>
                       </button>
@@ -196,6 +244,41 @@ function ProviderOnboardingPage() {
                   })}
                 </div>
               </div>
+
+              <div>
+                <p className="mb-5 text-[15px] font-semibold text-[#3D2E6B]">
+                  Select your primary focus area
+                </p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {FOCUS_AREAS.map((f) => {
+                    const Icon = f.icon;
+                    const active = focus === f.id;
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setFocus(f.id)}
+                        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border p-6 text-center transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
+                          active
+                            ? "border-[#7E6BAF] bg-[#EFE9FB] shadow-md shadow-[#A89BD0]/30"
+                            : "border-[#EEE9F8] bg-white/70 hover:border-[#C9BEE5]"
+                        }`}
+                      >
+                        <Icon
+                          className={`h-6 w-6 ${
+                            active ? "text-[#7E6BAF]" : "text-[#A89BD0]"
+                          }`}
+                          strokeWidth={1.75}
+                        />
+                        <span className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
+                          {f.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid gap-5 sm:grid-cols-2">
                 <TextField
                   label="Years of experience"
@@ -216,10 +299,13 @@ function ProviderOnboardingPage() {
           )}
 
           {step === 2 && (
-            <div className="space-y-7">
-              <StepHeader icon={Sparkles} title="Availability & rate" />
+            <div className="space-y-8">
+              <PageHeader
+                title="Set Your Availability"
+                subtitle="Choose how you'd like to meet clients and the rate that supports your practice."
+              />
               <div>
-                <p className="mb-3 ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
+                <p className="mb-5 text-[15px] font-semibold text-[#3D2E6B]">
                   Session types
                 </p>
                 <div className="grid gap-2.5 sm:grid-cols-2">
@@ -252,50 +338,39 @@ function ProviderOnboardingPage() {
             </div>
           )}
 
-          <div className="mt-10 flex items-center justify-between gap-3 border-t border-[#EEE9F8] pt-6">
+          <div className="mt-12 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => (step === 0 ? navigate({ to: "/" }) : setStep(step - 1))}
-              className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-[#A89BD0] transition hover:text-[#3D2E6B]"
+              className="rounded-2xl border border-[#A89BD0]/40 bg-white px-10 py-3 text-sm font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF] hover:bg-[#F4EFFB]"
             >
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
               {step === 0 ? "Cancel" : "Back"}
             </button>
             <button
               type="button"
               onClick={handleNext}
               disabled={!canNext}
-              className="group inline-flex items-center gap-2 rounded-2xl bg-[#7E6BAF] px-8 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-8px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="group inline-flex items-center gap-2 rounded-2xl bg-[#7E6BAF] px-10 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-8px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
         </section>
-
-        <p className="text-center text-[13px] font-light italic tracking-tight text-[#A89BD0]">
-          You can update these details anytime from your dashboard.
-        </p>
       </main>
     </div>
   );
 }
 
-function StepHeader({
-  icon: Icon,
-  title,
-}: {
-  icon: typeof Brain;
-  title: string;
-}) {
+function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="flex items-center gap-4 border-b border-[#F4EFFB] pb-6">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F4EFFB] text-[#7E6BAF] shadow-inner">
-        <Icon className="h-6 w-6" strokeWidth={1.5} />
-      </div>
-      <h2 className="text-2xl font-semibold tracking-tight text-[#3D2E6B]">
+    <div className="space-y-3">
+      <h1 className="text-3xl font-bold tracking-tight text-[#3D2E6B] md:text-4xl">
         {title}
-      </h2>
+      </h1>
+      <p className="max-w-xl text-[15px] leading-relaxed text-[#7E6BAF]">
+        {subtitle}
+      </p>
     </div>
   );
 }
