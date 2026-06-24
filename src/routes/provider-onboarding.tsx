@@ -97,12 +97,8 @@ function ProviderOnboardingPage() {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A89BD0]/30 bg-white/60 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF] shadow-sm backdrop-blur">
             <Sparkles className="h-3 w-3" /> Provider onboarding
           </span>
-          <h1
-            className="mt-5 text-5xl tracking-tight text-[#3D2E6B] sm:text-6xl"
-            style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600 }}
-          >
-            Welcome to{" "}
-            <span className="italic text-[#7E6BAF]">Lubin</span>
+          <h1 className="mt-5 text-5xl font-bold tracking-tight text-[#3D2E6B] sm:text-6xl">
+            Welcome to <span className="text-[#7E6BAF]">Lubin</span>
           </h1>
           <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#7E6BAF]/80">
             A few quiet steps to set up your provider profile so the right clients can find you.
@@ -298,10 +294,7 @@ function StepHeader({
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F4EFFB] text-[#7E6BAF] shadow-inner">
         <Icon className="h-6 w-6" strokeWidth={1.5} />
       </div>
-      <h2
-        className="text-2xl tracking-tight text-[#3D2E6B]"
-        style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600 }}
-      >
+      <h2 className="text-2xl font-semibold tracking-tight text-[#3D2E6B]">
         {title}
       </h2>
     </div>
