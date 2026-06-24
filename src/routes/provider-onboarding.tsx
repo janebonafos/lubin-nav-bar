@@ -331,7 +331,7 @@ function TextField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full rounded-2xl border border-[#A89BD0]/20 bg-white/80 px-5 py-3.5 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-4 focus:ring-[#7E6BAF]/10 ${
+          className={`w-full rounded-2xl border border-[#A89BD0]/20 bg-white/50 px-6 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
           }`}
         />
@@ -361,7 +361,7 @@ function TextAreaField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2.5 w-full resize-none rounded-2xl border border-[#A89BD0]/20 bg-white/80 px-5 py-3.5 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-4 focus:ring-[#7E6BAF]/10"
+        className="mt-2.5 w-full resize-none rounded-2xl border border-[#A89BD0]/20 bg-white/50 px-6 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-2 focus:ring-[#7E6BAF]/20"
       />
     </div>
   );
