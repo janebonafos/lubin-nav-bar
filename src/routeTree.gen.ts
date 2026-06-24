@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
@@ -39,6 +40,11 @@ const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderOnboardingRoute = ProviderOnboardingRouteImport.update({
+  id: '/provider-onboarding',
+  path: '/provider-onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/privacy'
     | '/profile'
+    | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
     | '/terms'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/privacy'
     | '/profile'
+    | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
     | '/terms'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/privacy'
     | '/profile'
+    | '/provider-onboarding'
     | '/resources'
     | '/self-discovery'
     | '/terms'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   MyHealthPassportRoute: typeof MyHealthPassportRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  ProviderOnboardingRoute: typeof ProviderOnboardingRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   TermsRoute: typeof TermsRoute
@@ -259,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider-onboarding': {
+      id: '/provider-onboarding'
+      path: '/provider-onboarding'
+      fullPath: '/provider-onboarding'
+      preLoaderRoute: typeof ProviderOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyHealthPassportRoute: MyHealthPassportRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  ProviderOnboardingRoute: ProviderOnboardingRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   TermsRoute: TermsRoute,
