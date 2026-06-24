@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Lock } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -82,8 +82,6 @@ function ProviderOnboardingPage() {
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
   const [yearsBand, setYearsBand] = useState<string | null>(null);
-  const [verifyLater, setVerifyLater] = useState(true);
-  const [credentials, setCredentials] = useState("");
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
     video: true,
     inPerson: false,
