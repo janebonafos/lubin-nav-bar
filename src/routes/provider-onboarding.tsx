@@ -212,31 +212,69 @@ function ProviderOnboardingPage() {
                   />
                 </Field>
 
-                <TextField
-                  label="Professional headline"
-                  value={headline}
-                  onChange={setHeadline}
-                  placeholder="Clinical psychologist · Anxiety & burnout"
-                  inputAction={
-                    <AiAssistButton
-                      onClick={() => setEnhanceOpen("headline")}
-                      title="Enhance with AI"
+                <div className="space-y-2.5">
+                  <TextField
+                    label="Professional headline"
+                    value={headline}
+                    onChange={setHeadline}
+                    placeholder="Clinical psychologist · Anxiety & burnout"
+                    inputAction={
+                      <AiAssistButton
+                        onClick={() =>
+                          setEnhanceOpen(enhanceOpen === "headline" ? null : "headline")
+                        }
+                        active={enhanceOpen === "headline"}
+                        title="Enhance with AI"
+                      />
+                    }
+                  />
+                  {enhanceOpen === "headline" && (
+                    <InlineEnhancePanel
+                      field="headline"
+                      current={headline}
+                      onClose={() => setEnhanceOpen(null)}
+                      onApply={(text) => {
+                        setHeadline(text);
+                        setEnhanceOpen(null);
+                      }}
+                      generate={(tone, instruction) =>
+                        requestEnhancement({ field: "headline", tone, instruction })
+                      }
                     />
-                  }
-                />
+                  )}
+                </div>
 
-                <TextAreaField
-                  label="Short bio"
-                  value={bio}
-                  onChange={setBio}
-                  placeholder="Share a couple of sentences about your approach..."
-                  inputAction={
-                    <AiAssistButton
-                      onClick={() => setEnhanceOpen("bio")}
-                      title="Enhance with AI"
+                <div className="space-y-2.5">
+                  <TextAreaField
+                    label="Short bio"
+                    value={bio}
+                    onChange={setBio}
+                    placeholder="Share a couple of sentences about your approach..."
+                    inputAction={
+                      <AiAssistButton
+                        onClick={() =>
+                          setEnhanceOpen(enhanceOpen === "bio" ? null : "bio")
+                        }
+                        active={enhanceOpen === "bio"}
+                        title="Enhance with AI"
+                      />
+                    }
+                  />
+                  {enhanceOpen === "bio" && (
+                    <InlineEnhancePanel
+                      field="bio"
+                      current={bio}
+                      onClose={() => setEnhanceOpen(null)}
+                      onApply={(text) => {
+                        setBio(text);
+                        setEnhanceOpen(null);
+                      }}
+                      generate={(tone, instruction) =>
+                        requestEnhancement({ field: "bio", tone, instruction })
+                      }
                     />
-                  }
-                />
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -341,21 +379,6 @@ function ProviderOnboardingPage() {
           </div>
         </div>
       </main>
-      {enhanceOpen && (
-        <EnhanceModal
-          field={enhanceOpen}
-          current={enhanceOpen === "headline" ? headline : bio}
-          onClose={() => setEnhanceOpen(null)}
-          onApply={(text) => {
-            if (enhanceOpen === "headline") setHeadline(text);
-            else setBio(text);
-            setEnhanceOpen(null);
-          }}
-          generate={(tone, instruction) =>
-            requestEnhancement({ field: enhanceOpen, tone, instruction })
-          }
-        />
-      )}
     </div>
   );
 }
