@@ -86,58 +86,57 @@ function ProviderOnboardingPage() {
       className="relative min-h-screen overflow-hidden bg-[#F4EFFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <div className="pointer-events-none fixed -top-[15%] -left-[10%] -z-0 h-[520px] w-[520px] rounded-full bg-[#A89BD0]/25 blur-[140px]" />
-      <div className="pointer-events-none fixed -bottom-[15%] -right-[10%] -z-0 h-[560px] w-[560px] rounded-full bg-[#7E6BAF]/20 blur-[140px]" />
-      <div className="pointer-events-none fixed top-1/3 left-1/2 -z-0 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[#E8DFFB]/40 blur-[120px]" />
+      <div className="pointer-events-none fixed -top-[10%] -left-[10%] -z-0 h-[40vw] w-[40vw] rounded-full bg-[#A89BD0]/10 blur-[120px]" />
+      <div className="pointer-events-none fixed -bottom-[10%] -right-[10%] -z-0 h-[40vw] w-[40vw] rounded-full bg-[#7E6BAF]/10 blur-[120px]" />
 
       <Navbar />
 
-      <main className="relative z-10 mx-auto max-w-2xl px-4 pb-24 pt-28 sm:px-6">
-        <header className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A89BD0]/30 bg-white/60 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF] shadow-sm backdrop-blur">
+      <main className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-12 px-4 pb-24 pt-28 sm:px-6">
+        <header className="space-y-4 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A89BD0]/30 bg-white/50 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7E6BAF]">
             <Sparkles className="h-3 w-3" /> Provider onboarding
           </span>
-          <h1 className="mt-5 text-5xl font-bold tracking-tight text-[#3D2E6B] sm:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight text-[#3D2E6B] md:text-5xl">
             Welcome to <span className="text-[#7E6BAF]">Lubin</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#7E6BAF]/80">
+          <p className="mx-auto max-w-md text-lg font-light leading-relaxed text-[#7E6BAF]">
             A few quiet steps to set up your provider profile so the right clients can find you.
           </p>
         </header>
 
         {/* Stepper */}
-        <ol className="relative mx-auto mt-10 flex max-w-md items-start justify-between">
-          <span className="pointer-events-none absolute left-5 right-5 top-[18px] -z-0 h-px bg-gradient-to-r from-transparent via-[#A89BD0]/40 to-transparent" />
+        <ol className="relative flex w-full max-w-sm items-center justify-between">
+          <span className="pointer-events-none absolute left-0 right-0 top-5 -z-0 h-px bg-[#A89BD0]/30" />
           {STEPS.map((label, i) => {
             const reached = i <= step;
             const done = i < step;
             const active = i === step;
             return (
-              <li key={label} className="relative flex flex-col items-center gap-2.5">
-                  <span
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold ring-4 ring-[#F4EFFB] transition ${
-                      active
-                        ? "bg-[#3D2E6B] text-white shadow-lg shadow-[#3D2E6B]/25"
-                        : done
-                        ? "bg-[#7E6BAF] text-white shadow-md shadow-[#A89BD0]/40"
-                        : "border border-[#A89BD0]/40 bg-white text-[#A89BD0]"
-                    }`}
-                  >
-                    {done ? <Check className="h-4 w-4" /> : i + 1}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold uppercase tracking-[0.18em] ${
-                      reached ? "text-[#3D2E6B]" : "text-[#A89BD0]/70"
-                    }`}
-                  >
-                    {label}
-                  </span>
+              <li key={label} className="relative z-10 flex flex-col items-center gap-3">
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm transition ${
+                    active
+                      ? "bg-[#3D2E6B] font-semibold text-white shadow-xl shadow-[#3D2E6B]/20"
+                      : done
+                      ? "bg-[#7E6BAF] font-semibold text-white shadow-md shadow-[#A89BD0]/40"
+                      : "border border-[#A89BD0]/30 bg-white font-medium text-[#A89BD0]"
+                  }`}
+                >
+                  {done ? <Check className="h-4 w-4" /> : i + 1}
+                </span>
+                <span
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    reached ? "font-bold text-[#3D2E6B]" : "font-medium text-[#A89BD0]"
+                  }`}
+                >
+                  {label}
+                </span>
               </li>
             );
           })}
         </ol>
 
-        <section className="mt-10 rounded-[2.5rem] border border-white/50 bg-white/70 p-8 shadow-[0_32px_64px_-24px_rgba(61,46,107,0.18)] backdrop-blur-2xl sm:p-12">
+        <section className="w-full rounded-[48px] border border-white/80 bg-white/70 p-8 shadow-[0_40px_80px_-20px_rgba(61,46,107,0.08)] backdrop-blur-2xl md:p-14">
           {step === 0 && (
             <div className="space-y-7">
               <StepHeader icon={UserCircle2} title="Tell us about yourself" />
@@ -274,7 +273,7 @@ function ProviderOnboardingPage() {
           </div>
         </section>
 
-        <p className="mt-8 text-center text-[12px] italic text-[#A89BD0]">
+        <p className="text-center text-[13px] font-light italic tracking-tight text-[#A89BD0]">
           You can update these details anytime from your dashboard.
         </p>
       </main>
