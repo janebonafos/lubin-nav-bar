@@ -539,7 +539,7 @@ function AiAssistButton({
       disabled={loading}
       title={title}
       aria-label={title}
-      className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#9A88C7] to-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/40 ring-2 ring-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#7E6BAF]/50 active:scale-95 disabled:cursor-wait disabled:opacity-70"
+      className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95 disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
