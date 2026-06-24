@@ -486,17 +486,72 @@ function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
 
 function Field({
   label,
+  hint,
   children,
 }: {
   label: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-3">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </label>
+      <div className="space-y-1">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+          {label}
+        </label>
+        {hint && <p className="text-[12px] text-[#A89BD0]">{hint}</p>}
+      </div>
       {children}
+    </div>
+  );
+}
+
+function PillGridMulti<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { id: T; label: string }[];
+  value: T[];
+  onChange: (v: T[]) => void;
+}) {
+  const toggle = (id: T) => {
+    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
+  };
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+      {options.map((o) => {
+        const active = value.includes(o.id);
+        return (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => toggle(o.id)}
+            className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
+              active
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
+            }`}
+          >
+            <span
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                active
+                  ? "border-white bg-white text-[#7E6BAF]"
+                  : "border-[#D6CCEB] bg-white group-hover:border-[#A89BD0]"
+              }`}
+            >
+              {active && <Check className="h-3 w-3" strokeWidth={3} />}
+            </span>
+            <span
+              className={`truncate text-sm font-medium ${
+                active ? "text-white" : "text-[#3D2E6B]"
+              }`}
+            >
+              {o.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
