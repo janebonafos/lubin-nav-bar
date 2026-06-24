@@ -185,12 +185,12 @@ function ProviderOnboardingPage() {
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
               {linkedInImported && (
-                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-gradient-to-r from-[#F0EAFB] to-[#FBF9FF] p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0A66C2] text-white shadow-sm shadow-[#0A66C2]/30">
-                    <Linkedin className="h-4 w-4" />
+                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-white/70 p-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E3DBF5] bg-white text-[#0A66C2]">
+                    <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-[#3D2E6B]">
+                    <p className="text-sm font-semibold text-[#7E6BAF]">
                       Imported from LinkedIn
                     </p>
                     <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
@@ -227,7 +227,7 @@ function ProviderOnboardingPage() {
                   value={headline}
                   onChange={setHeadline}
                   placeholder="Clinical psychologist · Anxiety & burnout"
-                  action={
+                  inputAction={
                     <AiAssistButton
                       loading={enhancing === "headline"}
                       onClick={() => enhanceField("headline")}
@@ -241,11 +241,11 @@ function ProviderOnboardingPage() {
                   value={bio}
                   onChange={setBio}
                   placeholder="Share a couple of sentences about your approach..."
-                  action={
+                  inputAction={
                     <AiAssistButton
                       loading={enhancing === "bio"}
                       onClick={() => enhanceField("bio")}
-                      label="Make it more appealing"
+                      label="Improve"
                     />
                   }
                 />
