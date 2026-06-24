@@ -101,9 +101,9 @@ function ProviderOnboardingPage() {
 
   const canNext =
     step === 0
-      ? fullName.trim().length > 1
+      ? fullName.trim().length > 1 && specialty !== null
       : step === 1
-      ? specialty !== null && focus !== null && credentials.trim().length > 0
+      ? focus !== null && credentials.trim().length > 0
       : (sessionTypes.video || sessionTypes.inPerson) && rate.trim().length > 0;
 
   const handleNext = () => {
@@ -190,6 +190,39 @@ function ProviderOnboardingPage() {
                 onChange={setFullName}
                 placeholder="Dr. Jane Doe"
               />
+              <div>
+                <p className="ml-1 mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
+                  Your profession
+                </p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {SPECIALTIES.map((s) => {
+                    const Icon = s.icon;
+                    const active = specialty === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setSpecialty(s.id)}
+                        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border p-5 text-center transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
+                          active
+                            ? "border-[#7E6BAF] bg-[#EFE9FB] shadow-md shadow-[#A89BD0]/30"
+                            : "border-[#EEE9F8] bg-white/70 hover:border-[#C9BEE5]"
+                        }`}
+                      >
+                        <Icon
+                          className={`h-5 w-5 ${
+                            active ? "text-[#7E6BAF]" : "text-[#A89BD0]"
+                          }`}
+                          strokeWidth={1.75}
+                        />
+                        <span className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
+                          {s.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               <TextField
                 label="Professional headline"
                 value={headline}
@@ -211,40 +244,6 @@ function ProviderOnboardingPage() {
                 title="Tell Us About Your Practice"
                 subtitle="This helps us match you with the clients whose needs align with your care."
               />
-              <div>
-                <p className="mb-5 text-[15px] font-semibold text-[#3D2E6B]">
-                  Select your specialty
-                </p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {SPECIALTIES.map((s) => {
-                    const Icon = s.icon;
-                    const active = specialty === s.id;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setSpecialty(s.id)}
-                        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border p-6 text-center transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
-                          active
-                            ? "border-[#7E6BAF] bg-[#EFE9FB] shadow-md shadow-[#A89BD0]/30"
-                            : "border-[#EEE9F8] bg-white/70 hover:border-[#C9BEE5]"
-                        }`}
-                      >
-                        <Icon
-                          className={`h-6 w-6 ${
-                            active ? "text-[#7E6BAF]" : "text-[#A89BD0]"
-                          }`}
-                          strokeWidth={1.75}
-                        />
-                        <span className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
-                          {s.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               <div>
                 <p className="mb-5 text-[15px] font-semibold text-[#3D2E6B]">
                   Select your primary focus area
