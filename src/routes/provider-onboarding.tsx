@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Lock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -72,8 +72,9 @@ function ProviderOnboardingPage() {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
-  const [focus, setFocus] = useState<FocusArea | null>(null);
-  const [yearsExp, setYearsExp] = useState("");
+  const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [yearsBand, setYearsBand] = useState<string | null>(null);
+  const [verifyLater, setVerifyLater] = useState(true);
   const [credentials, setCredentials] = useState("");
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
     video: true,
@@ -119,7 +120,7 @@ function ProviderOnboardingPage() {
         context: {
           fullName,
           specialty: specialty ?? undefined,
-          focus: focus ?? undefined,
+          focus: focusAreas[0],
         },
       }),
     });
@@ -134,7 +135,7 @@ function ProviderOnboardingPage() {
     step === 0
       ? fullName.trim().length > 1 && specialty !== null
       : step === 1
-      ? focus !== null && credentials.trim().length > 0
+      ? focusAreas.length > 0 && yearsBand !== null
       : (sessionTypes.video || sessionTypes.inPerson) && rate.trim().length > 0;
 
   const handleNext = () => {
