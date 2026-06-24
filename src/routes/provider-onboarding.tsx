@@ -86,68 +86,65 @@ function ProviderOnboardingPage() {
       className="relative min-h-screen overflow-hidden bg-[#F4EFFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#7E6BAF]/10 blur-[120px]" />
-      <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[500px] w-[500px] rounded-full bg-[#A89BD0]/15 blur-[120px]" />
+      <div className="pointer-events-none fixed -top-[15%] -left-[10%] -z-0 h-[520px] w-[520px] rounded-full bg-[#A89BD0]/25 blur-[140px]" />
+      <div className="pointer-events-none fixed -bottom-[15%] -right-[10%] -z-0 h-[560px] w-[560px] rounded-full bg-[#7E6BAF]/20 blur-[140px]" />
+      <div className="pointer-events-none fixed top-1/3 left-1/2 -z-0 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-[#E8DFFB]/40 blur-[120px]" />
 
       <Navbar />
 
-      <main className="relative z-10 mx-auto max-w-3xl px-4 pb-24 pt-28 sm:px-6">
+      <main className="relative z-10 mx-auto max-w-2xl px-4 pb-24 pt-28 sm:px-6">
         <header className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6DFF4] bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF] backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#A89BD0]/30 bg-white/60 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF] shadow-sm backdrop-blur">
             <Sparkles className="h-3 w-3" /> Provider onboarding
           </span>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#3D2E6B] sm:text-4xl">
-            Welcome to <span className="text-[#7E6BAF]">Lubin</span>
+          <h1
+            className="mt-5 text-5xl tracking-tight text-[#3D2E6B] sm:text-6xl"
+            style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400 }}
+          >
+            Welcome to{" "}
+            <span className="italic text-[#7E6BAF]">Lubin</span>
           </h1>
-          <p className="mx-auto mt-2 max-w-lg text-sm text-[#7E6BAF]">
-            A few quick steps to set up your provider profile so clients can find you.
+          <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-[#7E6BAF]/80">
+            A few quiet steps to set up your provider profile so the right clients can find you.
           </p>
         </header>
 
         {/* Stepper */}
-        <ol className="mx-auto mt-8 flex max-w-md items-center justify-between">
+        <ol className="relative mx-auto mt-10 flex max-w-md items-start justify-between">
+          <span className="pointer-events-none absolute left-5 right-5 top-[18px] -z-0 h-px bg-gradient-to-r from-transparent via-[#A89BD0]/40 to-transparent" />
           {STEPS.map((label, i) => {
             const reached = i <= step;
             const done = i < step;
+            const active = i === step;
             return (
-              <li key={label} className="flex flex-1 items-center last:flex-none">
-                <div className="flex flex-col items-center">
+              <li key={label} className="relative flex flex-col items-center gap-2.5">
                   <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition ${
-                      reached
+                    className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold ring-4 ring-[#F4EFFB] transition ${
+                      active
+                        ? "bg-[#3D2E6B] text-white shadow-lg shadow-[#3D2E6B]/25"
+                        : done
                         ? "bg-[#7E6BAF] text-white shadow-md shadow-[#A89BD0]/40"
-                        : "bg-white text-[#A89BD0] ring-1 ring-[#E6DFF4]"
+                        : "border border-[#A89BD0]/40 bg-white text-[#A89BD0]"
                     }`}
                   >
                     {done ? <Check className="h-4 w-4" /> : i + 1}
                   </span>
                   <span
-                    className={`mt-2 text-[11px] font-semibold uppercase tracking-wider ${
-                      reached ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                    className={`text-[10px] font-bold uppercase tracking-[0.18em] ${
+                      reached ? "text-[#3D2E6B]" : "text-[#A89BD0]/70"
                     }`}
                   >
                     {label}
                   </span>
-                </div>
-                {i < STEPS.length - 1 && (
-                  <span
-                    className={`mx-2 h-px flex-1 ${
-                      i < step ? "bg-[#7E6BAF]" : "bg-[#E6DFF4]"
-                    }`}
-                  />
-                )}
               </li>
             );
           })}
         </ol>
 
-        <section className="mt-8 rounded-[2rem] border border-white/40 bg-white/80 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+        <section className="mt-10 rounded-[2.5rem] border border-white/50 bg-white/70 p-8 shadow-[0_32px_64px_-24px_rgba(61,46,107,0.18)] backdrop-blur-2xl sm:p-12">
           {step === 0 && (
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 text-[#3D2E6B]">
-                <UserCircle2 className="h-5 w-5 text-[#7E6BAF]" />
-                <h2 className="text-lg font-bold">Tell us about yourself</h2>
-              </div>
+            <div className="space-y-7">
+              <StepHeader icon={UserCircle2} title="Tell us about yourself" />
               <TextField
                 label="Full name"
                 value={fullName}
@@ -170,13 +167,10 @@ function ProviderOnboardingPage() {
           )}
 
           {step === 1 && (
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 text-[#3D2E6B]">
-                <Briefcase className="h-5 w-5 text-[#7E6BAF]" />
-                <h2 className="text-lg font-bold">Your practice</h2>
-              </div>
+            <div className="space-y-7">
+              <StepHeader icon={Briefcase} title="Your practice" />
               <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                <p className="mb-3 ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
                   Primary specialty
                 </p>
                 <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -188,10 +182,10 @@ function ProviderOnboardingPage() {
                         key={s.id}
                         type="button"
                         onClick={() => setSpecialty(s.id)}
-                        className={`flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${
+                        className={`flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#A89BD0]/20 ${
                           active
-                            ? "border-[#7E6BAF] bg-[#F3F0FF] shadow-md shadow-[#A89BD0]/30"
-                            : "border-[#EEE9F8] bg-white/60 hover:border-[#C9BEE5]"
+                            ? "border-[#7E6BAF] bg-gradient-to-br from-[#F3F0FF] to-white shadow-md shadow-[#A89BD0]/30"
+                            : "border-[#EEE9F8] bg-white/70 hover:border-[#C9BEE5]"
                         }`}
                       >
                         <Icon
@@ -227,13 +221,10 @@ function ProviderOnboardingPage() {
           )}
 
           {step === 2 && (
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 text-[#3D2E6B]">
-                <Sparkles className="h-5 w-5 text-[#7E6BAF]" />
-                <h2 className="text-lg font-bold">Availability & rate</h2>
-              </div>
+            <div className="space-y-7">
+              <StepHeader icon={Sparkles} title="Availability & rate" />
               <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                <p className="mb-3 ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
                   Session types
                 </p>
                 <div className="grid gap-2.5 sm:grid-cols-2">
@@ -260,33 +251,59 @@ function ProviderOnboardingPage() {
                 placeholder="e.g. 120"
                 type="number"
               />
-              <p className="rounded-2xl border border-[#EEE9F8] bg-[#F3F0FF]/60 p-4 text-[13px] leading-relaxed text-[#5A4E8A]">
-                You can refine your schedule, intake questions, and pricing later from your provider dashboard.
+              <p className="rounded-2xl border border-[#EEE9F8] bg-gradient-to-br from-[#F3F0FF]/70 to-white/40 p-4 text-[13px] leading-relaxed text-[#5A4E8A]">
+                You can refine your schedule, intake questions, and pricing later from your provider dashboard — nothing here is set in stone.
               </p>
             </div>
           )}
 
-          <div className="mt-8 flex items-center justify-between gap-3">
+          <div className="mt-10 flex items-center justify-between gap-3 border-t border-[#EEE9F8] pt-6">
             <button
               type="button"
               onClick={() => (step === 0 ? navigate({ to: "/" }) : setStep(step - 1))}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10"
+              className="group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-[#A89BD0] transition hover:text-[#3D2E6B]"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
               {step === 0 ? "Cancel" : "Back"}
             </button>
             <button
               type="button"
               onClick={handleNext}
               disabled={!canNext}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="group inline-flex items-center gap-2 rounded-2xl bg-[#7E6BAF] px-8 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-8px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
           </div>
         </section>
+
+        <p className="mt-8 text-center text-[12px] italic text-[#A89BD0]">
+          You can update these details anytime from your dashboard.
+        </p>
       </main>
+    </div>
+  );
+}
+
+function StepHeader({
+  icon: Icon,
+  title,
+}: {
+  icon: typeof Brain;
+  title: string;
+}) {
+  return (
+    <div className="flex items-center gap-4 border-b border-[#F4EFFB] pb-6">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F4EFFB] text-[#7E6BAF] shadow-inner">
+        <Icon className="h-6 w-6" strokeWidth={1.5} />
+      </div>
+      <h2
+        className="text-2xl tracking-tight text-[#3D2E6B]"
+        style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400 }}
+      >
+        {title}
+      </h2>
     </div>
   );
 }
@@ -308,12 +325,12 @@ function TextField({
 }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+      <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
         {label}
       </label>
-      <div className="relative mt-1.5">
+      <div className="relative mt-2.5">
         {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A89BD0]">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A89BD0]">
             {icon}
           </span>
         )}
@@ -322,8 +339,8 @@ function TextField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full rounded-xl border border-[#EEE9F8] bg-white/70 px-4 py-2.5 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10 ${
-            icon ? "pl-9" : ""
+          className={`w-full rounded-2xl border border-[#A89BD0]/20 bg-white/80 px-5 py-3.5 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-4 focus:ring-[#7E6BAF]/10 ${
+            icon ? "pl-11" : ""
           }`}
         />
       </div>
@@ -344,7 +361,7 @@ function TextAreaField({
 }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+      <label className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
         {label}
       </label>
       <textarea
@@ -352,7 +369,7 @@ function TextAreaField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full resize-none rounded-xl border border-[#EEE9F8] bg-white/70 px-4 py-2.5 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0]/60 outline-none transition focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
+        className="mt-2.5 w-full resize-none rounded-2xl border border-[#A89BD0]/20 bg-white/80 px-5 py-3.5 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0]/50 outline-none transition focus:border-[#7E6BAF] focus:bg-white focus:ring-4 focus:ring-[#7E6BAF]/10"
       />
     </div>
   );
