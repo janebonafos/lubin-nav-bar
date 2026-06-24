@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, X, RefreshCw, Check } from "lucide-react";
+import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -552,9 +552,11 @@ function TextAreaField({
 function AiAssistButton({
   onClick,
   title,
+  active,
 }: {
   onClick: () => void;
   title: string;
+  active?: boolean;
 }) {
   return (
     <button
@@ -562,13 +564,17 @@ function AiAssistButton({
       onClick={onClick}
       title={title}
       aria-label={title}
-      className="group inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95"
+      className={`group inline-flex h-8 w-8 items-center justify-center rounded-full text-white shadow-sm ring-1 ring-white/70 transition-all hover:shadow-md active:scale-95 ${
+        active
+          ? "bg-gradient-to-br from-[#7E6BAF] to-[#5E4B8E]"
+          : "bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] hover:from-[#9A88C7] hover:to-[#7E6BAF]"
+      }`}
     >
-      <Sparkles
-        className="h-4 w-4 transition-transform group-hover:rotate-12"
-        fill="currentColor"
-        strokeWidth={1.5}
-      />
+      {active ? (
+        <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
+      ) : (
+        <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12" fill="currentColor" strokeWidth={1.5} />
+      )}
     </button>
   );
 }
