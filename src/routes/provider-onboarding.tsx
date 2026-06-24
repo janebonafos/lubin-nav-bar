@@ -219,8 +219,7 @@ function ProviderOnboardingPage() {
                   placeholder="Clinical psychologist · Anxiety & burnout"
                   inputAction={
                     <AiAssistButton
-                      loading={enhancing === "headline"}
-                      onClick={() => enhanceField("headline")}
+                      onClick={() => setEnhanceOpen("headline")}
                       title="Enhance with AI"
                     />
                   }
@@ -233,8 +232,7 @@ function ProviderOnboardingPage() {
                   placeholder="Share a couple of sentences about your approach..."
                   inputAction={
                     <AiAssistButton
-                      loading={enhancing === "bio"}
-                      onClick={() => enhanceField("bio")}
+                      onClick={() => setEnhanceOpen("bio")}
                       title="Enhance with AI"
                     />
                   }
