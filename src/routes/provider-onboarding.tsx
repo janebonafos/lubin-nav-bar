@@ -194,7 +194,7 @@ function ProviderOnboardingPage() {
                       Synced from your LinkedIn profile
                     </p>
                     <p className="text-[12px] text-[#A89BD0]">
-                      Tap the sparkle to refine any field with AI.
+                      Use AI to enhance your headline or bio anytime.
                     </p>
                   </div>
                 </div>
@@ -530,24 +530,82 @@ function AiAssistButton({
   loading: boolean;
   title: string;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpSeen, setHelpSeen] = useState(false);
+
+  useEffect(() => {
+    if (!helpOpen) return;
+    const close = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-ai-help-root]")) setHelpOpen(false);
+    };
+    window.addEventListener("mousedown", close);
+    return () => window.removeEventListener("mousedown", close);
+  }, [helpOpen]);
+
+  const handleClick = () => {
+    if (loading) return;
+    if (!helpSeen) {
+      setHelpOpen(true);
+      setHelpSeen(true);
+      return;
+    }
+    onClick();
+  };
+
+  const runNow = () => {
+    setHelpOpen(false);
+    onClick();
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={loading}
-      title={title}
-      aria-label={title}
-      className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95 disabled:cursor-wait disabled:opacity-70"
-    >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12" fill="currentColor" strokeWidth={1.5} />
+    <span className="relative inline-block" data-ai-help-root>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        title={title}
+        aria-label={title}
+        className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition-all hover:from-[#9A88C7] hover:to-[#7E6BAF] hover:shadow-md active:scale-95 disabled:cursor-wait disabled:opacity-70"
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Sparkles
+            className="h-4 w-4 transition-transform group-hover:rotate-12"
+            fill="currentColor"
+            strokeWidth={1.5}
+          />
+        )}
+      </button>
+      {helpOpen && (
+        <div className="absolute right-0 top-10 z-20 w-64 rounded-xl border border-[#E3DBF5] bg-white p-3.5 text-left shadow-xl shadow-[#3D2E6B]/15">
+          <p className="mb-1 text-[12px] font-semibold text-[#3D2E6B]">
+            Use AI to enhance
+          </p>
+          <p className="mb-3 text-[11px] leading-relaxed text-[#7E6BAF]">
+            Write a rough draft first, then tap to let AI polish the tone,
+            clarity, and flow. You can always edit the result.
+          </p>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setHelpOpen(false)}
+              className="rounded-md px-2 py-1 text-[11px] font-medium text-[#A89BD0] hover:text-[#7E6BAF]"
+            >
+              Got it
+            </button>
+            <button
+              type="button"
+              onClick={runNow}
+              className="rounded-md bg-[#7E6BAF] px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#9A88C7]"
+            >
+              Enhance now
+            </button>
+          </div>
+        </div>
       )}
-      <span className="pointer-events-none absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-[#3D2E6B] px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-        {loading ? "Polishing…" : title}
-      </span>
-    </button>
+    </span>
   );
 }
 
