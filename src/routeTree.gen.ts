@@ -25,6 +25,7 @@ import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
+import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const TermsRoute = TermsRouteImport.update({
@@ -107,6 +108,11 @@ const ProviderIdRoute = ProviderIdRouteImport.update({
   path: '/provider/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
+  id: '/api/enhance-profile',
+  path: '/api/enhance-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/enhance-profile'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/enhance-profile'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/enhance-profile'
     | '/provider/$id'
     | '/self-discovery_/$slug'
     | '/share/$token'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/enhance-profile': {
+      id: '/api/enhance-profile'
+      path: '/api/enhance-profile'
+      fullPath: '/api/enhance-profile'
+      preLoaderRoute: typeof ApiEnhanceProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
