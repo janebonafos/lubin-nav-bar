@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ArrowLeft, GraduationCap } from "lucide-react";
+import { ArrowRight, GraduationCap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -107,17 +107,8 @@ function ProviderOnboardingPage() {
       <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#A89BD0]/30 blur-[120px]" />
       <Navbar />
 
-      <main className="relative z-10 mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pb-20 pt-16 sm:px-6">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="group inline-flex w-fit items-center gap-2 text-sm font-medium text-[#7E6BAF] transition hover:text-[#7E6BAF]"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-          Back
-        </button>
-
-        <div className="rounded-3xl border border-slate-200 bg-[#FBF9FF]/90 p-8 shadow-xl shadow-[#3D2E6B]/10 backdrop-blur-xl md:p-12">
+      <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-20 pt-12 sm:px-6">
+        <div className="rounded-3xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-8 shadow-xl shadow-[#3D2E6B]/10 backdrop-blur-xl md:p-14">
           {/* Progress */}
           <div className="mb-12 flex items-center justify-between px-1">
             <div className="flex space-x-2">
