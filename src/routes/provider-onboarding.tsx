@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2 } from "lucide-react";
+import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, X, RefreshCw, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -83,8 +83,7 @@ function ProviderOnboardingPage() {
 
   // Simulated LinkedIn import — in production this comes from the OAuth callback.
   const [linkedInImported, setLinkedInImported] = useState(false);
-  const [enhancing, setEnhancing] = useState<null | "headline" | "bio">(null);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [enhanceOpen, setEnhanceOpen] = useState<null | "headline" | "bio">(null);
 
   useEffect(() => {
     // Simulate LinkedIn prefill on first mount
@@ -104,33 +103,31 @@ function ProviderOnboardingPage() {
     return () => clearTimeout(t);
   }, []);
 
-  const enhanceField = async (field: "headline" | "bio") => {
-    setEnhancing(field);
-    setAiError(null);
-    try {
-      const res = await fetch("/api/enhance-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          field,
-          current: field === "headline" ? headline : bio,
-          context: {
-            fullName,
-            specialty: specialty ?? undefined,
-            focus: focus ?? undefined,
-          },
-        }),
-      });
-      const data = (await res.json()) as { text?: string; error?: string };
-      if (!res.ok || !data.text) {
-        setAiError(data.error || "Couldn't enhance right now. Try again in a moment.");
-      } else if (field === "headline") setHeadline(data.text);
-      else setBio(data.text);
-    } catch {
-      setAiError("Network hiccup — please try again.");
-    } finally {
-      setEnhancing(null);
+  const requestEnhancement = async (opts: {
+    field: "headline" | "bio";
+    tone?: string;
+    instruction?: string;
+  }) => {
+    const res = await fetch("/api/enhance-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        field: opts.field,
+        current: opts.field === "headline" ? headline : bio,
+        tone: opts.tone,
+        instruction: opts.instruction,
+        context: {
+          fullName,
+          specialty: specialty ?? undefined,
+          focus: focus ?? undefined,
+        },
+      }),
+    });
+    const data = (await res.json()) as { text?: string; error?: string };
+    if (!res.ok || !data.text) {
+      throw new Error(data.error || "Couldn't enhance right now. Try again in a moment.");
     }
+    return data.text;
   };
 
   const canNext =
@@ -197,11 +194,6 @@ function ProviderOnboardingPage() {
                       Use AI to enhance your headline or bio anytime.
                     </p>
                   </div>
-                </div>
-              )}
-              {aiError && (
-                <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3 text-[13px] text-rose-700">
-                  {aiError}
                 </div>
               )}
               <div className="space-y-8">
