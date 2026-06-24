@@ -537,7 +537,7 @@ function AiAssistButton({
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="group inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm shadow-[#7E6BAF]/30 transition-all hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
+      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white/90 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition-all hover:border-[#7E6BAF] hover:text-[#3D2E6B] disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
         <Loader2 className="h-3 w-3 animate-spin" />
