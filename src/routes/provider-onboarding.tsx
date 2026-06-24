@@ -168,7 +168,7 @@ function ProviderOnboardingPage() {
                 <div
                   key={label}
                   className={`h-1.5 w-12 rounded-full transition-all ${
-                    i <= step ? "bg-[#3D2E6B]" : "bg-[#A89BD0]/30"
+                    i <= step ? "bg-[#7E6BAF]" : "bg-[#A89BD0]/30"
                   }`}
                 />
               ))}
@@ -185,12 +185,12 @@ function ProviderOnboardingPage() {
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
               {linkedInImported && (
-                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-gradient-to-r from-[#F0EAFB] to-[#FBF9FF] p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0A66C2] text-white shadow-sm shadow-[#0A66C2]/30">
-                    <Linkedin className="h-4 w-4" />
+                <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-white/70 p-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E3DBF5] bg-white text-[#0A66C2]">
+                    <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-[#3D2E6B]">
+                    <p className="text-sm font-semibold text-[#7E6BAF]">
                       Imported from LinkedIn
                     </p>
                     <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
@@ -227,7 +227,7 @@ function ProviderOnboardingPage() {
                   value={headline}
                   onChange={setHeadline}
                   placeholder="Clinical psychologist · Anxiety & burnout"
-                  action={
+                  inputAction={
                     <AiAssistButton
                       loading={enhancing === "headline"}
                       onClick={() => enhanceField("headline")}
@@ -241,11 +241,11 @@ function ProviderOnboardingPage() {
                   value={bio}
                   onChange={setBio}
                   placeholder="Share a couple of sentences about your approach..."
-                  action={
+                  inputAction={
                     <AiAssistButton
                       loading={enhancing === "bio"}
                       onClick={() => enhanceField("bio")}
-                      label="Make it more appealing"
+                      label="Improve"
                     />
                   }
                 />
@@ -342,7 +342,7 @@ function ProviderOnboardingPage() {
               type="button"
               onClick={handleNext}
               disabled={!canNext}
-              className="group inline-flex items-center rounded-xl bg-[#3D2E6B] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:bg-[#7E6BAF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#3D2E6B]"
+              className="group inline-flex items-center rounded-xl bg-[#7E6BAF] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#9A88C7] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#7E6BAF]"
             >
               {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
               <ArrowRight
@@ -405,7 +405,7 @@ function PillGrid<T extends string>({
             onClick={() => onChange(o.id)}
             className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
               active
-                ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                 : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
             }`}
           >
@@ -438,6 +438,7 @@ function TextField({
   type = "text",
   icon,
   action,
+  inputAction,
 }: {
   label: string;
   value: string;
@@ -446,6 +447,7 @@ function TextField({
   type?: string;
   icon?: React.ReactNode;
   action?: React.ReactNode;
+  inputAction?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
@@ -468,8 +470,13 @@ function TextField({
           onChange={(e) => onChange(e.target.value)}
           className={`w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
-          }`}
+          } ${inputAction ? "pr-32" : ""}`}
         />
+        {inputAction && (
+          <span className="absolute right-2 top-1/2 -translate-y-1/2">
+            {inputAction}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -481,12 +488,14 @@ function TextAreaField({
   onChange,
   placeholder,
   action,
+  inputAction,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   action?: React.ReactNode;
+  inputAction?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
@@ -496,13 +505,20 @@ function TextAreaField({
         </label>
         {action}
       </div>
-      <textarea
-        rows={3}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
-      />
+      <div className="relative">
+        <textarea
+          rows={3}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
+            inputAction ? "pb-12" : ""
+          }`}
+        />
+        {inputAction && (
+          <span className="absolute bottom-2.5 right-2.5">{inputAction}</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -521,7 +537,7 @@ function AiAssistButton({
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5]/80 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] transition-all hover:border-[#7E6BAF] hover:bg-[#3D2E6B] hover:text-white disabled:cursor-wait disabled:opacity-70"
+      className="group inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm shadow-[#7E6BAF]/30 transition-all hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
         <Loader2 className="h-3 w-3 animate-spin" />
@@ -548,7 +564,7 @@ function Toggle({
       onClick={onClick}
       className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
         active
-          ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
           : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
       }`}
     >
