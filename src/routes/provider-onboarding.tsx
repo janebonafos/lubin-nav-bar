@@ -666,21 +666,32 @@ function InlineEnhancePanel({
   const label = field === "headline" ? "headline" : "short bio";
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#7E6BAF]/30 bg-gradient-to-br from-white to-[#F4EEFB] shadow-sm">
-      <div className="flex items-center gap-2 border-b border-[#E3DBF5]/70 bg-white/70 px-4 py-2.5">
-        <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" fill="currentColor" strokeWidth={1.5} />
-        <p className="text-[12px] font-semibold text-[#3D2E6B]">
-          AI will rewrite your {label}
-        </p>
-        <span className="text-[11px] text-[#A89BD0]">— pick a direction below</span>
+    <div className="overflow-hidden rounded-2xl border border-[#7E6BAF]/25 bg-gradient-to-br from-white via-white to-[#F4EEFB] shadow-[0_4px_24px_-12px_rgba(126,107,175,0.25)]">
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-[#E3DBF5]/60 bg-white/60 px-5 py-3">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#7E6BAF] to-[#5E4B8E] shadow-sm shadow-[#7E6BAF]/30">
+          <Sparkles className="h-3.5 w-3.5 text-white" fill="currentColor" strokeWidth={1.5} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
+            Rewrite your {label} with AI
+          </p>
+          <p className="text-[11px] leading-tight text-[#A89BD0]">
+            Pick a direction and we'll draft a suggestion
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-4 px-4 py-4">
+      <div className="space-y-5 px-5 py-5">
+        {/* Tone */}
         <div>
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-            1. Choose a tone
-          </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="mb-2 flex items-baseline justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#7E6BAF]">
+              Choose a tone
+            </p>
+            <span className="text-[10px] text-[#A89BD0]">Step 1 of 2</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {TONE_PRESETS.map((t) => {
               const active = tone === t.id;
               return (
@@ -689,10 +700,10 @@ function InlineEnhancePanel({
                   type="button"
                   onClick={() => setTone(active ? null : t.id)}
                   title={t.hint}
-                  className={`rounded-full border px-3 py-1 text-[12px] font-medium transition-all ${
+                  className={`rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-all ${
                     active
-                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                      : "border-[#E3DBF5] bg-white/80 text-[#7E6BAF] hover:border-[#A89BD0]"
+                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm shadow-[#7E6BAF]/30"
+                      : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0] hover:bg-[#F8F4FC]"
                   }`}
                 >
                   {t.label}
@@ -702,45 +713,50 @@ function InlineEnhancePanel({
           </div>
         </div>
 
+        {/* Hint */}
         <div>
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-            2. Add a hint <span className="font-normal normal-case text-[#A89BD0]">(optional)</span>
-          </p>
+          <div className="mb-2 flex items-baseline justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#7E6BAF]">
+              Add a hint
+            </p>
+            <span className="text-[10px] text-[#A89BD0]">Optional · Step 2 of 2</span>
+          </div>
           <textarea
             rows={2}
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
             placeholder="e.g. mention I work with new parents, or keep it to one sentence"
-            className="w-full resize-none rounded-lg border border-[#E3DBF5]/70 bg-white/80 px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+            className="w-full resize-none rounded-xl border border-[#E3DBF5] bg-white px-3.5 py-2.5 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/15"
           />
         </div>
 
         {suggestion && (
-          <div>
-            <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+          <div className="rounded-xl border border-[#7E6BAF]/25 bg-gradient-to-br from-white to-[#F8F4FC] p-3.5">
+            <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#7E6BAF]">
               <Sparkles className="h-3 w-3" fill="currentColor" strokeWidth={1.5} />
               AI suggestion
             </p>
-            <p className="rounded-lg border border-[#7E6BAF]/30 bg-white px-3 py-2.5 text-[13px] leading-relaxed text-[#3D2E6B]">
-              {suggestion}
-            </p>
+            <p className="text-[13px] leading-relaxed text-[#3D2E6B]">{suggestion}</p>
           </div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-rose-200 bg-rose-50/80 px-3 py-2 text-[12px] text-rose-700">
+          <div className="rounded-xl border border-rose-200 bg-rose-50/80 px-3.5 py-2.5 text-[12px] text-rose-700">
             {error}
           </div>
         )}
+      </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[12px] font-medium text-[#A89BD0] transition hover:text-[#7E6BAF]"
-          >
-            Cancel
-          </button>
+      {/* Footer */}
+      <div className="flex items-center justify-between gap-3 border-t border-[#E3DBF5]/60 bg-white/60 px-5 py-3">
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg px-3 py-1.5 text-[12px] font-medium text-[#7E6BAF] transition hover:bg-[#F4EEFB]"
+        >
+          Cancel
+        </button>
+        <div className="flex items-center gap-2">
           {suggestion ? (
             <>
               <button
@@ -755,7 +771,7 @@ function InlineEnhancePanel({
               <button
                 type="button"
                 onClick={() => onApply(suggestion)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-3.5 py-1.5 text-[12px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7]"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#7E6BAF] to-[#5E4B8E] px-3.5 py-1.5 text-[12px] font-medium text-white shadow-sm shadow-[#7E6BAF]/30 transition hover:from-[#9A88C7] hover:to-[#7E6BAF]"
               >
                 <Check className="h-3.5 w-3.5" />
                 Use this
@@ -766,7 +782,7 @@ function InlineEnhancePanel({
               type="button"
               onClick={run}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#7E6BAF] px-3.5 py-1.5 text-[12px] font-medium text-white shadow-sm shadow-[#7E6BAF]/25 transition hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#7E6BAF] to-[#5E4B8E] px-3.5 py-1.5 text-[12px] font-medium text-white shadow-sm shadow-[#7E6BAF]/30 transition hover:from-[#9A88C7] hover:to-[#7E6BAF] disabled:cursor-wait disabled:opacity-70"
             >
               {loading ? (
                 <>
