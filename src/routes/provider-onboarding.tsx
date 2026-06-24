@@ -168,7 +168,7 @@ function ProviderOnboardingPage() {
                 <div
                   key={label}
                   className={`h-1.5 w-12 rounded-full transition-all ${
-                    i <= step ? "bg-[#3D2E6B]" : "bg-[#A89BD0]/30"
+                    i <= step ? "bg-[#7E6BAF]" : "bg-[#A89BD0]/30"
                   }`}
                 />
               ))}
@@ -342,7 +342,7 @@ function ProviderOnboardingPage() {
               type="button"
               onClick={handleNext}
               disabled={!canNext}
-              className="group inline-flex items-center rounded-xl bg-[#3D2E6B] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:bg-[#7E6BAF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#3D2E6B]"
+              className="group inline-flex items-center rounded-xl bg-[#7E6BAF] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#9A88C7] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#7E6BAF]"
             >
               {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
               <ArrowRight
@@ -405,7 +405,7 @@ function PillGrid<T extends string>({
             onClick={() => onChange(o.id)}
             className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
               active
-                ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                 : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
             }`}
           >
@@ -564,7 +564,7 @@ function Toggle({
       onClick={onClick}
       className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
         active
-          ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
           : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
       }`}
     >
