@@ -111,13 +111,13 @@ function ProviderOnboardingPage() {
         <button
           type="button"
           onClick={handleBack}
-          className="group inline-flex w-fit items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
+          className="group inline-flex w-fit items-center gap-2 text-sm font-medium text-[#7E6BAF] transition hover:text-[#7E6BAF]"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
           Back
         </button>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm md:p-12">
+        <div className="rounded-3xl border border-slate-200 bg-[#FBF9FF]/90 p-8 shadow-xl shadow-[#3D2E6B]/10 backdrop-blur-xl md:p-12">
           {/* Progress */}
           <div className="mb-12 flex items-center justify-between px-1">
             <div className="flex space-x-2">
@@ -125,12 +125,12 @@ function ProviderOnboardingPage() {
                 <div
                   key={label}
                   className={`h-1.5 w-12 rounded-full transition-all ${
-                    i <= step ? "bg-slate-900" : "bg-slate-900/10"
+                    i <= step ? "bg-[#3D2E6B]" : "bg-[#A89BD0]/30"
                   }`}
                 />
               ))}
             </div>
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-[#A89BD0]">
               Step {step + 1} of {STEPS.length}
             </span>
           </div>
@@ -243,7 +243,7 @@ function ProviderOnboardingPage() {
                   type="number"
                 />
 
-                <p className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-[13px] leading-relaxed text-slate-500">
+                <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
                   You can refine your schedule, intake questions, and pricing later
                   from your provider dashboard — nothing here is set in stone.
                 </p>
@@ -251,11 +251,11 @@ function ProviderOnboardingPage() {
             </>
           )}
 
-          <div className="mt-12 flex items-center justify-between border-t border-slate-100 pt-8">
+          <div className="mt-12 flex items-center justify-between border-t border-[#E3DBF5]/60 pt-8">
             <button
               type="button"
               onClick={handleBack}
-              className="px-6 py-2 text-sm font-medium text-slate-400 transition-colors hover:text-slate-600"
+              className="px-6 py-2 text-sm font-medium text-[#A89BD0] transition-colors hover:text-[#7E6BAF]"
             >
               {step === 0 ? "Cancel" : "Back"}
             </button>
@@ -263,7 +263,7 @@ function ProviderOnboardingPage() {
               type="button"
               onClick={handleNext}
               disabled={!canNext}
-              className="group inline-flex items-center rounded-xl bg-slate-900 px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-900"
+              className="group inline-flex items-center rounded-xl bg-[#3D2E6B] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:bg-[#7E6BAF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#3D2E6B]"
             >
               {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
               <ArrowRight
@@ -281,10 +281,10 @@ function ProviderOnboardingPage() {
 function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-10">
-      <h1 className="mb-3 text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 className="mb-3 text-3xl font-semibold tracking-tight text-[#3D2E6B]">
         {title}
       </h1>
-      <p className="text-base leading-relaxed text-slate-500">{subtitle}</p>
+      <p className="text-base leading-relaxed text-[#7E6BAF]">{subtitle}</p>
     </div>
   );
 }
@@ -298,7 +298,7 @@ function Field({
 }) {
   return (
     <div className="space-y-3">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
         {label}
       </label>
       {children}
@@ -326,20 +326,20 @@ function PillGrid<T extends string>({
             onClick={() => onChange(o.id)}
             className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
               active
-                ? "border-slate-900 bg-slate-900 text-white"
-                : "border-slate-200 bg-white hover:border-slate-300"
+                ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+                : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
             }`}
           >
             <span
               className={`h-2 w-2 shrink-0 rounded-full transition-colors ${
                 active
                   ? "bg-white"
-                  : "bg-slate-200 group-hover:bg-slate-300"
+                  : "bg-[#E3DBF5] group-hover:bg-[#A89BD0]"
               }`}
             />
             <span
               className={`truncate text-sm font-medium ${
-                active ? "text-white" : "text-slate-600"
+                active ? "text-white" : "text-[#3D2E6B]"
               }`}
             >
               {o.label}
@@ -368,12 +368,12 @@ function TextField({
 }) {
   return (
     <div className="space-y-2.5">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
         {label}
       </label>
       <div className="relative">
         {icon && (
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#A89BD0]">
             {icon}
           </span>
         )}
@@ -382,7 +382,7 @@ function TextField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full rounded-xl border border-slate-200 bg-slate-50/50 px-5 py-4 text-[15px] text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-slate-900 focus:ring-1 focus:ring-slate-900 ${
+          className={`w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
           }`}
         />
@@ -404,7 +404,7 @@ function TextAreaField({
 }) {
   return (
     <div className="space-y-2.5">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
         {label}
       </label>
       <textarea
@@ -412,7 +412,7 @@ function TextAreaField({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-5 py-4 text-[15px] leading-relaxed text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+        className="w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
       />
     </div>
   );
@@ -433,14 +433,14 @@ function Toggle({
       onClick={onClick}
       className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
         active
-          ? "border-slate-900 bg-slate-900 text-white"
-          : "border-slate-200 bg-white hover:border-slate-300"
+          ? "border-[#7E6BAF] bg-[#3D2E6B] text-white"
+          : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
       }`}
     >
       <span className="text-sm font-medium">{label}</span>
       <span
         className={`flex h-5 w-9 items-center rounded-full p-0.5 transition ${
-          active ? "bg-white/30" : "bg-slate-200"
+          active ? "bg-white/30" : "bg-[#E3DBF5]"
         }`}
       >
         <span
