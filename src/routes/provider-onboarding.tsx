@@ -194,7 +194,7 @@ function ProviderOnboardingPage() {
                       Synced from your LinkedIn profile
                     </p>
                     <p className="text-[12px] text-[#A89BD0]">
-                      Tap the sparkle to refine any field with AI.
+                      Use AI to enhance your headline or bio anytime.
                     </p>
                   </div>
                 </div>
