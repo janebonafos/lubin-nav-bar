@@ -186,7 +186,7 @@ function ProviderOnboardingPage() {
               />
               {linkedInImported && (
                 <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/70 bg-gradient-to-r from-[#F0EAFB] to-[#FBF9FF] p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] text-white">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0A66C2] text-white shadow-sm shadow-[#0A66C2]/30">
                     <Linkedin className="h-4 w-4" />
                   </div>
                   <div className="flex-1">
