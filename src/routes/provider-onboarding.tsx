@@ -468,6 +468,7 @@ function TextField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
+          className={`w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
           } ${inputAction ? "pr-14" : ""}`}
         />
@@ -510,6 +511,7 @@ function TextAreaField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
+          className={`w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             inputAction ? "pr-14" : ""
           }`}
         />
