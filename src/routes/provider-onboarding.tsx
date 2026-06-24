@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Lock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -64,6 +64,14 @@ const FOCUS_AREAS: { id: FocusArea; label: string }[] = [
   { id: "sleep", label: "Sleep & Rest" },
 ];
 
+const YEARS_BANDS: { id: string; label: string }[] = [
+  { id: "0-2", label: "Just starting (0–2 yrs)" },
+  { id: "3-5", label: "3–5 yrs" },
+  { id: "6-10", label: "6–10 yrs" },
+  { id: "11-20", label: "11–20 yrs" },
+  { id: "20+", label: "20+ yrs" },
+];
+
 function ProviderOnboardingPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -72,8 +80,9 @@ function ProviderOnboardingPage() {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
-  const [focus, setFocus] = useState<FocusArea | null>(null);
-  const [yearsExp, setYearsExp] = useState("");
+  const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [yearsBand, setYearsBand] = useState<string | null>(null);
+  const [verifyLater, setVerifyLater] = useState(true);
   const [credentials, setCredentials] = useState("");
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
     video: true,
@@ -119,7 +128,7 @@ function ProviderOnboardingPage() {
         context: {
           fullName,
           specialty: specialty ?? undefined,
-          focus: focus ?? undefined,
+          focus: focusAreas[0],
         },
       }),
     });
@@ -134,7 +143,7 @@ function ProviderOnboardingPage() {
     step === 0
       ? fullName.trim().length > 1 && specialty !== null
       : step === 1
-      ? focus !== null && credentials.trim().length > 0
+      ? focusAreas.length > 0 && yearsBand !== null
       : (sessionTypes.video || sessionTypes.inPerson) && rate.trim().length > 0;
 
   const handleNext = () => {
@@ -286,29 +295,110 @@ function ProviderOnboardingPage() {
                 subtitle="This helps us match you with clients whose needs align with your care."
               />
               <div className="space-y-8">
-                <Field label="Primary focus area">
-                  <PillGrid
+                <Field
+                  label="Focus areas"
+                  hint="Select all that apply — we use this to match you with the right clients."
+                >
+                  <PillGridMulti
                     options={FOCUS_AREAS}
-                    value={focus}
-                    onChange={(v) => setFocus(v as FocusArea)}
+                    value={focusAreas}
+                    onChange={setFocusAreas}
                   />
                 </Field>
 
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <TextField
-                    label="Years of experience"
-                    value={yearsExp}
-                    onChange={setYearsExp}
-                    placeholder="e.g. 6"
-                    type="number"
-                  />
-                  <TextField
-                    label="License / credentials"
-                    value={credentials}
-                    onChange={setCredentials}
-                    placeholder="LMFT #12345"
-                    icon={<GraduationCap className="h-4 w-4" />}
-                  />
+                <Field
+                  label="Years of experience"
+                  hint="A rough range is enough — clients see this as context, not a credential."
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {YEARS_BANDS.map((b) => {
+                      const active = yearsBand === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setYearsBand(active ? null : b.id)}
+                          className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-all ${
+                            active
+                              ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm shadow-[#7E6BAF]/25"
+                              : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                          }`}
+                        >
+                          {b.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Field>
+
+                <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white/60 p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F4EEFB]">
+                      <ShieldCheck className="h-4 w-4 text-[#7E6BAF]" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <p className="text-[14px] font-semibold text-[#3D2E6B]">
+                          Verify your license
+                        </p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4EEFB] px-2 py-0.5 text-[10px] font-medium text-[#7E6BAF]">
+                          <Lock className="h-2.5 w-2.5" /> Private · optional
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                        You don't need to share your license number to set up your profile.
+                        When you're ready, our verification team handles it through a secure
+                        channel — never on a public form. Your number is never shown on your
+                        profile.
+                      </p>
+
+                      <div className="mt-4 space-y-2">
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E3DBF5] bg-white p-3 transition hover:border-[#A89BD0]">
+                          <input
+                            type="radio"
+                            name="verify"
+                            checked={verifyLater}
+                            onChange={() => setVerifyLater(true)}
+                            className="mt-0.5 h-4 w-4 accent-[#7E6BAF]"
+                          />
+                          <span className="flex-1">
+                            <span className="block text-[13px] font-medium text-[#3D2E6B]">
+                              Verify later
+                            </span>
+                            <span className="block text-[12px] text-[#7E6BAF]">
+                              Finish setup now. We'll email you a secure link when you're ready.
+                            </span>
+                          </span>
+                        </label>
+                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E3DBF5] bg-white p-3 transition hover:border-[#A89BD0]">
+                          <input
+                            type="radio"
+                            name="verify"
+                            checked={!verifyLater}
+                            onChange={() => setVerifyLater(false)}
+                            className="mt-0.5 h-4 w-4 accent-[#7E6BAF]"
+                          />
+                          <span className="flex-1">
+                            <span className="block text-[13px] font-medium text-[#3D2E6B]">
+                              Share now (encrypted)
+                            </span>
+                            <span className="block text-[12px] text-[#7E6BAF]">
+                              Add your license type & number. Stored encrypted, used only for verification.
+                            </span>
+                            {!verifyLater && (
+                              <input
+                                type="text"
+                                value={credentials}
+                                onChange={(e) => setCredentials(e.target.value)}
+                                placeholder="e.g. LMFT #12345"
+                                className="mt-2.5 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/15"
+                              />
+                            )}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </>
@@ -396,17 +486,72 @@ function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
 
 function Field({
   label,
+  hint,
   children,
 }: {
   label: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-3">
-      <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </label>
+      <div className="space-y-1">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+          {label}
+        </label>
+        {hint && <p className="text-[12px] text-[#A89BD0]">{hint}</p>}
+      </div>
       {children}
+    </div>
+  );
+}
+
+function PillGridMulti<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { id: T; label: string }[];
+  value: T[];
+  onChange: (v: T[]) => void;
+}) {
+  const toggle = (id: T) => {
+    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
+  };
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+      {options.map((o) => {
+        const active = value.includes(o.id);
+        return (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => toggle(o.id)}
+            className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
+              active
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
+            }`}
+          >
+            <span
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                active
+                  ? "border-white bg-white text-[#7E6BAF]"
+                  : "border-[#D6CCEB] bg-white group-hover:border-[#A89BD0]"
+              }`}
+            >
+              {active && <Check className="h-3 w-3" strokeWidth={3} />}
+            </span>
+            <span
+              className={`truncate text-sm font-medium ${
+                active ? "text-white" : "text-[#3D2E6B]"
+              }`}
+            >
+              {o.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
