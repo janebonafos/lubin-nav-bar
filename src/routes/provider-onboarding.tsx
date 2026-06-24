@@ -438,6 +438,7 @@ function TextField({
   type = "text",
   icon,
   action,
+  inputAction,
 }: {
   label: string;
   value: string;
@@ -446,6 +447,7 @@ function TextField({
   type?: string;
   icon?: React.ReactNode;
   action?: React.ReactNode;
+  inputAction?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
@@ -468,8 +470,13 @@ function TextField({
           onChange={(e) => onChange(e.target.value)}
           className={`w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
             icon ? "pl-11" : ""
-          }`}
+          } ${inputAction ? "pr-32" : ""}`}
         />
+        {inputAction && (
+          <span className="absolute right-2 top-1/2 -translate-y-1/2">
+            {inputAction}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -481,12 +488,14 @@ function TextAreaField({
   onChange,
   placeholder,
   action,
+  inputAction,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   action?: React.ReactNode;
+  inputAction?: React.ReactNode;
 }) {
   return (
     <div className="space-y-2.5">
@@ -496,13 +505,20 @@ function TextAreaField({
         </label>
         {action}
       </div>
-      <textarea
-        rows={3}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
-      />
+      <div className="relative">
+        <textarea
+          rows={3}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full resize-none rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 text-[15px] leading-relaxed text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20 ${
+            inputAction ? "pb-12" : ""
+          }`}
+        />
+        {inputAction && (
+          <span className="absolute bottom-2.5 right-2.5">{inputAction}</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -521,7 +537,7 @@ function AiAssistButton({
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="group inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5]/80 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] transition-all hover:border-[#7E6BAF] hover:bg-[#3D2E6B] hover:text-white disabled:cursor-wait disabled:opacity-70"
+      className="group inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white shadow-sm shadow-[#7E6BAF]/30 transition-all hover:bg-[#9A88C7] disabled:cursor-wait disabled:opacity-70"
     >
       {loading ? (
         <Loader2 className="h-3 w-3 animate-spin" />
