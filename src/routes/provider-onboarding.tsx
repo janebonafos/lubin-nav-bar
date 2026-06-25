@@ -280,21 +280,49 @@ function ProviderOnboardingPage() {
                 title="Tell us about yourself"
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
-              {linkedInImported && (
-                <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
-                    <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+              {linkedInImported && (() => {
+                const banner = {
+                  linkedin: {
+                    Icon: Linkedin,
+                    title: "Synced from your LinkedIn profile",
+                    subtitle: "Use AI to enhance your headline or bio anytime.",
+                    filled: true,
+                  },
+                  google: {
+                    Icon: Mail,
+                    title: "Signed up with Google",
+                    subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
+                    filled: false,
+                  },
+                  facebook: {
+                    Icon: Facebook,
+                    title: "Signed up with Facebook",
+                    subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
+                    filled: false,
+                  },
+                  email: {
+                    Icon: UserPlus,
+                    title: "Welcome — let's build your profile",
+                    subtitle: "Fill in a few details, or let AI draft your headline and bio in seconds.",
+                    filled: false,
+                  },
+                }[signupSource];
+                const { Icon } = banner;
+                return (
+                  <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
+                      <Icon
+                        className="h-4 w-4"
+                        {...(banner.filled ? { fill: "currentColor", strokeWidth: 0 } : {})}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-[#3D2E6B]">{banner.title}</p>
+                      <p className="text-[12px] text-[#A89BD0]">{banner.subtitle}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#3D2E6B]">
-                      Synced from your LinkedIn profile
-                    </p>
-                    <p className="text-[12px] text-[#A89BD0]">
-                      Use AI to enhance your headline or bio anytime.
-                    </p>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
               <div className="space-y-8">
                 <TextField
                   label="Full name"
