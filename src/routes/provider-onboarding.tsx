@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Video, MapPin } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -87,6 +87,8 @@ function ProviderOnboardingPage() {
     inPerson: false,
   });
   const [rate, setRate] = useState("");
+  const [sessionLength, setSessionLength] = useState<number>(50);
+  const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
 
   // Simulated LinkedIn import — in production this comes from the OAuth callback.
   const [linkedInImported, setLinkedInImported] = useState(false);
@@ -142,7 +144,9 @@ function ProviderOnboardingPage() {
       ? fullName.trim().length > 1 && specialty !== null
       : step === 1
       ? focusAreas.length > 0 && yearsBand !== null
-      : (sessionTypes.video || sessionTypes.inPerson) && rate.trim().length > 0;
+      : (sessionTypes.video || sessionTypes.inPerson) &&
+        rate.trim().length > 0 &&
+        calendarChoice !== null;
 
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
