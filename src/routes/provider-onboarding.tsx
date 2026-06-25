@@ -102,9 +102,8 @@ function ProviderOnboardingPage() {
   const detectedRegion = useMemo(() => {
     if (typeof navigator === "undefined") return "US";
     try {
-      const loc = new Intl.Locale(navigator.language);
-      // @ts-expect-error - region is on the Locale instance at runtime
-      return (loc.region as string | undefined) || "US";
+      const loc = new Intl.Locale(navigator.language) as Intl.Locale & { region?: string };
+      return loc.region || "US";
     } catch {
       return "US";
     }
