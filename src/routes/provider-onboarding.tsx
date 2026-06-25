@@ -590,6 +590,73 @@ function ProviderOnboardingPage() {
                   You can refine your schedule, intake questions, and pricing later
                   from your provider dashboard — nothing here is set in stone.
                 </p>
+
+                {/* Add more sessions inline on this step too */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                      Additional sessions {customServices.length > 0 && `(${customServices.length})`}
+                    </p>
+                    <p className="text-[11px] text-[#A89BD0]">Optional</p>
+                  </div>
+
+                  {customServices.length > 0 && (
+                    <div className="space-y-2">
+                      {customServices.map((s) => (
+                        <div
+                          key={s.id}
+                          className="flex items-start gap-3 rounded-2xl border border-[#7E6BAF] bg-[#F4EEFB] p-4"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                              <p className="text-[14px] font-semibold text-[#2D1B4E]">{s.title}</p>
+                              <p className="text-[12px] font-medium text-[#7E6BAF]">
+                                {s.duration} min · {currency.symbol}
+                                {s.price} {currency.code}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCustomServices((prev) => prev.filter((x) => x.id !== s.id))
+                            }
+                            className="rounded-full p-1 text-[#7E6BAF] hover:bg-white"
+                            aria-label="Remove"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showAddCustom ? (
+                    <AddCustomService
+                      currency={currency}
+                      onCancel={() => setShowAddCustom(false)}
+                      onAdd={(svc) => {
+                        setCustomServices((prev) => [
+                          ...prev,
+                          { ...svc, id: `c_${Date.now()}` },
+                        ]);
+                        setShowAddCustom(false);
+                      }}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowAddCustom(true)}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#A89BD0] bg-white/40 px-4 py-3.5 text-[13px] font-medium text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-white/70"
+                    >
+                      <Plus className="h-4 w-4" /> Add another session
+                    </button>
+                  )}
+                  <p className="text-[11px] text-[#A89BD0]">
+                    On the next step we'll also suggest a few common add-ons (intro
+                    calls, deep dives) you can accept with one tap.
+                  </p>
+                </div>
               </div>
             </>
           )}
@@ -738,7 +805,7 @@ function ProviderOnboardingPage() {
               {step === 0 ? "Cancel" : "Back"}
             </button>
             <div className="flex items-center gap-2">
-              {step === STEPS.length - 1 && (
+              {step >= 2 && (
                 <button
                   type="button"
                   onClick={handleSkipExtras}
