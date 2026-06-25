@@ -567,6 +567,83 @@ function ProviderOnboardingPage() {
             </>
           )}
 
+          {step === 3 && (
+            <>
+              <PageHeader
+                title="A few extras we suggested for you"
+                subtitle="Based on your bio and focus areas, here are session types other practitioners like you offer. Add what feels right — skip what doesn't."
+              />
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white/70 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    Your main session
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-[15px] font-semibold text-[#2D1B4E]">
+                      {sessionName || defaultSessionName}
+                    </p>
+                    <p className="text-[13px] text-[#7E6BAF]">
+                      {sessionLength} min · {fmtPrice(rateNum)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" fill="currentColor" strokeWidth={1.5} />
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    AI-suggested add-ons
+                  </p>
+                </div>
+
+                <div className="grid gap-3">
+                  {suggestedServices.map((s) => {
+                    const on = addedServices.includes(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() =>
+                          setAddedServices((prev) =>
+                            prev.includes(s.id) ? prev.filter((x) => x !== s.id) : [...prev, s.id],
+                          )
+                        }
+                        className={`flex items-start gap-4 rounded-2xl border p-4 text-left transition-all ${
+                          on
+                            ? "border-[#7E6BAF] bg-[#F4EEFB] shadow-sm"
+                            : "border-[#E3DBF5] bg-white hover:border-[#A89BD0]"
+                        }`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
+                            on ? "border-[#7E6BAF] bg-[#7E6BAF] text-white" : "border-[#D6CCEB] bg-white"
+                          }`}
+                        >
+                          {on && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <p className="text-[14px] font-semibold text-[#2D1B4E]">{s.title}</p>
+                            <p className="text-[12px] font-medium text-[#7E6BAF]">
+                              {s.duration} · {s.price}
+                            </p>
+                          </div>
+                          <p className="mt-1 text-[12.5px] leading-relaxed text-[#7E6BAF]">
+                            {s.desc}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
+                  Don't worry about getting it perfect — you can add, rename, or remove
+                  session types anytime from your provider dashboard.
+                </p>
+              </div>
+            </>
+          )}
+
           <div className="mt-12 flex items-center justify-between border-t border-[#E3DBF5]/60 pt-8">
             <button
               type="button"
