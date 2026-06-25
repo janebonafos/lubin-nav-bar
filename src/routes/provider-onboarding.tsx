@@ -98,6 +98,16 @@ function ProviderOnboardingPage() {
   const [rate, setRate] = useState("");
   const [sessionLength, setSessionLength] = useState<number>(50);
   const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
+  const [availabilityDays, setAvailabilityDays] = useState<string[]>([
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+  ]);
+  const [availabilityStart, setAvailabilityStart] = useState("09:00");
+  const [availabilityEnd, setAvailabilityEnd] = useState("17:00");
+  const [availabilitySkipped, setAvailabilitySkipped] = useState(false);
   const [sessionName, setSessionName] = useState("");
   const [addedServices, setAddedServices] = useState<string[]>([]);
   const [customServices, setCustomServices] = useState<
