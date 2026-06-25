@@ -287,30 +287,40 @@ function ProviderOnboardingPage() {
                     title: "Synced from your LinkedIn profile",
                     subtitle: "Use AI to enhance your headline or bio anytime.",
                     filled: true,
+                    brand: false,
                   },
                   google: {
                     Icon: GoogleGlyph,
                     title: "Signed up with Google",
                     subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
                     filled: false,
+                    brand: true,
                   },
                   facebook: {
                     Icon: Facebook,
                     title: "Signed up with Facebook",
                     subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
                     filled: false,
+                    brand: false,
                   },
                   email: {
-                    Icon: UserPlus,
-                    title: "Welcome — let's build your profile",
-                    subtitle: "Fill in a few details, or let AI draft your headline and bio in seconds.",
+                    Icon: Mail,
+                    title: "Signed up with email",
+                    subtitle: "Add a headline and bio to finish your profile — or let AI draft them for you.",
                     filled: false,
+                    brand: false,
                   },
                 }[signupSource];
                 const { Icon } = banner;
                 return (
                   <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                        banner.brand
+                          ? "border border-[#E3DBF5] bg-white"
+                          : "bg-[#7E6BAF] text-white"
+                      }`}
+                    >
                       <Icon
                         className="h-4 w-4"
                         {...(banner.filled ? { fill: "currentColor", strokeWidth: 0 } : {})}
