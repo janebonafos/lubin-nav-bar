@@ -877,7 +877,23 @@ function ProviderOnboardingPage() {
       {/* Dev-only region/currency previewer — not shipped to production users.
           Lets developers see PHP vs USD UI without changing browser region. */}
       {import.meta.env.DEV && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
+          <span className="uppercase tracking-wider">Dev · signup</span>
+          {(["linkedin", "google", "facebook", "email"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSignupSource(s)}
+              className={`rounded-full px-2.5 py-0.5 capitalize transition ${
+                signupSource === s ? "bg-[#7E6BAF] text-white" : "hover:bg-[#F0EAFB]"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
           <Globe className="h-3.5 w-3.5" />
           <span className="uppercase tracking-wider">Dev · region</span>
           {(["US", "PH"] as const).map((r) => (
@@ -902,6 +918,7 @@ function ProviderOnboardingPage() {
               auto
             </button>
           )}
+        </div>
         </div>
       )}
     </div>
