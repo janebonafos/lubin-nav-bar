@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -91,6 +91,27 @@ function ProviderOnboardingPage() {
   const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
   const [sessionName, setSessionName] = useState("");
   const [addedServices, setAddedServices] = useState<string[]>([]);
+  const [customServices, setCustomServices] = useState<
+    { id: string; title: string; duration: string; price: string }[]
+  >([]);
+  const [showAddCustom, setShowAddCustom] = useState(false);
+
+  // --- Currency (locale-aware) -------------------------------------------------
+  // Detected from the browser's region; defaults to USD. In dev, a small
+  // floating widget lets us preview PH vs US without changing region.
+  const detectedRegion = useMemo(() => {
+    if (typeof navigator === "undefined") return "US";
+    try {
+      const loc = new Intl.Locale(navigator.language);
+      // @ts-expect-error - region is on the Locale instance at runtime
+      return (loc.region as string | undefined) || "US";
+    } catch {
+      return "US";
+    }
+  }, []);
+  const [regionOverride, setRegionOverride] = useState<string | null>(null);
+  const region = regionOverride ?? detectedRegion;
+  const currency = region === "PH" ? { code: "PHP", symbol: "₱" } : { code: "USD", symbol: "$" };
 
   const defaultSessionName = (() => {
     const map: Record<Specialty, string> = {
@@ -112,7 +133,8 @@ function ProviderOnboardingPage() {
   }, [step, specialty]);
 
   const rateNum = Number(rate) || 0;
-  const fmtPrice = (n: number) => (n > 0 ? `$${Math.round(n)} USD` : "Set in dashboard");
+  const fmtPrice = (n: number) =>
+    n > 0 ? `${currency.symbol}${Math.round(n).toLocaleString()} ${currency.code}` : "Set in dashboard";
   const suggestedServices = [
     {
       id: "intro",
@@ -202,6 +224,8 @@ function ProviderOnboardingPage() {
     if (step < STEPS.length - 1) setStep(step + 1);
     else navigate({ to: "/profile" });
   };
+
+  const handleSkipExtras = () => navigate({ to: "/profile" });
 
   const handleBack = () => {
     if (step === 0) navigate({ to: "/" });
@@ -540,13 +564,13 @@ function ProviderOnboardingPage() {
                 <Field label="Standard session rate">
                   <div className="relative">
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-medium text-[#A89BD0]">
-                      $
+                      {currency.symbol}
                     </span>
                     <input
                       type="text"
                       inputMode="decimal"
                       value={rate}
-                      placeholder="120"
+                      placeholder={currency.code === "PHP" ? "3500" : "120"}
                       onChange={(e) => {
                         const cleaned = e.target.value.replace(/[^\d.]/g, "");
                         setRate(cleaned);
@@ -554,9 +578,13 @@ function ProviderOnboardingPage() {
                       className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 pl-8 pr-16 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
                     />
                     <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-                      USD
+                      {currency.code}
                     </span>
                   </div>
+                  <p className="mt-2 text-[11px] text-[#A89BD0]">
+                    Shown in {currency.code} based on your region ({region}). You can change
+                    currency anytime from your dashboard.
+                  </p>
                 </Field>
 
                 <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
@@ -636,6 +664,64 @@ function ProviderOnboardingPage() {
                   })}
                 </div>
 
+                {/* Custom services added inline */}
+                {customServices.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                      Your custom sessions
+                    </p>
+                    {customServices.map((s) => (
+                      <div
+                        key={s.id}
+                        className="flex items-start gap-3 rounded-2xl border border-[#7E6BAF] bg-[#F4EEFB] p-4"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <p className="text-[14px] font-semibold text-[#2D1B4E]">{s.title}</p>
+                            <p className="text-[12px] font-medium text-[#7E6BAF]">
+                              {s.duration} min · {currency.symbol}
+                              {s.price} {currency.code}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCustomServices((prev) => prev.filter((x) => x.id !== s.id))
+                          }
+                          className="rounded-full p-1 text-[#7E6BAF] hover:bg-white"
+                          aria-label="Remove"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add another session inline */}
+                {showAddCustom ? (
+                  <AddCustomService
+                    currency={currency}
+                    onCancel={() => setShowAddCustom(false)}
+                    onAdd={(svc) => {
+                      setCustomServices((prev) => [
+                        ...prev,
+                        { ...svc, id: `c_${Date.now()}` },
+                      ]);
+                      setShowAddCustom(false);
+                    }}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCustom(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#A89BD0] bg-white/40 px-4 py-3.5 text-[13px] font-medium text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-white/70"
+                  >
+                    <Plus className="h-4 w-4" /> Add another session
+                  </button>
+                )}
+
                 <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
                   Don't worry about getting it perfect — you can add, rename, or remove
                   session types anytime from your provider dashboard.
@@ -652,21 +738,137 @@ function ProviderOnboardingPage() {
             >
               {step === 0 ? "Cancel" : "Back"}
             </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={!canNext}
-              className="group inline-flex items-center rounded-xl bg-[#7E6BAF] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#9A88C7] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#7E6BAF]"
-            >
-              {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
-              <ArrowRight
-                className="ml-3 h-4 w-4 opacity-70 transition-transform group-hover:translate-x-0.5"
-                strokeWidth={2.5}
-              />
-            </button>
+            <div className="flex items-center gap-2">
+              {step === STEPS.length - 1 && (
+                <button
+                  type="button"
+                  onClick={handleSkipExtras}
+                  className="rounded-xl px-5 py-3.5 text-sm font-medium text-[#7E6BAF] transition hover:bg-white/60"
+                >
+                  Skip for now
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={!canNext}
+                className="group inline-flex items-center rounded-xl bg-[#7E6BAF] px-10 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#9A88C7] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#7E6BAF]"
+              >
+                {step === STEPS.length - 1 ? "Finish setup" : "Continue"}
+                <ArrowRight
+                  className="ml-3 h-4 w-4 opacity-70 transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2.5}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Dev-only region/currency previewer — not shipped to production users.
+          Lets developers see PHP vs USD UI without changing browser region. */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
+          <Globe className="h-3.5 w-3.5" />
+          <span className="uppercase tracking-wider">Dev · region</span>
+          {(["US", "PH"] as const).map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRegionOverride(r)}
+              className={`rounded-full px-2.5 py-0.5 transition ${
+                region === r ? "bg-[#7E6BAF] text-white" : "hover:bg-[#F0EAFB]"
+              }`}
+            >
+              {r}
+            </button>
+          ))}
+          {regionOverride && (
+            <button
+              type="button"
+              onClick={() => setRegionOverride(null)}
+              className="ml-1 rounded-full px-2 py-0.5 text-[10px] text-[#A89BD0] hover:text-[#7E6BAF]"
+              title="Use detected region"
+            >
+              auto
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddCustomService({
+  currency,
+  onAdd,
+  onCancel,
+}: {
+  currency: { code: string; symbol: string };
+  onAdd: (svc: { title: string; duration: string; price: string }) => void;
+  onCancel: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [duration, setDuration] = useState("60");
+  const [price, setPrice] = useState("");
+  const valid = title.trim().length > 0 && Number(duration) > 0;
+  return (
+    <div className="space-y-3 rounded-2xl border border-[#7E6BAF]/40 bg-white p-4">
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Session name (e.g. Couples session)"
+        className="w-full rounded-xl border border-[#E3DBF5] bg-white px-4 py-3 text-[14px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+      />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="relative">
+          <input
+            type="text"
+            inputMode="numeric"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value.replace(/\D/g, ""))}
+            placeholder="60"
+            className="w-full rounded-xl border border-[#E3DBF5] bg-white px-4 py-3 pr-12 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+          />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold uppercase text-[#A89BD0]">
+            min
+          </span>
+        </div>
+        <div className="relative">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-[#A89BD0]">
+            {currency.symbol}
+          </span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={price}
+            onChange={(e) => setPrice(e.target.value.replace(/[^\d.]/g, ""))}
+            placeholder="Price"
+            className="w-full rounded-xl border border-[#E3DBF5] bg-white px-4 py-3 pl-7 pr-14 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+          />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold uppercase text-[#A89BD0]">
+            {currency.code}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-2 pt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg px-3 py-2 text-[13px] font-medium text-[#A89BD0] hover:text-[#7E6BAF]"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={!valid}
+          onClick={() => onAdd({ title: title.trim(), duration, price })}
+          className="rounded-lg bg-[#7E6BAF] px-4 py-2 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#9A88C7] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Add session
+        </button>
+      </div>
     </div>
   );
 }
