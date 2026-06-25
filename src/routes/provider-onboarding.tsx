@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -162,23 +162,38 @@ function ProviderOnboardingPage() {
   const [linkedInImported, setLinkedInImported] = useState(false);
   const [enhanceOpen, setEnhanceOpen] = useState<null | "headline" | "bio">(null);
 
+  // Which auth provider the user signed up with. In production this is derived
+  // from the OAuth callback / session. The dev chip below lets us preview each
+  // variant of the sync banner + prefill behavior.
+  type SignupSource = "linkedin" | "google" | "facebook" | "email";
+  const [signupSource, setSignupSource] = useState<SignupSource>("linkedin");
+
   useEffect(() => {
-    // Simulate LinkedIn prefill on first mount
+    // Simulate OAuth prefill on signup source change. Different providers
+    // expose different fields, so we mirror that here for the dev preview.
+    setFullName("");
+    setHeadline("");
+    setBio("");
+    setLinkedInImported(false);
     const t = setTimeout(() => {
-      setFullName((v) => v || "Dr. Jane Doe");
-      setSpecialty((v) => v ?? "psychologist");
-      setHeadline(
-        (v) => v || "Clinical psychologist · Helping adults navigate anxiety and burnout",
-      );
-      setBio(
-        (v) =>
-          v ||
+      if (signupSource === "linkedin") {
+        setFullName("Dr. Jane Doe");
+        setSpecialty((v) => v ?? "psychologist");
+        setHeadline(
+          "Clinical psychologist · Helping adults navigate anxiety and burnout",
+        );
+        setBio(
           "I'm a licensed clinical psychologist with over 8 years of experience supporting adults through anxiety, stress, and life transitions. My approach blends evidence-based therapy with warmth and curiosity.",
-      );
+        );
+      } else if (signupSource === "google" || signupSource === "facebook") {
+        // Social providers only give us a name (and avatar/email we don't show here).
+        setFullName("Jane Doe");
+      }
+      // email: nothing prefilled — user fills everything in by hand.
       setLinkedInImported(true);
     }, 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [signupSource]);
 
   const requestEnhancement = async (opts: {
     field: "headline" | "bio";
