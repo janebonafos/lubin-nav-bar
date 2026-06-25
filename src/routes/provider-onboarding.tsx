@@ -514,7 +514,11 @@ function ProviderOnboardingPage() {
                         You stay in control of every confirmation.
                       </p>
 
-                      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                      <div
+                        className={`mt-4 grid gap-2.5 ${
+                          calendarChoice === "connected" ? "" : "sm:grid-cols-2"
+                        }`}
+                      >
                         <button
                           type="button"
                           onClick={() => setCalendarChoice("connected")}
@@ -535,18 +539,36 @@ function ProviderOnboardingPage() {
                           {calendarChoice === "connected" ? "Connected" : "Connect Google Calendar"}
                           {calendarChoice === "connected" && <Check className="ml-1 h-4 w-4" strokeWidth={2.5} />}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setCalendarChoice("later")}
-                          className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                            calendarChoice === "later"
-                              ? "border-[#7E6BAF] bg-[#F0EAFB] text-[#2D1B4E]"
-                              : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
-                          }`}
-                        >
-                          I'll set this up later
-                        </button>
+                        {calendarChoice !== "connected" && (
+                          <button
+                            type="button"
+                            onClick={() => setCalendarChoice("later")}
+                            className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                              calendarChoice === "later"
+                                ? "border-[#7E6BAF] bg-[#F0EAFB] text-[#2D1B4E]"
+                                : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                            }`}
+                          >
+                            I'll set this up later
+                          </button>
+                        )}
                       </div>
+
+                      {calendarChoice === "connected" && (
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F0EAFB] px-3 py-2 text-[12px] text-[#5E4A8C]">
+                          <span className="flex items-center gap-2">
+                            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            Connected as <strong className="font-semibold">you@gmail.com</strong>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCalendarChoice(null)}
+                            className="text-[11px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                          >
+                            Disconnect
+                          </button>
+                        </div>
+                      )}
 
                       {calendarChoice === "later" && (
                         <p className="mt-3 rounded-lg bg-[#FFF7E6] px-3 py-2 text-[12px] leading-relaxed text-[#8A6D1F]">
