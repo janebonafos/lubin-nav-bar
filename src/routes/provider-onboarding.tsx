@@ -39,7 +39,7 @@ const SPECIALTIES: { id: Specialty; label: string }[] = [
   { id: "other", label: "Other" },
 ];
 
-const STEPS = ["Registration", "Profile Customization", "Calendar Integration"] as const;
+const STEPS = ["Registration", "Profile Customization", "Calendar & Sessions", "Review"] as const;
 
 type FocusArea =
   | "anxiety"
@@ -89,6 +89,53 @@ function ProviderOnboardingPage() {
   const [rate, setRate] = useState("");
   const [sessionLength, setSessionLength] = useState<number>(50);
   const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
+  const [sessionName, setSessionName] = useState("");
+  const [addedServices, setAddedServices] = useState<string[]>([]);
+
+  const defaultSessionName = (() => {
+    const map: Record<Specialty, string> = {
+      therapist: "1:1 Therapy Session",
+      psychologist: "Clinical Psychology Session",
+      counselor: "Counseling Session",
+      psychiatrist: "Psychiatry Consultation",
+      coach: "Coaching Session",
+      other: "1:1 Session",
+    };
+    return specialty ? map[specialty] : "1:1 Session";
+  })();
+
+  useEffect(() => {
+    if (step === 2 && !sessionName && specialty) {
+      setSessionName(defaultSessionName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, specialty]);
+
+  const rateNum = Number(rate) || 0;
+  const fmtPrice = (n: number) => (n > 0 ? `$${Math.round(n)} USD` : "Set in dashboard");
+  const suggestedServices = [
+    {
+      id: "intro",
+      title: "Free intro call",
+      duration: "15 min",
+      price: "Free",
+      desc: "A short, no-pressure call so new clients can see if you're the right fit.",
+    },
+    {
+      id: "deep",
+      title: "Deep-dive session",
+      duration: "90 min",
+      price: fmtPrice(rateNum * 1.6),
+      desc: "Extended time for first sessions or harder topics that need room to breathe.",
+    },
+    {
+      id: "checkin",
+      title: "Quick check-in",
+      duration: "30 min",
+      price: fmtPrice(rateNum * 0.6),
+      desc: "A lighter touchpoint between full sessions — good for momentum.",
+    },
+  ];
 
   // Simulated LinkedIn import — in production this comes from the OAuth callback.
   const [linkedInImported, setLinkedInImported] = useState(false);
@@ -144,9 +191,12 @@ function ProviderOnboardingPage() {
       ? fullName.trim().length > 1 && specialty !== null
       : step === 1
       ? focusAreas.length > 0 && yearsBand !== null
-      : (sessionTypes.video || sessionTypes.inPerson) &&
+      : step === 2
+      ? sessionTypes.video &&
+        sessionName.trim().length > 0 &&
         rate.trim().length > 0 &&
-        calendarChoice !== null;
+        calendarChoice !== null
+      : true;
 
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -355,8 +405,8 @@ function ProviderOnboardingPage() {
           {step === 2 && (
             <>
               <PageHeader
-                title="Connect your calendar"
-                subtitle="Sync a calendar so clients can book real, open time with you — and define what a session with you looks like."
+                title="Connect your calendar & set up a session"
+                subtitle="Your calendar is your availability — connect it and Lubin reads your free time automatically. No separate working-hours setup needed."
               />
               <div className="space-y-8">
                 {/* Calendar connection */}
@@ -423,11 +473,28 @@ function ProviderOnboardingPage() {
                     What a session with you looks like
                   </h3>
                   <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
-                    Lubin keeps it simple — one bookable session, defined by you.
-                    You can add more session types (intro calls, longer formats) anytime
-                    from your dashboard.
+                    Set up your main bookable session — this is what clients see when
+                    they book. You can add intro calls and longer formats on the next step.
                   </p>
                 </div>
+
+                <TextField
+                  label="Session name"
+                  value={sessionName}
+                  onChange={setSessionName}
+                  placeholder={defaultSessionName}
+                  inputAction={
+                    <button
+                      type="button"
+                      onClick={() => setSessionName(defaultSessionName)}
+                      title="Use AI suggestion"
+                      aria-label="Use AI suggestion"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition hover:from-[#9A88C7] hover:to-[#7E6BAF] active:scale-95"
+                    >
+                      <Sparkles className="h-4 w-4" fill="currentColor" strokeWidth={1.5} />
+                    </button>
+                  }
+                />
 
                 <Field label="How you meet">
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -438,13 +505,15 @@ function ProviderOnboardingPage() {
                         setSessionTypes((s) => ({ ...s, video: !s.video }))
                       }
                     />
-                    <Toggle
-                      label="In-person sessions"
-                      active={sessionTypes.inPerson}
-                      onClick={() =>
-                        setSessionTypes((s) => ({ ...s, inPerson: !s.inPerson }))
-                      }
-                    />
+                    <div className="flex items-center justify-between rounded-xl border border-dashed border-[#E3DBF5] bg-white/40 p-4 text-left opacity-70">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#7E6BAF]">In-person sessions</p>
+                        <p className="mt-0.5 text-[11px] text-[#A89BD0]">Coming soon</p>
+                      </div>
+                      <span className="rounded-full bg-[#F0EAFB] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                        Soon
+                      </span>
+                    </div>
                   </div>
                 </Field>
 
@@ -468,17 +537,108 @@ function ProviderOnboardingPage() {
                   </div>
                 </Field>
 
-                <TextField
-                  label="Standard session rate (USD)"
-                  value={rate}
-                  onChange={setRate}
-                  placeholder="e.g. 120"
-                  type="number"
-                />
+                <Field label="Standard session rate">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-medium text-[#A89BD0]">
+                      $
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={rate}
+                      placeholder="120"
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/[^\d.]/g, "");
+                        setRate(cleaned);
+                      }}
+                      className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 pl-8 pr-16 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+                    />
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                      USD
+                    </span>
+                  </div>
+                </Field>
 
                 <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
                   You can refine your schedule, intake questions, and pricing later
                   from your provider dashboard — nothing here is set in stone.
+                </p>
+              </div>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <PageHeader
+                title="A few extras we suggested for you"
+                subtitle="Based on your bio and focus areas, here are session types other practitioners like you offer. Add what feels right — skip what doesn't."
+              />
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white/70 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    Your main session
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-[15px] font-semibold text-[#2D1B4E]">
+                      {sessionName || defaultSessionName}
+                    </p>
+                    <p className="text-[13px] text-[#7E6BAF]">
+                      {sessionLength} min · {fmtPrice(rateNum)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" fill="currentColor" strokeWidth={1.5} />
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    AI-suggested add-ons
+                  </p>
+                </div>
+
+                <div className="grid gap-3">
+                  {suggestedServices.map((s) => {
+                    const on = addedServices.includes(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() =>
+                          setAddedServices((prev) =>
+                            prev.includes(s.id) ? prev.filter((x) => x !== s.id) : [...prev, s.id],
+                          )
+                        }
+                        className={`flex items-start gap-4 rounded-2xl border p-4 text-left transition-all ${
+                          on
+                            ? "border-[#7E6BAF] bg-[#F4EEFB] shadow-sm"
+                            : "border-[#E3DBF5] bg-white hover:border-[#A89BD0]"
+                        }`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
+                            on ? "border-[#7E6BAF] bg-[#7E6BAF] text-white" : "border-[#D6CCEB] bg-white"
+                          }`}
+                        >
+                          {on && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <p className="text-[14px] font-semibold text-[#2D1B4E]">{s.title}</p>
+                            <p className="text-[12px] font-medium text-[#7E6BAF]">
+                              {s.duration} · {s.price}
+                            </p>
+                          </div>
+                          <p className="mt-1 text-[12.5px] leading-relaxed text-[#7E6BAF]">
+                            {s.desc}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
+                  Don't worry about getting it perfect — you can add, rename, or remove
+                  session types anytime from your provider dashboard.
                 </p>
               </div>
             </>
