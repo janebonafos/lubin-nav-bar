@@ -98,6 +98,16 @@ function ProviderOnboardingPage() {
   const [rate, setRate] = useState("");
   const [sessionLength, setSessionLength] = useState<number>(50);
   const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
+  const [availabilityDays, setAvailabilityDays] = useState<string[]>([
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+  ]);
+  const [availabilityStart, setAvailabilityStart] = useState("09:00");
+  const [availabilityEnd, setAvailabilityEnd] = useState("17:00");
+  const [availabilitySkipped, setAvailabilitySkipped] = useState(false);
   const [sessionName, setSessionName] = useState("");
   const [addedServices, setAddedServices] = useState<string[]>([]);
   const [customServices, setCustomServices] = useState<
@@ -504,7 +514,11 @@ function ProviderOnboardingPage() {
                         You stay in control of every confirmation.
                       </p>
 
-                      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                      <div
+                        className={`mt-4 grid gap-2.5 ${
+                          calendarChoice === "connected" ? "" : "sm:grid-cols-2"
+                        }`}
+                      >
                         <button
                           type="button"
                           onClick={() => setCalendarChoice("connected")}
@@ -525,18 +539,36 @@ function ProviderOnboardingPage() {
                           {calendarChoice === "connected" ? "Connected" : "Connect Google Calendar"}
                           {calendarChoice === "connected" && <Check className="ml-1 h-4 w-4" strokeWidth={2.5} />}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setCalendarChoice("later")}
-                          className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                            calendarChoice === "later"
-                              ? "border-[#7E6BAF] bg-[#F0EAFB] text-[#2D1B4E]"
-                              : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
-                          }`}
-                        >
-                          I'll set this up later
-                        </button>
+                        {calendarChoice !== "connected" && (
+                          <button
+                            type="button"
+                            onClick={() => setCalendarChoice("later")}
+                            className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                              calendarChoice === "later"
+                                ? "border-[#7E6BAF] bg-[#F0EAFB] text-[#2D1B4E]"
+                                : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                            }`}
+                          >
+                            I'll set this up later
+                          </button>
+                        )}
                       </div>
+
+                      {calendarChoice === "connected" && (
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F0EAFB] px-3 py-2 text-[12px] text-[#5E4A8C]">
+                          <span className="flex items-center gap-2">
+                            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            Connected as <strong className="font-semibold">you@gmail.com</strong>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCalendarChoice(null)}
+                            className="text-[11px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                          >
+                            Disconnect
+                          </button>
+                        </div>
+                      )}
 
                       {calendarChoice === "later" && (
                         <p className="mt-3 rounded-lg bg-[#FFF7E6] px-3 py-2 text-[12px] leading-relaxed text-[#8A6D1F]">
@@ -572,6 +604,109 @@ function ProviderOnboardingPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Weekly availability — appears after calendar connects */}
+                {calendarChoice === "connected" && (
+                  <div className="rounded-2xl border border-[#E3DBF5] bg-white/70 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-[15px] font-semibold text-[#2D1B4E]">
+                          Set your weekly availability
+                        </h3>
+                        <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                          Lubin overlays this with your Google Calendar busy times. Clients
+                          only see openings that fall inside these hours.
+                        </p>
+                      </div>
+                      {!availabilitySkipped && (
+                        <button
+                          type="button"
+                          onClick={() => setAvailabilitySkipped(true)}
+                          className="shrink-0 text-[12px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                        >
+                          Set up later
+                        </button>
+                      )}
+                    </div>
+
+                    {availabilitySkipped ? (
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F7F2FC] px-3 py-2 text-[12px] text-[#5E4A8C]">
+                        <span>
+                          Skipped for now — you can set this up from your dashboard
+                          anytime.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAvailabilitySkipped(false)}
+                          className="text-[11px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                        >
+                          Set it now
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <p className="text-[12px] font-medium text-[#5E4A8C]">
+                            Available days
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => {
+                              const active = availabilityDays.includes(d);
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() =>
+                                    setAvailabilityDays((prev) =>
+                                      active ? prev.filter((x) => x !== d) : [...prev, d],
+                                    )
+                                  }
+                                  className={`h-9 w-11 rounded-lg border text-[12px] font-medium transition-all ${
+                                    active
+                                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                                      : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                                  }`}
+                                >
+                                  {d}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="block">
+                            <span className="text-[12px] font-medium text-[#5E4A8C]">
+                              Start time
+                            </span>
+                            <input
+                              type="time"
+                              value={availabilityStart}
+                              onChange={(e) => setAvailabilityStart(e.target.value)}
+                              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm text-[#2D1B4E] focus:border-[#7E6BAF] focus:outline-none"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-[12px] font-medium text-[#5E4A8C]">
+                              End time
+                            </span>
+                            <input
+                              type="time"
+                              value={availabilityEnd}
+                              onChange={(e) => setAvailabilityEnd(e.target.value)}
+                              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm text-[#2D1B4E] focus:border-[#7E6BAF] focus:outline-none"
+                            />
+                          </label>
+                        </div>
+
+                        <p className="text-[11px] leading-relaxed text-[#A89BD0]">
+                          You can fine-tune per-day hours and add breaks from your
+                          dashboard later.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Session offering */}
                 <div>
