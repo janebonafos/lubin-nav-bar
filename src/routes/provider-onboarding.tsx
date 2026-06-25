@@ -355,11 +355,81 @@ function ProviderOnboardingPage() {
           {step === 2 && (
             <>
               <PageHeader
-                title="Set your availability"
-                subtitle="Choose how you'd like to meet clients and the rate that supports your practice."
+                title="Connect your calendar"
+                subtitle="Sync a calendar so clients can book real, open time with you — and define what a session with you looks like."
               />
               <div className="space-y-8">
-                <Field label="Session types">
+                {/* Calendar connection */}
+                <div className="rounded-2xl border border-[#E3DBF5] bg-white/70 p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F0EAFB]">
+                      <CalendarIcon className="h-5 w-5 text-[#7E6BAF]" strokeWidth={2} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-[15px] font-semibold text-[#2D1B4E]">
+                        Google Calendar
+                      </h3>
+                      <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                        Lubin reads your busy times only — never event details — so
+                        clients can see your real openings and book without back-and-forth.
+                        You stay in control of every confirmation.
+                      </p>
+
+                      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={() => setCalendarChoice("connected")}
+                          className={`group flex items-center justify-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                            calendarChoice === "connected"
+                              ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/25"
+                              : "border-[#E3DBF5] bg-white text-[#2D1B4E] hover:border-[#A89BD0]"
+                          }`}
+                        >
+                          <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden>
+                            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+                            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+                            <path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.4l-6.5-5.3C29.5 34.7 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.6 39.6 16.2 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.5 5.3C41.9 35.5 44 30.1 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+                          </svg>
+                          {calendarChoice === "connected" ? "Connected" : "Connect Google Calendar"}
+                          {calendarChoice === "connected" && <Check className="ml-1 h-4 w-4" strokeWidth={2.5} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalendarChoice("later")}
+                          className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                            calendarChoice === "later"
+                              ? "border-[#7E6BAF] bg-[#F0EAFB] text-[#2D1B4E]"
+                              : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                          }`}
+                        >
+                          I'll set this up later
+                        </button>
+                      </div>
+
+                      {calendarChoice === "later" && (
+                        <p className="mt-3 rounded-lg bg-[#FFF7E6] px-3 py-2 text-[12px] leading-relaxed text-[#8A6D1F]">
+                          Heads up — your profile will be live, but clients won't be
+                          able to book until you connect a calendar from your dashboard.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Session offering */}
+                <div>
+                  <h3 className="text-[15px] font-semibold text-[#2D1B4E]">
+                    What a session with you looks like
+                  </h3>
+                  <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                    Lubin keeps it simple — one bookable session, defined by you.
+                    You can add more session types (intro calls, longer formats) anytime
+                    from your dashboard.
+                  </p>
+                </div>
+
+                <Field label="How you meet">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Toggle
                       label="Video sessions"
@@ -375,6 +445,26 @@ function ProviderOnboardingPage() {
                         setSessionTypes((s) => ({ ...s, inPerson: !s.inPerson }))
                       }
                     />
+                  </div>
+                </Field>
+
+                <Field label="Session length">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[30, 50, 60, 90].map((mins) => (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setSessionLength(mins)}
+                        className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                          sessionLength === mins
+                            ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                            : "border-[#E3DBF5] bg-white text-[#2D1B4E] hover:border-[#A89BD0]"
+                        }`}
+                      >
+                        <Clock className="h-3.5 w-3.5 opacity-70" strokeWidth={2} />
+                        {mins} min
+                      </button>
+                    ))}
                   </div>
                 </Field>
 
