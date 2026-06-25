@@ -73,6 +73,7 @@ const YEARS_BANDS: { id: string; label: string }[] = [
 ];
 
 function ProviderOnboardingPage() {
+  // (GoogleGlyph defined below module-scope)
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
 
