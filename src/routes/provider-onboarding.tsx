@@ -39,7 +39,7 @@ const SPECIALTIES: { id: Specialty; label: string }[] = [
   { id: "other", label: "Other" },
 ];
 
-const STEPS = ["Registration", "Profile Customization", "Calendar Integration"] as const;
+const STEPS = ["Registration", "Profile Customization", "Calendar & Sessions", "Review"] as const;
 
 type FocusArea =
   | "anxiety"
@@ -89,6 +89,53 @@ function ProviderOnboardingPage() {
   const [rate, setRate] = useState("");
   const [sessionLength, setSessionLength] = useState<number>(50);
   const [calendarChoice, setCalendarChoice] = useState<"connected" | "later" | null>(null);
+  const [sessionName, setSessionName] = useState("");
+  const [addedServices, setAddedServices] = useState<string[]>([]);
+
+  const defaultSessionName = (() => {
+    const map: Record<Specialty, string> = {
+      therapist: "1:1 Therapy Session",
+      psychologist: "Clinical Psychology Session",
+      counselor: "Counseling Session",
+      psychiatrist: "Psychiatry Consultation",
+      coach: "Coaching Session",
+      other: "1:1 Session",
+    };
+    return specialty ? map[specialty] : "1:1 Session";
+  })();
+
+  useEffect(() => {
+    if (step === 2 && !sessionName && specialty) {
+      setSessionName(defaultSessionName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, specialty]);
+
+  const rateNum = Number(rate) || 0;
+  const fmtPrice = (n: number) => (n > 0 ? `$${Math.round(n)} USD` : "Set in dashboard");
+  const suggestedServices = [
+    {
+      id: "intro",
+      title: "Free intro call",
+      duration: "15 min",
+      price: "Free",
+      desc: "A short, no-pressure call so new clients can see if you're the right fit.",
+    },
+    {
+      id: "deep",
+      title: "Deep-dive session",
+      duration: "90 min",
+      price: fmtPrice(rateNum * 1.6),
+      desc: "Extended time for first sessions or harder topics that need room to breathe.",
+    },
+    {
+      id: "checkin",
+      title: "Quick check-in",
+      duration: "30 min",
+      price: fmtPrice(rateNum * 0.6),
+      desc: "A lighter touchpoint between full sessions — good for momentum.",
+    },
+  ];
 
   // Simulated LinkedIn import — in production this comes from the OAuth callback.
   const [linkedInImported, setLinkedInImported] = useState(false);
@@ -144,9 +191,12 @@ function ProviderOnboardingPage() {
       ? fullName.trim().length > 1 && specialty !== null
       : step === 1
       ? focusAreas.length > 0 && yearsBand !== null
-      : (sessionTypes.video || sessionTypes.inPerson) &&
+      : step === 2
+      ? sessionTypes.video &&
+        sessionName.trim().length > 0 &&
         rate.trim().length > 0 &&
-        calendarChoice !== null;
+        calendarChoice !== null
+      : true;
 
   const handleNext = () => {
     if (step < STEPS.length - 1) setStep(step + 1);
