@@ -289,7 +289,7 @@ function ProviderOnboardingPage() {
                     filled: true,
                   },
                   google: {
-                    Icon: Mail,
+                    Icon: GoogleGlyph,
                     title: "Signed up with Google",
                     subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
                     filled: false,
