@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -162,23 +162,38 @@ function ProviderOnboardingPage() {
   const [linkedInImported, setLinkedInImported] = useState(false);
   const [enhanceOpen, setEnhanceOpen] = useState<null | "headline" | "bio">(null);
 
+  // Which auth provider the user signed up with. In production this is derived
+  // from the OAuth callback / session. The dev chip below lets us preview each
+  // variant of the sync banner + prefill behavior.
+  type SignupSource = "linkedin" | "google" | "facebook" | "email";
+  const [signupSource, setSignupSource] = useState<SignupSource>("linkedin");
+
   useEffect(() => {
-    // Simulate LinkedIn prefill on first mount
+    // Simulate OAuth prefill on signup source change. Different providers
+    // expose different fields, so we mirror that here for the dev preview.
+    setFullName("");
+    setHeadline("");
+    setBio("");
+    setLinkedInImported(false);
     const t = setTimeout(() => {
-      setFullName((v) => v || "Dr. Jane Doe");
-      setSpecialty((v) => v ?? "psychologist");
-      setHeadline(
-        (v) => v || "Clinical psychologist · Helping adults navigate anxiety and burnout",
-      );
-      setBio(
-        (v) =>
-          v ||
+      if (signupSource === "linkedin") {
+        setFullName("Dr. Jane Doe");
+        setSpecialty((v) => v ?? "psychologist");
+        setHeadline(
+          "Clinical psychologist · Helping adults navigate anxiety and burnout",
+        );
+        setBio(
           "I'm a licensed clinical psychologist with over 8 years of experience supporting adults through anxiety, stress, and life transitions. My approach blends evidence-based therapy with warmth and curiosity.",
-      );
+        );
+      } else if (signupSource === "google" || signupSource === "facebook") {
+        // Social providers only give us a name (and avatar/email we don't show here).
+        setFullName("Jane Doe");
+      }
+      // email: nothing prefilled — user fills everything in by hand.
       setLinkedInImported(true);
     }, 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [signupSource]);
 
   const requestEnhancement = async (opts: {
     field: "headline" | "bio";
@@ -265,21 +280,49 @@ function ProviderOnboardingPage() {
                 title="Tell us about yourself"
                 subtitle="A gentle introduction helps clients feel safe and understood."
               />
-              {linkedInImported && (
-                <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
-                    <Linkedin className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+              {linkedInImported && (() => {
+                const banner = {
+                  linkedin: {
+                    Icon: Linkedin,
+                    title: "Synced from your LinkedIn profile",
+                    subtitle: "Use AI to enhance your headline or bio anytime.",
+                    filled: true,
+                  },
+                  google: {
+                    Icon: Mail,
+                    title: "Signed up with Google",
+                    subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
+                    filled: false,
+                  },
+                  facebook: {
+                    Icon: Facebook,
+                    title: "Signed up with Facebook",
+                    subtitle: "We pulled in your name — add a headline and bio, or let AI draft them for you.",
+                    filled: false,
+                  },
+                  email: {
+                    Icon: UserPlus,
+                    title: "Welcome — let's build your profile",
+                    subtitle: "Fill in a few details, or let AI draft your headline and bio in seconds.",
+                    filled: false,
+                  },
+                }[signupSource];
+                const { Icon } = banner;
+                return (
+                  <div className="mb-8 flex items-center gap-3 rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#7E6BAF] text-white">
+                      <Icon
+                        className="h-4 w-4"
+                        {...(banner.filled ? { fill: "currentColor", strokeWidth: 0 } : {})}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-[#3D2E6B]">{banner.title}</p>
+                      <p className="text-[12px] text-[#A89BD0]">{banner.subtitle}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#3D2E6B]">
-                      Synced from your LinkedIn profile
-                    </p>
-                    <p className="text-[12px] text-[#A89BD0]">
-                      Use AI to enhance your headline or bio anytime.
-                    </p>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
               <div className="space-y-8">
                 <TextField
                   label="Full name"
@@ -834,7 +877,23 @@ function ProviderOnboardingPage() {
       {/* Dev-only region/currency previewer — not shipped to production users.
           Lets developers see PHP vs USD UI without changing browser region. */}
       {import.meta.env.DEV && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
+          <span className="uppercase tracking-wider">Dev · signup</span>
+          {(["linkedin", "google", "facebook", "email"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSignupSource(s)}
+              className={`rounded-full px-2.5 py-0.5 capitalize transition ${
+                signupSource === s ? "bg-[#7E6BAF] text-white" : "hover:bg-[#F0EAFB]"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-[#E3DBF5] bg-white/95 px-3 py-2 text-[11px] font-medium text-[#7E6BAF] shadow-lg backdrop-blur">
           <Globe className="h-3.5 w-3.5" />
           <span className="uppercase tracking-wider">Dev · region</span>
           {(["US", "PH"] as const).map((r) => (
@@ -859,6 +918,7 @@ function ProviderOnboardingPage() {
               auto
             </button>
           )}
+        </div>
         </div>
       )}
     </div>
