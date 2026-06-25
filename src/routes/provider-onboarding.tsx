@@ -405,8 +405,8 @@ function ProviderOnboardingPage() {
           {step === 2 && (
             <>
               <PageHeader
-                title="Connect your calendar"
-                subtitle="Sync a calendar so clients can book real, open time with you — and define what a session with you looks like."
+                title="Connect your calendar & set up a session"
+                subtitle="Your calendar is your availability — connect it and Lubin reads your free time automatically. No separate working-hours setup needed."
               />
               <div className="space-y-8">
                 {/* Calendar connection */}
@@ -473,11 +473,28 @@ function ProviderOnboardingPage() {
                     What a session with you looks like
                   </h3>
                   <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
-                    Lubin keeps it simple — one bookable session, defined by you.
-                    You can add more session types (intro calls, longer formats) anytime
-                    from your dashboard.
+                    Set up your main bookable session — this is what clients see when
+                    they book. You can add intro calls and longer formats on the next step.
                   </p>
                 </div>
+
+                <TextField
+                  label="Session name"
+                  value={sessionName}
+                  onChange={setSessionName}
+                  placeholder={defaultSessionName}
+                  inputAction={
+                    <button
+                      type="button"
+                      onClick={() => setSessionName(defaultSessionName)}
+                      title="Use AI suggestion"
+                      aria-label="Use AI suggestion"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#CFC3EA] to-[#B5A4D8] text-white shadow-sm ring-1 ring-white/70 transition hover:from-[#9A88C7] hover:to-[#7E6BAF] active:scale-95"
+                    >
+                      <Sparkles className="h-4 w-4" fill="currentColor" strokeWidth={1.5} />
+                    </button>
+                  }
+                />
 
                 <Field label="How you meet">
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -488,13 +505,15 @@ function ProviderOnboardingPage() {
                         setSessionTypes((s) => ({ ...s, video: !s.video }))
                       }
                     />
-                    <Toggle
-                      label="In-person sessions"
-                      active={sessionTypes.inPerson}
-                      onClick={() =>
-                        setSessionTypes((s) => ({ ...s, inPerson: !s.inPerson }))
-                      }
-                    />
+                    <div className="flex items-center justify-between rounded-xl border border-dashed border-[#E3DBF5] bg-white/40 p-4 text-left opacity-70">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#7E6BAF]">In-person sessions</p>
+                        <p className="mt-0.5 text-[11px] text-[#A89BD0]">Coming soon</p>
+                      </div>
+                      <span className="rounded-full bg-[#F0EAFB] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                        Soon
+                      </span>
+                    </div>
                   </div>
                 </Field>
 
@@ -518,13 +537,27 @@ function ProviderOnboardingPage() {
                   </div>
                 </Field>
 
-                <TextField
-                  label="Standard session rate (USD)"
-                  value={rate}
-                  onChange={setRate}
-                  placeholder="e.g. 120"
-                  type="number"
-                />
+                <Field label="Standard session rate">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-medium text-[#A89BD0]">
+                      $
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={rate}
+                      placeholder="120"
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/[^\d.]/g, "");
+                        setRate(cleaned);
+                      }}
+                      className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 pl-8 pr-16 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+                    />
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                      USD
+                    </span>
+                  </div>
+                </Field>
 
                 <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
                   You can refine your schedule, intake questions, and pricing later
