@@ -874,8 +874,9 @@ export function CalendarAvailabilitySection() {
                     <p className="text-sm text-[#A89BD0]">Unavailable</p>
                   </div>
                 ) : (
-                  <div className="flex-1 space-y-3">
-                    {dayErr?.day && (
+                  <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex-1 space-y-3">
+                      {dayErr?.day && (
                       <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
                         <AlertTriangle className="h-3 w-3" /> {dayErr.day}
                       </p>
@@ -915,7 +916,8 @@ export function CalendarAvailabilitySection() {
                         )}
                       </div>
                     ))}
-                    <div className="flex flex-wrap items-center gap-4 pt-1">
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4 sm:pt-2.5">
                       <button
                         onClick={() => addInterval(d.key)}
                         className="inline-flex items-center gap-2 text-sm font-medium text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
