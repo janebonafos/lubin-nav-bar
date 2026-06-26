@@ -853,13 +853,13 @@ function ProviderOnboardingPage() {
                         key={mins}
                         type="button"
                         onClick={() => setSessionLength(mins)}
-                        className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                        className={`flex h-12 items-center justify-center gap-2 rounded-2xl border text-sm font-medium transition-all ${
                           sessionLength === mins
-                            ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                            : "border-[#E3DBF5] bg-white text-[#2D1B4E] hover:border-[#A89BD0]"
+                            ? "border-transparent bg-[#7E6BAF] text-white shadow-inner shadow-black/20"
+                            : "border-[#E3DBF5] bg-white/60 text-[#3D2E6B] hover:bg-white/80"
                         }`}
                       >
-                        <Clock className="h-3.5 w-3.5 opacity-70" strokeWidth={2} />
+                        <Clock className="h-4 w-4 opacity-70" strokeWidth={2} />
                         {mins} min
                       </button>
                     ))}
@@ -867,8 +867,8 @@ function ProviderOnboardingPage() {
                 </Field>
 
                 <Field label="Standard session rate">
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-medium text-[#A89BD0]">
+                  <div className="relative flex items-center">
+                    <span className="pointer-events-none absolute left-5 text-[15px] font-medium text-[#7E6BAF]">
                       {currency.symbol}
                     </span>
                     <input
@@ -880,9 +880,9 @@ function ProviderOnboardingPage() {
                         const cleaned = e.target.value.replace(/[^\d.]/g, "");
                         setRate(cleaned);
                       }}
-                      className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 px-5 py-4 pl-8 pr-16 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+                      className="h-14 w-full rounded-2xl border border-[#E3DBF5] bg-white/60 pl-10 pr-16 text-[15px] font-medium text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
                     />
-                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                    <span className="pointer-events-none absolute right-5 text-[11px] font-bold uppercase tracking-widest text-[#7E6BAF]">
                       {currency.code}
                     </span>
                   </div>
@@ -892,10 +892,12 @@ function ProviderOnboardingPage() {
                   </p>
                 </Field>
 
-                <p className="rounded-xl border border-[#E3DBF5]/70 bg-white/60 p-4 text-[13px] leading-relaxed text-[#7E6BAF]">
-                  You can refine your schedule, intake questions, and pricing later
-                  from your provider dashboard — nothing here is set in stone.
-                </p>
+                <div className="rounded-2xl border border-[#E3DBF5] bg-white/40 p-6">
+                  <p className="text-center text-[13px] leading-relaxed text-[#3D2E6B]/80">
+                    You can refine your schedule, intake questions, and pricing later
+                    from your provider dashboard — nothing here is set in stone.
+                  </p>
+                </div>
 
                 {/* Add more sessions inline on this step too */}
                 <div className="space-y-3 pt-2">
