@@ -1242,86 +1242,190 @@ export function AppointmentsSection() {
   const [tab, setTab] = useState<"upcoming" | "requests" | "past">("upcoming");
 
   const upcoming = [
-    { client: "Anna Reyes", when: "Today · 2:00 PM", type: "Therapy · 50 min" },
-    { client: "Jordan Lee", when: "Tomorrow · 10:30 AM", type: "Consultation · 30 min" },
-    { client: "Sam Cruz", when: "Fri Jun 28 · 4:00 PM", type: "Therapy · 50 min" },
+    { client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
+    { client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", duration: "30 min", type: "Consultation", mode: "Video" },
+    { client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
   ];
   const requests = [
-    { client: "Priya Patel", when: "Mon Jul 1 · 11:00 AM", type: "Consultation · 30 min" },
+    { client: "Priya Patel", day: "MON", date: "01", month: "JUL", time: "11:00 AM", duration: "30 min", type: "Consultation", mode: "Video" },
   ];
   const past = [
-    { client: "Anna Reyes", when: "Last week · 2:00 PM", type: "Therapy · 50 min" },
-    { client: "Maya Singh", when: "Jun 18 · 9:00 AM", type: "Therapy · 50 min" },
+    { client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
+    { client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", duration: "50 min", type: "Therapy", mode: "In-person" },
   ];
 
   const list = tab === "upcoming" ? upcoming : tab === "requests" ? requests : past;
+  const counts = { upcoming: upcoming.length, requests: requests.length, past: past.length };
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Stat label="This week" value="6" hint="3 confirmed · 3 pending" />
-        <Stat label="Pending requests" value="1" hint="Awaiting your response" />
-        <Stat label="No-show rate" value="2%" hint="Last 30 days" />
+        <StatCard
+          label="This week"
+          value="6"
+          hint="3 confirmed · 3 pending"
+          icon={<CalendarClock className="h-4 w-4" />}
+          tone="primary"
+        />
+        <StatCard
+          label="Pending requests"
+          value="1"
+          hint="Awaiting your response"
+          icon={<AlertCircle className="h-4 w-4" />}
+          tone="amber"
+        />
+        <StatCard
+          label="No-show rate"
+          value="2%"
+          hint="Last 30 days"
+          icon={<ShieldCheck className="h-4 w-4" />}
+          tone="emerald"
+        />
       </div>
 
-      <SectionCard title="Bookings" description="Everything on your schedule.">
-        <div className="mb-5 inline-flex rounded-full border border-[#E3DBF5] bg-white/60 p-1">
+      <SectionCard
+        title="Bookings"
+        description="Everything on your schedule."
+        action={
+          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-[#E3DBF5] bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-white">
+            <CalendarDays className="h-3.5 w-3.5" /> Open calendar
+          </button>
+        }
+      >
+        <div className="mb-5 inline-flex rounded-[12px] border border-[#E3DBF5] bg-white/60 p-1">
           {(["upcoming", "requests", "past"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition ${
+              className={`inline-flex items-center gap-2 rounded-[9px] px-4 py-1.5 text-xs font-semibold capitalize transition ${
                 tab === t
                   ? "bg-[#7E6BAF] text-white shadow-sm"
                   : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
               }`}
             >
               {t}
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                  tab === t ? "bg-white/25 text-white" : "bg-[#EEE7FA] text-[#7E6BAF]"
+                }`}
+              >
+                {counts[t]}
+              </span>
             </button>
           ))}
         </div>
 
         {list.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#E3DBF5] bg-white/40 p-10 text-center">
-            <CalendarClock className="mx-auto h-6 w-6 text-[#A89BD0]" />
-            <p className="mt-3 text-sm font-medium text-[#7E6BAF]">Nothing here yet.</p>
+          <div className="rounded-[14px] border border-dashed border-[#E3DBF5] bg-white/40 p-12 text-center">
+            <CalendarClock className="mx-auto h-7 w-7 text-[#A89BD0]" />
+            <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">All clear here</p>
+            <p className="mt-1 text-xs text-[#7E6BAF]">Nothing on this list right now.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <ul className="divide-y divide-[#EEE7FA] overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-white/70">
             {list.map((a, i) => (
-              <div
+              <li
                 key={i}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EEE7FA] bg-white/70 p-4"
+                className="group flex flex-wrap items-center gap-4 p-4 transition hover:bg-[#F7F2FE]/60 sm:flex-nowrap"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7E6BAF]/15 text-[#7E6BAF]">
+                {/* Date block */}
+                <div className="flex w-[64px] shrink-0 flex-col items-center rounded-[12px] border border-[#E3DBF5] bg-gradient-to-b from-white to-[#F7F2FE] py-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                    {a.month}
+                  </span>
+                  <span className="text-xl font-bold leading-tight text-[#3D2E6B]">
+                    {a.date}
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-[#7E6BAF]">
+                    {a.day}
+                  </span>
+                </div>
+
+                {/* Client */}
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#EEE7FA] to-[#DCC9F2] text-[#3D2E6B]">
                     <User className="h-5 w-5" />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#3D2E6B]">{a.client}</p>
-                    <p className="text-xs text-[#7E6BAF]">{a.type}</p>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#3D2E6B]">
+                      {a.client}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#7E6BAF]">
+                      <span>{a.type}</span>
+                      <span className="text-[#C9BEE4]">·</span>
+                      <span>{a.duration}</span>
+                    </p>
                   </div>
                 </div>
-                <p className="text-xs font-medium text-[#3D2E6B]/80">{a.when}</p>
-                {tab === "requests" ? (
-                  <div className="flex items-center gap-2">
-                    <button className="rounded-full border border-[#E3DBF5] px-3 py-1 text-xs font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/10">
-                      Decline
+
+                {/* Time + mode */}
+                <div className="hidden flex-col items-end text-right sm:flex">
+                  <p className="text-sm font-semibold text-[#3D2E6B]">{a.time}</p>
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-[#7E6BAF]">
+                    <Video className="h-3 w-3" /> {a.mode}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+                  {tab === "requests" ? (
+                    <>
+                      <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
+                        Decline
+                      </button>
+                      <button className="rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#7E6BAF]">
+                        Accept
+                      </button>
+                    </>
+                  ) : tab === "past" ? (
+                    <button className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
+                      View notes <ArrowUpRight className="h-3 w-3" />
                     </button>
-                    <button className="rounded-full bg-[#7E6BAF] px-3 py-1 text-xs font-semibold text-white hover:bg-[#3D2E6B]">
-                      Accept
+                  ) : (
+                    <button className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
+                      Details <ArrowUpRight className="h-3 w-3" />
                     </button>
-                  </div>
-                ) : (
-                  <button className="text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-                    View
-                  </button>
-                )}
-              </div>
+                  )}
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </SectionCard>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = "primary",
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  icon: React.ReactNode;
+  tone?: "primary" | "amber" | "emerald";
+}) {
+  const tones = {
+    primary: "bg-[#EEE7FA] text-[#7E6BAF]",
+    amber: "bg-amber-100 text-amber-700",
+    emerald: "bg-emerald-100 text-emerald-700",
+  } as const;
+  return (
+    <div className="relative overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-gradient-to-br from-white to-[#FBF9FF] p-5 shadow-sm shadow-[#3D2E6B]/[0.03]">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+          {label}
+        </p>
+        <span className={`inline-flex h-7 w-7 items-center justify-center rounded-[8px] ${tones[tone]}`}>
+          {icon}
+        </span>
+      </div>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-[#3D2E6B]">{value}</p>
+      {hint && <p className="mt-1 text-xs text-[#7E6BAF]">{hint}</p>}
     </div>
   );
 }
