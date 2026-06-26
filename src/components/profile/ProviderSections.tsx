@@ -995,7 +995,7 @@ export function CalendarAvailabilitySection() {
         <section className="order-2 rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
           <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
             <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Holidays & Time Off</h2>
-            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">Schedule</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#A89BD0]">Schedule</span>
           </div>
 
           <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
@@ -1066,7 +1066,7 @@ export function CalendarAvailabilitySection() {
         <section className="order-1 flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
           <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
             <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Service Availability</h2>
-            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">Sessions</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#A89BD0]">Sessions</span>
           </div>
 
           <div className="space-y-6">
@@ -1077,7 +1077,7 @@ export function CalendarAvailabilitySection() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="truncate text-sm font-semibold text-[#5B4B8A]">{s.name}</h3>
-                      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-[#B5A9D6]">
+                      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-[#A89BD0]">
                         {s.length} · {s.price}
                       </p>
                     </div>
@@ -1103,7 +1103,7 @@ export function CalendarAvailabilitySection() {
                     return (
                       <div className="rounded-[12px] border-2 border-dashed border-[#EFEBF8] bg-white p-2">
                         <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-1">
-                          <p className="text-[11px] font-medium uppercase tracking-wider text-[#B5A9D6]">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-[#A89BD0]">
                             {isCustomized ? "Customized for this service" : "Inherited from Weekly Hours"}
                           </p>
                           {isCustomized && (
@@ -1274,7 +1274,7 @@ export function AppointmentsSection() {
   const list = tab === "all" ? all : all.filter((a) => a.status === tab);
 
   const statusStyle = {
-    upcoming: "bg-[#E0D9F7] text-[#37306B]",
+    upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
     completed: "bg-[#E6F8F1] text-[#2D8E69]",
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
@@ -1287,10 +1287,10 @@ export function AppointmentsSection() {
         <StatCard label="No-show rate" value="2%" hint="Last 30 days" />
       </div>
 
-      <section className="overflow-hidden rounded-[12px] border border-[#EBE8F5] bg-white shadow-sm">
+      <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="p-6">
-          <h2 className="text-xl font-semibold text-[#37306B]">Bookings</h2>
-          <p className="mt-1 text-sm text-[#8E86B0]">Everything on your schedule.</p>
+          <h2 className="text-xl font-semibold text-[#3D2E6B]">Bookings</h2>
+          <p className="mt-1 text-sm text-[#7E6BAF]">Everything on your schedule.</p>
           <div className="mt-6 inline-flex gap-2 rounded-[10px] bg-[#F0EAFB] p-1">
           {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
             <button
@@ -1298,14 +1298,14 @@ export function AppointmentsSection() {
               onClick={() => setTab(t)}
               className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
                 tab === t
-                  ? "bg-[#37306B] text-white"
-                  : "text-[#37306B] hover:bg-[#B5A9D6]/20"
+                  ? "bg-[#3D2E6B] text-white"
+                  : "text-[#3D2E6B] hover:bg-[#A89BD0]/20"
               }`}
             >
               {t}
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#37306B]/60"
+                  tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#3D2E6B]/60"
                 }`}
               >
                 {counts[t]}
@@ -1318,8 +1318,8 @@ export function AppointmentsSection() {
         {list.length === 0 ? (
           <div className="border-t border-[#F0EAFB] p-12 text-center">
             <CalendarClock className="mx-auto h-7 w-7 text-[#A89BD0]" />
-            <p className="mt-3 text-sm font-semibold text-[#37306B]">All clear here</p>
-            <p className="mt-1 text-xs text-[#8E86B0]">Nothing on this list right now.</p>
+            <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">All clear here</p>
+            <p className="mt-1 text-xs text-[#7E6BAF]">Nothing on this list right now.</p>
           </div>
         ) : (
           <ul className="border-t border-[#F0EAFB]">
@@ -1329,7 +1329,7 @@ export function AppointmentsSection() {
               return (
               <li
                 key={a.id}
-                className={`${isExpanded ? "bg-[#F9F8FF]" : "hover:bg-[#F9F8FF]"} ${
+                className={`${isExpanded ? "bg-[#FBF9FF]" : "hover:bg-[#FBF9FF]"} ${
                   !isLast ? "border-b border-[#F0EAFB]" : ""
                 } transition-colors`}
               >
@@ -1337,16 +1337,16 @@ export function AppointmentsSection() {
                 {/* Date block */}
                 <div
                   className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[10px] border bg-white ${
-                    isExpanded ? "border-[#B5A9D6]" : "border-[#EBE8F5]"
+                    isExpanded ? "border-[#A89BD0]" : "border-[#EAE7F5]"
                   } ${a.status !== "upcoming" ? "opacity-60" : ""}`}
                 >
-                  <span className="text-[10px] font-bold uppercase text-[#B5A9D6]">
+                  <span className="text-[10px] font-bold uppercase text-[#A89BD0]">
                     {a.month}
                   </span>
-                  <span className="text-xl font-bold leading-tight text-[#37306B]">
+                  <span className="text-xl font-bold leading-tight text-[#3D2E6B]">
                     {a.date}
                   </span>
-                  <span className="text-[9px] font-bold uppercase text-[#B5A9D6]">
+                  <span className="text-[9px] font-bold uppercase text-[#A89BD0]">
                     {a.day}
                   </span>
                 </div>
@@ -1355,14 +1355,14 @@ export function AppointmentsSection() {
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`truncate font-semibold text-[#37306B] ${a.status !== "upcoming" ? "opacity-70" : ""}`}>
+                      <p className={`truncate font-semibold text-[#3D2E6B] ${a.status !== "upcoming" ? "opacity-70" : ""}`}>
                         {a.client}
                       </p>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusStyle[a.status]}`}>
                         {a.status}
                       </span>
                     </div>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-[#8E86B0]">
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-[#7E6BAF]">
                       <span>{a.type}</span>
                       <span className="text-[#C9BEE4]">·</span>
                       <span>{a.duration}</span>
@@ -1372,8 +1372,8 @@ export function AppointmentsSection() {
 
                 {/* Time + mode */}
                 <div className={`hidden flex-col items-end text-right sm:flex ${a.status !== "upcoming" ? "opacity-60" : ""}`}>
-                  <p className="font-semibold text-[#37306B]">{a.time}</p>
-                  <span className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#8E86B0]">
+                  <p className="font-semibold text-[#3D2E6B]">{a.time}</p>
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#7E6BAF]">
                     <Video className="h-3 w-3 text-[#A89BD0]" /> {a.mode}
                   </span>
                 </div>
@@ -1384,8 +1384,8 @@ export function AppointmentsSection() {
                     onClick={() => setExpanded(expanded === a.id ? null : a.id)}
                     className={`inline-flex items-center rounded-[8px] border px-4 py-2 text-sm font-medium transition ${
                       isExpanded
-                        ? "border-[#B5A9D6] text-[#37306B] hover:bg-white"
-                        : "border-[#EBE8F5] text-[#37306B] hover:bg-white"
+                        ? "border-[#A89BD0] text-[#3D2E6B] hover:bg-white"
+                        : "border-[#EAE7F5] text-[#3D2E6B] hover:bg-white"
                     }`}
                   >
                     {isExpanded ? "Hide" : "Details"}
@@ -1405,15 +1405,15 @@ export function AppointmentsSection() {
                     {a.notes && (
                       <div className="mb-6 rounded-[10px] border border-[#F0EAFB] bg-white p-4">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Notes</p>
-                        <p className="mt-2 text-sm leading-relaxed text-[#37306B]">{a.notes}</p>
+                        <p className="mt-2 text-sm leading-relaxed text-[#3D2E6B]">{a.notes}</p>
                       </div>
                     )}
                     {a.status === "upcoming" && (
                       <div className="flex flex-wrap gap-3">
-                        <button className="rounded-[8px] bg-[#37306B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2A2455]">
+                        <button className="rounded-[8px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B]">
                           Join session
                         </button>
-                        <button className="rounded-[8px] border border-[#EBE8F5] bg-white px-6 py-2.5 text-sm font-medium text-[#37306B] transition-colors hover:bg-[#F9F8FF]">
+                        <button className="rounded-[8px] border border-[#EAE7F5] bg-white px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#FBF9FF]">
                           Reschedule
                         </button>
                         <button className="rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
@@ -1437,7 +1437,7 @@ function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
-      <p className="mt-1 text-sm font-medium capitalize text-[#37306B]">{value}</p>
+      <p className="mt-1 text-sm font-medium capitalize text-[#3D2E6B]">{value}</p>
     </div>
   );
 }
@@ -1452,12 +1452,12 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-[12px] border border-[#EBE8F5] bg-white p-6 shadow-sm">
+    <div className="rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
       <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
         {label}
       </p>
-      <p className="text-4xl font-semibold text-[#37306B]">{value}</p>
-      {hint && <p className="mt-2 text-xs text-[#8E86B0]">{hint}</p>}
+      <p className="text-4xl font-semibold text-[#3D2E6B]">{value}</p>
+      {hint && <p className="mt-2 text-xs text-[#7E6BAF]">{hint}</p>}
     </div>
   );
 }
