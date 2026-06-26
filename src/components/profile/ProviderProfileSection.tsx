@@ -61,35 +61,79 @@ const DAY_LABEL: Record<string, string> = {
 };
 
 function DefaultHoursPreview({ week }: { week: WeekAvail }) {
-  const rows = DAY_KEYS.map((k) => {
+  // Group consecutive days that share the same hours into a single row.
+  const sig = (k: string) => {
     const d = week[k];
-    const enabled = d?.enabled && d.intervals.length > 0;
-    return { key: k, enabled, intervals: d?.intervals ?? [] };
+    if (!d?.enabled || !d.intervals.length) return "off";
+    return d.intervals.map((i) => `${i.start}-${i.end}`).join("|");
+  };
+  const groups: { keys: string[]; signature: string }[] = [];
+  DAY_KEYS.forEach((k) => {
+    const s = sig(k);
+    const last = groups[groups.length - 1];
+    if (last && last.signature === s) last.keys.push(k);
+    else groups.push({ keys: [k], signature: s });
   });
+
+  const SHORT: Record<string, string> = {
+    Mon: "Mon", Tue: "Tue", Wed: "Wed", Thu: "Thu", Fri: "Fri", Sat: "Sat", Sun: "Sun",
+  };
+
+  const activeCount = DAY_KEYS.filter((k) => sig(k) !== "off").length;
+
   return (
-    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
-      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-          Your set hours
+    <div className="overflow-hidden rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex items-center justify-between border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F2FE] to-white px-4 py-3">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="h-3.5 w-3.5 text-[#7E6BAF]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+            Your set hours
+          </span>
+        </div>
+        <span className="text-[10px] uppercase tracking-wider text-[#7E6BAF]/60">
+          {activeCount} day{activeCount === 1 ? "" : "s"} active
         </span>
-        <span className="text-[11px] text-[#7E6BAF]/60">From Calendar &amp; availability</span>
       </div>
       <ul className="divide-y divide-[#F5F0FB]">
-        {rows.map((r) => (
-          <li key={r.key} className="flex items-center justify-between px-4 py-2">
-            <span className="text-[12px] font-semibold text-[#2D2442]">{DAY_LABEL[r.key]}</span>
-            {r.enabled ? (
-              <span className="text-[12px] tabular-nums text-[#2D2442]/80">
-                {r.intervals
-                  .map((i) => `${formatTime12(i.start)} – ${formatTime12(i.end)}`)
-                  .join(", ")}
-              </span>
-            ) : (
-              <span className="text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">Off</span>
-            )}
-          </li>
-        ))}
+        {groups.map((g, idx) => {
+          const isOff = g.signature === "off";
+          const intervals = isOff ? [] : week[g.keys[0]].intervals;
+          return (
+            <li key={idx} className="flex items-center gap-3 px-4 py-2.5">
+              <div className="flex flex-wrap gap-1">
+                {g.keys.map((k) => (
+                  <span
+                    key={k}
+                    className={`inline-flex h-6 min-w-[34px] items-center justify-center rounded-md px-1.5 text-[11px] font-semibold ${
+                      isOff
+                        ? "bg-[#F5F0FB] text-[#7E6BAF]/50"
+                        : "bg-[#7E6BAF]/10 text-[#2D2442]"
+                    }`}
+                  >
+                    {SHORT[k]}
+                  </span>
+                ))}
+              </div>
+              <div className="ml-auto text-right">
+                {isOff ? (
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]/40">
+                    Off
+                  </span>
+                ) : (
+                  <span className="text-[12px] font-medium tabular-nums text-[#2D2442]">
+                    {intervals
+                      .map((i) => `${formatTime12(i.start)} – ${formatTime12(i.end)}`)
+                      .join(", ")}
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
+      <div className="border-t border-[#F0EAFB] bg-[#FAFAFB] px-4 py-2 text-[10px] text-[#7E6BAF]/60">
+        Synced from <span className="font-semibold text-[#7E6BAF]">Calendar &amp; availability</span>
+      </div>
     </div>
   );
 }
@@ -101,8 +145,16 @@ function CustomHoursEditor({
   week: WeekAvail;
   onChange: (w: WeekAvail) => void;
 }) {
+  const SHORT: Record<string, string> = {
+    Mon: "M", Tue: "T", Wed: "W", Thu: "T", Fri: "F", Sat: "S", Sun: "S",
+  };
   const toggle = (k: string) => {
-    onChange({ ...week, [k]: { ...week[k], enabled: !week[k].enabled } });
+    const cur = week[k];
+    const enabled = !cur.enabled;
+    const intervals = cur.intervals.length
+      ? cur.intervals
+      : [{ id: `${k}-1`, start: "09:00", end: "17:00" }];
+    onChange({ ...week, [k]: { ...cur, enabled, intervals } });
   };
   const setTime = (k: string, field: "start" | "end", value: string) => {
     const intervals = week[k].intervals.length
@@ -111,41 +163,82 @@ function CustomHoursEditor({
     const next = [{ ...intervals[0], [field]: value }];
     onChange({ ...week, [k]: { ...week[k], intervals: next } });
   };
+  const copyToAll = () => {
+    // Use the first enabled day as the source.
+    const src = DAY_KEYS.find((k) => week[k].enabled);
+    if (!src) return;
+    const ref = week[src].intervals[0];
+    if (!ref) return;
+    const out: WeekAvail = {} as WeekAvail;
+    for (const k of DAY_KEYS) {
+      out[k] = week[k].enabled
+        ? { ...week[k], intervals: [{ id: `${k}-1`, start: ref.start, end: ref.end }] }
+        : week[k];
+    }
+    onChange(out);
+  };
+  const applyWeekdays = () => {
+    const out: WeekAvail = {} as WeekAvail;
+    for (const k of DAY_KEYS) {
+      const weekday = k !== "Sat" && k !== "Sun";
+      out[k] = {
+        enabled: weekday,
+        intervals: weekday
+          ? [{ id: `${k}-1`, start: "09:00", end: "17:00" }]
+          : week[k].intervals,
+      };
+    }
+    onChange(out);
+  };
   return (
-    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
-      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
+    <div className="overflow-hidden rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F2FE] to-white px-4 py-3">
         <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
           Custom hours for this session
         </span>
-        <button
-          type="button"
-          onClick={() => onChange(seedSessionWeek(week))}
-          className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#2D2442]"
-        >
-          Reset
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={copyToAll}
+            className="rounded-md border border-[#7E6BAF]/15 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition hover:bg-[#F0EAFB]"
+          >
+            Copy to all
+          </button>
+          <button
+            type="button"
+            onClick={applyWeekdays}
+            className="rounded-md border border-[#7E6BAF]/15 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition hover:bg-[#F0EAFB]"
+          >
+            Weekdays 9–5
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(seedSessionWeek(week))}
+            className="rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]/70 hover:text-[#2D2442]"
+          >
+            Reset
+          </button>
+        </div>
       </div>
       <ul className="divide-y divide-[#F5F0FB]">
         {DAY_KEYS.map((k) => {
           const d = week[k];
           const first = d.intervals[0] ?? { id: `${k}-1`, start: "09:00", end: "17:00" };
           return (
-            <li key={k} className="flex items-center gap-3 px-4 py-2">
+            <li key={k} className="flex items-center gap-3 px-4 py-2.5">
               <button
                 type="button"
                 onClick={() => toggle(k)}
-                className={`flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors ${
-                  d.enabled ? "bg-[#7E6BAF]" : "bg-[#E6DEF5]"
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-colors ${
+                  d.enabled
+                    ? "bg-[#7E6BAF] text-white shadow-sm"
+                    : "bg-[#F0EAFB] text-[#7E6BAF]/50 hover:bg-[#E6DEF5]"
                 }`}
                 aria-label={`Toggle ${DAY_LABEL[k]}`}
               >
-                <span
-                  className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                    d.enabled ? "translate-x-4" : "translate-x-0"
-                  }`}
-                />
+                {SHORT[k]}
               </button>
-              <span className="w-20 text-[12px] font-semibold text-[#2D2442]">
+              <span className="w-[88px] text-[12px] font-semibold text-[#2D2442]">
                 {DAY_LABEL[k]}
               </span>
               {d.enabled ? (
@@ -154,20 +247,24 @@ function CustomHoursEditor({
                     type="time"
                     value={first.start}
                     onChange={(e) => setTime(k, "start", e.target.value)}
-                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2.5 py-1.5 text-[12px] tabular-nums text-[#2D2442] outline-none transition focus:border-[#7E6BAF] focus:bg-white"
                   />
                   <span className="text-[11px] text-[#7E6BAF]/60">to</span>
                   <input
                     type="time"
                     value={first.end}
                     onChange={(e) => setTime(k, "end", e.target.value)}
-                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2.5 py-1.5 text-[12px] tabular-nums text-[#2D2442] outline-none transition focus:border-[#7E6BAF] focus:bg-white"
                   />
                 </div>
               ) : (
-                <span className="ml-auto text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">
-                  Off
-                </span>
+                <button
+                  type="button"
+                  onClick={() => toggle(k)}
+                  className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]/40 hover:text-[#7E6BAF]"
+                >
+                  Off — tap to enable
+                </button>
               )}
             </li>
           );
