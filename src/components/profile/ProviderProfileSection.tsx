@@ -1211,7 +1211,11 @@ export default function ProviderProfileSection({
 
       {/* ---------------------------- Calendar & Availability --------------- */}
       <CalendarAvailabilitySummary />
+      </>
+      )}
 
+      {view === "services" && (
+      <>
       {/* ---------------------------- Sessions & Rates -------------------- */}
       <SectionCard
         title="Sessions & rates"
