@@ -1053,7 +1053,13 @@ export default function ProviderProfileSection({
               >
                 <div>
                   <p className="text-[15px] font-semibold text-[#3D2E6B]">{s.name}</p>
-                  <p className="mt-0.5 text-[12.5px] text-[#7E6BAF]">{s.lengthMin} min</p>
+                    <p className="mt-0.5 text-[12.5px] text-[#7E6BAF]">
+                      {s.lengthMin} min
+                      {" · "}
+                      {s.sessionType === "group"
+                        ? `Group · ${s.minParticipants}–${s.maxParticipants} pax`
+                        : "Individual"}
+                    </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <p className="text-[17px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(s.rate)}</p>
