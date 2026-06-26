@@ -150,7 +150,7 @@ function TimePill({
                     onChange(slot);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-[13px] transition-colors ${
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-left text-[13px] transition-colors ${
                     active
                       ? "bg-[#F0EAFB] font-semibold text-[#3D2E6B]"
                       : "text-[#5E4A8C] hover:bg-[#F7F2FC] hover:text-[#3D2E6B]"
@@ -380,7 +380,7 @@ function WeekGridView({
 
               {/* empty hover hint */}
               {day.enabled && day.intervals.length === 0 && (
-                <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-lg border border-dashed border-[#7E6BAF]/40 bg-[#7E6BAF]/5 opacity-0 transition-opacity group-hover/col:opacity-100">
+                <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-xl border border-dashed border-[#7E6BAF]/40 bg-[#7E6BAF]/5 opacity-0 transition-opacity group-hover/col:opacity-100">
                   <Plus className="h-4 w-4 text-[#7E6BAF]" />
                 </div>
               )}
@@ -405,7 +405,7 @@ function WeekGridView({
                         ev.stopPropagation();
                         setActive(isActive ? null : { day: d.key, id: iv.id });
                       }}
-                      className={`absolute left-1 right-1 cursor-pointer rounded-lg border px-2 py-1.5 text-[10px] font-semibold shadow-sm transition-all ${
+                      className={`absolute left-1 right-1 cursor-pointer rounded-xl border px-2 py-1.5 text-[10px] font-semibold shadow-sm transition-all ${
                         hasErr
                           ? "z-10 border-red-300 bg-red-100/90 text-red-700"
                           : isActive
@@ -429,7 +429,7 @@ function WeekGridView({
                       {isActive && (
                         <div
                           onClick={(ev) => ev.stopPropagation()}
-                          className={`absolute left-1/2 z-50 w-[260px] -translate-x-1/2 rounded-2xl border border-[#E3DBF5] bg-white p-3 text-left text-[#3D2E6B] shadow-[0_20px_45px_-12px_rgba(61,46,107,0.35)] ${
+                          className={`absolute left-1/2 z-50 w-[260px] -translate-x-1/2 rounded-xl border border-[#E3DBF5] bg-white p-3 text-left text-[#3D2E6B] shadow-[0_20px_45px_-12px_rgba(61,46,107,0.35)] ${
                             placeBelow ? "top-[calc(100%+10px)]" : "bottom-[calc(100%+10px)]"
                           }`}
                         >
@@ -443,7 +443,7 @@ function WeekGridView({
                                 onRemoveInterval(d.key, iv.id);
                                 setActive(null);
                               }}
-                              className="rounded-md p-1 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
+                              className="rounded-xl p-1 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
                               aria-label="Delete slot"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -484,7 +484,7 @@ function WeekGridView({
                             <button
                               type="button"
                               onClick={() => setActive(null)}
-                              className="rounded-lg bg-[#7E6BAF] px-3 py-1 text-[11px] font-bold text-white hover:bg-[#3D2E6B]"
+                              className="rounded-xl bg-[#7E6BAF] px-3 py-1 text-[11px] font-bold text-white hover:bg-[#3D2E6B]"
                             >
                               Done
                             </button>
@@ -658,7 +658,7 @@ export function CalendarAvailabilitySection() {
       </div>
 
       {/* Calendar Connections */}
-      <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar Connections</h2>
           {provider ? (
@@ -672,7 +672,7 @@ export function CalendarAvailabilitySection() {
           )}
         </div>
         {syncError && (
-          <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-red-100 bg-red-50/70 px-4 py-3">
+          <div className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-red-100 bg-red-50/70 px-4 py-3">
             <div className="flex items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
               <p className="text-xs font-medium text-red-700">{syncError}</p>
@@ -688,7 +688,7 @@ export function CalendarAvailabilitySection() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Google */}
           <div
-            className={`flex items-center justify-between rounded-2xl border-2 p-4 transition ${
+            className={`flex items-center justify-between rounded-xl border-2 p-4 transition ${
               provider === "google"
                 ? "border-[#7E6BAF]/30 bg-[#F0EAFB]/30"
                 : "border-[#EAE7F5] bg-white"
@@ -730,7 +730,7 @@ export function CalendarAvailabilitySection() {
           </div>
 
           {/* Coming soon tile */}
-          <div className="flex items-center justify-between rounded-2xl border border-dashed border-[#A89BD0] bg-transparent p-4 opacity-70">
+          <div className="flex items-center justify-between rounded-xl border border-dashed border-[#A89BD0] bg-transparent p-4 opacity-70">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#A89BD0]">
                 <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
@@ -745,14 +745,14 @@ export function CalendarAvailabilitySection() {
       </section>
 
       {/* Weekly Hours */}
-      <section className="overflow-hidden rounded-3xl border border-[#EAE7F5] bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-[#EAE7F5] bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-[#F0EAFB] p-6 sm:p-8">
           <div>
             <h2 className="text-lg font-semibold text-[#3D2E6B]">Weekly Hours</h2>
             <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="inline-flex rounded-[12px] border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+            <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
               {([
                 { id: "list", label: "List", Icon: List },
                 { id: "grid", label: "Week grid", Icon: LayoutGrid },
@@ -761,7 +761,7 @@ export function CalendarAvailabilitySection() {
                   key={id}
                   onClick={() => setViewMode(id)}
                   aria-pressed={viewMode === id}
-                  className={`inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1 text-[11px] font-bold transition ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-[11px] font-bold transition ${
                     viewMode === id
                       ? "bg-[#7E6BAF] text-white shadow-sm"
                       : "text-[#7E6BAF] hover:text-[#3D2E6B]"
@@ -905,7 +905,7 @@ export function CalendarAvailabilitySection() {
       {/* Holidays & Service Alignment */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
-        <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
               <CalendarOff className="h-4 w-4" />
               Holidays & Time Off
@@ -949,7 +949,7 @@ export function CalendarAvailabilitySection() {
                     onChange={(e) =>
                       setNewHoliday((p) => ({ ...p, date: e.target.value }))
                     }
-                  className="rounded-lg border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  className="rounded-xl border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
                   />
                   <input
                     type="text"
@@ -958,13 +958,13 @@ export function CalendarAvailabilitySection() {
                     onChange={(e) =>
                       setNewHoliday((p) => ({ ...p, label: e.target.value }))
                     }
-                  className="min-w-0 flex-1 rounded-lg border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  className="min-w-0 flex-1 rounded-xl border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
                   />
                 </div>
                 <button
                   onClick={addHoliday}
                   disabled={!newHoliday.date}
-                className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                 + Add date
                 </button>
@@ -978,7 +978,7 @@ export function CalendarAvailabilitySection() {
         </section>
 
           {/* Service Availability */}
-        <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
               <Video className="h-4 w-4" />
               Service Availability
@@ -1016,14 +1016,14 @@ export function CalendarAvailabilitySection() {
                       </div>
                     </div>
                     {mode === "custom" && (
-                    <div className="rounded-lg border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
+                    <div className="rounded-xl border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
                         Custom hours for this service will appear here.
                       </div>
                     )}
                   </div>
                 );
               })}
-            <button className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
+            <button className="w-full rounded-xl border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
                 Configure Services
               </button>
             </div>
@@ -1049,7 +1049,7 @@ export function CalendarAvailabilitySection() {
         <button
           onClick={handleSave}
           disabled={errorCount > 0}
-          className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0"
+          className="transform rounded-xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0"
         >
           Save Changes
         </button>
