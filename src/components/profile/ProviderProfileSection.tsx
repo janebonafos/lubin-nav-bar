@@ -922,11 +922,11 @@ export default function ProviderProfileSection({
       >
         {/* Primary session */}
         <div>
-          <div className="mb-5 flex items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]/60">
+          <div className="mb-5 flex items-center gap-4">
+            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.15em] text-[#A89BD0]">
               Primary session
             </span>
-            <div className="h-px flex-1 bg-[#EEE6F7]" />
+            <div className="h-px w-full bg-[#F0EAFB]" />
           </div>
           {editing.sessions ? (
             <div className="space-y-7 rounded-2xl border border-[#EEE6F7] bg-white/80 p-6 shadow-[0_8px_30px_rgb(126,107,175,0.05)]">
@@ -986,41 +986,47 @@ export default function ProviderProfileSection({
               </div>
             </div>
           ) : (
-            <div className="flex items-start justify-between gap-3 rounded-2xl border border-[#EEE6F7] bg-white/80 p-6">
-              <div>
-                <p className="text-[16px] font-semibold text-[#3D2E6B]">{data.primarySession.name}</p>
-                <p className="mt-1 text-[12.5px] text-[#7E6BAF]">
-                  {data.primarySession.lengthMin} min · Video session
-                </p>
+            <div className="group relative rounded-2xl border border-[#F0EAFB] bg-white p-6 transition-all duration-300 hover:border-[#A89BD0] hover:shadow-[0_8px_20px_-6px_rgba(126,107,175,0.1)]">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="text-[17px] font-semibold text-[#3D2E6B]">{data.primarySession.name}</h3>
+                  <div className="flex items-center text-[13px] text-[#7E6BAF]">
+                    <span>{data.primarySession.lengthMin} min</span>
+                    <span className="mx-2 opacity-30">•</span>
+                    <span>Video session</span>
+                  </div>
+                </div>
+                <p className="shrink-0 text-[20px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(data.primarySession.rate)}</p>
               </div>
-              <p className="text-[18px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(data.primarySession.rate)}</p>
             </div>
           )}
         </div>
 
         {/* Additional sessions */}
-        <div className="mt-8 border-t border-[#EEE6F7] pt-6">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]/60">
+        <div className="mt-8">
+          <div className="mb-5 flex items-center gap-4">
+            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.15em] text-[#A89BD0]">
               Additional sessions
             </span>
-            <div className="h-px flex-1 bg-[#EEE6F7]" />
+            <div className="h-px w-full bg-[#F0EAFB]" />
           </div>
           <div className="space-y-3">
             {data.extraSessions.length === 0 && !showAddSession && (
-              <p className="text-[12.5px] italic text-[#A89BD0]">No additional sessions yet.</p>
+              !editing.sessions && (
+                <p className="text-[12.5px] text-[#A89BD0]">No additional sessions yet.</p>
+              )
             )}
             {data.extraSessions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-2xl border border-[#EEE6F7] bg-white/80 px-5 py-4"
+                className="group flex items-center justify-between rounded-2xl border border-[#F0EAFB] bg-white px-5 py-4 transition-all duration-300 hover:border-[#A89BD0] hover:shadow-[0_8px_20px_-6px_rgba(126,107,175,0.1)]"
               >
                 <div>
-                  <p className="text-[14px] font-semibold text-[#3D2E6B]">{s.name}</p>
-                  <p className="mt-0.5 text-[12px] text-[#7E6BAF]">{s.lengthMin} min</p>
+                  <p className="text-[15px] font-semibold text-[#3D2E6B]">{s.name}</p>
+                  <p className="mt-0.5 text-[12.5px] text-[#7E6BAF]">{s.lengthMin} min</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="text-[15px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(s.rate)}</p>
+                  <p className="text-[17px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(s.rate)}</p>
                   {editing.sessions && (
                     <button
                       type="button"
