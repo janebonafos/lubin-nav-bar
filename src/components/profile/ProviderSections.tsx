@@ -726,16 +726,6 @@ export function CalendarAvailabilitySection() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-[#3D2E6B] sm:text-3xl">
-          Calendar & Availability
-        </h1>
-        <p className="mt-2 text-sm font-medium text-[#7E6BAF]">
-          Define your working hours and sync with your digital calendars.
-        </p>
-      </div>
-
       {/* Calendar Connections */}
       <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-6 flex items-center justify-between">
