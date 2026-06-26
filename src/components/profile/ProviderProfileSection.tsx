@@ -543,7 +543,7 @@ export default function ProviderProfileSection({
             <p className="mt-2 text-lg font-medium text-purple-100 sm:text-xl">{data.profession}</p>
           </div>
 
-          <p className="max-w-xl text-base leading-relaxed text-purple-50 sm:text-lg">
+          <p className="max-w-2xl text-[15px] font-medium leading-relaxed text-purple-100/90 sm:text-base">
             {data.headline}
           </p>
 
@@ -556,7 +556,7 @@ export default function ProviderProfileSection({
               <Clock className="h-4 w-4" /> {data.yearsBand}
             </span>
             {!data.verified && (
-              <span className="inline-flex items-center gap-2 rounded-xl bg-[#FFD666] px-4 py-2 text-sm font-bold text-[#634E1A]">
+              <span className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
                 <ShieldCheck className="h-4 w-4" /> Verification pending
               </span>
             )}
