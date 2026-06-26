@@ -1190,6 +1190,7 @@ function ProviderOnboardingPage() {
   );
 }
 
+function AddCustomService({
   currency,
   onAdd,
   onCancel,
