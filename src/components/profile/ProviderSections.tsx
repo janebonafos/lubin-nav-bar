@@ -19,7 +19,6 @@ import {
   Copy,
   CalendarOff,
   Trash2,
-  ChevronRight,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -117,7 +116,6 @@ export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
   const [account, setAccount] = useState<string>("maria.santos@gmail.com");
-  const [showProviderPicker, setShowProviderPicker] = useState(false);
 
   // weekly availability
   const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
