@@ -541,6 +541,52 @@ export function CalendarAvailabilitySection() {
     s2: "weekly",
   });
 
+  // per-service custom weekly hours (independent of the main Weekly Hours)
+  const makeEmptyServiceWeek = (): WeekAvail =>
+    DAYS.reduce((acc, d) => {
+      acc[d.key] = { enabled: false, intervals: [] };
+      return acc;
+    }, {} as WeekAvail);
+  const [serviceHours, setServiceHours] = useState<Record<string, WeekAvail>>({
+    s1: makeEmptyServiceWeek(),
+    s2: makeEmptyServiceWeek(),
+  });
+  const toggleServiceDay = (sid: string, key: string) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? makeEmptyServiceWeek();
+      const day = cur[key];
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: day.enabled
+            ? { enabled: false, intervals: [] }
+            : { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: genId() }] },
+        },
+      };
+    });
+  const updateServiceInterval = (
+    sid: string,
+    key: string,
+    iid: string,
+    patch: Partial<Interval>,
+  ) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? makeEmptyServiceWeek();
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: {
+            ...cur[key],
+            intervals: cur[key].intervals.map((it) =>
+              it.id === iid ? { ...it, ...patch } : it,
+            ),
+          },
+        },
+      };
+    });
+
   // Weekly hours view + save state
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [saved, setSaved] = useState(false);
