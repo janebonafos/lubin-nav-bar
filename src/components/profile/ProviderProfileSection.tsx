@@ -1172,13 +1172,94 @@ export default function ProviderProfileSection({
                     </div>
                   </div>
 
+                  {/* Session type */}
+                  <div className="grid grid-cols-3 items-start gap-4">
+                    <div className="pt-3">
+                      <label className="text-[13px] font-semibold text-[#2D2442]">Session type</label>
+                      <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Individual or group</p>
+                    </div>
+                    <div className="col-span-2 grid grid-cols-2 gap-2">
+                      {(["individual", "group"] as const).map((t) => {
+                        const active = newSession.sessionType === t;
+                        return (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setNewSession((s) => ({ ...s, sessionType: t }))}
+                            className={`rounded-xl border-2 py-3 text-[13px] font-bold capitalize transition-colors ${
+                              active
+                                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/20"
+                                : "border-[#F0EAFB] text-[#7E6BAF] hover:bg-[#F0EAFB]/50"
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {newSession.sessionType === "group" && (
+                    <div className="grid grid-cols-3 items-start gap-4 rounded-2xl bg-[#F0EAFB]/30 p-4">
+                      <div className="pt-3">
+                        <label className="text-[13px] font-semibold text-[#2D2442]">Participants</label>
+                        <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">
+                          Auto-cancels if min not met
+                        </p>
+                      </div>
+                      <div className="col-span-2 grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]/80">
+                            Minimum
+                          </p>
+                          <input
+                            inputMode="numeric"
+                            value={newSession.minParticipants}
+                            onChange={(e) =>
+                              setNewSession((s) => ({
+                                ...s,
+                                minParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
+                              }))
+                            }
+                            placeholder="3"
+                            className="w-full rounded-2xl border-2 border-transparent bg-white px-4 py-3 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF]"
+                          />
+                        </div>
+                        <div>
+                          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]/80">
+                            Maximum
+                          </p>
+                          <input
+                            inputMode="numeric"
+                            value={newSession.maxParticipants}
+                            onChange={(e) =>
+                              setNewSession((s) => ({
+                                ...s,
+                                maxParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
+                              }))
+                            }
+                            placeholder="8"
+                            className="w-full rounded-2xl border-2 border-transparent bg-white px-4 py-3 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Actions */}
                   <div className="flex items-center justify-end gap-2 pt-2">
                     <button
                       type="button"
                       onClick={() => {
                         setShowAddSession(false);
-                        setNewSession({ name: "", lengthMin: 50, rate: "" });
+                        setNewSession({
+                          name: "",
+                          lengthMin: 50,
+                          rate: "",
+                          sessionType: "individual",
+                          minParticipants: "3",
+                          maxParticipants: "8",
+                        });
                       }}
                       className="rounded-2xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
                     >
