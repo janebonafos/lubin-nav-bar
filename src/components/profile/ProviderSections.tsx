@@ -1,5 +1,10 @@
 import { useState } from "react";
 import {
+  availabilityStore,
+  useAvailabilityStore,
+  type CalendarProvider as StoreProvider,
+} from "@/lib/availability-store";
+import {
   CalendarDays,
   Check,
   Video,
@@ -519,13 +524,25 @@ function WeekGridView({
 
 export function CalendarAvailabilitySection() {
   // calendar connection
-  const [provider, setProvider] = useState<CalendarProvider | null>("google");
-  const [account, setAccount] = useState<string>("maria.santos@gmail.com");
+  const connection = useAvailabilityStore((s) => s.connection);
+  const provider = connection.provider;
+  const account = connection.account;
+  const setProvider = (p: CalendarProvider | null) =>
+    availabilityStore.setConnection({ ...availabilityStore.getState().connection, provider: p as StoreProvider | null });
+  const setAccount = (a: string) =>
+    availabilityStore.setConnection({ ...availabilityStore.getState().connection, account: a });
   const [syncError, setSyncError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
 
   // weekly availability
-  const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
+  const week = useAvailabilityStore((s) => s.week);
+  const setWeek = (updater: WeekAvail | ((w: WeekAvail) => WeekAvail)) => {
+    const next =
+      typeof updater === "function"
+        ? (updater as (w: WeekAvail) => WeekAvail)(availabilityStore.getState().week)
+        : updater;
+    availabilityStore.setWeek(next);
+  };
 
   // holidays / days off
   const [holidays, setHolidays] = useState<Holiday[]>([
