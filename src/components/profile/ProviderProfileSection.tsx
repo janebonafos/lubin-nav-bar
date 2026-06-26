@@ -457,6 +457,101 @@ function AIButton({ active, onClick }: { active: boolean; onClick: () => void })
 
 /* ============================== Main Component ========================== */
 
+function CalendarAvailabilitySummary() {
+  const connection = useAvailabilityStore((s) => s.connection);
+  const week = useAvailabilityStore((s) => s.week);
+  const connected = !!connection.provider;
+
+  return (
+    <SectionCard
+      title="Calendar & availability"
+      subtitle="Clients book directly into these times."
+    >
+      {/* Calendar connection */}
+      <div>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[13px] font-semibold text-[#3D2E6B]">Calendar Connection</p>
+            <p className="text-[12px] text-[#7E6BAF]">Sync bookings directly to your calendar.</p>
+          </div>
+          {connected ? (
+            <span className="shrink-0 rounded-[10px] border border-green-100 bg-green-50 px-3 py-1 text-[11px] font-medium text-green-600">
+              Sync Active
+            </span>
+          ) : (
+            <span className="shrink-0 rounded-[10px] border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-[11px] font-medium text-[#7E6BAF]">
+              Not connected
+            </span>
+          )}
+        </div>
+
+        {connected && connection.provider === "google" && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E3DBF5]/60 bg-[#F0EAFB]/30 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-[#EAE7F5]">
+                <svg viewBox="0 0 48 48" className="h-6 w-6" aria-hidden="true">
+                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>
+                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.3-.4-3.5z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-[#3D2E6B]">Google Calendar</p>
+                <p className="text-[12.5px] text-[#7E6BAF]">Connected · {connection.account}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!connected && (
+          <p className="rounded-xl border border-amber-200/70 bg-amber-50/70 px-3 py-2 text-[12px] text-amber-800">
+            Your profile won't go live until you connect a calendar.
+          </p>
+        )}
+      </div>
+
+      {/* Weekly availability — sourced from Calendar & availability page */}
+      <div className="mt-6">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+          Weekly availability
+        </p>
+        <div className="mt-3 space-y-2">
+          {DAY_KEYS.map((d) => {
+            const day = week[d];
+            const active = day?.enabled && day.intervals.length > 0;
+            return (
+              <div
+                key={d}
+                className="flex items-center justify-between gap-4 rounded-xl border border-[#EEE7FA] bg-white/70 px-4 py-2.5"
+              >
+                <span className="w-12 text-[13px] font-semibold text-[#3D2E6B]">{d}</span>
+                {active ? (
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    {day.intervals.map((iv) => (
+                      <span
+                        key={iv.id}
+                        className="rounded-lg bg-[#F0EAFB] px-2.5 py-1 text-[12px] font-medium tabular-nums text-[#3D2E6B]"
+                      >
+                        {formatTime12(iv.start)} – {formatTime12(iv.end)}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[12px] font-medium text-[#A89BD0]">Unavailable</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-[12px] text-[#7E6BAF]">
+          Edit your weekly hours from the <span className="font-semibold text-[#3D2E6B]">Calendar &amp; availability</span> page.
+        </p>
+      </div>
+    </SectionCard>
+  );
+}
+
 const STORAGE_KEY = "lubin.providerProfile.v1";
 
 export default function ProviderProfileSection({
