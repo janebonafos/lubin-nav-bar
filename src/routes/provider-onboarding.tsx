@@ -557,8 +557,7 @@ function ProviderOnboardingPage() {
                       {calendarChoice === "connected" && (
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F0EAFB] px-3 py-2 text-[12px] text-[#5E4A8C]">
                           <span className="flex items-center gap-2">
-                            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
-                            Connected as <strong className="font-semibold">you@gmail.com</strong>
+                            <strong className="font-semibold">you@gmail.com</strong>
                           </span>
                           <button
                             type="button"
