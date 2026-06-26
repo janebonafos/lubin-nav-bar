@@ -819,10 +819,12 @@ export default function ProviderProfileSection({
   fullName,
   avatarUrl,
   onAvatarChange,
+  view = "profile",
 }: {
   fullName: string;
   avatarUrl?: string | null;
   onAvatarChange?: (dataUrl: string) => void;
+  view?: "profile" | "services";
 }) {
   const [data, setData] = useState<ProviderProfile>(DEFAULT_PROVIDER_PROFILE);
   const [editing, setEditing] = useState<{
