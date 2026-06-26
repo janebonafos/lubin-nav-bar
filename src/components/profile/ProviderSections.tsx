@@ -259,6 +259,8 @@ export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
   const [account, setAccount] = useState<string>("maria.santos@gmail.com");
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
 
   // weekly availability
   const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
@@ -268,6 +270,7 @@ export function CalendarAvailabilitySection() {
     { id: "h1", date: "2026-07-04", label: "Independence Day" },
   ]);
   const [newHoliday, setNewHoliday] = useState<{ date: string; label: string }>({ date: "", label: "" });
+  const [holidayError, setHolidayError] = useState<string | null>(null);
 
   // services + which use weekly hours vs custom
   const [services] = useState<Service[]>(DEFAULT_SERVICES);
@@ -275,6 +278,12 @@ export function CalendarAvailabilitySection() {
     s1: "weekly",
     s2: "weekly",
   });
+
+  // Weekly hours view + save state
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [saved, setSaved] = useState(false);
+
+  const { errors: weekErrors, count: errorCount } = validateWeek(week);
 
   const toggleDay = (key: string) =>
     setWeek((w) => ({
@@ -325,7 +334,19 @@ export function CalendarAvailabilitySection() {
   };
 
   const addHoliday = () => {
-    if (!newHoliday.date) return;
+    setHolidayError(null);
+    if (!newHoliday.date) {
+      setHolidayError("Pick a date for this day off.");
+      return;
+    }
+    if (isPastDate(newHoliday.date)) {
+      setHolidayError("That date is in the past.");
+      return;
+    }
+    if (holidays.some((h) => h.date === newHoliday.date)) {
+      setHolidayError("You already added a day off for that date.");
+      return;
+    }
     setHolidays((h) => [
       ...h,
       { id: genId(), date: newHoliday.date, label: newHoliday.label || "Day off" },
@@ -335,6 +356,32 @@ export function CalendarAvailabilitySection() {
 
   const removeHoliday = (id: string) =>
     setHolidays((h) => h.filter((x) => x.id !== id));
+
+  const handleConnect = () => {
+    setSyncError(null);
+    setConnecting(true);
+    // simulate async — randomly fail to demo error handling
+    setTimeout(() => {
+      setConnecting(false);
+      if (Math.random() < 0.15) {
+        setSyncError(
+          "We couldn't reach Google Calendar. Check your connection and try again.",
+        );
+        return;
+      }
+      setProvider("google");
+      setAccount("maria.santos@gmail.com");
+    }, 500);
+  };
+
+  const handleSave = () => {
+    if (errorCount > 0) {
+      setSaved(false);
+      return;
+    }
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
 
   return (
     <div className="space-y-8">
