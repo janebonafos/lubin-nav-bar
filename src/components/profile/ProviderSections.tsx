@@ -730,7 +730,7 @@ export function CalendarAvailabilitySection() {
       <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar connection</h2>
+            <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar Connections</h2>
             <p className="mt-1 text-sm text-[#7E6BAF]">
               Sync bookings directly to your calendar.
             </p>
@@ -759,17 +759,22 @@ export function CalendarAvailabilitySection() {
             </button>
           </div>
         )}
-        <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2">
           {/* Google */}
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E3DBF5]/60 bg-white px-5 py-4">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E3DBF5]/60 bg-[#F0EAFB]/30 px-5 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#7E6BAF]/15">
-                <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-[#EAE7F5]">
+                <svg viewBox="0 0 48 48" className="h-6 w-6" aria-hidden="true">
+                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>
+                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.3-.4-3.5z"/>
+                </svg>
               </div>
               <div>
                 <p className="text-[14px] font-semibold text-[#3D2E6B]">Google Calendar</p>
                 <p className="text-[12.5px] text-[#7E6BAF]">
-                  {provider === "google" ? account : "Not connected"}
+                  {provider === "google" ? `Connected · ${account}` : "Not connected"}
                 </p>
               </div>
             </div>
@@ -793,9 +798,9 @@ export function CalendarAvailabilitySection() {
           </div>
 
           {/* Coming soon */}
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-[#E3DBF5] bg-transparent px-5 py-4 opacity-75">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-[#D8CFEC] bg-transparent px-5 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F0EAFB]/60">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-[#E3DBF5]/80">
                 <CalendarDays className="h-5 w-5 text-[#A89BD0]" />
               </div>
               <p className="text-[14px] font-medium text-[#7E6BAF]">Outlook & iCloud</p>
