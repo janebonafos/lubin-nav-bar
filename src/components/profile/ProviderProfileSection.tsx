@@ -547,18 +547,21 @@ export default function ProviderProfileSection({
             {data.headline}
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-2">
-            <span className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#5D4E8A] shadow-sm">
-              <CalendarIcon className="h-4 w-4 text-[#7E6BAF]" />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm font-medium text-purple-100">
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${data.calendarConnected ? "bg-emerald-300" : "bg-white/50"}`} />
               {data.calendarConnected ? "Calendar connected" : "Calendar not connected"}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur-md">
-              <Clock className="h-4 w-4" /> {data.yearsBand}
-            </span>
+            <span aria-hidden className="h-3 w-px bg-white/25" />
+            <span>{data.yearsBand} experience</span>
             {!data.verified && (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
-                <ShieldCheck className="h-4 w-4" /> Verification pending
-              </span>
+              <>
+                <span aria-hidden className="h-3 w-px bg-white/25" />
+                <span className="inline-flex items-center gap-2">
+                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber-200/90" />
+                  Verification pending
+                </span>
+              </>
             )}
           </div>
         </div>
