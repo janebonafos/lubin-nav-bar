@@ -1239,61 +1239,60 @@ export function CalendarAvailabilitySection() {
 /* ---------- Appointments ---------- */
 
 export function AppointmentsSection() {
-  const [tab, setTab] = useState<"upcoming" | "requests" | "past">("upcoming");
+  const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  const upcoming = [
-    { client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
-    { client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", duration: "30 min", type: "Consultation", mode: "Video" },
-    { client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
-  ];
-  const requests = [
-    { client: "Priya Patel", day: "MON", date: "01", month: "JUL", time: "11:00 AM", duration: "30 min", type: "Consultation", mode: "Video" },
-  ];
-  const past = [
-    { client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video" },
-    { client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", duration: "50 min", type: "Therapy", mode: "In-person" },
+  type Appt = {
+    id: string;
+    client: string;
+    day: string;
+    date: string;
+    month: string;
+    time: string;
+    duration: string;
+    type: string;
+    mode: string;
+    status: "upcoming" | "completed" | "cancelled";
+    notes?: string;
+  };
+
+  const all: Appt[] = [
+    { id: "u1", client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "upcoming", notes: "Follow-up on sleep journaling exercise from last session." },
+    { id: "u2", client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", duration: "30 min", type: "Consultation", mode: "Video", status: "upcoming", notes: "Intake consultation — review intake form prior to call." },
+    { id: "u3", client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "upcoming" },
+    { id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "completed", notes: "Discussed boundary-setting at work. Homework: daily wins journal." },
+    { id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", duration: "50 min", type: "Therapy", mode: "In-person", status: "completed" },
+    { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", duration: "30 min", type: "Consultation", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start." },
   ];
 
-  const list = tab === "upcoming" ? upcoming : tab === "requests" ? requests : past;
-  const counts = { upcoming: upcoming.length, requests: requests.length, past: past.length };
+  const counts = {
+    all: all.length,
+    upcoming: all.filter((a) => a.status === "upcoming").length,
+    completed: all.filter((a) => a.status === "completed").length,
+    cancelled: all.filter((a) => a.status === "cancelled").length,
+  };
+  const list = tab === "all" ? all : all.filter((a) => a.status === tab);
+
+  const statusStyle = {
+    upcoming: "bg-[#EEE7FA] text-[#7E6BAF]",
+    completed: "bg-emerald-100 text-emerald-700",
+    cancelled: "bg-rose-100 text-rose-700",
+  } as const;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          label="This week"
-          value="6"
-          hint="3 confirmed · 3 pending"
-          icon={<CalendarClock className="h-4 w-4" />}
-          tone="primary"
-        />
-        <StatCard
-          label="Pending requests"
-          value="1"
-          hint="Awaiting your response"
-          icon={<AlertCircle className="h-4 w-4" />}
-          tone="amber"
-        />
-        <StatCard
-          label="No-show rate"
-          value="2%"
-          hint="Last 30 days"
-          icon={<ShieldCheck className="h-4 w-4" />}
-          tone="emerald"
-        />
+        <StatCard label="This week" value="6" hint="3 confirmed · 3 pending" />
+        <StatCard label="Completed" value={String(counts.completed)} hint="Last 30 days" />
+        <StatCard label="No-show rate" value="2%" hint="Last 30 days" />
       </div>
 
       <SectionCard
         title="Bookings"
         description="Everything on your schedule."
-        action={
-          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-[#E3DBF5] bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-white">
-            <CalendarDays className="h-3.5 w-3.5" /> Open calendar
-          </button>
-        }
       >
         <div className="mb-5 inline-flex rounded-[12px] border border-[#E3DBF5] bg-white/60 p-1">
-          {(["upcoming", "requests", "past"] as const).map((t) => (
+          {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -1323,11 +1322,9 @@ export function AppointmentsSection() {
           </div>
         ) : (
           <ul className="divide-y divide-[#EEE7FA] overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-white/70">
-            {list.map((a, i) => (
-              <li
-                key={i}
-                className="group flex flex-wrap items-center gap-4 p-4 transition hover:bg-[#F7F2FE]/60 sm:flex-nowrap"
-              >
+            {list.map((a) => (
+              <li key={a.id} className="transition">
+                <div className="flex flex-wrap items-center gap-4 p-4 hover:bg-[#F7F2FE]/60 sm:flex-nowrap">
                 {/* Date block */}
                 <div className="flex w-[64px] shrink-0 flex-col items-center rounded-[12px] border border-[#E3DBF5] bg-gradient-to-b from-white to-[#F7F2FE] py-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
@@ -1347,9 +1344,14 @@ export function AppointmentsSection() {
                     <User className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[#3D2E6B]">
-                      {a.client}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-semibold text-[#3D2E6B]">
+                        {a.client}
+                      </p>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusStyle[a.status]}`}>
+                        {a.status}
+                      </span>
+                    </div>
                     <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#7E6BAF]">
                       <span>{a.type}</span>
                       <span className="text-[#C9BEE4]">·</span>
@@ -1368,25 +1370,45 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                  {tab === "requests" ? (
-                    <>
-                      <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
-                        Decline
-                      </button>
-                      <button className="rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#7E6BAF]">
-                        Accept
-                      </button>
-                    </>
-                  ) : tab === "past" ? (
-                    <button className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
-                      View notes <ArrowUpRight className="h-3 w-3" />
-                    </button>
-                  ) : (
-                    <button className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
-                      Details <ArrowUpRight className="h-3 w-3" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setExpanded(expanded === a.id ? null : a.id)}
+                    className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]"
+                  >
+                    {expanded === a.id ? "Hide" : "Details"}
+                  </button>
                 </div>
+                </div>
+                {expanded === a.id && (
+                  <div className="border-t border-[#EEE7FA] bg-[#FBF9FF]/70 p-5">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <DetailItem label="Client" value={a.client} />
+                      <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time}`} />
+                      <DetailItem label="Duration" value={a.duration} />
+                      <DetailItem label="Session type" value={a.type} />
+                      <DetailItem label="Mode" value={a.mode} />
+                      <DetailItem label="Status" value={a.status} />
+                    </div>
+                    {a.notes && (
+                      <div className="mt-4 rounded-[12px] border border-[#EEE7FA] bg-white p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">Notes</p>
+                        <p className="mt-1.5 text-sm text-[#3D2E6B]">{a.notes}</p>
+                      </div>
+                    )}
+                    {a.status === "upcoming" && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button className="rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#7E6BAF]">
+                          Join session
+                        </button>
+                        <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
+                          Reschedule
+                        </button>
+                        <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -1396,34 +1418,29 @@ export function AppointmentsSection() {
   );
 }
 
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className="mt-1 text-sm font-medium capitalize text-[#3D2E6B]">{value}</p>
+    </div>
+  );
+}
+
 function StatCard({
   label,
   value,
   hint,
-  icon,
-  tone = "primary",
 }: {
   label: string;
   value: string;
   hint?: string;
-  icon: React.ReactNode;
-  tone?: "primary" | "amber" | "emerald";
 }) {
-  const tones = {
-    primary: "bg-[#EEE7FA] text-[#7E6BAF]",
-    amber: "bg-amber-100 text-amber-700",
-    emerald: "bg-emerald-100 text-emerald-700",
-  } as const;
   return (
     <div className="relative overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-gradient-to-br from-white to-[#FBF9FF] p-5 shadow-sm shadow-[#3D2E6B]/[0.03]">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-          {label}
-        </p>
-        <span className={`inline-flex h-7 w-7 items-center justify-center rounded-[8px] ${tones[tone]}`}>
-          {icon}
-        </span>
-      </div>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+        {label}
+      </p>
       <p className="mt-3 text-3xl font-bold tracking-tight text-[#3D2E6B]">{value}</p>
       {hint && <p className="mt-1 text-xs text-[#7E6BAF]">{hint}</p>}
     </div>
