@@ -461,9 +461,11 @@ const STORAGE_KEY = "lubin.providerProfile.v1";
 export default function ProviderProfileSection({
   fullName,
   avatarUrl,
+  onAvatarChange,
 }: {
   fullName: string;
   avatarUrl?: string | null;
+  onAvatarChange?: (dataUrl: string) => void;
 }) {
   const [data, setData] = useState<ProviderProfile>(DEFAULT_PROVIDER_PROFILE);
   const [editing, setEditing] = useState<{
