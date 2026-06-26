@@ -16,6 +16,7 @@ import {
   Trash2,
   Languages as LanguagesIcon,
 } from "lucide-react";
+import { useAvailabilityStore, formatTime12, DAY_KEYS } from "@/lib/availability-store";
 
 /* --------------------------------- Types --------------------------------- */
 
