@@ -43,6 +43,9 @@ export type ProviderProfile = {
     name: string;
     lengthMin: number;
     rate: number;
+    sessionType: "individual" | "group";
+    minParticipants?: number;
+    maxParticipants?: number;
   }[];
   region: "US" | "PH";
   verified: boolean;
@@ -608,9 +611,27 @@ export default function ProviderProfileSection({
 
   /* --------------------------- Extra session form ------------------------ */
   const [showAddSession, setShowAddSession] = useState(false);
-  const [newSession, setNewSession] = useState({ name: "", lengthMin: 50, rate: "" });
+  const [newSession, setNewSession] = useState<{
+    name: string;
+    lengthMin: number;
+    rate: string;
+    sessionType: "individual" | "group";
+    minParticipants: string;
+    maxParticipants: string;
+  }>({
+    name: "",
+    lengthMin: 50,
+    rate: "",
+    sessionType: "individual",
+    minParticipants: "3",
+    maxParticipants: "8",
+  });
   const saveNewSession = () => {
     if (!newSession.name.trim() || !newSession.rate) return;
+    const isGroup = newSession.sessionType === "group";
+    const min = Number(newSession.minParticipants) || 0;
+    const max = Number(newSession.maxParticipants) || 0;
+    if (isGroup && (min < 2 || max < min)) return;
     update("extraSessions", [
       ...data.extraSessions,
       {
@@ -618,9 +639,18 @@ export default function ProviderProfileSection({
         name: newSession.name.trim(),
         lengthMin: newSession.lengthMin,
         rate: Number(newSession.rate) || 0,
+        sessionType: newSession.sessionType,
+        ...(isGroup ? { minParticipants: min, maxParticipants: max } : {}),
       },
     ]);
-    setNewSession({ name: "", lengthMin: 50, rate: "" });
+    setNewSession({
+      name: "",
+      lengthMin: 50,
+      rate: "",
+      sessionType: "individual",
+      minParticipants: "3",
+      maxParticipants: "8",
+    });
     setShowAddSession(false);
   };
 
