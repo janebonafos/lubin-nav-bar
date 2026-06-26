@@ -14,6 +14,12 @@ import {
   User,
   CircleDot,
   Plus,
+  X,
+  RefreshCw,
+  Copy,
+  CalendarOff,
+  Trash2,
+  ChevronRight,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -59,139 +65,471 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 
 /* ---------- Calendar & Availability ---------- */
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAYS = [
+  { key: "Mon", label: "Monday" },
+  { key: "Tue", label: "Tuesday" },
+  { key: "Wed", label: "Wednesday" },
+  { key: "Thu", label: "Thursday" },
+  { key: "Fri", label: "Friday" },
+  { key: "Sat", label: "Saturday" },
+  { key: "Sun", label: "Sunday" },
+] as const;
+
+type Interval = { id: string; start: string; end: string };
+type DayAvailability = { enabled: boolean; intervals: Interval[] };
+type WeekAvail = Record<string, DayAvailability>;
+
+const DEFAULT_INTERVAL: Interval = { id: "default", start: "09:00", end: "17:00" };
+
+const DEFAULT_WEEK: WeekAvail = {
+  Mon: { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: "m1" }] },
+  Tue: { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: "t1" }] },
+  Wed: { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: "w1" }] },
+  Thu: { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: "th1" }] },
+  Fri: { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: "f1" }] },
+  Sat: { enabled: false, intervals: [] },
+  Sun: { enabled: false, intervals: [] },
+};
+
+type CalendarProvider = "google" | "outlook" | "apple" | "ical";
+
+const PROVIDERS: { id: CalendarProvider; name: string; available: boolean }[] = [
+  { id: "google", name: "Google Calendar", available: true },
+  { id: "outlook", name: "Microsoft Outlook", available: false },
+  { id: "apple", name: "Apple Calendar", available: false },
+  { id: "ical", name: "Other (iCal feed)", available: false },
+];
+
+type Service = { id: string; name: string; length: string; price: string };
+
+const DEFAULT_SERVICES: Service[] = [
+  { id: "s1", name: "Initial consultation", length: "30 min", price: "$60" },
+  { id: "s2", name: "Therapy session", length: "50 min", price: "$120" },
+];
+
+type Holiday = { id: string; date: string; label: string };
+
+function genId() {
+  return Math.random().toString(36).slice(2, 9);
+}
 
 export function CalendarAvailabilitySection() {
-  const [connected, setConnected] = useState(true);
-  const [days, setDays] = useState<Record<string, boolean>>({
-    Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false, Sun: false,
+  // calendar connection
+  const [provider, setProvider] = useState<CalendarProvider | null>("google");
+  const [account, setAccount] = useState<string>("maria.santos@gmail.com");
+  const [showProviderPicker, setShowProviderPicker] = useState(false);
+
+  // weekly availability
+  const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
+
+  // holidays / days off
+  const [holidays, setHolidays] = useState<Holiday[]>([
+    { id: "h1", date: "2026-07-04", label: "Independence Day" },
+  ]);
+  const [newHoliday, setNewHoliday] = useState<{ date: string; label: string }>({ date: "", label: "" });
+
+  // services + which use weekly hours vs custom
+  const [services] = useState<Service[]>(DEFAULT_SERVICES);
+  const [serviceMode, setServiceMode] = useState<Record<string, "weekly" | "custom">>({
+    s1: "weekly",
+    s2: "weekly",
   });
-  const [start, setStart] = useState("09:00");
-  const [end, setEnd] = useState("17:00");
+
+  const toggleDay = (key: string) =>
+    setWeek((w) => ({
+      ...w,
+      [key]: w[key].enabled
+        ? { enabled: false, intervals: [] }
+        : { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: genId() }] },
+    }));
+
+  const updateInterval = (day: string, id: string, patch: Partial<Interval>) =>
+    setWeek((w) => ({
+      ...w,
+      [day]: {
+        ...w[day],
+        intervals: w[day].intervals.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+      },
+    }));
+
+  const addInterval = (day: string) =>
+    setWeek((w) => ({
+      ...w,
+      [day]: {
+        enabled: true,
+        intervals: [...w[day].intervals, { id: genId(), start: "13:00", end: "17:00" }],
+      },
+    }));
+
+  const removeInterval = (day: string, id: string) =>
+    setWeek((w) => ({
+      ...w,
+      [day]: { ...w[day], intervals: w[day].intervals.filter((i) => i.id !== id) },
+    }));
+
+  const copyToAll = (sourceKey: string) => {
+    const src = week[sourceKey];
+    if (!src.enabled) return;
+    setWeek((w) => {
+      const next: WeekAvail = { ...w };
+      DAYS.forEach((d) => {
+        if (d.key === sourceKey) return;
+        next[d.key] = {
+          enabled: true,
+          intervals: src.intervals.map((i) => ({ ...i, id: genId() })),
+        };
+      });
+      return next;
+    });
+  };
+
+  const addHoliday = () => {
+    if (!newHoliday.date) return;
+    setHolidays((h) => [
+      ...h,
+      { id: genId(), date: newHoliday.date, label: newHoliday.label || "Day off" },
+    ]);
+    setNewHoliday({ date: "", label: "" });
+  };
+
+  const removeHoliday = (id: string) =>
+    setHolidays((h) => h.filter((x) => x.id !== id));
+
+  const providerName =
+    PROVIDERS.find((p) => p.id === provider)?.name ?? "No calendar";
 
   return (
     <div className="space-y-6">
+      {/* Calendar connection */}
       <SectionCard
-        title="Connected calendar"
-        description="We use this to read your busy times and avoid double-bookings."
+        title="Calendar connection"
+        description="We read your busy times to prevent double-bookings — we never share calendar details with clients."
+        action={
+          provider ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowProviderPicker((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Switch calendar
+              </button>
+              <button
+                onClick={() => setProvider(null)}
+                className="text-xs font-semibold text-[#A89BD0] hover:text-red-500"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : null
+        }
       >
-        {connected ? (
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/60 p-5">
+        {provider ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white/70 p-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#7E6BAF]/10">
                 <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#3D2E6B]">Google Calendar</p>
-                <p className="text-xs text-emerald-700">
-                  <Check className="mr-1 inline h-3 w-3" /> Connected · maria.santos@gmail.com
+                <p className="text-sm font-semibold text-[#3D2E6B]">{providerName}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#7E6BAF]">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Connected · {account}
                 </p>
               </div>
             </div>
             <button
-              onClick={() => setConnected(false)}
-              className="text-xs font-semibold text-[#A89BD0] hover:text-red-500"
+              onClick={() => {
+                // simulate reconnect — refresh sync
+                setAccount((a) => a);
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
             >
-              Disconnect
+              <RefreshCw className="h-3.5 w-3.5" /> Reconnect
             </button>
           </div>
         ) : (
           <button
-            onClick={() => setConnected(true)}
+            onClick={() => setShowProviderPicker(true)}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#A89BD0] bg-white/60 px-5 py-6 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#7E6BAF]/5"
           >
-            <CalendarDays className="h-4 w-4" /> Connect Google Calendar
+            <CalendarDays className="h-4 w-4" /> Connect a calendar
           </button>
         )}
-        <p className="mt-3 text-xs text-[#7E6BAF]">
-          More calendars (Outlook, Apple, iCal) coming soon.
-        </p>
+
+        {showProviderPicker && (
+          <div className="mt-4 rounded-2xl border border-[#E3DBF5] bg-white/80 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#A89BD0]">
+                Choose a calendar
+              </p>
+              <button
+                onClick={() => setShowProviderPicker(false)}
+                className="text-[#A89BD0] hover:text-[#3D2E6B]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              {PROVIDERS.map((p) => (
+                <button
+                  key={p.id}
+                  disabled={!p.available}
+                  onClick={() => {
+                    setProvider(p.id);
+                    setAccount("maria.santos@gmail.com");
+                    setShowProviderPicker(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
+                    p.available
+                      ? "border-[#E3DBF5] bg-white hover:border-[#7E6BAF] hover:bg-[#7E6BAF]/5"
+                      : "cursor-not-allowed border-[#EEE7FA] bg-[#F8F5FF]/50 opacity-70"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <CalendarDays className="h-4 w-4 text-[#7E6BAF]" />
+                    <span className="text-sm font-semibold text-[#3D2E6B]">{p.name}</span>
+                  </div>
+                  {p.available ? (
+                    <ChevronRight className="h-4 w-4 text-[#A89BD0]" />
+                  ) : (
+                    <span className="rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                      Soon
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </SectionCard>
 
+      {/* Weekly availability */}
       <SectionCard
         title="Weekly availability"
-        description="Pick the days and hours when clients can request a session."
+        description="Set hours per day. Add split intervals for breaks (e.g. morning and afternoon)."
         action={
           <button className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#A89BD0]/40 hover:bg-[#3D2E6B]">
             <Check className="h-3.5 w-3.5" /> Save changes
           </button>
         }
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="divide-y divide-[#EEE7FA]">
           {DAYS.map((d) => {
-            const on = days[d];
+            const day = week[d.key];
             return (
-              <button
-                key={d}
-                onClick={() => setDays((p) => ({ ...p, [d]: !p[d] }))}
-                className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
-                  on
-                    ? "bg-[#7E6BAF] text-white shadow-sm"
-                    : "border border-[#E3DBF5] bg-white/60 text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
-                }`}
-              >
-                {d}
-              </button>
+              <div key={d.key} className="grid grid-cols-12 items-start gap-4 py-5">
+                {/* day toggle */}
+                <div className="col-span-12 sm:col-span-3">
+                  <label className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleDay(d.key)}
+                      className={`relative h-5 w-9 rounded-full transition ${
+                        day.enabled ? "bg-[#7E6BAF]" : "bg-[#E3DBF5]"
+                      }`}
+                      aria-label={`Toggle ${d.label}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${
+                          day.enabled ? "left-4" : "left-0.5"
+                        }`}
+                      />
+                    </button>
+                    <span
+                      className={`text-sm font-semibold ${
+                        day.enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                      }`}
+                    >
+                      {d.label}
+                    </span>
+                  </label>
+                </div>
+
+                {/* intervals */}
+                <div className="col-span-12 sm:col-span-9">
+                  {!day.enabled ? (
+                    <p className="text-sm italic text-[#A89BD0]">Unavailable</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {day.intervals.map((iv) => (
+                        <div key={iv.id} className="flex flex-wrap items-center gap-2">
+                          <input
+                            type="time"
+                            value={iv.start}
+                            onChange={(e) =>
+                              updateInterval(d.key, iv.id, { start: e.target.value })
+                            }
+                            className="w-28 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                          />
+                          <span className="text-[#A89BD0]">–</span>
+                          <input
+                            type="time"
+                            value={iv.end}
+                            onChange={(e) =>
+                              updateInterval(d.key, iv.id, { end: e.target.value })
+                            }
+                            className="w-28 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                          />
+                          {day.intervals.length > 1 && (
+                            <button
+                              onClick={() => removeInterval(d.key, iv.id)}
+                              className="rounded-lg p-1.5 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
+                              aria-label="Remove interval"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-3 pt-1">
+                        <button
+                          onClick={() => addInterval(d.key)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                        >
+                          <Plus className="h-3 w-3" /> Add interval
+                        </button>
+                        <span className="text-[#E3DBF5]">·</span>
+                        <button
+                          onClick={() => copyToAll(d.key)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                        >
+                          <Copy className="h-3 w-3" /> Copy to all days
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>
+      </SectionCard>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {/* Holidays & days off */}
+      <SectionCard
+        title="Holidays & days off"
+        description="Block specific dates — clients won't be able to book on these days."
+      >
+        <div className="space-y-3">
+          {holidays.length === 0 ? (
+            <p className="text-sm italic text-[#A89BD0]">No days off added yet.</p>
+          ) : (
+            holidays.map((h) => (
+              <div
+                key={h.id}
+                className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/70 px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <CalendarOff className="h-4 w-4 text-[#7E6BAF]" />
+                  <div>
+                    <p className="text-sm font-semibold text-[#3D2E6B]">{h.label}</p>
+                    <p className="text-xs text-[#7E6BAF]">
+                      {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeHoliday(h.id)}
+                  className="rounded-lg p-1.5 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
+                  aria-label="Remove day off"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-dashed border-[#E3DBF5] bg-white/40 p-4">
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-              Start time
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+              Date
             </span>
             <input
-              type="time"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#E3DBF5] bg-white/70 px-4 py-2.5 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+              type="date"
+              value={newHoliday.date}
+              onChange={(e) => setNewHoliday((p) => ({ ...p, date: e.target.value }))}
+              className="mt-1 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
             />
           </label>
-          <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-              End time
+          <label className="block flex-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+              Reason (optional)
             </span>
             <input
-              type="time"
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#E3DBF5] bg-white/70 px-4 py-2.5 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+              type="text"
+              placeholder="Vacation, holiday, personal..."
+              value={newHoliday.label}
+              onChange={(e) => setNewHoliday((p) => ({ ...p, label: e.target.value }))}
+              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
             />
           </label>
+          <button
+            onClick={addHoliday}
+            disabled={!newHoliday.date}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add day off
+          </button>
         </div>
       </SectionCard>
 
+      {/* Per-service availability */}
       <SectionCard
-        title="Session types"
-        description="What clients can book with you."
-        action={
-          <button className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-            <Plus className="h-4 w-4" /> Add session
-          </button>
-        }
+        title="Service availability"
+        description="Each service follows your weekly hours by default. Override for specific services if needed."
       >
         <div className="space-y-3">
-          {[
-            { name: "Initial consultation", length: "30 min", price: "$60" },
-            { name: "Therapy session", length: "50 min", price: "$120" },
-          ].map((s) => (
-            <div
-              key={s.name}
-              className="flex items-center justify-between rounded-2xl border border-[#EEE7FA] bg-white/70 p-4"
-            >
-              <div className="flex items-center gap-3">
-                <Video className="h-4 w-4 text-[#7E6BAF]" />
-                <div>
-                  <p className="text-sm font-semibold text-[#3D2E6B]">{s.name}</p>
-                  <p className="text-xs text-[#7E6BAF]">
-                    <Clock className="mr-1 inline h-3 w-3" /> {s.length} · Video
-                  </p>
+          {services.map((s) => {
+            const mode = serviceMode[s.id] ?? "weekly";
+            return (
+              <div
+                key={s.id}
+                className="rounded-2xl border border-[#EEE7FA] bg-white/70 p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Video className="h-4 w-4 text-[#7E6BAF]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#3D2E6B]">{s.name}</p>
+                      <p className="text-xs text-[#7E6BAF]">
+                        {s.length} · {s.price}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="inline-flex rounded-full border border-[#E3DBF5] bg-white p-1">
+                    {(["weekly", "custom"] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() =>
+                          setServiceMode((p) => ({ ...p, [s.id]: m }))
+                        }
+                        className={`rounded-full px-3 py-1 text-[11px] font-semibold capitalize transition ${
+                          mode === m
+                            ? "bg-[#7E6BAF] text-white shadow-sm"
+                            : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+                        }`}
+                      >
+                        {m === "weekly" ? "Use weekly hours" : "Custom"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+                {mode === "custom" && (
+                  <div className="mt-4 rounded-xl border border-dashed border-[#E3DBF5] bg-[#F8F5FF]/60 p-4 text-xs text-[#7E6BAF]">
+                    Custom hours for <span className="font-semibold">{s.name}</span>{" "}
+                    will appear here — pick specific days and time windows that
+                    differ from your weekly schedule.
+                  </div>
+                )}
               </div>
-              <p className="text-sm font-bold text-[#3D2E6B]">{s.price}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </SectionCard>
     </div>
