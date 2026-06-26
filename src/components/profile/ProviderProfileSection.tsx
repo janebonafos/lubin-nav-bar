@@ -1045,7 +1045,7 @@ export default function ProviderProfileSection({
               </div>
             ))}
 
-            {editing.sessions && !showAddSession && (
+            {!showAddSession && (
               <button
                 type="button"
                 onClick={() => setShowAddSession(true)}
@@ -1058,7 +1058,7 @@ export default function ProviderProfileSection({
               </button>
             )}
 
-            {editing.sessions && showAddSession && (
+            {showAddSession && (
               <div className="overflow-hidden rounded-[28px] border border-[#F0EAFB] bg-white shadow-sm">
                 <div className="space-y-7 p-7">
                   {/* Header */}
