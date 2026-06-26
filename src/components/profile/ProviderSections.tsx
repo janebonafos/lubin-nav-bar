@@ -255,6 +255,105 @@ function isPastDate(iso: string) {
   return d.getTime() < today.getTime();
 }
 
+/* Week-grid visualization of weekly availability */
+function WeekGridView({
+  week,
+  errors,
+}: {
+  week: WeekAvail;
+  errors: WeekErrors;
+}) {
+  const startHour = 6;
+  const endHour = 22;
+  const totalMin = (endHour - startHour) * 60;
+  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+  return (
+    <div className="p-4 sm:p-6">
+      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] gap-1">
+        {/* header */}
+        <div />
+        {DAYS.map((d) => (
+          <div
+            key={d.key}
+            className={`pb-2 text-center text-[11px] font-bold uppercase tracking-wider ${
+              week[d.key].enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+            }`}
+          >
+            {d.label.slice(0, 3)}
+          </div>
+        ))}
+        {/* body */}
+        <div className="relative" style={{ height: `${(endHour - startHour) * 28}px` }}>
+          {hours.map((h, i) => (
+            <div
+              key={h}
+              className="absolute left-0 right-0 -translate-y-1/2 text-right text-[10px] font-medium text-[#A89BD0]"
+              style={{ top: `${(i / (endHour - startHour)) * 100}%` }}
+            >
+              {h % 12 === 0 ? 12 : h % 12}
+              {h < 12 ? "a" : "p"}
+            </div>
+          ))}
+        </div>
+        {DAYS.map((d) => {
+          const day = week[d.key];
+          const dayErr = errors[d.key];
+          return (
+            <div
+              key={d.key}
+              className={`relative overflow-hidden rounded-lg border ${
+                day.enabled ? "border-[#EAE7F5] bg-[#FBF9FF]" : "border-dashed border-[#EAE7F5] bg-gray-50/60"
+              }`}
+              style={{ height: `${(endHour - startHour) * 28}px` }}
+            >
+              {/* hour gridlines */}
+              {hours.slice(1).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute left-0 right-0 border-t border-[#F0EAFB]/70"
+                  style={{ top: `${((i + 1) / (endHour - startHour)) * 100}%` }}
+                />
+              ))}
+              {day.enabled &&
+                day.intervals.map((iv) => {
+                  const s = Math.max(toMinutes(iv.start) - startHour * 60, 0);
+                  const e = Math.min(toMinutes(iv.end) - startHour * 60, totalMin);
+                  if (e <= s) return null;
+                  const hasErr = !!dayErr?.intervals[iv.id];
+                  return (
+                    <div
+                      key={iv.id}
+                      title={`${formatTime12(iv.start)} – ${formatTime12(iv.end)}`}
+                      className={`absolute left-1 right-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${
+                        hasErr
+                          ? "border border-red-300 bg-red-100/80 text-red-700"
+                          : "bg-[#7E6BAF] text-white shadow-sm"
+                      }`}
+                      style={{
+                        top: `${(s / totalMin) * 100}%`,
+                        height: `${((e - s) / totalMin) * 100}%`,
+                      }}
+                    >
+                      {formatTime12(iv.start)}
+                    </div>
+                  );
+                })}
+              {!day.enabled && (
+                <div className="flex h-full items-center justify-center px-1 text-center text-[10px] font-medium text-[#A89BD0]">
+                  Off
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[11px] text-[#A89BD0]">
+        Read-only preview. Switch to <span className="font-semibold">List</span> to edit intervals.
+      </p>
+    </div>
+  );
+}
+
 export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
