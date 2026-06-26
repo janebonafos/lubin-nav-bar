@@ -1059,60 +1059,106 @@ export default function ProviderProfileSection({
             )}
 
             {editing.sessions && showAddSession && (
-              <div className="space-y-4 rounded-2xl border border-[#EEE6F7] bg-white/80 p-5">
-                <input
-                  value={newSession.name}
-                  onChange={(e) => setNewSession((s) => ({ ...s, name: e.target.value }))}
-                  placeholder="Session name (e.g. Quick check-in)"
-                  className="w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 px-5 py-3.5 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
-                />
-                <div className="flex flex-wrap gap-2">
-                  {[30, 50, 60, 90].map((m) => (
-                    <Pill
-                      key={m}
-                      active={newSession.lengthMin === m}
-                      onClick={() => setNewSession((s) => ({ ...s, lengthMin: m }))}
+              <div className="overflow-hidden rounded-[28px] border border-[#F0EAFB] bg-white shadow-sm">
+                <div className="space-y-7 p-7">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-[18px] font-bold tracking-tight text-[#2D2442]">Add new session type</h3>
+                      <p className="mt-0.5 text-[13px] font-medium text-[#7E6BAF]/70">
+                        Define the details for your new offering.
+                      </p>
+                    </div>
+                    <div className="rounded-full bg-[#F0EAFB] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                      Create new session
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <div className="space-y-6">
+                    {/* Session name */}
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <label className="text-[13px] font-semibold text-[#2D2442]">Session name</label>
+                      <div className="col-span-2">
+                        <input
+                          value={newSession.name}
+                          onChange={(e) => setNewSession((s) => ({ ...s, name: e.target.value }))}
+                          placeholder="e.g. Couples Therapy"
+                          className="w-full rounded-2xl border-2 border-transparent bg-[#F0EAFB]/40 px-4 py-3 text-[14px] text-[#2D2442] placeholder-[#7E6BAF]/40 outline-none transition-all focus:border-[#7E6BAF] focus:bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Duration */}
+                    <div className="grid grid-cols-3 items-start gap-4">
+                      <div className="pt-3">
+                        <label className="text-[13px] font-semibold text-[#2D2442]">Duration</label>
+                        <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Minutes</p>
+                      </div>
+                      <div className="col-span-2 grid grid-cols-4 gap-2">
+                        {[30, 50, 60, 90].map((m) => {
+                          const active = newSession.lengthMin === m;
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => setNewSession((s) => ({ ...s, lengthMin: m }))}
+                              className={`rounded-xl border-2 py-3 text-[13px] font-bold transition-colors ${
+                                active
+                                  ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/20"
+                                  : "border-[#F0EAFB] text-[#7E6BAF] hover:bg-[#F0EAFB]/50"
+                              }`}
+                            >
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Rate */}
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <label className="text-[13px] font-semibold text-[#2D2442]">Rate ({currency.code})</label>
+                      <div className="relative col-span-2">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#7E6BAF]">
+                          {currency.symbol}
+                        </span>
+                        <input
+                          inputMode="numeric"
+                          value={newSession.rate}
+                          onChange={(e) =>
+                            setNewSession((s) => ({ ...s, rate: e.target.value.replace(/\D/g, "") }))
+                          }
+                          placeholder="0"
+                          className="w-full rounded-2xl border-2 border-transparent bg-[#F0EAFB]/40 py-3 pl-8 pr-4 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF] focus:bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddSession(false);
+                        setNewSession({ name: "", lengthMin: 50, rate: "" });
+                      }}
+                      className="rounded-2xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
                     >
-                      {m} min
-                    </Pill>
-                  ))}
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={saveNewSession}
+                      className="rounded-2xl bg-[#7E6BAF] px-7 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#3D2E6B]"
+                    >
+                      Create session
+                    </button>
+                  </div>
                 </div>
-                <div className="relative max-w-xs">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-[#7E6BAF]">
-                    {currency.symbol}
-                  </span>
-                  <input
-                    inputMode="numeric"
-                    value={newSession.rate}
-                    onChange={(e) =>
-                      setNewSession((s) => ({ ...s, rate: e.target.value.replace(/\D/g, "") }))
-                    }
-                    placeholder="Rate"
-                    className="w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 py-3.5 pl-10 pr-16 text-[15px] font-semibold text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
-                  />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-widest text-[#7E6BAF]/50">
-                    {currency.code}
-                  </span>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddSession(false);
-                      setNewSession({ name: "", lengthMin: 50, rate: "" });
-                    }}
-                    className="rounded-full px-3 py-1.5 text-[12.5px] font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={saveNewSession}
-                    className="rounded-full bg-[#7E6BAF] px-4 py-1.5 text-[12.5px] font-semibold text-white hover:bg-[#3D2E6B]"
-                  >
-                    Add session
-                  </button>
-                </div>
+                {/* Bottom accent */}
+                <div className="h-1.5 bg-gradient-to-r from-[#F0EAFB] via-[#7E6BAF] to-[#F0EAFB]" />
               </div>
             )}
           </div>
