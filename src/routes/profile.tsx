@@ -79,6 +79,7 @@ const DEFAULT_PROFILE: Profile = {
 type Section =
   | "profile"
   | "provider"
+  | "services"
   | "calendar"
   | "appointments"
   | "payments"
@@ -351,6 +352,7 @@ function ProfilePage() {
     role === "provider"
       ? [
           { key: "provider", label: "Provider Profile", icon: <ClipboardList className="h-5 w-5" /> },
+          { key: "services", label: "Services & Offerings", icon: <Wallet className="h-5 w-5" /> },
           { key: "calendar", label: "Calendar & Availability", icon: <CalendarDays className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
@@ -373,6 +375,10 @@ function ProfilePage() {
     provider: {
       title: "Provider Profile",
       subtitle: "How clients discover and book sessions with you",
+    },
+    services: {
+      title: "Services & Offerings",
+      subtitle: "Define the sessions, formats, and pricing clients can book",
     },
     calendar: {
       title: "Calendar & Availability",
