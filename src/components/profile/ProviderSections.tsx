@@ -951,7 +951,6 @@ export function CalendarAvailabilitySection() {
       {/* Holidays & Service Alignment */}
       <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
-        <div className="flex flex-col gap-6">
         <section className="rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
           <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
             <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Holidays & Time Off</h2>
@@ -989,14 +988,9 @@ export function CalendarAvailabilitySection() {
               ))
             )}
           </div>
-        </section>
 
-        <section className="rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
-          <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
-            <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Add a day off</h2>
-            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">New</span>
-          </div>
-          <div className="space-y-3">
+          <div className="mt-6 space-y-3 border-t border-dashed border-[#EFEBF8] pt-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A89BD0]">Add a day off</p>
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="date"
@@ -1026,7 +1020,6 @@ export function CalendarAvailabilitySection() {
             )}
           </div>
         </section>
-        </div>
 
         {/* Service Availability */}
         <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
