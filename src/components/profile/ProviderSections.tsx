@@ -489,14 +489,46 @@ export function CalendarAvailabilitySection() {
             <h2 className="text-lg font-semibold text-[#3D2E6B]">Weekly Hours</h2>
             <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
-            Timezone · EST
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-full border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+              {([
+                { id: "list", label: "List", Icon: List },
+                { id: "grid", label: "Week grid", Icon: LayoutGrid },
+              ] as const).map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setViewMode(id)}
+                  aria-pressed={viewMode === id}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+                    viewMode === id
+                      ? "bg-[#7E6BAF] text-white shadow-sm"
+                      : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" /> {label}
+                </button>
+              ))}
+            </div>
+            <span className="hidden text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF] sm:inline">
+              Timezone · EST
+            </span>
+          </div>
         </div>
 
+        {errorCount > 0 && (
+          <div className="flex items-start gap-2 border-b border-red-100 bg-red-50/60 px-6 py-3 sm:px-8">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+            <p className="text-xs font-medium text-red-700">
+              {errorCount} issue{errorCount > 1 ? "s" : ""} to fix before saving — check the highlighted intervals.
+            </p>
+          </div>
+        )}
+
+        {viewMode === "list" ? (
         <div className="divide-y divide-[#F0EAFB]">
           {DAYS.map((d) => {
             const day = week[d.key];
+            const dayErr = weekErrors[d.key];
             return (
               <div
                 key={d.key}
@@ -535,29 +567,43 @@ export function CalendarAvailabilitySection() {
                   </div>
                 ) : (
                   <div className="flex-1 space-y-3">
+                    {dayErr?.day && (
+                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                        <AlertTriangle className="h-3 w-3" /> {dayErr.day}
+                      </p>
+                    )}
                     {day.intervals.map((iv) => (
-                      <div key={iv.id} className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <TimePill
-                          value={iv.start}
-                          ariaLabel="Start time"
-                          onChange={(v) => updateInterval(d.key, iv.id, { start: v })}
-                        />
-                        <span className="text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
-                          to
-                        </span>
-                        <TimePill
-                          value={iv.end}
-                          ariaLabel="End time"
-                          onChange={(v) => updateInterval(d.key, iv.id, { end: v })}
-                        />
-                        {day.intervals.length > 1 && (
-                          <button
-                            onClick={() => removeInterval(d.key, iv.id)}
-                            className="p-2 text-[#A89BD0] transition-colors hover:text-red-400"
-                            aria-label="Remove interval"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                      <div key={iv.id} className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <TimePill
+                            value={iv.start}
+                            ariaLabel="Start time"
+                            hasError={!!dayErr?.intervals[iv.id]}
+                            onChange={(v) => updateInterval(d.key, iv.id, { start: v })}
+                          />
+                          <span className="text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
+                            to
+                          </span>
+                          <TimePill
+                            value={iv.end}
+                            ariaLabel="End time"
+                            hasError={!!dayErr?.intervals[iv.id]}
+                            onChange={(v) => updateInterval(d.key, iv.id, { end: v })}
+                          />
+                          {day.intervals.length > 1 && (
+                            <button
+                              onClick={() => removeInterval(d.key, iv.id)}
+                              className="p-2 text-[#A89BD0] transition-colors hover:text-red-400"
+                              aria-label="Remove interval"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        {dayErr?.intervals[iv.id] && (
+                          <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                            <AlertTriangle className="h-3 w-3" /> {dayErr.intervals[iv.id]}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -581,6 +627,9 @@ export function CalendarAvailabilitySection() {
             );
           })}
         </div>
+        ) : (
+          <WeekGridView week={week} errors={weekErrors} />
+        )}
       </section>
 
       {/* Holidays & Service Alignment */}
