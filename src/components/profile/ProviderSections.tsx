@@ -19,6 +19,9 @@ import {
   CalendarOff,
   Trash2,
   ChevronDown,
+  LayoutGrid,
+  List,
+  AlertTriangle,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -104,10 +107,12 @@ function TimePill({
   value,
   onChange,
   ariaLabel,
+  hasError = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   ariaLabel: string;
+  hasError?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -115,12 +120,15 @@ function TimePill({
       <button
         type="button"
         aria-label={ariaLabel}
+        aria-invalid={hasError || undefined}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         className={`inline-flex min-w-[112px] items-center justify-between gap-3 rounded-xl border bg-white px-3.5 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
-          open
-            ? "border-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
-            : "border-[#E3DBF5] hover:border-[#A89BD0]"
+          hasError
+            ? "border-red-300 ring-4 ring-red-200/40"
+            : open
+              ? "border-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
+              : "border-[#E3DBF5] hover:border-[#A89BD0]"
         }`}
       >
         <span>{formatTime12(value)}</span>
@@ -192,10 +200,166 @@ function genId() {
   return Math.random().toString(36).slice(2, 9);
 }
 
+function toMinutes(t: string) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+type IntervalErrors = Record<string, string>;
+type DayErrors = { intervals: IntervalErrors; day?: string };
+type WeekErrors = Record<string, DayErrors>;
+
+function validateWeek(week: WeekAvail): { errors: WeekErrors; count: number } {
+  const errors: WeekErrors = {};
+  let count = 0;
+  for (const key of Object.keys(week)) {
+    const day = week[key];
+    const ivErrs: IntervalErrors = {};
+    let dayErr: string | undefined;
+    if (day.enabled) {
+      if (day.intervals.length === 0) {
+        dayErr = "Add at least one time interval or turn this day off.";
+        count++;
+      }
+      // per-interval checks
+      const sorted = [...day.intervals].sort(
+        (a, b) => toMinutes(a.start) - toMinutes(b.start),
+      );
+      for (const iv of day.intervals) {
+        if (toMinutes(iv.end) <= toMinutes(iv.start)) {
+          ivErrs[iv.id] = "End time must be after start time.";
+          count++;
+        }
+      }
+      // overlaps
+      for (let i = 1; i < sorted.length; i++) {
+        const prev = sorted[i - 1];
+        const cur = sorted[i];
+        if (toMinutes(cur.start) < toMinutes(prev.end)) {
+          if (!ivErrs[cur.id]) {
+            ivErrs[cur.id] = "This interval overlaps another on the same day.";
+            count++;
+          }
+        }
+      }
+    }
+    errors[key] = { intervals: ivErrs, day: dayErr };
+  }
+  return { errors, count };
+}
+
+function isPastDate(iso: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(iso + "T00:00:00");
+  return d.getTime() < today.getTime();
+}
+
+/* Week-grid visualization of weekly availability */
+function WeekGridView({
+  week,
+  errors,
+}: {
+  week: WeekAvail;
+  errors: WeekErrors;
+}) {
+  const startHour = 6;
+  const endHour = 22;
+  const totalMin = (endHour - startHour) * 60;
+  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+  return (
+    <div className="p-4 sm:p-6">
+      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] gap-1">
+        {/* header */}
+        <div />
+        {DAYS.map((d) => (
+          <div
+            key={d.key}
+            className={`pb-2 text-center text-[11px] font-bold uppercase tracking-wider ${
+              week[d.key].enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+            }`}
+          >
+            {d.label.slice(0, 3)}
+          </div>
+        ))}
+        {/* body */}
+        <div className="relative" style={{ height: `${(endHour - startHour) * 28}px` }}>
+          {hours.map((h, i) => (
+            <div
+              key={h}
+              className="absolute left-0 right-0 -translate-y-1/2 text-right text-[10px] font-medium text-[#A89BD0]"
+              style={{ top: `${(i / (endHour - startHour)) * 100}%` }}
+            >
+              {h % 12 === 0 ? 12 : h % 12}
+              {h < 12 ? "a" : "p"}
+            </div>
+          ))}
+        </div>
+        {DAYS.map((d) => {
+          const day = week[d.key];
+          const dayErr = errors[d.key];
+          return (
+            <div
+              key={d.key}
+              className={`relative overflow-hidden rounded-lg border ${
+                day.enabled ? "border-[#EAE7F5] bg-[#FBF9FF]" : "border-dashed border-[#EAE7F5] bg-gray-50/60"
+              }`}
+              style={{ height: `${(endHour - startHour) * 28}px` }}
+            >
+              {/* hour gridlines */}
+              {hours.slice(1).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute left-0 right-0 border-t border-[#F0EAFB]/70"
+                  style={{ top: `${((i + 1) / (endHour - startHour)) * 100}%` }}
+                />
+              ))}
+              {day.enabled &&
+                day.intervals.map((iv) => {
+                  const s = Math.max(toMinutes(iv.start) - startHour * 60, 0);
+                  const e = Math.min(toMinutes(iv.end) - startHour * 60, totalMin);
+                  if (e <= s) return null;
+                  const hasErr = !!dayErr?.intervals[iv.id];
+                  return (
+                    <div
+                      key={iv.id}
+                      title={`${formatTime12(iv.start)} – ${formatTime12(iv.end)}`}
+                      className={`absolute left-1 right-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${
+                        hasErr
+                          ? "border border-red-300 bg-red-100/80 text-red-700"
+                          : "bg-[#7E6BAF] text-white shadow-sm"
+                      }`}
+                      style={{
+                        top: `${(s / totalMin) * 100}%`,
+                        height: `${((e - s) / totalMin) * 100}%`,
+                      }}
+                    >
+                      {formatTime12(iv.start)}
+                    </div>
+                  );
+                })}
+              {!day.enabled && (
+                <div className="flex h-full items-center justify-center px-1 text-center text-[10px] font-medium text-[#A89BD0]">
+                  Off
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[11px] text-[#A89BD0]">
+        Read-only preview. Switch to <span className="font-semibold">List</span> to edit intervals.
+      </p>
+    </div>
+  );
+}
+
 export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
   const [account, setAccount] = useState<string>("maria.santos@gmail.com");
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
 
   // weekly availability
   const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
@@ -205,6 +369,7 @@ export function CalendarAvailabilitySection() {
     { id: "h1", date: "2026-07-04", label: "Independence Day" },
   ]);
   const [newHoliday, setNewHoliday] = useState<{ date: string; label: string }>({ date: "", label: "" });
+  const [holidayError, setHolidayError] = useState<string | null>(null);
 
   // services + which use weekly hours vs custom
   const [services] = useState<Service[]>(DEFAULT_SERVICES);
@@ -212,6 +377,12 @@ export function CalendarAvailabilitySection() {
     s1: "weekly",
     s2: "weekly",
   });
+
+  // Weekly hours view + save state
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [saved, setSaved] = useState(false);
+
+  const { errors: weekErrors, count: errorCount } = validateWeek(week);
 
   const toggleDay = (key: string) =>
     setWeek((w) => ({
@@ -262,7 +433,19 @@ export function CalendarAvailabilitySection() {
   };
 
   const addHoliday = () => {
-    if (!newHoliday.date) return;
+    setHolidayError(null);
+    if (!newHoliday.date) {
+      setHolidayError("Pick a date for this day off.");
+      return;
+    }
+    if (isPastDate(newHoliday.date)) {
+      setHolidayError("That date is in the past.");
+      return;
+    }
+    if (holidays.some((h) => h.date === newHoliday.date)) {
+      setHolidayError("You already added a day off for that date.");
+      return;
+    }
     setHolidays((h) => [
       ...h,
       { id: genId(), date: newHoliday.date, label: newHoliday.label || "Day off" },
@@ -272,6 +455,32 @@ export function CalendarAvailabilitySection() {
 
   const removeHoliday = (id: string) =>
     setHolidays((h) => h.filter((x) => x.id !== id));
+
+  const handleConnect = () => {
+    setSyncError(null);
+    setConnecting(true);
+    // simulate async — randomly fail to demo error handling
+    setTimeout(() => {
+      setConnecting(false);
+      if (Math.random() < 0.15) {
+        setSyncError(
+          "We couldn't reach Google Calendar. Check your connection and try again.",
+        );
+        return;
+      }
+      setProvider("google");
+      setAccount("maria.santos@gmail.com");
+    }, 500);
+  };
+
+  const handleSave = () => {
+    if (errorCount > 0) {
+      setSaved(false);
+      return;
+    }
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
 
   return (
     <div className="space-y-8">
@@ -299,6 +508,20 @@ export function CalendarAvailabilitySection() {
             </span>
           )}
         </div>
+        {syncError && (
+          <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-red-100 bg-red-50/70 px-4 py-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+              <p className="text-xs font-medium text-red-700">{syncError}</p>
+            </div>
+            <button
+              onClick={handleConnect}
+              className="shrink-0 text-xs font-semibold text-red-700 underline-offset-2 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Google */}
           <div
@@ -333,13 +556,12 @@ export function CalendarAvailabilitySection() {
               </button>
             ) : (
               <button
-                onClick={() => {
-                  setProvider("google");
-                  setAccount("maria.santos@gmail.com");
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#3D2E6B]"
+                onClick={handleConnect}
+                disabled={connecting}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <RefreshCw className="h-3.5 w-3.5" /> Connect
+                <RefreshCw className={`h-3.5 w-3.5 ${connecting ? "animate-spin" : ""}`} />
+                {connecting ? "Connecting…" : "Connect"}
               </button>
             )}
           </div>
@@ -366,14 +588,46 @@ export function CalendarAvailabilitySection() {
             <h2 className="text-lg font-semibold text-[#3D2E6B]">Weekly Hours</h2>
             <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
-            Timezone · EST
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-full border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+              {([
+                { id: "list", label: "List", Icon: List },
+                { id: "grid", label: "Week grid", Icon: LayoutGrid },
+              ] as const).map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setViewMode(id)}
+                  aria-pressed={viewMode === id}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+                    viewMode === id
+                      ? "bg-[#7E6BAF] text-white shadow-sm"
+                      : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" /> {label}
+                </button>
+              ))}
+            </div>
+            <span className="hidden text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF] sm:inline">
+              Timezone · EST
+            </span>
+          </div>
         </div>
 
+        {errorCount > 0 && (
+          <div className="flex items-start gap-2 border-b border-red-100 bg-red-50/60 px-6 py-3 sm:px-8">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+            <p className="text-xs font-medium text-red-700">
+              {errorCount} issue{errorCount > 1 ? "s" : ""} to fix before saving — check the highlighted intervals.
+            </p>
+          </div>
+        )}
+
+        {viewMode === "list" ? (
         <div className="divide-y divide-[#F0EAFB]">
           {DAYS.map((d) => {
             const day = week[d.key];
+            const dayErr = weekErrors[d.key];
             return (
               <div
                 key={d.key}
@@ -412,29 +666,43 @@ export function CalendarAvailabilitySection() {
                   </div>
                 ) : (
                   <div className="flex-1 space-y-3">
+                    {dayErr?.day && (
+                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                        <AlertTriangle className="h-3 w-3" /> {dayErr.day}
+                      </p>
+                    )}
                     {day.intervals.map((iv) => (
-                      <div key={iv.id} className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <TimePill
-                          value={iv.start}
-                          ariaLabel="Start time"
-                          onChange={(v) => updateInterval(d.key, iv.id, { start: v })}
-                        />
-                        <span className="text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
-                          to
-                        </span>
-                        <TimePill
-                          value={iv.end}
-                          ariaLabel="End time"
-                          onChange={(v) => updateInterval(d.key, iv.id, { end: v })}
-                        />
-                        {day.intervals.length > 1 && (
-                          <button
-                            onClick={() => removeInterval(d.key, iv.id)}
-                            className="p-2 text-[#A89BD0] transition-colors hover:text-red-400"
-                            aria-label="Remove interval"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                      <div key={iv.id} className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <TimePill
+                            value={iv.start}
+                            ariaLabel="Start time"
+                            hasError={!!dayErr?.intervals[iv.id]}
+                            onChange={(v) => updateInterval(d.key, iv.id, { start: v })}
+                          />
+                          <span className="text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
+                            to
+                          </span>
+                          <TimePill
+                            value={iv.end}
+                            ariaLabel="End time"
+                            hasError={!!dayErr?.intervals[iv.id]}
+                            onChange={(v) => updateInterval(d.key, iv.id, { end: v })}
+                          />
+                          {day.intervals.length > 1 && (
+                            <button
+                              onClick={() => removeInterval(d.key, iv.id)}
+                              className="p-2 text-[#A89BD0] transition-colors hover:text-red-400"
+                              aria-label="Remove interval"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        {dayErr?.intervals[iv.id] && (
+                          <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                            <AlertTriangle className="h-3 w-3" /> {dayErr.intervals[iv.id]}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -458,6 +726,9 @@ export function CalendarAvailabilitySection() {
             );
           })}
         </div>
+        ) : (
+          <WeekGridView week={week} errors={weekErrors} />
+        )}
       </section>
 
       {/* Holidays & Service Alignment */}
@@ -526,6 +797,11 @@ export function CalendarAvailabilitySection() {
                 >
                 + Add date
                 </button>
+                {holidayError && (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                    <AlertTriangle className="h-3 w-3" /> {holidayError}
+                  </p>
+                )}
               </div>
             </div>
         </section>
@@ -584,13 +860,28 @@ export function CalendarAvailabilitySection() {
         </div>
 
         {/* Footer */}
-      <div className="flex justify-end gap-4 pt-2">
+      <div className="flex flex-wrap items-center justify-end gap-4 pt-2">
+        {errorCount > 0 && (
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-red-600">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            Resolve {errorCount} issue{errorCount > 1 ? "s" : ""} before saving.
+          </p>
+        )}
+        {saved && errorCount === 0 && (
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-green-600">
+            <Check className="h-3.5 w-3.5" /> Availability saved.
+          </p>
+        )}
         <button className="px-6 py-2.5 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-            Cancel
-          </button>
-        <button className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF]">
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={errorCount > 0}
+          className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0"
+        >
           Save Changes
-          </button>
+        </button>
       </div>
     </div>
   );
