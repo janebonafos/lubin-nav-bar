@@ -595,8 +595,8 @@ export default function ProviderProfileSection({
             </div>
           </div>
 
-          <p className="max-w-2xl text-[15px] font-medium leading-relaxed text-purple-100/90 sm:text-base">
-            {data.headline}
+          <p className="line-clamp-3 max-w-2xl text-[15px] font-medium leading-relaxed text-purple-100/90 sm:text-base">
+            {data.bio}
           </p>
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm font-medium text-purple-100">
