@@ -1241,6 +1241,8 @@ export function CalendarAvailabilitySection() {
 export function AppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 5;
 
   type Appt = {
     id: string;
@@ -1272,6 +1274,10 @@ export function AppointmentsSection() {
     cancelled: all.filter((a) => a.status === "cancelled").length,
   };
   const list = tab === "all" ? all : all.filter((a) => a.status === tab);
+  const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const paged = list.slice(pageStart, pageStart + pageSize);
 
   const statusStyle = {
     upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
@@ -1295,7 +1301,7 @@ export function AppointmentsSection() {
           {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t)}
+              onClick={() => { setTab(t); setPage(1); setExpanded(null); }}
               className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
                 tab === t
                   ? "bg-[#5B4796] text-white"
@@ -1322,10 +1328,11 @@ export function AppointmentsSection() {
             <p className="mt-1 text-xs text-[#7E6BAF]">Nothing on this list right now.</p>
           </div>
         ) : (
+          <>
           <ul className="border-t border-[#F0EAFB]">
-            {list.map((a, idx) => {
+            {paged.map((a, idx) => {
               const isExpanded = expanded === a.id;
-              const isLast = idx === list.length - 1;
+              const isLast = idx === paged.length - 1;
               return (
               <li
                 key={a.id}
@@ -1427,6 +1434,41 @@ export function AppointmentsSection() {
               );
             })}
           </ul>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#F0EAFB] px-6 py-4">
+            <p className="text-xs text-[#7E6BAF]">
+              Showing <span className="font-semibold text-[#3D2E6B]">{pageStart + 1}–{Math.min(pageStart + pageSize, list.length)}</span> of <span className="font-semibold text-[#3D2E6B]">{list.length}</span>
+            </p>
+            <div className="inline-flex items-center gap-1">
+              <button
+                onClick={() => { setPage((p) => Math.max(1, p - 1)); setExpanded(null); }}
+                disabled={currentPage === 1}
+                className="inline-flex h-8 items-center rounded-[8px] border border-[#EAE7F5] bg-white px-3 text-xs font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => { setPage(n); setExpanded(null); }}
+                  className={`inline-flex h-8 min-w-8 items-center justify-center rounded-[8px] border px-2 text-xs font-semibold transition ${
+                    n === currentPage
+                      ? "border-[#5B4796] bg-[#5B4796] text-white"
+                      : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); setExpanded(null); }}
+                disabled={currentPage === totalPages}
+                className="inline-flex h-8 items-center rounded-[8px] border border-[#EAE7F5] bg-white px-3 text-xs font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+          </>
         )}
       </section>
     </div>
