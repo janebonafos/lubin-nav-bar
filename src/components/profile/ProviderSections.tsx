@@ -564,12 +564,12 @@ export function CalendarAvailabilitySection() {
       },
     }));
 
-  const addInterval = (day: string) =>
+  const addInterval = (day: string, start = "13:00", end = "17:00") =>
     setWeek((w) => ({
       ...w,
       [day]: {
         enabled: true,
-        intervals: [...w[day].intervals, { id: genId(), start: "13:00", end: "17:00" }],
+        intervals: [...w[day].intervals, { id: genId(), start, end }],
       },
     }));
 
@@ -890,7 +890,15 @@ export function CalendarAvailabilitySection() {
           })}
         </div>
         ) : (
-          <WeekGridView week={week} errors={weekErrors} />
+          <WeekGridView
+            week={week}
+            errors={weekErrors}
+            onAddInterval={addInterval}
+            onUpdateInterval={updateInterval}
+            onRemoveInterval={removeInterval}
+            onToggleDay={toggleDay}
+            onCopyToAll={copyToAll}
+          />
         )}
       </section>
 
