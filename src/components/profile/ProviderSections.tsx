@@ -593,6 +593,32 @@ export function CalendarAvailabilitySection() {
       const { [sid]: _omit, ...rest } = p;
       return rest;
     });
+  const addServiceInterval = (sid: string, key: string) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? cloneWeek(week);
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: {
+            enabled: true,
+            intervals: [...cur[key].intervals, { id: genId(), start: "13:00", end: "17:00" }],
+          },
+        },
+      };
+    });
+  const removeServiceInterval = (sid: string, key: string, iid: string) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? cloneWeek(week);
+      const next = cur[key].intervals.filter((i) => i.id !== iid);
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: { enabled: next.length > 0, intervals: next },
+        },
+      };
+    });
 
   // Weekly hours view + save state
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
