@@ -1137,7 +1137,7 @@ export default function ProviderProfileSection({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center justify-end gap-2 pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -1151,14 +1151,12 @@ export default function ProviderProfileSection({
                     <button
                       type="button"
                       onClick={saveNewSession}
-                      className="rounded-2xl bg-[#7E6BAF] px-7 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-[#7E6BAF]/25 transition-all hover:bg-[#3D2E6B]"
+                      className="rounded-2xl bg-[#7E6BAF] px-7 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#3D2E6B]"
                     >
-                      Create session
+                      Add session
                     </button>
                   </div>
                 </div>
-                {/* Bottom accent */}
-                <div className="h-1.5 bg-gradient-to-r from-[#F0EAFB] via-[#7E6BAF] to-[#F0EAFB]" />
               </div>
             )}
           </div>
