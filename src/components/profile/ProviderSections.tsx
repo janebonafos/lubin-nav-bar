@@ -199,67 +199,67 @@ export function CalendarAvailabilitySection() {
     PROVIDERS.find((p) => p.id === provider)?.name ?? "No calendar";
 
   return (
-    <div className="space-y-6">
+    <div className="rounded-3xl border border-white/80 bg-white/70 shadow-xl shadow-[#3D2E6B]/5 backdrop-blur-md">
+      {/* Header */}
+      <div className="p-8 pb-5 sm:p-10 sm:pb-6">
+        <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-[#3D2E6B] sm:text-3xl">
+          Calendar & Availability
+        </h1>
+        <p className="text-sm font-medium leading-relaxed text-[#7E6BAF]">
+          Manage your practice rhythm, sync external calendars, and set specific availability for your clinical services.
+        </p>
+      </div>
+
       {/* Calendar connection */}
-      <SectionCard
-        title="Calendar connection"
-        description="We read your busy times to prevent double-bookings — we never share calendar details with clients."
-        action={
-          provider ? (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowProviderPicker((v) => !v)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Switch calendar
-              </button>
+      <div className="mx-6 mb-8 rounded-2xl border border-[#7E6BAF]/10 bg-[#7E6BAF]/5 p-5 sm:mx-10 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
+              <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
+            </div>
+            <div>
+              {provider ? (
+                <>
+                  <h3 className="text-sm font-bold text-[#3D2E6B]">
+                    {providerName} connected
+                  </h3>
+                  <p className="text-xs font-medium text-[#7E6BAF]">
+                    Last synced 4 minutes ago · {account}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-sm font-bold text-[#3D2E6B]">No calendar connected</h3>
+                  <p className="text-xs font-medium text-[#7E6BAF]">
+                    Connect a calendar so we can prevent double-bookings.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowProviderPicker((v) => !v)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#7E6BAF]/20 bg-white px-4 py-2 text-xs font-semibold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {provider ? "Manage sync" : "Connect"}
+            </button>
+            {provider && (
               <button
                 onClick={() => setProvider(null)}
                 className="text-xs font-semibold text-[#A89BD0] hover:text-red-500"
               >
                 Disconnect
               </button>
-            </div>
-          ) : null
-        }
-      >
-        {provider ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white/70 p-5">
-            <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#7E6BAF]/10">
-                <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-[#3D2E6B]">{providerName}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#7E6BAF]">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Connected · {account}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                // simulate reconnect — refresh sync
-                setAccount((a) => a);
-              }}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-            >
-              <RefreshCw className="h-3.5 w-3.5" /> Reconnect
-            </button>
+            )}
           </div>
-        ) : (
-          <button
-            onClick={() => setShowProviderPicker(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#A89BD0] bg-white/60 px-5 py-6 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#7E6BAF]/5"
-          >
-            <CalendarDays className="h-4 w-4" /> Connect a calendar
-          </button>
-        )}
+        </div>
 
         {showProviderPicker && (
-          <div className="mt-4 rounded-2xl border border-[#E3DBF5] bg-white/80 p-4">
+          <div className="mt-4 rounded-2xl border border-[#E3DBF5] bg-white/90 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#A89BD0]">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#A89BD0]">
                 Choose a calendar
               </p>
               <button
@@ -281,7 +281,7 @@ export function CalendarAvailabilitySection() {
                   }}
                   className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
                     p.available
-                      ? "border-[#E3DBF5] bg-white hover:border-[#7E6BAF] hover:bg-[#7E6BAF]/5"
+                      ? "border-[#E3DBF5] bg-white hover:border-[#7E6BAF] hover:bg-[#F0EAFB]"
                       : "cursor-not-allowed border-[#EEE7FA] bg-[#F8F5FF]/50 opacity-70"
                   }`}
                 >
@@ -292,7 +292,7 @@ export function CalendarAvailabilitySection() {
                   {p.available ? (
                     <ChevronRight className="h-4 w-4 text-[#A89BD0]" />
                   ) : (
-                    <span className="rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    <span className="rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
                       Soon
                     </span>
                   )}
@@ -301,101 +301,103 @@ export function CalendarAvailabilitySection() {
             </div>
           </div>
         )}
-      </SectionCard>
+      </div>
 
-      {/* Weekly availability */}
-      <SectionCard
-        title="Weekly availability"
-        description="Set hours per day. Add split intervals for breaks (e.g. morning and afternoon)."
-        action={
-          <button className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#A89BD0]/40 hover:bg-[#3D2E6B]">
-            <Check className="h-3.5 w-3.5" /> Save changes
-          </button>
-        }
-      >
-        <div className="divide-y divide-[#EEE7FA]">
-          {DAYS.map((d) => {
+      {/* Body */}
+      <div className="px-6 pb-10 sm:px-10">
+        {/* Weekly Schedule */}
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[#3D2E6B]">Weekly Schedule</h2>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#7E6BAF]">
+            Timezone: EST
+          </span>
+        </div>
+
+        <div>
+          {DAYS.map((d, idx) => {
             const day = week[d.key];
+            const isLast = idx === DAYS.length - 1;
             return (
-              <div key={d.key} className="grid grid-cols-12 items-start gap-4 py-5">
-                {/* day toggle */}
-                <div className="col-span-12 sm:col-span-3">
-                  <label className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleDay(d.key)}
-                      className={`relative h-5 w-9 rounded-full transition ${
-                        day.enabled ? "bg-[#7E6BAF]" : "bg-[#E3DBF5]"
-                      }`}
-                      aria-label={`Toggle ${d.label}`}
-                    >
-                      <span
-                        className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${
-                          day.enabled ? "left-4" : "left-0.5"
-                        }`}
-                      />
-                    </button>
-                    <span
-                      className={`text-sm font-semibold ${
-                        day.enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
-                      }`}
-                    >
-                      {d.label}
-                    </span>
-                  </label>
+              <div
+                key={d.key}
+                className={`grid grid-cols-[110px_1fr] items-start gap-4 py-4 ${
+                  isLast ? "" : "border-b border-[#F0EAFB]"
+                }`}
+              >
+                <div className={`flex items-center gap-3 pt-2 ${day.enabled ? "" : "opacity-60"}`}>
+                  <button
+                    type="button"
+                    onClick={() => toggleDay(d.key)}
+                    aria-label={`Toggle ${d.label}`}
+                    className={`flex h-4 w-4 items-center justify-center rounded-full border transition ${
+                      day.enabled
+                        ? "border-[#7E6BAF] bg-[#7E6BAF]"
+                        : "border-[#A89BD0] bg-white"
+                    }`}
+                  >
+                    {day.enabled && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+                  </button>
+                  <span className="text-sm font-bold text-[#3D2E6B]">{d.label}</span>
                 </div>
 
-                {/* intervals */}
-                <div className="col-span-12 sm:col-span-9">
+                <div>
                   {!day.enabled ? (
-                    <p className="text-sm italic text-[#A89BD0]">Unavailable</p>
+                    <p className="flex h-10 items-center text-xs font-semibold italic text-[#7E6BAF]">
+                      Unavailable
+                    </p>
                   ) : (
-                    <div className="space-y-2">
-                      {day.intervals.map((iv) => (
-                        <div key={iv.id} className="flex flex-wrap items-center gap-2">
-                          <input
-                            type="time"
-                            value={iv.start}
-                            onChange={(e) =>
-                              updateInterval(d.key, iv.id, { start: e.target.value })
-                            }
-                            className="w-28 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-                          />
-                          <span className="text-[#A89BD0]">–</span>
-                          <input
-                            type="time"
-                            value={iv.end}
-                            onChange={(e) =>
-                              updateInterval(d.key, iv.id, { end: e.target.value })
-                            }
-                            className="w-28 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-                          />
-                          {day.intervals.length > 1 && (
-                            <button
-                              onClick={() => removeInterval(d.key, iv.id)}
-                              className="rounded-lg p-1.5 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
-                              aria-label="Remove interval"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                      <div className="flex items-center gap-3 pt-1">
-                        <button
-                          onClick={() => addInterval(d.key)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                        >
-                          <Plus className="h-3 w-3" /> Add interval
-                        </button>
-                        <span className="text-[#E3DBF5]">·</span>
-                        <button
-                          onClick={() => copyToAll(d.key)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                        >
-                          <Copy className="h-3 w-3" /> Copy to all days
-                        </button>
-                      </div>
+                    <div className="space-y-3">
+                      {day.intervals.map((iv, i) => {
+                        const isLastInterval = i === day.intervals.length - 1;
+                        return (
+                          <div key={iv.id} className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center rounded-lg border border-[#DED4F5] bg-white px-3 py-2 shadow-sm">
+                              <input
+                                type="time"
+                                value={iv.start}
+                                onChange={(e) =>
+                                  updateInterval(d.key, iv.id, { start: e.target.value })
+                                }
+                                className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
+                              />
+                              <span className="mx-2 text-[#7E6BAF]/40">—</span>
+                              <input
+                                type="time"
+                                value={iv.end}
+                                onChange={(e) =>
+                                  updateInterval(d.key, iv.id, { end: e.target.value })
+                                }
+                                className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
+                              />
+                            </div>
+                            {day.intervals.length > 1 && (
+                              <button
+                                onClick={() => removeInterval(d.key, iv.id)}
+                                className="p-2 text-[#7E6BAF]/40 transition-colors hover:text-red-400"
+                                aria-label="Remove interval"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                            {isLastInterval && (
+                              <>
+                                <button
+                                  onClick={() => addInterval(d.key)}
+                                  className="ml-4 inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                                >
+                                  <Plus className="h-3 w-3" /> Add Interval
+                                </button>
+                                <button
+                                  onClick={() => copyToAll(d.key)}
+                                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                                >
+                                  <Copy className="h-3 w-3" /> Copy to all
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -403,135 +405,139 @@ export function CalendarAvailabilitySection() {
             );
           })}
         </div>
-      </SectionCard>
 
-      {/* Holidays & days off */}
-      <SectionCard
-        title="Holidays & days off"
-        description="Block specific dates — clients won't be able to book on these days."
-      >
-        <div className="space-y-3">
-          {holidays.length === 0 ? (
-            <p className="text-sm italic text-[#A89BD0]">No days off added yet.</p>
-          ) : (
-            holidays.map((h) => (
-              <div
-                key={h.id}
-                className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/70 px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <CalendarOff className="h-4 w-4 text-[#7E6BAF]" />
-                  <div>
-                    <p className="text-sm font-semibold text-[#3D2E6B]">{h.label}</p>
-                    <p className="text-xs text-[#7E6BAF]">
-                      {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => removeHoliday(h.id)}
-                  className="rounded-lg p-1.5 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
-                  aria-label="Remove day off"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-dashed border-[#E3DBF5] bg-white/40 p-4">
-          <label className="block">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-              Date
-            </span>
-            <input
-              type="date"
-              value={newHoliday.date}
-              onChange={(e) => setNewHoliday((p) => ({ ...p, date: e.target.value }))}
-              className="mt-1 rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-            />
-          </label>
-          <label className="block flex-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-              Reason (optional)
-            </span>
-            <input
-              type="text"
-              placeholder="Vacation, holiday, personal..."
-              value={newHoliday.label}
-              onChange={(e) => setNewHoliday((p) => ({ ...p, label: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-            />
-          </label>
-          <button
-            onClick={addHoliday}
-            disabled={!newHoliday.date}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add day off
-          </button>
-        </div>
-      </SectionCard>
-
-      {/* Per-service availability */}
-      <SectionCard
-        title="Service availability"
-        description="Each service follows your weekly hours by default. Override for specific services if needed."
-      >
-        <div className="space-y-3">
-          {services.map((s) => {
-            const mode = serviceMode[s.id] ?? "weekly";
-            return (
-              <div
-                key={s.id}
-                className="rounded-2xl border border-[#EEE7FA] bg-white/70 p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Video className="h-4 w-4 text-[#7E6BAF]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#3D2E6B]">{s.name}</p>
-                      <p className="text-xs text-[#7E6BAF]">
-                        {s.length} · {s.price}
-                      </p>
+        {/* Secondary settings */}
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
+          {/* Holidays & Time Off */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-[#3D2E6B]">
+              <CalendarOff className="h-4 w-4" />
+              Holidays & Time Off
+            </h3>
+            <div className="space-y-3 rounded-xl border border-[#DED4F5] bg-white p-4">
+              {holidays.length === 0 ? (
+                <p className="text-xs font-semibold italic text-[#A89BD0]">
+                  No days off added yet.
+                </p>
+              ) : (
+                holidays.map((h) => (
+                  <div key={h.id} className="flex items-center justify-between gap-3">
+                    <span className="truncate text-xs font-semibold text-[#3D2E6B]">
+                      {h.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold text-[#7E6BAF]">
+                        {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      <button
+                        onClick={() => removeHoliday(h.id)}
+                        className="text-[#A89BD0] hover:text-red-500"
+                        aria-label="Remove"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
-                  <div className="inline-flex rounded-full border border-[#E3DBF5] bg-white p-1">
-                    {(["weekly", "custom"] as const).map((m) => (
-                      <button
-                        key={m}
-                        onClick={() =>
-                          setServiceMode((p) => ({ ...p, [s.id]: m }))
-                        }
-                        className={`rounded-full px-3 py-1 text-[11px] font-semibold capitalize transition ${
-                          mode === m
-                            ? "bg-[#7E6BAF] text-white shadow-sm"
-                            : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
-                        }`}
-                      >
-                        {m === "weekly" ? "Use weekly hours" : "Custom"}
-                      </button>
-                    ))}
-                  </div>
+                ))
+              )}
+
+              <div className="mt-2 space-y-2 border-t border-[#F0EAFB] pt-3">
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    type="date"
+                    value={newHoliday.date}
+                    onChange={(e) =>
+                      setNewHoliday((p) => ({ ...p, date: e.target.value }))
+                    }
+                    className="rounded-lg border border-[#DED4F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Reason (optional)"
+                    value={newHoliday.label}
+                    onChange={(e) =>
+                      setNewHoliday((p) => ({ ...p, label: e.target.value }))
+                    }
+                    className="min-w-0 flex-1 rounded-lg border border-[#DED4F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  />
                 </div>
-                {mode === "custom" && (
-                  <div className="mt-4 rounded-xl border border-dashed border-[#E3DBF5] bg-[#F8F5FF]/60 p-4 text-xs text-[#7E6BAF]">
-                    Custom hours for <span className="font-semibold">{s.name}</span>{" "}
-                    will appear here — pick specific days and time windows that
-                    differ from your weekly schedule.
-                  </div>
-                )}
+                <button
+                  onClick={addHoliday}
+                  disabled={!newHoliday.date}
+                  className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-extrabold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  + Log Days Off
+                </button>
               </div>
-            );
-          })}
+            </div>
+          </div>
+
+          {/* Service Availability */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-[#3D2E6B]">
+              <Video className="h-4 w-4" />
+              Service Availability
+            </h3>
+            <div className="space-y-3 rounded-xl border border-[#DED4F5] bg-white p-4">
+              {services.map((s) => {
+                const mode = serviceMode[s.id] ?? "weekly";
+                return (
+                  <div key={s.id} className="space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-semibold text-[#3D2E6B]">
+                          {s.name}
+                        </p>
+                        <p className="text-[10px] font-medium text-[#7E6BAF]">
+                          {s.length} · {s.price}
+                        </p>
+                      </div>
+                      <div className="inline-flex rounded-full border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+                        {(["weekly", "custom"] as const).map((m) => (
+                          <button
+                            key={m}
+                            onClick={() =>
+                              setServiceMode((p) => ({ ...p, [s.id]: m }))
+                            }
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold transition ${
+                              mode === m
+                                ? "bg-[#7E6BAF] text-white shadow-sm"
+                                : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                            }`}
+                          >
+                            {m === "weekly" ? "Weekly" : "Custom"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {mode === "custom" && (
+                      <div className="rounded-lg border border-dashed border-[#E3DBF5] bg-[#F8F5FF]/60 p-2 text-[11px] font-medium text-[#7E6BAF]">
+                        Custom hours for this service will appear here.
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <button className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-extrabold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
+                Configure Services
+              </button>
+            </div>
+          </div>
         </div>
-      </SectionCard>
+
+        {/* Footer */}
+        <div className="mt-12 flex justify-end gap-4">
+          <button className="px-6 py-2.5 text-sm font-bold text-[#7E6BAF] hover:text-[#3D2E6B]">
+            Cancel
+          </button>
+          <button className="transform rounded-full bg-[#3D2E6B] px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#4D3B85]">
+            Save Changes
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
