@@ -94,7 +94,7 @@ function ProfilePage() {
       window.localStorage.setItem("lubin.role", role);
     } catch { /* ignore */ }
     // When switching to provider mode, if a client-only tab is active, jump to profile.
-    if (role === "provider" && (activeSection === "passport" || activeSection === "discovery" || activeSection === "share")) {
+    if (role === "provider" && activeSection !== "provider" && activeSection !== "chat") {
       setActiveSection("provider");
     }
     if (role === "client" && activeSection === "provider") {
