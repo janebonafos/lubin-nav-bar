@@ -1095,10 +1095,9 @@ export default function ProviderProfileSection({
             )}
 
             {showAddSession && (
-              <div className="overflow-hidden rounded-[28px] border border-[#F0EAFB] bg-white shadow-sm">
-                <div className="space-y-7 p-7">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-4">
+              <div className="overflow-hidden rounded-2xl border border-[#F0EAFB] bg-white shadow-xl shadow-[#7E6BAF]/5">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-4 border-b border-[#F0EAFB] px-8 py-6">
                     <div>
                       <h3 className="text-[18px] font-bold tracking-tight text-[#2D2442]">Add new session type</h3>
                       <p className="mt-0.5 text-[13px] font-medium text-[#7E6BAF]/70">
@@ -1110,28 +1109,28 @@ export default function ProviderProfileSection({
                     </div>
                   </div>
 
-                  {/* Form */}
-                  <div className="space-y-6">
+                {/* Form body */}
+                <div className="space-y-8 px-8 py-7">
                     {/* Session name */}
-                    <div className="grid grid-cols-3 items-center gap-4">
-                      <label className="text-[13px] font-semibold text-[#2D2442]">Session name</label>
+                  <div className="grid grid-cols-3 items-center gap-6">
+                    <label className="text-[13px] font-semibold text-[#2D2442]">Session name</label>
                       <div className="col-span-2">
                         <input
                           value={newSession.name}
                           onChange={(e) => setNewSession((s) => ({ ...s, name: e.target.value }))}
                           placeholder="e.g. Couples Therapy"
-                          className="w-full rounded-2xl border-2 border-transparent bg-[#F0EAFB]/40 px-4 py-3 text-[14px] text-[#2D2442] placeholder-[#7E6BAF]/40 outline-none transition-all focus:border-[#7E6BAF] focus:bg-white"
+                          className="w-full rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/30 px-4 py-3 text-[14px] text-[#2D2442] placeholder-[#7E6BAF]/40 outline-none transition-all focus:border-[#7E6BAF] focus:bg-white focus:ring-2 focus:ring-[#7E6BAF]/20"
                         />
                       </div>
                     </div>
 
                     {/* Duration */}
-                    <div className="grid grid-cols-3 items-start gap-4">
-                      <div className="pt-3">
+                  <div className="grid grid-cols-3 items-center gap-6">
+                    <div>
                         <label className="text-[13px] font-semibold text-[#2D2442]">Duration</label>
                         <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Minutes</p>
                       </div>
-                      <div className="col-span-2 grid grid-cols-4 gap-2">
+                    <div className="col-span-2 grid grid-cols-4 gap-2">
                         {[30, 50, 60, 90].map((m) => {
                           const active = newSession.lengthMin === m;
                           return (
@@ -1139,10 +1138,10 @@ export default function ProviderProfileSection({
                               key={m}
                               type="button"
                               onClick={() => setNewSession((s) => ({ ...s, lengthMin: m }))}
-                              className={`rounded-xl border-2 py-3 text-[13px] font-bold transition-colors ${
+                              className={`rounded-lg py-2.5 text-[13px] font-semibold transition-colors ${
                                 active
-                                  ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/20"
-                                  : "border-[#F0EAFB] text-[#7E6BAF] hover:bg-[#F0EAFB]/50"
+                                  ? "bg-[#7E6BAF] text-white shadow-sm"
+                                  : "border border-[#E5E7EB] text-[#2D2442] hover:bg-[#F0EAFB]"
                               }`}
                             >
                               {m}
@@ -1152,102 +1151,101 @@ export default function ProviderProfileSection({
                       </div>
                     </div>
 
-                    {/* Rate */}
-                    <div className="grid grid-cols-3 items-center gap-4">
-                      <label className="text-[13px] font-semibold text-[#2D2442]">Rate ({currency.code})</label>
-                      <div className="relative col-span-2">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#7E6BAF]">
-                          {currency.symbol}
-                        </span>
-                        <input
-                          inputMode="numeric"
-                          value={newSession.rate}
-                          onChange={(e) =>
-                            setNewSession((s) => ({ ...s, rate: e.target.value.replace(/\D/g, "") }))
-                          }
-                          placeholder="0"
-                          className="w-full rounded-2xl border-2 border-transparent bg-[#F0EAFB]/40 py-3 pl-8 pr-4 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF] focus:bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Session type */}
-                  <div className="grid grid-cols-3 items-start gap-4">
-                    <div className="pt-3">
+                  <div className="grid grid-cols-3 gap-6">
+                    <div>
                       <label className="text-[13px] font-semibold text-[#2D2442]">Session type</label>
                       <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Individual or group</p>
                     </div>
-                    <div className="col-span-2 grid grid-cols-2 gap-2">
-                      {(["individual", "group"] as const).map((t) => {
-                        const active = newSession.sessionType === t;
-                        return (
-                          <button
-                            key={t}
-                            type="button"
-                            onClick={() => setNewSession((s) => ({ ...s, sessionType: t }))}
-                            className={`rounded-xl border-2 py-3 text-[13px] font-bold capitalize transition-colors ${
-                              active
-                                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/20"
-                                : "border-[#F0EAFB] text-[#7E6BAF] hover:bg-[#F0EAFB]/50"
-                            }`}
-                          >
-                            {t}
-                          </button>
-                        );
-                      })}
+                    <div className="col-span-2">
+                      <div className="flex rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/50 p-1">
+                        {(["individual", "group"] as const).map((t) => {
+                          const active = newSession.sessionType === t;
+                          return (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => setNewSession((s) => ({ ...s, sessionType: t }))}
+                              className={`flex-1 rounded-lg py-2 text-[13px] font-semibold capitalize transition-all ${
+                                active
+                                  ? "bg-[#7E6BAF] text-white shadow-sm"
+                                  : "text-[#7E6BAF] hover:text-[#2D2442]"
+                              }`}
+                            >
+                              {t}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {newSession.sessionType === "group" && (
+                        <div className="mt-4 space-y-4 rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/40 p-5">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#2D2442]">
+                                Min participants
+                              </label>
+                              <input
+                                inputMode="numeric"
+                                value={newSession.minParticipants}
+                                onChange={(e) =>
+                                  setNewSession((s) => ({
+                                    ...s,
+                                    minParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
+                                  }))
+                                }
+                                placeholder="2"
+                                className="w-full rounded-lg border border-[#7E6BAF]/20 bg-white px-3 py-2 text-[13px] text-[#2D2442] outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#2D2442]">
+                                Max participants
+                              </label>
+                              <input
+                                inputMode="numeric"
+                                value={newSession.maxParticipants}
+                                onChange={(e) =>
+                                  setNewSession((s) => ({
+                                    ...s,
+                                    maxParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
+                                  }))
+                                }
+                                placeholder="10"
+                                className="w-full rounded-lg border border-[#7E6BAF]/20 bg-white px-3 py-2 text-[13px] text-[#2D2442] outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+                              />
+                            </div>
+                          </div>
+                          <p className="text-[11px] leading-relaxed text-[#7E6BAF]">
+                            Bookings auto-cancel if the minimum participant count isn't met 24 hours prior to the session.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {newSession.sessionType === "group" && (
-                    <div className="grid grid-cols-3 items-start gap-4 rounded-2xl bg-[#F0EAFB]/30 p-4">
-                      <div className="pt-3">
-                        <label className="text-[13px] font-semibold text-[#2D2442]">Participants</label>
-                        <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">
-                          Auto-cancels if min not met
-                        </p>
-                      </div>
-                      <div className="col-span-2 grid grid-cols-2 gap-3">
-                        <div>
-                          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]/80">
-                            Minimum
-                          </p>
-                          <input
-                            inputMode="numeric"
-                            value={newSession.minParticipants}
-                            onChange={(e) =>
-                              setNewSession((s) => ({
-                                ...s,
-                                minParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
-                              }))
-                            }
-                            placeholder="3"
-                            className="w-full rounded-2xl border-2 border-transparent bg-white px-4 py-3 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF]"
-                          />
-                        </div>
-                        <div>
-                          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]/80">
-                            Maximum
-                          </p>
-                          <input
-                            inputMode="numeric"
-                            value={newSession.maxParticipants}
-                            onChange={(e) =>
-                              setNewSession((s) => ({
-                                ...s,
-                                maxParticipants: e.target.value.replace(/\D/g, "").slice(0, 3),
-                              }))
-                            }
-                            placeholder="8"
-                            className="w-full rounded-2xl border-2 border-transparent bg-white px-4 py-3 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF]"
-                          />
-                        </div>
-                      </div>
+                  {/* Rate */}
+                  <div className="grid grid-cols-3 items-center gap-6">
+                    <label className="text-[13px] font-semibold text-[#2D2442]">Rate ({currency.code})</label>
+                    <div className="relative col-span-2">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#7E6BAF]">
+                        {currency.symbol}
+                      </span>
+                      <input
+                        inputMode="numeric"
+                        value={newSession.rate}
+                        onChange={(e) =>
+                          setNewSession((s) => ({ ...s, rate: e.target.value.replace(/\D/g, "") }))
+                        }
+                        placeholder="0"
+                        className="w-full rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/30 py-3 pl-8 pr-4 text-[14px] font-semibold text-[#2D2442] outline-none transition-all focus:border-[#7E6BAF] focus:bg-white focus:ring-2 focus:ring-[#7E6BAF]/20"
+                      />
                     </div>
-                  )}
+                  </div>
+                </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center justify-end gap-2 pt-2">
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 border-t border-[#F0EAFB] bg-[#FAFAFB] px-8 py-5">
                     <button
                       type="button"
                       onClick={() => {
@@ -1261,18 +1259,17 @@ export default function ProviderProfileSection({
                           maxParticipants: "8",
                         });
                       }}
-                      className="rounded-2xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
+                      className="rounded-xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={saveNewSession}
-                      className="rounded-2xl bg-[#7E6BAF] px-7 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#3D2E6B]"
+                      className="rounded-xl bg-[#7E6BAF] px-7 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#6A5A99]"
                     >
                       Add session
                     </button>
-                  </div>
                 </div>
               </div>
             )}
