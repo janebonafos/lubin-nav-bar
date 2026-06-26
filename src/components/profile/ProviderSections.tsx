@@ -1112,18 +1112,17 @@ export function CalendarAvailabilitySection() {
                         </div>
                         {DAYS.map((d, idx) => {
                           const day = sw[d.key];
-                          const interval = day?.intervals[0];
                           return (
                             <div
                               key={d.key}
-                              className={`flex items-center justify-between gap-3 px-4 py-3 ${
+                              className={`flex items-start justify-between gap-3 px-4 py-3 ${
                                 idx < DAYS.length - 1 ? "border-b border-[#F0EAFB]" : ""
                               }`}
                             >
                               <button
                                 type="button"
                                 onClick={() => toggleServiceDay(s.id, d.key)}
-                                className="flex items-center gap-4 text-left"
+                                className="flex items-center gap-4 pt-1.5 text-left"
                               >
                                 <span
                                   className={`relative h-5 w-10 rounded-full transition ${
@@ -1140,26 +1139,49 @@ export function CalendarAvailabilitySection() {
                                   {d.key}
                                 </span>
                               </button>
-                              {day?.enabled && interval ? (
-                                <div className="flex items-center gap-2">
-                                  <TimePill
-                                    value={interval.start}
-                                    onChange={(v) =>
-                                      updateServiceInterval(s.id, d.key, interval.id, { start: v })
-                                    }
-                                    ariaLabel={`${d.label} start`}
-                                  />
-                                  <span className="text-xs font-medium text-[#A89BD0]">to</span>
-                                  <TimePill
-                                    value={interval.end}
-                                    onChange={(v) =>
-                                      updateServiceInterval(s.id, d.key, interval.id, { end: v })
-                                    }
-                                    ariaLabel={`${d.label} end`}
-                                  />
+                              {day?.enabled && day.intervals.length > 0 ? (
+                                <div className="flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-2">
+                                  <div className="flex flex-wrap items-center justify-end gap-2">
+                                    {day.intervals.map((interval) => (
+                                      <div key={interval.id} className="flex items-center gap-2">
+                                        <TimePill
+                                          value={interval.start}
+                                          onChange={(v) =>
+                                            updateServiceInterval(s.id, d.key, interval.id, { start: v })
+                                          }
+                                          ariaLabel={`${d.label} start`}
+                                        />
+                                        <span className="text-xs font-medium text-[#A89BD0]">to</span>
+                                        <TimePill
+                                          value={interval.end}
+                                          onChange={(v) =>
+                                            updateServiceInterval(s.id, d.key, interval.id, { end: v })
+                                          }
+                                          ariaLabel={`${d.label} end`}
+                                        />
+                                        {day.intervals.length > 1 && (
+                                          <button
+                                            type="button"
+                                            onClick={() => removeServiceInterval(s.id, d.key, interval.id)}
+                                            aria-label={`Remove interval on ${d.label}`}
+                                            className="rounded-md p-1 text-[#A89BD0] transition hover:bg-[#F5F1FC] hover:text-[#5B4B8A]"
+                                          >
+                                            <X className="h-3.5 w-3.5" />
+                                          </button>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => addServiceInterval(s.id, d.key)}
+                                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF] transition hover:bg-[#F5F1FC] hover:text-[#3D2E6B]"
+                                  >
+                                    <Plus className="h-3 w-3" /> Interval
+                                  </button>
                                 </div>
                               ) : (
-                                <span className="text-sm font-medium tracking-tight text-[#A89BD0]">Unavailable</span>
+                                <span className="pt-1.5 text-sm font-medium tracking-tight text-[#A89BD0]">Unavailable</span>
                               )}
                             </div>
                           );
