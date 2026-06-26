@@ -383,13 +383,13 @@ export function CalendarAvailabilitySection() {
                               <>
                                 <button
                                   onClick={() => addInterval(d.key)}
-                                  className="ml-4 inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                                  className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
                                 >
                                   <Plus className="h-3 w-3" /> Add Interval
                                 </button>
                                 <button
                                   onClick={() => copyToAll(d.key)}
-                                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                                  className="inline-flex items-center gap-1 pr-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
                                 >
                                   <Copy className="h-3 w-3" /> Copy to all
                                 </button>
