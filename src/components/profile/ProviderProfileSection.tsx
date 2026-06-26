@@ -460,8 +460,10 @@ const STORAGE_KEY = "lubin.providerProfile.v1";
 
 export default function ProviderProfileSection({
   fullName,
+  avatarUrl,
 }: {
   fullName: string;
+  avatarUrl?: string | null;
 }) {
   const [data, setData] = useState<ProviderProfile>(DEFAULT_PROVIDER_PROFILE);
   const [editing, setEditing] = useState<{
@@ -536,11 +538,24 @@ export default function ProviderProfileSection({
             <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Provider Profile</span>
           </div>
 
-          <div>
-            <h2 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-              {fullName || "Your provider profile"}
-            </h2>
-            <p className="mt-2 text-lg font-medium text-purple-100 sm:text-xl">{data.profession}</p>
+          <div className="flex items-center gap-5 sm:gap-6">
+            <div className="relative shrink-0">
+              <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/40 bg-white/15 shadow-lg shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={fullName || "Provider"} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-white sm:text-3xl">
+                    {(fullName || "?").trim().charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+                {fullName || "Your provider profile"}
+              </h2>
+              <p className="mt-2 text-lg font-medium text-purple-100 sm:text-xl">{data.profession}</p>
+            </div>
           </div>
 
           <p className="max-w-2xl text-[15px] font-medium leading-relaxed text-purple-100/90 sm:text-base">
