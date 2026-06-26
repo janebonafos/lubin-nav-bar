@@ -527,30 +527,37 @@ export default function ProviderProfileSection({
   return (
     <div className="space-y-6">
       {/* ---------------------- Provider summary header ---------------------- */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#7E6BAF] via-[#9385C2] to-[#A89BD0] p-6 text-white shadow-lg shadow-[#3D2E6B]/15 sm:p-8">
-        <div aria-hidden className="pointer-events-none absolute -top-20 -right-10 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] backdrop-blur-sm">
-            <ShieldCheck className="h-3 w-3" /> Provider Profile
+      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#7E6BAF] via-[#7E6BAF] to-[#5D4E8A] p-8 text-white shadow-2xl shadow-[#7E6BAF]/25 sm:p-12">
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-[#2A2550]/20 blur-3xl" />
+        <div className="relative z-10 space-y-6">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 backdrop-blur-sm">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Provider Profile</span>
           </div>
-          <h2 className="mt-3 text-2xl font-bold sm:text-3xl">
-            {fullName || "Your provider profile"}
-          </h2>
-          <p className="mt-1 text-[14px] font-medium text-white/85">{data.profession}</p>
-          <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-white/90">
+
+          <div>
+            <h2 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+              {fullName || "Your provider profile"}
+            </h2>
+            <p className="mt-2 text-lg font-medium text-purple-100 sm:text-xl">{data.profession}</p>
+          </div>
+
+          <p className="max-w-xl text-base leading-relaxed text-purple-50 sm:text-lg">
             {data.headline}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11.5px] font-medium backdrop-blur-sm">
-              <CalendarIcon className="h-3 w-3" />
+
+          <div className="flex flex-wrap gap-3 pt-2">
+            <span className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#5D4E8A] shadow-sm">
+              <CalendarIcon className="h-4 w-4 text-[#7E6BAF]" />
               {data.calendarConnected ? "Calendar connected" : "Calendar not connected"}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11.5px] font-medium backdrop-blur-sm">
-              <Clock className="h-3 w-3" /> {data.yearsBand}
+            <span className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+              <Clock className="h-4 w-4" /> {data.yearsBand}
             </span>
             {!data.verified && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-300/95 px-3 py-1 text-[11.5px] font-semibold text-amber-900">
-                <ShieldCheck className="h-3 w-3" /> Verification pending
+              <span className="inline-flex items-center gap-2 rounded-xl bg-[#FFD666] px-4 py-2 text-sm font-bold text-[#634E1A]">
+                <ShieldCheck className="h-4 w-4" /> Verification pending
               </span>
             )}
           </div>
