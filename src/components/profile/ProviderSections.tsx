@@ -107,10 +107,12 @@ function TimePill({
   value,
   onChange,
   ariaLabel,
+  hasError = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   ariaLabel: string;
+  hasError?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -118,12 +120,15 @@ function TimePill({
       <button
         type="button"
         aria-label={ariaLabel}
+        aria-invalid={hasError || undefined}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         className={`inline-flex min-w-[112px] items-center justify-between gap-3 rounded-xl border bg-white px-3.5 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
-          open
-            ? "border-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
-            : "border-[#E3DBF5] hover:border-[#A89BD0]"
+          hasError
+            ? "border-red-300 ring-4 ring-red-200/40"
+            : open
+              ? "border-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
+              : "border-[#E3DBF5] hover:border-[#A89BD0]"
         }`}
       >
         <span>{formatTime12(value)}</span>
