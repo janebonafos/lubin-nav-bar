@@ -1059,32 +1059,34 @@ export function CalendarAvailabilitySection() {
                   {mode === "custom" && (() => {
                     const sw = serviceHours[s.id] ?? makeEmptyServiceWeek();
                     return (
-                      <div className="space-y-1.5 rounded-xl border border-dashed border-[#E3DBF5] bg-[#FBF9FE] p-3">
-                        {DAYS.map((d) => {
+                      <div className="rounded-[12px] border-2 border-dashed border-[#EFEBF8] bg-white p-2">
+                        {DAYS.map((d, idx) => {
                           const day = sw[d.key];
                           const interval = day?.intervals[0];
                           return (
                             <div
                               key={d.key}
-                              className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 hover:bg-white/60"
+                              className={`flex items-center justify-between gap-3 px-4 py-3 ${
+                                idx < DAYS.length - 1 ? "border-b border-[#F0EAFB]" : ""
+                              }`}
                             >
                               <button
                                 type="button"
                                 onClick={() => toggleServiceDay(s.id, d.key)}
-                                className="flex items-center gap-2.5 text-left"
+                                className="flex items-center gap-4 text-left"
                               >
                                 <span
-                                  className={`relative h-4 w-7 rounded-full transition ${
-                                    day?.enabled ? "bg-[#A89BD0]" : "bg-[#E3DBF5]"
+                                  className={`relative h-5 w-10 rounded-full transition ${
+                                    day?.enabled ? "bg-[#7E6BAF]" : "bg-[#EFEBF8]"
                                   }`}
                                 >
                                   <span
-                                    className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
-                                      day?.enabled ? "left-3.5" : "left-0.5"
+                                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+                                      day?.enabled ? "left-[22px]" : "left-0.5"
                                     }`}
                                   />
                                 </span>
-                                <span className="w-10 text-xs font-semibold text-[#5B4B8A]">
+                                <span className="w-10 text-[15px] font-medium text-[#3D2E6B]">
                                   {d.key}
                                 </span>
                               </button>
@@ -1097,7 +1099,7 @@ export function CalendarAvailabilitySection() {
                                     }
                                     ariaLabel={`${d.label} start`}
                                   />
-                                  <span className="text-[11px] text-[#B5A9D6]">to</span>
+                                  <span className="text-xs font-medium text-[#A89BD0]">to</span>
                                   <TimePill
                                     value={interval.end}
                                     onChange={(v) =>
@@ -1107,7 +1109,7 @@ export function CalendarAvailabilitySection() {
                                   />
                                 </div>
                               ) : (
-                                <span className="text-[11px] font-medium text-[#B5A9D6]">Unavailable</span>
+                                <span className="text-sm font-medium tracking-tight text-[#A89BD0]">Unavailable</span>
                               )}
                             </div>
                           );
