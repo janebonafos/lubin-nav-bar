@@ -542,7 +542,10 @@ export default function ProviderProfileSection({
 
           <div className="flex items-center gap-5 sm:gap-6">
             <div className="relative shrink-0">
-              <div className="h-20 w-20 overflow-hidden rounded-[22px] border border-white/30 bg-gradient-to-br from-[#D9CEF0] to-[#9A8BC4] shadow-xl shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28 sm:rounded-[28px]">
+              <label
+                htmlFor={onAvatarChange ? "provider-avatar-upload" : undefined}
+                className={`group relative block h-20 w-20 overflow-hidden rounded-[22px] border border-white/30 bg-gradient-to-br from-[#D9CEF0] to-[#9A8BC4] shadow-xl shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28 sm:rounded-[28px] ${onAvatarChange ? "cursor-pointer" : ""}`}
+              >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName || "Provider"} className="h-full w-full object-cover" />
                 ) : (
@@ -555,7 +558,34 @@ export default function ProviderProfileSection({
                       .join("") || "?"}
                   </div>
                 )}
-              </div>
+                {onAvatarChange && (
+                  <>
+                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[#2A2550]/55 text-white opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider sm:text-[11px]">
+                        {avatarUrl ? "Change" : "Upload"}
+                      </span>
+                    </div>
+                    <input
+                      id="provider-avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => onAvatarChange(String(reader.result));
+                        reader.readAsDataURL(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </>
+                )}
+              </label>
             </div>
             <div className="min-w-0">
               <h2 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
