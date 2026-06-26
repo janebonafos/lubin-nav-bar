@@ -17,6 +17,165 @@ import {
   Languages as LanguagesIcon,
 } from "lucide-react";
 import { useAvailabilityStore, formatTime12, DAY_KEYS } from "@/lib/availability-store";
+import type { WeekAvail } from "@/lib/availability-store";
+
+/* ------ Helpers: default + seed week for the Custom availability editor --- */
+
+const DEFAULT_SESSION_WEEK: WeekAvail = {
+  Mon: { enabled: true, intervals: [{ id: "m1", start: "09:00", end: "17:00" }] },
+  Tue: { enabled: true, intervals: [{ id: "t1", start: "09:00", end: "17:00" }] },
+  Wed: { enabled: true, intervals: [{ id: "w1", start: "09:00", end: "17:00" }] },
+  Thu: { enabled: true, intervals: [{ id: "th1", start: "09:00", end: "17:00" }] },
+  Fri: { enabled: true, intervals: [{ id: "f1", start: "09:00", end: "17:00" }] },
+  Sat: { enabled: false, intervals: [] },
+  Sun: { enabled: false, intervals: [] },
+};
+
+function seedSessionWeek(saved: WeekAvail): WeekAvail {
+  const hasAny = Object.values(saved).some((d) => d.enabled && d.intervals.length);
+  const base = hasAny ? saved : DEFAULT_SESSION_WEEK;
+  const out: WeekAvail = {} as WeekAvail;
+  for (const k of DAY_KEYS) {
+    const d = base[k];
+    const first = d?.intervals?.[0];
+    out[k] = {
+      enabled: !!d?.enabled && !!first,
+      intervals: first
+        ? [{ id: `${k}-1`, start: first.start, end: first.end }]
+        : [{ id: `${k}-1`, start: "09:00", end: "17:00" }],
+    };
+  }
+  return out;
+}
+
+/* ------ Default / Custom availability mini-UI for the session composer ---- */
+
+const DAY_LABEL: Record<string, string> = {
+  Mon: "Monday",
+  Tue: "Tuesday",
+  Wed: "Wednesday",
+  Thu: "Thursday",
+  Fri: "Friday",
+  Sat: "Saturday",
+  Sun: "Sunday",
+};
+
+function DefaultHoursPreview({ week }: { week: WeekAvail }) {
+  const rows = DAY_KEYS.map((k) => {
+    const d = week[k];
+    const enabled = d?.enabled && d.intervals.length > 0;
+    return { key: k, enabled, intervals: d?.intervals ?? [] };
+  });
+  return (
+    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          Your set hours
+        </span>
+        <span className="text-[11px] text-[#7E6BAF]/60">From Calendar &amp; availability</span>
+      </div>
+      <ul className="divide-y divide-[#F5F0FB]">
+        {rows.map((r) => (
+          <li key={r.key} className="flex items-center justify-between px-4 py-2">
+            <span className="text-[12px] font-semibold text-[#2D2442]">{DAY_LABEL[r.key]}</span>
+            {r.enabled ? (
+              <span className="text-[12px] tabular-nums text-[#2D2442]/80">
+                {r.intervals
+                  .map((i) => `${formatTime12(i.start)} – ${formatTime12(i.end)}`)
+                  .join(", ")}
+              </span>
+            ) : (
+              <span className="text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">Off</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function CustomHoursEditor({
+  week,
+  onChange,
+}: {
+  week: WeekAvail;
+  onChange: (w: WeekAvail) => void;
+}) {
+  const toggle = (k: string) => {
+    onChange({ ...week, [k]: { ...week[k], enabled: !week[k].enabled } });
+  };
+  const setTime = (k: string, field: "start" | "end", value: string) => {
+    const intervals = week[k].intervals.length
+      ? week[k].intervals
+      : [{ id: `${k}-1`, start: "09:00", end: "17:00" }];
+    const next = [{ ...intervals[0], [field]: value }];
+    onChange({ ...week, [k]: { ...week[k], intervals: next } });
+  };
+  return (
+    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          Custom hours for this session
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(seedSessionWeek(week))}
+          className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#2D2442]"
+        >
+          Reset
+        </button>
+      </div>
+      <ul className="divide-y divide-[#F5F0FB]">
+        {DAY_KEYS.map((k) => {
+          const d = week[k];
+          const first = d.intervals[0] ?? { id: `${k}-1`, start: "09:00", end: "17:00" };
+          return (
+            <li key={k} className="flex items-center gap-3 px-4 py-2">
+              <button
+                type="button"
+                onClick={() => toggle(k)}
+                className={`flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+                  d.enabled ? "bg-[#7E6BAF]" : "bg-[#E6DEF5]"
+                }`}
+                aria-label={`Toggle ${DAY_LABEL[k]}`}
+              >
+                <span
+                  className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                    d.enabled ? "translate-x-4" : "translate-x-0"
+                  }`}
+                />
+              </button>
+              <span className="w-20 text-[12px] font-semibold text-[#2D2442]">
+                {DAY_LABEL[k]}
+              </span>
+              {d.enabled ? (
+                <div className="ml-auto flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={first.start}
+                    onChange={(e) => setTime(k, "start", e.target.value)}
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                  />
+                  <span className="text-[11px] text-[#7E6BAF]/60">to</span>
+                  <input
+                    type="time"
+                    value={first.end}
+                    onChange={(e) => setTime(k, "end", e.target.value)}
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                  />
+                </div>
+              ) : (
+                <span className="ml-auto text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">
+                  Off
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 /* --------------------------------- Types --------------------------------- */
 
@@ -46,7 +205,8 @@ export type ProviderProfile = {
     sessionType: "individual" | "group";
     minParticipants?: number;
     maxParticipants?: number;
-    availabilityMode?: "weekly" | "custom";
+    availabilityMode?: "default" | "custom";
+    customWeek?: WeekAvail;
   }[];
   region: "US" | "PH";
   verified: boolean;
@@ -612,6 +772,7 @@ export default function ProviderProfileSection({
 
   /* --------------------------- Extra session form ------------------------ */
   const [showAddSession, setShowAddSession] = useState(false);
+  const savedWeek = useAvailabilityStore((s) => s.week);
   const [newSession, setNewSession] = useState<{
     name: string;
     lengthMin: number;
@@ -619,7 +780,8 @@ export default function ProviderProfileSection({
     sessionType: "individual" | "group";
     minParticipants: string;
     maxParticipants: string;
-    availabilityMode: "weekly" | "custom";
+    availabilityMode: "default" | "custom";
+    customWeek: WeekAvail;
   }>({
     name: "",
     lengthMin: 50,
@@ -627,7 +789,8 @@ export default function ProviderProfileSection({
     sessionType: "individual",
     minParticipants: "3",
     maxParticipants: "8",
-    availabilityMode: "weekly",
+    availabilityMode: "default",
+    customWeek: seedSessionWeek(savedWeek),
   });
   const saveNewSession = () => {
     if (!newSession.name.trim() || !newSession.rate) return;
@@ -645,6 +808,9 @@ export default function ProviderProfileSection({
         sessionType: newSession.sessionType,
         ...(isGroup ? { minParticipants: min, maxParticipants: max } : {}),
         availabilityMode: newSession.availabilityMode,
+        ...(newSession.availabilityMode === "custom"
+          ? { customWeek: newSession.customWeek }
+          : {}),
       },
     ]);
     setNewSession({
@@ -654,7 +820,8 @@ export default function ProviderProfileSection({
       sessionType: "individual",
       minParticipants: "3",
       maxParticipants: "8",
-      availabilityMode: "weekly",
+      availabilityMode: "default",
+      customWeek: seedSessionWeek(savedWeek),
     });
     setShowAddSession(false);
   };
@@ -1252,33 +1419,51 @@ export default function ProviderProfileSection({
                   <div className="grid grid-cols-3 gap-6">
                     <div>
                       <label className="text-[13px] font-semibold text-[#2D2442]">Availability</label>
-                      <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Weekly or custom</p>
+                      <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Use set hours or custom</p>
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-2 space-y-3">
                       <div className="flex rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/50 p-1">
-                        {(["weekly", "custom"] as const).map((m) => {
-                          const active = newSession.availabilityMode === m;
+                        {([
+                          { id: "default", label: "Set hours" },
+                          { id: "custom", label: "Custom" },
+                        ] as const).map(({ id, label }) => {
+                          const active = newSession.availabilityMode === id;
                           return (
                             <button
-                              key={m}
+                              key={id}
                               type="button"
-                              onClick={() => setNewSession((s) => ({ ...s, availabilityMode: m }))}
-                              className={`flex-1 rounded-lg py-2 text-[13px] font-semibold capitalize transition-all ${
+                              onClick={() =>
+                                setNewSession((s) => ({
+                                  ...s,
+                                  availabilityMode: id,
+                                  customWeek:
+                                    id === "custom"
+                                      ? seedSessionWeek(savedWeek)
+                                      : s.customWeek,
+                                }))
+                              }
+                              className={`flex-1 rounded-lg py-2 text-[13px] font-semibold transition-all ${
                                 active
                                   ? "bg-[#7E6BAF] text-white shadow-sm"
                                   : "text-[#7E6BAF] hover:text-[#2D2442]"
                               }`}
                             >
-                              {m}
+                              {label}
                             </button>
                           );
                         })}
                       </div>
-                      <p className="mt-2 text-[11px] leading-relaxed text-[#7E6BAF]/70">
-                        {newSession.availabilityMode === "weekly"
-                          ? "Uses your default Weekly Hours from Calendar & Availability."
-                          : "Set custom hours for this session under Calendar & Availability → Service Availability."}
-                      </p>
+
+                      {newSession.availabilityMode === "default" ? (
+                        <DefaultHoursPreview week={savedWeek} />
+                      ) : (
+                        <CustomHoursEditor
+                          week={newSession.customWeek}
+                          onChange={(w) =>
+                            setNewSession((s) => ({ ...s, customWeek: w }))
+                          }
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1296,7 +1481,8 @@ export default function ProviderProfileSection({
                           sessionType: "individual",
                           minParticipants: "3",
                           maxParticipants: "8",
-                          availabilityMode: "weekly",
+                          availabilityMode: "default",
+                          customWeek: seedSessionWeek(savedWeek),
                         });
                       }}
                       className="rounded-xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
