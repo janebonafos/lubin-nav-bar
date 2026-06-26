@@ -1018,8 +1018,6 @@ export default function ProviderProfileSection({
         </div>
       </section>
 
-      {view === "profile" && (
-      <>
       {/* ---------------------------- About me ---------------------------- */}
       <SectionCard
         title="About me"
