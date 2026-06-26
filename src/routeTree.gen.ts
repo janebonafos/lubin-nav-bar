@@ -25,6 +25,7 @@ import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
+import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
@@ -108,6 +109,11 @@ const ProviderIdRoute = ProviderIdRouteImport.update({
   path: '/provider/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
+  id: '/appointment/reschedule',
+  path: '/appointment/reschedule',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   id: '/api/enhance-profile',
   path: '/api/enhance-profile',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery_/$slug'
     | '/share/$token'
@@ -258,6 +270,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
+  AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/appointment/reschedule': {
+      id: '/appointment/reschedule'
+      path: '/appointment/reschedule'
+      fullPath: '/appointment/reschedule'
+      preLoaderRoute: typeof AppointmentRescheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/enhance-profile': {
       id: '/api/enhance-profile'
       path: '/api/enhance-profile'
@@ -410,6 +430,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
+  AppointmentRescheduleRoute: AppointmentRescheduleRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
