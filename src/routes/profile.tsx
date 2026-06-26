@@ -24,6 +24,7 @@ import {
   CalendarClock,
   Wallet,
   ShieldCheck,
+  Briefcase,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
@@ -352,7 +353,7 @@ function ProfilePage() {
     role === "provider"
       ? [
           { key: "provider", label: "Provider Profile", icon: <ClipboardList className="h-5 w-5" /> },
-          { key: "services", label: "Services & Offerings", icon: <Wallet className="h-5 w-5" /> },
+          { key: "services", label: "Services & Offerings", icon: <Briefcase className="h-5 w-5" /> },
           { key: "calendar", label: "Calendar & Availability", icon: <CalendarDays className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
