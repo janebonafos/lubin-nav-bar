@@ -1138,10 +1138,10 @@ export default function ProviderProfileSection({
                               key={m}
                               type="button"
                               onClick={() => setNewSession((s) => ({ ...s, lengthMin: m }))}
-                              className={`rounded-lg py-2.5 text-[13px] font-semibold transition-colors ${
+                              className={`rounded-lg border py-2.5 text-[13px] font-semibold transition-colors ${
                                 active
-                                  ? "bg-[#7E6BAF] text-white shadow-sm"
-                                  : "border border-[#E5E7EB] text-[#2D2442] hover:bg-[#F0EAFB]"
+                                  ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                                  : "border-[#E5E7EB] text-[#2D2442] hover:bg-[#F0EAFB]"
                               }`}
                             >
                               {m}
