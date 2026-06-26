@@ -46,6 +46,7 @@ export type ProviderProfile = {
     sessionType: "individual" | "group";
     minParticipants?: number;
     maxParticipants?: number;
+    availabilityMode?: "weekly" | "custom";
   }[];
   region: "US" | "PH";
   verified: boolean;
