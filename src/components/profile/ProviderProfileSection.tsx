@@ -643,6 +643,7 @@ export default function ProviderProfileSection({
 
   /* --------------------------- Extra session form ------------------------ */
   const [showAddSession, setShowAddSession] = useState(false);
+  const savedWeek = useAvailabilityStore((s) => s.week);
   const [newSession, setNewSession] = useState<{
     name: string;
     lengthMin: number;
@@ -650,7 +651,8 @@ export default function ProviderProfileSection({
     sessionType: "individual" | "group";
     minParticipants: string;
     maxParticipants: string;
-    availabilityMode: "weekly" | "custom";
+    availabilityMode: "default" | "custom";
+    customWeek: WeekAvail;
   }>({
     name: "",
     lengthMin: 50,
@@ -658,7 +660,8 @@ export default function ProviderProfileSection({
     sessionType: "individual",
     minParticipants: "3",
     maxParticipants: "8",
-    availabilityMode: "weekly",
+    availabilityMode: "default",
+    customWeek: seedSessionWeek(savedWeek),
   });
   const saveNewSession = () => {
     if (!newSession.name.trim() || !newSession.rate) return;
@@ -676,6 +679,9 @@ export default function ProviderProfileSection({
         sessionType: newSession.sessionType,
         ...(isGroup ? { minParticipants: min, maxParticipants: max } : {}),
         availabilityMode: newSession.availabilityMode,
+        ...(newSession.availabilityMode === "custom"
+          ? { customWeek: newSession.customWeek }
+          : {}),
       },
     ]);
     setNewSession({
@@ -685,7 +691,8 @@ export default function ProviderProfileSection({
       sessionType: "individual",
       minParticipants: "3",
       maxParticipants: "8",
-      availabilityMode: "weekly",
+      availabilityMode: "default",
+      customWeek: seedSessionWeek(savedWeek),
     });
     setShowAddSession(false);
   };
