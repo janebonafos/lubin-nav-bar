@@ -752,22 +752,22 @@ export function CalendarAvailabilitySection() {
             <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+            <div className="inline-flex rounded-full bg-[#EFEAF7] p-1">
               {([
-                { id: "list", label: "List", Icon: List },
-                { id: "grid", label: "Week grid", Icon: LayoutGrid },
-              ] as const).map(({ id, label, Icon }) => (
+                { id: "list", label: "List" },
+                { id: "grid", label: "Week grid" },
+              ] as const).map(({ id, label }) => (
                 <button
                   key={id}
                   onClick={() => setViewMode(id)}
                   aria-pressed={viewMode === id}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-[11px] font-bold transition ${
+                  className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
                     viewMode === id
-                      ? "bg-[#7E6BAF] text-white shadow-sm"
+                      ? "bg-[#A89BD0] text-white shadow-sm"
                       : "text-[#7E6BAF] hover:text-[#3D2E6B]"
                   }`}
                 >
-                  <Icon className="h-3.5 w-3.5" /> {label}
+                  {label}
                 </button>
               ))}
             </div>
