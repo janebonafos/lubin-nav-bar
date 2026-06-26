@@ -834,12 +834,12 @@ function ProviderOnboardingPage() {
                         setSessionTypes((s) => ({ ...s, video: !s.video }))
                       }
                     />
-                    <div className="flex items-center justify-between rounded-xl border border-dashed border-[#E3DBF5] bg-white/40 p-4 text-left opacity-70">
+                    <div className="flex h-16 items-center justify-between rounded-2xl border border-dashed border-[#E3DBF5] bg-white/40 px-5 text-left opacity-70">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#7E6BAF]">In-person sessions</p>
-                        <p className="mt-0.5 text-[11px] text-[#A89BD0]">Coming soon</p>
+                        <p className="text-sm font-medium text-[#3D2E6B]">In-person sessions</p>
+                        <p className="mt-0.5 text-[11px] text-[#7E6BAF]">Coming soon</p>
                       </div>
-                      <span className="rounded-full bg-[#F0EAFB] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                      <span className="rounded-md border border-[#E3DBF5] bg-[#F0EAFB] px-2 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#7E6BAF]">
                         Soon
                       </span>
                     </div>
