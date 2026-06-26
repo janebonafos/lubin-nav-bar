@@ -1200,50 +1200,78 @@ function AddCustomService({
   onCancel: () => void;
 }) {
   const [title, setTitle] = useState("");
-  const [duration, setDuration] = useState("60");
+  const [duration, setDuration] = useState<number>(50);
+  const [video, setVideo] = useState(true);
   const [price, setPrice] = useState("");
-  const valid = title.trim().length > 0 && Number(duration) > 0;
+  const valid = title.trim().length > 0 && duration > 0;
   return (
-    <div className="space-y-5 rounded-3xl border border-[#E3DBF5] bg-white/80 p-6 shadow-sm">
-      <input
-        type="text"
+    <div className="space-y-6 rounded-3xl border border-[#E3DBF5] bg-white/70 p-6 shadow-sm sm:p-8">
+      <TextField
+        label="Session name"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Session name (e.g. Couples session)"
-        className="h-14 w-full border-0 border-b border-[#E3DBF5] bg-transparent px-1 text-[15px] text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF]"
+        onChange={setTitle}
+        placeholder="e.g. Couples session"
       />
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            inputMode="numeric"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value.replace(/\D/g, ""))}
-            placeholder="60"
-            className="h-12 w-full rounded-xl border border-[#E3DBF5] bg-[#F0EAFB]/30 px-4 pr-14 text-[15px] font-medium text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+
+      <Field label="How you meet">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Toggle
+            label="Video sessions"
+            active={video}
+            onClick={() => setVideo((v) => !v)}
           />
-          <span className="pointer-events-none absolute right-4 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-            min
-          </span>
+          <div className="flex h-16 items-center justify-between rounded-2xl border border-dashed border-[#E3DBF5] bg-white/40 px-5 text-left opacity-70">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#3D2E6B]">In-person sessions</p>
+              <p className="mt-0.5 text-[11px] text-[#7E6BAF]">Coming soon</p>
+            </div>
+            <span className="rounded-md border border-[#E3DBF5] bg-[#F0EAFB] px-2 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#7E6BAF]">
+              Soon
+            </span>
+          </div>
         </div>
+      </Field>
+
+      <Field label="Session length">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[30, 50, 60, 90].map((mins) => (
+            <button
+              key={mins}
+              type="button"
+              onClick={() => setDuration(mins)}
+              className={`flex h-12 items-center justify-center gap-2 rounded-2xl border text-sm font-medium transition-all ${
+                duration === mins
+                  ? "border-transparent bg-[#7E6BAF] text-white shadow-inner shadow-black/20"
+                  : "border-[#E3DBF5] bg-white/60 text-[#3D2E6B] hover:bg-white/80"
+              }`}
+            >
+              <Clock className="h-4 w-4 opacity-70" strokeWidth={2} />
+              {mins} min
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Session rate">
         <div className="relative flex items-center">
-          <span className="pointer-events-none absolute left-4 text-[15px] font-medium text-[#7E6BAF]">
+          <span className="pointer-events-none absolute left-5 text-[15px] font-medium text-[#7E6BAF]">
             {currency.symbol}
           </span>
           <input
             type="text"
             inputMode="decimal"
             value={price}
+            placeholder={currency.code === "PHP" ? "3500" : "120"}
             onChange={(e) => setPrice(e.target.value.replace(/[^\d.]/g, ""))}
-            placeholder="Price"
-            className="h-12 w-full rounded-xl border border-[#E3DBF5] bg-[#F0EAFB]/30 pl-8 pr-14 text-[15px] font-medium text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+            className="h-14 w-full rounded-2xl border border-[#E3DBF5] bg-white/60 pl-10 pr-16 text-[15px] font-medium text-[#3D2E6B] placeholder:text-[#A89BD0] outline-none transition-all focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
           />
-          <span className="pointer-events-none absolute right-4 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+          <span className="pointer-events-none absolute right-5 text-[11px] font-bold uppercase tracking-widest text-[#7E6BAF]">
             {currency.code}
           </span>
         </div>
-      </div>
-      <div className="flex items-center justify-end gap-3 pt-2">
+      </Field>
+
+      <div className="flex items-center justify-end gap-3 border-t border-[#E3DBF5]/70 pt-5">
         <button
           type="button"
           onClick={onCancel}
@@ -1254,7 +1282,7 @@ function AddCustomService({
         <button
           type="button"
           disabled={!valid}
-          onClick={() => onAdd({ title: title.trim(), duration, price })}
+          onClick={() => onAdd({ title: title.trim(), duration: String(duration), price })}
           className="rounded-xl bg-[#7E6BAF] px-6 py-2.5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#9A88C7] disabled:cursor-not-allowed disabled:bg-[#7E6BAF]/40"
         >
           Add session
