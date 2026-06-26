@@ -540,12 +540,17 @@ export default function ProviderProfileSection({
 
           <div className="flex items-center gap-5 sm:gap-6">
             <div className="relative shrink-0">
-              <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white/40 bg-white/15 shadow-lg shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28">
+              <div className="h-20 w-20 overflow-hidden rounded-[22px] border border-white/30 bg-gradient-to-br from-[#D9CEF0] to-[#9A8BC4] shadow-xl shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28 sm:rounded-[28px]">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName || "Provider"} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-white sm:text-3xl">
-                    {(fullName || "?").trim().charAt(0).toUpperCase()}
+                  <div className="flex h-full w-full items-center justify-center text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                    {(fullName || "?")
+                      .split(/\s+/)
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map((w) => w.charAt(0).toUpperCase())
+                      .join("") || "?"}
                   </div>
                 )}
               </div>
