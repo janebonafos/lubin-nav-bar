@@ -789,6 +789,7 @@ function ProfilePage() {
             )}
 
             {activeSection === "passport" && (
+              role === "client" &&
               <Overview
                 today={todayLabel}
                 checkins={passportData.checkins as never}
@@ -797,6 +798,10 @@ function ProfilePage() {
                 onCloseCheckIn={() => setCheckInActive(false)}
                 isGuest={false}
               />
+            )}
+
+            {activeSection === "provider" && role === "provider" && (
+              <ProviderProfileSection fullName={profile.fullName} />
             )}
 
             {activeSection === "discovery" && (
