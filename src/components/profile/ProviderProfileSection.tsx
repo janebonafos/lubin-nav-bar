@@ -1073,34 +1073,31 @@ export default function ProviderProfileSection({
       </SectionCard>
 
       {/* ---------------------------- Verification ------------------------- */}
-      <SectionCard
-        title="Verification"
-        subtitle="Optional badge that builds trust with clients."
-      >
-        <div className="flex items-start gap-3 rounded-2xl border border-[#E3DBF5]/60 bg-white/70 p-5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-            <ShieldCheck className="h-5 w-5 text-emerald-600" />
+      <section className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-[2rem] bg-[#2A2550] p-8 text-white shadow-xl shadow-[#2A2550]/20 sm:flex-row sm:items-center sm:p-10">
+        <div className="flex items-center gap-5">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10">
+            <ShieldCheck className="h-8 w-8 text-emerald-400" />
           </div>
-          <div className="flex-1">
-            <p className="text-[14px] font-semibold text-[#3D2E6B]">
+          <div className="space-y-1">
+            <h4 className="text-xl font-bold tracking-tight">
               {data.verified ? "You're verified" : "Get a verified badge"}
-            </p>
-            <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#7E6BAF]">
+            </h4>
+            <p className="max-w-md text-sm leading-relaxed text-white/60">
               {data.verified
                 ? "Your credentials have been reviewed by the Lubin team."
-                : "Licensed clinicians, coaches, and peer practitioners can submit credentials by email. We'll review and update your badge — usually within a few days."}
+                : "Licensed clinicians, coaches, and peer practitioners can submit credentials for priority listing and client trust."}
             </p>
           </div>
-          {!data.verified && (
-            <button
-              type="button"
-              className="shrink-0 rounded-full bg-[#7E6BAF]/10 px-4 py-1.5 text-[12.5px] font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/20"
-            >
-              Submit credentials
-            </button>
-          )}
         </div>
-      </SectionCard>
+        {!data.verified && (
+          <button
+            type="button"
+            className="w-full shrink-0 rounded-2xl bg-[#7E6BAF] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#7E6BAF]/30 transition hover:bg-[#8d7bc2] sm:w-auto"
+          >
+            Submit credentials
+          </button>
+        )}
+      </section>
     </div>
   );
 }
