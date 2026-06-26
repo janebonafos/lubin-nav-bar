@@ -19,7 +19,6 @@ import {
   Copy,
   CalendarOff,
   Trash2,
-  ChevronRight,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -117,7 +116,6 @@ export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
   const [account, setAccount] = useState<string>("maria.santos@gmail.com");
-  const [showProviderPicker, setShowProviderPicker] = useState(false);
 
   // weekly availability
   const [week, setWeek] = useState<WeekAvail>(DEFAULT_WEEK);
@@ -195,238 +193,222 @@ export function CalendarAvailabilitySection() {
   const removeHoliday = (id: string) =>
     setHolidays((h) => h.filter((x) => x.id !== id));
 
-  const providerName =
-    PROVIDERS.find((p) => p.id === provider)?.name ?? "No calendar";
-
   return (
-    <div className="rounded-3xl border border-white/80 bg-white/70 shadow-xl shadow-[#3D2E6B]/5 backdrop-blur-md">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="p-8 pb-5 sm:p-10 sm:pb-6">
-        <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-[#3D2E6B] sm:text-3xl">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold tracking-tight text-[#3D2E6B] sm:text-3xl">
           Calendar & Availability
         </h1>
-        <p className="text-sm font-medium leading-relaxed text-[#7E6BAF]">
-          Manage your practice rhythm, sync external calendars, and set specific availability for your clinical services.
+        <p className="mt-2 text-sm font-medium text-[#7E6BAF]">
+          Define your working hours and sync with your digital calendars.
         </p>
       </div>
 
-      {/* Calendar connection */}
-      <div className="mx-6 mb-8 rounded-2xl border border-[#7E6BAF]/10 bg-[#7E6BAF]/5 p-5 sm:mx-10 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
-              <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
+      {/* Calendar Connections */}
+      <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm sm:p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar Connections</h2>
+          {provider ? (
+            <span className="rounded-full border border-green-100 bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
+              Sync Active
+            </span>
+          ) : (
+            <span className="rounded-full border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
+              Not connected
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Google */}
+          <div
+            className={`flex items-center justify-between rounded-2xl border-2 p-4 transition ${
+              provider === "google"
+                ? "border-[#7E6BAF]/30 bg-[#F0EAFB]/30"
+                : "border-[#EAE7F5] bg-white"
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
+                <svg className="h-6 w-6" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#3D2E6B]">Google Calendar</p>
+                <p className="text-xs text-[#7E6BAF]">
+                  {provider === "google" ? `Connected · ${account}` : "Not connected"}
+                </p>
+              </div>
             </div>
-            <div>
-              {provider ? (
-                <>
-                  <h3 className="text-sm font-bold text-[#3D2E6B]">
-                    {providerName} connected
-                  </h3>
-                  <p className="text-xs font-medium text-[#7E6BAF]">
-                    Last synced 4 minutes ago · {account}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-sm font-bold text-[#3D2E6B]">No calendar connected</h3>
-                  <p className="text-xs font-medium text-[#7E6BAF]">
-                    Connect a calendar so we can prevent double-bookings.
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowProviderPicker((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#7E6BAF]/20 bg-white px-4 py-2 text-xs font-semibold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              {provider ? "Manage sync" : "Connect"}
-            </button>
-            {provider && (
+            {provider === "google" ? (
               <button
                 onClick={() => setProvider(null)}
-                className="text-xs font-semibold text-[#A89BD0] hover:text-red-500"
+                className="text-sm font-medium text-[#7E6BAF] hover:text-[#3D2E6B]"
               >
                 Disconnect
               </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setProvider("google");
+                  setAccount("maria.santos@gmail.com");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#3D2E6B]"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Connect
+              </button>
             )}
           </div>
-        </div>
 
-        {showProviderPicker && (
-          <div className="mt-4 rounded-2xl border border-[#E3DBF5] bg-white/90 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#A89BD0]">
-                Choose a calendar
-              </p>
-              <button
-                onClick={() => setShowProviderPicker(false)}
-                className="text-[#A89BD0] hover:text-[#3D2E6B]"
-              >
-                <X className="h-4 w-4" />
-              </button>
+          {/* Coming soon tile */}
+          <div className="flex items-center justify-between rounded-2xl border border-dashed border-[#A89BD0] bg-transparent p-4 opacity-70">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#A89BD0]">
+                <CalendarDays className="h-5 w-5 text-[#7E6BAF]" />
+              </div>
+              <p className="text-sm font-medium text-[#7E6BAF]">Outlook & iCloud</p>
             </div>
-            <div className="space-y-2">
-              {PROVIDERS.map((p) => (
-                <button
-                  key={p.id}
-                  disabled={!p.available}
-                  onClick={() => {
-                    setProvider(p.id);
-                    setAccount("maria.santos@gmail.com");
-                    setShowProviderPicker(false);
-                  }}
-                  className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
-                    p.available
-                      ? "border-[#E3DBF5] bg-white hover:border-[#7E6BAF] hover:bg-[#F0EAFB]"
-                      : "cursor-not-allowed border-[#EEE7FA] bg-[#F8F5FF]/50 opacity-70"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <CalendarDays className="h-4 w-4 text-[#7E6BAF]" />
-                    <span className="text-sm font-semibold text-[#3D2E6B]">{p.name}</span>
-                  </div>
-                  {p.available ? (
-                    <ChevronRight className="h-4 w-4 text-[#A89BD0]" />
-                  ) : (
-                    <span className="rounded-full bg-[#7E6BAF]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                      Soon
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Coming Soon
+            </span>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
 
-      {/* Body */}
-      <div className="px-6 pb-10 sm:px-10">
-        {/* Weekly Schedule */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#3D2E6B]">Weekly Schedule</h2>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#7E6BAF]">
-            Timezone: EST
+      {/* Weekly Hours */}
+      <section className="overflow-hidden rounded-3xl border border-[#EAE7F5] bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#F0EAFB] p-6 sm:p-8">
+          <div>
+            <h2 className="text-lg font-semibold text-[#3D2E6B]">Weekly Hours</h2>
+            <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
+            Timezone · EST
           </span>
         </div>
 
-        <div>
-          {DAYS.map((d, idx) => {
+        <div className="divide-y divide-[#F0EAFB]">
+          {DAYS.map((d) => {
             const day = week[d.key];
-            const isLast = idx === DAYS.length - 1;
             return (
               <div
                 key={d.key}
-                className={`grid grid-cols-[110px_1fr] items-start gap-4 py-4 ${
-                  isLast ? "" : "border-b border-[#F0EAFB]"
+                className={`flex flex-col gap-4 p-6 transition-colors sm:flex-row sm:items-start sm:gap-8 ${
+                  day.enabled ? "hover:bg-[#F0EAFB]/20" : "bg-gray-50/40"
                 }`}
               >
-                <div className={`flex items-center gap-3 pt-2 ${day.enabled ? "" : "opacity-60"}`}>
-                  <button
-                    type="button"
-                    onClick={() => toggleDay(d.key)}
-                    aria-label={`Toggle ${d.label}`}
-                    className={`flex h-4 w-4 items-center justify-center rounded-full border transition ${
-                      day.enabled
-                        ? "border-[#7E6BAF] bg-[#7E6BAF]"
-                        : "border-[#A89BD0] bg-white"
-                    }`}
-                  >
-                    {day.enabled && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
-                  </button>
-                  <span className="text-sm font-bold text-[#3D2E6B]">{d.label}</span>
+                <div className="w-32 pt-1">
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleDay(d.key)}
+                      aria-label={`Toggle ${d.label}`}
+                      className={`relative h-6 w-11 rounded-full transition-colors ${
+                        day.enabled ? "bg-[#7E6BAF]" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-[2px] h-5 w-5 rounded-full border border-gray-300 bg-white shadow transition-transform ${
+                          day.enabled ? "left-[2px] translate-x-5" : "left-[2px]"
+                        }`}
+                      />
+                    </button>
+                    <span
+                      className={`font-semibold ${
+                        day.enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                      }`}
+                    >
+                      {d.label}
+                    </span>
+                  </label>
                 </div>
 
-                <div>
-                  {!day.enabled ? (
-                    <p className="flex h-10 items-center text-xs font-semibold italic text-[#7E6BAF]">
-                      Unavailable
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {day.intervals.map((iv, i) => {
-                        const isLastInterval = i === day.intervals.length - 1;
-                        return (
-                          <div key={iv.id} className="flex flex-wrap items-center gap-2">
-                            <div className="flex items-center rounded-lg border border-[#DED4F5] bg-white px-3 py-2 shadow-sm">
-                              <input
-                                type="time"
-                                value={iv.start}
-                                onChange={(e) =>
-                                  updateInterval(d.key, iv.id, { start: e.target.value })
-                                }
-                                className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
-                              />
-                              <span className="mx-2 text-[#7E6BAF]/40">—</span>
-                              <input
-                                type="time"
-                                value={iv.end}
-                                onChange={(e) =>
-                                  updateInterval(d.key, iv.id, { end: e.target.value })
-                                }
-                                className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
-                              />
-                            </div>
-                            {day.intervals.length > 1 && (
-                              <button
-                                onClick={() => removeInterval(d.key, iv.id)}
-                                className="p-2 text-[#7E6BAF]/40 transition-colors hover:text-red-400"
-                                aria-label="Remove interval"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
-                            {isLastInterval && (
-                              <>
-                                <button
-                                  onClick={() => addInterval(d.key)}
-                                  className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                                >
-                                  <Plus className="h-3 w-3" /> Add Interval
-                                </button>
-                                <button
-                                  onClick={() => copyToAll(d.key)}
-                                  className="inline-flex items-center gap-1 pr-1 text-[11px] font-bold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                                >
-                                  <Copy className="h-3 w-3" /> Copy to all
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
+                {!day.enabled ? (
+                  <div className="flex-1 pt-2">
+                    <p className="text-sm text-[#A89BD0]">Unavailable</p>
+                  </div>
+                ) : (
+                  <div className="flex-1 space-y-3">
+                    {day.intervals.map((iv) => (
+                      <div key={iv.id} className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 rounded-xl border border-[#EAE7F5] bg-[#F0EAFB] px-4 py-2">
+                          <input
+                            type="time"
+                            value={iv.start}
+                            onChange={(e) =>
+                              updateInterval(d.key, iv.id, { start: e.target.value })
+                            }
+                            className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
+                          />
+                          <span className="text-[#A89BD0]">—</span>
+                          <input
+                            type="time"
+                            value={iv.end}
+                            onChange={(e) =>
+                              updateInterval(d.key, iv.id, { end: e.target.value })
+                            }
+                            className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
+                          />
+                        </div>
+                        {day.intervals.length > 1 && (
+                          <button
+                            onClick={() => removeInterval(d.key, iv.id)}
+                            className="p-2 text-[#A89BD0] transition-colors hover:text-red-400"
+                            aria-label="Remove interval"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <div className="flex flex-wrap items-center gap-4 pt-1">
+                      <button
+                        onClick={() => addInterval(d.key)}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
+                      >
+                        <Plus className="h-4 w-4" /> Add interval
+                      </button>
+                      <button
+                        onClick={() => copyToAll(d.key)}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
+                      >
+                        <Copy className="h-4 w-4" /> Copy to all
+                      </button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
+      </section>
 
-        {/* Secondary settings */}
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
+      {/* Holidays & Service Alignment */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
-          <div className="space-y-4">
-            <h3 className="flex items-center gap-2 text-sm font-bold text-[#3D2E6B]">
+        <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
               <CalendarOff className="h-4 w-4" />
               Holidays & Time Off
             </h3>
-            <div className="space-y-3 rounded-xl border border-[#DED4F5] bg-white p-4">
+          <div className="space-y-3">
               {holidays.length === 0 ? (
-                <p className="text-xs font-semibold italic text-[#A89BD0]">
-                  No days off added yet.
-                </p>
+              <p className="text-xs italic text-[#A89BD0]">No days off added yet.</p>
               ) : (
                 holidays.map((h) => (
-                  <div key={h.id} className="flex items-center justify-between gap-3">
-                    <span className="truncate text-xs font-semibold text-[#3D2E6B]">
+                <div
+                  key={h.id}
+                  className="flex items-center justify-between gap-3 rounded-xl bg-[#F0EAFB]/40 px-3 py-2"
+                >
+                  <span className="truncate text-xs font-medium text-[#3D2E6B]">
                       {h.label}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold text-[#7E6BAF]">
+                    <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#7E6BAF]">
                         {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -444,7 +426,7 @@ export function CalendarAvailabilitySection() {
                 ))
               )}
 
-              <div className="mt-2 space-y-2 border-t border-[#F0EAFB] pt-3">
+            <div className="space-y-2 border-t border-[#F0EAFB] pt-3">
                 <div className="flex flex-wrap gap-2">
                   <input
                     type="date"
@@ -452,7 +434,7 @@ export function CalendarAvailabilitySection() {
                     onChange={(e) =>
                       setNewHoliday((p) => ({ ...p, date: e.target.value }))
                     }
-                    className="rounded-lg border border-[#DED4F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  className="rounded-lg border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
                   />
                   <input
                     type="text"
@@ -461,37 +443,37 @@ export function CalendarAvailabilitySection() {
                     onChange={(e) =>
                       setNewHoliday((p) => ({ ...p, label: e.target.value }))
                     }
-                    className="min-w-0 flex-1 rounded-lg border border-[#DED4F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+                  className="min-w-0 flex-1 rounded-lg border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
                   />
                 </div>
                 <button
                   onClick={addHoliday}
                   disabled={!newHoliday.date}
-                  className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-extrabold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  + Log Days Off
+                + Add date
                 </button>
               </div>
             </div>
-          </div>
+        </section>
 
           {/* Service Availability */}
-          <div className="space-y-4">
-            <h3 className="flex items-center gap-2 text-sm font-bold text-[#3D2E6B]">
+        <section className="rounded-3xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
               <Video className="h-4 w-4" />
               Service Availability
             </h3>
-            <div className="space-y-3 rounded-xl border border-[#DED4F5] bg-white p-4">
+          <div className="space-y-3">
               {services.map((s) => {
                 const mode = serviceMode[s.id] ?? "weekly";
                 return (
                   <div key={s.id} className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-[#3D2E6B]">
+                      <p className="truncate text-xs font-medium text-[#3D2E6B]">
                           {s.name}
                         </p>
-                        <p className="text-[10px] font-medium text-[#7E6BAF]">
+                      <p className="text-[10px] text-[#7E6BAF]">
                           {s.length} · {s.price}
                         </p>
                       </div>
@@ -514,29 +496,28 @@ export function CalendarAvailabilitySection() {
                       </div>
                     </div>
                     {mode === "custom" && (
-                      <div className="rounded-lg border border-dashed border-[#E3DBF5] bg-[#F8F5FF]/60 p-2 text-[11px] font-medium text-[#7E6BAF]">
+                    <div className="rounded-lg border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
                         Custom hours for this service will appear here.
                       </div>
                     )}
                   </div>
                 );
               })}
-              <button className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-extrabold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
+            <button className="w-full rounded-lg border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
                 Configure Services
               </button>
             </div>
-          </div>
+        </section>
         </div>
 
         {/* Footer */}
-        <div className="mt-12 flex justify-end gap-4">
-          <button className="px-6 py-2.5 text-sm font-bold text-[#7E6BAF] hover:text-[#3D2E6B]">
+      <div className="flex justify-end gap-4 pt-2">
+        <button className="px-6 py-2.5 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
             Cancel
           </button>
-          <button className="transform rounded-full bg-[#3D2E6B] px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#4D3B85]">
-            Save Changes
+        <button className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF]">
+          Save Changes
           </button>
-        </div>
       </div>
     </div>
   );
