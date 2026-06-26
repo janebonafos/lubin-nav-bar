@@ -1274,8 +1274,8 @@ export function AppointmentsSection() {
   const list = tab === "all" ? all : all.filter((a) => a.status === tab);
 
   const statusStyle = {
-    upcoming: "bg-[#EEE7FA] text-[#7E6BAF]",
-    completed: "bg-emerald-100 text-emerald-700",
+    upcoming: "bg-[#E0D9F7] text-[#37306B]",
+    completed: "bg-[#E6F8F1] text-[#2D8E69]",
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
 
@@ -1287,53 +1287,66 @@ export function AppointmentsSection() {
         <StatCard label="No-show rate" value="2%" hint="Last 30 days" />
       </div>
 
-      <SectionCard
-        title="Bookings"
-        description="Everything on your schedule."
-      >
-        <div className="mb-5 inline-flex rounded-[12px] border border-[#E3DBF5] bg-white/60 p-1">
+      <section className="overflow-hidden rounded-[12px] border border-[#EBE8F5] bg-white shadow-sm">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold text-[#37306B]">Bookings</h2>
+          <p className="mt-1 text-sm text-[#8E86B0]">Everything on your schedule.</p>
+          <div className="mt-6 inline-flex gap-2 rounded-[10px] bg-[#F0EAFB] p-1">
           {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`inline-flex items-center gap-2 rounded-[9px] px-4 py-1.5 text-xs font-semibold capitalize transition ${
+              className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
                 tab === t
-                  ? "bg-[#7E6BAF] text-white shadow-sm"
-                  : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+                  ? "bg-[#37306B] text-white"
+                  : "text-[#37306B] hover:bg-[#B5A9D6]/20"
               }`}
             >
               {t}
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  tab === t ? "bg-white/25 text-white" : "bg-[#EEE7FA] text-[#7E6BAF]"
+                  tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#37306B]/60"
                 }`}
               >
                 {counts[t]}
               </span>
             </button>
           ))}
+          </div>
         </div>
 
         {list.length === 0 ? (
-          <div className="rounded-[14px] border border-dashed border-[#E3DBF5] bg-white/40 p-12 text-center">
+          <div className="border-t border-[#F0EAFB] p-12 text-center">
             <CalendarClock className="mx-auto h-7 w-7 text-[#A89BD0]" />
-            <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">All clear here</p>
-            <p className="mt-1 text-xs text-[#7E6BAF]">Nothing on this list right now.</p>
+            <p className="mt-3 text-sm font-semibold text-[#37306B]">All clear here</p>
+            <p className="mt-1 text-xs text-[#8E86B0]">Nothing on this list right now.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-[#EEE7FA] overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-white/70">
-            {list.map((a) => (
-              <li key={a.id} className="transition">
-                <div className="flex flex-wrap items-center gap-4 p-4 hover:bg-[#F7F2FE]/60 sm:flex-nowrap">
+          <ul className="border-t border-[#F0EAFB]">
+            {list.map((a, idx) => {
+              const isExpanded = expanded === a.id;
+              const isLast = idx === list.length - 1;
+              return (
+              <li
+                key={a.id}
+                className={`${isExpanded ? "bg-[#F9F8FF]" : "hover:bg-[#F9F8FF]"} ${
+                  !isLast ? "border-b border-[#F0EAFB]" : ""
+                } transition-colors`}
+              >
+                <div className="flex flex-wrap items-center gap-6 p-6 sm:flex-nowrap">
                 {/* Date block */}
-                <div className="flex w-[64px] shrink-0 flex-col items-center rounded-[12px] border border-[#E3DBF5] bg-gradient-to-b from-white to-[#F7F2FE] py-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                <div
+                  className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[10px] border bg-white ${
+                    isExpanded ? "border-[#B5A9D6]" : "border-[#EBE8F5]"
+                  } ${a.status !== "upcoming" ? "opacity-60" : ""}`}
+                >
+                  <span className="text-[10px] font-bold uppercase text-[#B5A9D6]">
                     {a.month}
                   </span>
-                  <span className="text-xl font-bold leading-tight text-[#3D2E6B]">
+                  <span className="text-xl font-bold leading-tight text-[#37306B]">
                     {a.date}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-[#7E6BAF]">
+                  <span className="text-[9px] font-bold uppercase text-[#B5A9D6]">
                     {a.day}
                   </span>
                 </div>
@@ -1342,14 +1355,14 @@ export function AppointmentsSection() {
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-[#3D2E6B]">
+                      <p className={`truncate font-semibold text-[#37306B] ${a.status !== "upcoming" ? "opacity-70" : ""}`}>
                         {a.client}
                       </p>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusStyle[a.status]}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusStyle[a.status]}`}>
                         {a.status}
                       </span>
                     </div>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#7E6BAF]">
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-[#8E86B0]">
                       <span>{a.type}</span>
                       <span className="text-[#C9BEE4]">·</span>
                       <span>{a.duration}</span>
@@ -1358,10 +1371,10 @@ export function AppointmentsSection() {
                 </div>
 
                 {/* Time + mode */}
-                <div className="hidden flex-col items-end text-right sm:flex">
-                  <p className="text-sm font-semibold text-[#3D2E6B]">{a.time}</p>
-                  <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-[#7E6BAF]">
-                    <Video className="h-3 w-3" /> {a.mode}
+                <div className={`hidden flex-col items-end text-right sm:flex ${a.status !== "upcoming" ? "opacity-60" : ""}`}>
+                  <p className="font-semibold text-[#37306B]">{a.time}</p>
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-xs text-[#8E86B0]">
+                    <Video className="h-3 w-3 text-[#A89BD0]" /> {a.mode}
                   </span>
                 </div>
 
@@ -1369,15 +1382,19 @@ export function AppointmentsSection() {
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
                   <button
                     onClick={() => setExpanded(expanded === a.id ? null : a.id)}
-                    className="inline-flex items-center gap-1 rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]"
+                    className={`inline-flex items-center rounded-[8px] border px-4 py-2 text-sm font-medium transition ${
+                      isExpanded
+                        ? "border-[#B5A9D6] text-[#37306B] hover:bg-white"
+                        : "border-[#EBE8F5] text-[#37306B] hover:bg-white"
+                    }`}
                   >
-                    {expanded === a.id ? "Hide" : "Details"}
+                    {isExpanded ? "Hide" : "Details"}
                   </button>
                 </div>
                 </div>
-                {expanded === a.id && (
-                  <div className="border-t border-[#EEE7FA] bg-[#FBF9FF]/70 p-5">
-                    <div className="grid gap-4 sm:grid-cols-3">
+                {isExpanded && (
+                  <div className="px-6 pb-8 pt-2">
+                    <div className="mb-6 grid gap-6 sm:grid-cols-3">
                       <DetailItem label="Client" value={a.client} />
                       <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time}`} />
                       <DetailItem label="Duration" value={a.duration} />
@@ -1386,20 +1403,20 @@ export function AppointmentsSection() {
                       <DetailItem label="Status" value={a.status} />
                     </div>
                     {a.notes && (
-                      <div className="mt-4 rounded-[12px] border border-[#EEE7FA] bg-white p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">Notes</p>
-                        <p className="mt-1.5 text-sm text-[#3D2E6B]">{a.notes}</p>
+                      <div className="mb-6 rounded-[10px] border border-[#F0EAFB] bg-white p-4">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Notes</p>
+                        <p className="mt-2 text-sm leading-relaxed text-[#37306B]">{a.notes}</p>
                       </div>
                     )}
                     {a.status === "upcoming" && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <button className="rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#7E6BAF]">
+                      <div className="flex flex-wrap gap-3">
+                        <button className="rounded-[8px] bg-[#37306B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2A2455]">
                           Join session
                         </button>
-                        <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#F7F2FE]">
+                        <button className="rounded-[8px] border border-[#EBE8F5] bg-white px-6 py-2.5 text-sm font-medium text-[#37306B] transition-colors hover:bg-[#F9F8FF]">
                           Reschedule
                         </button>
-                        <button className="rounded-[10px] border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">
+                        <button className="rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
                           Cancel
                         </button>
                       </div>
@@ -1407,10 +1424,11 @@ export function AppointmentsSection() {
                   </div>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
-      </SectionCard>
+      </section>
     </div>
   );
 }
@@ -1418,8 +1436,8 @@ export function AppointmentsSection() {
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">{label}</p>
-      <p className="mt-1 text-sm font-medium capitalize text-[#3D2E6B]">{value}</p>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className="mt-1 text-sm font-medium capitalize text-[#37306B]">{value}</p>
     </div>
   );
 }
@@ -1434,12 +1452,12 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-[#EEE7FA] bg-gradient-to-br from-white to-[#FBF9FF] p-5 shadow-sm shadow-[#3D2E6B]/[0.03]">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+    <div className="rounded-[12px] border border-[#EBE8F5] bg-white p-6 shadow-sm">
+      <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-bold tracking-tight text-[#3D2E6B]">{value}</p>
-      {hint && <p className="mt-1 text-xs text-[#7E6BAF]">{hint}</p>}
+      <p className="text-4xl font-semibold text-[#37306B]">{value}</p>
+      {hint && <p className="mt-2 text-xs text-[#8E86B0]">{hint}</p>}
     </div>
   );
 }
