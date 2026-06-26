@@ -48,6 +48,135 @@ function seedSessionWeek(saved: WeekAvail): WeekAvail {
   return out;
 }
 
+/* ------ Default / Custom availability mini-UI for the session composer ---- */
+
+const DAY_LABEL: Record<string, string> = {
+  Mon: "Monday",
+  Tue: "Tuesday",
+  Wed: "Wednesday",
+  Thu: "Thursday",
+  Fri: "Friday",
+  Sat: "Saturday",
+  Sun: "Sunday",
+};
+
+function DefaultHoursPreview({ week }: { week: WeekAvail }) {
+  const rows = DAY_KEYS.map((k) => {
+    const d = week[k];
+    const enabled = d?.enabled && d.intervals.length > 0;
+    return { key: k, enabled, intervals: d?.intervals ?? [] };
+  });
+  return (
+    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          Your set hours
+        </span>
+        <span className="text-[11px] text-[#7E6BAF]/60">From Calendar &amp; availability</span>
+      </div>
+      <ul className="divide-y divide-[#F5F0FB]">
+        {rows.map((r) => (
+          <li key={r.key} className="flex items-center justify-between px-4 py-2">
+            <span className="text-[12px] font-semibold text-[#2D2442]">{DAY_LABEL[r.key]}</span>
+            {r.enabled ? (
+              <span className="text-[12px] tabular-nums text-[#2D2442]/80">
+                {r.intervals
+                  .map((i) => `${formatTime12(i.start)} – ${formatTime12(i.end)}`)
+                  .join(", ")}
+              </span>
+            ) : (
+              <span className="text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">Off</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function CustomHoursEditor({
+  week,
+  onChange,
+}: {
+  week: WeekAvail;
+  onChange: (w: WeekAvail) => void;
+}) {
+  const toggle = (k: string) => {
+    onChange({ ...week, [k]: { ...week[k], enabled: !week[k].enabled } });
+  };
+  const setTime = (k: string, field: "start" | "end", value: string) => {
+    const intervals = week[k].intervals.length
+      ? week[k].intervals
+      : [{ id: `${k}-1`, start: "09:00", end: "17:00" }];
+    const next = [{ ...intervals[0], [field]: value }];
+    onChange({ ...week, [k]: { ...week[k], intervals: next } });
+  };
+  return (
+    <div className="rounded-xl border border-[#7E6BAF]/10 bg-white">
+      <div className="flex items-center justify-between border-b border-[#F0EAFB] px-4 py-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          Custom hours for this session
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(seedSessionWeek(week))}
+          className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#2D2442]"
+        >
+          Reset
+        </button>
+      </div>
+      <ul className="divide-y divide-[#F5F0FB]">
+        {DAY_KEYS.map((k) => {
+          const d = week[k];
+          const first = d.intervals[0] ?? { id: `${k}-1`, start: "09:00", end: "17:00" };
+          return (
+            <li key={k} className="flex items-center gap-3 px-4 py-2">
+              <button
+                type="button"
+                onClick={() => toggle(k)}
+                className={`flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+                  d.enabled ? "bg-[#7E6BAF]" : "bg-[#E6DEF5]"
+                }`}
+                aria-label={`Toggle ${DAY_LABEL[k]}`}
+              >
+                <span
+                  className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                    d.enabled ? "translate-x-4" : "translate-x-0"
+                  }`}
+                />
+              </button>
+              <span className="w-20 text-[12px] font-semibold text-[#2D2442]">
+                {DAY_LABEL[k]}
+              </span>
+              {d.enabled ? (
+                <div className="ml-auto flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={first.start}
+                    onChange={(e) => setTime(k, "start", e.target.value)}
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                  />
+                  <span className="text-[11px] text-[#7E6BAF]/60">to</span>
+                  <input
+                    type="time"
+                    value={first.end}
+                    onChange={(e) => setTime(k, "end", e.target.value)}
+                    className="rounded-lg border border-[#7E6BAF]/15 bg-[#F0EAFB]/30 px-2 py-1 text-[12px] tabular-nums text-[#2D2442] outline-none focus:border-[#7E6BAF]"
+                  />
+                </div>
+              ) : (
+                <span className="ml-auto text-[11px] uppercase tracking-wider text-[#7E6BAF]/40">
+                  Off
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /* --------------------------------- Types --------------------------------- */
 
 export type ProviderProfile = {
