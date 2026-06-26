@@ -424,9 +424,27 @@ function ProfilePage() {
                     {displayName}
                   </p>
                   <p className="text-[11px] font-medium text-[#7E6BAF]">
-                    Lubin Member
+                    {role === "provider" ? "Lubin Provider" : "Lubin Member"}
                   </p>
                 </div>
+              </div>
+
+              {/* Role switch (dev/preview — toggles client vs provider experience) */}
+              <div className="mb-3 flex items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/70 p-1">
+                {(["client", "provider"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={`flex-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
+                      role === r
+                        ? "bg-[#7E6BAF] text-white shadow-sm"
+                        : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+                    }`}
+                  >
+                    {r === "client" ? "My space" : "Provider"}
+                  </button>
+                ))}
               </div>
 
               <div className="border-t border-[#EEE9F8]" />
