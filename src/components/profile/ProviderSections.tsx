@@ -1253,20 +1253,25 @@ export function AppointmentsSection() {
     date: string;
     month: string;
     time: string;
+    timezone: string;
     duration: string;
     type: string;
+    sessionFormat: "Individual" | "Group";
     mode: string;
     status: "upcoming" | "completed" | "cancelled";
     notes?: string;
+    amount: string;
+    paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
+    promoCode?: string;
   };
 
   const all: Appt[] = [
-    { id: "u1", client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "upcoming", notes: "Follow-up on sleep journaling exercise from last session." },
-    { id: "u2", client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", duration: "30 min", type: "Consultation", mode: "Video", status: "upcoming", notes: "Intake consultation — review intake form prior to call." },
-    { id: "u3", client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "upcoming" },
-    { id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", duration: "50 min", type: "Therapy", mode: "Video", status: "completed", notes: "Discussed boundary-setting at work. Homework: daily wins journal." },
-    { id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", duration: "50 min", type: "Therapy", mode: "In-person", status: "completed" },
-    { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", duration: "30 min", type: "Consultation", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start." },
+    { id: "u1", client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Follow-up on sleep journaling exercise from last session.", amount: "₱2,500", paymentStatus: "Paid" },
+    { id: "u2", client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Intake consultation — review intake form prior to call.", amount: "₱1,200", paymentStatus: "Paid", promoCode: "WELCOME10" },
+    { id: "u3", client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Group therapy", sessionFormat: "Group", mode: "Video", status: "upcoming", amount: "₱1,500", paymentStatus: "Pending" },
+    { id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "completed", notes: "Discussed boundary-setting at work. Homework: daily wins journal.", amount: "₱2,500", paymentStatus: "Paid" },
+    { id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed", amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20" },
+    { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
 
   const counts = {
@@ -1405,11 +1410,32 @@ export function AppointmentsSection() {
                   <div className="px-6 pb-8 pt-2">
                     <div className="mb-6 grid gap-6 sm:grid-cols-3">
                       <DetailItem label="Client" value={a.client} />
-                      <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time}`} />
+                      <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time} · ${a.timezone}`} />
                       <DetailItem label="Duration" value={a.duration} />
                       <DetailItem label="Session type" value={a.type} />
+                      <DetailItem label="Session format" value={a.sessionFormat} />
                       <DetailItem label="Mode" value={a.mode} />
                       <DetailItem label="Status" value={a.status} />
+                      <DetailItem label="Amount paid" value={a.amount} />
+                      <DetailItem
+                        label="Payment status"
+                        value={
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                              a.paymentStatus === "Paid"
+                                ? "bg-[#E6F8F1] text-[#2D8E69]"
+                                : a.paymentStatus === "Pending"
+                                ? "bg-amber-100 text-amber-700"
+                                : a.paymentStatus === "Refunded"
+                                ? "bg-[#E0D9F7] text-[#3D2E6B]"
+                                : "bg-rose-100 text-rose-700"
+                            }`}
+                          >
+                            {a.paymentStatus}
+                          </span>
+                        }
+                      />
+                      <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     {a.notes && (
                       <div className="mb-6 rounded-[10px] border border-[#F0EAFB] bg-white p-4">
