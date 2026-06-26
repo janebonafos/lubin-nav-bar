@@ -381,30 +381,29 @@ export function CalendarAvailabilitySection() {
                   day.enabled ? "hover:bg-[#F0EAFB]/20" : "bg-gray-50/40"
                 }`}
               >
-                <div className="w-32 pt-1">
-                  <label className="flex cursor-pointer items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleDay(d.key)}
-                      aria-label={`Toggle ${d.label}`}
-                      className={`relative h-6 w-11 rounded-full transition-colors ${
-                        day.enabled ? "bg-[#7E6BAF]" : "bg-gray-200"
-                      }`}
-                    >
-                      <span
-                        className={`absolute top-[2px] h-5 w-5 rounded-full border border-gray-300 bg-white shadow transition-transform ${
-                          day.enabled ? "left-[2px] translate-x-5" : "left-[2px]"
-                        }`}
-                      />
-                    </button>
+                <div className="flex w-40 shrink-0 items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleDay(d.key)}
+                    aria-label={`Toggle ${d.label}`}
+                    aria-pressed={day.enabled}
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                      day.enabled ? "bg-[#7E6BAF]" : "bg-[#E3DBF5]"
+                    }`}
+                  >
                     <span
-                      className={`font-semibold ${
-                        day.enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        day.enabled ? "translate-x-[22px]" : "translate-x-[2px]"
                       }`}
-                    >
-                      {d.label}
-                    </span>
-                  </label>
+                    />
+                  </button>
+                  <span
+                    className={`text-sm font-semibold ${
+                      day.enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                    }`}
+                  >
+                    {d.label}
+                  </span>
                 </div>
 
                 {!day.enabled ? (
@@ -414,26 +413,20 @@ export function CalendarAvailabilitySection() {
                 ) : (
                   <div className="flex-1 space-y-3">
                     {day.intervals.map((iv) => (
-                      <div key={iv.id} className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 rounded-xl border border-[#EAE7F5] bg-[#F0EAFB] px-4 py-2">
-                          <input
-                            type="time"
-                            value={iv.start}
-                            onChange={(e) =>
-                              updateInterval(d.key, iv.id, { start: e.target.value })
-                            }
-                            className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
-                          />
-                          <span className="text-[#A89BD0]">—</span>
-                          <input
-                            type="time"
-                            value={iv.end}
-                            onChange={(e) =>
-                              updateInterval(d.key, iv.id, { end: e.target.value })
-                            }
-                            className="w-[88px] bg-transparent text-sm font-medium text-[#3D2E6B] outline-none"
-                          />
-                        </div>
+                      <div key={iv.id} className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <TimePill
+                          value={iv.start}
+                          ariaLabel="Start time"
+                          onChange={(v) => updateInterval(d.key, iv.id, { start: v })}
+                        />
+                        <span className="text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
+                          to
+                        </span>
+                        <TimePill
+                          value={iv.end}
+                          ariaLabel="End time"
+                          onChange={(v) => updateInterval(d.key, iv.id, { end: v })}
+                        />
                         {day.intervals.length > 1 && (
                           <button
                             onClick={() => removeInterval(d.key, iv.id)}
