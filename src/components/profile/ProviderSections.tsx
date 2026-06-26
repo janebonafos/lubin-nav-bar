@@ -1340,9 +1340,6 @@ export function AppointmentsSection() {
 
                 {/* Client */}
                 <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#EEE7FA] to-[#DCC9F2] text-[#3D2E6B]">
-                    <User className="h-5 w-5" />
-                  </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="truncate text-sm font-semibold text-[#3D2E6B]">
