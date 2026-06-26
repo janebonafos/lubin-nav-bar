@@ -1247,6 +1247,40 @@ export default function ProviderProfileSection({
                       />
                     </div>
                   </div>
+
+                  {/* Availability */}
+                  <div className="grid grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-[13px] font-semibold text-[#2D2442]">Availability</label>
+                      <p className="mt-0.5 text-[11px] text-[#7E6BAF]/60">Weekly or custom</p>
+                    </div>
+                    <div className="col-span-2">
+                      <div className="flex rounded-xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/50 p-1">
+                        {(["weekly", "custom"] as const).map((m) => {
+                          const active = newSession.availabilityMode === m;
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => setNewSession((s) => ({ ...s, availabilityMode: m }))}
+                              className={`flex-1 rounded-lg py-2 text-[13px] font-semibold capitalize transition-all ${
+                                active
+                                  ? "bg-[#7E6BAF] text-white shadow-sm"
+                                  : "text-[#7E6BAF] hover:text-[#2D2442]"
+                              }`}
+                            >
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-2 text-[11px] leading-relaxed text-[#7E6BAF]/70">
+                        {newSession.availabilityMode === "weekly"
+                          ? "Uses your default Weekly Hours from Calendar & Availability."
+                          : "Set custom hours for this session under Calendar & Availability → Service Availability."}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Footer */}
