@@ -923,14 +923,17 @@ export default function ProviderProfileSection({
         }
       >
         {/* Primary session */}
-        <div className="rounded-2xl border border-[#E3DBF5]/60 bg-white/70 p-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
-            Primary session
-          </p>
+        <div>
+          <div className="mb-5 flex items-center gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]/60">
+              Primary session
+            </span>
+            <div className="h-px flex-1 bg-[#EEE6F7]" />
+          </div>
           {editing.sessions ? (
-            <div className="mt-3 space-y-4">
+            <div className="space-y-7 rounded-2xl border border-[#EEE6F7] bg-white/80 p-6 shadow-[0_8px_30px_rgb(126,107,175,0.05)]">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
                   Session name
                 </p>
                 <input
@@ -938,14 +941,14 @@ export default function ProviderProfileSection({
                   onChange={(e) =>
                     update("primarySession", { ...data.primarySession, name: e.target.value })
                   }
-                  className="mt-1 w-full rounded-xl border border-[#EEE9F8] bg-white px-4 py-2.5 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
+                  className="mt-2 w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 px-5 py-3.5 text-[14.5px] text-[#3D2E6B] outline-none transition-all focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
                 />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
                   Length
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2">
                   {[30, 50, 60, 90].map((m) => (
                     <Pill
                       key={m}
@@ -960,11 +963,11 @@ export default function ProviderProfileSection({
                 </div>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
                   Rate
                 </p>
-                <div className="relative mt-1 max-w-xs">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#7E6BAF]">
+                <div className="relative mt-2 max-w-xs">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-[#7E6BAF]">
                     {currency.symbol}
                   </span>
                   <input
@@ -976,47 +979,50 @@ export default function ProviderProfileSection({
                         rate: Number(e.target.value.replace(/\D/g, "")) || 0,
                       })
                     }
-                    className="w-full rounded-xl border border-[#EEE9F8] bg-white px-4 py-2.5 pl-8 pr-16 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
+                    className="w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 py-4 pl-10 pr-16 text-[16px] font-semibold text-[#3D2E6B] outline-none transition-all focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-[#A89BD0]">
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-widest text-[#7E6BAF]/50">
                     {currency.code}
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="mt-3 flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-2xl border border-[#EEE6F7] bg-white/80 p-6">
               <div>
-                <p className="text-[15px] font-semibold text-[#3D2E6B]">{data.primarySession.name}</p>
-                <p className="mt-0.5 text-[12.5px] text-[#7E6BAF]">
+                <p className="text-[16px] font-semibold text-[#3D2E6B]">{data.primarySession.name}</p>
+                <p className="mt-1 text-[12.5px] text-[#7E6BAF]">
                   {data.primarySession.lengthMin} min · Video session
                 </p>
               </div>
-              <p className="text-[15px] font-bold text-[#3D2E6B]">{fmtPrice(data.primarySession.rate)}</p>
+              <p className="text-[18px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(data.primarySession.rate)}</p>
             </div>
           )}
         </div>
 
         {/* Additional sessions */}
-        <div className="mt-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
-            Additional sessions
-          </p>
-          <div className="mt-3 space-y-3">
+        <div className="mt-8 border-t border-[#EEE6F7] pt-6">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]/60">
+              Additional sessions
+            </span>
+            <div className="h-px flex-1 bg-[#EEE6F7]" />
+          </div>
+          <div className="space-y-3">
             {data.extraSessions.length === 0 && !showAddSession && (
-              <p className="text-[13px] italic text-[#A89BD0]">No additional sessions yet.</p>
+              <p className="text-[12.5px] italic text-[#A89BD0]">No additional sessions yet.</p>
             )}
             {data.extraSessions.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-xl border border-[#E3DBF5]/70 bg-white/80 px-4 py-3"
+                className="flex items-center justify-between rounded-2xl border border-[#EEE6F7] bg-white/80 px-5 py-4"
               >
                 <div>
                   <p className="text-[14px] font-semibold text-[#3D2E6B]">{s.name}</p>
-                  <p className="text-[12px] text-[#7E6BAF]">{s.lengthMin} min</p>
+                  <p className="mt-0.5 text-[12px] text-[#7E6BAF]">{s.lengthMin} min</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="text-[14px] font-bold text-[#3D2E6B]">{fmtPrice(s.rate)}</p>
+                  <p className="text-[15px] font-bold tracking-tight text-[#3D2E6B]">{fmtPrice(s.rate)}</p>
                   {editing.sessions && (
                     <button
                       type="button"
@@ -1039,19 +1045,22 @@ export default function ProviderProfileSection({
               <button
                 type="button"
                 onClick={() => setShowAddSession(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#7E6BAF]/40 px-4 py-2 text-[12.5px] font-semibold text-[#7E6BAF] hover:border-[#7E6BAF] hover:bg-[#7E6BAF]/5"
+                className="group flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#EEE6F7] py-4 text-[13px] font-semibold text-[#7E6BAF] transition-all hover:border-[#7E6BAF]/40 hover:bg-[#F0EAFB]/30"
               >
-                <Plus className="h-3.5 w-3.5" /> Add another session
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F0EAFB] transition-all group-hover:bg-[#7E6BAF] group-hover:text-white">
+                  <Plus className="h-4 w-4" />
+                </span>
+                Add another session
               </button>
             )}
 
             {editing.sessions && showAddSession && (
-              <div className="space-y-3 rounded-2xl border border-[#E3DBF5]/60 bg-white/80 p-4">
+              <div className="space-y-4 rounded-2xl border border-[#EEE6F7] bg-white/80 p-5">
                 <input
                   value={newSession.name}
                   onChange={(e) => setNewSession((s) => ({ ...s, name: e.target.value }))}
                   placeholder="Session name (e.g. Quick check-in)"
-                  className="w-full rounded-xl border border-[#EEE9F8] bg-white px-4 py-2.5 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
+                  className="w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 px-5 py-3.5 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
                 />
                 <div className="flex flex-wrap gap-2">
                   {[30, 50, 60, 90].map((m) => (
@@ -1065,7 +1074,7 @@ export default function ProviderProfileSection({
                   ))}
                 </div>
                 <div className="relative max-w-xs">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#7E6BAF]">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-[#7E6BAF]">
                     {currency.symbol}
                   </span>
                   <input
@@ -1075,9 +1084,9 @@ export default function ProviderProfileSection({
                       setNewSession((s) => ({ ...s, rate: e.target.value.replace(/\D/g, "") }))
                     }
                     placeholder="Rate"
-                    className="w-full rounded-xl border border-[#EEE9F8] bg-white px-4 py-2.5 pl-8 pr-16 text-[14px] text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
+                    className="w-full rounded-2xl border border-[#EEE6F7] bg-[#F0EAFB]/30 py-3.5 pl-10 pr-16 text-[15px] font-semibold text-[#3D2E6B] outline-none focus:border-[#7E6BAF] focus:ring-4 focus:ring-[#7E6BAF]/10"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-[#A89BD0]">
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-widest text-[#7E6BAF]/50">
                     {currency.code}
                   </span>
                 </div>
