@@ -673,7 +673,7 @@ function ProfilePage() {
                 </Card>
 
                 {/* Daily mood check-in status */}
-                <DailyMoodCard
+                {role === "client" && <DailyMoodCard
                   loggedToday={passportData.checkins.some(
                     (c) => new Date(c.date).toDateString() === new Date().toDateString(),
                   )}
@@ -682,7 +682,7 @@ function ProfilePage() {
                   onOpen={() => setCheckInActive(true)}
                   onClose={() => setCheckInActive(false)}
                   onSave={handleSaveCheckIn}
-                />
+                />}
 
                 {/* Connected accounts */}
                 <Card title="Connected Accounts">
