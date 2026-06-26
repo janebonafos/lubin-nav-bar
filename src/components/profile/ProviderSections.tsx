@@ -123,7 +123,7 @@ function TimePill({
         aria-invalid={hasError || undefined}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
-        className={`inline-flex min-w-[112px] items-center justify-between gap-3 rounded-xl border bg-white px-3.5 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
+        className={`inline-flex min-w-[96px] shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl border bg-white px-3 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
           hasError
             ? "border-red-300 ring-4 ring-red-200/40"
             : open
@@ -409,8 +409,8 @@ function WeekGridView({
                         hasErr
                           ? "z-10 border-red-300 bg-red-100/90 text-red-700"
                           : isActive
-                            ? "z-30 border-[#3D2E6B]/40 bg-[#3D2E6B] text-white shadow-xl ring-4 ring-[#3D2E6B]/15"
-                            : "z-10 border-white/10 bg-[#7E6BAF] text-white hover:z-20 hover:shadow-lg"
+                            ? "z-30 border-[#7E6BAF]/40 bg-[#7E6BAF] text-white shadow-xl ring-4 ring-[#7E6BAF]/20"
+                            : "z-10 border-white/40 bg-[#C9BEE4] text-[#3D2E6B] hover:z-20 hover:bg-[#BDB0DC] hover:shadow-md"
                       }`}
                       style={{
                         top: `${top}%`,
@@ -429,7 +429,7 @@ function WeekGridView({
                       {isActive && (
                         <div
                           onClick={(ev) => ev.stopPropagation()}
-                          className={`absolute left-1/2 z-50 w-[210px] -translate-x-1/2 rounded-2xl border border-[#E3DBF5] bg-white p-3 text-left text-[#3D2E6B] shadow-[0_20px_45px_-12px_rgba(61,46,107,0.35)] ${
+                          className={`absolute left-1/2 z-50 w-[260px] -translate-x-1/2 rounded-2xl border border-[#E3DBF5] bg-white p-3 text-left text-[#3D2E6B] shadow-[0_20px_45px_-12px_rgba(61,46,107,0.35)] ${
                             placeBelow ? "top-[calc(100%+10px)]" : "bottom-[calc(100%+10px)]"
                           }`}
                         >
@@ -449,7 +449,7 @@ function WeekGridView({
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex flex-nowrap items-center gap-2">
                             <TimePill
                               value={iv.start}
                               ariaLabel="Start time"
