@@ -1448,12 +1448,22 @@ export function AppointmentsSection() {
                         <button className="rounded-[8px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B]">
                           Join session
                         </button>
-                        <button className="rounded-[8px] border border-[#EAE7F5] bg-white px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#FBF9FF]">
+                        <a
+                          href={`/appointment/reschedule?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&mode=${encodeURIComponent(a.mode)}&timezone=${encodeURIComponent(a.timezone)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-[8px] border border-[#EAE7F5] bg-white px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#FBF9FF]"
+                        >
                           Reschedule
-                        </button>
-                        <button className="rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                        </a>
+                        <a
+                          href={`/appointment/cancel?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&amount=${encodeURIComponent(a.amount)}&paymentStatus=${encodeURIComponent(a.paymentStatus)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                        >
                           Cancel
-                        </button>
+                        </a>
                       </div>
                     )}
                   </div>
