@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -77,6 +77,102 @@ function GoogleGlyph({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <path fill="currentColor" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.06-1.1-.16-1.6H12z" />
     </svg>
+  );
+}
+
+// Generate 30-min slot options for the whole day (00:00 .. 23:30)
+const TIME_SLOTS: string[] = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? "00" : "30";
+  return `${String(h).padStart(2, "0")}:${m}`;
+});
+
+function formatTimeLabel(value: string): string {
+  const [hStr, mStr] = value.split(":");
+  const h = Number(hStr);
+  const m = mStr ?? "00";
+  const period = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${String(hour12).padStart(2, "0")}:${m} ${period}`;
+}
+
+function TimeSelect({
+  value,
+  onChange,
+  label,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <span className="block text-[12px] font-medium text-[#5E4A8C]">{label}</span>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`mt-1 flex w-full items-center justify-between rounded-xl border-2 bg-white px-4 py-2.5 text-sm font-medium text-[#2D1B4E] transition-all ${
+          open
+            ? "border-[#7E6BAF] shadow-sm ring-4 ring-[#7E6BAF]/10"
+            : "border-[#E3DBF5] hover:border-[#A89BD0]"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-[#7E6BAF]" />
+          {formatTimeLabel(value)}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 text-[#7E6BAF] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-[#F0EAFB] bg-white py-1.5 shadow-[0_20px_40px_-12px_rgba(126,107,175,0.35)]"
+          role="listbox"
+        >
+          <div
+            className="max-h-56 overflow-y-auto px-1.5"
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#D6CBED transparent" }}
+            ref={(el) => {
+              if (el) {
+                const active = el.querySelector<HTMLElement>("[data-active='true']");
+                if (active) {
+                  el.scrollTop = active.offsetTop - 8;
+                }
+              }
+            }}
+          >
+            {TIME_SLOTS.map((slot) => {
+              const active = slot === value;
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  data-active={active}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    onChange(slot);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
+                    active
+                      ? "bg-[#F0EAFB] font-semibold text-[#3D2E6B]"
+                      : "text-[#5E4A8C] hover:bg-[#F7F2FC] hover:text-[#3D2E6B]"
+                  }`}
+                >
+                  <span>{formatTimeLabel(slot)}</span>
+                  {active && <Check className="h-3.5 w-3.5 text-[#7E6BAF]" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -606,13 +702,13 @@ function ProviderOnboardingPage() {
 
                 {/* Weekly availability — appears after calendar connects */}
                 {calendarChoice === "connected" && (
-                  <div className="rounded-2xl border border-[#E3DBF5] bg-white/70 p-5">
+                  <div className="rounded-3xl border border-[#E8E1F5] bg-white p-6 shadow-[0_8px_30px_-12px_rgba(126,107,175,0.18)]">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-[15px] font-semibold text-[#2D1B4E]">
+                        <h3 className="text-[17px] font-semibold tracking-tight text-[#2D1B4E]">
                           Set your weekly availability
                         </h3>
-                        <p className="mt-1 text-[13px] leading-relaxed text-[#7E6BAF]">
+                        <p className="mt-1 max-w-lg text-[13px] leading-relaxed text-[#7E6BAF]">
                           Lubin overlays this with your Google Calendar busy times. Clients
                           only see openings that fall inside these hours.
                         </p>
@@ -621,7 +717,7 @@ function ProviderOnboardingPage() {
                         <button
                           type="button"
                           onClick={() => setAvailabilitySkipped(true)}
-                          className="shrink-0 text-[12px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                          className="shrink-0 text-[13px] font-semibold text-[#7E6BAF] underline-offset-2 hover:text-[#3D2E6B] hover:underline"
                         >
                           Set up later
                         </button>
@@ -629,7 +725,7 @@ function ProviderOnboardingPage() {
                     </div>
 
                     {availabilitySkipped ? (
-                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F7F2FC] px-3 py-2 text-[12px] text-[#5E4A8C]">
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F7F2FC] px-4 py-3 text-[12px] text-[#5E4A8C]">
                         <span>
                           Skipped for now — you can set this up from your dashboard
                           anytime.
@@ -643,12 +739,12 @@ function ProviderOnboardingPage() {
                         </button>
                       </div>
                     ) : (
-                      <div className="mt-4 space-y-4">
+                      <div className="mt-6 space-y-6">
                         <div>
-                          <p className="text-[12px] font-medium text-[#5E4A8C]">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-[#3D2E6B]/50">
                             Available days
                           </p>
-                          <div className="mt-2 flex flex-wrap gap-1.5">
+                          <div className="mt-3 flex flex-wrap gap-2">
                             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => {
                               const active = availabilityDays.includes(d);
                               return (
@@ -660,10 +756,10 @@ function ProviderOnboardingPage() {
                                       active ? prev.filter((x) => x !== d) : [...prev, d],
                                     )
                                   }
-                                  className={`h-9 w-11 rounded-lg border text-[12px] font-medium transition-all ${
+                                  className={`min-w-[58px] rounded-full px-4 py-2 text-[13px] font-semibold transition-all ${
                                     active
-                                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                                      : "border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#A89BD0]"
+                                      ? "bg-[#7E6BAF] text-white shadow-md shadow-[#7E6BAF]/25"
+                                      : "border border-[#E3DBF5] bg-white text-[#7E6BAF] hover:border-[#7E6BAF] hover:text-[#3D2E6B]"
                                   }`}
                                 >
                                   {d}
@@ -673,35 +769,28 @@ function ProviderOnboardingPage() {
                           </div>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <label className="block">
-                            <span className="text-[12px] font-medium text-[#5E4A8C]">
-                              Start time
-                            </span>
-                            <input
-                              type="time"
-                              value={availabilityStart}
-                              onChange={(e) => setAvailabilityStart(e.target.value)}
-                              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm text-[#2D1B4E] focus:border-[#7E6BAF] focus:outline-none"
-                            />
-                          </label>
-                          <label className="block">
-                            <span className="text-[12px] font-medium text-[#5E4A8C]">
-                              End time
-                            </span>
-                            <input
-                              type="time"
-                              value={availabilityEnd}
-                              onChange={(e) => setAvailabilityEnd(e.target.value)}
-                              className="mt-1 w-full rounded-lg border border-[#E3DBF5] bg-white px-3 py-2 text-sm text-[#2D1B4E] focus:border-[#7E6BAF] focus:outline-none"
-                            />
-                          </label>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <TimeSelect
+                            label="Start time"
+                            value={availabilityStart}
+                            onChange={setAvailabilityStart}
+                          />
+                          <TimeSelect
+                            label="End time"
+                            value={availabilityEnd}
+                            onChange={setAvailabilityEnd}
+                          />
                         </div>
 
-                        <p className="text-[11px] leading-relaxed text-[#A89BD0]">
-                          You can fine-tune per-day hours and add breaks from your
-                          dashboard later.
-                        </p>
+                        <div className="flex items-start gap-2.5 rounded-xl border border-[#F0EAFB] bg-[#F7F2FC]/60 px-4 py-3">
+                          <div className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-[#F0EAFB] text-[#7E6BAF]">
+                            <Clock className="h-3 w-3" />
+                          </div>
+                          <p className="text-[12px] leading-relaxed text-[#5E4A8C]">
+                            You can fine-tune per-day hours and add breaks from your
+                            dashboard later.
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
