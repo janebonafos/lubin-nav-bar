@@ -905,128 +905,129 @@ export function CalendarAvailabilitySection() {
       {/* Holidays & Service Alignment */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
-        <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
-              <CalendarOff className="h-4 w-4" />
-              Holidays & Time Off
-            </h3>
-          <div className="space-y-3">
-              {holidays.length === 0 ? (
+        <section className="flex flex-col rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-[0_4px_20px_-4px_rgba(126,107,175,0.1)]">
+          <div className="mb-6 flex items-center gap-3 text-[#3D2E6B]">
+            <div className="rounded-xl bg-[#F0EAFB] p-2">
+              <CalendarOff className="h-5 w-5 text-[#7E6BAF]" />
+            </div>
+            <h2 className="text-lg font-bold tracking-tight">Holidays & Time Off</h2>
+          </div>
+
+          <div className="mb-6 max-h-48 space-y-3 overflow-y-auto pr-1">
+            {holidays.length === 0 ? (
               <p className="text-xs italic text-[#A89BD0]">No days off added yet.</p>
-              ) : (
-                holidays.map((h) => (
+            ) : (
+              holidays.map((h) => (
                 <div
                   key={h.id}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-[#F0EAFB]/40 px-3 py-2"
+                  className="group flex items-center justify-between rounded-xl border border-[#EAE7F5] bg-white p-3.5 transition-all hover:border-[#7E6BAF]/40"
                 >
-                  <span className="truncate text-xs font-medium text-[#3D2E6B]">
-                      {h.label}
+                  <span className="truncate text-sm font-semibold text-[#3D2E6B]">
+                    {h.label || "Time off"}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-lg border border-[#EAE7F5] bg-[#F0EAFB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
+                      {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </span>
-                    <div className="flex items-center gap-2">
-                    <span className="rounded-[10px] bg-white px-2 py-0.5 text-[10px] font-semibold text-[#7E6BAF]">
-                        {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                      <button
-                        onClick={() => removeHoliday(h.id)}
-                        className="text-[#A89BD0] hover:text-red-500"
-                        aria-label="Remove"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => removeHoliday(h.id)}
+                      className="p-1 text-[#A89BD0] opacity-0 transition-colors hover:text-red-400 group-hover:opacity-100"
+                      aria-label="Remove"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
-                ))
-              )}
-
-            <div className="space-y-2 border-t border-[#F0EAFB] pt-3">
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    type="date"
-                    value={newHoliday.date}
-                    onChange={(e) =>
-                      setNewHoliday((p) => ({ ...p, date: e.target.value }))
-                    }
-                  className="rounded-xl border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Reason (optional)"
-                    value={newHoliday.label}
-                    onChange={(e) =>
-                      setNewHoliday((p) => ({ ...p, label: e.target.value }))
-                    }
-                  className="min-w-0 flex-1 rounded-xl border border-[#EAE7F5] bg-white px-2 py-1.5 text-xs font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
-                  />
                 </div>
-                <button
-                  onClick={addHoliday}
-                  disabled={!newHoliday.date}
-                className="w-full rounded-xl border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                + Add date
-                </button>
-                {holidayError && (
-                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
-                    <AlertTriangle className="h-3 w-3" /> {holidayError}
-                  </p>
-                )}
-              </div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-auto space-y-3 rounded-xl border border-dashed border-[#A89BD0]/50 bg-[#F0EAFB]/50 p-4">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                value={newHoliday.date}
+                onChange={(e) => setNewHoliday((p) => ({ ...p, date: e.target.value }))}
+                className="w-full rounded-xl border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] transition-all placeholder:text-[#A89BD0] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+              />
+              <input
+                type="text"
+                placeholder="Reason (optional)"
+                value={newHoliday.label}
+                onChange={(e) => setNewHoliday((p) => ({ ...p, label: e.target.value }))}
+                className="w-full rounded-xl border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] transition-all placeholder:text-[#A89BD0] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+              />
             </div>
+            <button
+              onClick={addHoliday}
+              disabled={!newHoliday.date}
+              className="w-full rounded-xl border border-[#EAE7F5] bg-white py-2.5 text-xs font-bold uppercase tracking-widest text-[#7E6BAF] transition-all hover:bg-[#7E6BAF] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#7E6BAF]"
+            >
+              + Add date
+            </button>
+            {holidayError && (
+              <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                <AlertTriangle className="h-3 w-3" /> {holidayError}
+              </p>
+            )}
+          </div>
         </section>
 
-          {/* Service Availability */}
-        <section className="rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
-              <Video className="h-4 w-4" />
-              Service Availability
-            </h3>
-          <div className="space-y-3">
-              {services.map((s) => {
-                const mode = serviceMode[s.id] ?? "weekly";
-                return (
-                  <div key={s.id} className="space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                      <p className="truncate text-xs font-medium text-[#3D2E6B]">
-                          {s.name}
-                        </p>
-                      <p className="text-[10px] text-[#7E6BAF]">
-                          {s.length} · {s.price}
-                        </p>
-                      </div>
-                      <div className="inline-flex rounded-[10px] border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
-                        {(["weekly", "custom"] as const).map((m) => (
-                          <button
-                            key={m}
-                            onClick={() =>
-                              setServiceMode((p) => ({ ...p, [s.id]: m }))
-                            }
-                            className={`rounded-[10px] px-2.5 py-0.5 text-[10px] font-bold transition ${
-                              mode === m
-                                ? "bg-[#7E6BAF] text-white shadow-sm"
-                                : "text-[#7E6BAF] hover:text-[#3D2E6B]"
-                            }`}
-                          >
-                            {m === "weekly" ? "Weekly" : "Custom"}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    {mode === "custom" && (
-                    <div className="rounded-xl border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
-                        Custom hours for this service will appear here.
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            <button className="w-full rounded-xl border border-dashed border-[#7E6BAF]/30 py-2 text-[11px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]">
-                Configure Services
-              </button>
+        {/* Service Availability */}
+        <section className="flex flex-col rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-[0_4px_20px_-4px_rgba(126,107,175,0.1)]">
+          <div className="mb-6 flex items-center gap-3 text-[#3D2E6B]">
+            <div className="rounded-xl bg-[#F0EAFB] p-2">
+              <Video className="h-5 w-5 text-[#7E6BAF]" />
             </div>
+            <h2 className="text-lg font-bold tracking-tight">Service Availability</h2>
+          </div>
+
+          <div className="space-y-6">
+            {services.map((s) => {
+              const mode = serviceMode[s.id] ?? "weekly";
+              return (
+                <div key={s.id} className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-bold text-[#3D2E6B]">{s.name}</h3>
+                      <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
+                        {s.length} · {s.price}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 rounded-xl border border-[#EAE7F5] bg-[#F0EAFB] p-1">
+                      {(["weekly", "custom"] as const).map((m) => (
+                        <button
+                          key={m}
+                          onClick={() => setServiceMode((p) => ({ ...p, [s.id]: m }))}
+                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition ${
+                            mode === m
+                              ? "bg-[#3D2E6B] text-white shadow-sm"
+                              : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                          }`}
+                        >
+                          {m === "weekly" ? "Weekly" : "Custom"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {mode === "custom" && (
+                    <div className="rounded-xl border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
+                      Custom hours for this service will appear here.
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-auto pt-8">
+            <button className="w-full rounded-xl border-2 border-dashed border-[#EAE7F5] bg-[#3D2E6B]/5 py-3.5 text-xs font-bold uppercase tracking-widest text-[#3D2E6B] transition-all hover:border-[#7E6BAF]/50">
+              Configure Services
+            </button>
+          </div>
         </section>
         </div>
 
