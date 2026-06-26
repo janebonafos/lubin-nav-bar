@@ -200,6 +200,61 @@ function genId() {
   return Math.random().toString(36).slice(2, 9);
 }
 
+function toMinutes(t: string) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+type IntervalErrors = Record<string, string>;
+type DayErrors = { intervals: IntervalErrors; day?: string };
+type WeekErrors = Record<string, DayErrors>;
+
+function validateWeek(week: WeekAvail): { errors: WeekErrors; count: number } {
+  const errors: WeekErrors = {};
+  let count = 0;
+  for (const key of Object.keys(week)) {
+    const day = week[key];
+    const ivErrs: IntervalErrors = {};
+    let dayErr: string | undefined;
+    if (day.enabled) {
+      if (day.intervals.length === 0) {
+        dayErr = "Add at least one time interval or turn this day off.";
+        count++;
+      }
+      // per-interval checks
+      const sorted = [...day.intervals].sort(
+        (a, b) => toMinutes(a.start) - toMinutes(b.start),
+      );
+      for (const iv of day.intervals) {
+        if (toMinutes(iv.end) <= toMinutes(iv.start)) {
+          ivErrs[iv.id] = "End time must be after start time.";
+          count++;
+        }
+      }
+      // overlaps
+      for (let i = 1; i < sorted.length; i++) {
+        const prev = sorted[i - 1];
+        const cur = sorted[i];
+        if (toMinutes(cur.start) < toMinutes(prev.end)) {
+          if (!ivErrs[cur.id]) {
+            ivErrs[cur.id] = "This interval overlaps another on the same day.";
+            count++;
+          }
+        }
+      }
+    }
+    errors[key] = { intervals: ivErrs, day: dayErr };
+  }
+  return { errors, count };
+}
+
+function isPastDate(iso: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(iso + "T00:00:00");
+  return d.getTime() < today.getTime();
+}
+
 export function CalendarAvailabilitySection() {
   // calendar connection
   const [provider, setProvider] = useState<CalendarProvider | null>("google");
