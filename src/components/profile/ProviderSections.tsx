@@ -541,6 +541,52 @@ export function CalendarAvailabilitySection() {
     s2: "weekly",
   });
 
+  // per-service custom weekly hours (independent of the main Weekly Hours)
+  const makeEmptyServiceWeek = (): WeekAvail =>
+    DAYS.reduce((acc, d) => {
+      acc[d.key] = { enabled: false, intervals: [] };
+      return acc;
+    }, {} as WeekAvail);
+  const [serviceHours, setServiceHours] = useState<Record<string, WeekAvail>>({
+    s1: makeEmptyServiceWeek(),
+    s2: makeEmptyServiceWeek(),
+  });
+  const toggleServiceDay = (sid: string, key: string) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? makeEmptyServiceWeek();
+      const day = cur[key];
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: day.enabled
+            ? { enabled: false, intervals: [] }
+            : { enabled: true, intervals: [{ ...DEFAULT_INTERVAL, id: genId() }] },
+        },
+      };
+    });
+  const updateServiceInterval = (
+    sid: string,
+    key: string,
+    iid: string,
+    patch: Partial<Interval>,
+  ) =>
+    setServiceHours((p) => {
+      const cur = p[sid] ?? makeEmptyServiceWeek();
+      return {
+        ...p,
+        [sid]: {
+          ...cur,
+          [key]: {
+            ...cur[key],
+            intervals: cur[key].intervals.map((it) =>
+              it.id === iid ? { ...it, ...patch } : it,
+            ),
+          },
+        },
+      };
+    });
+
   // Weekly hours view + save state
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [saved, setSaved] = useState(false);
@@ -1009,11 +1055,65 @@ export function CalendarAvailabilitySection() {
                       ))}
                     </div>
                   </div>
-                  {mode === "custom" && (
-                    <div className="rounded-xl border border-dashed border-[#EFEBF8] bg-[#F5F1FC]/40 p-2 text-[11px] font-medium text-[#8A7AB8]">
-                      Custom hours for this service will appear here.
-                    </div>
-                  )}
+                  {mode === "custom" && (() => {
+                    const sw = serviceHours[s.id] ?? makeEmptyServiceWeek();
+                    return (
+                      <div className="space-y-1.5 rounded-xl border border-dashed border-[#E3DBF5] bg-[#FBF9FE] p-3">
+                        {DAYS.map((d) => {
+                          const day = sw[d.key];
+                          const interval = day?.intervals[0];
+                          return (
+                            <div
+                              key={d.key}
+                              className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 hover:bg-white/60"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => toggleServiceDay(s.id, d.key)}
+                                className="flex items-center gap-2.5 text-left"
+                              >
+                                <span
+                                  className={`relative h-4 w-7 rounded-full transition ${
+                                    day?.enabled ? "bg-[#A89BD0]" : "bg-[#E3DBF5]"
+                                  }`}
+                                >
+                                  <span
+                                    className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
+                                      day?.enabled ? "left-3.5" : "left-0.5"
+                                    }`}
+                                  />
+                                </span>
+                                <span className="w-10 text-xs font-semibold text-[#5B4B8A]">
+                                  {d.key}
+                                </span>
+                              </button>
+                              {day?.enabled && interval ? (
+                                <div className="flex items-center gap-2">
+                                  <TimePill
+                                    value={interval.start}
+                                    onChange={(v) =>
+                                      updateServiceInterval(s.id, d.key, interval.id, { start: v })
+                                    }
+                                    ariaLabel={`${d.label} start`}
+                                  />
+                                  <span className="text-[11px] text-[#B5A9D6]">to</span>
+                                  <TimePill
+                                    value={interval.end}
+                                    onChange={(v) =>
+                                      updateServiceInterval(s.id, d.key, interval.id, { end: v })
+                                    }
+                                    ariaLabel={`${d.label} end`}
+                                  />
+                                </div>
+                              ) : (
+                                <span className="text-[11px] font-medium text-[#B5A9D6]">Unavailable</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })}
