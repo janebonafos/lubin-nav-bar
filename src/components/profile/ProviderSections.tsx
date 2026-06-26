@@ -123,7 +123,7 @@ function TimePill({
         aria-invalid={hasError || undefined}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
-        className={`inline-flex min-w-[96px] shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl border bg-white px-3 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
+        className={`inline-flex w-[112px] shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl border bg-white px-3 py-2 text-sm font-semibold tabular-nums text-[#3D2E6B] transition-all ${
           hasError
             ? "border-red-300 ring-4 ring-red-200/40"
             : open
