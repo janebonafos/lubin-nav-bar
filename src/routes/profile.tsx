@@ -20,6 +20,10 @@ import {
   Plus,
   Share2,
   AlertCircle,
+  CalendarDays,
+  CalendarClock,
+  Wallet,
+  ShieldCheck,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
@@ -31,6 +35,12 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
+import {
+  CalendarAvailabilitySection,
+  AppointmentsSection,
+  PaymentsPayoutsSection,
+  VerificationSection,
+} from "@/components/profile/ProviderSections";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -66,7 +76,17 @@ const DEFAULT_PROFILE: Profile = {
   avatar: null,
 };
 
-type Section = "profile" | "provider" | "passport" | "discovery" | "chat" | "share";
+type Section =
+  | "profile"
+  | "provider"
+  | "calendar"
+  | "appointments"
+  | "payments"
+  | "verification"
+  | "passport"
+  | "discovery"
+  | "chat"
+  | "share";
 type Role = "client" | "provider";
 
 type ChatThreadMeta = { id: string; title: string; updatedAt: number };
@@ -94,10 +114,21 @@ function ProfilePage() {
       window.localStorage.setItem("lubin.role", role);
     } catch { /* ignore */ }
     // When switching to provider mode, if a client-only tab is active, jump to profile.
-    if (role === "provider" && activeSection !== "provider" && activeSection !== "chat") {
+    const providerSections: Section[] = [
+      "provider",
+      "calendar",
+      "appointments",
+      "payments",
+      "verification",
+      "chat",
+    ];
+    if (role === "provider" && !providerSections.includes(activeSection)) {
       setActiveSection("provider");
     }
-    if (role === "client" && activeSection === "provider") {
+    if (
+      role === "client" &&
+      ["provider", "calendar", "appointments", "payments", "verification"].includes(activeSection)
+    ) {
       setActiveSection("profile");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -320,6 +351,10 @@ function ProfilePage() {
     role === "provider"
       ? [
           { key: "provider", label: "Provider Profile", icon: <ClipboardList className="h-5 w-5" /> },
+          { key: "calendar", label: "Calendar & Availability", icon: <CalendarDays className="h-5 w-5" /> },
+          { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
+          { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
+          { key: "verification", label: "Verification", icon: <ShieldCheck className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
         ]
       : [
@@ -338,6 +373,22 @@ function ProfilePage() {
     provider: {
       title: "Provider Profile",
       subtitle: "How clients discover and book sessions with you",
+    },
+    calendar: {
+      title: "Calendar & Availability",
+      subtitle: "Connect your calendar and set the hours clients can book",
+    },
+    appointments: {
+      title: "Appointments",
+      subtitle: "Upcoming sessions, requests, and past bookings",
+    },
+    payments: {
+      title: "Payments & Payouts",
+      subtitle: "Track earnings and manage where your payouts land",
+    },
+    verification: {
+      title: "Verification",
+      subtitle: "Verify your credentials to unlock a verified badge",
     },
     passport: {
       title: "Health Passport",
@@ -802,6 +853,22 @@ function ProfilePage() {
             {activeSection === "provider" && role === "provider" && (
               <ProviderProfileSection fullName={profile.fullName} />
             )}
+
+    {activeSection === "calendar" && role === "provider" && (
+      <CalendarAvailabilitySection />
+    )}
+
+    {activeSection === "appointments" && role === "provider" && (
+      <AppointmentsSection />
+    )}
+
+    {activeSection === "payments" && role === "provider" && (
+      <PaymentsPayoutsSection />
+    )}
+
+    {activeSection === "verification" && role === "provider" && (
+      <VerificationSection />
+    )}
 
             {activeSection === "discovery" && (
               <Progress
