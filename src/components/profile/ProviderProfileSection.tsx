@@ -17,6 +17,36 @@ import {
   Languages as LanguagesIcon,
 } from "lucide-react";
 import { useAvailabilityStore, formatTime12, DAY_KEYS } from "@/lib/availability-store";
+import type { WeekAvail } from "@/lib/availability-store";
+
+/* ------ Helpers: default + seed week for the Custom availability editor --- */
+
+const DEFAULT_SESSION_WEEK: WeekAvail = {
+  Mon: { enabled: true, intervals: [{ id: "m1", start: "09:00", end: "17:00" }] },
+  Tue: { enabled: true, intervals: [{ id: "t1", start: "09:00", end: "17:00" }] },
+  Wed: { enabled: true, intervals: [{ id: "w1", start: "09:00", end: "17:00" }] },
+  Thu: { enabled: true, intervals: [{ id: "th1", start: "09:00", end: "17:00" }] },
+  Fri: { enabled: true, intervals: [{ id: "f1", start: "09:00", end: "17:00" }] },
+  Sat: { enabled: false, intervals: [] },
+  Sun: { enabled: false, intervals: [] },
+};
+
+function seedSessionWeek(saved: WeekAvail): WeekAvail {
+  const hasAny = Object.values(saved).some((d) => d.enabled && d.intervals.length);
+  const base = hasAny ? saved : DEFAULT_SESSION_WEEK;
+  const out: WeekAvail = {} as WeekAvail;
+  for (const k of DAY_KEYS) {
+    const d = base[k];
+    const first = d?.intervals?.[0];
+    out[k] = {
+      enabled: !!d?.enabled && !!first,
+      intervals: first
+        ? [{ id: `${k}-1`, start: first.start, end: first.end }]
+        : [{ id: `${k}-1`, start: "09:00", end: "17:00" }],
+    };
+  }
+  return out;
+}
 
 /* --------------------------------- Types --------------------------------- */
 
