@@ -1352,7 +1352,8 @@ export default function ProviderProfileSection({
                           sessionType: "individual",
                           minParticipants: "3",
                           maxParticipants: "8",
-                          availabilityMode: "weekly",
+                          availabilityMode: "default",
+                          customWeek: seedSessionWeek(savedWeek),
                         });
                       }}
                       className="rounded-xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
