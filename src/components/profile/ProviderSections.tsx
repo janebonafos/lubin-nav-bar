@@ -541,19 +541,21 @@ export function CalendarAvailabilitySection() {
     s2: "weekly",
   });
 
-  // per-service custom weekly hours (independent of the main Weekly Hours)
-  const makeEmptyServiceWeek = (): WeekAvail =>
+  // per-service custom weekly hours (seeded from main Weekly Hours when user
+  // first switches a service to Custom — so they never have to re-enter times).
+  const cloneWeek = (w: WeekAvail): WeekAvail =>
     DAYS.reduce((acc, d) => {
-      acc[d.key] = { enabled: false, intervals: [] };
+      const day = w[d.key];
+      acc[d.key] = {
+        enabled: day.enabled,
+        intervals: day.intervals.map((i) => ({ ...i, id: genId() })),
+      };
       return acc;
     }, {} as WeekAvail);
-  const [serviceHours, setServiceHours] = useState<Record<string, WeekAvail>>({
-    s1: makeEmptyServiceWeek(),
-    s2: makeEmptyServiceWeek(),
-  });
+  const [serviceHours, setServiceHours] = useState<Record<string, WeekAvail>>({});
   const toggleServiceDay = (sid: string, key: string) =>
     setServiceHours((p) => {
-      const cur = p[sid] ?? makeEmptyServiceWeek();
+      const cur = p[sid] ?? cloneWeek(week);
       const day = cur[key];
       return {
         ...p,
@@ -572,7 +574,7 @@ export function CalendarAvailabilitySection() {
     patch: Partial<Interval>,
   ) =>
     setServiceHours((p) => {
-      const cur = p[sid] ?? makeEmptyServiceWeek();
+      const cur = p[sid] ?? cloneWeek(week);
       return {
         ...p,
         [sid]: {
@@ -585,6 +587,11 @@ export function CalendarAvailabilitySection() {
           },
         },
       };
+    });
+  const resetServiceToWeekly = (sid: string) =>
+    setServiceHours((p) => {
+      const { [sid]: _omit, ...rest } = p;
+      return rest;
     });
 
   // Weekly hours view + save state
@@ -1059,9 +1066,24 @@ export function CalendarAvailabilitySection() {
                     </div>
                   </div>
                   {mode === "custom" && (() => {
-                    const sw = serviceHours[s.id] ?? makeEmptyServiceWeek();
+                    const sw = serviceHours[s.id] ?? cloneWeek(week);
+                    const isCustomized = Boolean(serviceHours[s.id]);
                     return (
                       <div className="rounded-[12px] border-2 border-dashed border-[#EFEBF8] bg-white p-2">
+                        <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-1">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-[#B5A9D6]">
+                            {isCustomized ? "Customized for this service" : "Inherited from Weekly Hours"}
+                          </p>
+                          {isCustomized && (
+                            <button
+                              type="button"
+                              onClick={() => resetServiceToWeekly(s.id)}
+                              className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF] hover:text-[#3D2E6B]"
+                            >
+                              Reset to weekly
+                            </button>
+                          )}
+                        </div>
                         {DAYS.map((d, idx) => {
                           const day = sw[d.key];
                           const interval = day?.intervals[0];
