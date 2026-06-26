@@ -131,12 +131,12 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
-      <div className="mb-5 flex items-start justify-between gap-3">
+    <section className="group rounded-[2rem] border border-[#7E6BAF]/10 bg-white p-7 shadow-sm shadow-[#3D2E6B]/[0.03] transition-shadow hover:shadow-xl hover:shadow-[#7E6BAF]/10 sm:p-10">
+      <div className="mb-8 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-[#3D2E6B]">{title}</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-[#2A2550]">{title}</h2>
           {subtitle && (
-            <p className="mt-0.5 text-[13px] text-[#7E6BAF]">{subtitle}</p>
+            <p className="mt-1 text-[13.5px] text-[#7E6BAF]">{subtitle}</p>
           )}
         </div>
         {action}
@@ -208,7 +208,7 @@ function EditButton({
     <button
       type="button"
       onClick={onToggle}
-      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#F0EAFB] px-4 py-2 text-[13px] font-semibold text-[#7E6BAF] transition-all hover:bg-[#7E6BAF] hover:text-white"
     >
       <Pencil className="h-3.5 w-3.5" /> Edit
     </button>
