@@ -255,101 +255,264 @@ function isPastDate(iso: string) {
   return d.getTime() < today.getTime();
 }
 
-/* Week-grid visualization of weekly availability */
+/* Interactive week-grid editor for weekly availability */
 function WeekGridView({
   week,
   errors,
+  onAddInterval,
+  onUpdateInterval,
+  onRemoveInterval,
+  onToggleDay,
+  onCopyToAll,
 }: {
   week: WeekAvail;
   errors: WeekErrors;
+  onAddInterval: (day: string, start?: string, end?: string) => void;
+  onUpdateInterval: (day: string, id: string, patch: Partial<Interval>) => void;
+  onRemoveInterval: (day: string, id: string) => void;
+  onToggleDay: (day: string) => void;
+  onCopyToAll: (day: string) => void;
 }) {
   const startHour = 6;
   const endHour = 22;
   const totalMin = (endHour - startHour) * 60;
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+  const rowH = 44; // px per hour
+  const [active, setActive] = useState<{ day: string; id: string } | null>(null);
+
+  const handleEmptyClick = (
+    e: React.MouseEvent<HTMLDivElement>,
+    dayKey: string,
+    enabled: boolean,
+  ) => {
+    // close popover if open and click was on empty area
+    if (active) {
+      setActive(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    const min = Math.round((ratio * totalMin) / 30) * 30; // snap 30m
+    const startM = Math.max(0, Math.min(totalMin - 60, min));
+    const endM = Math.min(totalMin, startM + 60);
+    const toHHMM = (m: number) => {
+      const total = m + startHour * 60;
+      const h = Math.floor(total / 60);
+      const mm = total % 60;
+      return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+    };
+    onAddInterval(dayKey, toHHMM(startM), toHHMM(endM));
+    if (!enabled) onToggleDay(dayKey); // ensure enabled (addInterval already enables)
+  };
+
   return (
-    <div className="p-4 sm:p-6">
-      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] gap-1">
-        {/* header */}
+    <div className="p-4 sm:p-6" onClick={() => active && setActive(null)}>
+      <div
+        className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))] gap-1"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* header row */}
         <div />
         {DAYS.map((d) => (
           <div
             key={d.key}
-            className={`pb-2 text-center text-[11px] font-bold uppercase tracking-wider ${
+            className={`pb-3 text-center text-[11px] font-bold uppercase tracking-widest ${
               week[d.key].enabled ? "text-[#3D2E6B]" : "text-[#A89BD0]"
             }`}
           >
             {d.label.slice(0, 3)}
           </div>
         ))}
-        {/* body */}
-        <div className="relative" style={{ height: `${(endHour - startHour) * 28}px` }}>
-          {hours.map((h, i) => (
+
+        {/* time gutter */}
+        <div className="relative" style={{ height: `${(endHour - startHour) * rowH}px` }}>
+          {hours.slice(0, -1).map((h, i) => (
             <div
               key={h}
-              className="absolute left-0 right-0 -translate-y-1/2 text-right text-[10px] font-medium text-[#A89BD0]"
-              style={{ top: `${(i / (endHour - startHour)) * 100}%` }}
+              className="absolute right-3 text-[10px] font-semibold text-[#A89BD0]"
+              style={{ top: `${i * rowH + 4}px` }}
             >
               {h % 12 === 0 ? 12 : h % 12}
               {h < 12 ? "a" : "p"}
             </div>
           ))}
         </div>
+
+        {/* day columns */}
         {DAYS.map((d) => {
           const day = week[d.key];
           const dayErr = errors[d.key];
           return (
             <div
               key={d.key}
-              className={`relative overflow-hidden rounded-lg border ${
-                day.enabled ? "border-[#EAE7F5] bg-[#FBF9FF]" : "border-dashed border-[#EAE7F5] bg-gray-50/60"
+              className={`group/col relative rounded-xl border transition-colors ${
+                day.enabled
+                  ? "border-[#EAE7F5] bg-[#FBF9FF] hover:bg-[#F4EDFF]/60"
+                  : "border-dashed border-[#EAE7F5] bg-gray-50/40"
               }`}
-              style={{ height: `${(endHour - startHour) * 28}px` }}
+              style={{ height: `${(endHour - startHour) * rowH}px`, cursor: day.enabled ? "crosshair" : "pointer" }}
+              onClick={(e) => {
+                // ignore clicks on interval/popover children
+                if ((e.target as HTMLElement).closest("[data-block]")) return;
+                handleEmptyClick(e, d.key, day.enabled);
+              }}
             >
               {/* hour gridlines */}
-              {hours.slice(1).map((_, i) => (
+              {hours.slice(1, -1).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute left-0 right-0 border-t border-[#F0EAFB]/70"
-                  style={{ top: `${((i + 1) / (endHour - startHour)) * 100}%` }}
+                  className="pointer-events-none absolute inset-x-0 border-t border-[#7E6BAF]/5"
+                  style={{ top: `${(i + 1) * rowH}px` }}
                 />
               ))}
+
+              {/* off-day affordance */}
+              {!day.enabled && (
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
+                    Off
+                  </span>
+                  <span className="rounded-full border border-[#A89BD0]/40 bg-white/70 px-2.5 py-1 text-[10px] font-semibold text-[#7E6BAF] opacity-0 transition-opacity group-hover/col:opacity-100">
+                    + Add hours
+                  </span>
+                </div>
+              )}
+
+              {/* empty hover hint */}
+              {day.enabled && day.intervals.length === 0 && (
+                <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-lg border border-dashed border-[#7E6BAF]/40 bg-[#7E6BAF]/5 opacity-0 transition-opacity group-hover/col:opacity-100">
+                  <Plus className="h-4 w-4 text-[#7E6BAF]" />
+                </div>
+              )}
+
+              {/* intervals */}
               {day.enabled &&
                 day.intervals.map((iv) => {
                   const s = Math.max(toMinutes(iv.start) - startHour * 60, 0);
                   const e = Math.min(toMinutes(iv.end) - startHour * 60, totalMin);
                   if (e <= s) return null;
                   const hasErr = !!dayErr?.intervals[iv.id];
+                  const isActive = active?.day === d.key && active.id === iv.id;
+                  const top = (s / totalMin) * 100;
+                  const height = ((e - s) / totalMin) * 100;
+                  // popover position: below if block in top half, else above
+                  const placeBelow = top < 55;
                   return (
                     <div
                       key={iv.id}
-                      title={`${formatTime12(iv.start)} – ${formatTime12(iv.end)}`}
-                      className={`absolute left-1 right-1 rounded-md px-1.5 py-1 text-[10px] font-semibold ${
+                      data-block
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setActive(isActive ? null : { day: d.key, id: iv.id });
+                      }}
+                      className={`absolute left-1 right-1 cursor-pointer rounded-lg border px-2 py-1.5 text-[10px] font-semibold shadow-sm transition-all ${
                         hasErr
-                          ? "border border-red-300 bg-red-100/80 text-red-700"
-                          : "bg-[#7E6BAF] text-white shadow-sm"
+                          ? "z-10 border-red-300 bg-red-100/90 text-red-700"
+                          : isActive
+                            ? "z-30 border-[#3D2E6B]/40 bg-[#3D2E6B] text-white shadow-xl ring-4 ring-[#3D2E6B]/15"
+                            : "z-10 border-white/10 bg-[#7E6BAF] text-white hover:z-20 hover:shadow-lg"
                       }`}
                       style={{
-                        top: `${(s / totalMin) * 100}%`,
-                        height: `${((e - s) / totalMin) * 100}%`,
+                        top: `${top}%`,
+                        height: `${height}%`,
+                        minHeight: 28,
                       }}
                     >
-                      {formatTime12(iv.start)}
+                      <div className="truncate leading-tight">
+                        {formatTime12(iv.start)}
+                      </div>
+                      <div className="truncate text-[9px] font-medium opacity-80">
+                        {formatTime12(iv.end)}
+                      </div>
+
+                      {/* edit popover */}
+                      {isActive && (
+                        <div
+                          onClick={(ev) => ev.stopPropagation()}
+                          className={`absolute left-1/2 z-50 w-[210px] -translate-x-1/2 rounded-2xl border border-[#E3DBF5] bg-white p-3 text-left text-[#3D2E6B] shadow-[0_20px_45px_-12px_rgba(61,46,107,0.35)] ${
+                            placeBelow ? "top-[calc(100%+10px)]" : "bottom-[calc(100%+10px)]"
+                          }`}
+                        >
+                          <div className="mb-2 flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
+                              Edit slot
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onRemoveInterval(d.key, iv.id);
+                                setActive(null);
+                              }}
+                              className="rounded-md p-1 text-[#A89BD0] hover:bg-red-50 hover:text-red-500"
+                              aria-label="Delete slot"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <TimePill
+                              value={iv.start}
+                              ariaLabel="Start time"
+                              hasError={!!dayErr?.intervals[iv.id]}
+                              onChange={(v) => onUpdateInterval(d.key, iv.id, { start: v })}
+                            />
+                            <span className="text-xs font-semibold text-[#A89BD0]">–</span>
+                            <TimePill
+                              value={iv.end}
+                              ariaLabel="End time"
+                              hasError={!!dayErr?.intervals[iv.id]}
+                              onChange={(v) => onUpdateInterval(d.key, iv.id, { end: v })}
+                            />
+                          </div>
+                          {dayErr?.intervals[iv.id] && (
+                            <p className="mt-2 flex items-center gap-1 text-[10px] font-medium text-red-600">
+                              <AlertTriangle className="h-3 w-3" />
+                              {dayErr.intervals[iv.id]}
+                            </p>
+                          )}
+                          <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#F0EAFB] pt-2.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onCopyToAll(d.key);
+                                setActive(null);
+                              }}
+                              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                            >
+                              <Copy className="h-3 w-3" /> Copy to all
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setActive(null)}
+                              className="rounded-lg bg-[#7E6BAF] px-3 py-1 text-[11px] font-bold text-white hover:bg-[#3D2E6B]"
+                            >
+                              Done
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
-              {!day.enabled && (
-                <div className="flex h-full items-center justify-center px-1 text-center text-[10px] font-medium text-[#A89BD0]">
-                  Off
-                </div>
-              )}
             </div>
           );
         })}
       </div>
-      <p className="mt-3 text-[11px] text-[#A89BD0]">
-        Read-only preview. Switch to <span className="font-semibold">List</span> to edit intervals.
-      </p>
+
+      <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-medium text-[#7E6BAF]">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#7E6BAF]" />
+          Click any empty area to add a slot. Click a slot to edit, delete, or copy.
+        </div>
+        <div className="hidden items-center gap-4 sm:flex">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-sm bg-[#7E6BAF]" /> Saved
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-sm bg-[#3D2E6B]" /> Editing
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -401,12 +564,12 @@ export function CalendarAvailabilitySection() {
       },
     }));
 
-  const addInterval = (day: string) =>
+  const addInterval = (day: string, start = "13:00", end = "17:00") =>
     setWeek((w) => ({
       ...w,
       [day]: {
         enabled: true,
-        intervals: [...w[day].intervals, { id: genId(), start: "13:00", end: "17:00" }],
+        intervals: [...w[day].intervals, { id: genId(), start, end }],
       },
     }));
 
@@ -727,7 +890,15 @@ export function CalendarAvailabilitySection() {
           })}
         </div>
         ) : (
-          <WeekGridView week={week} errors={weekErrors} />
+          <WeekGridView
+            week={week}
+            errors={weekErrors}
+            onAddInterval={addInterval}
+            onUpdateInterval={updateInterval}
+            onRemoveInterval={removeInterval}
+            onToggleDay={toggleDay}
+            onCopyToAll={copyToAll}
+          />
         )}
       </section>
 
