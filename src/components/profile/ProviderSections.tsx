@@ -19,6 +19,9 @@ import {
   CalendarOff,
   Trash2,
   ChevronDown,
+  LayoutGrid,
+  List,
+  AlertTriangle,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
