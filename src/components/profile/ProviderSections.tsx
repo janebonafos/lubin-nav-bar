@@ -923,8 +923,8 @@ export function CalendarAvailabilitySection() {
                   <span className="truncate text-sm font-medium text-[#5B4B8A]">
                     {h.label || "Time off"}
                   </span>
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-lg border border-[#EFEBF8] bg-[#F5F1FC] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8A7AB8]">
+                  <div className="flex items-center gap-3 pr-2">
+                    <span className="inline-flex w-[72px] justify-center rounded-lg border border-[#EFEBF8] bg-[#F5F1FC] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8A7AB8]">
                       {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
