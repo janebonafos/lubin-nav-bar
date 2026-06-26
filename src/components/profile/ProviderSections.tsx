@@ -752,7 +752,7 @@ export function CalendarAvailabilitySection() {
             <p className="text-sm text-[#7E6BAF]">Set your recurring weekly schedule.</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="inline-flex rounded-full border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+            <div className="inline-flex rounded-[12px] border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
               {([
                 { id: "list", label: "List", Icon: List },
                 { id: "grid", label: "Week grid", Icon: LayoutGrid },
@@ -761,7 +761,7 @@ export function CalendarAvailabilitySection() {
                   key={id}
                   onClick={() => setViewMode(id)}
                   aria-pressed={viewMode === id}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+                  className={`inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1 text-[11px] font-bold transition ${
                     viewMode === id
                       ? "bg-[#7E6BAF] text-white shadow-sm"
                       : "text-[#7E6BAF] hover:text-[#3D2E6B]"
