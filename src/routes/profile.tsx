@@ -39,6 +39,7 @@ import ProviderProfileSection from "@/components/profile/ProviderProfileSection"
 import {
   CalendarAvailabilitySection,
   AppointmentsSection,
+  UPCOMING_APPOINTMENTS_COUNT,
   PaymentsPayoutsSection,
   VerificationSection,
 } from "@/components/profile/ProviderSections";
