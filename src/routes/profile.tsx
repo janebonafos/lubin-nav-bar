@@ -851,7 +851,7 @@ function ProfilePage() {
             )}
 
             {activeSection === "provider" && role === "provider" && (
-              <ProviderProfileSection fullName={profile.fullName} />
+              <ProviderProfileSection fullName={profile.fullName} avatarUrl={profile.avatar} />
             )}
 
     {activeSection === "calendar" && role === "provider" && (
