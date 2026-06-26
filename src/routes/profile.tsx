@@ -94,7 +94,7 @@ function ProfilePage() {
       window.localStorage.setItem("lubin.role", role);
     } catch { /* ignore */ }
     // When switching to provider mode, if a client-only tab is active, jump to profile.
-    if (role === "provider" && (activeSection === "passport" || activeSection === "discovery" || activeSection === "share")) {
+    if (role === "provider" && activeSection !== "provider" && activeSection !== "chat") {
       setActiveSection("provider");
     }
     if (role === "client" && activeSection === "provider") {
@@ -319,7 +319,6 @@ function ProfilePage() {
   const NAV: { key: Section; label: string; icon: React.ReactNode }[] =
     role === "provider"
       ? [
-          { key: "profile", label: "Account", icon: <User className="h-5 w-5" /> },
           { key: "provider", label: "Provider Profile", icon: <ClipboardList className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
         ]
@@ -442,7 +441,7 @@ function ProfilePage() {
                         : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
                     }`}
                   >
-                    {r === "client" ? "My space" : "Provider"}
+                    {r === "client" ? "Personal" : "Practice"}
                   </button>
                 ))}
               </div>
