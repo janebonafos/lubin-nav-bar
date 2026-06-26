@@ -862,8 +862,18 @@ function ProfilePage() {
                 fullName={profile.fullName}
                 avatarUrl={profile.avatar}
                 onAvatarChange={(dataUrl) => update("avatar", dataUrl)}
+                view="profile"
               />
             )}
+
+    {activeSection === "services" && role === "provider" && (
+      <ProviderProfileSection
+        fullName={profile.fullName}
+        avatarUrl={profile.avatar}
+        onAvatarChange={(dataUrl) => update("avatar", dataUrl)}
+        view="services"
+      />
+    )}
 
     {activeSection === "calendar" && role === "provider" && (
       <CalendarAvailabilitySection />
