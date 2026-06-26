@@ -372,7 +372,7 @@ function WeekGridView({
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#A89BD0]">
                     Off
                   </span>
-                  <span className="rounded-full border border-[#A89BD0]/40 bg-white/70 px-2.5 py-1 text-[10px] font-semibold text-[#7E6BAF] opacity-0 transition-opacity group-hover/col:opacity-100">
+                  <span className="rounded-[10px] border border-[#A89BD0]/40 bg-white/70 px-2.5 py-1 text-[10px] font-semibold text-[#7E6BAF] opacity-0 transition-opacity group-hover/col:opacity-100">
                     + Add hours
                   </span>
                 </div>
@@ -501,7 +501,7 @@ function WeekGridView({
 
       <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-medium text-[#7E6BAF]">
         <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#7E6BAF]" />
+          <span className="inline-block h-2 w-2 animate-pulse rounded-[10px] bg-[#7E6BAF]" />
           Click any empty area to add a slot. Click a slot to edit, delete, or copy.
         </div>
         <div className="hidden items-center gap-4 sm:flex">
@@ -662,11 +662,11 @@ export function CalendarAvailabilitySection() {
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar Connections</h2>
           {provider ? (
-            <span className="rounded-full border border-green-100 bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
+            <span className="rounded-[10px] border border-green-100 bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
               Sync Active
             </span>
           ) : (
-            <span className="rounded-full border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
+            <span className="rounded-[10px] border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
               Not connected
             </span>
           )}
@@ -721,7 +721,7 @@ export function CalendarAvailabilitySection() {
               <button
                 onClick={handleConnect}
                 disabled={connecting}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#7E6BAF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-[10px] bg-[#7E6BAF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${connecting ? "animate-spin" : ""}`} />
                 {connecting ? "Connecting…" : "Connect"}
@@ -804,12 +804,12 @@ export function CalendarAvailabilitySection() {
                     onClick={() => toggleDay(d.key)}
                     aria-label={`Toggle ${d.label}`}
                     aria-pressed={day.enabled}
-                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-[10px] transition-colors ${
                       day.enabled ? "bg-[#7E6BAF]" : "bg-[#E3DBF5]"
                     }`}
                   >
                     <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-5 w-5 transform rounded-[10px] bg-white shadow transition-transform ${
                         day.enabled ? "translate-x-[22px]" : "translate-x-[2px]"
                       }`}
                     />
@@ -923,7 +923,7 @@ export function CalendarAvailabilitySection() {
                       {h.label}
                     </span>
                     <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-[#7E6BAF]">
+                    <span className="rounded-[10px] bg-white px-2 py-0.5 text-[10px] font-semibold text-[#7E6BAF]">
                         {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -997,14 +997,14 @@ export function CalendarAvailabilitySection() {
                           {s.length} · {s.price}
                         </p>
                       </div>
-                      <div className="inline-flex rounded-full border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
+                      <div className="inline-flex rounded-[10px] border border-[#E3DBF5] bg-[#F8F5FF] p-0.5">
                         {(["weekly", "custom"] as const).map((m) => (
                           <button
                             key={m}
                             onClick={() =>
                               setServiceMode((p) => ({ ...p, [s.id]: m }))
                             }
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold transition ${
+                            className={`rounded-[10px] px-2.5 py-0.5 text-[10px] font-bold transition ${
                               mode === m
                                 ? "bg-[#7E6BAF] text-white shadow-sm"
                                 : "text-[#7E6BAF] hover:text-[#3D2E6B]"
