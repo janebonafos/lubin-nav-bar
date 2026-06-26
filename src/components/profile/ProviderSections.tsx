@@ -1022,7 +1022,7 @@ export function CalendarAvailabilitySection() {
         </section>
 
         {/* Service Availability */}
-        <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
+        <section className="order-1 flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
           <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
             <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Service Availability</h2>
             <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">Sessions</span>
