@@ -35,6 +35,12 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
+import {
+  CalendarAvailabilitySection,
+  AppointmentsSection,
+  PaymentsPayoutsSection,
+  VerificationSection,
+} from "@/components/profile/ProviderSections";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
