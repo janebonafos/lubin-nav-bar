@@ -30,6 +30,7 @@ import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
+import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -65,7 +66,8 @@ const DEFAULT_PROFILE: Profile = {
   avatar: null,
 };
 
-type Section = "profile" | "passport" | "discovery" | "chat" | "share";
+type Section = "profile" | "provider" | "passport" | "discovery" | "chat" | "share";
+type Role = "client" | "provider";
 
 type ChatThreadMeta = { id: string; title: string; updatedAt: number };
 const CHAT_THREADS_KEY = "lubin.chat.threads.v1";
@@ -77,6 +79,29 @@ function ProfilePage() {
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
+  const [role, setRole] = useState<Role>("client");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem("lubin.role");
+      if (stored === "provider" || stored === "client") setRole(stored);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem("lubin.role", role);
+    } catch { /* ignore */ }
+    // When switching to provider mode, if a client-only tab is active, jump to profile.
+    if (role === "provider" && (activeSection === "passport" || activeSection === "discovery" || activeSection === "share")) {
+      setActiveSection("provider");
+    }
+    if (role === "client" && activeSection === "provider") {
+      setActiveSection("profile");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const todayLabel = useMemo(
     () =>
@@ -291,18 +316,29 @@ function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1800);
   };
 
-  const NAV: { key: Section; label: string; icon: React.ReactNode }[] = [
-    { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
-    { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
-    { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
-    { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
-    { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
-  ];
+  const NAV: { key: Section; label: string; icon: React.ReactNode }[] =
+    role === "provider"
+      ? [
+          { key: "profile", label: "Account", icon: <User className="h-5 w-5" /> },
+          { key: "provider", label: "Provider Profile", icon: <ClipboardList className="h-5 w-5" /> },
+          { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
+        ]
+      : [
+          { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
+          { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
+          { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
+          { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
+          { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
+        ];
 
   const sectionMeta: Record<Section, { title: string; subtitle: string }> = {
     profile: {
       title: "Profile Overview",
       subtitle: "Manage your personal information and preferences",
+    },
+    provider: {
+      title: "Provider Profile",
+      subtitle: "How clients discover and book sessions with you",
     },
     passport: {
       title: "Health Passport",
@@ -388,9 +424,27 @@ function ProfilePage() {
                     {displayName}
                   </p>
                   <p className="text-[11px] font-medium text-[#7E6BAF]">
-                    Lubin Member
+                    {role === "provider" ? "Lubin Provider" : "Lubin Member"}
                   </p>
                 </div>
+              </div>
+
+              {/* Role switch (dev/preview — toggles client vs provider experience) */}
+              <div className="mb-3 flex items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/70 p-1">
+                {(["client", "provider"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={`flex-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
+                      role === r
+                        ? "bg-[#7E6BAF] text-white shadow-sm"
+                        : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+                    }`}
+                  >
+                    {r === "client" ? "My space" : "Provider"}
+                  </button>
+                ))}
               </div>
 
               <div className="border-t border-[#EEE9F8]" />
@@ -619,7 +673,7 @@ function ProfilePage() {
                 </Card>
 
                 {/* Daily mood check-in status */}
-                <DailyMoodCard
+                {role === "client" && <DailyMoodCard
                   loggedToday={passportData.checkins.some(
                     (c) => new Date(c.date).toDateString() === new Date().toDateString(),
                   )}
@@ -628,7 +682,7 @@ function ProfilePage() {
                   onOpen={() => setCheckInActive(true)}
                   onClose={() => setCheckInActive(false)}
                   onSave={handleSaveCheckIn}
-                />
+                />}
 
                 {/* Connected accounts */}
                 <Card title="Connected Accounts">
@@ -735,6 +789,7 @@ function ProfilePage() {
             )}
 
             {activeSection === "passport" && (
+              role === "client" &&
               <Overview
                 today={todayLabel}
                 checkins={passportData.checkins as never}
@@ -743,6 +798,10 @@ function ProfilePage() {
                 onCloseCheckIn={() => setCheckInActive(false)}
                 isGuest={false}
               />
+            )}
+
+            {activeSection === "provider" && role === "provider" && (
+              <ProviderProfileSection fullName={profile.fullName} />
             )}
 
             {activeSection === "discovery" && (
