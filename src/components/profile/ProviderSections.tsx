@@ -905,12 +905,12 @@ export function CalendarAvailabilitySection() {
       {/* Holidays & Service Alignment */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
-        <section className="flex flex-col rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-[0_4px_20px_-4px_rgba(126,107,175,0.1)]">
-          <div className="mb-6 flex items-center gap-3 text-[#3D2E6B]">
-            <div className="rounded-xl bg-[#F0EAFB] p-2">
-              <CalendarOff className="h-5 w-5 text-[#7E6BAF]" />
+        <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
+          <div className="mb-6 flex items-center gap-3 text-[#5B4B8A]">
+            <div className="rounded-xl bg-[#F5F1FC] p-2">
+              <CalendarOff className="h-5 w-5 text-[#A89BD0]" />
             </div>
-            <h2 className="text-lg font-bold tracking-tight">Holidays & Time Off</h2>
+            <h2 className="text-base font-semibold tracking-tight">Holidays & Time Off</h2>
           </div>
 
           <div className="mb-6 max-h-48 space-y-3 overflow-y-auto pr-1">
@@ -920,13 +920,13 @@ export function CalendarAvailabilitySection() {
               holidays.map((h) => (
                 <div
                   key={h.id}
-                  className="group flex items-center justify-between rounded-xl border border-[#EAE7F5] bg-white p-3.5 transition-all hover:border-[#7E6BAF]/40"
+                  className="group flex items-center justify-between rounded-xl border border-[#EFEBF8] bg-white p-3.5 transition-all hover:border-[#A89BD0]/40"
                 >
-                  <span className="truncate text-sm font-semibold text-[#3D2E6B]">
+                  <span className="truncate text-sm font-medium text-[#5B4B8A]">
                     {h.label || "Time off"}
                   </span>
                   <div className="flex items-center gap-3">
-                    <span className="rounded-lg border border-[#EAE7F5] bg-[#F0EAFB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
+                    <span className="rounded-lg border border-[#EFEBF8] bg-[#F5F1FC] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#8A7AB8]">
                       {new Date(h.date + "T00:00:00").toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
@@ -945,7 +945,7 @@ export function CalendarAvailabilitySection() {
             )}
           </div>
 
-          <div className="mt-auto space-y-3 rounded-xl border border-dashed border-[#A89BD0]/50 bg-[#F0EAFB]/50 p-4">
+          <div className="mt-auto space-y-3 rounded-xl border border-dashed border-[#C9BEE4]/60 bg-[#F5F1FC]/60 p-4">
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="date"
@@ -961,10 +961,10 @@ export function CalendarAvailabilitySection() {
                 className="w-full rounded-xl border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] transition-all placeholder:text-[#A89BD0] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
               />
             </div>
-            <button
+              <button
               onClick={addHoliday}
               disabled={!newHoliday.date}
-              className="w-full rounded-xl border border-[#EAE7F5] bg-white py-2.5 text-xs font-bold uppercase tracking-widest text-[#7E6BAF] transition-all hover:bg-[#7E6BAF] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#7E6BAF]"
+              className="w-full rounded-xl border border-[#EFEBF8] bg-white py-2.5 text-xs font-semibold uppercase tracking-wider text-[#8A7AB8] transition-all hover:bg-[#A89BD0] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#8A7AB8]"
             >
               + Add date
             </button>
@@ -977,12 +977,12 @@ export function CalendarAvailabilitySection() {
         </section>
 
         {/* Service Availability */}
-        <section className="flex flex-col rounded-xl border border-[#EAE7F5] bg-white p-6 shadow-[0_4px_20px_-4px_rgba(126,107,175,0.1)]">
-          <div className="mb-6 flex items-center gap-3 text-[#3D2E6B]">
-            <div className="rounded-xl bg-[#F0EAFB] p-2">
-              <Video className="h-5 w-5 text-[#7E6BAF]" />
+        <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
+          <div className="mb-6 flex items-center gap-3 text-[#5B4B8A]">
+            <div className="rounded-xl bg-[#F5F1FC] p-2">
+              <Video className="h-5 w-5 text-[#A89BD0]" />
             </div>
-            <h2 className="text-lg font-bold tracking-tight">Service Availability</h2>
+            <h2 className="text-base font-semibold tracking-tight">Service Availability</h2>
           </div>
 
           <div className="space-y-6">
@@ -992,20 +992,20 @@ export function CalendarAvailabilitySection() {
                 <div key={s.id} className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate font-bold text-[#3D2E6B]">{s.name}</h3>
-                      <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-[#A89BD0]">
+                      <h3 className="truncate text-sm font-semibold text-[#5B4B8A]">{s.name}</h3>
+                      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-[#B5A9D6]">
                         {s.length} · {s.price}
                       </p>
                     </div>
-                    <div className="flex shrink-0 rounded-xl border border-[#EAE7F5] bg-[#F0EAFB] p-1">
+                    <div className="flex shrink-0 rounded-xl border border-[#EFEBF8] bg-[#F5F1FC] p-1">
                       {(["weekly", "custom"] as const).map((m) => (
                         <button
                           key={m}
                           onClick={() => setServiceMode((p) => ({ ...p, [s.id]: m }))}
-                          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition ${
+                          className={`rounded-lg px-4 py-1.5 text-xs font-medium transition ${
                             mode === m
-                              ? "bg-[#3D2E6B] text-white shadow-sm"
-                              : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                              ? "bg-[#A89BD0] text-white shadow-sm"
+                              : "text-[#8A7AB8] hover:text-[#5B4B8A]"
                           }`}
                         >
                           {m === "weekly" ? "Weekly" : "Custom"}
@@ -1014,7 +1014,7 @@ export function CalendarAvailabilitySection() {
                     </div>
                   </div>
                   {mode === "custom" && (
-                    <div className="rounded-xl border border-dashed border-[#E3DBF5] bg-[#F0EAFB]/40 p-2 text-[11px] font-medium text-[#7E6BAF]">
+                    <div className="rounded-xl border border-dashed border-[#EFEBF8] bg-[#F5F1FC]/40 p-2 text-[11px] font-medium text-[#8A7AB8]">
                       Custom hours for this service will appear here.
                     </div>
                   )}
@@ -1024,7 +1024,7 @@ export function CalendarAvailabilitySection() {
           </div>
 
           <div className="mt-auto pt-8">
-            <button className="w-full rounded-xl border-2 border-dashed border-[#EAE7F5] bg-[#3D2E6B]/5 py-3.5 text-xs font-bold uppercase tracking-widest text-[#3D2E6B] transition-all hover:border-[#7E6BAF]/50">
+            <button className="w-full rounded-xl border border-dashed border-[#EFEBF8] bg-[#F5F1FC]/50 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#8A7AB8] transition-all hover:border-[#A89BD0]/50 hover:text-[#5B4B8A]">
               Configure Services
             </button>
           </div>
