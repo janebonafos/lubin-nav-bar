@@ -26,6 +26,7 @@ import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
+import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
@@ -114,6 +115,11 @@ const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
   path: '/appointment/reschedule',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
+  id: '/appointment/cancel',
+  path: '/appointment/cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   id: '/api/enhance-profile',
   path: '/api/enhance-profile',
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/cancel'
     | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/cancel'
     | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery/$slug'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/appointment/cancel'
     | '/appointment/reschedule'
     | '/provider/$id'
     | '/self-discovery_/$slug'
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
+  AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppointmentRescheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/appointment/cancel': {
+      id: '/appointment/cancel'
+      path: '/appointment/cancel'
+      fullPath: '/appointment/cancel'
+      preLoaderRoute: typeof AppointmentCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/enhance-profile': {
       id: '/api/enhance-profile'
       path: '/api/enhance-profile'
@@ -430,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
+  AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
