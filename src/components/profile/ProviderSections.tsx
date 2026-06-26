@@ -1055,11 +1055,65 @@ export function CalendarAvailabilitySection() {
                       ))}
                     </div>
                   </div>
-                  {mode === "custom" && (
-                    <div className="rounded-xl border border-dashed border-[#EFEBF8] bg-[#F5F1FC]/40 p-2 text-[11px] font-medium text-[#8A7AB8]">
-                      Custom hours for this service will appear here.
-                    </div>
-                  )}
+                  {mode === "custom" && (() => {
+                    const sw = serviceHours[s.id] ?? makeEmptyServiceWeek();
+                    return (
+                      <div className="space-y-1.5 rounded-xl border border-dashed border-[#E3DBF5] bg-[#FBF9FE] p-3">
+                        {DAYS.map((d) => {
+                          const day = sw[d.key];
+                          const interval = day?.intervals[0];
+                          return (
+                            <div
+                              key={d.key}
+                              className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 hover:bg-white/60"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => toggleServiceDay(s.id, d.key)}
+                                className="flex items-center gap-2.5 text-left"
+                              >
+                                <span
+                                  className={`relative h-4 w-7 rounded-full transition ${
+                                    day?.enabled ? "bg-[#A89BD0]" : "bg-[#E3DBF5]"
+                                  }`}
+                                >
+                                  <span
+                                    className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${
+                                      day?.enabled ? "left-3.5" : "left-0.5"
+                                    }`}
+                                  />
+                                </span>
+                                <span className="w-10 text-xs font-semibold text-[#5B4B8A]">
+                                  {d.key}
+                                </span>
+                              </button>
+                              {day?.enabled && interval ? (
+                                <div className="flex items-center gap-2">
+                                  <TimePill
+                                    value={interval.start}
+                                    onChange={(v) =>
+                                      updateServiceInterval(s.id, d.key, interval.id, { start: v })
+                                    }
+                                    ariaLabel={`${d.label} start`}
+                                  />
+                                  <span className="text-[11px] text-[#B5A9D6]">to</span>
+                                  <TimePill
+                                    value={interval.end}
+                                    onChange={(v) =>
+                                      updateServiceInterval(s.id, d.key, interval.id, { end: v })
+                                    }
+                                    ariaLabel={`${d.label} end`}
+                                  />
+                                </div>
+                              ) : (
+                                <span className="text-[11px] font-medium text-[#B5A9D6]">Unavailable</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })}
