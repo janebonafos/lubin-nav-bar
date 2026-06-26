@@ -193,9 +193,6 @@ export function CalendarAvailabilitySection() {
   const removeHoliday = (id: string) =>
     setHolidays((h) => h.filter((x) => x.id !== id));
 
-  const providerName =
-    PROVIDERS.find((p) => p.id === provider)?.name ?? "No calendar";
-
   return (
     <div className="space-y-8">
       {/* Header */}
