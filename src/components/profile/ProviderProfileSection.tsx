@@ -1628,8 +1628,10 @@ export default function ProviderProfileSection({
           </div>
         </div>
       </SectionCard>
+      </>
+      )}
 
-      {/* ---------------------------- Verification ------------------------- */}
+      {view === "profile" && (
       <section className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-[2rem] bg-[#2A2550] p-8 text-white shadow-xl shadow-[#2A2550]/20 sm:flex-row sm:items-center sm:p-10">
         <div className="flex items-center gap-5">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10">
@@ -1655,6 +1657,7 @@ export default function ProviderProfileSection({
           </button>
         )}
       </section>
+      )}
     </div>
   );
 }
