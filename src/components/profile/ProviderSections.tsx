@@ -906,11 +906,9 @@ export function CalendarAvailabilitySection() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Holidays & Time Off */}
         <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
-          <div className="mb-6 flex items-center gap-3 text-[#5B4B8A]">
-            <div className="rounded-xl bg-[#F5F1FC] p-2">
-              <CalendarOff className="h-5 w-5 text-[#A89BD0]" />
-            </div>
-            <h2 className="text-base font-semibold tracking-tight">Holidays & Time Off</h2>
+          <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
+            <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Holidays & Time Off</h2>
+            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">Schedule</span>
           </div>
 
           <div className="mb-6 max-h-48 space-y-3 overflow-y-auto pr-1">
@@ -978,11 +976,9 @@ export function CalendarAvailabilitySection() {
 
         {/* Service Availability */}
         <section className="flex flex-col rounded-xl border border-[#EFEBF8] bg-white p-6 shadow-[0_4px_20px_-6px_rgba(126,107,175,0.08)]">
-          <div className="mb-6 flex items-center gap-3 text-[#5B4B8A]">
-            <div className="rounded-xl bg-[#F5F1FC] p-2">
-              <Video className="h-5 w-5 text-[#A89BD0]" />
-            </div>
-            <h2 className="text-base font-semibold tracking-tight">Service Availability</h2>
+          <div className="mb-6 flex items-baseline justify-between border-b border-[#EFEBF8] pb-4">
+            <h2 className="text-base font-semibold tracking-tight text-[#5B4B8A]">Service Availability</h2>
+            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#B5A9D6]">Sessions</span>
           </div>
 
           <div className="space-y-6">
