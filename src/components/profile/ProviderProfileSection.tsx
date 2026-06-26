@@ -619,6 +619,7 @@ export default function ProviderProfileSection({
     sessionType: "individual" | "group";
     minParticipants: string;
     maxParticipants: string;
+    availabilityMode: "weekly" | "custom";
   }>({
     name: "",
     lengthMin: 50,
@@ -626,6 +627,7 @@ export default function ProviderProfileSection({
     sessionType: "individual",
     minParticipants: "3",
     maxParticipants: "8",
+    availabilityMode: "weekly",
   });
   const saveNewSession = () => {
     if (!newSession.name.trim() || !newSession.rate) return;
@@ -642,6 +644,7 @@ export default function ProviderProfileSection({
         rate: Number(newSession.rate) || 0,
         sessionType: newSession.sessionType,
         ...(isGroup ? { minParticipants: min, maxParticipants: max } : {}),
+        availabilityMode: newSession.availabilityMode,
       },
     ]);
     setNewSession({
@@ -651,6 +654,7 @@ export default function ProviderProfileSection({
       sessionType: "individual",
       minParticipants: "3",
       maxParticipants: "8",
+      availabilityMode: "weekly",
     });
     setShowAddSession(false);
   };
@@ -1258,6 +1262,7 @@ export default function ProviderProfileSection({
                           sessionType: "individual",
                           minParticipants: "3",
                           maxParticipants: "8",
+                          availabilityMode: "weekly",
                         });
                       }}
                       className="rounded-xl px-5 py-2.5 text-[13px] font-bold text-[#7E6BAF] transition-colors hover:bg-[#F0EAFB]"
