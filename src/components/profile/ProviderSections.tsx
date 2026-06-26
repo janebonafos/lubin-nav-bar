@@ -1237,6 +1237,8 @@ export function CalendarAvailabilitySection() {
 }
 
 /* ---------- Appointments ---------- */
+export const UPCOMING_APPOINTMENTS_COUNT = 3;
+
 
 export function AppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");

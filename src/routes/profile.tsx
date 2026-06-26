@@ -39,6 +39,7 @@ import ProviderProfileSection from "@/components/profile/ProviderProfileSection"
 import {
   CalendarAvailabilitySection,
   AppointmentsSection,
+  UPCOMING_APPOINTMENTS_COUNT,
   PaymentsPayoutsSection,
   VerificationSection,
 } from "@/components/profile/ProviderSections";
@@ -509,6 +510,8 @@ function ProfilePage() {
               <nav className="mt-4 space-y-1">
                 {NAV.map(({ key, label }) => {
                   const active = activeSection === key;
+                  const badgeCount =
+                    key === "appointments" ? UPCOMING_APPOINTMENTS_COUNT : 0;
                   return (
                     <div key={key}>
                       <button
@@ -519,7 +522,18 @@ function ProfilePage() {
                             : "text-[#3D2E6B]/80 hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
                         }`}
                       >
-                        {label}
+                        <span className="flex-1">{label}</span>
+                        {badgeCount > 0 && (
+                          <span
+                            className={`ml-2 inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none ${
+                              active
+                                ? "bg-[#5B4796] text-white"
+                                : "bg-[#7E6BAF]/20 text-[#5B4796]"
+                            }`}
+                          >
+                            {badgeCount}
+                          </span>
+                        )}
                       </button>
                       {key === "chat" && activeSection === "chat" && (
                         <div className="mt-2 space-y-1">
