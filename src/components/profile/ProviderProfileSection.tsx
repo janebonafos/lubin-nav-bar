@@ -927,6 +927,8 @@ export default function ProviderProfileSection({
 
   return (
     <div className="space-y-6">
+      {view === "profile" && (
+      <>
       {/* ---------------------- Provider summary header ---------------------- */}
       <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#7E6BAF] via-[#7E6BAF] to-[#5D4E8A] p-8 text-white shadow-2xl shadow-[#7E6BAF]/25 sm:p-12">
         <div aria-hidden className="pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
