@@ -848,6 +848,22 @@ function ProfilePage() {
               <ProviderProfileSection fullName={profile.fullName} />
             )}
 
+    {activeSection === "calendar" && role === "provider" && (
+      <CalendarAvailabilitySection />
+    )}
+
+    {activeSection === "appointments" && role === "provider" && (
+      <AppointmentsSection />
+    )}
+
+    {activeSection === "payments" && role === "provider" && (
+      <PaymentsPayoutsSection />
+    )}
+
+    {activeSection === "verification" && role === "provider" && (
+      <VerificationSection />
+    )}
+
             {activeSection === "discovery" && (
               <Progress
                 checkins={passportData.checkins as never}
