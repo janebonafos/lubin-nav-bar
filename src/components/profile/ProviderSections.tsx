@@ -1298,7 +1298,7 @@ export function AppointmentsSection() {
               onClick={() => setTab(t)}
               className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
                 tab === t
-                  ? "bg-[#3D2E6B] text-white"
+                  ? "bg-[#5B4796] text-white"
                   : "text-[#3D2E6B] hover:bg-[#A89BD0]/20"
               }`}
             >
