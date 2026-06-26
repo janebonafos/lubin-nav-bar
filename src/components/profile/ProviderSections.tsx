@@ -797,6 +797,11 @@ export function CalendarAvailabilitySection() {
                 >
                 + Add date
                 </button>
+                {holidayError && (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-red-600">
+                    <AlertTriangle className="h-3 w-3" /> {holidayError}
+                  </p>
+                )}
               </div>
             </div>
         </section>
@@ -855,13 +860,28 @@ export function CalendarAvailabilitySection() {
         </div>
 
         {/* Footer */}
-      <div className="flex justify-end gap-4 pt-2">
+      <div className="flex flex-wrap items-center justify-end gap-4 pt-2">
+        {errorCount > 0 && (
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-red-600">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            Resolve {errorCount} issue{errorCount > 1 ? "s" : ""} before saving.
+          </p>
+        )}
+        {saved && errorCount === 0 && (
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-green-600">
+            <Check className="h-3.5 w-3.5" /> Availability saved.
+          </p>
+        )}
         <button className="px-6 py-2.5 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-            Cancel
-          </button>
-        <button className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF]">
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={errorCount > 0}
+          className="transform rounded-2xl bg-[#3D2E6B] px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3D2E6B]/20 transition-all hover:-translate-y-0.5 hover:bg-[#7E6BAF] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0"
+        >
           Save Changes
-          </button>
+        </button>
       </div>
     </div>
   );
