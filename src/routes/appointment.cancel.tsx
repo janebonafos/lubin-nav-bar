@@ -27,9 +27,10 @@ export const Route = createFileRoute("/appointment/cancel")({
 
 const REASONS = [
   "Schedule conflict",
-  "Client unavailable",
-  "Provider unavailable",
-  "Health reason",
+  "Personal emergency",
+  "Illness or health reason",
+  "Double booking",
+  "Client no-show risk",
   "Other",
 ];
 
@@ -37,7 +38,6 @@ function CancelPage() {
   const s = Route.useSearch();
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState("");
-  const [refund, setRefund] = useState(true);
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -50,8 +50,7 @@ function CancelPage() {
           </div>
           <h1 className="mt-5 text-2xl font-semibold text-[#3D2E6B]">Appointment cancelled</h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            {s.client ?? "The client"} has been notified
-            {refund && s.paymentStatus === "Paid" ? " and a refund has been initiated." : "."}
+            Your client has been notified and the time slot is now open on your calendar. If a refund applies, the Lubin team will handle it directly with the client.
           </p>
           <button
             onClick={() => window.close()}
@@ -80,7 +79,7 @@ function CancelPage() {
             Cancel this session?
           </h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            This will notify {s.client ?? "your client"} and free up the time slot.
+            We'll notify your client, free up this time slot on your calendar, and let the Lubin team know so they can handle any billing or refund follow-up.
           </p>
         </div>
 
@@ -88,7 +87,7 @@ function CancelPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-none text-rose-500" />
             <div className="text-sm text-rose-700">
-              Cancellations within 24 hours of the session may be subject to a late-cancellation fee per your policy.
+              Cancellations within 24 hours of the session may affect your reliability score. Please cancel only when necessary so clients can rebook in time.
             </div>
           </div>
         </section>
@@ -98,8 +97,7 @@ function CancelPage() {
           <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
             <div><span className="text-[#A89BD0]">Client:</span> <span className="font-medium text-[#3D2E6B]">{s.client}</span></div>
             <div><span className="text-[#A89BD0]">When:</span> <span className="font-medium text-[#3D2E6B]">{s.date} · {s.time}</span></div>
-            <div><span className="text-[#A89BD0]">Type:</span> <span className="font-medium text-[#3D2E6B]">{s.type} · {s.duration}</span></div>
-            <div><span className="text-[#A89BD0]">Payment:</span> <span className="font-medium text-[#3D2E6B]">{s.amount} · {s.paymentStatus}</span></div>
+            <div><span className="text-[#A89BD0]">Session:</span> <span className="font-medium text-[#3D2E6B]">{s.type} · {s.duration}</span></div>
           </div>
         </section>
 
@@ -126,22 +124,17 @@ function CancelPage() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            placeholder="Share a short note…"
+            placeholder="Share a short note your client will see…"
             className="mt-3 block w-full resize-none rounded-[10px] border border-[#EAE7F5] bg-white px-3.5 py-2.5 text-sm text-[#3D2E6B] outline-none focus:border-[#A89BD0]"
           />
 
           {s.paymentStatus === "Paid" && (
-            <label className="mt-5 flex items-start gap-3 rounded-[10px] border border-[#EAE7F5] bg-[#FBF9FF] p-4">
-              <input
-                type="checkbox"
-                checked={refund}
-                onChange={(e) => setRefund(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#5B4796]"
-              />
-              <span className="text-sm text-[#3D2E6B]">
-                Issue a full refund of <span className="font-semibold">{s.amount}</span> to the client.
-              </span>
-            </label>
+            <div className="mt-5 rounded-[10px] border border-[#EAE7F5] bg-[#FBF9FF] p-4 text-sm text-[#3D2E6B]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Billing & refunds</p>
+              <p className="mt-1.5 leading-relaxed">
+                This session was paid. Refunds are handled by the Lubin team directly with your client — you don't need to take any action here.
+              </p>
+            </div>
           )}
 
           <label className="mt-3 flex items-start gap-3">
@@ -152,7 +145,7 @@ function CancelPage() {
               className="mt-0.5 h-4 w-4 accent-rose-500"
             />
             <span className="text-sm text-[#3D2E6B]">
-              I understand this will cancel the session and notify the client.
+              I understand this will cancel the session, notify my client, and free up this time on my calendar.
             </span>
           </label>
 
