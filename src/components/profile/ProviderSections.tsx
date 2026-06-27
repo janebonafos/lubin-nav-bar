@@ -1859,10 +1859,10 @@ export function ApptNotesBlock({
   };
 
   return (
-    <div className="mb-6 space-y-3">
+    <div className="space-y-6">
       {/* ============ Client Follow-up (visible to client) ============ */}
       {isCompleted && (
-        <div className="overflow-hidden rounded-[16px] border border-[#E5DCF5] bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[20px] border border-[#EEE6FA] bg-white shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
           <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#5B4796] shadow-sm">
