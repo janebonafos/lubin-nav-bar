@@ -42,6 +42,11 @@ import {
   Sparkles,
   Paperclip,
   Mic,
+  Lock,
+  Link2,
+  BookOpen,
+  Target,
+  Eye,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
