@@ -16,6 +16,8 @@ import {
   Trash2,
   Languages as LanguagesIcon,
   Eye,
+  Share2,
+  Copy,
 } from "lucide-react";
 import { useAvailabilityStore, formatTime12, DAY_KEYS } from "@/lib/availability-store";
 import type { WeekAvail } from "@/lib/availability-store";
