@@ -459,7 +459,13 @@ function ProfilePage() {
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
                 <div className="relative">
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0] text-lg font-semibold text-white shadow-inner">
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl text-lg font-semibold text-white shadow-inner transition-colors ${
+                      role === "provider"
+                        ? "bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B]"
+                        : "bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0]"
+                    }`}
+                  >
                     {profile.avatar ? (
                       <img
                         src={profile.avatar}
@@ -476,13 +482,23 @@ function ProfilePage() {
                       />
                     )}
                   </div>
+                  <span
+                    aria-hidden
+                    className={`absolute -bottom-1 -right-1 rounded-full border-2 border-[#F8F5FF] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider text-white shadow-sm ${
+                      role === "provider" ? "bg-[#3D2E6B]" : "bg-[#A89BD0]"
+                    }`}
+                  >
+                    {role === "provider" ? "Pro" : "You"}
+                  </span>
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-[#3D2E6B]">
                     {displayName}
                   </p>
                   <p className="text-[11px] font-medium text-[#7E6BAF]">
-                    {role === "provider" ? "Lubin Provider" : "Lubin Member"}
+                    {role === "provider"
+                      ? "Professional account"
+                      : "Personal account"}
                   </p>
                 </div>
               </div>
