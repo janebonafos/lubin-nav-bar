@@ -1793,7 +1793,7 @@ export function PaymentsPayoutsSection() {
         {/* Provider card */}
         <div className="relative mt-5">
           {status === "connected" ? (
-            <div className="rounded-[22px] border border-emerald-200/70 bg-white/80 p-5 backdrop-blur">
+            <div className={`relative rounded-[22px] border border-emerald-200/70 bg-white/80 p-5 backdrop-blur ${manageOpen ? "z-50" : ""}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${brand.gradient} text-white shadow-md ${brand.shadow}`}>
@@ -1835,10 +1835,10 @@ export function PaymentsPayoutsSection() {
                   {manageOpen && (
                     <>
                       <div
-                        className="fixed inset-0 z-30"
+                        className="fixed inset-0 z-[60]"
                         onClick={() => setManageOpen(false)}
                       />
-                      <div className="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-2xl border border-[#EEE7FA] bg-white p-1.5 shadow-[0_20px_50px_-20px_rgba(61,46,107,0.35)]">
+                      <div className="absolute right-0 z-[70] mt-2 w-64 overflow-hidden rounded-2xl border border-[#EEE7FA] bg-white p-1.5 shadow-[0_20px_50px_-20px_rgba(61,46,107,0.35)]">
                         <button
                           onClick={() => handleManageAction("dashboard")}
                           className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F8F5FF]"
