@@ -1694,6 +1694,12 @@ type ApptLite = {
   recordingConsent?: { client: boolean; provider: boolean };
   aiSummary?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+  followUp?: {
+    summary?: string;
+    homework?: string;
+    resources?: { label: string; url: string }[];
+    nextFocus?: string;
+  };
 };
 
 function ApptNotesBlock({
