@@ -2659,7 +2659,7 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* ---------------- Payout schedule & request ---------------- */}
-      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-[#3D2E6B] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)] md:p-10">
+      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-gradient-to-br from-[#2C2B4B] via-[#3D2E6B] to-[#7E6BAF] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)] md:p-10">
         {/* Dot grid texture */}
         <div
           className="pointer-events-none absolute inset-0 opacity-20"
