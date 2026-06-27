@@ -32,6 +32,11 @@ import {
   List,
   AlertTriangle,
   Loader2,
+  Building2,
+  ExternalLink,
+  Globe,
+  CheckCircle2,
+  Info,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -1674,6 +1679,19 @@ function StatCard({
 /* ---------- Payments & Payouts ---------- */
 
 export function PaymentsPayoutsSection() {
+  const [country, setCountry] = useState<"US" | "PH" | "Other">("US");
+  const [stripeStatus, setStripeStatus] = useState<"not_connected" | "pending" | "connected">("not_connected");
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = () => {
+    setConnecting(true);
+    // Simulated onboarding handoff — in production this would open Stripe Connect onboarding.
+    setTimeout(() => {
+      setStripeStatus("connected");
+      setConnecting(false);
+    }, 1400);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -1682,32 +1700,151 @@ export function PaymentsPayoutsSection() {
         <Stat label="Lifetime earnings" value="$12,840.00" />
       </div>
 
+      {/* ---------------- Payout account ---------------- */}
       <SectionCard
-        title="Payout method"
-        description="Where we send your earnings."
-        action={
-          <button className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-            Update
-          </button>
-        }
+        title="Payout account"
+        description="Lubin processes all client payments and sends your earnings to your connected account."
       >
-        <div className="flex items-center justify-between rounded-2xl border border-[#EEE7FA] bg-white/70 p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#7E6BAF]/15">
-              <Wallet className="h-5 w-5 text-[#7E6BAF]" />
+        {/* Country selector */}
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+            <Globe className="h-3.5 w-3.5" />
+            Payout country
+          </div>
+          <div className="inline-flex rounded-full border border-[#EEE7FA] bg-white p-0.5">
+            {(["US", "PH", "Other"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => setCountry(c)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  country === c
+                    ? "bg-[#3D2E6B] text-white shadow-sm"
+                    : "text-[#7E6BAF] hover:text-[#3D2E6B]"
+                }`}
+              >
+                {c === "US" ? "United States" : c === "PH" ? "Philippines" : "Other"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {country === "US" ? (
+          stripeStatus === "connected" ? (
+            <div className="rounded-[20px] border border-emerald-200/70 bg-gradient-to-br from-emerald-50/80 to-white p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#635BFF] to-[#3F37C9] text-white shadow-sm">
+                    <span className="text-[11px] font-extrabold tracking-tight">stripe</span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-[#3D2E6B]">Stripe account connected</p>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                        <CheckCircle2 className="h-3 w-3" /> Active
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-[#7E6BAF]">acct_•••• 8421 · USD · Direct deposit</p>
+                    <p className="mt-2 text-xs leading-relaxed text-[#5E4F8A]">
+                      Lubin holds client payments and releases your earnings to this account on a rolling schedule.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setStripeStatus("not_connected")}
+                  className="shrink-0 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                >
+                  Manage
+                </button>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-[#3D2E6B]">Bank transfer · BPI</p>
-              <p className="text-xs text-[#7E6BAF]">Account ending in •••• 4821</p>
+          ) : (
+            <div className="rounded-[20px] border border-[#EEE7FA] bg-gradient-to-br from-[#F5F1FB] to-white p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#635BFF] to-[#3F37C9] text-white shadow-md shadow-[#635BFF]/20">
+                  <span className="text-[12px] font-extrabold tracking-tight">stripe</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-base font-bold text-[#3D2E6B]">Connect Stripe to receive payouts</h4>
+                  <p className="mt-1 text-sm leading-relaxed text-[#5E4F8A]">
+                    Lubin partners with Stripe to securely deliver your earnings. Don't have a Stripe account yet? You can create one in a few minutes — we'll guide you through it.
+                  </p>
+
+                  <ul className="mt-4 space-y-2 text-xs text-[#5E4F8A]">
+                    <li className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
+                      Clients pay Lubin — you never handle card details
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
+                      Lubin releases your earnings to Stripe on a rolling schedule
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-3.5 w-3.5 text-emerald-600" />
+                      Bank-level encryption, no fees from Lubin
+                    </li>
+                  </ul>
+
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={handleConnect}
+                      disabled={connecting}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.55)] transition hover:bg-[#2A1F4F] disabled:opacity-70"
+                    >
+                      {connecting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Opening Stripe…
+                        </>
+                      ) : (
+                        <>
+                          Connect Stripe account
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleConnect}
+                      disabled={connecting}
+                      className="text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B] disabled:opacity-50"
+                    >
+                      Don't have one? Register through Lubin →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="rounded-[20px] border border-[#EEE7FA] bg-white/70 p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F0EAFB] text-[#7E6BAF]">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[#3D2E6B]">Local bank transfer</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#5E4F8A]">
+                  Outside the United States, Lubin sends your payouts directly to a verified local bank account. Add your bank details to start receiving earnings.
+                </p>
+                <button className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B]/20 bg-white px-4 py-2 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F0EAFB]">
+                  Add bank account
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-            Verified
+        )}
+
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#F8F5FF] px-4 py-3 text-[11px] leading-relaxed text-[#5E4F8A]">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
+          <span>
+            Payouts are processed by Lubin. Stripe is used only as the destination for your earnings in the US — Lubin remains the merchant of record for all client transactions.
           </span>
         </div>
       </SectionCard>
 
-      <SectionCard title="Recent transactions">
+      <SectionCard
+        title="Recent transactions"
+      >
         <div className="space-y-2">
           {[
             { client: "Anna Reyes", date: "Jun 24", amount: "+$120.00" },
