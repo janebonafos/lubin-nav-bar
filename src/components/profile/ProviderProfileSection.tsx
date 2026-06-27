@@ -1059,14 +1059,14 @@ export default function ProviderProfileSection({
             </div>
             <div className="flex min-w-0 flex-col">
               <span className="text-xs font-semibold text-[#7E6BAF]">Share profile</span>
-              <div className="flex items-center gap-1 text-sm">
+              <div className="mt-0.5 inline-flex items-center gap-0 rounded-lg border border-[#7E6BAF]/15 bg-white px-2.5 py-1 text-sm transition focus-within:border-[#3D2E6B] focus-within:ring-2 focus-within:ring-[#3D2E6B]/10">
                 <span className="text-[#7E6BAF]">lubin.com/</span>
                 <input
                   type="text"
                   value={slug}
                   onChange={(e) => setSlug(slugify(e.target.value))}
                   placeholder="your-name"
-                  className="w-40 border-b border-[#7E6BAF]/30 bg-transparent py-0.5 text-sm font-medium text-[#3D2E6B] outline-none transition focus:border-[#3D2E6B]"
+                  className="w-40 bg-transparent text-sm font-semibold text-[#3D2E6B] outline-none"
                 />
               </div>
             </div>
