@@ -765,7 +765,7 @@ export function CalendarAvailabilitySection() {
             </p>
           </div>
           {provider ? (
-            <span className="shrink-0 rounded-[10px] border border-green-100 bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
+            <span className="shrink-0 rounded-[10px] border border-[#E5DCF5] bg-[#EFE8FB] px-3 py-1 text-xs font-medium text-[#3D2E6B]">
               Sync Active
             </span>
           ) : (
@@ -1787,13 +1787,13 @@ export function PaymentsPayoutsSection() {
         <div className="relative mt-5 inline-flex items-center gap-2 rounded-full border border-[#EEE7FA] bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] backdrop-blur">
           <Globe className="h-3 w-3" />
           Detected region · <span className="text-[#3D2E6B]">{brand.regionCopy}</span>
-          <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
         </div>
 
         {/* Provider card */}
         <div className="relative mt-5">
           {status === "connected" ? (
-            <div className={`relative rounded-[22px] border border-emerald-200/70 bg-white/80 p-5 backdrop-blur ${manageOpen ? "z-50" : ""}`}>
+            <div className={`relative rounded-[22px] border border-[#E5DCF5] bg-white/80 p-5 backdrop-blur ${manageOpen ? "z-50" : ""}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${brand.gradient} text-white shadow-md ${brand.shadow}`}>
@@ -1802,7 +1802,7 @@ export function PaymentsPayoutsSection() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-[#3D2E6B]">{brand.name} account connected</p>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
                         <CheckCircle2 className="h-3 w-3" /> Active
                       </span>
                     </div>
