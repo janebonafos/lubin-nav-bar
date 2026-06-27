@@ -128,15 +128,9 @@ function ReschedulePage() {
         </section>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
-            <div className="flex items-center gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                {date
-                  ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", year: "numeric" }).toUpperCase()
-                  : ""}
-              </p>
-              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -154,6 +148,7 @@ function ReschedulePage() {
                       if (!d) return;
                       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                       setDate(iso);
+                      setViewMonth(new Date(d.getFullYear(), d.getMonth(), 1));
                       setPickerOpen(false);
                     }}
                     disabled={{ before: new Date() }}
@@ -161,48 +156,47 @@ function ReschedulePage() {
                     className="pointer-events-auto p-3"
                   />
                 </PopoverContent>
-              </Popover>
-            </div>
+            </Popover>
           </div>
-          {date && !days.find((d) => d.iso === date) && (
-            <div className="mt-3 flex items-center justify-between rounded-[10px] border border-[#5B4796] bg-[#5B4796] px-4 py-3">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-white/80">Selected</p>
-                <p className="mt-0.5 text-sm font-semibold text-white">
-                  {new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-                </p>
-              </div>
-              <button
-                onClick={() => setDate(days[0]?.iso ?? "")}
-                className="rounded-[8px] bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white hover:bg-white/25"
-              >
-                Reset
-              </button>
-            </div>
-          )}
-          <div className="mt-3 flex flex-wrap gap-2">
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+              disabled={atCurrentMonth}
+              aria-label="Previous month"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <p className="min-w-[140px] text-center text-sm font-semibold text-[#3D2E6B]">{monthLabel}</p>
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+              aria-label="Next month"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
             {days.map((d) => {
               const selected = date === d.iso;
               return (
                 <button
                   key={d.iso}
-                  onClick={() => setDate(d.iso)}
+                  onClick={() => !d.isPast && setDate(d.iso)}
+                  disabled={d.isPast}
                   className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
                     selected
                       ? "border-[#5B4796] bg-[#5B4796] text-white"
+                      : d.isPast
+                      ? "cursor-not-allowed border-[#F1EEFA] bg-white text-[#C9BEE4]"
                       : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
                   }`}
                 >
-                  {d.monthStart && (
-                    <span
-                      className={`absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-1.5 py-px text-[8px] font-bold uppercase tracking-wider ${
-                        selected ? "bg-[#3D2E6B] text-white" : "bg-[#F3F0FF] text-[#5B4796]"
-                      }`}
-                    >
-                      {d.mon}
-                    </span>
-                  )}
-                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : "text-[#A89BD0]"}`}>
+                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : d.isPast ? "text-[#D8CFEC]" : "text-[#A89BD0]"}`}>
                     {d.dow}
                   </span>
                   <span className="text-lg font-bold leading-tight">{d.dom}</span>
