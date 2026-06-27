@@ -482,14 +482,14 @@ function ProfilePage() {
                       />
                     )}
                   </div>
-                  <span
-                    aria-hidden
-                    className={`absolute -bottom-1 -right-1 rounded-full border-2 border-[#F8F5FF] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider text-white shadow-sm ${
-                      role === "provider" ? "bg-[#3D2E6B]" : "bg-[#A89BD0]"
-                    }`}
-                  >
-                    {role === "provider" ? "Pro" : "You"}
-                  </span>
+                  {role === "provider" && (
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-1 -right-1 rounded-full border-2 border-[#F8F5FF] bg-[#3D2E6B] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider text-white shadow-sm"
+                    >
+                      Pro
+                    </span>
+                  )}
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-[#3D2E6B]">
