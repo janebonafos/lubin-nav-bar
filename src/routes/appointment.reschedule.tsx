@@ -96,6 +96,16 @@ function ReschedulePage() {
   const [reason, setReason] = useState("");
   const [done, setDone] = useState(false);
 
+  // Release lock if user closes tab without confirming
+  useEffect(() => {
+    if (!s.id) return;
+    const onUnload = () => {
+      if (!done) publishAppointmentEvent({ type: "unlock", id: s.id! });
+    };
+    window.addEventListener("beforeunload", onUnload);
+    return () => window.removeEventListener("beforeunload", onUnload);
+  }, [s.id, done]);
+
   if (!ready) {
     return <RescheduleSkeleton />;
   }
@@ -339,6 +349,7 @@ function ReschedulePage() {
                   toast.success("Reschedule request sent", {
                     description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
                   });
+                  if (s.id) publishAppointmentEvent({ type: "rescheduled", id: s.id, date: label, time: time ?? undefined });
                   setDone(true);
                 }, 700);
               }}
