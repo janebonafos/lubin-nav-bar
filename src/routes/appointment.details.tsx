@@ -12,6 +12,7 @@ import { publishAppointmentEvent } from "@/lib/appointments-bus";
 
 const searchSchema = z.object({
   id: z.string().optional(),
+  d: z.string().optional(),
 });
 
 type StoredAppt = ApptLite & {
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/appointment/details")({
 });
 
 function DetailsPage() {
-  const { id } = Route.useSearch();
+  const { id, d } = Route.useSearch();
   const [appt, setAppt] = useState<StoredAppt | null>(null);
   const [missing, setMissing] = useState(false);
 
@@ -53,15 +54,29 @@ function DetailsPage() {
     }
     try {
       const raw = window.localStorage.getItem(`lubin:appt-details:${id}`);
-      if (!raw) {
-        setMissing(true);
+      if (raw) {
+        setAppt(JSON.parse(raw) as StoredAppt);
         return;
       }
-      setAppt(JSON.parse(raw) as StoredAppt);
+      if (d) {
+        const decoded = decodeURIComponent(escape(atob(d)));
+        const parsed = JSON.parse(decoded) as StoredAppt;
+        setAppt(parsed);
+        try {
+          window.localStorage.setItem(
+            `lubin:appt-details:${id}`,
+            JSON.stringify(parsed),
+          );
+        } catch {
+          /* noop */
+        }
+        return;
+      }
+      setMissing(true);
     } catch {
       setMissing(true);
     }
-  }, [id]);
+  }, [id, d]);
 
   const onChange = (patch: Partial<ApptLite>) => {
     if (!appt) return;
