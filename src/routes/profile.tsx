@@ -659,11 +659,43 @@ function ProfilePage() {
               <div
                 aria-live="polite"
                 aria-busy="true"
-                className="absolute inset-0 z-30 flex items-start justify-center rounded-2xl bg-[#F0EAFB]/60 backdrop-blur-[2px] pt-24 animate-fade-in"
+                className="absolute inset-0 z-30 space-y-6 rounded-2xl bg-[#F0EAFB]/80 p-1 backdrop-blur-[2px] animate-fade-in"
               >
-                <div className="flex items-center gap-3 rounded-full border border-[#DCD4F0]/60 bg-white/95 px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
-                  <Loader2 className="h-4 w-4 animate-spin text-[#7E6BAF]" />
-                  Loading…
+                {/* Header skeleton */}
+                <div className="space-y-3 px-1 pt-1">
+                  <div className="h-7 w-40 animate-pulse rounded-full bg-[#DCD4F0]/70" />
+                  <div className="h-3 w-72 animate-pulse rounded-full bg-[#DCD4F0]/60" />
+                </div>
+                {/* Card skeleton 1 */}
+                <div className="rounded-2xl border border-[#DCD4F0]/60 bg-white/70 p-6">
+                  <div className="h-4 w-32 animate-pulse rounded-full bg-[#DCD4F0]/70" />
+                  <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-[#DCD4F0]/60" />
+                      <div className="h-9 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-[#DCD4F0]/60" />
+                      <div className="h-9 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-[#DCD4F0]/60" />
+                      <div className="h-9 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-[#DCD4F0]/60" />
+                      <div className="h-9 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    </div>
+                  </div>
+                </div>
+                {/* Card skeleton 2 */}
+                <div className="rounded-2xl border border-[#DCD4F0]/60 bg-white/70 p-6">
+                  <div className="h-4 w-40 animate-pulse rounded-full bg-[#DCD4F0]/70" />
+                  <div className="mt-5 space-y-3">
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                    <div className="h-12 w-2/3 animate-pulse rounded-xl bg-[#DCD4F0]/50" />
+                  </div>
                 </div>
               </div>
             )}
