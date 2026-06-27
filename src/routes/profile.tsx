@@ -25,6 +25,7 @@ import {
   Wallet,
   ShieldCheck,
   Briefcase,
+  Loader2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
@@ -103,6 +104,22 @@ function ProfilePage() {
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
+  const [isHydrating, setIsHydrating] = useState<boolean>(true);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
+  // Initial hydration loader — gives time for localStorage reads & lazy widgets.
+  useEffect(() => {
+    const t = setTimeout(() => setIsHydrating(false), 350);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Show a short loader when switching sections / roles so the user gets
+  // immediate feedback instead of clicking again thinking nothing happened.
+  useEffect(() => {
+    setIsTransitioning(true);
+    const t = setTimeout(() => setIsTransitioning(false), 280);
+    return () => clearTimeout(t);
+  }, [activeSection, role]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -637,7 +654,19 @@ function ProfilePage() {
           </aside>
 
           {/* Main */}
-          <div className="space-y-6 lg:col-span-3">
+          <div className="relative space-y-6 lg:col-span-3">
+            {(isHydrating || isTransitioning) && (
+              <div
+                aria-live="polite"
+                aria-busy="true"
+                className="absolute inset-0 z-30 flex items-start justify-center rounded-2xl bg-[#F0EAFB]/60 backdrop-blur-[2px] pt-24 animate-fade-in"
+              >
+                <div className="flex items-center gap-3 rounded-full border border-[#DCD4F0]/60 bg-white/95 px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#7E6BAF]" />
+                  Loading…
+                </div>
+              </div>
+            )}
             {/* Page header */}
             {activeSection !== "chat" && activeSection !== "share" && (
               <header className="px-1">
