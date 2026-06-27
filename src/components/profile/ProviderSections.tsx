@@ -1368,6 +1368,12 @@ export function AppointmentsSection() {
         });
         if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
         refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
+      } else if (evt.type === "appt-updated") {
+        setAll((list) =>
+          list.map((a) =>
+            a.id === evt.id ? ({ ...a, ...(evt.patch as Partial<Appt>) }) : a,
+          ),
+        );
       }
     });
     return () => {
