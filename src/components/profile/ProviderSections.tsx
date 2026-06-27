@@ -1513,16 +1513,40 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                  <button
-                    onClick={() => setExpanded(expanded === a.id ? null : a.id)}
-                    className={`inline-flex items-center rounded-[8px] border px-4 py-2 text-sm font-medium transition ${
-                      isExpanded
-                        ? "border-[#A89BD0] text-[#3D2E6B] hover:bg-white"
-                        : "border-[#EAE7F5] text-[#3D2E6B] hover:bg-white"
-                    }`}
-                  >
-                    {isExpanded ? "Hide" : "Details"}
-                  </button>
+                  {a.status === "completed" ? (
+                    <button
+                      onClick={() => {
+                        try {
+                          window.localStorage.setItem(
+                            `lubin:appt-details:${a.id}`,
+                            JSON.stringify(a),
+                          );
+                        } catch {
+                          /* noop */
+                        }
+                        window.open(
+                          `/appointment/details?id=${encodeURIComponent(a.id)}`,
+                          "_blank",
+                          "noopener,noreferrer",
+                        );
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#EAE7F5] px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-white"
+                    >
+                      Details
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setExpanded(expanded === a.id ? null : a.id)}
+                      className={`inline-flex items-center rounded-[8px] border px-4 py-2 text-sm font-medium transition ${
+                        isExpanded
+                          ? "border-[#A89BD0] text-[#3D2E6B] hover:bg-white"
+                          : "border-[#EAE7F5] text-[#3D2E6B] hover:bg-white"
+                      }`}
+                    >
+                      {isExpanded ? "Hide" : "Details"}
+                    </button>
+                  )}
                 </div>
                 </div>
                 {isExpanded && (
