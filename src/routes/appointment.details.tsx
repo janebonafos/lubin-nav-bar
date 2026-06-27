@@ -135,81 +135,131 @@ function DetailsPage() {
     cancelled: "bg-rose-100 text-rose-700",
   };
 
+  const paymentChip = appt.paymentStatus
+    ? appt.paymentStatus === "Paid"
+      ? "bg-[#EFE8FB] text-[#3D2E6B]"
+      : appt.paymentStatus === "Pending"
+      ? "bg-amber-100 text-amber-700"
+      : appt.paymentStatus === "Refunded"
+      ? "bg-[#E0D9F7] text-[#3D2E6B]"
+      : "bg-rose-100 text-rose-700"
+    : "";
+
   return (
-    <div className="min-h-screen bg-[#FBF9FF]">
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <div className="mb-6 flex items-center justify-between gap-3">
+    <div className="min-h-screen w-full bg-[#FBF9FF] px-4 py-12">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 px-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
               Appointment details
             </p>
-            <h1 className="mt-1 text-2xl font-bold text-[#3D2E6B]">
+            <h1 className="mt-1 text-2xl font-semibold leading-tight text-[#3D2E6B]">
               {appt.client ?? "Session"}
             </h1>
             <p className="mt-1 text-sm text-[#7E6BAF]">
-              {appt.month} {appt.date} · {appt.time}
-              {appt.timezone ? ` · ${appt.timezone}` : ""}
+              Reference · #{appt.id.toString().toUpperCase()}
             </p>
           </div>
-          <span
-            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-              statusStyle[appt.status]
-            }`}
-          >
-            {appt.status}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              className={`rounded-full border border-[#EAE7F5] px-3 py-1 text-[11px] font-medium uppercase tracking-wider ${statusStyle[appt.status]}`}
+            >
+              {appt.status}
+            </span>
+            {appt.amount && (
+              <span className="rounded-full bg-[#3D2E6B] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white shadow-sm">
+                {appt.amount} payout
+              </span>
+            )}
+          </div>
         </div>
 
-        <section className="rounded-[14px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <div className="grid gap-6 sm:grid-cols-3">
-            {appt.client && <DetailItem label="Client" value={appt.client} />}
-            <DetailItem
-              label="When"
-              value={`${appt.month ?? ""} ${appt.date ?? ""} · ${appt.time ?? ""}${
-                appt.timezone ? ` · ${appt.timezone}` : ""
-              }`}
-            />
-            {appt.duration && <DetailItem label="Duration" value={appt.duration} />}
-            {appt.type && <DetailItem label="Session type" value={appt.type} />}
-            {appt.sessionFormat && (
-              <DetailItem label="Session format" value={appt.sessionFormat} />
+        {/* Key facts card */}
+        <section className="rounded-2xl border border-[#EAE7F5] bg-white p-8 shadow-sm">
+          <div className="grid grid-cols-1 gap-x-12 gap-y-8 md:grid-cols-2">
+            {appt.client && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                  Client
+                </p>
+                <p className="font-medium text-[#3D2E6B]">{appt.client}</p>
+              </div>
             )}
-            {appt.mode && <DetailItem label="Mode" value={appt.mode} />}
-            <DetailItem label="Status" value={appt.status} />
-            {appt.amount && <DetailItem label="Amount paid" value={appt.amount} />}
-            {appt.paymentStatus && (
-              <DetailItem
-                label="Payment status"
-                value={
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
-                      appt.paymentStatus === "Paid"
-                        ? "bg-[#E6F8F1] text-[#2D8E69]"
-                        : appt.paymentStatus === "Pending"
-                        ? "bg-amber-100 text-amber-700"
-                        : appt.paymentStatus === "Refunded"
-                        ? "bg-[#E0D9F7] text-[#3D2E6B]"
-                        : "bg-rose-100 text-rose-700"
-                    }`}
-                  >
-                    {appt.paymentStatus}
-                  </span>
-                }
-              />
+            <div className="space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                When
+              </p>
+              <p className="font-medium text-[#3D2E6B]">
+                {appt.month} {appt.date} · {appt.time}
+              </p>
+              {appt.timezone && (
+                <p className="text-[11px] text-[#7E6BAF]">{appt.timezone}</p>
+              )}
+            </div>
+            {(appt.duration || appt.type) && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                  Duration & Type
+                </p>
+                <p className="font-medium text-[#3D2E6B]">
+                  {[appt.duration, appt.type].filter(Boolean).join(" · ")}
+                </p>
+              </div>
             )}
-            <DetailItem label="Promo code" value={appt.promoCode ?? "—"} />
+            {(appt.sessionFormat || appt.mode) && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                  Format & Mode
+                </p>
+                <p className="font-medium text-[#3D2E6B]">
+                  {[appt.sessionFormat, appt.mode].filter(Boolean).join(" · ")}
+                </p>
+              </div>
+            )}
+            {(appt.amount || appt.paymentStatus) && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                  Payment
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {appt.amount && (
+                    <p className="font-medium text-[#3D2E6B]">{appt.amount}</p>
+                  )}
+                  {appt.paymentStatus && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${paymentChip}`}
+                    >
+                      {appt.paymentStatus}
+                    </span>
+                  )}
+                  {appt.promoCode && (
+                    <span className="rounded bg-[#F7F4FB] px-1.5 py-0.5 text-[11px] text-[#7E6BAF]">
+                      Promo · {appt.promoCode}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Status
+              </p>
+              <p className="font-medium capitalize text-[#3D2E6B]">
+                {appt.status}
+              </p>
+            </div>
           </div>
         </section>
 
-        <div className="mt-6">
-          <ApptNotesBlock appt={appt} onChange={onChange} />
-        </div>
+        {/* Notes / follow-up / private / AI — each floats as its own card via internal styling */}
+        <ApptNotesBlock appt={appt} onChange={onChange} />
 
         {appt.status === "completed" && (
           <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
         )}
 
-        <div className="mt-8 text-center">
+        <div className="pt-2 text-center">
           <button
             onClick={() => window.close()}
             className="text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
