@@ -2336,13 +2336,12 @@ export function PaymentsPayoutsSection() {
   const [connecting, setConnecting] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
-  const [schedule, setSchedule] = useState<"weekly" | "monthly" | "manual">("weekly");
-  const [payoutState, setPayoutState] = useState<"idle" | "processing" | "queued">("idle");
+  const [payoutState, setPayoutState] = useState<"idle" | "processing" | "sent">("idle");
 
-  const requestPayout = () => {
+  const processPayout = () => {
     if (status !== "connected" || payoutState !== "idle") return;
     setPayoutState("processing");
-    setTimeout(() => setPayoutState("queued"), 1200);
+    setTimeout(() => setPayoutState("sent"), 1400);
   };
 
   const handleManageAction = (action: "dashboard" | "switch") => {
