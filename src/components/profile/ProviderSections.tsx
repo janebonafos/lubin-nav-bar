@@ -42,6 +42,11 @@ import {
   Sparkles,
   Paperclip,
   Mic,
+  Lock,
+  Link2,
+  BookOpen,
+  Target,
+  Eye,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -1282,6 +1287,12 @@ export function AppointmentsSection() {
     recordingConsent?: { client: boolean; provider: boolean };
     aiSummary?: string;
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+    followUp?: {
+      summary?: string;
+      homework?: string;
+      resources?: { label: string; url: string }[];
+      nextFocus?: string;
+    };
   };
 
   const seed: Appt[] = [
@@ -1296,6 +1307,15 @@ export function AppointmentsSection() {
       recordingConsent: { client: true, provider: true },
       aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
       payoutStatus: "approved",
+      followUp: {
+        summary: "We explored how after-hours messages and overflowing meetings have been wearing you down, and practiced a kinder script for saying no when something isn't urgent.",
+        homework: "• Keep a daily wins journal — 3 entries each evening.\n• Practice the decline script aloud twice this week.\n• Track your mood (1–10) before and after work for 7 days.",
+        resources: [
+          { label: "Setting boundaries at work (article)", url: "https://www.mindful.org/" },
+          { label: "4-7-8 breathing — guided video", url: "https://www.youtube.com/" },
+        ],
+        nextFocus: "Review journal entries, refine the decline script, and start a short evening wind-down routine.",
+      },
     },
     {
       id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
@@ -1674,6 +1694,12 @@ type ApptLite = {
   recordingConsent?: { client: boolean; provider: boolean };
   aiSummary?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+  followUp?: {
+    summary?: string;
+    homework?: string;
+    resources?: { label: string; url: string }[];
+    nextFocus?: string;
+  };
 };
 
 function ApptNotesBlock({
@@ -1693,6 +1719,67 @@ function ApptNotesBlock({
   const [docDescription, setDocDescription] = useState("");
   const [docError, setDocError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Client follow-up local form state
+  const followUp = appt.followUp ?? {};
+  const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
+  const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
+  const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
+  const [fuDirty, setFuDirty] = useState(false);
+  const [resLabel, setResLabel] = useState("");
+  const [resUrl, setResUrl] = useState("");
+  const [resError, setResError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFuSummary(appt.followUp?.summary ?? "");
+    setFuHomework(appt.followUp?.homework ?? "");
+    setFuNextFocus(appt.followUp?.nextFocus ?? "");
+    setFuDirty(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt.id]);
+
+  const saveFollowUp = () => {
+    onChange({
+      followUp: {
+        ...followUp,
+        summary: fuSummary.trim() || undefined,
+        homework: fuHomework.trim() || undefined,
+        nextFocus: fuNextFocus.trim() || undefined,
+      },
+    });
+    setFuDirty(false);
+  };
+
+  const addResource = () => {
+    if (!resLabel.trim() || !resUrl.trim()) {
+      setResError("Add both a label and a link.");
+      return;
+    }
+    try {
+      // Allow http(s) only; accept bare domains by prepending https://
+      const normalized = /^https?:\/\//i.test(resUrl.trim())
+        ? resUrl.trim()
+        : `https://${resUrl.trim()}`;
+      // eslint-disable-next-line no-new
+      new URL(normalized);
+      onChange({
+        followUp: {
+          ...followUp,
+          resources: [...(followUp.resources ?? []), { label: resLabel.trim(), url: normalized }],
+        },
+      });
+      setResLabel("");
+      setResUrl("");
+      setResError(null);
+    } catch {
+      setResError("That doesn't look like a valid link.");
+    }
+  };
+
+  const removeResource = (idx: number) => {
+    const next = (followUp.resources ?? []).filter((_, i) => i !== idx);
+    onChange({ followUp: { ...followUp, resources: next } });
+  };
 
   const handleUpload = (files: FileList | null) => {
     if (!files || !files.length) return;
@@ -1733,10 +1820,259 @@ function ApptNotesBlock({
 
   return (
     <div className="mb-6 space-y-3">
-      {/* Provider notes */}
+      {/* ============ Client Follow-up (visible to client) ============ */}
+      {isCompleted && (
+        <div className="overflow-hidden rounded-[16px] border border-[#E5DCF5] bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#5B4796] shadow-sm">
+                <Eye className="h-3.5 w-3.5" />
+              </span>
+              <div>
+                <p className="text-sm font-bold text-[#3D2E6B]">Post-session follow-up</p>
+                <p className="text-[11px] text-[#7E6BAF]">Shared with your client after the session.</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+              Visible to client
+            </span>
+          </div>
+
+          <div className="space-y-4 p-4">
+            {/* Session Summary */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                <FileText className="h-3 w-3" /> Session summary
+              </label>
+              <textarea
+                value={fuSummary}
+                onChange={(e) => { setFuSummary(e.target.value); setFuDirty(true); }}
+                rows={3}
+                placeholder="A short, client-friendly recap of what you explored together."
+                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              />
+            </div>
+
+            {/* Homework */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                <Target className="h-3 w-3" /> Homework / action items
+              </label>
+              <textarea
+                value={fuHomework}
+                onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
+                rows={4}
+                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the attached worksheet\n• Track your mood for one week"}
+                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              />
+            </div>
+
+            {/* Attachments */}
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  <Paperclip className="h-3 w-3" /> Attachments
+                </label>
+                <span className="text-[10px] text-[#A89BD0]">
+                  {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
+                </span>
+              </div>
+
+              <ul className="mt-1.5 space-y-2">
+                {(appt.attachments ?? []).length === 0 && (
+                  <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
+                    No worksheets, handouts, or guides shared yet.
+                  </li>
+                )}
+                {(appt.attachments ?? []).map((f, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                  >
+                    <div className="flex min-w-0 items-start gap-2.5">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
+                        <FileText className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#3D2E6B]">{f.title || f.name}</p>
+                        {f.description && (
+                          <p className="mt-0.5 text-xs leading-relaxed text-[#5B4796]">{f.description}</p>
+                        )}
+                        <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
+                          {f.name} · {f.size}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeAttachment(i)}
+                      className="shrink-0 text-[#A89BD0] hover:text-[#3D2E6B]"
+                      aria-label="Remove attachment"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-2.5 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Share a new document</p>
+                <p className="mt-0.5 text-[11px] text-[#A89BD0]">PDF, DOCX, JPG, PNG, slides, care plans, meditation guides…</p>
+                <div className="mt-2 space-y-2">
+                  <input
+                    value={docTitle}
+                    onChange={(e) => { setDocTitle(e.target.value); if (docError) setDocError(null); }}
+                    placeholder="Document title (e.g. CBT worksheet)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <textarea
+                    value={docDescription}
+                    onChange={(e) => setDocDescription(e.target.value)}
+                    rows={2}
+                    placeholder="Short description so your client knows what this is for (optional)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
+                    <Upload className="h-3.5 w-3.5" />
+                    Choose file & upload
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple={false}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
+                      className="hidden"
+                      onChange={(e) => handleUpload(e.target.files)}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommended resources */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                <BookOpen className="h-3 w-3" /> Recommended resources
+              </label>
+              <p className="mt-0.5 text-[11px] text-[#A89BD0]">
+                External links: YouTube videos, articles, podcasts, books, apps, Google Drive files…
+              </p>
+
+              <ul className="mt-2 space-y-2">
+                {(followUp.resources ?? []).length === 0 && (
+                  <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
+                    No links shared yet.
+                  </li>
+                )}
+                {(followUp.resources ?? []).map((r, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2"
+                  >
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
+                        <Link2 className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#3D2E6B]">{r.label}</p>
+                        <a
+                          href={r.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block truncate text-[11px] text-[#5B4796] hover:text-[#3D2E6B] hover:underline"
+                        >
+                          {r.url}
+                        </a>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeResource(i)}
+                      className="shrink-0 text-[#A89BD0] hover:text-[#3D2E6B]"
+                      aria-label="Remove resource"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-2 grid gap-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3 sm:grid-cols-[1fr_1fr_auto]">
+                <input
+                  value={resLabel}
+                  onChange={(e) => { setResLabel(e.target.value); if (resError) setResError(null); }}
+                  placeholder="Label (e.g. Breathing exercise video)"
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+                <input
+                  value={resUrl}
+                  onChange={(e) => { setResUrl(e.target.value); if (resError) setResError(null); }}
+                  placeholder="https://…"
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+                <button
+                  onClick={addResource}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add link
+                </button>
+                {resError && (
+                  <p className="text-[11px] font-medium text-rose-600 sm:col-span-3">{resError}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Next session focus */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                <CalendarClock className="h-3 w-3" /> Next session focus
+                <span className="font-normal normal-case tracking-normal text-[#A89BD0]">(optional)</span>
+              </label>
+              <textarea
+                value={fuNextFocus}
+                onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
+                rows={2}
+                placeholder="What we'll explore together next time."
+                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              />
+            </div>
+
+            {/* Save bar */}
+            <div className="flex items-center justify-end gap-2 border-t border-[#F0EAFB] pt-3">
+              {fuDirty && (
+                <span className="mr-auto text-[11px] italic text-[#A89BD0]">Unsaved changes</span>
+              )}
+              <button
+                onClick={() => {
+                  setFuSummary(appt.followUp?.summary ?? "");
+                  setFuHomework(appt.followUp?.homework ?? "");
+                  setFuNextFocus(appt.followUp?.nextFocus ?? "");
+                  setFuDirty(false);
+                }}
+                disabled={!fuDirty}
+                className="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B] disabled:opacity-40"
+              >
+                Discard
+              </button>
+              <button
+                onClick={saveFollowUp}
+                disabled={!fuDirty}
+                className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:opacity-40"
+              >
+                Save follow-up
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ Private Notes (provider only) ============ */}
       <div className="rounded-[14px] border border-[#F0EAFB] bg-white p-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Session notes</p>
+          <div className="flex items-center gap-1.5">
+            <Lock className="h-3 w-3 text-[#A89BD0]" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Private notes {isCompleted && <span className="text-[#A89BD0]/70">· provider only</span>}
+            </p>
+          </div>
           {isCompleted && !editing && (
             <button
               onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
@@ -1746,9 +2082,14 @@ function ApptNotesBlock({
             </button>
           )}
         </div>
+        {isCompleted && (
+          <p className="mt-1 text-[11px] italic text-[#A89BD0]">
+            Private notes are only visible to you and will never be shared with your client.
+          </p>
+        )}
         {!editing ? (
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
-            {appt.notes || <span className="text-[#A89BD0] italic">No notes yet.</span>}
+            {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
           </p>
         ) : (
           <div className="mt-2 space-y-2">
@@ -1757,7 +2098,7 @@ function ApptNotesBlock({
               onChange={(e) => setDraft(e.target.value)}
               rows={4}
               className="w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              placeholder="Write your session notes here…"
+              placeholder={"Session observations, progress notes, clinical/coaching reflections, follow-up reminders, treatment considerations, topics to revisit…"}
             />
             <div className="flex justify-end gap-2">
               <button
@@ -1772,93 +2113,6 @@ function ApptNotesBlock({
               >
                 Save notes
               </button>
-            </div>
-          </div>
-        )}
-
-        {isCompleted && (
-          <div className="mt-3 border-t border-[#F0EAFB] pt-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Shared documents
-              </p>
-              <span className="text-[10px] text-[#A89BD0]">
-                {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
-              </span>
-            </div>
-
-            {/* Document list */}
-            <ul className="mt-2 space-y-2">
-              {(appt.attachments ?? []).length === 0 && (
-                <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
-                  No documents shared yet.
-                </li>
-              )}
-              {(appt.attachments ?? []).map((f, i) => (
-                <li
-                  key={i}
-                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
-                >
-                  <div className="flex min-w-0 items-start gap-2.5">
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
-                      <FileText className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#3D2E6B]">
-                        {f.title || f.name}
-                      </p>
-                      {f.description && (
-                        <p className="mt-0.5 text-xs leading-relaxed text-[#5B4796]">
-                          {f.description}
-                        </p>
-                      )}
-                      <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
-                        {f.name} · {f.size}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeAttachment(i)}
-                    className="shrink-0 text-[#A89BD0] hover:text-[#3D2E6B]"
-                    aria-label="Remove attachment"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            {/* Upload form */}
-            <div className="mt-3 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Share a new document
-              </p>
-              <div className="mt-2 space-y-2">
-                <input
-                  value={docTitle}
-                  onChange={(e) => { setDocTitle(e.target.value); if (docError) setDocError(null); }}
-                  placeholder="Document title (e.g. Boundary-setting worksheet)"
-                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
-                <textarea
-                  value={docDescription}
-                  onChange={(e) => setDocDescription(e.target.value)}
-                  rows={2}
-                  placeholder="Short description so your client knows what this is for (optional)"
-                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
-                {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
-                  <Paperclip className="h-3.5 w-3.5" />
-                  Choose file & upload
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => handleUpload(e.target.files)}
-                  />
-                </label>
-              </div>
             </div>
           </div>
         )}
