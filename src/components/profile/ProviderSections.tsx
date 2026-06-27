@@ -1287,6 +1287,12 @@ export function AppointmentsSection() {
     recordingConsent?: { client: boolean; provider: boolean };
     aiSummary?: string;
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+    followUp?: {
+      summary?: string;
+      homework?: string;
+      resources?: { label: string; url: string }[];
+      nextFocus?: string;
+    };
   };
 
   const seed: Appt[] = [
@@ -1301,6 +1307,15 @@ export function AppointmentsSection() {
       recordingConsent: { client: true, provider: true },
       aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
       payoutStatus: "approved",
+      followUp: {
+        summary: "We explored how after-hours messages and overflowing meetings have been wearing you down, and practiced a kinder script for saying no when something isn't urgent.",
+        homework: "• Keep a daily wins journal — 3 entries each evening.\n• Practice the decline script aloud twice this week.\n• Track your mood (1–10) before and after work for 7 days.",
+        resources: [
+          { label: "Setting boundaries at work (article)", url: "https://www.mindful.org/" },
+          { label: "4-7-8 breathing — guided video", url: "https://www.youtube.com/" },
+        ],
+        nextFocus: "Review journal entries, refine the decline script, and start a short evening wind-down routine.",
+      },
     },
     {
       id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
