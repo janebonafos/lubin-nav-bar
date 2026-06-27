@@ -1,10 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 
 const searchSchema = z.object({
@@ -87,7 +85,6 @@ function ReschedulePage() {
   const monthLabel = viewMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   const atCurrentMonth =
     viewMonth.getFullYear() === today.getFullYear() && viewMonth.getMonth() === today.getMonth();
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [time, setTime] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [done, setDone] = useState(false);
