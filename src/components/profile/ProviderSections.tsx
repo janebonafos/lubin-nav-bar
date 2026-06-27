@@ -1835,10 +1835,10 @@ export function PaymentsPayoutsSection() {
                   {manageOpen && (
                     <>
                       <div
-                        className="fixed inset-0 z-30"
+                        className="fixed inset-0 z-[60]"
                         onClick={() => setManageOpen(false)}
                       />
-                      <div className="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-2xl border border-[#EEE7FA] bg-white p-1.5 shadow-[0_20px_50px_-20px_rgba(61,46,107,0.35)]">
+                      <div className="absolute right-0 z-[70] mt-2 w-64 overflow-hidden rounded-2xl border border-[#EEE7FA] bg-white p-1.5 shadow-[0_20px_50px_-20px_rgba(61,46,107,0.35)]">
                         <button
                           onClick={() => handleManageAction("dashboard")}
                           className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F8F5FF]"
