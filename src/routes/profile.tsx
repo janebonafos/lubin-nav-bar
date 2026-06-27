@@ -436,7 +436,7 @@ function ProfilePage() {
 
   return (
     <div
-      className="relative min-h-screen overflow-x-clip bg-[#F0EAFB]"
+      className="relative min-h-screen bg-[#F0EAFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#7E6BAF]/20 blur-[120px]" />
