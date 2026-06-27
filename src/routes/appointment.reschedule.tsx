@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -243,7 +244,15 @@ function ReschedulePage() {
             </button>
             <button
               disabled={!date || !time}
-              onClick={() => setDone(true)}
+              onClick={() => {
+                const label = date
+                  ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+                  : "";
+                toast.success("Reschedule request sent", {
+                  description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
+                });
+                setDone(true);
+              }}
               className="rounded-[10px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Confirm reschedule
