@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -32,28 +32,33 @@ const TIMES = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM
 
 function ReschedulePage() {
   const s = Route.useSearch();
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+  const [viewMonth, setViewMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const days = useMemo(() => {
-    const out: { iso: string; label: string; dom: string; dow: string; mon: string; monthStart: boolean }[] = [];
-    const base = new Date();
-    let lastMonth = -1;
-    for (let i = 1; i <= 14; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      const m = d.getMonth();
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const last = new Date(year, month + 1, 0).getDate();
+    const out: { iso: string; dom: string; dow: string; isPast: boolean }[] = [];
+    for (let i = 1; i <= last; i++) {
+      const d = new Date(year, month, i);
       out.push({
-        iso: d.toISOString().slice(0, 10),
-        label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-        dom: String(d.getDate()),
+        iso: `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
+        dom: String(i),
         dow: d.toLocaleDateString(undefined, { weekday: "short" }).toUpperCase(),
-        mon: d.toLocaleDateString(undefined, { month: "short" }).toUpperCase(),
-        monthStart: m !== lastMonth,
+        isPast: d < today,
       });
-      lastMonth = m;
     }
     return out;
-  }, []);
+  }, [viewMonth, today]);
 
-  const [date, setDate] = useState(days[0]?.iso ?? "");
+  const [date, setDate] = useState("");
+  const monthLabel = viewMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const atCurrentMonth =
+    viewMonth.getFullYear() === today.getFullYear() && viewMonth.getMonth() === today.getMonth();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [time, setTime] = useState<string | null>(null);
   const [reason, setReason] = useState("");
