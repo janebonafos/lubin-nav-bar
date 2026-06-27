@@ -765,7 +765,7 @@ export function CalendarAvailabilitySection() {
             </p>
           </div>
           {provider ? (
-            <span className="shrink-0 rounded-[10px] border border-green-100 bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
+            <span className="shrink-0 rounded-[10px] border border-[#E5DCF5] bg-[#EFE8FB] px-3 py-1 text-xs font-medium text-[#3D2E6B]">
               Sync Active
             </span>
           ) : (
