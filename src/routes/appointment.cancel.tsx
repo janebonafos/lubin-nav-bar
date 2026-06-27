@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { AlertTriangle, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -158,7 +159,12 @@ function CancelPage() {
             </button>
             <button
               disabled={!reason || !confirm}
-              onClick={() => setDone(true)}
+              onClick={() => {
+                toast.success("Appointment cancelled", {
+                  description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
+                });
+                setDone(true);
+              }}
               className="rounded-[10px] bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel appointment
