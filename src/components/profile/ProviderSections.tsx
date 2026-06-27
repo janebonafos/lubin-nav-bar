@@ -53,6 +53,34 @@ import {
 
 /* ---------- shared shells ---------- */
 
+function Row({
+  label,
+  value,
+  sub,
+  muted,
+  bold,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  muted?: boolean;
+  bold?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#A89BD0]">
+        {label}
+      </span>
+      <div className="text-right">
+        <p className={`${bold ? "text-base font-bold" : "text-sm font-semibold"} ${muted ? "text-[#7E6BAF]" : "text-[#3D2E6B]"}`}>
+          {value}
+        </p>
+        {sub && <p className="text-[10px] text-[#A89BD0]">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
 function SectionCard({
   title,
   description,
