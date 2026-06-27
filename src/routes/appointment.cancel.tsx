@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { AlertTriangle, ArrowLeft, ArrowRight, CalendarX2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { publishAppointmentEvent } from "@/lib/appointments-bus";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -47,6 +48,16 @@ function CancelPage() {
     const t = setTimeout(() => setReady(true), 450);
     return () => clearTimeout(t);
   }, []);
+
+  // Release the lock if the user closes the tab without completing.
+  useEffect(() => {
+    if (!s.id) return;
+    const onUnload = () => {
+      if (!done) publishAppointmentEvent({ type: "unlock", id: s.id! });
+    };
+    window.addEventListener("beforeunload", onUnload);
+    return () => window.removeEventListener("beforeunload", onUnload);
+  }, [s.id, done]);
 
   if (!ready) {
     return <CancelSkeleton />;
@@ -241,6 +252,7 @@ function CancelPage() {
                   toast.success("Appointment cancelled", {
                     description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
                   });
+                  if (s.id) publishAppointmentEvent({ type: "cancelled", id: s.id });
                   setDone(true);
                 }, 700);
               }}
