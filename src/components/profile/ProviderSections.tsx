@@ -37,6 +37,8 @@ import {
   Globe,
   CheckCircle2,
   Info,
+  ArrowLeftRight,
+  Link2Off,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
