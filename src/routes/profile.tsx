@@ -500,7 +500,7 @@ function ProfilePage() {
                         : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
                     }`}
                   >
-                    {r === "client" ? "Personal" : "Practice"}
+                    {r === "client" ? "Personal" : "Professional"}
                   </button>
                 ))}
               </div>
