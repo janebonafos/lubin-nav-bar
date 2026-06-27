@@ -2244,7 +2244,7 @@ export function ApptPayoutStatus({
   } as const;
   const m = map[status];
   return (
-    <div className="mb-6 flex items-start justify-between gap-3 rounded-[14px] border border-[#F0EAFB] bg-white p-4">
+    <div className="flex items-start justify-between gap-3 rounded-[20px] border border-[#EEE6FA] bg-white p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F4EEFE] text-[#5B4796]">
           <Wallet className="h-3.5 w-3.5" />
