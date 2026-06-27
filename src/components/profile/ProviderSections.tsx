@@ -47,6 +47,8 @@ import {
   BookOpen,
   Target,
   Eye,
+  Banknote,
+  Zap,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
