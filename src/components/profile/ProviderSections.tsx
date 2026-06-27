@@ -2359,7 +2359,6 @@ export function PaymentsPayoutsSection() {
     setPayoutState("processing");
     setTimeout(() => setPayoutState("sent"), 1400);
   };
-  };
 
   const handleManageAction = (action: "dashboard" | "switch") => {
     setManageOpen(false);
