@@ -6,7 +6,8 @@ export type AppointmentEvent =
   | { type: "lock"; id: string; action: "cancel" | "reschedule" }
   | { type: "unlock"; id: string }
   | { type: "cancelled"; id: string }
-  | { type: "rescheduled"; id: string; date?: string; time?: string };
+  | { type: "rescheduled"; id: string; date?: string; time?: string }
+  | { type: "appt-updated"; id: string; patch: Record<string, unknown> };
 
 const CHANNEL = "lubin-appointments";
 const STORAGE_KEY = "lubin:appt-event";

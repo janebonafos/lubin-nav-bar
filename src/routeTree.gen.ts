@@ -27,6 +27,7 @@ import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
+import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -121,6 +122,11 @@ const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
   path: '/appointment/reschedule',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppointmentDetailsRoute = AppointmentDetailsRouteImport.update({
+  id: '/appointment/details',
+  path: '/appointment/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
   id: '/appointment/cancel',
   path: '/appointment/cancel',
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
+  '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
+  '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
+  '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/enhance-profile'
     | '/appointment/cancel'
+    | '/appointment/details'
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/enhance-profile'
     | '/appointment/cancel'
+    | '/appointment/details'
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/enhance-profile'
     | '/appointment/cancel'
+    | '/appointment/details'
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
+  AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
   ProviderIdRoute: typeof ProviderIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppointmentRescheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/appointment/details': {
+      id: '/appointment/details'
+      path: '/appointment/details'
+      fullPath: '/appointment/details'
+      preLoaderRoute: typeof AppointmentDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/appointment/cancel': {
       id: '/appointment/cancel'
       path: '/appointment/cancel'
@@ -481,6 +501,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
+  AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
   ProviderIdRoute: ProviderIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
