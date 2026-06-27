@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Globe2, Video } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -101,23 +101,13 @@ function ReschedulePage() {
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Current appointment</p>
-          <div className="mt-3 grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center gap-3">
-              <CalendarDays className="h-4 w-4 text-[#A89BD0]" />
-              <span className="text-sm font-medium text-[#3D2E6B]">{s.date} · {s.time}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="h-4 w-4 text-[#A89BD0]" />
-              <span className="text-sm text-[#3D2E6B]">{s.type} · {s.duration}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Video className="h-4 w-4 text-[#A89BD0]" />
-              <span className="text-sm text-[#3D2E6B]">{s.mode}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Globe2 className="h-4 w-4 text-[#A89BD0]" />
-              <span className="text-sm text-[#3D2E6B]">{s.timezone}</span>
-            </div>
+          <div className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            <DetailRow label="Client" value={s.client ?? "—"} />
+            <DetailRow label="Session" value={s.type ?? "—"} />
+            <DetailRow label="When" value={`${s.date ?? ""} · ${s.time ?? ""}`} />
+            <DetailRow label="Duration" value={s.duration ?? "—"} />
+            <DetailRow label="Mode" value={s.mode ?? "—"} />
+            <DetailRow label="Timezone" value={s.timezone ?? "—"} />
           </div>
         </section>
 
@@ -185,6 +175,15 @@ function ReschedulePage() {
           </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-1 border-l-2 border-[#EAE7F5] pl-3">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</span>
+      <span className="text-sm font-medium text-[#3D2E6B]">{value}</span>
     </div>
   );
 }
