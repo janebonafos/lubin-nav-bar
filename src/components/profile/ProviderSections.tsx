@@ -1666,6 +1666,240 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
   );
 }
 
+type ApptLite = {
+  id: string;
+  status: "upcoming" | "completed" | "cancelled";
+  notes?: string;
+  attachments?: { name: string; size: string }[];
+  recordingConsent?: { client: boolean; provider: boolean };
+  aiSummary?: string;
+  payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+};
+
+function ApptNotesBlock({
+  appt,
+  onChange,
+}: {
+  appt: ApptLite;
+  onChange: (patch: Partial<ApptLite>) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(appt.notes ?? "");
+  const isCompleted = appt.status === "completed";
+  const consent = appt.recordingConsent;
+  const bothConsent = !!consent?.client && !!consent?.provider;
+  const [generating, setGenerating] = useState(false);
+
+  const handleUpload = (files: FileList | null) => {
+    if (!files || !files.length) return;
+    const items = Array.from(files).map((f) => ({
+      name: f.name,
+      size: f.size > 1024 * 1024 ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(f.size / 1024))} KB`,
+    }));
+    onChange({ attachments: [...(appt.attachments ?? []), ...items] });
+  };
+
+  const removeAttachment = (idx: number) => {
+    const next = (appt.attachments ?? []).filter((_, i) => i !== idx);
+    onChange({ attachments: next });
+  };
+
+  const generateSummary = () => {
+    setGenerating(true);
+    window.setTimeout(() => {
+      onChange({
+        aiSummary:
+          "Session focused on coping strategies and emotional regulation. Provider introduced a breathing exercise and a thought-reframing template. Action items captured below. Tone remained collaborative throughout.",
+      });
+      setGenerating(false);
+    }, 900);
+  };
+
+  return (
+    <div className="mb-6 space-y-3">
+      {/* Provider notes */}
+      <div className="rounded-[14px] border border-[#F0EAFB] bg-white p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Session notes</p>
+          {isCompleted && !editing && (
+            <button
+              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
+              className="text-xs font-semibold text-[#5B4796] hover:text-[#3D2E6B]"
+            >
+              {appt.notes ? "Edit" : "Add notes"}
+            </button>
+          )}
+        </div>
+        {!editing ? (
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
+            {appt.notes || <span className="text-[#A89BD0] italic">No notes yet.</span>}
+          </p>
+        ) : (
+          <div className="mt-2 space-y-2">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={4}
+              className="w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              placeholder="Write your session notes here…"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setEditing(false); setDraft(appt.notes ?? ""); }}
+                className="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); }}
+                className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+              >
+                Save notes
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isCompleted && (
+          <div className="mt-3 border-t border-[#F0EAFB] pt-3">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Attachments</p>
+            <div className="mt-2 space-y-2">
+              {(appt.attachments ?? []).map((f, i) => (
+                <div key={i} className="flex items-center justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <FileText className="h-4 w-4 shrink-0 text-[#7E6BAF]" />
+                    <p className="truncate text-sm font-medium text-[#3D2E6B]">{f.name}</p>
+                    <span className="shrink-0 text-xs text-[#A89BD0]">{f.size}</span>
+                  </div>
+                  <button
+                    onClick={() => removeAttachment(i)}
+                    className="text-[#A89BD0] hover:text-[#3D2E6B]"
+                    aria-label="Remove attachment"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] border border-dashed border-[#CDBFEC] bg-white px-3 py-2 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFE]">
+                <Paperclip className="h-3.5 w-3.5" />
+                Upload document
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => { handleUpload(e.target.files); e.currentTarget.value = ""; }}
+                />
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* AI summary — only when both parties consented to recording */}
+      {isCompleted && (
+        <div className="relative overflow-hidden rounded-[16px] border border-[#D7C9F2] bg-gradient-to-br from-[#F4EEFE] via-[#EBE0FB] to-[#E2D2F9] p-4">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/40 blur-2xl" />
+          <div className="relative flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4796] to-[#3D2E6B] text-white shadow-sm">
+                <Sparkles className="h-3.5 w-3.5" />
+              </span>
+              <p className="text-sm font-semibold text-[#3D2E6B]">Lubin AI session summary</p>
+            </div>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                bothConsent
+                  ? "bg-white/80 text-[#3D2E6B]"
+                  : "bg-white/60 text-[#7E6BAF]"
+              }`}
+            >
+              <Mic className="h-3 w-3" />
+              {bothConsent ? "Both consented" : "Consent required"}
+            </span>
+          </div>
+
+          {!bothConsent ? (
+            <p className="relative mt-3 text-xs leading-relaxed text-[#5B4796]">
+              An AI summary is generated only when both you and the client agreed to record this session. Consent status:
+              <span className="ml-1 font-semibold">
+                Client {consent?.client ? "✓" : "—"} · You {consent?.provider ? "✓" : "—"}
+              </span>
+            </p>
+          ) : appt.aiSummary ? (
+            <p className="relative mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[#2C2050]">
+              {appt.aiSummary}
+            </p>
+          ) : (
+            <div className="relative mt-3 flex items-center justify-between gap-3">
+              <p className="text-xs text-[#5B4796]">Recording processed. Generate a summary you can save with the session.</p>
+              <button
+                onClick={generateSummary}
+                disabled={generating}
+                className="inline-flex items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:opacity-60"
+              >
+                {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                {generating ? "Generating…" : "Generate summary"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ApptPayoutStatus({
+  status,
+}: {
+  status: NonNullable<ApptLite["payoutStatus"]>;
+}) {
+  const map = {
+    pending_review: {
+      label: "Pending Lubin review",
+      desc: "We'll review session details before releasing your payout.",
+      tone: "bg-[#FDF3E7] text-[#8A5A1A] border-[#F6E0BD]",
+      icon: <CalendarClock className="h-3.5 w-3.5" />,
+    },
+    in_review: {
+      label: "In review by Lubin",
+      desc: "Our team is verifying this session. No action needed from you.",
+      tone: "bg-[#EFE8FB] text-[#3D2E6B] border-[#D7C9F2]",
+      icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
+    },
+    approved: {
+      label: "Approved for payout",
+      desc: "Reviewed by the Lubin team. Earnings will be released on your next payout cycle.",
+      tone: "bg-[#E8F1FB] text-[#1F3D72] border-[#C9D9F2]",
+      icon: <ShieldCheck className="h-3.5 w-3.5" />,
+    },
+    paid: {
+      label: "Paid out",
+      desc: "Earnings for this session have been released to your connected account.",
+      tone: "bg-[#EFE8FB] text-[#3D2E6B] border-[#D7C9F2]",
+      icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+    },
+  } as const;
+  const m = map[status];
+  return (
+    <div className="mb-6 flex items-start justify-between gap-3 rounded-[14px] border border-[#F0EAFB] bg-white p-4">
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F4EEFE] text-[#5B4796]">
+          <Wallet className="h-3.5 w-3.5" />
+        </span>
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Payout review</p>
+          <p className="mt-1 text-sm font-semibold text-[#3D2E6B]">{m.label}</p>
+          <p className="mt-1 text-xs leading-relaxed text-[#7E6BAF]">{m.desc}</p>
+        </div>
+      </div>
+      <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${m.tone}`}>
+        {m.icon}
+        {m.label}
+      </span>
+    </div>
+  );
+}
+
 function ApptShimmer({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded-[8px] bg-[#EAE7F5] ${className}`} />;
 }
