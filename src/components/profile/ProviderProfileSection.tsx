@@ -837,6 +837,37 @@ export default function ProviderProfileSection({
   }>({ about: false, sessions: false, availability: false });
   const [enhanceOpen, setEnhanceOpen] = useState<null | "headline" | "bio">(null);
 
+  // Share profile: editable slug (persisted) + copy feedback
+  const SLUG_KEY = "lubin.providerSlug.v1";
+  const slugify = (s: string) =>
+    s
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  const [slug, setSlug] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(SLUG_KEY);
+    if (saved) setSlug(saved);
+    else setSlug(slugify(fullName) || "your-name");
+  }, [fullName]);
+  useEffect(() => {
+    if (typeof window === "undefined" || !slug) return;
+    window.localStorage.setItem(SLUG_KEY, slug);
+  }, [slug]);
+  const copyShareLink = async () => {
+    const url = `https://lubin.com/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch { /* ignore */ }
+  };
+
   // Load + persist
   useEffect(() => {
     if (typeof window === "undefined") return;
