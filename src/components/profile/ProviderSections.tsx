@@ -1347,6 +1347,10 @@ export function AppointmentsSection() {
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
 
+  if (loading) {
+    return <AppointmentsSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -1357,7 +1361,14 @@ export function AppointmentsSection() {
 
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="p-6">
-          <h2 className="text-xl font-semibold text-[#3D2E6B]">Bookings</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-[#3D2E6B]">Bookings</h2>
+            {refreshing && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                <Loader2 className="h-3 w-3 animate-spin" /> Updating
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm text-[#7E6BAF]">Everything on your schedule.</p>
           <div className="mt-6 inline-flex gap-2 rounded-[10px] bg-[#F0EAFB] p-1">
           {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
