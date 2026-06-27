@@ -1833,7 +1833,7 @@ export function PaymentsPayoutsSection() {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                      Bank-level encryption, zero Lubin fees
+                      Secure, bank-level encryption end to end
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
