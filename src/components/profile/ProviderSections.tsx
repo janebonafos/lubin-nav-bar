@@ -1741,9 +1741,11 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* ---------------- Payout account ---------------- */}
-      <div className="relative overflow-hidden rounded-[28px] border border-[#EEE7FA] bg-gradient-to-br from-white via-[#FAF7FF] to-[#F3ECFB] p-7 shadow-[0_24px_60px_-32px_rgba(61,46,107,0.35)]">
-        {/* Decorative orb */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gradient-to-br from-[#C9BEE4]/40 to-transparent blur-2xl" />
+      <div className="relative rounded-[28px] border border-[#EEE7FA] bg-gradient-to-br from-white via-[#FAF7FF] to-[#F3ECFB] p-7 shadow-[0_24px_60px_-32px_rgba(61,46,107,0.35)]">
+        {/* Decorative orb (clipped to card) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gradient-to-br from-[#C9BEE4]/40 to-transparent blur-2xl" />
+        </div>
 
         <div className="relative flex flex-wrap items-start justify-between gap-4">
           <div>
