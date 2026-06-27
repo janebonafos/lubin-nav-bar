@@ -1692,7 +1692,7 @@ function ApptNotesBlock({
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
   const [docError, setDocError] = useState<string | null>(null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = (files: FileList | null) => {
     if (!files || !files.length) return;
