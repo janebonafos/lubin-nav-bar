@@ -971,7 +971,7 @@ export default function ProviderProfileSection({
             <div className="relative shrink-0">
               <label
                 htmlFor={onAvatarChange ? "provider-avatar-upload" : undefined}
-                className={`group relative block h-24 w-24 overflow-hidden rounded-2xl bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] shadow-lg shadow-[#3D2E6B]/20 ${onAvatarChange ? "cursor-pointer" : ""}`}
+                className={`group relative block h-24 w-24 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#8478B0] via-[#5B4A8E] to-[#2E2356] shadow-[0_12px_30px_-8px_rgba(46,35,86,0.45)] ring-1 ring-white/10 ${onAvatarChange ? "cursor-pointer" : ""}`}
               >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName || "Provider"} className="h-full w-full object-cover" />
@@ -1013,11 +1013,11 @@ export default function ProviderProfileSection({
                   </>
                 )}
               </label>
-              {data.calendarConnected && (
-                <div className="absolute -bottom-1.5 -right-1.5 rounded-full bg-white p-1">
-                  <div className="h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
+              <div className="pointer-events-none absolute -bottom-2 -right-2 rounded-full bg-white p-[3px] shadow-[0_4px_12px_-2px_rgba(46,35,86,0.35)]">
+                <div className="rounded-full bg-gradient-to-br from-[#3D2E6B] to-[#2A1F4F] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+                  Pro
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="flex min-w-0 flex-col justify-center">
