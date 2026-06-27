@@ -2336,13 +2336,12 @@ export function PaymentsPayoutsSection() {
   const [connecting, setConnecting] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
-  const [schedule, setSchedule] = useState<"weekly" | "monthly" | "manual">("weekly");
-  const [payoutState, setPayoutState] = useState<"idle" | "processing" | "queued">("idle");
+  const [payoutState, setPayoutState] = useState<"idle" | "processing" | "sent">("idle");
 
-  const requestPayout = () => {
+  const processPayout = () => {
     if (status !== "connected" || payoutState !== "idle") return;
     setPayoutState("processing");
-    setTimeout(() => setPayoutState("queued"), 1200);
+    setTimeout(() => setPayoutState("sent"), 1400);
   };
 
   const handleManageAction = (action: "dashboard" | "switch") => {
@@ -2389,8 +2388,8 @@ export function PaymentsPayoutsSection() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Stat label="Available balance" value="$1,240.00" hint="Next payout Jul 1" />
-        <Stat label="This month" value="$3,180.00" hint="18 sessions completed" />
+        <Stat label="Available balance" value="$1,240.00" hint="Approved by Lubin · ready to withdraw" />
+        <Stat label="Pending review" value="$420.00" hint="3 sessions under Lubin review" />
         <Stat label="Lifetime earnings" value="$12,840.00" />
       </div>
 
@@ -2627,16 +2626,16 @@ export function PaymentsPayoutsSection() {
                 Payouts
               </p>
               <h3 className="mt-0.5 text-lg font-semibold text-[#3D2E6B]">
-                Process your earnings
+                Withdraw your earnings
               </h3>
               <p className="mt-1 max-w-md text-xs leading-relaxed text-[#5E4F8A]">
-                Released automatically on your schedule, or request a manual payout anytime your balance is above the minimum.
+                Lubin reviews every completed session before releasing earnings. Approved balance lands here — withdraw to your connected {brand.name} account anytime.
               </p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5 text-right">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
-              Available to payout
+              Available to withdraw
             </p>
             <p className="text-2xl font-bold text-[#3D2E6B]">$1,240.00</p>
             <p className="text-[11px] text-[#7E6BAF]">
@@ -2645,54 +2644,35 @@ export function PaymentsPayoutsSection() {
           </div>
         </div>
 
-        {/* Schedule selector */}
+        {/* How it works */}
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          {([
-            { id: "weekly", label: "Weekly", hint: "Every Monday" },
-            { id: "monthly", label: "Monthly", hint: "1st of the month" },
-            { id: "manual", label: "Manual", hint: "You request payouts" },
-          ] as const).map((opt) => {
-            const active = schedule === opt.id;
-            return (
-              <button
-                key={opt.id}
-                onClick={() => setSchedule(opt.id)}
-                className={`group relative rounded-2xl border p-4 text-left transition ${
-                  active
-                    ? "border-[#3D2E6B] bg-[#F4EEFE] shadow-[0_8px_20px_-12px_rgba(61,46,107,0.4)]"
-                    : "border-[#EEE7FA] bg-white hover:border-[#C9BEE4] hover:bg-[#FBF9FF]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className={`text-sm font-semibold ${active ? "text-[#3D2E6B]" : "text-[#3D2E6B]/80"}`}>
-                    {opt.label}
-                  </p>
-                  {active && (
-                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#3D2E6B] text-white">
-                      <Check className="h-2.5 w-2.5" />
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-[11px] text-[#7E6BAF]">{opt.hint}</p>
-              </button>
-            );
-          })}
+          {[
+            { n: "1", title: "Session completed", desc: "You mark the appointment as done with notes." },
+            { n: "2", title: "Lubin reviews", desc: "Our team verifies the session before releasing funds." },
+            { n: "3", title: "Withdraw anytime", desc: `Approved earnings appear here, ready for ${brand.name}.` },
+          ].map((step) => (
+            <div key={step.n} className="rounded-2xl border border-[#EEE7FA] bg-white p-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#F4EEFE] text-[11px] font-bold text-[#3D2E6B]">
+                  {step.n}
+                </span>
+                <p className="text-sm font-semibold text-[#3D2E6B]">{step.title}</p>
+              </div>
+              <p className="mt-2 text-[11px] leading-relaxed text-[#7E6BAF]">{step.desc}</p>
+            </div>
+          ))}
         </div>
 
         {/* Action row */}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EEE7FA] bg-[#FBF9FF] p-4">
           <div className="flex items-center gap-2 text-xs text-[#5E4F8A]">
-            <CalendarClock className="h-3.5 w-3.5 text-[#7E6BAF]" />
-            {schedule === "manual" ? (
-              <span>Auto-payouts paused. Request a payout whenever you're ready.</span>
-            ) : (
-              <span>
-                Next automatic payout · <span className="font-semibold text-[#3D2E6B]">{schedule === "weekly" ? "Mon, Jul 1" : "Jul 1"}</span>
-              </span>
-            )}
+            <Banknote className="h-3.5 w-3.5 text-[#7E6BAF]" />
+            <span>
+              Withdraws straight to your connected <span className="font-semibold text-[#3D2E6B]">{brand.name}</span> account.
+            </span>
           </div>
           <button
-            onClick={requestPayout}
+            onClick={processPayout}
             disabled={status !== "connected" || payoutState !== "idle"}
             className="inline-flex items-center gap-2 rounded-full bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.55)] transition hover:bg-[#2A1F4F] disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -2700,13 +2680,13 @@ export function PaymentsPayoutsSection() {
               <>
                 <Loader2 className="h-4 w-4 animate-spin" /> Sending to {brand.name}…
               </>
-            ) : payoutState === "queued" ? (
+            ) : payoutState === "sent" ? (
               <>
-                <CheckCircle2 className="h-4 w-4" /> Payout queued
+                <CheckCircle2 className="h-4 w-4" /> Payout on the way
               </>
             ) : (
               <>
-                <Zap className="h-4 w-4" /> Request payout now
+                <Zap className="h-4 w-4" /> Withdraw $1,240.00
               </>
             )}
           </button>
@@ -2719,7 +2699,7 @@ export function PaymentsPayoutsSection() {
           </p>
         )}
 
-        {payoutState === "queued" && (
+        {payoutState === "sent" && (
           <div className="mt-3 flex items-start gap-2 rounded-xl border border-[#D7C9F2] bg-[#F4EEFE] px-3 py-2.5 text-[11px] leading-relaxed text-[#3D2E6B]">
             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
