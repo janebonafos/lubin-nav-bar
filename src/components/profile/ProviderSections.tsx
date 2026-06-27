@@ -1689,14 +1689,30 @@ function ApptNotesBlock({
   const consent = appt.recordingConsent;
   const bothConsent = !!consent?.client && !!consent?.provider;
   const [generating, setGenerating] = useState(false);
+  const [docTitle, setDocTitle] = useState("");
+  const [docDescription, setDocDescription] = useState("");
+  const [docError, setDocError] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleUpload = (files: FileList | null) => {
     if (!files || !files.length) return;
-    const items = Array.from(files).map((f) => ({
+    if (!docTitle.trim()) {
+      setDocError("Add a title so your client knows what this is.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const f = files[0];
+    const item = {
       name: f.name,
       size: f.size > 1024 * 1024 ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(f.size / 1024))} KB`,
-    }));
-    onChange({ attachments: [...(appt.attachments ?? []), ...items] });
+      title: docTitle.trim(),
+      description: docDescription.trim() || undefined,
+    };
+    onChange({ attachments: [...(appt.attachments ?? []), item] });
+    setDocTitle("");
+    setDocDescription("");
+    setDocError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const removeAttachment = (idx: number) => {
@@ -1762,34 +1778,87 @@ function ApptNotesBlock({
 
         {isCompleted && (
           <div className="mt-3 border-t border-[#F0EAFB] pt-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Attachments</p>
-            <div className="mt-2 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                Shared documents
+              </p>
+              <span className="text-[10px] text-[#A89BD0]">
+                {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
+              </span>
+            </div>
+
+            {/* Document list */}
+            <ul className="mt-2 space-y-2">
+              {(appt.attachments ?? []).length === 0 && (
+                <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
+                  No documents shared yet.
+                </li>
+              )}
               {(appt.attachments ?? []).map((f, i) => (
-                <div key={i} className="flex items-center justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <FileText className="h-4 w-4 shrink-0 text-[#7E6BAF]" />
-                    <p className="truncate text-sm font-medium text-[#3D2E6B]">{f.name}</p>
-                    <span className="shrink-0 text-xs text-[#A89BD0]">{f.size}</span>
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                >
+                  <div className="flex min-w-0 items-start gap-2.5">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
+                      <FileText className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[#3D2E6B]">
+                        {f.title || f.name}
+                      </p>
+                      {f.description && (
+                        <p className="mt-0.5 text-xs leading-relaxed text-[#5B4796]">
+                          {f.description}
+                        </p>
+                      )}
+                      <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
+                        {f.name} · {f.size}
+                      </p>
+                    </div>
                   </div>
                   <button
                     onClick={() => removeAttachment(i)}
-                    className="text-[#A89BD0] hover:text-[#3D2E6B]"
+                    className="shrink-0 text-[#A89BD0] hover:text-[#3D2E6B]"
                     aria-label="Remove attachment"
                   >
                     <X className="h-4 w-4" />
                   </button>
-                </div>
+                </li>
               ))}
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] border border-dashed border-[#CDBFEC] bg-white px-3 py-2 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFE]">
-                <Paperclip className="h-3.5 w-3.5" />
-                Upload document
+            </ul>
+
+            {/* Upload form */}
+            <div className="mt-3 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                Share a new document
+              </p>
+              <div className="mt-2 space-y-2">
                 <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => { handleUpload(e.target.files); e.currentTarget.value = ""; }}
+                  value={docTitle}
+                  onChange={(e) => { setDocTitle(e.target.value); if (docError) setDocError(null); }}
+                  placeholder="Document title (e.g. Boundary-setting worksheet)"
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
-              </label>
+                <textarea
+                  value={docDescription}
+                  onChange={(e) => setDocDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Short description so your client knows what this is for (optional)"
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+                {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
+                  <Paperclip className="h-3.5 w-3.5" />
+                  Choose file & upload
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => handleUpload(e.target.files)}
+                  />
+                </label>
+              </div>
             </div>
           </div>
         )}
