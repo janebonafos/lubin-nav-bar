@@ -1793,7 +1793,7 @@ export function PaymentsPayoutsSection() {
         {/* Provider card */}
         <div className="relative mt-5">
           {status === "connected" ? (
-            <div className="rounded-[22px] border border-emerald-200/70 bg-white/80 p-5 backdrop-blur">
+            <div className={`relative rounded-[22px] border border-emerald-200/70 bg-white/80 p-5 backdrop-blur ${manageOpen ? "z-50" : ""}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${brand.gradient} text-white shadow-md ${brand.shadow}`}>
