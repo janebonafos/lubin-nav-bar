@@ -62,10 +62,7 @@ function CancelPage() {
               Cancellation confirmed
             </span>
 
-            <h1
-              className="mb-4 text-center text-[32px] leading-[1.1] text-[#3D2E6B]"
-              style={{ fontFamily: '"Instrument Serif", Georgia, serif' }}
-            >
+            <h1 className="font-serif-display mb-4 text-center text-[32px] leading-[1.1] text-[#3D2E6B]">
               The session has been cancelled.
             </h1>
 
