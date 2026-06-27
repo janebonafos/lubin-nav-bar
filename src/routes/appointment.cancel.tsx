@@ -45,48 +45,110 @@ function CancelPage() {
   if (done) {
     const whenLabel = [s.date, s.time].filter(Boolean).join(" · ");
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F9F8FF] px-6 py-12" style={{ fontFamily: "Inter, sans-serif" }}>
-        <main className="w-full max-w-md">
-          <div className="rounded-[16px] border border-[#EAE7F5] bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F3F0FF]">
-              <CalendarX2 className="h-7 w-7 text-[#5B4796]" />
-            </div>
-            <p className="mt-5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Cancellation confirmed</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#3D2E6B]">
-              The session has been cancelled
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-[#7E6BAF]">
-              We've let {s.client ?? "your client"} know and freed up this slot on your calendar.
-            </p>
+      <div
+        className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16"
+        style={{
+          fontFamily: "Inter, sans-serif",
+          background:
+            "radial-gradient(circle at 20% 0%, #E9E1F8 0%, transparent 55%), radial-gradient(circle at 85% 100%, #F4E8FF 0%, transparent 50%), #F7F4FD",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-32 top-1/4 h-72 w-72 rounded-full bg-[#C9BEE4] opacity-20 blur-3xl" />
+          <div className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-[#A89BD0] opacity-20 blur-3xl" />
+        </div>
 
-            {(whenLabel || s.type) && (
-              <div className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-[#FBF9FF] p-4 text-left">
-                {s.type && (
-                  <>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Session</p>
-                    <p className="mt-1 text-sm font-medium text-[#3D2E6B]">{s.type}</p>
-                  </>
-                )}
-                {whenLabel && (
-                  <>
-                    <p className={`text-[10px] font-bold uppercase tracking-wider text-[#A89BD0] ${s.type ? "mt-3" : ""}`}>When</p>
-                    <p className="mt-1 text-sm font-medium text-[#3D2E6B]">{whenLabel}</p>
-                  </>
-                )}
+        <main className="relative w-full max-w-md">
+          <div
+            className="overflow-hidden rounded-[20px] border border-white/70 bg-white/90 backdrop-blur-xl"
+            style={{ boxShadow: "0 30px 80px -30px rgba(61, 46, 107, 0.35), 0 1px 0 rgba(255,255,255,0.6) inset" }}
+          >
+            {/* Header band */}
+            <div className="relative px-10 pb-8 pt-10 text-center">
+              <div
+                className="absolute inset-x-0 top-0 h-32 opacity-70"
+                style={{ background: "linear-gradient(180deg, #EFE7FB 0%, transparent 100%)" }}
+              />
+              <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
+                <div className="absolute inset-0 animate-pulse rounded-full bg-[#C9BEE4]/40 blur-xl" />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-[#E1D7F2] bg-white shadow-[0_8px_24px_-12px_rgba(61,46,107,0.4)]">
+                  <CalendarX2 className="h-7 w-7 text-[#5B4796]" strokeWidth={1.6} />
+                </div>
               </div>
-            )}
+              <p className="relative mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">
+                Cancellation confirmed
+              </p>
+              <h1
+                className="relative mt-3 text-[28px] leading-tight text-[#2C2148]"
+                style={{ fontFamily: '"Instrument Serif", "Cormorant Garamond", Georgia, serif', fontWeight: 400, letterSpacing: "-0.01em" }}
+              >
+                The session has been cancelled.
+              </h1>
+              <p className="relative mx-auto mt-3 max-w-xs text-[13.5px] leading-relaxed text-[#7E6BAF]">
+                We've let <span className="font-medium text-[#5B4796]">{s.client ?? "your client"}</span> know and freed up this slot on your calendar.
+              </p>
+            </div>
 
-            <p className="mt-6 text-xs leading-relaxed text-[#A89BD0]">
-              If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
-            </p>
+            {/* Perforated separator */}
+            <div className="relative h-6">
+              <div className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F7F4FD]" />
+              <div className="absolute right-0 top-1/2 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F7F4FD]" />
+              <div
+                className="absolute inset-x-6 top-1/2 -translate-y-1/2 border-t border-dashed"
+                style={{ borderColor: "#E1D7F2" }}
+              />
+            </div>
 
-            <button
-              onClick={() => window.close()}
-              className="mt-7 inline-flex w-full justify-center rounded-[10px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#2C2B4B]"
-            >
-              Close this tab
-            </button>
+            {/* Receipt body */}
+            <div className="px-10 pb-8 pt-2">
+              {(whenLabel || s.type) && (
+                <dl className="space-y-4">
+                  {s.type && (
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Session</dt>
+                      <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{s.type}</dd>
+                    </div>
+                  )}
+                  {whenLabel && (
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">When</dt>
+                      <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{whenLabel}</dd>
+                    </div>
+                  )}
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Client</dt>
+                    <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{s.client ?? "—"}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Status</dt>
+                    <dd className="inline-flex items-center gap-1.5 rounded-full bg-[#F3EDFB] px-2.5 py-0.5 text-[11px] font-semibold text-[#5B4796]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#5B4796]" />
+                      Cancelled
+                    </dd>
+                  </div>
+                </dl>
+              )}
+
+              <div className="mt-7 rounded-[12px] border border-[#EFE7FB] bg-[#FBF9FF] px-4 py-3">
+                <p className="text-[11.5px] leading-relaxed text-[#7E6BAF]">
+                  If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
+                </p>
+              </div>
+
+              <button
+                onClick={() => window.close()}
+                className="group mt-7 inline-flex w-full items-center justify-center gap-2 rounded-[12px] bg-[#3D2E6B] px-5 py-3 text-[13.5px] font-semibold tracking-wide text-white transition hover:bg-[#2C2148]"
+                style={{ boxShadow: "0 12px 24px -12px rgba(61, 46, 107, 0.6)" }}
+              >
+                Close this tab
+                <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
+              </button>
+            </div>
           </div>
+
+          <p className="mt-6 text-center text-[11px] uppercase tracking-[0.25em] text-[#A89BD0]">
+            Lubin · Care coordination
+          </p>
         </main>
       </div>
     );
