@@ -1677,7 +1677,7 @@ export function AppointmentsSection() {
   );
 }
 
-function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
+export function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
