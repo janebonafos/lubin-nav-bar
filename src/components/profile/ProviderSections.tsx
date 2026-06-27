@@ -2616,6 +2616,120 @@ export function PaymentsPayoutsSection() {
         </div>
       </div>
 
+      {/* ---------------- Payout schedule & request ---------------- */}
+      <div className="rounded-[24px] border border-[#EEE7FA] bg-white p-6 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3D2E6B] to-[#5B4796] text-white shadow-[0_8px_18px_-8px_rgba(61,46,107,0.55)]">
+              <Banknote className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
+                Payouts
+              </p>
+              <h3 className="mt-0.5 text-lg font-semibold text-[#3D2E6B]">
+                Process your earnings
+              </h3>
+              <p className="mt-1 max-w-md text-xs leading-relaxed text-[#5E4F8A]">
+                Released automatically on your schedule, or request a manual payout anytime your balance is above the minimum.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1.5 text-right">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
+              Available to payout
+            </p>
+            <p className="text-2xl font-bold text-[#3D2E6B]">$1,240.00</p>
+            <p className="text-[11px] text-[#7E6BAF]">
+              Min. payout $50 · arrives in 1–2 business days
+            </p>
+          </div>
+        </div>
+
+        {/* Schedule selector */}
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          {([
+            { id: "weekly", label: "Weekly", hint: "Every Monday" },
+            { id: "monthly", label: "Monthly", hint: "1st of the month" },
+            { id: "manual", label: "Manual", hint: "You request payouts" },
+          ] as const).map((opt) => {
+            const active = schedule === opt.id;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setSchedule(opt.id)}
+                className={`group relative rounded-2xl border p-4 text-left transition ${
+                  active
+                    ? "border-[#3D2E6B] bg-[#F4EEFE] shadow-[0_8px_20px_-12px_rgba(61,46,107,0.4)]"
+                    : "border-[#EEE7FA] bg-white hover:border-[#C9BEE4] hover:bg-[#FBF9FF]"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <p className={`text-sm font-semibold ${active ? "text-[#3D2E6B]" : "text-[#3D2E6B]/80"}`}>
+                    {opt.label}
+                  </p>
+                  {active && (
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#3D2E6B] text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] text-[#7E6BAF]">{opt.hint}</p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Action row */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EEE7FA] bg-[#FBF9FF] p-4">
+          <div className="flex items-center gap-2 text-xs text-[#5E4F8A]">
+            <CalendarClock className="h-3.5 w-3.5 text-[#7E6BAF]" />
+            {schedule === "manual" ? (
+              <span>Auto-payouts paused. Request a payout whenever you're ready.</span>
+            ) : (
+              <span>
+                Next automatic payout · <span className="font-semibold text-[#3D2E6B]">{schedule === "weekly" ? "Mon, Jul 1" : "Jul 1"}</span>
+              </span>
+            )}
+          </div>
+          <button
+            onClick={requestPayout}
+            disabled={status !== "connected" || payoutState !== "idle"}
+            className="inline-flex items-center gap-2 rounded-full bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.55)] transition hover:bg-[#2A1F4F] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {payoutState === "processing" ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Sending to {brand.name}…
+              </>
+            ) : payoutState === "queued" ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" /> Payout queued
+              </>
+            ) : (
+              <>
+                <Zap className="h-4 w-4" /> Request payout now
+              </>
+            )}
+          </button>
+        </div>
+
+        {status !== "connected" && (
+          <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[#7E6BAF]">
+            <AlertCircle className="h-3 w-3" />
+            Connect a {brand.name} account above to enable payouts.
+          </p>
+        )}
+
+        {payoutState === "queued" && (
+          <div className="mt-3 flex items-start gap-2 rounded-xl border border-[#D7C9F2] bg-[#F4EEFE] px-3 py-2.5 text-[11px] leading-relaxed text-[#3D2E6B]">
+            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span>
+              Your $1,240.00 payout is on its way to your {brand.name} account. You'll get an email when it lands (1–2 business days).
+            </span>
+          </div>
+        )}
+      </div>
+
       <SectionCard
         title="Recent transactions"
       >
