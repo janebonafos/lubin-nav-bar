@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { AlertTriangle, ArrowLeft, ArrowRight, CalendarX2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, CalendarX2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -41,6 +41,16 @@ function CancelPage() {
   const [note, setNote] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!ready) {
+    return <CancelSkeleton />;
+  }
 
   if (done) {
     const whenLabel = [s.date, s.time].filter(Boolean).join(" · ");
@@ -225,15 +235,62 @@ function CancelPage() {
             <button
               disabled={!reason || !confirm}
               onClick={() => {
-                toast.success("Appointment cancelled", {
-                  description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
-                });
-                setDone(true);
+                if (submitting) return;
+                setSubmitting(true);
+                setTimeout(() => {
+                  toast.success("Appointment cancelled", {
+                    description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
+                  });
+                  setDone(true);
+                }, 700);
               }}
-              className="rounded-[10px] bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel appointment
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {submitting ? "Cancelling…" : "Cancel appointment"}
             </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function Shimmer({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-[8px] bg-[#EAE7F5] ${className}`} />;
+}
+
+function CancelSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#F9F8FF] py-12" style={{ fontFamily: "Inter, sans-serif" }}>
+      <main className="mx-auto max-w-2xl px-6">
+        <Shimmer className="h-4 w-16" />
+        <div className="mt-4 space-y-3">
+          <Shimmer className="h-3 w-32" />
+          <Shimmer className="h-8 w-72" />
+          <Shimmer className="h-4 w-full max-w-md" />
+        </div>
+        <Shimmer className="mt-6 h-16 w-full" />
+        <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <Shimmer className="h-3 w-24" />
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <Shimmer className="h-4 w-40" />
+            <Shimmer className="h-4 w-40" />
+            <Shimmer className="h-4 w-48" />
+          </div>
+        </section>
+        <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <Shimmer className="h-3 w-16" />
+          <div className="mt-3 flex flex-wrap gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Shimmer key={i} className="h-8 w-32" />
+            ))}
+          </div>
+          <Shimmer className="mt-6 h-3 w-40" />
+          <Shimmer className="mt-3 h-20 w-full" />
+          <div className="mt-6 flex justify-end gap-3">
+            <Shimmer className="h-10 w-36" />
+            <Shimmer className="h-10 w-40" />
           </div>
         </section>
       </main>
