@@ -2659,7 +2659,7 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* ---------------- Payout schedule & request ---------------- */}
-      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-gradient-to-br from-[#2C2B4B] via-[#3D2E6B] to-[#7E6BAF] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)] md:p-10">
+      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-gradient-to-br from-[#4A3A7A] via-[#5B4892] to-[#9A88C9] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)] md:p-10">
         {/* Dot grid texture */}
         <div
           className="pointer-events-none absolute inset-0 opacity-20"
@@ -2676,8 +2676,8 @@ export function PaymentsPayoutsSection() {
 
         <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur">
-              <Sparkles className="h-3 w-3" /> Lubin Wallet
+            <div className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur">
+              Lubin Wallet
             </div>
             <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#C9BEE4]">
               Available to withdraw
@@ -2697,11 +2697,9 @@ export function PaymentsPayoutsSection() {
           <button
             onClick={openComposer}
             disabled={status !== "connected" || balance < 50}
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#F4EEFE] px-6 py-3 text-sm font-semibold text-[#3D2E6B] shadow-lg transition-all hover:scale-105 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="group relative inline-flex items-center overflow-hidden rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)] transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:bg-white/85 disabled:hover:scale-100"
           >
-            <Zap className="h-[18px] w-[18px] transition-transform group-hover:rotate-12" />
             Withdraw now
-            <ArrowUpRight className="h-4 w-4 opacity-50 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
         </div>
 
@@ -2715,8 +2713,7 @@ export function PaymentsPayoutsSection() {
               key={s.label}
               className="group rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm transition-colors hover:bg-white/10"
             >
-              <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9BEE4]">
-                <span className="text-[#C9BEE4]">{s.icon}</span>
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9BEE4]">
                 {s.label}
               </div>
               <p className="text-xl font-semibold text-white">{s.value}</p>
