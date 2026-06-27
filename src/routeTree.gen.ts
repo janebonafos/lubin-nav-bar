@@ -25,6 +25,7 @@ import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
+import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
@@ -110,6 +111,11 @@ const ProviderIdRoute = ProviderIdRouteImport.update({
   path: '/provider/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfilePreviewRoute = ProfilePreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
   id: '/appointment/reschedule',
   path: '/appointment/reschedule',
@@ -139,7 +145,7 @@ export interface FileRoutesByFullPath {
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -161,7 +168,7 @@ export interface FileRoutesByTo {
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -184,7 +192,7 @@ export interface FileRoutesById {
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/privacy': typeof PrivacyRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
   '/resources': typeof ResourcesRoute
   '/self-discovery': typeof SelfDiscoveryRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/reschedule'
+    | '/profile/preview'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/reschedule'
+    | '/profile/preview'
     | '/provider/$id'
     | '/self-discovery/$slug'
     | '/share/$token'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/reschedule'
+    | '/profile/preview'
     | '/provider/$id'
     | '/self-discovery_/$slug'
     | '/share/$token'
@@ -275,7 +287,7 @@ export interface RootRouteChildren {
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
   PrivacyRoute: typeof PrivacyRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   ProviderOnboardingRoute: typeof ProviderOnboardingRoute
   ResourcesRoute: typeof ResourcesRoute
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
@@ -404,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/preview': {
+      id: '/profile/preview'
+      path: '/preview'
+      fullPath: '/profile/preview'
+      preLoaderRoute: typeof ProfilePreviewRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/appointment/reschedule': {
       id: '/appointment/reschedule'
       path: '/appointment/reschedule'
@@ -435,6 +454,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProfileRouteChildren {
+  ProfilePreviewRoute: typeof ProfilePreviewRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfilePreviewRoute: ProfilePreviewRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
@@ -443,7 +473,7 @@ const rootRouteChildren: RootRouteChildren = {
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
   PrivacyRoute: PrivacyRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   ProviderOnboardingRoute: ProviderOnboardingRoute,
   ResourcesRoute: ResourcesRoute,
   SelfDiscoveryRoute: SelfDiscoveryRoute,

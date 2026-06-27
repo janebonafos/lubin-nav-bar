@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Trash2,
   Languages as LanguagesIcon,
+  Eye,
 } from "lucide-react";
 import { useAvailabilityStore, formatTime12, DAY_KEYS } from "@/lib/availability-store";
 import type { WeekAvail } from "@/lib/availability-store";
@@ -938,6 +939,15 @@ export default function ProviderProfileSection({
             <ShieldCheck className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Provider Profile</span>
           </div>
+
+          <a
+            href="/profile/preview"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute right-6 top-6 z-20 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition hover:bg-white/25 sm:right-8 sm:top-8"
+          >
+            <Eye className="h-3.5 w-3.5" /> Preview as client
+          </a>
 
           <div className="flex items-center gap-5 sm:gap-6">
             <div className="relative shrink-0">
