@@ -1686,7 +1686,7 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
   );
 }
 
-type ApptLite = {
+export type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
   notes?: string;
@@ -1702,7 +1702,7 @@ type ApptLite = {
   };
 };
 
-function ApptNotesBlock({
+export function ApptNotesBlock({
   appt,
   onChange,
 }: {
