@@ -1278,14 +1278,31 @@ export function AppointmentsSection() {
     amount: string;
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
     promoCode?: string;
+    attachments?: { name: string; size: string }[];
+    recordingConsent?: { client: boolean; provider: boolean };
+    aiSummary?: string;
+    payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   };
 
   const seed: Appt[] = [
     { id: "u1", client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Follow-up on sleep journaling exercise from last session.", amount: "₱2,500", paymentStatus: "Paid" },
     { id: "u2", client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Intake consultation — review intake form prior to call.", amount: "₱1,200", paymentStatus: "Paid", promoCode: "WELCOME10" },
     { id: "u3", client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Group therapy", sessionFormat: "Group", mode: "Video", status: "upcoming", amount: "₱1,500", paymentStatus: "Pending" },
-    { id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "completed", notes: "Discussed boundary-setting at work. Homework: daily wins journal.", amount: "₱2,500", paymentStatus: "Paid" },
-    { id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed", amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20" },
+    {
+      id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "completed",
+      notes: "Discussed boundary-setting at work. Homework: daily wins journal.",
+      amount: "₱2,500", paymentStatus: "Paid",
+      attachments: [{ name: "session-19-jun-worksheet.pdf", size: "212 KB" }],
+      recordingConsent: { client: true, provider: true },
+      aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
+      payoutStatus: "approved",
+    },
+    {
+      id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
+      amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
+      recordingConsent: { client: false, provider: true },
+      payoutStatus: "in_review",
+    },
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
 
