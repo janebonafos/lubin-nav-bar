@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 
@@ -103,29 +103,98 @@ function ReschedulePage() {
     const chosenLabel = date
       ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
       : "";
+    const previousWhen = [s.date, s.time].filter(Boolean).join(" · ");
     return (
-      <div className="min-h-screen bg-[#F9F8FF] py-16" style={{ fontFamily: "Inter, sans-serif" }}>
-        <main className="mx-auto max-w-xl px-6 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F3F0FF]">
-            <CheckCircle2 className="h-7 w-7 text-[#3D2E6B]" />
-          </div>
-          <h1 className="mt-5 text-2xl font-semibold text-[#3D2E6B]">Reschedule request sent</h1>
-          <p className="mt-2 text-sm text-[#7E6BAF]">
-            We've notified {s.client ?? "the client"} about the new proposed time.
-          </p>
-          <div className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-5 text-left shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">New time</p>
-            <p className="mt-1 text-base font-semibold text-[#3D2E6B]">
-              {chosenLabel} · {time} {s.timezone ? `· ${s.timezone}` : ""}
-            </p>
-          </div>
-          <button
-            onClick={() => window.close()}
-            className="mt-8 inline-flex rounded-[10px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#2C2B4B]"
+      <div
+        className="flex min-h-screen items-center justify-center p-6"
+        style={{ fontFamily: "Inter, sans-serif", backgroundColor: "#F0EAFB" }}
+      >
+        <div className="flex w-full max-w-[460px] flex-col items-center">
+          <div
+            className="relative flex w-full flex-col items-center overflow-hidden rounded-[32px] bg-white p-10"
+            style={{ boxShadow: "0 24px 48px -12px rgba(61,46,107,0.08)" }}
           >
-            Close this tab
-          </button>
-        </main>
+            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-[#F0EAFB]">
+              <CalendarCheck2 className="h-6 w-6 text-[#3D2E6B]" strokeWidth={1.4} />
+            </div>
+
+            <span className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
+              Reschedule request sent
+            </span>
+
+            <h1 className="mb-4 text-center text-[32px] font-bold tracking-tight leading-[1.1] text-[#3D2E6B]">
+              A new time has been proposed.
+            </h1>
+
+            <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
+              We've notified{" "}
+              <span className="font-semibold text-[#3D2E6B]">{s.client ?? "your client"}</span> and
+              will confirm once they accept.
+            </p>
+
+            <div className="mb-10 flex w-full items-center gap-4">
+              <div className="flex-1 border-t border-dashed border-[#E5DEF2]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-[#E5DEF2]" />
+              <div className="flex-1 border-t border-dashed border-[#E5DEF2]" />
+            </div>
+
+            <div className="mb-10 w-full space-y-5">
+              {s.type && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Session</span>
+                  <span className="text-sm font-medium text-[#3D2E6B]">{s.type}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
+              </div>
+              {previousWhen && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Previous</span>
+                  <span className="text-sm font-medium text-[#3D2E6B] line-through opacity-60">{previousWhen}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">New time</span>
+                <span className="text-sm font-semibold text-[#3D2E6B]">
+                  {chosenLabel} · {time}
+                </span>
+              </div>
+              {s.timezone && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Timezone</span>
+                  <span className="text-sm font-medium text-[#3D2E6B]">{s.timezone}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Status</span>
+                <span className="flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-3 py-1 text-[11px] font-bold uppercase text-[#7E6BAF]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
+                  Awaiting client
+                </span>
+              </div>
+            </div>
+
+            <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
+              Your calendar will update automatically once {s.client ?? "your client"} confirms the new time.
+            </div>
+
+            <button
+              onClick={() => window.close()}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#3D2E6B] py-4 text-sm font-semibold text-white transition-all hover:bg-[#2D2250]"
+            >
+              Close this tab
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <footer className="mt-10 flex items-center gap-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E6BAF]">Lubin</span>
+            <span className="h-1 w-1 rounded-full bg-[#7E6BAF]/40" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E6BAF]">Care coordination</span>
+          </footer>
+        </div>
       </div>
     );
   }
