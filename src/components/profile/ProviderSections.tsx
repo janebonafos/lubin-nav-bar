@@ -1510,27 +1510,51 @@ export function AppointmentsSection() {
                       </div>
                     )}
                     {a.status === "upcoming" && (
-                      <div className="flex flex-wrap gap-3">
-                        <button className="rounded-[8px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B]">
-                          Join session
-                        </button>
-                        <a
-                          href={`/appointment/reschedule?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&mode=${encodeURIComponent(a.mode)}&timezone=${encodeURIComponent(a.timezone)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rounded-[8px] border border-[#EAE7F5] bg-white px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#FBF9FF]"
-                        >
-                          Reschedule
-                        </a>
-                        <a
-                          href={`/appointment/cancel?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&amount=${encodeURIComponent(a.amount)}&paymentStatus=${encodeURIComponent(a.paymentStatus)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-                        >
-                          Cancel
-                        </a>
-                      </div>
+                      (() => {
+                        const lock = locks[a.id];
+                        const isLocked = Boolean(lock);
+                        const rescheduleHref = `/appointment/reschedule?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&mode=${encodeURIComponent(a.mode)}&timezone=${encodeURIComponent(a.timezone)}`;
+                        const cancelHref = `/appointment/cancel?id=${encodeURIComponent(a.id)}&client=${encodeURIComponent(a.client)}&date=${encodeURIComponent(`${a.month} ${a.date}`)}&time=${encodeURIComponent(a.time)}&duration=${encodeURIComponent(a.duration)}&type=${encodeURIComponent(a.type)}&amount=${encodeURIComponent(a.amount)}&paymentStatus=${encodeURIComponent(a.paymentStatus)}`;
+                        const open = (href: string, action: "reschedule" | "cancel") => {
+                          if (isLocked) return;
+                          publishAppointmentEvent({ type: "lock", id: a.id, action });
+                          window.open(href, "_blank", "noopener,noreferrer");
+                        };
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-3">
+                              <button
+                                disabled={isLocked}
+                                className="rounded-[8px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                Join session
+                              </button>
+                              <button
+                                onClick={() => open(rescheduleHref, "reschedule")}
+                                disabled={isLocked}
+                                className="inline-flex items-center gap-2 rounded-[8px] border border-[#EAE7F5] bg-white px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#FBF9FF] disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {lock === "reschedule" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                Reschedule
+                              </button>
+                              <button
+                                onClick={() => open(cancelHref, "cancel")}
+                                disabled={isLocked}
+                                className="inline-flex items-center gap-2 rounded-[8px] border border-red-100 bg-white px-6 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {lock === "cancel" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                Cancel
+                              </button>
+                            </div>
+                            {isLocked && (
+                              <p className="inline-flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                {lock === "cancel" ? "Cancellation in progress" : "Reschedule in progress"} · finish in the other tab
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()
                     )}
                   </div>
                 )}
@@ -1584,6 +1608,45 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
       <p className="mt-1 text-sm font-medium capitalize text-[#3D2E6B]">{value}</p>
+    </div>
+  );
+}
+
+function ApptShimmer({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-[8px] bg-[#EAE7F5] ${className}`} />;
+}
+
+function AppointmentsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
+            <ApptShimmer className="h-3 w-20" />
+            <ApptShimmer className="mt-3 h-8 w-16" />
+            <ApptShimmer className="mt-3 h-3 w-28" />
+          </div>
+        ))}
+      </div>
+      <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
+        <div className="p-6">
+          <ApptShimmer className="h-5 w-32" />
+          <ApptShimmer className="mt-2 h-3 w-56" />
+          <ApptShimmer className="mt-6 h-9 w-72" />
+        </div>
+        <ul className="border-t border-[#F0EAFB]">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li key={i} className="flex items-center gap-6 border-b border-[#F0EAFB] p-6 last:border-b-0">
+              <ApptShimmer className="h-16 w-16" />
+              <div className="flex-1 space-y-2">
+                <ApptShimmer className="h-4 w-48" />
+                <ApptShimmer className="h-3 w-36" />
+              </div>
+              <ApptShimmer className="h-9 w-24" />
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
