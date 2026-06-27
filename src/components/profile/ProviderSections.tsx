@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  publishAppointmentEvent,
+  subscribeAppointmentEvents,
+} from "@/lib/appointments-bus";
 import {
   availabilityStore,
   useAvailabilityStore,
@@ -27,6 +31,7 @@ import {
   LayoutGrid,
   List,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
