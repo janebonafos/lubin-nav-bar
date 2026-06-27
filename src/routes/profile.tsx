@@ -437,7 +437,7 @@ function ProfilePage() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-[#F0EAFB]"
+      className="relative min-h-screen overflow-x-clip bg-[#F0EAFB]"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#7E6BAF]/20 blur-[120px]" />
@@ -472,7 +472,7 @@ function ProfilePage() {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
           {/* Sidebar — always show full sidebar with avatar + nav */}
           <aside className="lg:col-span-1">
-            <section className="sticky top-28 rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl">
+            <section className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl [scrollbar-width:thin]">
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
                 <div className="relative">
