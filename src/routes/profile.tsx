@@ -25,7 +25,6 @@ import {
   Wallet,
   ShieldCheck,
   Briefcase,
-  Loader2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
