@@ -2732,17 +2732,12 @@ export function PaymentsPayoutsSection() {
       {/* How it works — outside the dark card, lighter */}
       <div className="grid gap-3 sm:grid-cols-3">
         {[
-          { n: "01", title: "Session completed", desc: "You mark the appointment as done with notes.", icon: <CheckCircle2 className="h-4 w-4" /> },
-          { n: "02", title: "Lubin reviews", desc: "Our team verifies the session before releasing funds.", icon: <ShieldCheck className="h-4 w-4" /> },
-          { n: "03", title: "Withdraw in Lubin", desc: "Process payouts here — no Stripe redirects needed.", icon: <Zap className="h-4 w-4" /> },
+          { n: "01", title: "Session completed", desc: "You mark the appointment as done with notes." },
+          { n: "02", title: "Lubin reviews", desc: "Our team verifies the session before releasing funds." },
+          { n: "03", title: "Withdraw in Lubin", desc: "Process payouts here — no Stripe redirects needed." },
         ].map((step) => (
           <div key={step.n} className="rounded-2xl border border-[#EEE7FA] bg-white p-4 shadow-[0_6px_16px_-12px_rgba(61,46,107,0.25)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">{step.n}</span>
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F4EEFE] text-[#3D2E6B]">
-                {step.icon}
-              </span>
-            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">{step.n}</span>
             <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">{step.title}</p>
             <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{step.desc}</p>
           </div>
