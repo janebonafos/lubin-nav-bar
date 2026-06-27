@@ -30,17 +30,22 @@ const TIMES = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM
 function ReschedulePage() {
   const s = Route.useSearch();
   const days = useMemo(() => {
-    const out: { iso: string; label: string; dom: string; dow: string }[] = [];
+    const out: { iso: string; label: string; dom: string; dow: string; mon: string; monthStart: boolean }[] = [];
     const base = new Date();
+    let lastMonth = -1;
     for (let i = 1; i <= 14; i++) {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
+      const m = d.getMonth();
       out.push({
         iso: d.toISOString().slice(0, 10),
         label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
         dom: String(d.getDate()),
         dow: d.toLocaleDateString(undefined, { weekday: "short" }).toUpperCase(),
+        mon: d.toLocaleDateString(undefined, { month: "short" }).toUpperCase(),
+        monthStart: m !== lastMonth,
       });
+      lastMonth = m;
     }
     return out;
   }, []);
@@ -112,24 +117,41 @@ function ReschedulePage() {
         </section>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
+          <div className="mt-3 flex items-baseline justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+              {days.find((d) => d.iso === date)?.mon} {new Date(date || days[0]?.iso).getFullYear()}
+            </p>
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            {days.map((d) => (
-              <button
-                key={d.iso}
-                onClick={() => setDate(d.iso)}
-                className={`flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
-                  date === d.iso
-                    ? "border-[#5B4796] bg-[#5B4796] text-white"
-                    : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
-                }`}
-              >
-                <span className={`text-[9px] font-bold uppercase ${date === d.iso ? "text-white/80" : "text-[#A89BD0]"}`}>
-                  {d.dow}
-                </span>
-                <span className="text-lg font-bold leading-tight">{d.dom}</span>
-              </button>
-            ))}
+            {days.map((d) => {
+              const selected = date === d.iso;
+              return (
+                <button
+                  key={d.iso}
+                  onClick={() => setDate(d.iso)}
+                  className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
+                    selected
+                      ? "border-[#5B4796] bg-[#5B4796] text-white"
+                      : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
+                  }`}
+                >
+                  {d.monthStart && (
+                    <span
+                      className={`absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-1.5 py-px text-[8px] font-bold uppercase tracking-wider ${
+                        selected ? "bg-[#3D2E6B] text-white" : "bg-[#F3F0FF] text-[#5B4796]"
+                      }`}
+                    >
+                      {d.mon}
+                    </span>
+                  )}
+                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : "text-[#A89BD0]"}`}>
+                    {d.dow}
+                  </span>
+                  <span className="text-lg font-bold leading-tight">{d.dom}</span>
+                </button>
+              );
+            })}
           </div>
 
           <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a time</p>
