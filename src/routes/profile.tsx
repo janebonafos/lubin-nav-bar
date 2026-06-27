@@ -654,7 +654,19 @@ function ProfilePage() {
           </aside>
 
           {/* Main */}
-          <div className="space-y-6 lg:col-span-3">
+          <div className="relative space-y-6 lg:col-span-3">
+            {(isHydrating || isTransitioning) && (
+              <div
+                aria-live="polite"
+                aria-busy="true"
+                className="absolute inset-0 z-30 flex items-start justify-center rounded-2xl bg-[#F0EAFB]/60 backdrop-blur-[2px] pt-24 animate-fade-in"
+              >
+                <div className="flex items-center gap-3 rounded-full border border-[#DCD4F0]/60 bg-white/95 px-5 py-2.5 text-sm font-medium text-[#3D2E6B] shadow-[0_10px_30px_-10px_rgba(126,107,175,0.45)]">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#7E6BAF]" />
+                  Loading…
+                </div>
+              </div>
+            )}
             {/* Page header */}
             {activeSection !== "chat" && activeSection !== "share" && (
               <header className="px-1">
