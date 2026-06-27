@@ -2171,7 +2171,7 @@ export function ApptNotesBlock({
   );
 }
 
-function ApptPayoutStatus({
+export function ApptPayoutStatus({
   status,
 }: {
   status: NonNullable<ApptLite["payoutStatus"]>;
