@@ -2337,11 +2337,28 @@ export function PaymentsPayoutsSection() {
   const [manageOpen, setManageOpen] = useState(false);
   const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
   const [payoutState, setPayoutState] = useState<"idle" | "processing" | "sent">("idle");
+  const [composerOpen, setComposerOpen] = useState(false);
+  const balance = 1240;
+  const [amount, setAmount] = useState<string>(balance.toFixed(2));
 
-  const processPayout = () => {
-    if (status !== "connected" || payoutState !== "idle") return;
+  const amountNum = Number(amount) || 0;
+  const fee = 0; // covered by Lubin
+  const arrival = Math.max(0, amountNum - fee);
+  const belowMin = amountNum < 50;
+  const overBalance = amountNum > balance;
+
+  const openComposer = () => {
+    if (status !== "connected") return;
+    setAmount(balance.toFixed(2));
+    setPayoutState("idle");
+    setComposerOpen(true);
+  };
+
+  const confirmPayout = () => {
+    if (belowMin || overBalance || payoutState !== "idle") return;
     setPayoutState("processing");
     setTimeout(() => setPayoutState("sent"), 1400);
+  };
   };
 
   const handleManageAction = (action: "dashboard" | "switch") => {
