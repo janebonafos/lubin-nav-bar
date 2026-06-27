@@ -1688,6 +1688,18 @@ export function PaymentsPayoutsSection() {
   const provider = devRegion === "PH" ? "xendit" : "stripe";
   const [status, setStatus] = useState<"not_connected" | "connected">("not_connected");
   const [connecting, setConnecting] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
+
+  const handleManageAction = (action: "dashboard" | "switch") => {
+    setManageOpen(false);
+    setRedirecting(action);
+    // Simulated handoff — in production this opens the provider's hosted page.
+    setTimeout(() => {
+      setRedirecting(null);
+      if (action === "switch") setStatus("not_connected");
+    }, 1200);
+  };
 
   const handleConnect = () => {
     setConnecting(true);
