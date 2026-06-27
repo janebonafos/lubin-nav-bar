@@ -466,17 +466,22 @@ export default function Navbar() {
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
-                className="ml-1 inline-flex items-center justify-center rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white"
+                className="relative ml-1 inline-flex items-center justify-center rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white"
                 title={displayName}
                 aria-label={displayName}
               >
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-brand-purple text-[12px] font-semibold text-white">
+                <span className={`flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-[12px] font-semibold text-white ${isProvider ? "bg-gradient-to-br from-[#8478B0] via-[#5B4A8E] to-[#2E2356]" : "bg-brand-purple"}`}>
                   {userAvatar ? (
                     <img src={userAvatar} alt="" className="h-full w-full object-cover" />
                   ) : (
                     initials
                   )}
                 </span>
+                {isProvider && (
+                  <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 rounded-full bg-white px-[3px] py-[1px] text-[7px] font-extrabold uppercase tracking-[0.08em] leading-none text-white">
+                    <span className="block rounded-full bg-gradient-to-br from-[#3D2E6B] to-[#2A1F4F] px-1 py-[2px]">PRO</span>
+                  </span>
+                )}
               </button>
               {userMenuOpen && (
                 <div
