@@ -60,12 +60,9 @@ function ReschedulePage() {
   const [done, setDone] = useState(false);
 
   if (done) {
-    const chosen = days.find((d) => d.iso === date);
-    const chosenLabel =
-      chosen?.label ??
-      (date
-        ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
-        : "");
+    const chosenLabel = date
+      ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+      : "";
     return (
       <div className="min-h-screen bg-[#F9F8FF] py-16" style={{ fontFamily: "Inter, sans-serif" }}>
         <main className="mx-auto max-w-xl px-6 text-center">
