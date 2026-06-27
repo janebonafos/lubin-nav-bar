@@ -39,6 +39,9 @@ import {
   Info,
   ArrowLeftRight,
   Link2Off,
+  Sparkles,
+  Paperclip,
+  Mic,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
