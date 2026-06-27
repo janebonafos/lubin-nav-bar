@@ -1524,8 +1524,18 @@ export function AppointmentsSection() {
                         } catch {
                           /* noop */
                         }
+                        let payload = "";
+                        try {
+                          payload = btoa(
+                            unescape(encodeURIComponent(JSON.stringify(a))),
+                          );
+                        } catch {
+                          /* noop */
+                        }
                         window.open(
-                          `/appointment/details?id=${encodeURIComponent(a.id)}`,
+                          `/appointment/details?id=${encodeURIComponent(a.id)}${
+                            payload ? `&d=${payload}` : ""
+                          }`,
                           "_blank",
                           "noopener,noreferrer",
                         );
