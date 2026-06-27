@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { AlertTriangle, ArrowLeft, CalendarX2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, CalendarX2 } from "lucide-react";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -46,110 +46,88 @@ function CancelPage() {
     const whenLabel = [s.date, s.time].filter(Boolean).join(" · ");
     return (
       <div
-        className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16"
-        style={{
-          fontFamily: "Inter, sans-serif",
-          background:
-            "radial-gradient(circle at 20% 0%, #E9E1F8 0%, transparent 55%), radial-gradient(circle at 85% 100%, #F4E8FF 0%, transparent 50%), #F7F4FD",
-        }}
+        className="flex min-h-screen items-center justify-center p-6"
+        style={{ fontFamily: "Inter, sans-serif", backgroundColor: "#F0EAFB" }}
       >
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-32 top-1/4 h-72 w-72 rounded-full bg-[#C9BEE4] opacity-20 blur-3xl" />
-          <div className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-[#A89BD0] opacity-20 blur-3xl" />
-        </div>
-
-        <main className="relative w-full max-w-md">
+        <div className="flex w-full max-w-[460px] flex-col items-center">
           <div
-            className="overflow-hidden rounded-[20px] border border-white/70 bg-white/90 backdrop-blur-xl"
-            style={{ boxShadow: "0 30px 80px -30px rgba(61, 46, 107, 0.35), 0 1px 0 rgba(255,255,255,0.6) inset" }}
+            className="relative flex w-full flex-col items-center overflow-hidden rounded-[32px] bg-white p-10"
+            style={{ boxShadow: "0 24px 48px -12px rgba(61,46,107,0.08)" }}
           >
-            {/* Header band */}
-            <div className="relative px-10 pb-8 pt-10 text-center">
-              <div
-                className="absolute inset-x-0 top-0 h-32 opacity-70"
-                style={{ background: "linear-gradient(180deg, #EFE7FB 0%, transparent 100%)" }}
-              />
-              <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 animate-pulse rounded-full bg-[#C9BEE4]/40 blur-xl" />
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-[#E1D7F2] bg-white shadow-[0_8px_24px_-12px_rgba(61,46,107,0.4)]">
-                  <CalendarX2 className="h-7 w-7 text-[#5B4796]" strokeWidth={1.6} />
+            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-[#F0EAFB]">
+              <CalendarX2 className="h-6 w-6 text-[#3D2E6B]" strokeWidth={1.4} />
+            </div>
+
+            <span className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
+              Cancellation confirmed
+            </span>
+
+            <h1
+              className="mb-4 text-center text-[32px] leading-[1.1] text-[#3D2E6B]"
+              style={{ fontFamily: '"Instrument Serif", Georgia, serif' }}
+            >
+              The session has been cancelled.
+            </h1>
+
+            <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
+              We've let{" "}
+              <span className="font-semibold text-[#3D2E6B]">
+                {s.client ?? "your client"}
+              </span>{" "}
+              know and freed up this slot on your calendar.
+            </p>
+
+            <div className="mb-10 flex w-full items-center gap-4">
+              <div className="flex-1 border-t border-dashed border-[#E5DEF2]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-[#E5DEF2]" />
+              <div className="flex-1 border-t border-dashed border-[#E5DEF2]" />
+            </div>
+
+            <div className="mb-10 w-full space-y-5">
+              {s.type && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Session</span>
+                  <span className="text-sm font-medium text-[#3D2E6B]">{s.type}</span>
                 </div>
-              </div>
-              <p className="relative mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">
-                Cancellation confirmed
-              </p>
-              <h1
-                className="relative mt-3 text-[28px] leading-tight text-[#2C2148]"
-                style={{ fontFamily: '"Instrument Serif", "Cormorant Garamond", Georgia, serif', fontWeight: 400, letterSpacing: "-0.01em" }}
-              >
-                The session has been cancelled.
-              </h1>
-              <p className="relative mx-auto mt-3 max-w-xs text-[13.5px] leading-relaxed text-[#7E6BAF]">
-                We've let <span className="font-medium text-[#5B4796]">{s.client ?? "your client"}</span> know and freed up this slot on your calendar.
-              </p>
-            </div>
-
-            {/* Perforated separator */}
-            <div className="relative h-6">
-              <div className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F7F4FD]" />
-              <div className="absolute right-0 top-1/2 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F7F4FD]" />
-              <div
-                className="absolute inset-x-6 top-1/2 -translate-y-1/2 border-t border-dashed"
-                style={{ borderColor: "#E1D7F2" }}
-              />
-            </div>
-
-            {/* Receipt body */}
-            <div className="px-10 pb-8 pt-2">
-              {(whenLabel || s.type) && (
-                <dl className="space-y-4">
-                  {s.type && (
-                    <div className="flex items-baseline justify-between gap-4">
-                      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Session</dt>
-                      <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{s.type}</dd>
-                    </div>
-                  )}
-                  {whenLabel && (
-                    <div className="flex items-baseline justify-between gap-4">
-                      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">When</dt>
-                      <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{whenLabel}</dd>
-                    </div>
-                  )}
-                  <div className="flex items-baseline justify-between gap-4">
-                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Client</dt>
-                    <dd className="text-right text-[13.5px] font-medium text-[#2C2148]">{s.client ?? "—"}</dd>
-                  </div>
-                  <div className="flex items-baseline justify-between gap-4">
-                    <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Status</dt>
-                    <dd className="inline-flex items-center gap-1.5 rounded-full bg-[#F3EDFB] px-2.5 py-0.5 text-[11px] font-semibold text-[#5B4796]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#5B4796]" />
-                      Cancelled
-                    </dd>
-                  </div>
-                </dl>
               )}
-
-              <div className="mt-7 rounded-[12px] border border-[#EFE7FB] bg-[#FBF9FF] px-4 py-3">
-                <p className="text-[11.5px] leading-relaxed text-[#7E6BAF]">
-                  If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
-                </p>
+              {whenLabel && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">When</span>
+                  <span className="text-sm font-medium text-[#3D2E6B]">{whenLabel}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
               </div>
-
-              <button
-                onClick={() => window.close()}
-                className="group mt-7 inline-flex w-full items-center justify-center gap-2 rounded-[12px] bg-[#3D2E6B] px-5 py-3 text-[13.5px] font-semibold tracking-wide text-white transition hover:bg-[#2C2148]"
-                style={{ boxShadow: "0 12px 24px -12px rgba(61, 46, 107, 0.6)" }}
-              >
-                Close this tab
-                <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
-              </button>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Status</span>
+                <span className="flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-3 py-1 text-[11px] font-bold uppercase text-[#7E6BAF]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
+                  Cancelled
+                </span>
+              </div>
             </div>
+
+            <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
+              If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
+            </div>
+
+            <button
+              onClick={() => window.close()}
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#3D2E6B] py-4 text-sm font-semibold text-white transition-all hover:bg-[#2D2250]"
+            >
+              Close this tab
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
 
-          <p className="mt-6 text-center text-[11px] uppercase tracking-[0.25em] text-[#A89BD0]">
-            Lubin · Care coordination
-          </p>
-        </main>
+          <footer className="mt-10 flex items-center gap-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E6BAF]">Lubin</span>
+            <span className="h-1 w-1 rounded-full bg-[#7E6BAF]/40" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#7E6BAF]">Care coordination</span>
+          </footer>
+        </div>
       </div>
     );
   }
