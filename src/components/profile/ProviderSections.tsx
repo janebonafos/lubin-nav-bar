@@ -2338,7 +2338,6 @@ export function PaymentsPayoutsSection() {
   const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
   const [schedule, setSchedule] = useState<"weekly" | "monthly" | "manual">("weekly");
   const [payoutState, setPayoutState] = useState<"idle" | "processing" | "queued">("idle");
-  const [showSchedule, setShowSchedule] = useState(false);
 
   const requestPayout = () => {
     if (status !== "connected" || payoutState !== "idle") return;
