@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -32,40 +32,42 @@ const TIMES = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM
 
 function ReschedulePage() {
   const s = Route.useSearch();
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+  const [viewMonth, setViewMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const days = useMemo(() => {
-    const out: { iso: string; label: string; dom: string; dow: string; mon: string; monthStart: boolean }[] = [];
-    const base = new Date();
-    let lastMonth = -1;
-    for (let i = 1; i <= 14; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      const m = d.getMonth();
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth();
+    const last = new Date(year, month + 1, 0).getDate();
+    const out: { iso: string; dom: string; dow: string; isPast: boolean }[] = [];
+    for (let i = 1; i <= last; i++) {
+      const d = new Date(year, month, i);
       out.push({
-        iso: d.toISOString().slice(0, 10),
-        label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-        dom: String(d.getDate()),
+        iso: `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
+        dom: String(i),
         dow: d.toLocaleDateString(undefined, { weekday: "short" }).toUpperCase(),
-        mon: d.toLocaleDateString(undefined, { month: "short" }).toUpperCase(),
-        monthStart: m !== lastMonth,
+        isPast: d < today,
       });
-      lastMonth = m;
     }
     return out;
-  }, []);
+  }, [viewMonth, today]);
 
-  const [date, setDate] = useState(days[0]?.iso ?? "");
+  const [date, setDate] = useState("");
+  const monthLabel = viewMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const atCurrentMonth =
+    viewMonth.getFullYear() === today.getFullYear() && viewMonth.getMonth() === today.getMonth();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [time, setTime] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [done, setDone] = useState(false);
 
   if (done) {
-    const chosen = days.find((d) => d.iso === date);
-    const chosenLabel =
-      chosen?.label ??
-      (date
-        ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
-        : "");
+    const chosenLabel = date
+      ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+      : "";
     return (
       <div className="min-h-screen bg-[#F9F8FF] py-16" style={{ fontFamily: "Inter, sans-serif" }}>
         <main className="mx-auto max-w-xl px-6 text-center">
@@ -126,15 +128,9 @@ function ReschedulePage() {
         </section>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
-            <div className="flex items-center gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                {date
-                  ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { month: "short", year: "numeric" }).toUpperCase()
-                  : ""}
-              </p>
-              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -152,6 +148,7 @@ function ReschedulePage() {
                       if (!d) return;
                       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                       setDate(iso);
+                      setViewMonth(new Date(d.getFullYear(), d.getMonth(), 1));
                       setPickerOpen(false);
                     }}
                     disabled={{ before: new Date() }}
@@ -159,48 +156,47 @@ function ReschedulePage() {
                     className="pointer-events-auto p-3"
                   />
                 </PopoverContent>
-              </Popover>
-            </div>
+            </Popover>
           </div>
-          {date && !days.find((d) => d.iso === date) && (
-            <div className="mt-3 flex items-center justify-between rounded-[10px] border border-[#5B4796] bg-[#5B4796] px-4 py-3">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-white/80">Selected</p>
-                <p className="mt-0.5 text-sm font-semibold text-white">
-                  {new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-                </p>
-              </div>
-              <button
-                onClick={() => setDate(days[0]?.iso ?? "")}
-                className="rounded-[8px] bg-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white hover:bg-white/25"
-              >
-                Reset
-              </button>
-            </div>
-          )}
-          <div className="mt-3 flex flex-wrap gap-2">
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+              disabled={atCurrentMonth}
+              aria-label="Previous month"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <p className="min-w-[140px] text-center text-sm font-semibold text-[#3D2E6B]">{monthLabel}</p>
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+              aria-label="Next month"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-[10px] border border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
             {days.map((d) => {
               const selected = date === d.iso;
               return (
                 <button
                   key={d.iso}
-                  onClick={() => setDate(d.iso)}
+                  onClick={() => !d.isPast && setDate(d.iso)}
+                  disabled={d.isPast}
                   className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
                     selected
                       ? "border-[#5B4796] bg-[#5B4796] text-white"
+                      : d.isPast
+                      ? "cursor-not-allowed border-[#F1EEFA] bg-white text-[#C9BEE4]"
                       : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
                   }`}
                 >
-                  {d.monthStart && (
-                    <span
-                      className={`absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-1.5 py-px text-[8px] font-bold uppercase tracking-wider ${
-                        selected ? "bg-[#3D2E6B] text-white" : "bg-[#F3F0FF] text-[#5B4796]"
-                      }`}
-                    >
-                      {d.mon}
-                    </span>
-                  )}
-                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : "text-[#A89BD0]"}`}>
+                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : d.isPast ? "text-[#D8CFEC]" : "text-[#A89BD0]"}`}>
                     {d.dow}
                   </span>
                   <span className="text-lg font-bold leading-tight">{d.dom}</span>
