@@ -130,17 +130,16 @@ function ReschedulePage() {
             </div>
 
             <span className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">
-              Reschedule request sent
+              Appointment rescheduled
             </span>
 
             <h1 className="mb-4 text-center text-[32px] font-bold tracking-tight leading-[1.1] text-[#3D2E6B]">
-              A new time has been proposed.
+              The session has been rescheduled.
             </h1>
 
             <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
-              We've notified{" "}
-              <span className="font-semibold text-[#3D2E6B]">{s.client ?? "your client"}</span> and
-              will confirm once they accept.
+              <span className="font-semibold text-[#3D2E6B]">{s.client ?? "Your client"}</span> has
+              been notified of the new time.
             </p>
 
             <div className="mb-10 flex w-full items-center gap-4">
@@ -182,13 +181,13 @@ function ReschedulePage() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Status</span>
                 <span className="flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-3 py-1 text-[11px] font-bold uppercase text-[#7E6BAF]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
-                  Awaiting client
+                  Rescheduled
                 </span>
               </div>
             </div>
 
             <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
-              Your calendar will update automatically once {s.client ?? "your client"} confirms the new time.
+              Your calendar has been updated with the new time.
             </div>
 
             <button
