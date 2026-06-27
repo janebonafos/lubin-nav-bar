@@ -1278,7 +1278,7 @@ export function AppointmentsSection() {
     amount: string;
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
     promoCode?: string;
-    attachments?: { name: string; size: string }[];
+    attachments?: { name: string; size: string; title?: string; description?: string }[];
     recordingConsent?: { client: boolean; provider: boolean };
     aiSummary?: string;
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
@@ -1292,7 +1292,7 @@ export function AppointmentsSection() {
       id: "c1", client: "Anna Reyes", day: "WED", date: "19", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "completed",
       notes: "Discussed boundary-setting at work. Homework: daily wins journal.",
       amount: "₱2,500", paymentStatus: "Paid",
-      attachments: [{ name: "session-19-jun-worksheet.pdf", size: "212 KB" }],
+      attachments: [{ name: "session-19-jun-worksheet.pdf", size: "212 KB", title: "Boundary-setting worksheet", description: "Printable worksheet from today's session — fill out before our next call." }],
       recordingConsent: { client: true, provider: true },
       aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
       payoutStatus: "approved",
@@ -1670,7 +1670,7 @@ type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
   notes?: string;
-  attachments?: { name: string; size: string }[];
+  attachments?: { name: string; size: string; title?: string; description?: string }[];
   recordingConsent?: { client: boolean; provider: boolean };
   aiSummary?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
