@@ -104,6 +104,22 @@ function ProfilePage() {
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
+  const [isHydrating, setIsHydrating] = useState<boolean>(true);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
+  // Initial hydration loader — gives time for localStorage reads & lazy widgets.
+  useEffect(() => {
+    const t = setTimeout(() => setIsHydrating(false), 350);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Show a short loader when switching sections / roles so the user gets
+  // immediate feedback instead of clicking again thinking nothing happened.
+  useEffect(() => {
+    setIsTransitioning(true);
+    const t = setTimeout(() => setIsTransitioning(false), 280);
+    return () => clearTimeout(t);
+  }, [activeSection, role]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
