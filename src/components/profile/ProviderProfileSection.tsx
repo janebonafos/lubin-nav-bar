@@ -964,34 +964,19 @@ export default function ProviderProfileSection({
       {view === "profile" && (
       <>
       {/* ---------------------- Provider summary header ---------------------- */}
-      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#7E6BAF] via-[#7E6BAF] to-[#5D4E8A] p-8 text-white shadow-2xl shadow-[#7E6BAF]/25 sm:p-12">
-        <div aria-hidden className="pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-[#2A2550]/20 blur-3xl" />
-        <div className="relative z-10 space-y-6">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 backdrop-blur-sm">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Provider Profile</span>
-          </div>
-
-          <a
-            href="/profile/preview"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute right-6 top-6 z-20 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition hover:bg-white/25 sm:right-8 sm:top-8"
-          >
-            <Eye className="h-3.5 w-3.5" /> Preview as client
-          </a>
-
-          <div className="flex items-center gap-5 sm:gap-6">
+      <section className="overflow-hidden rounded-[32px] border border-[#7E6BAF]/10 bg-white shadow-[0_8px_30px_rgb(61,46,107,0.06)]">
+        {/* Header */}
+        <div className="flex flex-col gap-6 p-8 pb-6 md:flex-row md:items-start md:justify-between">
+          <div className="flex gap-6">
             <div className="relative shrink-0">
               <label
                 htmlFor={onAvatarChange ? "provider-avatar-upload" : undefined}
-                className={`group relative block h-20 w-20 overflow-hidden rounded-[22px] border border-white/30 bg-gradient-to-br from-[#D9CEF0] to-[#9A8BC4] shadow-xl shadow-[#2A2550]/30 backdrop-blur-sm sm:h-28 sm:w-28 sm:rounded-[28px] ${onAvatarChange ? "cursor-pointer" : ""}`}
+                className={`group relative block h-24 w-24 overflow-hidden rounded-2xl bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] shadow-lg shadow-[#3D2E6B]/20 ${onAvatarChange ? "cursor-pointer" : ""}`}
               >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={fullName || "Provider"} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  <div className="flex h-full w-full items-center justify-center text-3xl font-bold tracking-tight text-white">
                     {(fullName || "?")
                       .split(/\s+/)
                       .filter(Boolean)
@@ -1003,11 +988,11 @@ export default function ProviderProfileSection({
                 {onAvatarChange && (
                   <>
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[#2A2550]/55 text-white opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                         <circle cx="12" cy="13" r="4" />
                       </svg>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider sm:text-[11px]">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider">
                         {avatarUrl ? "Change" : "Upload"}
                       </span>
                     </div>
@@ -1028,36 +1013,99 @@ export default function ProviderProfileSection({
                   </>
                 )}
               </label>
+              {data.calendarConnected && (
+                <div className="absolute -bottom-1.5 -right-1.5 rounded-full bg-white p-1">
+                  <div className="h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
+                </div>
+              )}
             </div>
-            <div className="min-w-0">
-              <h2 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+
+            <div className="flex min-w-0 flex-col justify-center">
+              <span className="mb-1.5 w-fit rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#7E6BAF]">
+                Provider Profile
+              </span>
+              <h2 className="truncate text-3xl font-bold tracking-tight text-[#3D2E6B]">
                 {fullName || "Your provider profile"}
               </h2>
-              <p className="mt-2 text-lg font-medium text-purple-100 sm:text-xl">{data.profession}</p>
+              <p className="font-medium text-[#7E6BAF]">{data.profession}</p>
             </div>
           </div>
 
-          <p className="line-clamp-3 max-w-2xl text-[15px] font-medium leading-relaxed text-purple-100/90 sm:text-base">
+          <div className="flex shrink-0 items-center gap-3">
+            <a
+              href="/profile/preview"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full border border-[#7E6BAF]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#3D2E6B] shadow-[0_2px_8px_rgba(61,46,107,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#7E6BAF]/40 hover:shadow-[0_12px_24px_rgba(61,46,107,0.1)]"
+            >
+              <Eye className="h-4 w-4 text-[#7E6BAF] transition-colors group-hover:text-[#3D2E6B]" />
+              Preview as client
+            </a>
+          </div>
+        </div>
+
+        {/* Bio */}
+        <div className="px-8 pb-8">
+          <p className="max-w-3xl text-[15px] leading-relaxed text-[#3D2E6B]/80 sm:text-base">
             {data.bio}
           </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm font-medium text-purple-100">
-            <span className="inline-flex items-center gap-2">
-              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${data.calendarConnected ? "bg-emerald-300" : "bg-white/50"}`} />
+        {/* Share profile */}
+        <div className="mx-8 mb-8 flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-[#7E6BAF]/10 bg-[#F0EAFB]/50 p-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white sm:flex">
+              <Share2 className="h-4 w-4 text-[#3D2E6B]" />
+            </div>
+            <div className="flex min-w-0 flex-col">
+              <span className="text-xs font-semibold text-[#7E6BAF]">Share profile</span>
+              <div className="flex items-center gap-1 text-sm">
+                <span className="text-[#7E6BAF]">lubin.com/</span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(slugify(e.target.value))}
+                  placeholder="your-name"
+                  className="w-40 border-b border-[#7E6BAF]/30 bg-transparent py-0.5 text-sm font-medium text-[#3D2E6B] outline-none transition focus:border-[#3D2E6B]"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={copyShareLink}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#3D2E6B] px-6 py-2 text-sm font-medium text-white shadow-md shadow-[#3D2E6B]/10 transition-all hover:bg-[#2A1F4D]"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copied" : "Copy link"}
+          </button>
+        </div>
+
+        {/* Footer chips */}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[#7E6BAF]/10 bg-[#F0EAFB]/30 px-8 py-5">
+          <div className="flex items-center gap-2">
+            <div className={`h-1.5 w-1.5 rounded-full ${data.calendarConnected ? "bg-emerald-500" : "bg-[#7E6BAF]/40"}`} />
+            <span className="text-xs font-semibold uppercase tracking-wide text-[#3D2E6B]">
               {data.calendarConnected ? "Calendar connected" : "Calendar not connected"}
             </span>
-            <span aria-hidden className="h-3 w-px bg-white/25" />
-            <span>{data.yearsBand} experience</span>
-            {!data.verified && (
-              <>
-                <span aria-hidden className="h-3 w-px bg-white/25" />
-                <span className="inline-flex items-center gap-2">
-                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber-200/90" />
+          </div>
+          <div className="hidden h-4 w-px bg-[#7E6BAF]/20 md:block" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-[#3D2E6B]">
+              {data.yearsBand} experience
+            </span>
+          </div>
+          {!data.verified && (
+            <>
+              <div className="hidden h-4 w-px bg-[#7E6BAF]/20 md:block" />
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-[#3D2E6B]">
                   Verification pending
                 </span>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
