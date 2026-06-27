@@ -156,41 +156,7 @@ function ReschedulePage() {
         </section>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
-            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 rounded-[10px] border border-[#EAE7F5] bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] hover:bg-[#FBF9FF]"
-                  >
-                    <CalendarDays className="h-3.5 w-3.5 text-[#A89BD0]" />
-                    Pick another date
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date ? new Date(date + "T00:00:00") : undefined}
-                    onSelect={(d) => {
-                      if (!d) return;
-                      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                      setDate(iso);
-                      setTime(null);
-                      setViewMonth(new Date(d.getFullYear(), d.getMonth(), 1));
-                      setPickerOpen(false);
-                    }}
-                    disabled={(d) => {
-                      if (d < today) return true;
-                      const key = DOW_KEYS[d.getDay()];
-                      return !week[key]?.enabled || week[key].intervals.length === 0;
-                    }}
-                    initialFocus
-                    className="pointer-events-auto p-3"
-                  />
-                </PopoverContent>
-            </Popover>
-          </div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a date</p>
 
           <div className="mt-4 flex items-center justify-center gap-3">
             <button
@@ -216,7 +182,7 @@ function ReschedulePage() {
           {days.length === 0 ? (
             <div className="mt-4 rounded-[10px] border border-dashed border-[#EAE7F5] bg-[#FBF9FF] px-4 py-6 text-center">
               <p className="text-sm font-medium text-[#3D2E6B]">No availability this month</p>
-              <p className="mt-1 text-xs text-[#A89BD0]">Try the next month or pick another date.</p>
+              <p className="mt-1 text-xs text-[#A89BD0]">Try the next month.</p>
             </div>
           ) : (
             <div className="mt-4 flex flex-wrap gap-2">
