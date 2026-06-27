@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ArrowLeft, ArrowRight, CalendarCheck2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
+import { publishAppointmentEvent } from "@/lib/appointments-bus";
 
 const searchSchema = z.object({
   id: z.string().optional(),
