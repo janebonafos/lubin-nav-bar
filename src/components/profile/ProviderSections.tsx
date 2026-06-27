@@ -2659,47 +2659,37 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* ---------------- Payout schedule & request ---------------- */}
-      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-gradient-to-br from-[#3D2E6B] via-[#4A3680] to-[#241941] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)]">
+      <div className="relative overflow-hidden rounded-[32px] border border-[#E8DFF6] bg-[#3D2E6B] p-8 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)] md:p-10">
+        {/* Dot grid texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "radial-gradient(#7E6BAF 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
         {/* Decorative orbs */}
-        <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-[#7E6BAF]/35 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -left-20 h-80 w-80 rounded-full bg-[#C9BEE4]/15 blur-3xl" />
-        {/* Soft conic glow */}
-        <div
-          className="pointer-events-none absolute -right-10 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full opacity-40"
-          style={{
-            background:
-              "conic-gradient(from 120deg at 50% 50%, rgba(201,190,228,.25), rgba(126,107,175,.05), rgba(201,190,228,.25))",
-            filter: "blur(40px)",
-          }}
-        />
-        {/* Subtle grid texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-          }}
-        />
+        <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#7E6BAF] opacity-30 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#7E6BAF] opacity-20 blur-[100px]" />
         {/* Top highlight */}
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
         <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur">
               <Sparkles className="h-3 w-3" /> Lubin Wallet
             </div>
-            <p className="mt-5 text-[11px] font-medium uppercase tracking-[0.24em] text-white/55">
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#C9BEE4]">
               Available to withdraw
             </p>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="bg-gradient-to-br from-white via-white to-[#D9CEF5] bg-clip-text text-[52px] font-bold leading-none tracking-tight text-transparent drop-shadow-[0_2px_12px_rgba(201,190,228,0.3)]">
+              <span className="font-serif-display text-[64px] font-normal leading-none tracking-tight text-white">
                 ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
-              <span className="text-sm font-medium text-white/55">USD</span>
+              <span className="text-xl font-medium text-[#C9BEE4]/70">USD</span>
             </div>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/70">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#C9BEE4]" />
+            <p className="mt-4 inline-flex items-center gap-2 text-sm text-white/70">
+              <ShieldCheck className="h-4 w-4 text-[#C9BEE4]" />
               Reviewed and approved by Lubin · ready for instant withdrawal
             </p>
           </div>
@@ -2707,30 +2697,29 @@ export function PaymentsPayoutsSection() {
           <button
             onClick={openComposer}
             disabled={status !== "connected" || balance < 50}
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-3 text-sm font-bold text-[#3D2E6B] shadow-[0_12px_30px_-10px_rgba(0,0,0,0.45)] transition hover:shadow-[0_18px_40px_-12px_rgba(201,190,228,0.7)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#F4EEFE] px-6 py-3 text-sm font-semibold text-[#3D2E6B] shadow-lg transition-all hover:scale-105 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
           >
-            <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#F4EEFE] to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            <Zap className="h-4 w-4" />
+            <Zap className="h-[18px] w-[18px] transition-transform group-hover:rotate-12" />
             Withdraw now
-            <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className="h-4 w-4 opacity-50 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
         </div>
 
-        {/* Sub-stats row */}
-        <div className="relative mt-7 grid grid-cols-1 gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
+        {/* Sub-stats grid */}
+        <div className="relative mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[
             { label: "Pending review", value: "$420.00", icon: <Loader2 className="h-3.5 w-3.5" /> },
             { label: "Destination", value: brand.name, icon: <Building2 className="h-3.5 w-3.5" /> },
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-sm"
+              className="group rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm transition-colors hover:bg-white/10"
             >
-              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">
-                {s.icon}
+              <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9BEE4]">
+                <span className="text-[#C9BEE4]">{s.icon}</span>
                 {s.label}
               </div>
-              <p className="mt-1.5 text-base font-semibold text-white">{s.value}</p>
+              <p className="text-xl font-semibold text-white">{s.value}</p>
             </div>
           ))}
         </div>
