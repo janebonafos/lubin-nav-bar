@@ -1530,11 +1530,16 @@ export function AppointmentsSection() {
                       />
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
-                    {a.notes && (
-                      <div className="mb-6 rounded-[10px] border border-[#F0EAFB] bg-white p-4">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Notes</p>
-                        <p className="mt-2 text-sm leading-relaxed text-[#3D2E6B]">{a.notes}</p>
-                      </div>
+                    {(a.status === "completed" || a.notes) && (
+                      <ApptNotesBlock
+                        appt={a}
+                        onChange={(patch) =>
+                          setAll((list) => list.map((x) => (x.id === a.id ? { ...x, ...patch } : x)))
+                        }
+                      />
+                    )}
+                    {a.status === "completed" && (
+                      <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
                     )}
                     {a.status === "upcoming" && (
                       (() => {
@@ -1547,6 +1552,20 @@ export function AppointmentsSection() {
                           publishAppointmentEvent({ type: "lock", id: a.id, action });
                           window.open(href, "_blank", "noopener,noreferrer");
                         };
+                        const markComplete = () => {
+                          if (isLocked) return;
+                          setAll((list) =>
+                            list.map((x) =>
+                              x.id === a.id
+                                ? {
+                                    ...x,
+                                    status: "completed" as const,
+                                    payoutStatus: "pending_review" as const,
+                                  }
+                                : x,
+                            ),
+                          );
+                        };
                         return (
                           <div className="space-y-2">
                             <div className="flex flex-wrap gap-3">
@@ -1555,6 +1574,14 @@ export function AppointmentsSection() {
                                 className="rounded-[8px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 Join session
+                              </button>
+                              <button
+                                onClick={markComplete}
+                                disabled={isLocked}
+                                className="inline-flex items-center gap-2 rounded-[8px] border border-[#CDBFEC] bg-[#F4EEFE] px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#EBE2FB] disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <CheckCircle2 className="h-4 w-4" />
+                                Mark as completed
                               </button>
                               <button
                                 onClick={() => open(rescheduleHref, "reschedule")}
