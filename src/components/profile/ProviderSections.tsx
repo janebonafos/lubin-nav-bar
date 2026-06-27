@@ -37,6 +37,8 @@ import {
   Globe,
   CheckCircle2,
   Info,
+  ArrowLeftRight,
+  Link2Off,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -1686,6 +1688,18 @@ export function PaymentsPayoutsSection() {
   const provider = devRegion === "PH" ? "xendit" : "stripe";
   const [status, setStatus] = useState<"not_connected" | "connected">("not_connected");
   const [connecting, setConnecting] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
+
+  const handleManageAction = (action: "dashboard" | "switch") => {
+    setManageOpen(false);
+    setRedirecting(action);
+    // Simulated handoff — in production this opens the provider's hosted page.
+    setTimeout(() => {
+      setRedirecting(null);
+      if (action === "switch") setStatus("not_connected");
+    }, 1200);
+  };
 
   const handleConnect = () => {
     setConnecting(true);
@@ -1798,12 +1812,76 @@ export function PaymentsPayoutsSection() {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setStatus("not_connected")}
-                  className="shrink-0 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                >
-                  Manage
-                </button>
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => setManageOpen((v) => !v)}
+                    disabled={!!redirecting}
+                    className="inline-flex items-center gap-1 rounded-full border border-[#EEE7FA] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F8F5FF] disabled:opacity-60"
+                  >
+                    {redirecting ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Opening {brand.name}…
+                      </>
+                    ) : (
+                      <>
+                        Manage
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                  {manageOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setManageOpen(false)}
+                      />
+                      <div className="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-2xl border border-[#EEE7FA] bg-white p-1.5 shadow-[0_20px_50px_-20px_rgba(61,46,107,0.35)]">
+                        <button
+                          onClick={() => handleManageAction("dashboard")}
+                          className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F8F5FF]"
+                        >
+                          <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-[#7E6BAF]" />
+                          <div>
+                            <p className="text-xs font-semibold text-[#3D2E6B]">
+                              Open {brand.name} dashboard
+                            </p>
+                            <p className="mt-0.5 text-[11px] leading-snug text-[#7E6BAF]">
+                              Update payout details & banking
+                            </p>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => handleManageAction("switch")}
+                          className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#F8F5FF]"
+                        >
+                          <ArrowLeftRight className="mt-0.5 h-4 w-4 shrink-0 text-[#7E6BAF]" />
+                          <div>
+                            <p className="text-xs font-semibold text-[#3D2E6B]">
+                              Connect a different account
+                            </p>
+                            <p className="mt-0.5 text-[11px] leading-snug text-[#7E6BAF]">
+                              Replace via {brand.name} onboarding
+                            </p>
+                          </div>
+                        </button>
+                        <div className="my-1 h-px bg-[#EEE7FA]" />
+                        <button
+                          onClick={() => handleManageAction("switch")}
+                          className="flex w-full items-start gap-2.5 rounded-xl px-3 py-2.5 text-left transition hover:bg-rose-50"
+                        >
+                          <Link2Off className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+                          <div>
+                            <p className="text-xs font-semibold text-rose-600">Disconnect</p>
+                            <p className="mt-0.5 text-[11px] leading-snug text-[#7E6BAF]">
+                              Pause payouts until reconnected
+                            </p>
+                          </div>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
