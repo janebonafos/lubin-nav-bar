@@ -5,6 +5,7 @@ import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight } from
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -28,10 +29,31 @@ export const Route = createFileRoute("/appointment/reschedule")({
   }),
 });
 
-const TIMES = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
+const DOW_KEYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+
+function slotsForDay(week: WeekAvail, date: Date): string[] {
+  const key = DOW_KEYS[date.getDay()];
+  const day = week[key];
+  if (!day?.enabled) return [];
+  const out: string[] = [];
+  for (const iv of day.intervals) {
+    const [sh, sm] = iv.start.split(":").map(Number);
+    const [eh, em] = iv.end.split(":").map(Number);
+    let cur = sh * 60 + (sm || 0);
+    const end = eh * 60 + (em || 0);
+    while (cur + 60 <= end) {
+      const h = Math.floor(cur / 60);
+      const m = cur % 60;
+      out.push(formatTime12(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`));
+      cur += 60;
+    }
+  }
+  return out;
+}
 
 function ReschedulePage() {
   const s = Route.useSearch();
+  const week = useAvailabilityStore((st) => st.week);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -42,20 +64,26 @@ function ReschedulePage() {
     const year = viewMonth.getFullYear();
     const month = viewMonth.getMonth();
     const last = new Date(year, month + 1, 0).getDate();
-    const out: { iso: string; dom: string; dow: string; isPast: boolean }[] = [];
+    const out: { iso: string; dom: string; dow: string }[] = [];
     for (let i = 1; i <= last; i++) {
       const d = new Date(year, month, i);
+      if (d < today) continue;
+      const key = DOW_KEYS[d.getDay()];
+      if (!week[key]?.enabled || week[key].intervals.length === 0) continue;
       out.push({
         iso: `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
         dom: String(i),
         dow: d.toLocaleDateString(undefined, { weekday: "short" }).toUpperCase(),
-        isPast: d < today,
       });
     }
     return out;
-  }, [viewMonth, today]);
+  }, [viewMonth, today, week]);
 
   const [date, setDate] = useState("");
+  const availableTimes = useMemo(() => {
+    if (!date) return [];
+    return slotsForDay(week, new Date(date + "T00:00:00"));
+  }, [date, week]);
   const monthLabel = viewMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   const atCurrentMonth =
     viewMonth.getFullYear() === today.getFullYear() && viewMonth.getMonth() === today.getMonth();
@@ -148,10 +176,15 @@ function ReschedulePage() {
                       if (!d) return;
                       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                       setDate(iso);
+                      setTime(null);
                       setViewMonth(new Date(d.getFullYear(), d.getMonth(), 1));
                       setPickerOpen(false);
                     }}
-                    disabled={{ before: new Date() }}
+                    disabled={(d) => {
+                      if (d < today) return true;
+                      const key = DOW_KEYS[d.getDay()];
+                      return !week[key]?.enabled || week[key].intervals.length === 0;
+                    }}
                     initialFocus
                     className="pointer-events-auto p-3"
                   />
@@ -180,47 +213,60 @@ function ReschedulePage() {
             </button>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {days.map((d) => {
-              const selected = date === d.iso;
-              return (
+          {days.length === 0 ? (
+            <div className="mt-4 rounded-[10px] border border-dashed border-[#EAE7F5] bg-[#FBF9FF] px-4 py-6 text-center">
+              <p className="text-sm font-medium text-[#3D2E6B]">No availability this month</p>
+              <p className="mt-1 text-xs text-[#A89BD0]">Try the next month or pick another date.</p>
+            </div>
+          ) : (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {days.map((d) => {
+                const selected = date === d.iso;
+                return (
+                  <button
+                    key={d.iso}
+                    onClick={() => {
+                      setDate(d.iso);
+                      setTime(null);
+                    }}
+                    className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
+                      selected
+                        ? "border-[#5B4796] bg-[#5B4796] text-white"
+                        : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
+                    }`}
+                  >
+                    <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : "text-[#A89BD0]"}`}>
+                      {d.dow}
+                    </span>
+                    <span className="text-lg font-bold leading-tight">{d.dom}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a time</p>
+          {!date ? (
+            <p className="mt-3 text-sm text-[#A89BD0]">Pick a date to see available times.</p>
+          ) : availableTimes.length === 0 ? (
+            <p className="mt-3 text-sm text-[#A89BD0]">No time slots available for this date.</p>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {availableTimes.map((t) => (
                 <button
-                  key={d.iso}
-                  onClick={() => !d.isPast && setDate(d.iso)}
-                  disabled={d.isPast}
-                  className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-[10px] border text-sm transition ${
-                    selected
+                  key={t}
+                  onClick={() => setTime(t)}
+                  className={`rounded-[10px] border px-3 py-2 text-sm font-medium transition ${
+                    time === t
                       ? "border-[#5B4796] bg-[#5B4796] text-white"
-                      : d.isPast
-                      ? "cursor-not-allowed border-[#F1EEFA] bg-white text-[#C9BEE4]"
                       : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
                   }`}
                 >
-                  <span className={`text-[9px] font-bold uppercase ${selected ? "text-white/80" : d.isPast ? "text-[#D8CFEC]" : "text-[#A89BD0]"}`}>
-                    {d.dow}
-                  </span>
-                  <span className="text-lg font-bold leading-tight">{d.dom}</span>
+                  {t}
                 </button>
-              );
-            })}
-          </div>
-
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Select a time</p>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {TIMES.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTime(t)}
-                className={`rounded-[10px] border px-3 py-2 text-sm font-medium transition ${
-                  time === t
-                    ? "border-[#5B4796] bg-[#5B4796] text-white"
-                    : "border-[#EAE7F5] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to client (optional)</p>
           <textarea
