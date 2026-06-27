@@ -1270,7 +1270,7 @@ export function AppointmentsSection() {
     promoCode?: string;
   };
 
-  const all: Appt[] = [
+  const seed: Appt[] = [
     { id: "u1", client: "Anna Reyes", day: "TODAY", date: "27", month: "JUN", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Follow-up on sleep journaling exercise from last session.", amount: "₱2,500", paymentStatus: "Paid" },
     { id: "u2", client: "Jordan Lee", day: "TMRW", date: "28", month: "JUN", time: "10:30 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "upcoming", notes: "Intake consultation — review intake form prior to call.", amount: "₱1,200", paymentStatus: "Paid", promoCode: "WELCOME10" },
     { id: "u3", client: "Sam Cruz", day: "FRI", date: "28", month: "JUN", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Group therapy", sessionFormat: "Group", mode: "Video", status: "upcoming", amount: "₱1,500", paymentStatus: "Pending" },
@@ -1278,6 +1278,56 @@ export function AppointmentsSection() {
     { id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed", amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20" },
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
+
+  const [all, setAll] = useState<Appt[]>(seed);
+  const [locks, setLocks] = useState<Record<string, "cancel" | "reschedule">>({});
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setLoading(false), 500);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const unsub = subscribeAppointmentEvents((evt) => {
+      if (evt.type === "lock") {
+        setLocks((m) => ({ ...m, [evt.id]: evt.action }));
+      } else if (evt.type === "unlock") {
+        setLocks((m) => {
+          const { [evt.id]: _omit, ...rest } = m;
+          return rest;
+        });
+      } else if (evt.type === "cancelled") {
+        setRefreshing(true);
+        setAll((list) =>
+          list.map((a) => (a.id === evt.id ? { ...a, status: "cancelled" as const } : a)),
+        );
+        setLocks((m) => {
+          const { [evt.id]: _omit, ...rest } = m;
+          return rest;
+        });
+        if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+        refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
+      } else if (evt.type === "rescheduled") {
+        setRefreshing(true);
+        setAll((list) =>
+          list.map((a) => (a.id === evt.id ? { ...a, time: evt.time ?? a.time } : a)),
+        );
+        setLocks((m) => {
+          const { [evt.id]: _omit, ...rest } = m;
+          return rest;
+        });
+        if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+        refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
+      }
+    });
+    return () => {
+      unsub();
+      if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+    };
+  }, []);
 
   const counts = {
     all: all.length,
