@@ -32,6 +32,11 @@ import {
   List,
   AlertTriangle,
   Loader2,
+  Building2,
+  ExternalLink,
+  Globe,
+  CheckCircle2,
+  Info,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
