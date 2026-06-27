@@ -2632,99 +2632,225 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* ---------------- Payout schedule & request ---------------- */}
-      <div className="rounded-[24px] border border-[#EEE7FA] bg-white p-6 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3D2E6B] to-[#5B4796] text-white shadow-[0_8px_18px_-8px_rgba(61,46,107,0.55)]">
-              <Banknote className="h-5 w-5" />
+      <div className="relative overflow-hidden rounded-[28px] border border-[#E8DFF6] bg-gradient-to-br from-[#3D2E6B] via-[#4A3680] to-[#2A1F4F] p-7 text-white shadow-[0_30px_70px_-30px_rgba(61,46,107,0.55)]">
+        {/* Decorative orbs */}
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#7E6BAF]/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-[#C9BEE4]/15 blur-3xl" />
+        {/* Subtle grid texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+
+        <div className="relative flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 backdrop-blur">
+              <Sparkles className="h-3 w-3" /> Lubin Wallet
             </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
-                Payouts
-              </p>
-              <h3 className="mt-0.5 text-lg font-semibold text-[#3D2E6B]">
-                Withdraw your earnings
-              </h3>
-              <p className="mt-1 max-w-md text-xs leading-relaxed text-[#5E4F8A]">
-                Lubin reviews every completed session before releasing earnings. Approved balance lands here — withdraw to your connected {brand.name} account anytime.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-1.5 text-right">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">
+            <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">
               Available to withdraw
             </p>
-            <p className="text-2xl font-bold text-[#3D2E6B]">$1,240.00</p>
-            <p className="text-[11px] text-[#7E6BAF]">
-              Min. payout $50 · arrives in 1–2 business days
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-[44px] font-bold leading-none tracking-tight">${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              <span className="text-sm font-medium text-white/60">USD</span>
+            </div>
+            <p className="mt-2 text-xs text-white/65">
+              Reviewed and approved by Lubin · ready for instant withdrawal
             </p>
           </div>
+
+          <button
+            onClick={openComposer}
+            disabled={status !== "connected" || balance < 50}
+            className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#3D2E6B] shadow-[0_12px_30px_-10px_rgba(0,0,0,0.45)] transition hover:bg-[#F4EEFE] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Zap className="h-4 w-4" />
+            Withdraw now
+            <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
         </div>
 
-        {/* How it works */}
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+        {/* Sub-stats row */}
+        <div className="relative mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-5 sm:grid-cols-4">
           {[
-            { n: "1", title: "Session completed", desc: "You mark the appointment as done with notes." },
-            { n: "2", title: "Lubin reviews", desc: "Our team verifies the session before releasing funds." },
-            { n: "3", title: "Withdraw anytime", desc: `Approved earnings appear here, ready for ${brand.name}.` },
-          ].map((step) => (
-            <div key={step.n} className="rounded-2xl border border-[#EEE7FA] bg-white p-4">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#F4EEFE] text-[11px] font-bold text-[#3D2E6B]">
-                  {step.n}
-                </span>
-                <p className="text-sm font-semibold text-[#3D2E6B]">{step.title}</p>
+            { label: "Pending review", value: "$420.00", icon: <Loader2 className="h-3.5 w-3.5" /> },
+            { label: "Min. withdrawal", value: "$50.00", icon: <Info className="h-3.5 w-3.5" /> },
+            { label: "Arrives in", value: "1–2 days", icon: <CalendarClock className="h-3.5 w-3.5" /> },
+            { label: "Destination", value: brand.name, icon: <Building2 className="h-3.5 w-3.5" /> },
+          ].map((s) => (
+            <div key={s.label}>
+              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/50">
+                {s.icon}
+                {s.label}
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-[#7E6BAF]">{step.desc}</p>
+              <p className="mt-1 text-sm font-semibold text-white">{s.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Action row */}
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EEE7FA] bg-[#FBF9FF] p-4">
-          <div className="flex items-center gap-2 text-xs text-[#5E4F8A]">
-            <Banknote className="h-3.5 w-3.5 text-[#7E6BAF]" />
-            <span>
-              Withdraws straight to your connected <span className="font-semibold text-[#3D2E6B]">{brand.name}</span> account.
-            </span>
-          </div>
-          <button
-            onClick={processPayout}
-            disabled={status !== "connected" || payoutState !== "idle"}
-            className="inline-flex items-center gap-2 rounded-full bg-[#3D2E6B] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.55)] transition hover:bg-[#2A1F4F] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {payoutState === "processing" ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Sending to {brand.name}…
-              </>
-            ) : payoutState === "sent" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" /> Payout on the way
-              </>
-            ) : (
-              <>
-                <Zap className="h-4 w-4" /> Withdraw $1,240.00
-              </>
-            )}
-          </button>
-        </div>
-
         {status !== "connected" && (
-          <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[#7E6BAF]">
-            <AlertCircle className="h-3 w-3" />
-            Connect a {brand.name} account above to enable payouts.
-          </p>
-        )}
-
-        {payoutState === "sent" && (
-          <div className="mt-3 flex items-start gap-2 rounded-xl border border-[#D7C9F2] bg-[#F4EEFE] px-3 py-2.5 text-[11px] leading-relaxed text-[#3D2E6B]">
-            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <span>
-              Your $1,240.00 payout is on its way to your {brand.name} account. You'll get an email when it lands (1–2 business days).
-            </span>
+          <div className="relative mt-5 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-xs text-white/85 backdrop-blur">
+            <AlertCircle className="h-3.5 w-3.5" />
+            Connect a {brand.name} account above to enable withdrawals.
           </div>
         )}
       </div>
+
+      {/* How it works — outside the dark card, lighter */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          { n: "01", title: "Session completed", desc: "You mark the appointment as done with notes.", icon: <CheckCircle2 className="h-4 w-4" /> },
+          { n: "02", title: "Lubin reviews", desc: "Our team verifies the session before releasing funds.", icon: <ShieldCheck className="h-4 w-4" /> },
+          { n: "03", title: "Withdraw in Lubin", desc: "Process payouts here — no Stripe redirects needed.", icon: <Zap className="h-4 w-4" /> },
+        ].map((step) => (
+          <div key={step.n} className="rounded-2xl border border-[#EEE7FA] bg-white p-4 shadow-[0_6px_16px_-12px_rgba(61,46,107,0.25)]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">{step.n}</span>
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#F4EEFE] text-[#3D2E6B]">
+                {step.icon}
+              </span>
+            </div>
+            <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">{step.title}</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{step.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ----- In-app Withdraw Composer ----- */}
+      {composerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1330]/60 p-4 backdrop-blur-sm"
+          onClick={() => payoutState !== "processing" && setComposerOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-[#EEE7FA] bg-white shadow-[0_40px_80px_-30px_rgba(61,46,107,0.5)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {payoutState !== "sent" ? (
+              <>
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#3D2E6B] to-[#5B4796] p-6 text-white">
+                  <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+                  <div className="relative flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/60">Withdraw</p>
+                      <h3 className="mt-1 text-xl font-bold">Process payout</h3>
+                      <p className="mt-1 text-xs text-white/70">Securely processed by Lubin · settled to {brand.name}.</p>
+                    </div>
+                    <button
+                      onClick={() => setComposerOpen(false)}
+                      disabled={payoutState === "processing"}
+                      className="rounded-full p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-5 p-6">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Amount</label>
+                    <div className="mt-1.5 flex items-center gap-2 rounded-2xl border border-[#E8DFF6] bg-[#FBF9FF] px-4 py-3 focus-within:border-[#3D2E6B]">
+                      <span className="text-2xl font-bold text-[#7E6BAF]">$</span>
+                      <input
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        disabled={payoutState === "processing"}
+                        className="w-full bg-transparent text-2xl font-bold text-[#3D2E6B] outline-none placeholder:text-[#C9BEE4]"
+                      />
+                      <button
+                        onClick={() => setAmount(balance.toFixed(2))}
+                        disabled={payoutState === "processing"}
+                        className="rounded-full bg-[#F4EEFE] px-3 py-1 text-[11px] font-semibold text-[#3D2E6B] transition hover:bg-[#E8DFF6]"
+                      >
+                        Max
+                      </button>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#7E6BAF]">
+                      <span>Available: ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                      {belowMin && <span className="font-semibold text-[#B7472A]">Minimum $50.00</span>}
+                      {overBalance && <span className="font-semibold text-[#B7472A]">Exceeds balance</span>}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-[#EEE7FA] bg-white p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">Destination</p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${brand.gradient} text-white`}>
+                        <Building2 className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-[#3D2E6B]">{brand.name} · •••• 4242</p>
+                        <p className="text-[11px] text-[#7E6BAF]">Bank account · USD</p>
+                      </div>
+                      <span className="rounded-full bg-[#F4EEFE] px-2 py-0.5 text-[10px] font-bold text-[#3D2E6B]">Verified</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 rounded-2xl bg-[#FBF9FF] p-4 text-[12px]">
+                    <Row label="Amount" value={`$${amountNum.toFixed(2)}`} />
+                    <Row label="Lubin fee" value="$0.00" sub="Covered by Lubin" />
+                    <div className="my-2 border-t border-dashed border-[#E8DFF6]" />
+                    <Row label="You'll receive" value={`$${arrival.toFixed(2)}`} bold />
+                    <Row label="Arrives" value="1–2 business days" muted />
+                  </div>
+
+                  <button
+                    onClick={confirmPayout}
+                    disabled={belowMin || overBalance || payoutState === "processing"}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-[#3D2E6B] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] transition hover:bg-[#2A1F4F] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {payoutState === "processing" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Processing payout…
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4" />
+                        Confirm withdrawal · ${amountNum.toFixed(2)}
+                      </>
+                    )}
+                  </button>
+
+                  <p className="flex items-start gap-1.5 text-[10px] leading-relaxed text-[#7E6BAF]">
+                    <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" />
+                    Processed inside Lubin with end-to-end encryption. You won't be redirected to {brand.name}.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="p-8 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#3D2E6B] to-[#5B4796] text-white shadow-[0_12px_28px_-10px_rgba(61,46,107,0.6)]">
+                  <CheckCircle2 className="h-7 w-7" />
+                </div>
+                <h3 className="mt-4 text-xl font-bold text-[#3D2E6B]">Payout on the way</h3>
+                <p className="mt-2 text-sm text-[#7E6BAF]">
+                  ${amountNum.toFixed(2)} is being sent to your {brand.name} account. Expect arrival in 1–2 business days.
+                </p>
+                <div className="mt-5 rounded-2xl border border-[#EEE7FA] bg-[#FBF9FF] p-4 text-left text-[12px]">
+                  <Row label="Reference" value={`LBN-${Date.now().toString().slice(-8)}`} />
+                  <Row label="Amount" value={`$${amountNum.toFixed(2)}`} />
+                  <Row label="Destination" value={`${brand.name} •••• 4242`} muted />
+                </div>
+                <button
+                  onClick={() => {
+                    setComposerOpen(false);
+                    setPayoutState("idle");
+                  }}
+                  className="mt-5 w-full rounded-full bg-[#3D2E6B] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#2A1F4F]"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <SectionCard
         title="Recent transactions"
