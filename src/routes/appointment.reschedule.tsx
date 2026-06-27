@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 
@@ -52,6 +52,12 @@ function slotsForDay(week: WeekAvail, date: Date): string[] {
 function ReschedulePage() {
   const s = Route.useSearch();
   const week = useAvailabilityStore((st) => st.week);
+  const [ready, setReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 450);
+    return () => clearTimeout(t);
+  }, []);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -88,6 +94,10 @@ function ReschedulePage() {
   const [time, setTime] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [done, setDone] = useState(false);
+
+  if (!ready) {
+    return <RescheduleSkeleton />;
+  }
 
   if (done) {
     const chosenLabel = date
@@ -250,17 +260,22 @@ function ReschedulePage() {
             <button
               disabled={!date || !time}
               onClick={() => {
+                if (submitting) return;
+                setSubmitting(true);
                 const label = date
                   ? new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
                   : "";
-                toast.success("Reschedule request sent", {
-                  description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
-                });
-                setDone(true);
+                setTimeout(() => {
+                  toast.success("Reschedule request sent", {
+                    description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
+                  });
+                  setDone(true);
+                }, 700);
               }}
-              className="rounded-[10px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-[#3D2E6B] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Confirm reschedule
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {submitting ? "Sending…" : "Confirm reschedule"}
             </button>
           </div>
         </section>
@@ -274,6 +289,55 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-1 border-l-2 border-[#EAE7F5] pl-3">
       <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</span>
       <span className="text-sm font-medium text-[#3D2E6B]">{value}</span>
+    </div>
+  );
+}
+
+function Shimmer({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-[8px] bg-[#EAE7F5] ${className}`} />;
+}
+
+function RescheduleSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#F9F8FF] py-12" style={{ fontFamily: "Inter, sans-serif" }}>
+      <main className="mx-auto max-w-3xl px-6">
+        <Shimmer className="h-4 w-16" />
+        <div className="mt-4 space-y-3">
+          <Shimmer className="h-3 w-24" />
+          <Shimmer className="h-8 w-64" />
+          <Shimmer className="h-4 w-80" />
+        </div>
+        <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <Shimmer className="h-3 w-32" />
+          <div className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-2 border-l-2 border-[#EAE7F5] pl-3">
+                <Shimmer className="h-3 w-16" />
+                <Shimmer className="h-4 w-28" />
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
+          <Shimmer className="h-3 w-24" />
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <Shimmer className="h-8 w-8" />
+            <Shimmer className="h-5 w-32" />
+            <Shimmer className="h-8 w-8" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Shimmer key={i} className="h-16 w-16" />
+            ))}
+          </div>
+          <Shimmer className="mt-6 h-3 w-24" />
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Shimmer key={i} className="h-9" />
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
