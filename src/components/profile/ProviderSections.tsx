@@ -2366,8 +2366,15 @@ export function PaymentsPayoutsSection() {
   const [redirecting, setRedirecting] = useState<null | "dashboard" | "switch">(null);
   const [payoutState, setPayoutState] = useState<"idle" | "processing" | "sent">("idle");
   const [composerOpen, setComposerOpen] = useState(false);
-  const balance = 1240;
-  const [amount, setAmount] = useState<string>(balance.toFixed(2));
+  const [balance, setBalance] = useState<number>(1240);
+  const [amount, setAmount] = useState<string>("1240.00");
+  type Txn = { client: string; date: string; amount: string; kind: "earning" | "payout" };
+  const [transactions, setTransactions] = useState<Txn[]>([
+    { client: "Anna Reyes", date: "Jun 24", amount: "+$120.00", kind: "earning" },
+    { client: "Jordan Lee", date: "Jun 23", amount: "+$60.00", kind: "earning" },
+    { client: "Payout to BPI", date: "Jun 21", amount: "-$840.00", kind: "payout" },
+    { client: "Sam Cruz", date: "Jun 19", amount: "+$120.00", kind: "earning" },
+  ]);
 
   const amountNum = Number(amount) || 0;
   const fee = 0; // covered by Lubin
@@ -2385,7 +2392,16 @@ export function PaymentsPayoutsSection() {
   const confirmPayout = () => {
     if (belowMin || overBalance || payoutState !== "idle") return;
     setPayoutState("processing");
-    setTimeout(() => setPayoutState("sent"), 1400);
+    setTimeout(() => {
+      const sent = amountNum;
+      setBalance((b) => Math.max(0, +(b - sent).toFixed(2)));
+      const today = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      setTransactions((prev) => [
+        { client: `Payout to ${brand.name}`, date: today, amount: `-$${sent.toFixed(2)}`, kind: "payout" },
+        ...prev,
+      ]);
+      setPayoutState("sent");
+    }, 1400);
   };
 
   const handleManageAction = (action: "dashboard" | "switch") => {
