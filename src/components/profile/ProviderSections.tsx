@@ -3132,9 +3132,9 @@ export function VerificationSection() {
       meta: "",
     },
   ];
-  const [documents, setDocuments] = React.useState<DocItem[]>(initialDocs);
-  const fileInputs = React.useRef<Record<string, HTMLInputElement | null>>({});
-  const [preview, setPreview] = React.useState<DocItem | null>(null);
+  const [documents, setDocuments] = useState<DocItem[]>(initialDocs);
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [preview, setPreview] = useState<DocItem | null>(null);
 
   const formatSize = (b: number) =>
     b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
