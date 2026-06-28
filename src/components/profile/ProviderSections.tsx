@@ -49,6 +49,8 @@ import {
   Eye,
   Banknote,
   Zap,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
@@ -109,6 +111,19 @@ function SectionCard({
 }
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return Stat_inner({ label, value, hint });
+}
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">{label}</p>
+      <p className={`mt-0.5 text-sm font-semibold text-[#3D2E6B] ${mono ? "font-mono" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+function Stat_inner({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-2xl border border-[#EEE7FA] bg-white/70 p-5">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
@@ -2368,13 +2383,26 @@ export function PaymentsPayoutsSection() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [balance, setBalance] = useState<number>(1240);
   const [amount, setAmount] = useState<string>("1240.00");
-  type Txn = { client: string; date: string; amount: string; kind: "earning" | "payout" };
+  type Txn = {
+    id: string;
+    client: string;
+    date: string;
+    amount: string;
+    kind: "earning" | "payout";
+    method?: string;
+    reference?: string;
+    note?: string;
+    status?: "completed" | "processing" | "pending";
+  };
   const [transactions, setTransactions] = useState<Txn[]>([
-    { client: "Anna Reyes", date: "Jun 24", amount: "+$120.00", kind: "earning" },
-    { client: "Jordan Lee", date: "Jun 23", amount: "+$60.00", kind: "earning" },
-    { client: "Payout to BPI", date: "Jun 21", amount: "-$840.00", kind: "payout" },
-    { client: "Sam Cruz", date: "Jun 19", amount: "+$120.00", kind: "earning" },
+    { id: "t1", client: "Anna Reyes", date: "Jun 24", amount: "+$120.00", kind: "earning", method: "Card · Visa •••• 4242", reference: "SES-10241", note: "60-min individual session", status: "completed" },
+    { id: "t2", client: "Jordan Lee", date: "Jun 23", amount: "+$60.00", kind: "earning", method: "Card · Mastercard •••• 7781", reference: "SES-10238", note: "30-min check-in", status: "completed" },
+    { id: "t3", client: "Payout to BPI", date: "Jun 21", amount: "-$840.00", kind: "payout", method: "BPI •••• 1122", reference: "LBN-77210621", note: "Weekly earnings withdrawal", status: "completed" },
+    { id: "t4", client: "Sam Cruz", date: "Jun 19", amount: "+$120.00", kind: "earning", method: "Card · Visa •••• 1198", reference: "SES-10229", note: "60-min individual session", status: "completed" },
   ]);
+  const [openTxn, setOpenTxn] = useState<string | null>(null);
+  const [txPage, setTxPage] = useState(0);
+  const TX_PER_PAGE = 5;
 
   const amountNum = Number(amount) || 0;
   const fee = 0; // covered by Lubin
@@ -2397,7 +2425,17 @@ export function PaymentsPayoutsSection() {
       setBalance((b) => Math.max(0, +(b - sent).toFixed(2)));
       const today = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric" });
       setTransactions((prev) => [
-        { client: `Payout to ${brand.name}`, date: today, amount: `-$${sent.toFixed(2)}`, kind: "payout" },
+        {
+          id: `t${Date.now()}`,
+          client: `Payout to ${brand.name}`,
+          date: today,
+          amount: `-$${sent.toFixed(2)}`,
+          kind: "payout",
+          method: `${brand.name} •••• 4242`,
+          reference: `LBN-${Date.now().toString().slice(-8)}`,
+          note: "Withdrawal from Lubin Wallet",
+          status: "processing",
+        },
         ...prev,
       ]);
       setPayoutState("sent");
@@ -2921,34 +2959,111 @@ export function PaymentsPayoutsSection() {
             </p>
           </div>
         ) : (
-          <>
-            <div className="space-y-2">
-              {transactions.map((t, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/60 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
-                    <div>
-                      <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
-                      <p className="text-xs text-[#7E6BAF]">{t.date}</p>
+          (() => {
+            const totalPages = Math.max(1, Math.ceil(transactions.length / TX_PER_PAGE));
+            const page = Math.min(txPage, totalPages - 1);
+            const start = page * TX_PER_PAGE;
+            const pageItems = transactions.slice(start, start + TX_PER_PAGE);
+            return (
+              <>
+                <div className="space-y-2">
+                  {pageItems.map((t) => {
+                    const isOpen = openTxn === t.id;
+                    return (
+                      <div
+                        key={t.id}
+                        className={`overflow-hidden rounded-xl border bg-white/60 transition-colors ${
+                          isOpen ? "border-[#C9BEE4] bg-white" : "border-[#EEE7FA] hover:border-[#D9CEF0]"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setOpenTxn(isOpen ? null : t.id)}
+                          aria-expanded={isOpen}
+                          className="flex w-full items-center justify-between px-4 py-3 text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
+                            <div>
+                              <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
+                              <p className="text-xs text-[#7E6BAF]">{t.date}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <p
+                              className={`text-sm font-semibold ${
+                                t.kind === "payout" ? "text-[#7E6BAF]" : "text-[#3D2E6B]"
+                              }`}
+                            >
+                              {t.amount}
+                            </p>
+                            <ChevronDown
+                              className={`h-4 w-4 text-[#A89BD0] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                            />
+                          </div>
+                        </button>
+                        {isOpen && (
+                          <div className="border-t border-[#EEE7FA] bg-[#FBF9FF] px-4 py-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <DetailRow label="Type" value={t.kind === "payout" ? "Payout" : "Earning"} />
+                              <DetailRow label="Status" value={(t.status ?? "completed").replace(/^./, (c) => c.toUpperCase())} />
+                              <DetailRow label="Amount" value={t.amount} />
+                              <DetailRow label="Date" value={t.date} />
+                              {t.method && <DetailRow label={t.kind === "payout" ? "Destination" : "Payment method"} value={t.method} />}
+                              {t.reference && <DetailRow label="Reference" value={t.reference} mono />}
+                            </div>
+                            {t.note && (
+                              <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs text-[#5E4F8A]">
+                                {t.note}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-xs text-[#7E6BAF]">
+                      Showing {start + 1}–{Math.min(start + TX_PER_PAGE, transactions.length)} of {transactions.length}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setTxPage((p) => Math.max(0, p - 1))}
+                        disabled={page === 0}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7FA] bg-white text-[#3D2E6B] transition hover:bg-[#F4EEFE] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      {Array.from({ length: totalPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setTxPage(i)}
+                          className={`h-8 min-w-8 rounded-full px-2.5 text-xs font-semibold transition ${
+                            i === page
+                              ? "bg-[#3D2E6B] text-white"
+                              : "border border-[#EEE7FA] bg-white text-[#7E6BAF] hover:text-[#3D2E6B]"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setTxPage((p) => Math.min(totalPages - 1, p + 1))}
+                        disabled={page >= totalPages - 1}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7FA] bg-white text-[#3D2E6B] transition hover:bg-[#F4EEFE] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                  <p
-                    className={`text-sm font-semibold ${
-                      t.kind === "payout" ? "text-[#7E6BAF]" : "text-[#3D2E6B]"
-                    }`}
-                  >
-                    {t.amount}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-              View all <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
-          </>
+                )}
+              </>
+            );
+          })()
         )}
       </SectionCard>
     </div>
