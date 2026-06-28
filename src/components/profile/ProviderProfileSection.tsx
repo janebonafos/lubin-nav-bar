@@ -823,11 +823,13 @@ export default function ProviderProfileSection({
   avatarUrl,
   onAvatarChange,
   view = "profile",
+  onNavigate,
 }: {
   fullName: string;
   avatarUrl?: string | null;
   onAvatarChange?: (dataUrl: string) => void;
   view?: "profile" | "services";
+  onNavigate?: (section: string) => void;
 }) {
   const [data, setData] = useState<ProviderProfile>(DEFAULT_PROVIDER_PROFILE);
   const [editing, setEditing] = useState<{
@@ -1757,9 +1759,10 @@ export default function ProviderProfileSection({
         {!data.verified && (
           <button
             type="button"
+            onClick={() => onNavigate?.("verification")}
             className="w-full shrink-0 rounded-2xl bg-[#7E6BAF] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#7E6BAF]/30 transition hover:bg-[#8d7bc2] sm:w-auto"
           >
-            Submit credentials
+            Start verification
           </button>
         )}
       </section>
