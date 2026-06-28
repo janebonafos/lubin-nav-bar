@@ -2944,34 +2944,111 @@ export function PaymentsPayoutsSection() {
             </p>
           </div>
         ) : (
-          <>
-            <div className="space-y-2">
-              {transactions.map((t, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/60 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
-                    <div>
-                      <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
-                      <p className="text-xs text-[#7E6BAF]">{t.date}</p>
+          (() => {
+            const totalPages = Math.max(1, Math.ceil(transactions.length / TX_PER_PAGE));
+            const page = Math.min(txPage, totalPages - 1);
+            const start = page * TX_PER_PAGE;
+            const pageItems = transactions.slice(start, start + TX_PER_PAGE);
+            return (
+              <>
+                <div className="space-y-2">
+                  {pageItems.map((t) => {
+                    const isOpen = openTxn === t.id;
+                    return (
+                      <div
+                        key={t.id}
+                        className={`overflow-hidden rounded-xl border bg-white/60 transition-colors ${
+                          isOpen ? "border-[#C9BEE4] bg-white" : "border-[#EEE7FA] hover:border-[#D9CEF0]"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setOpenTxn(isOpen ? null : t.id)}
+                          aria-expanded={isOpen}
+                          className="flex w-full items-center justify-between px-4 py-3 text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
+                            <div>
+                              <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
+                              <p className="text-xs text-[#7E6BAF]">{t.date}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <p
+                              className={`text-sm font-semibold ${
+                                t.kind === "payout" ? "text-[#7E6BAF]" : "text-[#3D2E6B]"
+                              }`}
+                            >
+                              {t.amount}
+                            </p>
+                            <ChevronDown
+                              className={`h-4 w-4 text-[#A89BD0] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                            />
+                          </div>
+                        </button>
+                        {isOpen && (
+                          <div className="border-t border-[#EEE7FA] bg-[#FBF9FF] px-4 py-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <DetailRow label="Type" value={t.kind === "payout" ? "Payout" : "Earning"} />
+                              <DetailRow label="Status" value={(t.status ?? "completed").replace(/^./, (c) => c.toUpperCase())} />
+                              <DetailRow label="Amount" value={t.amount} />
+                              <DetailRow label="Date" value={t.date} />
+                              {t.method && <DetailRow label={t.kind === "payout" ? "Destination" : "Payment method"} value={t.method} />}
+                              {t.reference && <DetailRow label="Reference" value={t.reference} mono />}
+                            </div>
+                            {t.note && (
+                              <p className="mt-3 rounded-lg bg-white px-3 py-2 text-xs text-[#5E4F8A]">
+                                {t.note}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-xs text-[#7E6BAF]">
+                      Showing {start + 1}–{Math.min(start + TX_PER_PAGE, transactions.length)} of {transactions.length}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setTxPage((p) => Math.max(0, p - 1))}
+                        disabled={page === 0}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7FA] bg-white text-[#3D2E6B] transition hover:bg-[#F4EEFE] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      {Array.from({ length: totalPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setTxPage(i)}
+                          className={`h-8 min-w-8 rounded-full px-2.5 text-xs font-semibold transition ${
+                            i === page
+                              ? "bg-[#3D2E6B] text-white"
+                              : "border border-[#EEE7FA] bg-white text-[#7E6BAF] hover:text-[#3D2E6B]"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setTxPage((p) => Math.min(totalPages - 1, p + 1))}
+                        disabled={page >= totalPages - 1}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7FA] bg-white text-[#3D2E6B] transition hover:bg-[#F4EEFE] disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                  <p
-                    className={`text-sm font-semibold ${
-                      t.kind === "payout" ? "text-[#7E6BAF]" : "text-[#3D2E6B]"
-                    }`}
-                  >
-                    {t.amount}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-              View all <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
-          </>
+                )}
+              </>
+            );
+          })()
         )}
       </SectionCard>
     </div>
