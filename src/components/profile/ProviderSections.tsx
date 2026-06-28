@@ -49,6 +49,8 @@ import {
   Eye,
   Banknote,
   Zap,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ---------- shared shells ---------- */
