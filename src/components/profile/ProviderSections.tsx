@@ -3085,6 +3085,13 @@ export function VerificationSection() {
       hint: "Upload required · PDF, JPG",
       status: "Needed" as const,
       meta: "",
+      examples: [
+        "Professional License",
+        "Board Certificate",
+        "Coaching Certification",
+        "Accreditation",
+        "Training Certificate",
+      ] as string[],
     },
     {
       name: "Diploma or training certificate",
@@ -3203,6 +3210,18 @@ export function VerificationSection() {
                     <div>
                       <h4 className="text-sm font-semibold text-[#3D2E6B]">{d.name}</h4>
                       <p className="text-xs text-[#7E6BAF]">{isUploaded ? d.meta : d.hint}</p>
+                      {!isUploaded && "examples" in d && d.examples && d.examples.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {d.examples.map((ex) => (
+                            <span
+                              key={ex}
+                              className="rounded-full border border-[#E5DCF4] bg-white px-2.5 py-0.5 text-[10.5px] font-medium text-[#5E4A8C]"
+                            >
+                              {ex}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {isUploaded ? (
