@@ -3273,20 +3273,20 @@ export function VerificationSection() {
             </h3>
           </div>
           <div className="mt-4">
-            <ul className="space-y-5">
+            <ul className="space-y-6">
               {checks.map((c, i) => (
-                <li key={c.title} className="flex gap-4">
-                  <span className="w-6 shrink-0 pt-0.5 text-xs font-semibold tabular-nums text-[#A89BD0]">
+                <li key={c.title} className="flex gap-5">
+                  <span className="w-8 shrink-0 pt-1 font-serif-display text-2xl font-semibold tabular-nums text-[#7E6BAF]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[#3D2E6B]">{c.title}</p>
-                    <p className="text-xs leading-relaxed text-[#7E6BAF]">{c.body}</p>
+                    <p className="text-base font-semibold text-[#2A1F4D]">{c.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-[#5B4B85]">{c.body}</p>
                   </div>
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A89BD0]">
+            <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#7E6BAF]">
               Secure &amp; encrypted processing
             </p>
           </div>
