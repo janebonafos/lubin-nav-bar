@@ -3315,13 +3315,15 @@ export function VerificationSection() {
                         View
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => triggerUpload(d.id)}
-                      className="whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]"
-                    >
-                      {isUploaded ? "Replace" : isRejected ? "Re-upload" : "Upload"}
-                    </button>
+                    {!isUploaded && (
+                      <button
+                        type="button"
+                        onClick={() => triggerUpload(d.id)}
+                        className="whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]"
+                      >
+                        {isRejected ? "Re-upload" : "Upload"}
+                      </button>
+                    )}
                   </div>
                 </div>
                 {isRejected && d.adminNote && (
@@ -3411,16 +3413,18 @@ export function VerificationSection() {
               >
                 Close
               </button>
-              <button
-                onClick={() => {
-                  const id = preview.id;
-                  setPreview(null);
-                  setTimeout(() => triggerUpload(id), 50);
-                }}
-                className="rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2D2250]"
-              >
-                Replace file
-              </button>
+              {preview.status !== "Uploaded" && (
+                <button
+                  onClick={() => {
+                    const id = preview.id;
+                    setPreview(null);
+                    setTimeout(() => triggerUpload(id), 50);
+                  }}
+                  className="rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2D2250]"
+                >
+                  Replace file
+                </button>
+              )}
             </div>
           </div>
         </div>
