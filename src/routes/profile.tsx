@@ -36,6 +36,9 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
+import ClientAppointmentsSection, {
+  CLIENT_UPCOMING_COUNT,
+} from "@/components/profile/ClientAppointmentsSection";
 import {
   CalendarAvailabilitySection,
   AppointmentsSection,
