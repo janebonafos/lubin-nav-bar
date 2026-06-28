@@ -2448,7 +2448,7 @@ export function PaymentsPayoutsSection() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Stat label="Available balance" value="$1,240.00" hint="Approved by Lubin · ready to withdraw" />
+        <Stat label="Available balance" value={`$${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} hint="Approved by Lubin · ready to withdraw" />
         <Stat label="Pending review" value="$420.00" hint="3 sessions under Lubin review" />
         <Stat label="Lifetime earnings" value="$12,840.00" />
       </div>
