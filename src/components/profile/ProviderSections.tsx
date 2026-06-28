@@ -3073,21 +3073,28 @@ export function PaymentsPayoutsSection() {
 /* ---------- Verification ---------- */
 
 export function VerificationSection() {
-  const documents: Array<{
+  type DocStatus = "Uploaded" | "Needed" | "Optional" | "Rejected";
+  type DocItem = {
+    id: string;
     name: string;
     hint: string;
-    status: "Uploaded" | "Needed" | "Optional" | "Rejected";
+    status: DocStatus;
     meta: string;
     examples?: string[];
     adminNote?: string;
-  }> = [
+    file?: { name: string; size: number; uploadedAt: string };
+  };
+  const initialDocs: DocItem[] = [
     {
+      id: "gov-id",
       name: "Government-issued ID",
       hint: "Passport or driver's license",
       status: "Uploaded",
       meta: "Verified · Jun 24",
+      file: { name: "passport-scan.pdf", size: 1_240_000, uploadedAt: "Jun 24" },
     },
     {
+      id: "license",
       name: "Professional license or certificate",
       hint: "Upload required · PDF, JPG",
       status: "Rejected",
@@ -3101,26 +3108,58 @@ export function VerificationSection() {
         "Accreditation",
         "Training Certificate",
       ],
+      file: { name: "license-old.jpg", size: 480_000, uploadedAt: "Jun 22" },
     },
     {
+      id: "selfie",
       name: "Selfie",
       hint: "A clear, well-lit photo of your face",
       status: "Needed",
       meta: "",
     },
     {
+      id: "selfie-id",
       name: "Selfie with ID",
       hint: "Hold your government-issued ID next to your face",
       status: "Needed",
       meta: "",
     },
     {
+      id: "diploma",
       name: "Diploma or training certificate",
       hint: "Optional · strengthens your profile",
       status: "Optional",
       meta: "",
     },
   ];
+  const [documents, setDocuments] = useState<DocItem[]>(initialDocs);
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [preview, setPreview] = useState<DocItem | null>(null);
+
+  const formatSize = (b: number) =>
+    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
+
+  const triggerUpload = (id: string) => fileInputs.current[id]?.click();
+
+  const onFile = (id: string, files: FileList | null) => {
+    const f = files?.[0];
+    if (!f) return;
+    const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    setDocuments((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              status: "Uploaded",
+              meta: `Uploaded · ${today}`,
+              adminNote: undefined,
+              file: { name: f.name, size: f.size, uploadedAt: today },
+            }
+          : d
+      )
+    );
+  };
+
   const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
   const requiredCount = documents.filter((d) => d.status !== "Optional").length;
   const percent = requiredCount === 0 ? 0 : Math.round((verifiedCount / requiredCount) * 100);
@@ -3210,6 +3249,18 @@ export function VerificationSection() {
                     : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-6 transition-all hover:border-[#7E6BAF]"
                 }
               >
+                <input
+                  ref={(el) => {
+                    fileInputs.current[d.id] = el;
+                  }}
+                  type="file"
+                  accept="application/pdf,image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    onFile(d.id, e.target.files);
+                    e.currentTarget.value = "";
+                  }}
+                />
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-3">
                     <div className="space-y-1">
@@ -3236,16 +3287,42 @@ export function VerificationSection() {
                         ))}
                       </div>
                     )}
+                    {d.file && (
+                      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#EFE8FB] bg-[#FBF9FE] px-3 py-2">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="#7E6BAF" className="shrink-0">
+                          <path d="M4 4a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" opacity=".25"/>
+                          <path d="M11 2v4a1 1 0 001 1h4" />
+                        </svg>
+                        <span className="truncate text-xs font-semibold text-[#3D2E6B]">{d.file.name}</span>
+                        <span className="text-[11px] text-[#7E6BAF]">· {formatSize(d.file.size)}</span>
+                        <button
+                          type="button"
+                          onClick={() => setPreview(d)}
+                          className="ml-auto text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] hover:underline"
+                        >
+                          View
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  {isUploaded ? (
-                    <button className="shrink-0 px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:underline">
-                      View
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    {isUploaded && (
+                      <button
+                        type="button"
+                        onClick={() => setPreview(d)}
+                        className="px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:underline"
+                      >
+                        View
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => triggerUpload(d.id)}
+                      className="whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]"
+                    >
+                      {isUploaded ? "Replace" : isRejected ? "Re-upload" : "Upload"}
                     </button>
-                  ) : (
-                    <button className="shrink-0 whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]">
-                      {isRejected ? "Re-upload" : "Upload"}
-                    </button>
-                  )}
+                  </div>
                 </div>
                 {isRejected && d.adminNote && (
                   <div className="rounded-xl border-l-2 border-[#7E6BAF] bg-[#F9F7FC] p-5">
@@ -3276,7 +3353,7 @@ export function VerificationSection() {
             <ul className="space-y-6">
               {checks.map((c, i) => (
                 <li key={c.title} className="flex gap-5">
-                  <span className="w-8 shrink-0 pt-1 font-serif-display text-2xl font-semibold tabular-nums text-[#7E6BAF]">
+                  <span className="w-8 shrink-0 pt-1 text-base font-semibold tabular-nums tracking-tight text-[#7E6BAF]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
@@ -3292,6 +3369,62 @@ export function VerificationSection() {
           </div>
         </div>
       </div>
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A1F4D]/60 p-4 backdrop-blur-sm"
+          onClick={() => setPreview(null)}
+        >
+          <div
+            className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-[#EFE8FB] px-6 py-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">Document preview</p>
+                <h3 className="mt-1 text-base font-semibold text-[#3D2E6B]">{preview.name}</h3>
+              </div>
+              <button
+                onClick={() => setPreview(null)}
+                className="rounded-full p-1.5 text-[#7E6BAF] hover:bg-[#F4EEFB]"
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              </button>
+            </div>
+            <div className="flex aspect-[4/3] items-center justify-center bg-[#F9F7FC]">
+              <div className="text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm">
+                  <svg width="28" height="28" viewBox="0 0 20 20" fill="#7E6BAF"><path d="M4 4a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" opacity=".3"/><path d="M11 2v4a1 1 0 001 1h4" stroke="#7E6BAF" strokeWidth="1.5" fill="none"/></svg>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">{preview.file?.name ?? "No file"}</p>
+                {preview.file && (
+                  <p className="mt-1 text-xs text-[#7E6BAF]">
+                    {formatSize(preview.file.size)} · Uploaded {preview.file.uploadedAt}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-[#EFE8FB] px-6 py-4">
+              <button
+                onClick={() => setPreview(null)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFB]"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  const id = preview.id;
+                  setPreview(null);
+                  setTimeout(() => triggerUpload(id), 50);
+                }}
+                className="rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2D2250]"
+              >
+                Replace file
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
