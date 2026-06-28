@@ -111,6 +111,19 @@ function SectionCard({
 }
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return Stat_inner({ label, value, hint });
+}
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A89BD0]">{label}</p>
+      <p className={`mt-0.5 text-sm font-semibold text-[#3D2E6B] ${mono ? "font-mono" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+function Stat_inner({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-2xl border border-[#EEE7FA] bg-white/70 p-5">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
