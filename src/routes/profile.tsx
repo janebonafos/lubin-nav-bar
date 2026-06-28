@@ -986,6 +986,10 @@ function ProfilePage() {
       <AppointmentsSection />
     )}
 
+    {activeSection === "appointments" && role === "client" && (
+      <ClientAppointmentsSection />
+    )}
+
     {activeSection === "payments" && role === "provider" && (
       <PaymentsPayoutsSection />
     )}
