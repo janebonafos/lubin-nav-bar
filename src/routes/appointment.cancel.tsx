@@ -103,11 +103,19 @@ function CancelPage() {
             </h1>
 
             <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
-              We've let{" "}
-              <span className="font-semibold text-[#3D2E6B]">
-                {s.client ?? "your client"}
-              </span>{" "}
-              know and freed up this slot on your calendar.
+              {isClient ? (
+                <>
+                  We've let{" "}
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span>{" "}
+                  know. If a refund applies, the Lubin team will reach out to you directly.
+                </>
+              ) : (
+                <>
+                  We've let{" "}
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span>{" "}
+                  know and freed up this slot on your calendar.
+                </>
+              )}
             </p>
 
             <div className="mb-10 flex w-full items-center gap-4">
@@ -130,7 +138,7 @@ function CancelPage() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">{counterLabel}</span>
                 <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between">
@@ -143,7 +151,9 @@ function CancelPage() {
             </div>
 
             <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
-              If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
+              {isClient
+                ? "If a refund applies, the Lubin team will process it to your original payment method."
+                : "If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you."}
             </div>
 
             <button
