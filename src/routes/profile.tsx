@@ -408,7 +408,10 @@ function ProfilePage() {
     },
     appointments: {
       title: "Appointments",
-      subtitle: "Upcoming sessions, requests, and past bookings",
+      subtitle:
+        role === "provider"
+          ? "Upcoming sessions, requests, and past bookings"
+          : "Your upcoming, completed, and cancelled sessions",
     },
     payments: {
       title: "Payments & Payouts",
