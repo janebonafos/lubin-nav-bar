@@ -241,14 +241,16 @@ function ReschedulePage() {
             Pick a new time
           </h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            Choose a replacement slot. We'll notify {s.client ?? "your client"} for confirmation.
+            {isClient
+              ? `Choose a new slot that works for you. We'll send the request to ${counterName} for confirmation.`
+              : `Choose a replacement slot. We'll notify ${counterName} for confirmation.`}
           </p>
         </div>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Current appointment</p>
           <div className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-            <DetailRow label="Client" value={s.client ?? "—"} />
+            <DetailRow label={counterLabel} value={s.client ?? "—"} />
             <DetailRow label="Session" value={s.type ?? "—"} />
             <DetailRow label="When" value={`${s.date ?? ""} · ${s.time ?? ""}`} />
             <DetailRow label="Duration" value={s.duration ?? "—"} />
@@ -336,7 +338,7 @@ function ReschedulePage() {
             </div>
           )}
 
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to client (optional)</p>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to {counterLabelLower} (optional)</p>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
