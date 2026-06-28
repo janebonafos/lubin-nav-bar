@@ -364,7 +364,7 @@ function ReschedulePage() {
                   : "";
                 setTimeout(() => {
                   toast.success("Reschedule request sent", {
-                    description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
+                    description: `${counterName} will be notified about ${label} at ${time}.`,
                   });
                   if (s.id) publishAppointmentEvent({ type: "rescheduled", id: s.id, date: label, time: time ?? undefined });
                   setDone(true);
