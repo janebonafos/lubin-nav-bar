@@ -3127,8 +3127,8 @@ export function VerificationSection() {
     {
       id: "diploma",
       name: "Diploma or training certificate",
-      hint: "Optional · strengthens your profile",
-      status: "Optional",
+      hint: "Upload required · PDF, JPG",
+      status: "Needed",
       meta: "",
     },
   ];
@@ -3176,7 +3176,7 @@ export function VerificationSection() {
       body: "Cross-referencing government IDs and professional history.",
     },
     {
-      title: "Background screening",
+      title: "Trust & Safety Review",
       body: "Quiet review of disciplinary records and complaints.",
     },
   ];
