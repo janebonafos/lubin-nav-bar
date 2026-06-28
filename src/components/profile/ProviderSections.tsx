@@ -3135,6 +3135,17 @@ export function VerificationSection() {
   const [documents, setDocuments] = useState<DocItem[]>(initialDocs);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const [preview, setPreview] = useState<DocItem | null>(null);
+  const [devVerified, setDevVerified] = useState(false);
+
+  const displayedDocuments: DocItem[] = devVerified
+    ? documents.map((d) => ({
+        ...d,
+        status: "Uploaded" as DocStatus,
+        meta: "Verified · Jun 26",
+        adminNote: undefined,
+        file: d.file ?? { name: `${d.id}.pdf`, size: 980_000, uploadedAt: "Jun 26" },
+      }))
+    : documents;
 
   const formatSize = (b: number) =>
     b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
@@ -3160,8 +3171,8 @@ export function VerificationSection() {
     );
   };
 
-  const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
-  const requiredCount = documents.filter((d) => d.status !== "Optional").length;
+  const verifiedCount = displayedDocuments.filter((d) => d.status === "Uploaded").length;
+  const requiredCount = displayedDocuments.filter((d) => d.status !== "Optional").length;
   const percent = requiredCount === 0 ? 0 : Math.round((verifiedCount / requiredCount) * 100);
   const dash = 226.19;
   const dashOffset = dash - (dash * percent) / 100;
