@@ -1030,23 +1030,16 @@ export default function ProviderProfileSection({
                   title="Verified provider"
                   className="group relative inline-flex h-7 w-7 shrink-0 items-center justify-center"
                 >
-                  <svg viewBox="0 0 32 32" className="relative h-7 w-7">
-                    <defs>
-                      <radialGradient id="verifiedBadgeGrad" cx="0.35" cy="0.35" r="0.8">
-                        <stop offset="0%" stopColor="#A899D1" />
-                        <stop offset="100%" stopColor="#7E6BAF" />
-                      </radialGradient>
-                    </defs>
-                    <circle cx="16" cy="16" r="12" fill="url(#verifiedBadgeGrad)" />
-                    <path
-                      d="M10.8 16.4l3.5 3.4 6.9-7.2"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <span className="absolute inset-0 scale-110 rounded-full bg-[#7E6BAF] opacity-20 blur-[6px]" />
+                  <span
+                    className="relative flex h-7 w-7 items-center justify-center bg-[#7E6BAF] shadow-[0_4px_12px_-2px_rgba(126,107,175,0.5)]"
+                    style={{ clipPath: "polygon(50% 0%, 65% 10%, 85% 15%, 90% 35%, 100% 50%, 90% 65%, 85% 85%, 65% 90%, 50% 100%, 35% 90%, 15% 85%, 10% 65%, 0% 50%, 10% 35%, 15% 15%, 35% 10%)" }}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20" />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="relative z-10">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
                 </span>
               </h2>
               <p className="font-medium text-[#7E6BAF]">{data.profession}</p>
