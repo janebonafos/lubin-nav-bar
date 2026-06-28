@@ -3243,10 +3243,10 @@ export function VerificationSection() {
                 key={d.name}
                 className={
                   isUploaded
-                    ? "group relative rounded-2xl border border-[#E9E1F3] bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                    ? "group relative flex flex-col gap-4 rounded-2xl border border-[#EFE8FB] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
                     : isRejected
-                    ? "group relative rounded-2xl border border-[#F2EBF5] bg-white p-6 shadow-sm transition-all space-y-6"
-                    : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-6 transition-all hover:border-[#7E6BAF]"
+                    ? "group relative flex flex-col gap-5 rounded-2xl border border-[#EFE8FB] bg-white p-6 shadow-sm"
+                    : "group rounded-2xl border-2 border-dashed border-[#EFE8FB] bg-[#F8F7FF]/60 p-6 transition-all hover:border-[#7E6BAF]/50"
                 }
               >
                 <input
@@ -3264,74 +3264,92 @@ export function VerificationSection() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-3">
                     <div className="space-y-1">
-                      <h4 className="text-[15px] font-semibold leading-tight text-[#3D2E6B]">{d.name}</h4>
-                      <p
-                        className={
-                          isRejected
-                            ? "text-[12.5px] font-medium text-[#8B5E83]"
-                            : "text-[12.5px] text-[#7E6BAF]"
-                        }
-                      >
-                        {isUploaded ? d.meta : isRejected ? "Action needed · please re-upload" : d.hint}
-                      </p>
+                      <h4 className="text-lg font-semibold leading-tight text-[#3D2E6B]">{d.name}</h4>
+                      {isUploaded ? (
+                        <div className="mt-1 flex items-center gap-2 text-sm">
+                          <span className="font-medium text-[#7E6BAF]">Verified</span>
+                          <span className="text-xs text-[#7E6BAF]/50">•</span>
+                          <span className="text-[#7E6BAF]/70">
+                            {d.meta.replace(/^Verified\s*·\s*/, "").replace(/^Uploaded\s*·\s*/, "")}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-[#7E6BAF]">
+                          {isRejected ? "Action needed • please re-upload" : d.hint}
+                        </p>
+                      )}
                     </div>
                     {!isUploaded && "examples" in d && d.examples && d.examples.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-2">
                         {d.examples.map((ex) => (
                           <span
                             key={ex}
-                            className="rounded-full border border-[#E9E1F3] bg-[#F4EEFB] px-3 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#7E6BAF]"
+                            className="rounded-md bg-[#EFE8FB] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]"
                           >
                             {ex}
                           </span>
                         ))}
                       </div>
                     )}
-                    {d.file && (
-                      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#EFE8FB] bg-[#FBF9FE] px-3 py-2">
-                        <svg width="16" height="16" viewBox="0 0 20 20" fill="#7E6BAF" className="shrink-0">
-                          <path d="M4 4a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" opacity=".25"/>
-                          <path d="M11 2v4a1 1 0 001 1h4" />
-                        </svg>
-                        <span className="truncate text-xs font-semibold text-[#3D2E6B]">{d.file.name}</span>
-                        <span className="text-[11px] text-[#7E6BAF]">· {formatSize(d.file.size)}</span>
-                        <button
-                          type="button"
-                          onClick={() => setPreview(d)}
-                          className="ml-auto text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B] hover:underline"
-                        >
-                          View
-                        </button>
-                      </div>
-                    )}
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    {isUploaded && (
-                      <button
-                        type="button"
-                        onClick={() => setPreview(d)}
-                        className="px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:underline"
-                      >
-                        View
-                      </button>
-                    )}
-                    {!isUploaded && (
-                      <button
-                        type="button"
-                        onClick={() => triggerUpload(d.id)}
-                        className="whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]"
-                      >
-                        {isRejected ? "Re-upload" : "Upload"}
-                      </button>
-                    )}
-                  </div>
+                  {isUploaded ? (
+                    <button
+                      type="button"
+                      onClick={() => setPreview(d)}
+                      className="shrink-0 text-sm font-semibold text-[#3D2E6B] hover:underline"
+                    >
+                      View
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => triggerUpload(d.id)}
+                      className="shrink-0 whitespace-nowrap rounded-xl bg-[#3D2E6B] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#2D2250]"
+                    >
+                      {isRejected ? "Re-upload" : "Upload"}
+                    </button>
+                  )}
                 </div>
+                {isUploaded && d.file && (
+                  <div className="inline-flex items-center gap-3 self-start rounded-xl bg-[#F4EEFB] px-4 py-2.5">
+                    <svg className="h-4 w-4 text-[#3D2E6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-[#3D2E6B]">{d.file.name}</span>
+                    <span className="text-xs text-[#7E6BAF]">{formatSize(d.file.size)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPreview(d)}
+                      className="ml-1 text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      View
+                    </button>
+                  </div>
+                )}
+                {isRejected && d.file && (
+                  <div className="flex items-center justify-between rounded-xl border border-[#EFE8FB] bg-white px-4 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <svg className="h-4 w-4 text-[#7E6BAF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm font-medium text-[#3D2E6B]">{d.file.name}</span>
+                      <span className="text-xs uppercase tracking-tighter text-[#7E6BAF]">{formatSize(d.file.size)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPreview(d)}
+                      className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      View
+                    </button>
+                  </div>
+                )}
                 {isRejected && d.adminNote && (
-                  <div className="rounded-xl border-l-2 border-[#7E6BAF] bg-[#F9F7FC] p-5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
+                  <div className="rounded-r-xl border-l-4 border-[#7E6BAF] bg-[#F4EEFB] p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF]">
                       Note from Lubin admin
                     </p>
-                    <p className="mt-2 text-[13px] leading-relaxed text-[#3D2E6B]/90">
+                    <p className="mt-2 text-sm leading-relaxed text-[#3D2E6B]">
                       {d.adminNote}
                     </p>
                   </div>
