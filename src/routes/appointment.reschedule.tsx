@@ -15,6 +15,7 @@ const searchSchema = z.object({
   type: z.string().optional(),
   mode: z.string().optional(),
   timezone: z.string().optional(),
+  role: z.enum(["provider", "client"]).optional(),
 });
 
 export const Route = createFileRoute("/appointment/reschedule")({
@@ -52,6 +53,10 @@ function slotsForDay(week: WeekAvail, date: Date): string[] {
 
 function ReschedulePage() {
   const s = Route.useSearch();
+  const isClient = s.role === "client";
+  const counterLabel = isClient ? "Provider" : "Client";
+  const counterLabelLower = isClient ? "provider" : "client";
+  const counterName = s.client ?? (isClient ? "your provider" : "your client");
   const week = useAvailabilityStore((st) => st.week);
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -138,8 +143,17 @@ function ReschedulePage() {
             </h1>
 
             <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
-              <span className="font-semibold text-[#3D2E6B]">{s.client ?? "Your client"}</span> has
-              been notified of the new time.
+              {isClient ? (
+                <>
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span> has
+                  been notified and will confirm the new time.
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span> has
+                  been notified of the new time.
+                </>
+              )}
             </p>
 
             <div className="mb-10 flex w-full items-center gap-4">
@@ -156,7 +170,7 @@ function ReschedulePage() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">{counterLabel}</span>
                 <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
               </div>
               {previousWhen && (
@@ -187,7 +201,9 @@ function ReschedulePage() {
             </div>
 
             <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
-              Your calendar has been updated with the new time.
+              {isClient
+                ? "We've updated your booking. You'll receive a reminder before the new session."
+                : "Your calendar has been updated with the new time."}
             </div>
 
             <button
@@ -225,14 +241,16 @@ function ReschedulePage() {
             Pick a new time
           </h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            Choose a replacement slot. We'll notify {s.client ?? "your client"} for confirmation.
+            {isClient
+              ? `Choose a new slot that works for you. We'll send the request to ${counterName} for confirmation.`
+              : `Choose a replacement slot. We'll notify ${counterName} for confirmation.`}
           </p>
         </div>
 
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Current appointment</p>
           <div className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-            <DetailRow label="Client" value={s.client ?? "—"} />
+            <DetailRow label={counterLabel} value={s.client ?? "—"} />
             <DetailRow label="Session" value={s.type ?? "—"} />
             <DetailRow label="When" value={`${s.date ?? ""} · ${s.time ?? ""}`} />
             <DetailRow label="Duration" value={s.duration ?? "—"} />
@@ -320,7 +338,7 @@ function ReschedulePage() {
             </div>
           )}
 
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to client (optional)</p>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to {counterLabelLower} (optional)</p>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -346,7 +364,7 @@ function ReschedulePage() {
                   : "";
                 setTimeout(() => {
                   toast.success("Reschedule request sent", {
-                    description: `${s.client ?? "Your client"} will be notified about ${label} at ${time}.`,
+                    description: `${counterName} will be notified about ${label} at ${time}.`,
                   });
                   if (s.id) publishAppointmentEvent({ type: "rescheduled", id: s.id, date: label, time: time ?? undefined });
                   setDone(true);

@@ -14,6 +14,7 @@ const searchSchema = z.object({
   type: z.string().optional(),
   amount: z.string().optional(),
   paymentStatus: z.string().optional(),
+  role: z.enum(["provider", "client"]).optional(),
 });
 
 export const Route = createFileRoute("/appointment/cancel")({
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/appointment/cancel")({
   }),
 });
 
-const REASONS = [
+const PROVIDER_REASONS = [
   "Schedule conflict",
   "Personal emergency",
   "Illness or health reason",
@@ -36,8 +37,22 @@ const REASONS = [
   "Other",
 ];
 
+const CLIENT_REASONS = [
+  "Schedule conflict",
+  "Feeling unwell",
+  "Personal emergency",
+  "No longer needed",
+  "Found a different time",
+  "Other",
+];
+
 function CancelPage() {
   const s = Route.useSearch();
+  const isClient = s.role === "client";
+  const counterLabel = isClient ? "Provider" : "Client";
+  const counterLabelLower = isClient ? "provider" : "client";
+  const counterName = s.client ?? (isClient ? "your provider" : "your client");
+  const REASONS = isClient ? CLIENT_REASONS : PROVIDER_REASONS;
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [confirm, setConfirm] = useState(false);
@@ -88,11 +103,19 @@ function CancelPage() {
             </h1>
 
             <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
-              We've let{" "}
-              <span className="font-semibold text-[#3D2E6B]">
-                {s.client ?? "your client"}
-              </span>{" "}
-              know and freed up this slot on your calendar.
+              {isClient ? (
+                <>
+                  We've let{" "}
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span>{" "}
+                  know. If a refund applies, the Lubin team will reach out to you directly.
+                </>
+              ) : (
+                <>
+                  We've let{" "}
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span>{" "}
+                  know and freed up this slot on your calendar.
+                </>
+              )}
             </p>
 
             <div className="mb-10 flex w-full items-center gap-4">
@@ -115,7 +138,7 @@ function CancelPage() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">{counterLabel}</span>
                 <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between">
@@ -128,7 +151,9 @@ function CancelPage() {
             </div>
 
             <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
-              If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you.
+              {isClient
+                ? "If a refund applies, the Lubin team will process it to your original payment method."
+                : "If a refund applies, the Lubin team will coordinate it directly with the client — no action needed from you."}
             </div>
 
             <button
@@ -166,7 +191,9 @@ function CancelPage() {
             Cancel this session?
           </h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            We'll notify your client, free up this time slot on your calendar, and let the Lubin team know so they can handle any billing or refund follow-up.
+            {isClient
+              ? "We'll let your provider know and notify the Lubin team. If you've already paid and a refund applies, Lubin will handle it for you."
+              : "We'll notify your client, free up this time slot on your calendar, and let the Lubin team know so they can handle any billing or refund follow-up."}
           </p>
         </div>
 
@@ -174,7 +201,9 @@ function CancelPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-none text-rose-500" />
             <div className="text-sm text-rose-700">
-              Cancellations within 24 hours of the session may affect your reliability score. Please cancel only when necessary so clients can rebook in time.
+              {isClient
+                ? "Cancellations within 24 hours of the session may have a different refund policy. Please cancel as early as you can."
+                : "Cancellations within 24 hours of the session may affect your reliability score. Please cancel only when necessary so clients can rebook in time."}
             </div>
           </div>
         </section>
@@ -182,7 +211,7 @@ function CancelPage() {
         <section className="mt-6 rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Appointment</p>
           <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-            <div><span className="text-[#A89BD0]">Client:</span> <span className="font-medium text-[#3D2E6B]">{s.client}</span></div>
+            <div><span className="text-[#A89BD0]">{counterLabel}:</span> <span className="font-medium text-[#3D2E6B]">{s.client}</span></div>
             <div><span className="text-[#A89BD0]">When:</span> <span className="font-medium text-[#3D2E6B]">{s.date} · {s.time}</span></div>
             <div><span className="text-[#A89BD0]">Session:</span> <span className="font-medium text-[#3D2E6B]">{s.type} · {s.duration}</span></div>
           </div>
@@ -206,12 +235,12 @@ function CancelPage() {
             ))}
           </div>
 
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to client (optional)</p>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Message to {counterLabelLower} (optional)</p>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            placeholder="Share a short note your client will see…"
+            placeholder={`Share a short note your ${counterLabelLower} will see…`}
             className="mt-3 block w-full resize-none rounded-[10px] border border-[#EAE7F5] bg-white px-3.5 py-2.5 text-sm text-[#3D2E6B] outline-none focus:border-[#A89BD0]"
           />
 
@@ -219,7 +248,9 @@ function CancelPage() {
             <div className="mt-5 rounded-[10px] border border-[#EAE7F5] bg-[#FBF9FF] p-4 text-sm text-[#3D2E6B]">
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Billing & refunds</p>
               <p className="mt-1.5 leading-relaxed">
-                This session was paid. Refunds are handled by the Lubin team directly with your client — you don't need to take any action here.
+                {isClient
+                  ? "This session was paid. If a refund applies, the Lubin team will process it back to your original payment method — no action needed from you."
+                  : "This session was paid. Refunds are handled by the Lubin team directly with your client — you don't need to take any action here."}
               </p>
             </div>
           )}
@@ -232,7 +263,9 @@ function CancelPage() {
               className="mt-0.5 h-4 w-4 accent-rose-500"
             />
             <span className="text-sm text-[#3D2E6B]">
-              I understand this will cancel the session, notify my client, and free up this time on my calendar.
+              {isClient
+                ? "I understand this will cancel the session and notify my provider."
+                : "I understand this will cancel the session, notify my client, and free up this time on my calendar."}
             </span>
           </label>
 
@@ -250,7 +283,9 @@ function CancelPage() {
                 setSubmitting(true);
                 setTimeout(() => {
                   toast.success("Appointment cancelled", {
-                    description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
+                    description: isClient
+                      ? `${counterName} has been notified about ${s.date ?? ""} ${s.time ?? ""}.`
+                      : `${counterName} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
                   });
                   if (s.id) publishAppointmentEvent({ type: "cancelled", id: s.id });
                   setDone(true);

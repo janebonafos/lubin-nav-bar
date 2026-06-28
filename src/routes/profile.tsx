@@ -36,6 +36,9 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
+import ClientAppointmentsSection, {
+  CLIENT_UPCOMING_COUNT,
+} from "@/components/profile/ClientAppointmentsSection";
 import {
   CalendarAvailabilitySection,
   AppointmentsSection,
@@ -146,7 +149,7 @@ function ProfilePage() {
     }
     if (
       role === "client" &&
-      ["provider", "calendar", "appointments", "payments", "verification"].includes(activeSection)
+      ["provider", "services", "calendar", "payments", "verification"].includes(activeSection)
     ) {
       setActiveSection("profile");
     }
@@ -379,6 +382,7 @@ function ProfilePage() {
         ]
       : [
           { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
+          { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
           { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
           { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
@@ -404,7 +408,10 @@ function ProfilePage() {
     },
     appointments: {
       title: "Appointments",
-      subtitle: "Upcoming sessions, requests, and past bookings",
+      subtitle:
+        role === "provider"
+          ? "Upcoming sessions, requests, and past bookings"
+          : "Your upcoming, completed, and cancelled sessions",
     },
     payments: {
       title: "Payments & Payouts",
@@ -543,7 +550,11 @@ function ProfilePage() {
                 {NAV.map(({ key, label }) => {
                   const active = activeSection === key;
                   const badgeCount =
-                    key === "appointments" ? UPCOMING_APPOINTMENTS_COUNT : 0;
+                    key === "appointments"
+                      ? role === "provider"
+                        ? UPCOMING_APPOINTMENTS_COUNT
+                        : CLIENT_UPCOMING_COUNT
+                      : 0;
                   return (
                     <div key={key}>
                       <button
@@ -973,6 +984,10 @@ function ProfilePage() {
 
     {activeSection === "appointments" && role === "provider" && (
       <AppointmentsSection />
+    )}
+
+    {activeSection === "appointments" && role === "client" && (
+      <ClientAppointmentsSection />
     )}
 
     {activeSection === "payments" && role === "provider" && (
