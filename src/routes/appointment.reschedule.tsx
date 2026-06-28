@@ -143,8 +143,17 @@ function ReschedulePage() {
             </h1>
 
             <p className="mb-10 px-6 text-center text-sm leading-relaxed text-[#7E6BAF]">
-              <span className="font-semibold text-[#3D2E6B]">{s.client ?? "Your client"}</span> has
-              been notified of the new time.
+              {isClient ? (
+                <>
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span> has
+                  been notified and will confirm the new time.
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-[#3D2E6B]">{counterName}</span> has
+                  been notified of the new time.
+                </>
+              )}
             </p>
 
             <div className="mb-10 flex w-full items-center gap-4">
@@ -161,7 +170,7 @@ function ReschedulePage() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">Client</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">{counterLabel}</span>
                 <span className="text-sm font-medium text-[#3D2E6B]">{s.client ?? "—"}</span>
               </div>
               {previousWhen && (
