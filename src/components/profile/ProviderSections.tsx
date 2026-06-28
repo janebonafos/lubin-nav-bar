@@ -3369,6 +3369,62 @@ export function VerificationSection() {
           </div>
         </div>
       </div>
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A1F4D]/60 p-4 backdrop-blur-sm"
+          onClick={() => setPreview(null)}
+        >
+          <div
+            className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-[#EFE8FB] px-6 py-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">Document preview</p>
+                <h3 className="mt-1 text-base font-semibold text-[#3D2E6B]">{preview.name}</h3>
+              </div>
+              <button
+                onClick={() => setPreview(null)}
+                className="rounded-full p-1.5 text-[#7E6BAF] hover:bg-[#F4EEFB]"
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              </button>
+            </div>
+            <div className="flex aspect-[4/3] items-center justify-center bg-[#F9F7FC]">
+              <div className="text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm">
+                  <svg width="28" height="28" viewBox="0 0 20 20" fill="#7E6BAF"><path d="M4 4a2 2 0 012-2h5l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" opacity=".3"/><path d="M11 2v4a1 1 0 001 1h4" stroke="#7E6BAF" strokeWidth="1.5" fill="none"/></svg>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-[#3D2E6B]">{preview.file?.name ?? "No file"}</p>
+                {preview.file && (
+                  <p className="mt-1 text-xs text-[#7E6BAF]">
+                    {formatSize(preview.file.size)} · Uploaded {preview.file.uploadedAt}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-[#EFE8FB] px-6 py-4">
+              <button
+                onClick={() => setPreview(null)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFB]"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  const id = preview.id;
+                  setPreview(null);
+                  setTimeout(() => triggerUpload(id), 50);
+                }}
+                className="rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2D2250]"
+              >
+                Replace file
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
