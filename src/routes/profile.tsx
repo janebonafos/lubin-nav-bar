@@ -953,6 +953,7 @@ function ProfilePage() {
                 avatarUrl={profile.avatar}
                 onAvatarChange={(dataUrl) => update("avatar", dataUrl)}
                 view="profile"
+                onNavigate={(s) => setActiveSection(s as Section)}
               />
             )}
 
@@ -962,6 +963,7 @@ function ProfilePage() {
         avatarUrl={profile.avatar}
         onAvatarChange={(dataUrl) => update("avatar", dataUrl)}
         view="services"
+        onNavigate={(s) => setActiveSection(s as Section)}
       />
     )}
 
