@@ -53,6 +53,10 @@ function slotsForDay(week: WeekAvail, date: Date): string[] {
 
 function ReschedulePage() {
   const s = Route.useSearch();
+  const isClient = s.role === "client";
+  const counterLabel = isClient ? "Provider" : "Client";
+  const counterLabelLower = isClient ? "provider" : "client";
+  const counterName = s.client ?? (isClient ? "your provider" : "your client");
   const week = useAvailabilityStore((st) => st.week);
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
