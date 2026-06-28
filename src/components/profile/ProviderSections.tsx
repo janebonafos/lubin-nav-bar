@@ -3009,7 +3009,7 @@ export function PaymentsPayoutsSection() {
                               <DetailRow label="Status" value={(t.status ?? "completed").replace(/^./, (c) => c.toUpperCase())} />
                               <DetailRow label="Amount" value={t.amount} />
                               <DetailRow label="Date" value={t.date} />
-                              {t.method && <DetailRow label={t.kind === "payout" ? "Destination" : "Payment method"} value={t.method} />}
+                              {t.method && <DetailRow label={t.kind === "payout" ? "Destination" : "Payout method"} value={t.method} />}
                               {t.reference && <DetailRow label="Reference" value={t.reference} mono />}
                             </div>
                             {t.note && (
