@@ -3073,83 +3073,185 @@ export function PaymentsPayoutsSection() {
 /* ---------- Verification ---------- */
 
 export function VerificationSection() {
+  const documents = [
+    {
+      name: "Government-issued ID",
+      hint: "Passport or driver's license",
+      status: "Uploaded" as const,
+      meta: "Verified · Jun 24",
+    },
+    {
+      name: "Professional license or certificate",
+      hint: "Upload required · PDF, JPG",
+      status: "Needed" as const,
+      meta: "",
+    },
+    {
+      name: "Diploma or training certificate",
+      hint: "Optional · strengthens your profile",
+      status: "Optional" as const,
+      meta: "",
+    },
+  ];
+  const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
+  const requiredCount = documents.filter((d) => d.status !== "Optional").length;
+  const percent = Math.round((verifiedCount / requiredCount) * 100);
+  const dash = 226.19;
+  const dashOffset = dash - (dash * percent) / 100;
+
+  const checks = [
+    {
+      title: "Credential check",
+      body: "Comparison against professional licensing registries.",
+    },
+    {
+      title: "Identity audit",
+      body: "Cross-referencing government IDs and professional history.",
+    },
+    {
+      title: "Background screening",
+      body: "Quiet review of disciplinary records and complaints.",
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <SectionCard
-        title="Verification status"
-        description="Verified providers get a badge on their profile and rank higher in search."
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E3DBF5] bg-[#F4EEFB] p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
-              <AlertCircle className="h-5 w-5 text-[#7E6BAF]" />
+    <div className="space-y-8">
+      {/* Verification status banner */}
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#2C2B4B] via-[#3D2E6B] to-[#7E6BAF] p-8 shadow-[0_24px_60px_-20px_rgba(61,46,107,0.45)]">
+        <div className="pointer-events-none absolute -top-12 -right-12 h-64 w-64 rounded-full bg-[#C9BEE4]/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-[#7E6BAF]/40 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2 max-w-md">
+            <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#EFE8FB] backdrop-blur-md">
+              Status · In review
+            </span>
+            <h2 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
+              Provider verification
+            </h2>
+            <p className="text-sm text-[#D9CFEC]">
+              We're reviewing your credentials to maintain the highest standard of care on Lubin. Usually 2–3 business days.
+            </p>
+          </div>
+          <div className="flex h-32 w-32 shrink-0 flex-col items-center justify-center rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl">
+            <div className="relative flex items-center justify-center">
+              <svg width="80" height="80" className="-rotate-90">
+                <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.18)" strokeWidth="4" fill="transparent" />
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  stroke="white"
+                  strokeWidth="4"
+                  fill="transparent"
+                  strokeDasharray={dash}
+                  strokeDashoffset={dashOffset}
+                  strokeLinecap="round"
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <span className="absolute text-lg font-semibold text-white">{percent}%</span>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-[#3D2E6B]">Verification pending</p>
-              <p className="text-xs text-[#7E6BAF]">
-                Submit your credentials below to start the review (usually 2–3 business days).
+            <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.15em] text-[#D9CFEC]">
+              {verifiedCount} of {requiredCount}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-5">
+        {/* Documents */}
+        <div className="md:col-span-3 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-[#3D2E6B]">Document checklist</h3>
+            <span className="text-xs font-medium text-[#7E6BAF]">
+              {verifiedCount} of {requiredCount} required
+            </span>
+          </div>
+
+          {documents.map((d) => {
+            const isUploaded = d.status === "Uploaded";
+            return (
+              <div
+                key={d.name}
+                className={
+                  isUploaded
+                    ? "group relative rounded-2xl border border-[#EFE8FB] bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                    : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-5 transition-all hover:border-[#7E6BAF]"
+                }
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={
+                        isUploaded
+                          ? "flex h-10 w-10 items-center justify-center rounded-full bg-[#EFE8FB] text-[#3D2E6B]"
+                          : "flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#D9CFEC] text-[#A89BD0]"
+                      }
+                    >
+                      {isUploaded ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 3v12" />
+                          <path d="m7 8 5-5 5 5" />
+                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-[#3D2E6B]">{d.name}</h4>
+                      <p className="text-xs text-[#7E6BAF]">{isUploaded ? d.meta : d.hint}</p>
+                    </div>
+                  </div>
+                  {isUploaded ? (
+                    <button className="text-sm font-medium text-[#3D2E6B] hover:underline">
+                      View
+                    </button>
+                  ) : (
+                    <button className="inline-flex items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2C2B4B]">
+                      Upload
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* What gets verified */}
+        <div className="md:col-span-2">
+          <div className="rounded-[24px] border border-[#EFE8FB] bg-[#F4EEFB]/40 p-6">
+            <h3 className="mb-6 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="#7E6BAF">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              What gets verified
+            </h3>
+            <ul className="space-y-5">
+              {checks.map((c, i) => (
+                <li key={c.title} className="flex gap-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#EFE8FB] bg-white shadow-sm">
+                    <span className="text-xs font-semibold text-[#3D2E6B]">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#3D2E6B]">{c.title}</p>
+                    <p className="text-xs leading-relaxed text-[#7E6BAF]">{c.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 border-t border-[#EFE8FB] pt-5">
+              <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A89BD0]">
+                Secure &amp; encrypted processing
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#3D2E6B] border border-[#E3DBF5]">
-            In review
-          </span>
         </div>
-      </SectionCard>
-
-      <SectionCard
-        title="Documents"
-        description="Your documents are encrypted and only seen by our verification team."
-      >
-        <div className="space-y-3">
-          {[
-            { name: "Government-issued ID", status: "Uploaded" },
-            { name: "Professional license or certificate", status: "Needed" },
-            { name: "Diploma or training certificate", status: "Optional" },
-          ].map((d) => (
-            <div
-              key={d.name}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EEE7FA] bg-white/70 p-4"
-            >
-              <div className="flex items-center gap-3">
-                <FileText className="h-4 w-4 text-[#7E6BAF]" />
-                <p className="text-sm font-medium text-[#3D2E6B]">{d.name}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span
-                  className={`text-xs font-semibold ${
-                    d.status === "Uploaded"
-                      ? "text-[#3D2E6B]"
-                      : d.status === "Needed"
-                      ? "text-[#7E6BAF]"
-                      : "text-[#A89BD0]"
-                  }`}
-                >
-                  {d.status}
-                </span>
-                <button className="inline-flex items-center gap-1.5 rounded-full border border-[#E3DBF5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:bg-[#7E6BAF]/10">
-                  <Upload className="h-3.5 w-3.5" /> Upload
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="What gets verified">
-        <ul className="space-y-2 text-sm text-[#3D2E6B]/80">
-          {[
-            "Your identity matches the name on your profile",
-            "Your license or certification (when applicable)",
-            "Your professional training or coaching credentials",
-          ].map((t) => (
-            <li key={t} className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#7E6BAF]" />
-              <span>{t}</span>
-            </li>
-          ))}
-        </ul>
-      </SectionCard>
+      </div>
     </div>
   );
 }
