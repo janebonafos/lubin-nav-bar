@@ -3204,89 +3204,57 @@ export function VerificationSection() {
                 key={d.name}
                 className={
                   isUploaded
-                    ? "group relative rounded-2xl border border-[#EFE8FB] bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                    ? "group relative rounded-2xl border border-[#E9E1F3] bg-white p-6 shadow-sm transition-all hover:shadow-md"
                     : isRejected
-                    ? "group relative rounded-2xl border border-[#E8B4B4] bg-[#FBF1F1] p-5 shadow-sm transition-all"
-                    : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-5 transition-all hover:border-[#7E6BAF]"
+                    ? "group relative rounded-2xl border border-[#F2EBF5] bg-white p-6 shadow-sm transition-all space-y-6"
+                    : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-6 transition-all hover:border-[#7E6BAF]"
                 }
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={
-                        isUploaded
-                          ? "flex h-10 w-10 items-center justify-center rounded-full bg-[#EFE8FB] text-[#3D2E6B]"
-                          : isRejected
-                          ? "flex h-10 w-10 items-center justify-center rounded-full bg-[#F5D6D6] text-[#8B2F2F]"
-                          : "flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#D9CFEC] text-[#A89BD0]"
-                      }
-                    >
-                      {isUploaded ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : isRejected ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="9" />
-                          <path d="M12 8v5" />
-                          <path d="M12 16.5h.01" />
-                        </svg>
-                      ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 3v12" />
-                          <path d="m7 8 5-5 5 5" />
-                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                        </svg>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-[#3D2E6B]">{d.name}</h4>
-                      <p className={`text-xs ${isRejected ? "text-[#8B2F2F]" : "text-[#7E6BAF]"}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 space-y-3">
+                    <div className="space-y-1">
+                      <h4 className="text-[15px] font-semibold leading-tight text-[#3D2E6B]">{d.name}</h4>
+                      <p
+                        className={
+                          isRejected
+                            ? "text-[12.5px] font-medium text-[#8B5E83]"
+                            : "text-[12.5px] text-[#7E6BAF]"
+                        }
+                      >
                         {isUploaded ? d.meta : isRejected ? "Action needed · please re-upload" : d.hint}
                       </p>
-                      {!isUploaded && "examples" in d && d.examples && d.examples.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {d.examples.map((ex) => (
-                            <span
-                              key={ex}
-                              className="rounded-full border border-[#E5DCF4] bg-white px-2.5 py-0.5 text-[10.5px] font-medium text-[#5E4A8C]"
-                            >
-                              {ex}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
+                    {!isUploaded && "examples" in d && d.examples && d.examples.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {d.examples.map((ex) => (
+                          <span
+                            key={ex}
+                            className="rounded-full border border-[#E9E1F3] bg-[#F4EEFB] px-3 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#7E6BAF]"
+                          >
+                            {ex}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   {isUploaded ? (
-                    <button className="text-sm font-medium text-[#3D2E6B] hover:underline">
+                    <button className="shrink-0 px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:underline">
                       View
                     </button>
-                  ) : isRejected ? (
-                    <button className="inline-flex items-center gap-1.5 rounded-xl bg-[#8B2F2F] px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(139,47,47,0.55)] transition-colors hover:bg-[#6F2424]">
-                      Re-upload
-                    </button>
                   ) : (
-                    <button className="inline-flex items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2C2B4B]">
-                      Upload
+                    <button className="shrink-0 whitespace-nowrap rounded-xl bg-[#3D2E6B] px-5 py-2.5 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2D2250]">
+                      {isRejected ? "Re-upload" : "Upload"}
                     </button>
                   )}
                 </div>
                 {isRejected && d.adminNote && (
-                  <div className="mt-4 flex gap-3 rounded-xl border border-[#E8B4B4] bg-white/70 p-3.5">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F5D6D6] text-[#8B2F2F]">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                      </svg>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8B2F2F]">
-                        Note from Lubin admin
-                      </p>
-                      <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A2424]">
-                        {d.adminNote}
-                      </p>
-                    </div>
+                  <div className="rounded-xl border-l-2 border-[#7E6BAF] bg-[#F9F7FC] p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
+                      Note from Lubin admin
+                    </p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-[#3D2E6B]/90">
+                      {d.adminNote}
+                    </p>
                   </div>
                 )}
               </div>
