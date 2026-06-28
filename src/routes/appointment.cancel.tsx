@@ -14,6 +14,7 @@ const searchSchema = z.object({
   type: z.string().optional(),
   amount: z.string().optional(),
   paymentStatus: z.string().optional(),
+  role: z.enum(["provider", "client"]).optional(),
 });
 
 export const Route = createFileRoute("/appointment/cancel")({
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/appointment/cancel")({
   }),
 });
 
-const REASONS = [
+const PROVIDER_REASONS = [
   "Schedule conflict",
   "Personal emergency",
   "Illness or health reason",
@@ -36,8 +37,22 @@ const REASONS = [
   "Other",
 ];
 
+const CLIENT_REASONS = [
+  "Schedule conflict",
+  "Feeling unwell",
+  "Personal emergency",
+  "No longer needed",
+  "Found a different time",
+  "Other",
+];
+
 function CancelPage() {
   const s = Route.useSearch();
+  const isClient = s.role === "client";
+  const counterLabel = isClient ? "Provider" : "Client";
+  const counterLabelLower = isClient ? "provider" : "client";
+  const counterName = s.client ?? (isClient ? "your provider" : "your client");
+  const REASONS = isClient ? CLIENT_REASONS : PROVIDER_REASONS;
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [confirm, setConfirm] = useState(false);
