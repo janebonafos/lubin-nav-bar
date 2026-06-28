@@ -3073,36 +3073,57 @@ export function PaymentsPayoutsSection() {
 /* ---------- Verification ---------- */
 
 export function VerificationSection() {
-  const documents = [
+  const documents: Array<{
+    name: string;
+    hint: string;
+    status: "Uploaded" | "Needed" | "Optional" | "Rejected";
+    meta: string;
+    examples?: string[];
+    adminNote?: string;
+  }> = [
     {
       name: "Government-issued ID",
       hint: "Passport or driver's license",
-      status: "Uploaded" as const,
+      status: "Uploaded",
       meta: "Verified · Jun 24",
     },
     {
       name: "Professional license or certificate",
       hint: "Upload required · PDF, JPG",
-      status: "Needed" as const,
+      status: "Rejected",
       meta: "",
+      adminNote:
+        "The uploaded file is blurry and the expiration date isn't readable. Please re-upload a clear, full-page scan showing your full name, license number, and expiration date.",
       examples: [
         "Professional License",
         "Board Certificate",
         "Coaching Certification",
         "Accreditation",
         "Training Certificate",
-      ] as string[],
+      ],
+    },
+    {
+      name: "Selfie",
+      hint: "A clear, well-lit photo of your face",
+      status: "Needed",
+      meta: "",
+    },
+    {
+      name: "Selfie with ID",
+      hint: "Hold your government-issued ID next to your face",
+      status: "Needed",
+      meta: "",
     },
     {
       name: "Diploma or training certificate",
       hint: "Optional · strengthens your profile",
-      status: "Optional" as const,
+      status: "Optional",
       meta: "",
     },
   ];
   const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
   const requiredCount = documents.filter((d) => d.status !== "Optional").length;
-  const percent = Math.round((verifiedCount / requiredCount) * 100);
+  const percent = requiredCount === 0 ? 0 : Math.round((verifiedCount / requiredCount) * 100);
   const dash = 226.19;
   const dashOffset = dash - (dash * percent) / 100;
 
