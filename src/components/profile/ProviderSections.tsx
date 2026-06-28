@@ -3295,10 +3295,12 @@ export function VerificationSection() {
                         {isUploaded && (
                           <span
                             title="Verified"
-                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3D2E6B] text-white"
+                            className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center bg-[#7E6BAF] text-white shadow-[0_2px_6px_-1px_rgba(126,107,175,0.5)]"
+                            style={{ clipPath: "polygon(50% 0%, 65% 10%, 85% 15%, 90% 35%, 100% 50%, 90% 65%, 85% 85%, 65% 90%, 50% 100%, 35% 90%, 15% 85%, 10% 65%, 0% 50%, 10% 35%, 15% 15%, 35% 10%)" }}
                           >
-                            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20" />
+                            <svg className="relative z-10 h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12" />
                             </svg>
                           </span>
                         )}
