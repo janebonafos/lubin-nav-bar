@@ -2711,11 +2711,26 @@ export function PaymentsPayoutsSection() {
           </div>
 
           <button
-            onClick={openComposer}
-            disabled={status !== "connected" || balance < 50}
-            className="group relative inline-flex items-center overflow-hidden rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)] transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:bg-white/85 disabled:hover:scale-100"
+            onClick={() => {
+              if (status !== "connected") {
+                handleConnect();
+                return;
+              }
+              openComposer();
+            }}
+            disabled={connecting || (status === "connected" && balance < 50)}
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)] transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:bg-white/85 disabled:hover:scale-100"
           >
-            Withdraw now
+            {connecting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Connecting…
+              </>
+            ) : status !== "connected" ? (
+              `Connect ${brand.name} account`
+            ) : (
+              "Withdraw now"
+            )}
           </button>
         </div>
 
@@ -2895,37 +2910,46 @@ export function PaymentsPayoutsSection() {
       <SectionCard
         title="Recent transactions"
       >
-        <div className="space-y-2">
-          {[
-            { client: "Anna Reyes", date: "Jun 24", amount: "+$120.00" },
-            { client: "Jordan Lee", date: "Jun 23", amount: "+$60.00" },
-            { client: "Payout to BPI", date: "Jun 21", amount: "-$840.00" },
-            { client: "Sam Cruz", date: "Jun 19", amount: "+$120.00" },
-          ].map((t, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/60 px-4 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
-                <div>
-                  <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
-                  <p className="text-xs text-[#7E6BAF]">{t.date}</p>
-                </div>
-              </div>
-              <p
-                className={`text-sm font-semibold ${
-                  t.amount.startsWith("-") ? "text-[#7E6BAF]" : "text-emerald-600"
-                }`}
-              >
-                {t.amount}
-              </p>
+        {transactions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-6 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
+              <CircleDot className="h-5 w-5 text-[#A89BD0]" />
             </div>
-          ))}
-        </div>
-        <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
-          View all <ArrowUpRight className="h-3.5 w-3.5" />
-        </button>
+            <p className="mt-4 text-sm font-semibold text-[#3D2E6B]">No transactions yet</p>
+            <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#7E6BAF]">
+              Once your first session is completed and approved by Lubin, your earnings and payouts will appear here.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              {transactions.map((t, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-xl border border-[#EEE7FA] bg-white/60 px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <CircleDot className="h-3.5 w-3.5 text-[#A89BD0]" />
+                    <div>
+                      <p className="text-sm font-medium text-[#3D2E6B]">{t.client}</p>
+                      <p className="text-xs text-[#7E6BAF]">{t.date}</p>
+                    </div>
+                  </div>
+                  <p
+                    className={`text-sm font-semibold ${
+                      t.kind === "payout" ? "text-[#7E6BAF]" : "text-[#3D2E6B]"
+                    }`}
+                  >
+                    {t.amount}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]">
+              View all <ArrowUpRight className="h-3.5 w-3.5" />
+            </button>
+          </>
+        )}
       </SectionCard>
     </div>
   );
