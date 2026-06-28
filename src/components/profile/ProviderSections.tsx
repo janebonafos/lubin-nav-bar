@@ -3079,10 +3079,10 @@ export function VerificationSection() {
         title="Verification status"
         description="Verified providers get a badge on their profile and rank higher in search."
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E3DBF5] bg-[#F4EEFB] p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
-              <AlertCircle className="h-5 w-5 text-amber-500" />
+              <AlertCircle className="h-5 w-5 text-[#7E6BAF]" />
             </div>
             <div>
               <p className="text-sm font-semibold text-[#3D2E6B]">Verification pending</p>
@@ -3091,7 +3091,7 @@ export function VerificationSection() {
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-semibold text-amber-700">
+          <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#3D2E6B] border border-[#E3DBF5]">
             In review
           </span>
         </div>
@@ -3119,9 +3119,9 @@ export function VerificationSection() {
                 <span
                   className={`text-xs font-semibold ${
                     d.status === "Uploaded"
-                      ? "text-emerald-600"
+                      ? "text-[#3D2E6B]"
                       : d.status === "Needed"
-                      ? "text-amber-600"
+                      ? "text-[#7E6BAF]"
                       : "text-[#A89BD0]"
                   }`}
                 >
