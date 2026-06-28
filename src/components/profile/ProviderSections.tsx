@@ -3261,7 +3261,7 @@ export function VerificationSection() {
             </span>
           </div>
 
-          {documents.map((d) => {
+          {displayedDocuments.map((d) => {
             const isUploaded = d.status === "Uploaded";
             const isRejected = d.status === "Rejected";
             return (
