@@ -3272,15 +3272,13 @@ export function VerificationSection() {
               What gets verified
             </h3>
           </div>
-          <div className="mt-4 rounded-[24px] border border-[#EFE8FB] bg-[#F4EEFB]/40 p-6">
+          <div className="mt-4">
             <ul className="space-y-5">
               {checks.map((c, i) => (
                 <li key={c.title} className="flex gap-4">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#EFE8FB] bg-white shadow-sm">
-                    <span className="text-xs font-semibold text-[#3D2E6B]">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
+                  <span className="w-6 shrink-0 pt-0.5 text-xs font-semibold tabular-nums text-[#A89BD0]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <div>
                     <p className="text-sm font-semibold text-[#3D2E6B]">{c.title}</p>
                     <p className="text-xs leading-relaxed text-[#7E6BAF]">{c.body}</p>
@@ -3288,11 +3286,9 @@ export function VerificationSection() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 border-t border-[#EFE8FB] pt-5">
-              <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A89BD0]">
-                Secure &amp; encrypted processing
-              </p>
-            </div>
+            <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A89BD0]">
+              Secure &amp; encrypted processing
+            </p>
           </div>
         </div>
       </div>
