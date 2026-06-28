@@ -1030,24 +1030,19 @@ export default function ProviderProfileSection({
                   title="Verified provider"
                   className="group relative inline-flex h-7 w-7 shrink-0 items-center justify-center"
                 >
-                  <span className="absolute inset-0 rounded-full bg-[#7E6BAF]/30 blur-md" />
-                  <svg viewBox="0 0 32 32" className="relative h-7 w-7 drop-shadow-[0_2px_4px_rgba(61,46,107,0.35)]">
+                  <svg viewBox="0 0 32 32" className="relative h-7 w-7">
                     <defs>
-                      <linearGradient id="verifiedBadgeGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#7E6BAF" />
-                        <stop offset="55%" stopColor="#3D2E6B" />
-                        <stop offset="100%" stopColor="#2C2B4B" />
-                      </linearGradient>
+                      <radialGradient id="verifiedBadgeGrad" cx="0.35" cy="0.35" r="0.8">
+                        <stop offset="0%" stopColor="#A899D1" />
+                        <stop offset="100%" stopColor="#7E6BAF" />
+                      </radialGradient>
                     </defs>
+                    <circle cx="16" cy="16" r="12" fill="url(#verifiedBadgeGrad)" />
                     <path
-                      fill="url(#verifiedBadgeGrad)"
-                      d="M16 1.6l3 2.3 3.7-.5 1.6 3.4 3.4 1.6-.5 3.7 2.3 3-2.3 3 .5 3.7-3.4 1.6-1.6 3.4-3.7-.5-3 2.3-3-2.3-3.7.5-1.6-3.4-3.4-1.6.5-3.7L1.6 16l2.3-3-.5-3.7L6.8 7.7 8.4 4.3l3.7.5z"
-                    />
-                    <path
-                      d="M10.5 16.2l3.7 3.7 7.3-7.7"
+                      d="M10.8 16.4l3.5 3.4 6.9-7.2"
                       fill="none"
                       stroke="white"
-                      strokeWidth="2.4"
+                      strokeWidth="2.2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
