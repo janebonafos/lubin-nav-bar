@@ -149,7 +149,7 @@ function ProfilePage() {
     }
     if (
       role === "client" &&
-      ["provider", "calendar", "appointments", "payments", "verification"].includes(activeSection)
+      ["provider", "services", "calendar", "payments", "verification"].includes(activeSection)
     ) {
       setActiveSection("profile");
     }
