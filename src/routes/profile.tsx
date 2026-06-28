@@ -547,7 +547,11 @@ function ProfilePage() {
                 {NAV.map(({ key, label }) => {
                   const active = activeSection === key;
                   const badgeCount =
-                    key === "appointments" ? UPCOMING_APPOINTMENTS_COUNT : 0;
+                    key === "appointments"
+                      ? role === "provider"
+                        ? UPCOMING_APPOINTMENTS_COUNT
+                        : CLIENT_UPCOMING_COUNT
+                      : 0;
                   return (
                     <div key={key}>
                       <button
