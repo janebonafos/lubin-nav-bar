@@ -201,7 +201,9 @@ function ReschedulePage() {
             </div>
 
             <div className="mb-10 w-full rounded-2xl border border-[#E5DEF2] bg-[#F0EAFB]/40 p-6 text-sm leading-normal text-[#7E6BAF]">
-              Your calendar has been updated with the new time.
+              {isClient
+                ? "We've updated your booking. You'll receive a reminder before the new session."
+                : "Your calendar has been updated with the new time."}
             </div>
 
             <button
