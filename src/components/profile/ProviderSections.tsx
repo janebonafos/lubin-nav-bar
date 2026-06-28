@@ -3135,6 +3135,17 @@ export function VerificationSection() {
   const [documents, setDocuments] = useState<DocItem[]>(initialDocs);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const [preview, setPreview] = useState<DocItem | null>(null);
+  const [devVerified, setDevVerified] = useState(false);
+
+  const displayedDocuments: DocItem[] = devVerified
+    ? documents.map((d) => ({
+        ...d,
+        status: "Uploaded" as DocStatus,
+        meta: "Verified · Jun 26",
+        adminNote: undefined,
+        file: d.file ?? { name: `${d.id}.pdf`, size: 980_000, uploadedAt: "Jun 26" },
+      }))
+    : documents;
 
   const formatSize = (b: number) =>
     b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
@@ -3160,8 +3171,8 @@ export function VerificationSection() {
     );
   };
 
-  const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
-  const requiredCount = documents.filter((d) => d.status !== "Optional").length;
+  const verifiedCount = displayedDocuments.filter((d) => d.status === "Uploaded").length;
+  const requiredCount = displayedDocuments.filter((d) => d.status !== "Optional").length;
   const percent = requiredCount === 0 ? 0 : Math.round((verifiedCount / requiredCount) * 100);
   const dash = 226.19;
   const dashOffset = dash - (dash * percent) / 100;
@@ -3183,6 +3194,19 @@ export function VerificationSection() {
 
   return (
     <div className="space-y-8">
+      {/* Dev preview toggle */}
+      <div className="flex items-center justify-between rounded-xl border border-dashed border-[#C9BEE4] bg-[#F8F7FF] px-4 py-2.5 text-xs">
+        <span className="font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
+          Dev preview · {devVerified ? "Verified state" : "In review state"}
+        </span>
+        <button
+          onClick={() => setDevVerified((v) => !v)}
+          className="rounded-full bg-[#3D2E6B] px-3 py-1 text-[11px] font-medium text-white hover:bg-[#2C2B4B]"
+        >
+          {devVerified ? "Show in-review" : "Show verified"}
+        </button>
+      </div>
+
       {/* Verification status banner */}
       <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#2C2B4B] via-[#3D2E6B] to-[#7E6BAF] p-8 shadow-[0_24px_60px_-20px_rgba(61,46,107,0.45)]">
         <div className="pointer-events-none absolute -top-12 -right-12 h-64 w-64 rounded-full bg-[#C9BEE4]/25 blur-3xl" />
@@ -3190,13 +3214,15 @@ export function VerificationSection() {
         <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2 max-w-md">
             <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#EFE8FB] backdrop-blur-md">
-              Status · In review
+              Status · {devVerified ? "Verified" : "In review"}
             </span>
             <h2 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
               Provider verification
             </h2>
             <p className="text-sm text-[#D9CFEC]">
-              We're reviewing your credentials to maintain the highest standard of care on Lubin. Usually 2–3 business days.
+              {devVerified
+                ? "You're fully verified on Lubin. Your profile now shows a verified badge to clients."
+                : "We're reviewing your credentials to maintain the highest standard of care on Lubin. Usually 2–3 business days."}
             </p>
           </div>
           <div className="flex h-32 w-32 shrink-0 flex-col items-center justify-center rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl">
@@ -3235,7 +3261,7 @@ export function VerificationSection() {
             </span>
           </div>
 
-          {documents.map((d) => {
+          {displayedDocuments.map((d) => {
             const isUploaded = d.status === "Uploaded";
             const isRejected = d.status === "Rejected";
             return (
