@@ -3073,21 +3073,28 @@ export function PaymentsPayoutsSection() {
 /* ---------- Verification ---------- */
 
 export function VerificationSection() {
-  const documents: Array<{
+  type DocStatus = "Uploaded" | "Needed" | "Optional" | "Rejected";
+  type DocItem = {
+    id: string;
     name: string;
     hint: string;
-    status: "Uploaded" | "Needed" | "Optional" | "Rejected";
+    status: DocStatus;
     meta: string;
     examples?: string[];
     adminNote?: string;
-  }> = [
+    file?: { name: string; size: number; uploadedAt: string };
+  };
+  const initialDocs: DocItem[] = [
     {
+      id: "gov-id",
       name: "Government-issued ID",
       hint: "Passport or driver's license",
       status: "Uploaded",
       meta: "Verified · Jun 24",
+      file: { name: "passport-scan.pdf", size: 1_240_000, uploadedAt: "Jun 24" },
     },
     {
+      id: "license",
       name: "Professional license or certificate",
       hint: "Upload required · PDF, JPG",
       status: "Rejected",
@@ -3101,26 +3108,58 @@ export function VerificationSection() {
         "Accreditation",
         "Training Certificate",
       ],
+      file: { name: "license-old.jpg", size: 480_000, uploadedAt: "Jun 22" },
     },
     {
+      id: "selfie",
       name: "Selfie",
       hint: "A clear, well-lit photo of your face",
       status: "Needed",
       meta: "",
     },
     {
+      id: "selfie-id",
       name: "Selfie with ID",
       hint: "Hold your government-issued ID next to your face",
       status: "Needed",
       meta: "",
     },
     {
+      id: "diploma",
       name: "Diploma or training certificate",
       hint: "Optional · strengthens your profile",
       status: "Optional",
       meta: "",
     },
   ];
+  const [documents, setDocuments] = React.useState<DocItem[]>(initialDocs);
+  const fileInputs = React.useRef<Record<string, HTMLInputElement | null>>({});
+  const [preview, setPreview] = React.useState<DocItem | null>(null);
+
+  const formatSize = (b: number) =>
+    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
+
+  const triggerUpload = (id: string) => fileInputs.current[id]?.click();
+
+  const onFile = (id: string, files: FileList | null) => {
+    const f = files?.[0];
+    if (!f) return;
+    const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    setDocuments((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              status: "Uploaded",
+              meta: `Uploaded · ${today}`,
+              adminNote: undefined,
+              file: { name: f.name, size: f.size, uploadedAt: today },
+            }
+          : d
+      )
+    );
+  };
+
   const verifiedCount = documents.filter((d) => d.status === "Uploaded").length;
   const requiredCount = documents.filter((d) => d.status !== "Optional").length;
   const percent = requiredCount === 0 ? 0 : Math.round((verifiedCount / requiredCount) * 100);
