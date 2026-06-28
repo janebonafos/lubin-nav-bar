@@ -1024,8 +1024,16 @@ export default function ProviderProfileSection({
               <span className="mb-1.5 w-fit rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#7E6BAF]">
                 Provider Profile
               </span>
-              <h2 className="truncate text-3xl font-bold tracking-tight text-[#3D2E6B]">
-                {fullName || "Your provider profile"}
+              <h2 className="flex items-center gap-2 truncate text-3xl font-bold tracking-tight text-[#3D2E6B]">
+                <span className="truncate">{fullName || "Your provider profile"}</span>
+                <span
+                  title="Verified provider"
+                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#3D2E6B] text-white shadow-sm"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
               </h2>
               <p className="font-medium text-[#7E6BAF]">{data.profession}</p>
             </div>
