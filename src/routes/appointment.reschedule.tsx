@@ -15,6 +15,7 @@ const searchSchema = z.object({
   type: z.string().optional(),
   mode: z.string().optional(),
   timezone: z.string().optional(),
+  role: z.enum(["provider", "client"]).optional(),
 });
 
 export const Route = createFileRoute("/appointment/reschedule")({
