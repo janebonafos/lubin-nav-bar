@@ -283,7 +283,9 @@ function CancelPage() {
                 setSubmitting(true);
                 setTimeout(() => {
                   toast.success("Appointment cancelled", {
-                    description: `${s.client ?? "Your client"} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
+                    description: isClient
+                      ? `${counterName} has been notified about ${s.date ?? ""} ${s.time ?? ""}.`
+                      : `${counterName} has been notified. The slot on ${s.date ?? ""} ${s.time ?? ""} is now open.`,
                   });
                   if (s.id) publishAppointmentEvent({ type: "cancelled", id: s.id });
                   setDone(true);
