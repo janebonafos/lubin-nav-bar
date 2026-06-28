@@ -823,11 +823,13 @@ export default function ProviderProfileSection({
   avatarUrl,
   onAvatarChange,
   view = "profile",
+  onNavigate,
 }: {
   fullName: string;
   avatarUrl?: string | null;
   onAvatarChange?: (dataUrl: string) => void;
   view?: "profile" | "services";
+  onNavigate?: (section: string) => void;
 }) {
   const [data, setData] = useState<ProviderProfile>(DEFAULT_PROVIDER_PROFILE);
   const [editing, setEditing] = useState<{
