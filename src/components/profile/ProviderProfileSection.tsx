@@ -1024,14 +1024,33 @@ export default function ProviderProfileSection({
               <span className="mb-1.5 w-fit rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#7E6BAF]">
                 Provider Profile
               </span>
-              <h2 className="flex items-center gap-2 truncate text-3xl font-bold tracking-tight text-[#3D2E6B]">
+              <h2 className="flex items-center gap-2.5 truncate text-3xl font-bold tracking-tight text-[#3D2E6B]">
                 <span className="truncate">{fullName || "Your provider profile"}</span>
                 <span
                   title="Verified provider"
-                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#3D2E6B] text-white shadow-sm"
+                  className="group relative inline-flex h-7 w-7 shrink-0 items-center justify-center"
                 >
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <span className="absolute inset-0 rounded-full bg-[#7E6BAF]/30 blur-md" />
+                  <svg viewBox="0 0 32 32" className="relative h-7 w-7 drop-shadow-[0_2px_4px_rgba(61,46,107,0.35)]">
+                    <defs>
+                      <linearGradient id="verifiedBadgeGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#7E6BAF" />
+                        <stop offset="55%" stopColor="#3D2E6B" />
+                        <stop offset="100%" stopColor="#2C2B4B" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      fill="url(#verifiedBadgeGrad)"
+                      d="M16 1.6l3 2.3 3.7-.5 1.6 3.4 3.4 1.6-.5 3.7 2.3 3-2.3 3 .5 3.7-3.4 1.6-1.6 3.4-3.7-.5-3 2.3-3-2.3-3.7.5-1.6-3.4-3.4-1.6.5-3.7L1.6 16l2.3-3-.5-3.7L6.8 7.7 8.4 4.3l3.7.5z"
+                    />
+                    <path
+                      d="M10.5 16.2l3.7 3.7 7.3-7.7"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
               </h2>
