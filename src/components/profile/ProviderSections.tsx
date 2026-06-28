@@ -3186,10 +3186,10 @@ export function VerificationSection() {
         </div>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-5">
+      <div className="grid items-start gap-8 md:grid-cols-5">
         {/* Documents */}
         <div className="md:col-span-3 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex h-9 items-center justify-between">
             <h3 className="text-lg font-semibold text-[#3D2E6B]">Document checklist</h3>
             <span className="text-xs font-medium text-[#7E6BAF]">
               {verifiedCount} of {requiredCount} required
@@ -3198,12 +3198,15 @@ export function VerificationSection() {
 
           {documents.map((d) => {
             const isUploaded = d.status === "Uploaded";
+            const isRejected = d.status === "Rejected";
             return (
               <div
                 key={d.name}
                 className={
                   isUploaded
                     ? "group relative rounded-2xl border border-[#EFE8FB] bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                    : isRejected
+                    ? "group relative rounded-2xl border border-[#E8B4B4] bg-[#FBF1F1] p-5 shadow-sm transition-all"
                     : "group rounded-2xl border-2 border-dashed border-[#D9CFEC] bg-[#F4EEFB]/60 p-5 transition-all hover:border-[#7E6BAF]"
                 }
               >
@@ -3213,12 +3216,20 @@ export function VerificationSection() {
                       className={
                         isUploaded
                           ? "flex h-10 w-10 items-center justify-center rounded-full bg-[#EFE8FB] text-[#3D2E6B]"
+                          : isRejected
+                          ? "flex h-10 w-10 items-center justify-center rounded-full bg-[#F5D6D6] text-[#8B2F2F]"
                           : "flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#D9CFEC] text-[#A89BD0]"
                       }
                     >
                       {isUploaded ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : isRejected ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 8v5" />
+                          <path d="M12 16.5h.01" />
                         </svg>
                       ) : (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -3230,7 +3241,9 @@ export function VerificationSection() {
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-[#3D2E6B]">{d.name}</h4>
-                      <p className="text-xs text-[#7E6BAF]">{isUploaded ? d.meta : d.hint}</p>
+                      <p className={`text-xs ${isRejected ? "text-[#8B2F2F]" : "text-[#7E6BAF]"}`}>
+                        {isUploaded ? d.meta : isRejected ? "Action needed · please re-upload" : d.hint}
+                      </p>
                       {!isUploaded && "examples" in d && d.examples && d.examples.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {d.examples.map((ex) => (
@@ -3249,12 +3262,33 @@ export function VerificationSection() {
                     <button className="text-sm font-medium text-[#3D2E6B] hover:underline">
                       View
                     </button>
+                  ) : isRejected ? (
+                    <button className="inline-flex items-center gap-1.5 rounded-xl bg-[#8B2F2F] px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(139,47,47,0.55)] transition-colors hover:bg-[#6F2424]">
+                      Re-upload
+                    </button>
                   ) : (
                     <button className="inline-flex items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-12px_rgba(61,46,107,0.55)] transition-colors hover:bg-[#2C2B4B]">
                       Upload
                     </button>
                   )}
                 </div>
+                {isRejected && d.adminNote && (
+                  <div className="mt-4 flex gap-3 rounded-xl border border-[#E8B4B4] bg-white/70 p-3.5">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F5D6D6] text-[#8B2F2F]">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8B2F2F]">
+                        Note from Lubin admin
+                      </p>
+                      <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A2424]">
+                        {d.adminNote}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -3262,13 +3296,15 @@ export function VerificationSection() {
 
         {/* What gets verified */}
         <div className="md:col-span-2">
-          <div className="rounded-[24px] border border-[#EFE8FB] bg-[#F4EEFB]/40 p-6">
-            <h3 className="mb-6 flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
+          <div className="flex h-9 items-center gap-2">
+            <h3 className="flex items-center gap-2 text-lg font-semibold text-[#3D2E6B]">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="#7E6BAF">
                 <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               What gets verified
             </h3>
+          </div>
+          <div className="mt-4 rounded-[24px] border border-[#EFE8FB] bg-[#F4EEFB]/40 p-6">
             <ul className="space-y-5">
               {checks.map((c, i) => (
                 <li key={c.title} className="flex gap-4">
