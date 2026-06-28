@@ -3290,7 +3290,19 @@ export function VerificationSection() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-3">
                     <div className="space-y-1">
-                      <h4 className="text-lg font-semibold leading-tight text-[#3D2E6B]">{d.name}</h4>
+                      <h4 className="flex items-center gap-2 text-lg font-semibold leading-tight text-[#3D2E6B]">
+                        <span>{d.name}</span>
+                        {isUploaded && (
+                          <span
+                            title="Verified"
+                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3D2E6B] text-white"
+                          >
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        )}
+                      </h4>
                       {isUploaded ? (
                         <div className="mt-1 flex items-center gap-2 text-sm">
                           <span className="font-medium text-[#7E6BAF]">Verified</span>
