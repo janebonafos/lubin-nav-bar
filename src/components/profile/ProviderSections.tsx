@@ -2819,6 +2819,24 @@ export function PaymentsPayoutsSection() {
         ))}
       </div>
 
+      {/* Platform fee disclosure */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-[#EEE7FA] bg-gradient-to-br from-[#FBF9FF] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-[#F4EEFE] text-[#3D2E6B]">
+            <ShieldCheck className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#3D2E6B]">Lubin platform fee · 10% per payout</p>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#7E6BAF]">
+              Covers secure payment processing, compliance, Trust &amp; Safety review, and client support — deducted automatically when you withdraw.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#3D2E6B] ring-1 ring-[#EEE7FA]">
+          No hidden fees
+        </span>
+      </div>
+
       {/* ----- In-app Withdraw Composer ----- */}
       {composerOpen && (
         <div
