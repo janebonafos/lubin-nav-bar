@@ -3011,7 +3011,9 @@ export function PaymentsPayoutsSection() {
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                               <DetailRow label="Type" value={t.kind === "payout" ? "Payout" : "Earning"} />
                               <DetailRow label="Status" value={(t.status ?? "completed").replace(/^./, (c) => c.toUpperCase())} />
-                              <DetailRow label="Amount" value={t.amount} />
+                              <DetailRow label={t.kind === "payout" ? "Withdrawal amount" : "Session amount"} value={t.gross ?? t.amount} />
+                              <DetailRow label="Lubin platform fee" value={t.fee ?? "$0.00"} />
+                              <DetailRow label={t.kind === "payout" ? "Net transferred" : "Net to wallet"} value={t.amount} />
                               <DetailRow label="Date" value={t.date} />
                               {t.method && <DetailRow label={t.kind === "payout" ? "Destination" : "Payout method"} value={t.method} />}
                               {t.reference && <DetailRow label="Reference" value={t.reference} mono />}
