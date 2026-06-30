@@ -2822,21 +2822,29 @@ export function PaymentsPayoutsSection() {
       </div>
 
       {/* Platform fee disclosure */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-[#EEE7FA] bg-gradient-to-br from-[#FBF9FF] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-[#F4EEFE] text-[#3D2E6B]">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[#3D2E6B]">Lubin platform fee · 10% per payout</p>
-            <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#7E6BAF]">
-              Covers secure payment processing, compliance, Trust &amp; Safety review, and client support — deducted automatically when you withdraw.
+      <div className="rounded-2xl border border-[#EEE7FA] bg-white p-5 shadow-[0_6px_16px_-12px_rgba(61,46,107,0.18)]">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A89BD0]">
+              Service fee
+            </span>
+            <p className="mt-2 text-[15px] font-semibold text-[#3D2E6B]">
+              Lubin retains a 10% service fee from each completed session.
             </p>
           </div>
+          <span className="hidden shrink-0 rounded-full bg-[#F4EEFE] px-3 py-1 text-[10.5px] font-semibold tracking-wide text-[#3D2E6B] sm:inline-flex">
+            Transparent pricing
+          </span>
         </div>
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#3D2E6B] ring-1 ring-[#EEE7FA]">
-          No hidden fees
-        </span>
+        <div className="mt-4 grid gap-x-6 gap-y-2 text-[12.5px] leading-relaxed text-[#5A4A8A] sm:grid-cols-2">
+          <p>• Secure payment processing and settlement</p>
+          <p>• Trust &amp; Safety review of each session</p>
+          <p>• Payouts to your connected bank account</p>
+          <p>• Client support and dispute resolution</p>
+        </div>
+        <p className="mt-4 border-t border-[#F1ECFB] pt-3 text-[12px] leading-relaxed text-[#7E6BAF]">
+          The fee is deducted automatically at the time of withdrawal. You will see the gross amount, the 10% deduction, and your net transfer before confirming any payout. No setup costs, no monthly charges.
+        </p>
       </div>
 
       {/* ----- In-app Withdraw Composer ----- */}
