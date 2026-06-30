@@ -2407,7 +2407,9 @@ export function PaymentsPayoutsSection() {
   const TX_PER_PAGE = 5;
 
   const amountNum = Number(amount) || 0;
-  const fee = 0; // covered by Lubin
+  // Lubin platform fee — covers processing, compliance, and Trust & Safety review.
+  const FEE_RATE = 0.1;
+  const fee = +(amountNum * FEE_RATE).toFixed(2);
   const arrival = Math.max(0, amountNum - fee);
   const belowMin = amountNum < 50;
   const overBalance = amountNum > balance;
@@ -2817,6 +2819,24 @@ export function PaymentsPayoutsSection() {
         ))}
       </div>
 
+      {/* Platform fee disclosure */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-[#EEE7FA] bg-gradient-to-br from-[#FBF9FF] to-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-[#F4EEFE] text-[#3D2E6B]">
+            <ShieldCheck className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#3D2E6B]">Lubin platform fee · 10% per payout</p>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#7E6BAF]">
+              Covers secure payment processing, compliance, Trust &amp; Safety review, and client support — deducted automatically when you withdraw.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#3D2E6B] ring-1 ring-[#EEE7FA]">
+          No hidden fees
+        </span>
+      </div>
+
       {/* ----- In-app Withdraw Composer ----- */}
       {composerOpen && (
         <div
@@ -2890,7 +2910,7 @@ export function PaymentsPayoutsSection() {
 
                   <div className="space-y-2 rounded-2xl bg-[#FBF9FF] p-4 text-[12px]">
                     <Row label="Amount" value={`$${amountNum.toFixed(2)}`} />
-                    <Row label="Lubin fee" value="$0.00" sub="Covered by Lubin" />
+                    <Row label="Lubin platform fee (10%)" value={`-$${fee.toFixed(2)}`} sub="Covers processing, compliance & Trust & Safety review" />
                     <div className="my-2 border-t border-dashed border-[#E8DFF6]" />
                     <Row label="You'll receive" value={`$${arrival.toFixed(2)}`} bold />
                     <Row label="Arrives" value="1–2 business days" muted />
