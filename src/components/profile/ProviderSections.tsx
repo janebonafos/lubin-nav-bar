@@ -2407,7 +2407,9 @@ export function PaymentsPayoutsSection() {
   const TX_PER_PAGE = 5;
 
   const amountNum = Number(amount) || 0;
-  const fee = 0; // covered by Lubin
+  // Lubin platform fee — covers processing, compliance, and Trust & Safety review.
+  const FEE_RATE = 0.1;
+  const fee = +(amountNum * FEE_RATE).toFixed(2);
   const arrival = Math.max(0, amountNum - fee);
   const belowMin = amountNum < 50;
   const overBalance = amountNum > balance;
