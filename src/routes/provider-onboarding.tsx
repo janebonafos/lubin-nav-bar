@@ -892,6 +892,36 @@ function ProviderOnboardingPage() {
                   </p>
                 </Field>
 
+                {/* Transparent platform fee disclosure */}
+                <div className="rounded-2xl border border-[#E3DBF5] bg-[#F4EEFB]/60 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                        Transparent pricing
+                      </p>
+                      <p className="mt-1 text-[13px] font-semibold text-[#2D1B4E]">
+                        Lubin keeps 10% per completed session
+                      </p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#3D2E6B]/75">
+                        Covers payment processing, Trust &amp; Safety review, payouts, and
+                        platform support. No setup, monthly, or hidden fees.
+                      </p>
+                    </div>
+                    {rateNum > 0 && (
+                      <div className="shrink-0 rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-right">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                          You earn
+                        </p>
+                        <p className="text-[15px] font-semibold text-[#3D2E6B]">
+                          {currency.symbol}
+                          {(rateNum * 0.9).toFixed(2)}
+                        </p>
+                        <p className="text-[10px] text-[#A89BD0]">per session</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="rounded-2xl border border-[#E3DBF5] bg-white/40 p-6">
                   <p className="text-center text-[13px] leading-relaxed text-[#3D2E6B]/80">
                     You can refine your schedule, intake questions, and pricing later
