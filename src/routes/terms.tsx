@@ -132,8 +132,18 @@ const ITEMS: Item[] = [
     icon: <CreditCard className="h-5 w-5" />,
     body: (
       <>
-        Session fees are set by individual providers. Refunds follow the
-        provider's cancellation policy as shown at checkout.
+        Session fees are set by individual providers and shown to clients in
+        full before booking — the price you see is the price you pay, with no
+        added platform charges for clients. Refunds follow the provider's
+        cancellation policy as shown at checkout and are coordinated by the
+        Lubin team.
+        <br />
+        <br />
+        <strong>For providers:</strong> Lubin retains a 10% platform fee from
+        each completed session payout. This fee covers payment processing,
+        Trust &amp; Safety review, payouts to your connected account, and
+        platform support. There are no setup, monthly, or hidden charges, and
+        the fee is shown transparently in your wallet before every withdrawal.
       </>
     ),
   },
