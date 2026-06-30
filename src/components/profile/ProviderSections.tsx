@@ -2432,6 +2432,8 @@ export function PaymentsPayoutsSection() {
           client: `Payout to ${brand.name}`,
           date: today,
           amount: `-$${sent.toFixed(2)}`,
+          gross: `$${sent.toFixed(2)}`,
+          fee: `$${fee.toFixed(2)}`,
           kind: "payout",
           method: `${brand.name} •••• 4242`,
           reference: `LBN-${Date.now().toString().slice(-8)}`,
