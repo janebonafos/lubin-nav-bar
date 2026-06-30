@@ -2393,12 +2393,14 @@ export function PaymentsPayoutsSection() {
     reference?: string;
     note?: string;
     status?: "completed" | "processing" | "pending";
+    gross?: string;
+    fee?: string;
   };
   const [transactions, setTransactions] = useState<Txn[]>([
-    { id: "t1", client: "Anna Reyes", date: "Jun 24", amount: "+$120.00", kind: "earning", method: "Card · Visa •••• 4242", reference: "SES-10241", note: "60-min individual session", status: "completed" },
-    { id: "t2", client: "Jordan Lee", date: "Jun 23", amount: "+$60.00", kind: "earning", method: "Card · Mastercard •••• 7781", reference: "SES-10238", note: "30-min check-in", status: "completed" },
-    { id: "t3", client: "Payout to BPI", date: "Jun 21", amount: "-$840.00", kind: "payout", method: "BPI •••• 1122", reference: "LBN-77210621", note: "Weekly earnings withdrawal", status: "completed" },
-    { id: "t4", client: "Sam Cruz", date: "Jun 19", amount: "+$120.00", kind: "earning", method: "Card · Visa •••• 1198", reference: "SES-10229", note: "60-min individual session", status: "completed" },
+    { id: "t1", client: "Anna Reyes", date: "Jun 24", amount: "+$108.00", gross: "$120.00", fee: "$12.00", kind: "earning", method: "Card · Visa •••• 4242", reference: "SES-10241", note: "60-min individual session", status: "completed" },
+    { id: "t2", client: "Jordan Lee", date: "Jun 23", amount: "+$54.00", gross: "$60.00", fee: "$6.00", kind: "earning", method: "Card · Mastercard •••• 7781", reference: "SES-10238", note: "30-min check-in", status: "completed" },
+    { id: "t3", client: "Payout to BPI", date: "Jun 21", amount: "-$838.00", gross: "$840.00", fee: "$2.00", kind: "payout", method: "BPI •••• 1122", reference: "LBN-77210621", note: "Weekly earnings withdrawal", status: "completed" },
+    { id: "t4", client: "Sam Cruz", date: "Jun 19", amount: "+$108.00", gross: "$120.00", fee: "$12.00", kind: "earning", method: "Card · Visa •••• 1198", reference: "SES-10229", note: "60-min individual session", status: "completed" },
   ]);
   const [openTxn, setOpenTxn] = useState<string | null>(null);
   const [txPage, setTxPage] = useState(0);
