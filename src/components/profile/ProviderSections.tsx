@@ -1635,6 +1635,7 @@ export function AppointmentsSection() {
                       />
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
+                    <div className="space-y-4">
                     {(a.status === "completed" || a.notes) && (
                       <ApptNotesBlock
                         appt={a}
@@ -1715,6 +1716,7 @@ export function AppointmentsSection() {
                         );
                       })()
                     )}
+                    </div>
                   </div>
                 )}
               </li>
