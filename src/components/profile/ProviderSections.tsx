@@ -2892,7 +2892,7 @@ export function PaymentsPayoutsSection() {
 
                   <div className="space-y-2 rounded-2xl bg-[#FBF9FF] p-4 text-[12px]">
                     <Row label="Amount" value={`$${amountNum.toFixed(2)}`} />
-                    <Row label="Lubin fee" value="$0.00" sub="Covered by Lubin" />
+                    <Row label="Lubin platform fee (10%)" value={`-$${fee.toFixed(2)}`} sub="Covers processing, compliance & Trust & Safety review" />
                     <div className="my-2 border-t border-dashed border-[#E8DFF6]" />
                     <Row label="You'll receive" value={`$${arrival.toFixed(2)}`} bold />
                     <Row label="Arrives" value="1–2 business days" muted />
