@@ -108,6 +108,8 @@ function ProfilePage() {
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
+  const [switchingTo, setSwitchingTo] = useState<Role>("client");
 
   // Initial hydration loader — gives time for localStorage reads & lazy widgets.
   useEffect(() => {
@@ -121,7 +123,16 @@ function ProfilePage() {
     setIsTransitioning(true);
     const t = setTimeout(() => setIsTransitioning(false), 280);
     return () => clearTimeout(t);
-  }, [activeSection, role]);
+  }, [activeSection]);
+
+  // Dedicated branded loader when switching Personal ↔ Professional.
+  useEffect(() => {
+    if (isHydrating) return;
+    setIsRoleSwitching(true);
+    const t = setTimeout(() => setIsRoleSwitching(false), 900);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
