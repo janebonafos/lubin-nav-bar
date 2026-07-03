@@ -675,6 +675,74 @@ function ProfilePage() {
 
           {/* Main */}
           <div className="relative space-y-6 lg:col-span-3">
+            {/* Role switch — branded loader */}
+            <AnimatePresence>
+              {isRoleSwitching && (
+                <motion.div
+                  key="role-switching"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 z-[60] flex items-center justify-center bg-gradient-to-br from-[#F0EAFB]/95 via-[#EAE7F5]/95 to-[#DCD4F0]/95 backdrop-blur-md"
+                  aria-live="polite"
+                  aria-busy="true"
+                >
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="relative h-24 w-24">
+                      {/* Outer rotating ring */}
+                      <span
+                        className="absolute inset-0 rounded-full border-[3px] border-transparent"
+                        style={{
+                          borderTopColor: "#7E6BAF",
+                          borderRightColor: "#A89BD0",
+                          animation: "spin 1.1s linear infinite",
+                        }}
+                      />
+                      {/* Inner counter-rotating ring */}
+                      <span
+                        className="absolute inset-2 rounded-full border-[2px] border-transparent"
+                        style={{
+                          borderBottomColor: "#3D2E6B",
+                          borderLeftColor: "#7E6BAF",
+                          animation: "spin 1.6s linear infinite reverse",
+                        }}
+                      />
+                      {/* Lubin mark */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <motion.img
+                          src={lubinMark.url}
+                          alt=""
+                          className="h-9 w-9 object-contain"
+                          animate={{ scale: [1, 1.08, 1] }}
+                          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7E6BAF]">
+                        Switching account
+                      </p>
+                      <p className="mt-2 font-serif-display text-2xl font-semibold text-[#3D2E6B]">
+                        {role === "provider" ? "Professional" : "Personal"} space
+                      </p>
+                      <div className="mt-4 flex items-center justify-center gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                          <span
+                            key={i}
+                            className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]"
+                            style={{
+                              animation: "dot-bounce 1s ease-in-out infinite",
+                              animationDelay: `${i * 0.15}s`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             {(isHydrating || isTransitioning) && (
               <div
                 aria-live="polite"
