@@ -347,6 +347,15 @@ function CheckoutPage() {
               <CreditCard className="h-4 w-4" />
               {processing ? "Redirecting to Stripe…" : `Pay ₱${total.toLocaleString()} with Stripe`}
             </button>
+            <label className="mt-3 flex items-center gap-2 text-[11.5px] text-slate-400">
+              <input
+                type="checkbox"
+                checked={simulateFail}
+                onChange={(e) => setSimulateFail(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-slate-300 text-brand-purple focus:ring-brand-purple"
+              />
+              Simulate a payment failure (preview only)
+            </label>
           </form>
 
           {/* Order summary */}
