@@ -12,10 +12,6 @@ import {
   ShieldCheck,
   User as UserIcon,
   Video,
-  XCircle,
-  RefreshCw,
-  HelpCircle,
-  AlertTriangle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider } from "@/lib/providers";
@@ -82,14 +78,7 @@ function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [failure, setFailure] = useState<null | {
-    code: string;
-    title: string;
-    message: string;
-    hint: string;
-  }>(null);
   const [simulateFail, setSimulateFail] = useState(false);
-  const [attempts, setAttempts] = useState(0);
 
   if (!provider || !service) {
     return (
@@ -128,11 +117,9 @@ function CheckoutPage() {
     e.preventDefault();
     if (!canPay) return;
     setProcessing(true);
-    setFailure(null);
     // TODO: replace with real Stripe Checkout session redirect once Stripe is enabled.
     setTimeout(() => {
       setProcessing(false);
-      setAttempts((n) => n + 1);
       if (simulateFail) {
         const ref =
           "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -188,70 +175,6 @@ function CheckoutPage() {
             onSubmit={handlePay}
             className="rounded-3xl border border-[#E9E6FA] bg-white p-6 shadow-sm sm:p-8"
           >
-            {failure && (
-              <div
-                role="alert"
-                aria-live="assertive"
-                className="mb-6 overflow-hidden rounded-2xl border border-red-200 bg-gradient-to-br from-red-50 to-white shadow-[0_10px_28px_-18px_rgba(220,38,38,0.35)] animate-rise-in"
-              >
-                <div className="flex items-start gap-3 p-5">
-                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-red-100 ring-4 ring-red-50">
-                    <XCircle className="h-5 w-5 text-red-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-[14px] font-semibold text-red-900">
-                        {failure.title}
-                      </p>
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-red-700">
-                        {failure.code}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[13px] leading-relaxed text-red-800/90">
-                      {failure.message}
-                    </p>
-                    <div className="mt-2 flex items-start gap-1.5 text-[12.5px] text-red-700/80">
-                      <HelpCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
-                      <span>{failure.hint}</span>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <button
-                        type="submit"
-                        disabled={processing}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-2 text-[12.5px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
-                      >
-                        <RefreshCw className={`h-3.5 w-3.5 ${processing ? "animate-spin" : ""}`} />
-                        {processing ? "Retrying…" : "Retry payment"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFailure(null)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-red-700 transition-colors hover:bg-red-50"
-                      >
-                        Use a different card
-                      </button>
-                      <Link
-                        to="/provider/$id"
-                        params={{ id: provider.id }}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[12.5px] font-semibold text-red-700 hover:underline"
-                      >
-                        Cancel booking
-                      </Link>
-                    </div>
-                    <div className="mt-3 flex items-start gap-1.5 rounded-lg bg-white/60 p-2.5 text-[11.5px] leading-relaxed text-red-900/70">
-                      <AlertTriangle className="mt-0.5 h-3 w-3 flex-none" />
-                      <span>
-                        Your session slot on{" "}
-                        <span className="font-semibold">
-                          {dateLabel} at {search.time}
-                        </span>{" "}
-                        is held for 10 minutes while you retry.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
             <div className="flex items-center gap-2 text-brand-purple">
               <Lock className="h-4 w-4" />
               <span className="text-[12px] font-semibold uppercase tracking-wider">
