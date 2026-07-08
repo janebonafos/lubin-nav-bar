@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import {
-  XCircle,
   CalendarDays,
   Clock,
   Globe2,
@@ -9,7 +8,6 @@ import {
   Video,
   RefreshCw,
   ArrowRight,
-  ShieldAlert,
   LifeBuoy,
   Mail,
 } from "lucide-react";
@@ -75,25 +73,54 @@ function PaymentFailedPage() {
       <main className="mx-auto w-full max-w-2xl px-4 pb-20 pt-24 sm:pt-28">
         <div className="overflow-hidden rounded-3xl border border-[#E9E6FA] bg-white shadow-[0_20px_60px_-30px_rgba(124,113,176,0.35)]">
           {/* Header */}
-          <div className="relative bg-gradient-to-br from-red-50 via-[#FCE9E9] to-white px-6 py-10 text-center sm:px-10">
-            <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-red-300/20 blur-3xl" />
+          <div className="relative bg-gradient-to-br from-[#FFF0F0] via-[#F8E8E8] to-white px-6 py-12 text-center sm:px-10">
+            <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-red-300/10 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-red-400/10 blur-3xl" />
-            <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md ring-8 ring-red-50">
-              <XCircle className="h-9 w-9 text-red-600" />
+            <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
+              <span className="absolute inset-0 rounded-full bg-white/60 backdrop-blur" />
+              <span className="absolute inset-1.5 rounded-full bg-gradient-to-br from-white to-[#F3E8E8] shadow-[0_10px_30px_-12px_rgba(180,113,113,0.35)]" />
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                className="relative h-10 w-10 text-red-500"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="21"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeOpacity="0.35"
+                />
+                <path
+                  d="M17 17 L31 31 M31 17 L17 31"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
-            <p className="relative mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-red-700 backdrop-blur">
-              <ShieldAlert className="h-3 w-3" /> Payment unsuccessful
+            <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-red-700/80">
+              Payment unsuccessful
             </p>
-            <h1 className="relative mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[32px]">
-              We couldn't complete your payment
+            <h1
+              className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]"
+              style={{
+                fontFamily: '"Playfair Display", "Times New Roman", serif',
+                fontWeight: 600,
+              }}
+            >
+              Let's try that again.
             </h1>
-            <p className="relative mt-2 text-[14px] text-slate-500">
-              Your card was not charged. Your session slot is held for{" "}
-              <span className="font-semibold text-slate-700">10 minutes</span>{" "}
-              while you retry.
+            <p className="relative mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-slate-500">
+              Your card was not charged. We've held your session slot for{" "}
+              <span className="font-medium text-slate-700">10 minutes</span>{" "}
+              so you can retry without losing it.
             </p>
-            <p className="relative mt-3 text-[11.5px] font-mono uppercase tracking-widest text-slate-400">
-              Ref · {ref}
+            <p className="relative mt-4 text-[10.5px] font-mono uppercase tracking-[0.25em] text-slate-400">
+              Reference · {ref}
               {search.code ? ` · ${search.code}` : ""}
             </p>
           </div>
@@ -168,7 +195,7 @@ function PaymentFailedPage() {
               </dl>
 
               {/* Why this happened */}
-              <div className="mt-6 rounded-2xl border border-red-100 bg-red-50/50 p-4">
+              <div className="mt-6 rounded-2xl border border-red-100 bg-red-50/40 p-4">
                 <p className="text-[12px] font-semibold uppercase tracking-wider text-red-700">
                   Common reasons
                 </p>
@@ -179,15 +206,15 @@ function PaymentFailedPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
-                    Insufficient funds or a hit daily/online limit.
+                    Insufficient funds or a daily/online limit was reached.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
-                    Card details entered incorrectly, or the card has expired.
+                    Card details were entered incorrectly, or the card expired.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
-                    A network interruption during authorization.
+                    A brief network interruption during authorization.
                   </li>
                 </ul>
                 <p className="mt-3 text-[11.5px] leading-relaxed text-slate-500">
