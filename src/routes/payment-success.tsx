@@ -7,7 +7,6 @@ import {
   MapPin,
   Video,
   Mail,
-  Download,
   ArrowRight,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -208,20 +207,13 @@ function PaymentSuccessPage() {
               </div>
 
               {/* Actions */}
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="mt-6">
                 <Link
                   to="/profile"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
                 >
                   View my appointments <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-4 py-3 text-[13px] font-semibold text-slate-700 hover:bg-[#F9F8FF]"
-                >
-                  <Download className="h-3.5 w-3.5" /> Receipt
-                </button>
               </div>
               <div className="mt-3 text-center">
                 <Link
