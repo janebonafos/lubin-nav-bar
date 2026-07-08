@@ -4,6 +4,7 @@ import {
   CalendarDays,
   Clock,
   Globe2,
+  Video,
   Mail,
   ArrowRight,
 } from "lucide-react";
