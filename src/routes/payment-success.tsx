@@ -7,6 +7,8 @@ import {
   Video,
   Mail,
   ArrowRight,
+  CalendarPlus,
+  ArrowLeft,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider } from "@/lib/providers";
@@ -54,6 +56,58 @@ function PaymentSuccessPage() {
 
   const fee = service ? Math.round(service.price * 0.05) : 0;
   const total = service ? service.price + fee : 0;
+
+  // Parse "10:30 AM" → minutes since midnight
+  const parseTime = (t?: string): number | null => {
+    if (!t) return null;
+    const m = t.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!m) return null;
+    let h = parseInt(m[1], 10);
+    const min = parseInt(m[2], 10);
+    const mer = m[3].toUpperCase();
+    if (mer === "PM" && h !== 12) h += 12;
+    if (mer === "AM" && h === 12) h = 0;
+    return h * 60 + min;
+  };
+  // Parse "1 hour 30 minutes" / "45 minutes" → minutes
+  const parseDuration = (d?: string): number => {
+    if (!d) return 60;
+    const hMatch = d.match(/(\d+)\s*hour/);
+    const mMatch = d.match(/(\d+)\s*minute/);
+    return (hMatch ? parseInt(hMatch[1], 10) * 60 : 0) + (mMatch ? parseInt(mMatch[1], 10) : 0) || 60;
+  };
+  const toLabel = (mins: number): string => {
+    const h24 = Math.floor(mins / 60) % 24;
+    const m = mins % 60;
+    const mer = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return `${h12}:${m.toString().padStart(2, "0")} ${mer}`;
+  };
+
+  const startMins = parseTime(search.time);
+  const durationMins = service ? parseDuration(service.duration) : 60;
+  const endLabel = startMins != null ? toLabel(startMins + durationMins) : "";
+  const timeRangeLabel = startMins != null ? `${toLabel(startMins)} - ${endLabel}` : search.time || "";
+
+  // Google Calendar link. Session is in PHT (UTC+8); convert to UTC.
+  const buildGoogleCalUrl = (): string | null => {
+    if (!search.date || startMins == null || !provider || !service) return null;
+    const [y, mo, d] = search.date.split("-").map((n) => parseInt(n, 10));
+    // PHT time as UTC minus 8 hours
+    const startUtc = new Date(Date.UTC(y, mo - 1, d, 0, 0, 0) + (startMins - 8 * 60) * 60000);
+    const endUtc = new Date(startUtc.getTime() + durationMins * 60000);
+    const fmt = (dt: Date) =>
+      dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: `${service.title} with ${provider.name}`,
+      dates: `${fmt(startUtc)}/${fmt(endUtc)}`,
+      details: `Your Lubin session with ${provider.name}.`,
+      location: search.format === "in-person" ? provider.location : "Online (Lubin)",
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  };
+  const calendarUrl = buildGoogleCalUrl();
 
   return (
     <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
@@ -126,7 +180,7 @@ function PaymentSuccessPage() {
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-brand-purple" />
-                {search.time} · {service.duration}
+                {timeRangeLabel} · {service.duration}
               </li>
               <li className="flex items-center gap-2">
                 <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
@@ -175,20 +229,29 @@ function PaymentSuccessPage() {
             </div>
 
             {/* Actions */}
-            <div className="mt-6">
+            <div className="mt-6 space-y-3">
+              {calendarUrl && (
+                <a
+                  href={calendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
+                >
+                  <CalendarPlus className="h-3.5 w-3.5" /> Add to Google Calendar
+                </a>
+              )}
+              <Link
+                to="/provider/$id"
+                params={{ id: provider.id }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-5 py-3 text-[13px] font-semibold text-brand-purple-dark transition-all hover:-translate-y-0.5 hover:bg-[#FBFAFF]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back to {provider.name.split(",")[0]}'s profile
+              </Link>
               <Link
                 to="/profile"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
+                className="inline-flex w-full items-center justify-center gap-2 text-[12.5px] font-medium text-slate-500 hover:text-brand-purple"
               >
                 View my appointments <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-            <div className="mt-3 text-center">
-              <Link
-                to="/find-provider"
-                className="text-[12.5px] font-medium text-slate-500 hover:text-brand-purple"
-              >
-                Browse more providers →
               </Link>
             </div>
           </div>
