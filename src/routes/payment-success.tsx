@@ -12,17 +12,20 @@ import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider } from "@/lib/providers";
 
 const searchSchema = z.object({
-  providerId: z.string(),
-  serviceId: z.string(),
-  date: z.string(),
-  time: z.string(),
-  format: z.enum(["online", "in-person"]),
+  providerId: z.string().optional(),
+  serviceId: z.string().optional(),
+  date: z.string().optional(),
+  time: z.string().optional(),
+  format: z.enum(["online", "in-person"]).optional(),
   email: z.string().optional(),
   name: z.string().optional(),
 });
 
 export const Route = createFileRoute("/payment-success")({
-  validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
+  validateSearch: (input: Record<string, unknown>) => {
+    const result = searchSchema.safeParse(input);
+    return result.success ? result.data : {};
+  },
   component: PaymentSuccessPage,
   head: () => ({
     meta: [
@@ -35,17 +38,19 @@ export const Route = createFileRoute("/payment-success")({
 
 function PaymentSuccessPage() {
   const search = Route.useSearch();
-  const provider = getProviderById(search.providerId);
-  const service = provider
+  const provider = search.providerId ? getProviderById(search.providerId) : undefined;
+  const service = provider && search.serviceId
     ? getServicesForProvider(provider).find((s) => s.id === search.serviceId)
     : undefined;
 
-  const dateLabel = new Date(search.date + "T00:00:00").toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const dateLabel = search.date
+    ? new Date(search.date + "T00:00:00").toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "";
 
   const fee = service ? Math.round(service.price * 0.05) : 0;
   const total = service ? service.price + fee : 0;
