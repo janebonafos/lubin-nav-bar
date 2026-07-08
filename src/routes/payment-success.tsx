@@ -165,10 +165,13 @@ function PaymentSuccessPage() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[15px] font-semibold text-slate-900">
-                  {service.title}
+                  {provider.name}
                 </p>
-                <p className="mt-0.5 truncate text-[12.5px] text-slate-500">
-                  with {provider.name}
+                <p className="mt-0.5 text-[12.5px] leading-relaxed text-slate-500">
+                  {provider.bio}
+                </p>
+                <p className="mt-1 text-[12px] font-medium text-brand-purple-dark/80">
+                  {service.title}
                 </p>
               </div>
             </div>
