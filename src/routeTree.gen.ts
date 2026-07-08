@@ -15,6 +15,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -60,6 +61,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
+  '/payment-success': typeof PaymentSuccessRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/payment-success'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/payment-success'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/find-provider'
     | '/my-health-passport'
+    | '/payment-success'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ProviderOnboardingRoute: typeof ProviderOnboardingRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-health-passport': {
@@ -492,6 +512,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ProviderOnboardingRoute: ProviderOnboardingRoute,
