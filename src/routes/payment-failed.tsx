@@ -75,16 +75,16 @@ function PaymentFailedPage() {
       <main className="mx-auto w-full max-w-2xl px-4 pb-20 pt-24 sm:pt-28">
         <div className="overflow-hidden rounded-3xl border border-[#E9E6FA] bg-white shadow-[0_20px_60px_-30px_rgba(124,113,176,0.35)]">
           {/* Header */}
-          <div className="relative bg-gradient-to-br from-[#FFF0F0] via-[#F8E8E8] to-white px-6 py-12 text-center sm:px-10">
-            <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-red-300/10 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-red-400/10 blur-3xl" />
+          <div className="relative bg-gradient-to-br from-[#F3F0FF] via-[#EAE7F5] to-white px-6 py-12 text-center sm:px-10">
+            <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-brand-purple/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-brand-purple-dark/10 blur-3xl" />
             <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
               <span className="absolute inset-0 rounded-full bg-white/60 backdrop-blur" />
-              <span className="absolute inset-1.5 rounded-full bg-gradient-to-br from-white to-[#F3E8E8] shadow-[0_10px_30px_-12px_rgba(180,113,113,0.35)]" />
+              <span className="absolute inset-1.5 rounded-full bg-gradient-to-br from-white to-[#EAE7F5] shadow-[0_10px_30px_-12px_rgba(124,113,176,0.45)]" />
               <svg
                 viewBox="0 0 48 48"
                 fill="none"
-                className="relative h-10 w-10 text-red-500"
+                className="relative h-10 w-10 text-brand-purple"
                 aria-hidden="true"
               >
                 <circle
@@ -104,7 +104,7 @@ function PaymentFailedPage() {
                 />
               </svg>
             </div>
-            <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-red-700/80">
+            <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-brand-purple-dark/80">
               Payment unsuccessful
             </p>
             <h1
@@ -197,25 +197,25 @@ function PaymentFailedPage() {
               </dl>
 
               {/* Why this happened */}
-              <div className="mt-6 rounded-2xl border border-red-100 bg-red-50/40 p-4">
-                <p className="text-[12px] font-semibold uppercase tracking-wider text-red-700">
+              <div className="mt-6 rounded-2xl border border-[#E9E6FA] bg-[#F9F8FF] p-4">
+                <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-purple-dark">
                   Common reasons
                 </p>
                 <ul className="mt-3 space-y-2 text-[13px] text-slate-600">
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
+                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
                     Your bank declined the charge or flagged it as unusual.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
+                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
                     Insufficient funds or a daily/online limit was reached.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
+                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
                     Card details were entered incorrectly, or the card expired.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-red-400" />
+                    <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-brand-purple" />
                     A brief network interruption during authorization.
                   </li>
                 </ul>
