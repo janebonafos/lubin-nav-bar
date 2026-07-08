@@ -92,7 +92,7 @@ function PaymentSuccessPage() {
   // Google Calendar link. Session is in PHT (UTC+8); convert to UTC.
   const buildGoogleCalUrl = (): string | null => {
     if (!search.date || startMins == null || !provider || !service) return null;
-    const [y, mo, d] = search.date.split("-").map((n) => parseInt(n, 10));
+    const [y, mo, d] = search.date.split("-").map((n: string) => parseInt(n, 10));
     // PHT time as UTC minus 8 hours
     const startUtc = new Date(Date.UTC(y, mo - 1, d, 0, 0, 0) + (startMins - 8 * 60) * 60000);
     const endUtc = new Date(startUtc.getTime() + durationMins * 60000);
