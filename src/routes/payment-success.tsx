@@ -61,7 +61,7 @@ function PaymentSuccessPage() {
       <main className="mx-auto w-full max-w-2xl px-4 pb-20 pt-24 sm:pt-28">
         {/* Header */}
         <div className="px-6 py-12 text-center sm:px-10">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center">
+          <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
             <span className="absolute inset-0 rounded-full bg-white/60 backdrop-blur" />
             <span className="absolute inset-1.5 rounded-full bg-gradient-to-br from-white to-[#EAE7F5] shadow-[0_10px_30px_-12px_rgba(124,113,176,0.45)]" />
             <svg
