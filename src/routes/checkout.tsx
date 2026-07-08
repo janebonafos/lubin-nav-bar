@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import {
   ArrowLeft,
   CalendarDays,
-  CheckCircle2,
   Clock,
   CreditCard,
   Globe2,
@@ -71,6 +70,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
 
   const provider = getProviderById(search.providerId);
   const service = useMemo(() => {
@@ -82,7 +82,6 @@ function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState<null | {
     code: string;
     title: string;
@@ -162,42 +161,24 @@ function CheckoutPage() {
         ];
         setFailure(scenarios[attempts % scenarios.length]);
       } else {
-        setSuccess(true);
+        const ref =
+          "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+        navigate({
+          to: "/payment-success",
+          search: {
+            providerId: search.providerId,
+            serviceId: search.serviceId,
+            date: search.date,
+            time: search.time,
+            format: search.format,
+            email,
+            name,
+            ref,
+          },
+        });
       }
     }, 900);
   };
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
-        <Navbar />
-        <main className="mx-auto max-w-xl px-4 pb-20 pt-28 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F3F0FF]">
-            <CheckCircle2 className="h-8 w-8 text-brand-purple" />
-          </div>
-          <h1 className="mt-5 text-[28px] font-semibold text-slate-900">
-            You're all booked
-          </h1>
-          <p className="mt-2 text-[14px] text-slate-500">
-            A confirmation has been sent to{" "}
-            <span className="font-semibold text-slate-700">{email || "your email"}</span>.
-          </p>
-          <div className="mt-6 rounded-2xl border border-[#E9E6FA] bg-white p-5 text-left shadow-sm">
-            <p className="text-[13px] font-semibold text-slate-900">{service.title}</p>
-            <p className="mt-1 text-[12.5px] text-slate-500">
-              with {provider.name} · {dateLabel} at {search.time} PHT (GMT+8)
-            </p>
-          </div>
-          <Link
-            to="/find-provider"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)]"
-          >
-            Browse more providers
-          </Link>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
