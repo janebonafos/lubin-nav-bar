@@ -19,7 +19,6 @@ const searchSchema = z.object({
   format: z.enum(["online", "in-person"]),
   email: z.string().optional(),
   name: z.string().optional(),
-  ref: z.string().optional(),
 });
 
 export const Route = createFileRoute("/payment-success")({
@@ -47,10 +46,6 @@ function PaymentSuccessPage() {
     day: "numeric",
     year: "numeric",
   });
-
-  const ref =
-    search.ref ||
-    "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
 
   const fee = service ? Math.round(service.price * 0.05) : 0;
   const total = service ? service.price + fee : 0;
@@ -93,10 +88,7 @@ function PaymentSuccessPage() {
             <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-brand-purple-dark/80">
               Booking confirmed
             </p>
-            <h1
-              className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]"
-              style={{ fontFamily: '"Playfair Display", "Times New Roman", serif', fontWeight: 600 }}
-            >
+            <h1 className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]">
               Your session is set.
             </h1>
             <p className="relative mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-slate-500">
@@ -105,9 +97,6 @@ function PaymentSuccessPage() {
                 {search.email || "your email"}
               </span>
               .
-            </p>
-            <p className="relative mt-4 text-[10.5px] font-mono uppercase tracking-[0.25em] text-slate-400">
-              Reference · {ref}
             </p>
           </div>
 
