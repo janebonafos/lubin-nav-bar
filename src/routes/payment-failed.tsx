@@ -99,7 +99,7 @@ function PaymentFailedPage() {
           <p className="mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-brand-purple-dark/80">
             Payment unsuccessful
           </p>
-          <h1 className="mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]">
+          <h1 className="mt-3 text-[32px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[38px]">
             Let's try that again.
           </h1>
           <p className="mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-slate-500">
