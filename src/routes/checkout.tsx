@@ -134,32 +134,22 @@ function CheckoutPage() {
       setProcessing(false);
       setAttempts((n) => n + 1);
       if (simulateFail) {
-        const scenarios = [
-          {
-            code: "card_declined",
-            title: "Your card was declined",
-            message:
-              "Your bank didn't authorize this ₱" +
-              total.toLocaleString() +
-              " charge. No money was taken from your account.",
-            hint: "Try a different card, or contact your bank to approve the payment.",
+        const ref =
+          "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+        navigate({
+          to: "/payment-failed",
+          search: {
+            providerId: search.providerId,
+            serviceId: search.serviceId,
+            date: search.date,
+            time: search.time,
+            format: search.format,
+            email,
+            name,
+            ref,
+            code: "payment_declined",
           },
-          {
-            code: "insufficient_funds",
-            title: "Insufficient funds",
-            message:
-              "Your card doesn't have enough available balance to complete this booking.",
-            hint: "Use another payment method or top up and try again.",
-          },
-          {
-            code: "network_error",
-            title: "We couldn't reach the payment network",
-            message:
-              "The connection to Stripe timed out before your payment could be confirmed.",
-            hint: "Check your internet connection and retry — you won't be charged twice.",
-          },
-        ];
-        setFailure(scenarios[attempts % scenarios.length]);
+        });
       } else {
         const ref =
           "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
