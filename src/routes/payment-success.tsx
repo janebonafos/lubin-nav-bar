@@ -93,12 +93,12 @@ function PaymentSuccessPage() {
             <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-brand-purple-dark/80">
               Booking confirmed
             </p>
-            <h1 className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]">
+            <h1 className="relative mt-3 text-[32px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[38px]">
               Your session is set.
             </h1>
             <p className="relative mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-slate-500">
               We've sent a quiet confirmation and everything you'll need to{" "}
-              <span className="font-medium text-slate-700">
+              <span className="font-semibold text-slate-900">
                 {search.email || "your email"}
               </span>
               .
