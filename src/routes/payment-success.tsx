@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import {
-  CheckCircle2,
   CalendarDays,
   Clock,
   Globe2,
@@ -10,7 +9,6 @@ import {
   Mail,
   Download,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider } from "@/lib/providers";
@@ -65,27 +63,53 @@ function PaymentSuccessPage() {
       <main className="mx-auto w-full max-w-2xl px-4 pb-20 pt-24 sm:pt-28">
         <div className="overflow-hidden rounded-3xl border border-[#E9E6FA] bg-white shadow-[0_20px_60px_-30px_rgba(124,113,176,0.35)]">
           {/* Header */}
-          <div className="relative bg-gradient-to-br from-[#F3F0FF] via-[#EAE7F5] to-white px-6 py-10 text-center sm:px-10">
+          <div className="relative bg-gradient-to-br from-[#F3F0FF] via-[#EAE7F5] to-white px-6 py-12 text-center sm:px-10">
             <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-brand-purple/10 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-brand-purple-dark/10 blur-3xl" />
-            <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md ring-8 ring-[#F3F0FF]">
-              <CheckCircle2 className="h-9 w-9 text-brand-purple" />
+            <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
+              <span className="absolute inset-0 rounded-full bg-white/60 backdrop-blur" />
+              <span className="absolute inset-1.5 rounded-full bg-gradient-to-br from-white to-[#EAE7F5] shadow-[0_10px_30px_-12px_rgba(124,113,176,0.45)]" />
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                className="relative h-10 w-10 text-brand-purple"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="21"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeOpacity="0.35"
+                />
+                <path
+                  d="M15 25.2 L21.5 31.2 L33.5 17.4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
-            <p className="relative mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark backdrop-blur">
-              <Sparkles className="h-3 w-3" /> Payment successful
+            <p className="relative mt-5 text-[10.5px] font-medium uppercase tracking-[0.28em] text-brand-purple-dark/80">
+              Booking confirmed
             </p>
-            <h1 className="relative mt-3 text-[28px] font-semibold tracking-tight text-slate-900 sm:text-[32px]">
-              You're all booked
+            <h1
+              className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]"
+              style={{ fontFamily: '"Instrument Serif", serif', fontWeight: 500 }}
+            >
+              Your session is set.
             </h1>
-            <p className="relative mt-2 text-[14px] text-slate-500">
-              A confirmation has been sent to{" "}
-              <span className="font-semibold text-slate-700">
+            <p className="relative mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-slate-500">
+              We've sent a quiet confirmation and everything you'll need to{" "}
+              <span className="font-medium text-slate-700">
                 {search.email || "your email"}
               </span>
               .
             </p>
-            <p className="relative mt-3 text-[11.5px] font-mono uppercase tracking-widest text-slate-400">
-              Ref · {ref}
+            <p className="relative mt-4 text-[10.5px] font-mono uppercase tracking-[0.25em] text-slate-400">
+              Reference · {ref}
             </p>
           </div>
 
