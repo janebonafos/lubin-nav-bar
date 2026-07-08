@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { getProviderById, getServicesForProvider } from "@/lib/providers";
+import { getProviderById, getServicesForProvider, PROVIDERS } from "@/lib/providers";
 
 const searchSchema = z.object({
   providerId: z.string().optional(),
@@ -40,13 +40,18 @@ export const Route = createFileRoute("/payment-success")({
 
 function PaymentSuccessPage() {
   const search = Route.useSearch();
-  const provider = search.providerId ? getProviderById(search.providerId) : undefined;
-  const service = provider && search.serviceId
-    ? getServicesForProvider(provider).find((s) => s.id === search.serviceId)
-    : undefined;
+  const provider =
+    (search.providerId ? getProviderById(search.providerId) : undefined) ?? PROVIDERS[0];
+  const providerServices = getServicesForProvider(provider);
+  const service =
+    (search.serviceId ? providerServices.find((s) => s.id === search.serviceId) : undefined) ??
+    providerServices[0];
 
-  const dateLabel = search.date
-    ? new Date(search.date + "T00:00:00").toLocaleDateString(undefined, {
+  const effectiveDate =
+    search.date ?? new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+  const effectiveTime = search.time ?? "10:30 AM";
+  const dateLabel = effectiveDate
+    ? new Date(effectiveDate + "T00:00:00").toLocaleDateString(undefined, {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -84,15 +89,15 @@ function PaymentSuccessPage() {
     return `${h12}:${m.toString().padStart(2, "0")} ${mer}`;
   };
 
-  const startMins = parseTime(search.time);
+  const startMins = parseTime(effectiveTime);
   const durationMins = service ? parseDuration(service.duration) : 60;
   const endLabel = startMins != null ? toLabel(startMins + durationMins) : "";
-  const timeRangeLabel = startMins != null ? `${toLabel(startMins)} - ${endLabel}` : search.time || "";
+  const timeRangeLabel = startMins != null ? `${toLabel(startMins)} - ${endLabel}` : effectiveTime;
 
   // Google Calendar link. Session is in PHT (UTC+8); convert to UTC.
   const buildGoogleCalUrl = (): string | null => {
-    if (!search.date || startMins == null || !provider || !service) return null;
-    const [y, mo, d] = search.date.split("-").map((n: string) => parseInt(n, 10));
+    if (!effectiveDate || startMins == null || !provider || !service) return null;
+    const [y, mo, d] = effectiveDate.split("-").map((n: string) => parseInt(n, 10));
     // PHT time as UTC minus 8 hours
     const startUtc = new Date(Date.UTC(y, mo - 1, d, 0, 0, 0) + (startMins - 8 * 60) * 60000);
     const endUtc = new Date(startUtc.getTime() + durationMins * 60000);
