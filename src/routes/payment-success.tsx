@@ -97,7 +97,7 @@ function PaymentSuccessPage() {
             </p>
             <h1
               className="relative mt-3 text-[32px] leading-tight tracking-tight text-slate-900 sm:text-[38px]"
-              style={{ fontFamily: '"Instrument Serif", serif', fontWeight: 500 }}
+              style={{ fontFamily: '"Playfair Display", "Times New Roman", serif', fontWeight: 600 }}
             >
               Your session is set.
             </h1>
