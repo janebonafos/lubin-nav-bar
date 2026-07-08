@@ -142,28 +142,6 @@ function PaymentSuccessPage() {
                   <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
                   Philippine Time (PHT, GMT+8)
                 </li>
-                <li className="flex items-start gap-2">
-                  {search.format === "online" ? (
-                    <Video className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
-                  ) : (
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
-                  )}
-                  <span>
-                    {search.format === "online" ? (
-                      <>
-                        <span className="font-semibold text-slate-700">Online (video).</span>{" "}
-                        Your secure link is in your confirmation email.
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-semibold text-slate-700">
-                          In-person · {provider.location}.
-                        </span>{" "}
-                        Exact address shared in your confirmation email.
-                      </>
-                    )}
-                  </span>
-                </li>
               </ul>
 
               <div className="my-5 border-t border-dashed border-[#E9E6FA]" />
