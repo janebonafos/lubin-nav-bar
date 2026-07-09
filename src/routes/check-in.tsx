@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 import {
   X,
   Leaf,
@@ -370,12 +371,12 @@ function Step2({
 }
 
 function Step3({ summary }: { summary: string }) {
-  const cards: { Icon: LucideIcon; heading: string; body: string; to: string }[] = [
+  const cards: { Icon: LucideIcon; heading: string; body: string; to?: string; onClick?: () => void }[] = [
     {
       Icon: MessageCircle,
       heading: "Talk this through with Lubin",
-      body: "Pick this up in chat — Lubin already has context.",
-      to: "/chat",
+      body: "Chat is coming soon — join the waitlist to be first in.",
+      onClick: openChatWaitlist,
     },
     {
       Icon: LifeBuoy,
@@ -403,17 +404,29 @@ function Step3({ summary }: { summary: string }) {
       </motion.p>
 
       <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {cards.map(({ Icon, heading, body, to }) => (
-          <Link
-            key={heading}
-            to={to}
-            className="group flex flex-col rounded-2xl border border-transparent bg-white p-5 shadow-[0_10px_30px_-20px_rgba(126,107,175,0.4)] transition duration-200 hover:scale-[1.02] hover:border-brand-purple/30"
-          >
-            <Icon className="h-6 w-6 text-brand-purple" strokeWidth={1.9} />
-            <p className="mt-3 text-sm font-semibold text-brand-purple-dark">{heading}</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-brand-purple-dark/60">{body}</p>
-          </Link>
-        ))}
+        {cards.map(({ Icon, heading, body, to, onClick }) => {
+          const className =
+            "group flex flex-col rounded-2xl border border-transparent bg-white p-5 text-left shadow-[0_10px_30px_-20px_rgba(126,107,175,0.4)] transition duration-200 hover:scale-[1.02] hover:border-brand-purple/30";
+          const inner = (
+            <>
+              <Icon className="h-6 w-6 text-brand-purple" strokeWidth={1.9} />
+              <p className="mt-3 text-sm font-semibold text-brand-purple-dark">{heading}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-brand-purple-dark/60">{body}</p>
+            </>
+          );
+          if (onClick) {
+            return (
+              <button key={heading} type="button" onClick={onClick} className={className}>
+                {inner}
+              </button>
+            );
+          }
+          return (
+            <Link key={heading} to={to!} className={className}>
+              {inner}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
+import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 
 interface NavLinkItem {
   label: string;
@@ -453,13 +454,14 @@ export default function Navbar() {
           >
             Find Service Provider
           </a>
-          <Link
-            to="/chat"
+          <button
+            type="button"
+            onClick={openChatWaitlist}
             className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
           >
             Talk to Lubin
             <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
-          </Link>
+          </button>
           {signedIn && (
             <div className="relative" ref={userMenuRef}>
               <button
@@ -626,14 +628,17 @@ export default function Navbar() {
               </a>
             </li>
             <li>
-              <Link
-                to="/chat"
-                onClick={() => setOpen(false)}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  openChatWaitlist();
+                }}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
               >
                 Talk to Lubin
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
-              </Link>
+              </button>
             </li>
           </ul>
         </div>

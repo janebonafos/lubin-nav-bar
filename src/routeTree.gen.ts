@@ -21,7 +21,6 @@ import { Route as MyHealthPassportRouteImport } from './routes/my-health-passpor
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
-import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
@@ -94,11 +93,6 @@ const CheckInRoute = CheckInRouteImport.update({
   path: '/check-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -157,7 +151,6 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
@@ -183,7 +176,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
@@ -210,7 +202,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/find-provider': typeof FindProviderRoute
@@ -238,7 +229,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/chat'
     | '/check-in'
     | '/checkout'
     | '/find-provider'
@@ -264,7 +254,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/chat'
     | '/check-in'
     | '/checkout'
     | '/find-provider'
@@ -290,7 +279,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/chat'
     | '/check-in'
     | '/checkout'
     | '/find-provider'
@@ -317,7 +305,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatRoute: typeof ChatRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
   FindProviderRoute: typeof FindProviderRoute
@@ -427,13 +414,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -527,7 +507,6 @@ const ProfileRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatRoute: ChatRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
   FindProviderRoute: FindProviderRoute,

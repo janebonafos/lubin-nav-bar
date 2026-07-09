@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MoodKey } from "@/components/CheckInFlow";
+import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 
 type Tip = { title: string; body: string };
 
@@ -549,14 +550,17 @@ export default function TryHelpOverlay({
                     <p className="mt-2 text-[14.5px] leading-[1.6] text-brand-purple-dark/70">
                       You don't have to figure this out alone. Continue your conversation with Lubin — it already knows the context from what you just read.
                     </p>
-                    <Link
-                      to="/chat"
-                      onClick={onClose}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        openChatWaitlist();
+                      }}
                       className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-3 text-sm font-medium text-white no-underline shadow-[0_10px_24px_-12px_rgba(126,107,175,0.6)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple-dark"
                     >
                       <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
                       Continue in chat
-                    </Link>
+                    </button>
                   </section>
 
                   {/* When to seek professional help */}
