@@ -12,6 +12,7 @@ import CheckInFlow, {
   MOOD_ACCENTS,
 } from "@/components/CheckInFlow";
 import TryHelpOverlay from "@/components/TryHelpOverlay";
+import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 import {
   CalendarCheck,
   ClipboardList,
@@ -834,9 +835,10 @@ export function Overview({
       </Card>
 
       {/* Soft anchor CTA */}
-      <Link
-        to="/chat"
-        className="group relative block overflow-hidden rounded-3xl bg-gradient-to-br from-brand-purple/15 via-brand-lavender/40 to-brand-purple-accent/20 px-6 py-6 text-center no-underline ring-1 ring-brand-purple/15 transition hover:ring-brand-purple/30"
+      <button
+        type="button"
+        onClick={openChatWaitlist}
+        className="group relative block w-full overflow-hidden rounded-3xl bg-gradient-to-br from-brand-purple/15 via-brand-lavender/40 to-brand-purple-accent/20 px-6 py-6 text-center no-underline ring-1 ring-brand-purple/15 transition hover:ring-brand-purple/30"
       >
         <div aria-hidden className="pointer-events-none absolute -top-12 left-1/4 h-32 w-32 rounded-full bg-brand-purple/15 blur-2xl transition group-hover:bg-brand-purple/25" />
         <div className="relative inline-flex items-center gap-3">
@@ -848,7 +850,7 @@ export function Overview({
             <span className="font-bold text-brand-purple transition group-hover:text-brand-purple-dark">Talk to Lubin →</span>
           </p>
         </div>
-      </Link>
+      </button>
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -1475,13 +1477,14 @@ function LiveEntry({
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pl-14 text-xs"
           >
-            <Link
-              to="/chat"
+            <button
+              type="button"
+              onClick={openChatWaitlist}
               className="inline-flex items-center gap-1 font-semibold text-brand-purple-dark no-underline transition hover:text-brand-purple"
             >
               <MessageCircle className="h-3.5 w-3.5" />
               Talk this through with Lubin →
-            </Link>
+            </button>
             <button
               type="button"
               onClick={onTryHelp}
@@ -1572,12 +1575,13 @@ export function Progress({
           things like “You've mentioned sleep three times this week,” or
           “Mornings have come up a lot.”
         </p>
-        <Link
-          to="/chat"
+        <button
+          type="button"
+          onClick={openChatWaitlist}
           className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand-purple no-underline transition hover:text-brand-purple-dark"
         >
           Talk to Lubin <span aria-hidden>→</span>
-        </Link>
+        </button>
       </Card>
 
       {/* 2. Mood — hidden for now */}
