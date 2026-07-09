@@ -3,6 +3,7 @@ import { MessageCircle, Leaf, ArrowRight, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ChatPreview from "@/components/ChatPreview";
 import PassportPreview from "@/components/PassportPreview";
+import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -114,9 +115,10 @@ function Index() {
         {/* Two cards side by side */}
         <div className="animate-rise-in mt-10 grid w-full max-w-[700px] grid-cols-1 gap-5 md:grid-cols-2 [animation-delay:240ms]">
           {/* Card 1 — Chat with Lubin */}
-          <a
-            href="/chat"
-            className="group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple-dark/50 via-brand-purple-dark/45 to-brand-purple-dark/60 p-7 shadow-lg shadow-brand-purple/10 grayscale-[0.35] transition-all duration-300 hover:-translate-y-1.5 hover:grayscale-0 hover:shadow-2xl hover:shadow-brand-purple/30"
+          <button
+            type="button"
+            onClick={openChatWaitlist}
+            className="group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple-dark/50 via-brand-purple-dark/45 to-brand-purple-dark/60 p-7 text-left shadow-lg shadow-brand-purple/10 grayscale-[0.35] transition-all duration-300 hover:-translate-y-1.5 hover:grayscale-0 hover:shadow-2xl hover:shadow-brand-purple/30"
           >
             <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-brand-purple-dark shadow-sm">
               <Sparkles className="h-3 w-3" strokeWidth={2.4} />
@@ -134,7 +136,7 @@ function Index() {
               Get early access
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
-          </a>
+          </button>
 
           {/* Card 2 — Health Passport */}
           <a
