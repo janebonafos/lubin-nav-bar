@@ -116,18 +116,22 @@ function Index() {
           {/* Card 1 — Chat with Lubin */}
           <a
             href="/chat"
-            className="group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple/80 via-brand-purple to-brand-purple-dark p-7 shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-purple/40"
+            className="group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple-dark/50 via-brand-purple-dark/45 to-brand-purple-dark/60 p-7 shadow-lg shadow-brand-purple/10 grayscale-[0.35] transition-all duration-300 hover:-translate-y-1.5 hover:grayscale-0 hover:shadow-2xl hover:shadow-brand-purple/30"
           >
+            <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-brand-purple-dark shadow-sm">
+              <Sparkles className="h-3 w-3" strokeWidth={2.4} />
+              Coming Soon
+            </span>
             <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-white/15 blur-2xl transition-opacity duration-500 group-hover:opacity-80" />
             <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white ring-1 ring-white/30">
               <MessageCircle className="h-5 w-5" strokeWidth={2} />
             </div>
             <h2 className="relative mt-5 text-xl font-bold text-white">Chat with Lubin</h2>
-            <p className="relative mt-2 text-[14px] leading-relaxed text-white/85">
-              Talk through how you're feeling. Lubin listens, reflects, and helps you understand what's going on.
+            <p className="relative mt-2 text-[14px] leading-relaxed text-white/80">
+              A private space to talk, reflect, and feel heard is almost ready. Join the waitlist to be first in line.
             </p>
             <span className="relative mt-6 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-purple-dark shadow-sm transition-all group-hover:bg-white/95 group-hover:shadow-md">
-              Start chatting
+              Get early access
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
           </a>
