@@ -727,13 +727,40 @@ export function CalendarAvailabilitySection() {
     }));
 
   const addInterval = (day: string, start = "13:00", end = "17:00") =>
-    setWeek((w) => ({
-      ...w,
-      [day]: {
-        enabled: true,
-        intervals: [...w[day].intervals, { id: genId(), start, end }],
-      },
-    }));
+    setWeek((w) => {
+      const existing = w[day].intervals;
+      // Merge with any existing interval that overlaps or touches [start, end].
+      let mergedStart = start;
+      let mergedEnd = end;
+      const untouched: Interval[] = [];
+      let mergedId: string | null = null;
+      for (const iv of existing) {
+        const overlaps =
+          toMinutes(iv.start) <= toMinutes(mergedEnd) &&
+          toMinutes(iv.end) >= toMinutes(mergedStart);
+        if (overlaps) {
+          mergedStart =
+            toMinutes(iv.start) < toMinutes(mergedStart) ? iv.start : mergedStart;
+          mergedEnd =
+            toMinutes(iv.end) > toMinutes(mergedEnd) ? iv.end : mergedEnd;
+          if (!mergedId) mergedId = iv.id;
+        } else {
+          untouched.push(iv);
+        }
+      }
+      const merged: Interval = {
+        id: mergedId ?? genId(),
+        start: mergedStart,
+        end: mergedEnd,
+      };
+      const next = [...untouched, merged].sort(
+        (a, b) => toMinutes(a.start) - toMinutes(b.start),
+      );
+      return {
+        ...w,
+        [day]: { enabled: true, intervals: next },
+      };
+    });
 
   const removeInterval = (day: string, id: string) =>
     setWeek((w) => ({
