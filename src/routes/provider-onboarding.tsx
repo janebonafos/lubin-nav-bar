@@ -672,9 +672,15 @@ function ProviderOnboardingPage() {
 
                       {calendarChoice === "later" && (
                         <p className="mt-3 rounded-lg bg-[#FFF7E6] px-3 py-2 text-[12px] leading-relaxed text-[#8A6D1F]">
-                          Heads up — your profile won't go live until you connect a
-                          calendar. We'll save your progress and you can finish this
-                          from your dashboard anytime.
+                          Heads up — your profile won't go live and won't be visible to
+                          clients until you connect a calendar. We'll save your progress and
+                          you can finish this from your dashboard anytime.{" "}
+                          <Link
+                            to="/faqs"
+                            className="font-semibold text-[#8A6D1F] underline-offset-2 hover:underline"
+                          >
+                            Learn more
+                          </Link>
                         </p>
                       )}
 
