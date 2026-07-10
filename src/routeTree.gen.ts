@@ -19,6 +19,7 @@ import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
+import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
@@ -81,6 +82,11 @@ const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
 const FindProviderRoute = FindProviderRouteImport.update({
   id: '/find-provider',
   path: '/find-provider',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
     | '/payment-failed'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
     | '/payment-failed'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
     | '/payment-failed'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
+  FaqsRoute: typeof FaqsRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
   PaymentFailedRoute: typeof PaymentFailedRoute
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/find-provider'
       fullPath: '/find-provider'
       preLoaderRoute: typeof FindProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -509,6 +529,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
+  FaqsRoute: FaqsRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
   PaymentFailedRoute: PaymentFailedRoute,
@@ -532,13 +553,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
