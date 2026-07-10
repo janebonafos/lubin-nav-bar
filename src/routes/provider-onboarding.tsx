@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
@@ -672,9 +672,15 @@ function ProviderOnboardingPage() {
 
                       {calendarChoice === "later" && (
                         <p className="mt-3 rounded-lg bg-[#FFF7E6] px-3 py-2 text-[12px] leading-relaxed text-[#8A6D1F]">
-                          Heads up — your profile won't go live until you connect a
-                          calendar. We'll save your progress and you can finish this
-                          from your dashboard anytime.
+                          Heads up — your profile won't go live and won't be visible to
+                          clients until you connect a calendar. We'll save your progress and
+                          you can finish this from your dashboard anytime.{" "}
+                          <Link
+                            to="/faqs"
+                            className="font-semibold text-[#8A6D1F] underline-offset-2 hover:underline"
+                          >
+                            Learn more
+                          </Link>
                         </p>
                       )}
 

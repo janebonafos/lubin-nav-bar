@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
@@ -893,9 +894,16 @@ export function CalendarAvailabilitySection() {
           </div>
         </div>
 
-        {provider && (
+        {provider ? (
           <p className="mt-4 text-[12px] leading-relaxed text-[#7E6BAF]">
             <span className="font-semibold text-[#5E4A8C]">Note:</span> If you disconnect this calendar and connect a different one, bookings previously synced to your old calendar will not be copied to the new calendar.
+          </p>
+        ) : (
+          <p className="mt-4 text-[12px] leading-relaxed text-[#7E6BAF]">
+            <span className="font-semibold text-[#5E4A8C]">Note:</span> If you don't connect a calendar, your profile and availability won't be visible to clients on the platform.{" "}
+            <Link to="/faqs" className="font-semibold text-[#5E4A8C] underline-offset-2 hover:underline">
+              Learn more
+            </Link>
           </p>
         )}
       </section>
