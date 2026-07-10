@@ -38,6 +38,14 @@ export type Attempt = {
   summary: string;
   takenAt: number;
   answers: number[];
+  /**
+   * Option indexes the user selected, per question. Optional for backward
+   * compatibility with attempts saved before this was introduced. When
+   * present, review UI should prefer this over value-lookup so the label
+   * shown exactly matches what the user tapped (important for
+   * reverse-scored items).
+   */
+  selections?: number[];
 };
 
 export type InProgress = {

@@ -58,6 +58,7 @@ import {
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import {
   statusTier,
+  getAssessmentStatus,
 } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
 
@@ -1624,6 +1625,14 @@ export function Progress({
               {(exploredExpanded ? patternAttempts : patternAttempts.slice(0, 5)).map((a) => {
                 const meta = assessmentBySlug[a.assessmentId];
                 const slug = meta?.slug ?? a.assessmentId;
+                const status = meta
+                  ? getAssessmentStatus(
+                      a.assessmentId,
+                      a.score,
+                      meta.maxScore,
+                      meta.lowerIsBetter,
+                    )
+                  : null;
                 return (
                   <Link
                     key={a.id}
@@ -1641,12 +1650,21 @@ export function Progress({
                           </span>
                         ) : null}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-brand-purple-dark/55">
-                        {new Date(a.takenAt).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-brand-purple-dark/55">
+                        {status ? (
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold ring-1 ${status.tone}`}
+                          >
+                            {status.label}
+                          </span>
+                        ) : null}
+                        <span>
+                          {new Date(a.takenAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
                       </p>
                     </div>
                     <div className="flex flex-none items-center gap-2">

@@ -137,3 +137,211 @@ export function statusTier(
     return { label: "Notable", tone: "bg-orange-50 text-orange-700 ring-orange-200/70" };
   return { label: "Heavy", tone: "bg-rose-50 text-rose-700 ring-rose-200/70" };
 }
+
+// ============================================================
+// Per-assessment status mapping
+//
+// Each assessment uses its OWN score-to-status mapping. We deliberately
+// avoid a single universal scale — different tools measure different
+// things and their published cutoffs vary. Labels are grouped into three
+// "kinds" so the pill tone stays consistent:
+//   - concern     : Low / Mild / Moderate / High
+//   - wellbeing   : Low / Moderate / Strong / Very strong wellbeing
+//   - screening   : Not elevated / Some signs present / Elevated /
+//                   Strongly elevated
+//   - sleep       : Restful / Healthy range / Some sleep concerns /
+//                   Significant sleep concerns
+// ============================================================
+
+export type StatusKind = "concern" | "wellbeing" | "screening" | "sleep";
+
+export type AssessmentStatus = {
+  label: string;
+  /** Tailwind classes for a soft pill background + text + ring. */
+  tone: string;
+  /** One-sentence plain-language explanation of the band. */
+  explanation: string;
+  /** True when the score falls in a band we treat as urgent/at-risk. */
+  isCrisis: boolean;
+  kind: StatusKind;
+};
+
+const TONE = {
+  calm: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
+  gentle: "bg-sky-50 text-sky-700 ring-sky-200/70",
+  amber: "bg-amber-50 text-amber-800 ring-amber-200/70",
+  warm: "bg-orange-50 text-orange-700 ring-orange-200/70",
+  heavy: "bg-rose-50 text-rose-700 ring-rose-200/70",
+} as const;
+
+function band<T>(score: number, bands: Array<{ upTo: number; value: T }>): T {
+  for (const b of bands) if (score <= b.upTo) return b.value;
+  return bands[bands.length - 1]!.value;
+}
+
+type StatusMapEntry = Omit<AssessmentStatus, "isCrisis">;
+
+/**
+ * Returns the per-assessment status band + short explanation for a raw
+ * score. Falls back to a generic mapping when an assessment id isn't
+ * explicitly mapped.
+ */
+export function getAssessmentStatus(
+  assessmentId: string,
+  score: number,
+  maxScore: number,
+  lowerIsBetter: boolean,
+  selfHarmFlag = false,
+): AssessmentStatus {
+  const s = statusForId(assessmentId, score, maxScore, lowerIsBetter);
+  const isCrisis = computeIsCrisis(assessmentId, score, selfHarmFlag);
+  return { ...s, isCrisis };
+}
+
+function statusForId(
+  id: string,
+  score: number,
+  maxScore: number,
+  lowerIsBetter: boolean,
+): StatusMapEntry {
+  switch (id) {
+    case "phq-9":
+      return band<StatusMapEntry>(score, [
+        { upTo: 4, value: { kind: "concern", label: "Low", tone: TONE.calm, explanation: "Little sign of low mood in the last two weeks." } },
+        { upTo: 9, value: { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some mild low-mood signs — worth a gentle check-in with yourself." } },
+        { upTo: 14, value: { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "Moderate low-mood signs — talking to someone could help." } },
+        { upTo: 27, value: { kind: "concern", label: "High", tone: TONE.heavy, explanation: "Strong low-mood signs — please consider reaching out for support." } },
+      ]);
+    case "gad-7":
+      return band<StatusMapEntry>(score, [
+        { upTo: 4, value: { kind: "concern", label: "Low", tone: TONE.calm, explanation: "Little sign of worry or unease this week." } },
+        { upTo: 9, value: { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some mild anxiety signs — steady, but worth noticing." } },
+        { upTo: 14, value: { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "Moderate anxiety signs — practices or a chat with a pro can help." } },
+        { upTo: 21, value: { kind: "concern", label: "High", tone: TONE.heavy, explanation: "Strong anxiety signs — please consider reaching out for support." } },
+      ]);
+    case "who-5":
+      // WHO-5 scaled = raw * 4 (0–100). Higher = better.
+      return band<StatusMapEntry>(score, [
+        { upTo: 7, value: { kind: "wellbeing", label: "Low wellbeing", tone: TONE.heavy, explanation: "Wellbeing is feeling low — extra care and support could really help." } },
+        { upTo: 12, value: { kind: "wellbeing", label: "Moderate wellbeing", tone: TONE.amber, explanation: "Wellbeing is a little muted — small daily rituals may lift it." } },
+        { upTo: 18, value: { kind: "wellbeing", label: "Strong wellbeing", tone: TONE.gentle, explanation: "Wellbeing feels steady and mostly bright." } },
+        { upTo: 25, value: { kind: "wellbeing", label: "Very strong wellbeing", tone: TONE.calm, explanation: "Wellbeing is in a really good place right now." } },
+      ]);
+    case "pss-10":
+      return band<StatusMapEntry>(score, [
+        { upTo: 13, value: { kind: "concern", label: "Low stress", tone: TONE.calm, explanation: "Stress load feels light this month." } },
+        { upTo: 19, value: { kind: "concern", label: "Mild stress", tone: TONE.gentle, explanation: "Some stress showing up — manageable, but worth noticing." } },
+        { upTo: 26, value: { kind: "concern", label: "Moderate stress", tone: TONE.amber, explanation: "A moderate amount of stress is sitting with you — rest and support matter." } },
+        { upTo: 40, value: { kind: "concern", label: "High stress", tone: TONE.heavy, explanation: "Stress is high — please be gentle with yourself and consider help." } },
+      ]);
+    case "sleep-rest":
+      // Higher = better, max 24
+      return band<StatusMapEntry>(score, [
+        { upTo: 6, value: { kind: "sleep", label: "Significant sleep concerns", tone: TONE.heavy, explanation: "Sleep and rest are struggling — this is worth talking through with a pro." } },
+        { upTo: 12, value: { kind: "sleep", label: "Some sleep concerns", tone: TONE.amber, explanation: "Some rest is missing — small routine shifts can help a lot." } },
+        { upTo: 18, value: { kind: "sleep", label: "Healthy range", tone: TONE.gentle, explanation: "Sleep is mostly doing its job — a little room to feel more rested." } },
+        { upTo: 24, value: { kind: "sleep", label: "Restful", tone: TONE.calm, explanation: "Nights and downtime feel genuinely restorative." } },
+      ]);
+    case "pcl-5":
+      return band<StatusMapEntry>(score, [
+        { upTo: 32, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Few signs of post-trauma stress right now." } },
+        { upTo: 49, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some signs are showing — go gently and consider support." } },
+        { upTo: 64, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Signs are elevated — talking to a trauma-informed pro is a good next step." } },
+        { upTo: 80, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Signs are strongly elevated — please consider professional support." } },
+      ]);
+    case "oci-r":
+      return band<StatusMapEntry>(score, [
+        { upTo: 20, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Few signs of intrusive-thought patterns." } },
+        { upTo: 35, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some patterns are showing — worth keeping an eye on." } },
+        { upTo: 49, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Patterns are elevated — a chat with a pro could help loosen them." } },
+        { upTo: 72, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Patterns are strongly elevated — please consider professional support." } },
+      ]);
+    case "pdss-sr":
+      return band<StatusMapEntry>(score, [
+        { upTo: 7, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Few signs of panic-related distress this week." } },
+        { upTo: 14, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some panic-related signs are showing — go gently." } },
+        { upTo: 21, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Panic signs are elevated — a pro can share practices that really help." } },
+        { upTo: 28, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Panic signs are strongly elevated — please consider support." } },
+      ]);
+    case "spin":
+      return band<StatusMapEntry>(score, [
+        { upTo: 20, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Social situations feel largely comfortable." } },
+        { upTo: 40, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some social discomfort is showing — noticing it is a first step." } },
+        { upTo: 50, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Social anxiety signs are elevated — support can make a real difference." } },
+        { upTo: 68, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Social anxiety signs are strongly elevated — please consider a pro." } },
+      ]);
+    case "mdq":
+      return band<StatusMapEntry>(score, [
+        { upTo: 3, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Energy and mood feel fairly steady." } },
+        { upTo: 6, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some bigger waves of energy or mood are showing." } },
+        { upTo: 9, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Signs of larger swings — worth talking through with a pro." } },
+        { upTo: 13, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Strong signs of energy and mood swings — please consider professional support." } },
+      ]);
+    case "asrs-6":
+      return band<StatusMapEntry>(score, [
+        { upTo: 8, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Focus and follow-through feel largely on track." } },
+        { upTo: 14, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "Some attention patterns are showing — worth noticing." } },
+        { upTo: 19, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Attention patterns are elevated — a pro can help make sense of them." } },
+        { upTo: 24, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Attention patterns are strongly elevated — professional support is worth considering." } },
+      ]);
+    case "scoff":
+      return band<StatusMapEntry>(score, [
+        { upTo: 1, value: { kind: "screening", label: "Not elevated", tone: TONE.calm, explanation: "Relationship with food and body sounds fairly steady." } },
+        { upTo: 2, value: { kind: "screening", label: "Some signs present", tone: TONE.gentle, explanation: "A couple of signs — worth a gentle check-in with someone you trust." } },
+        { upTo: 4, value: { kind: "screening", label: "Elevated", tone: TONE.amber, explanation: "Signs are elevated — talking to a pro is a kind next step." } },
+        { upTo: 5, value: { kind: "screening", label: "Strongly elevated", tone: TONE.heavy, explanation: "Strong signs — please reach out to a professional you trust." } },
+      ]);
+    case "audit":
+      return band<StatusMapEntry>(score, [
+        { upTo: 7, value: { kind: "concern", label: "Low", tone: TONE.calm, explanation: "Drinking pattern is in a low-risk range." } },
+        { upTo: 15, value: { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some risk showing — worth being thoughtful about." } },
+        { upTo: 19, value: { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "Moderate risk — cutting back or a chat with a pro is worth considering." } },
+        { upTo: 40, value: { kind: "concern", label: "High", tone: TONE.heavy, explanation: "High risk — please consider talking to a professional." } },
+      ]);
+    default: {
+      // Generic fallback — use warmBand + a simple 4-tier concern scale.
+      const ratio = maxScore > 0 ? score / maxScore : 0;
+      const intensity = lowerIsBetter ? ratio : 1 - ratio;
+      if (intensity < 0.25)
+        return { kind: "concern", label: "Low", tone: TONE.calm, explanation: "This area feels light right now." };
+      if (intensity < 0.5)
+        return { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some signs — mostly manageable." };
+      if (intensity < 0.75)
+        return { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "A moderate amount is sitting with you here." };
+      return { kind: "concern", label: "High", tone: TONE.heavy, explanation: "This area is carrying a lot — support could help." };
+    }
+  }
+}
+
+function computeIsCrisis(id: string, score: number, selfHarmFlag: boolean): boolean {
+  switch (id) {
+    case "phq-9":
+      return score >= 20 || selfHarmFlag;
+    case "who-5":
+      return score * 4 <= 28;
+    case "mdq":
+      return score >= 7;
+    case "pss-10":
+      return score >= 27;
+    case "gad-7":
+      return score >= 15;
+    case "pcl-5":
+      return score >= 33;
+    case "oci-r":
+      return score >= 21;
+    case "pdss-sr":
+      return score >= 15;
+    case "spin":
+      return score >= 41;
+    case "sleep-rest":
+      return score <= 6;
+    case "asrs-6":
+      return score >= 15;
+    case "scoff":
+      return score >= 2;
+    case "audit":
+      return score >= 16;
+    default:
+      return false;
+  }
+}

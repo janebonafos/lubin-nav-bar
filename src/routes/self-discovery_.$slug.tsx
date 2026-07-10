@@ -32,6 +32,7 @@ import {
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
@@ -164,6 +165,9 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null),
   );
+  const [selections, setSelections] = useState<(number | null)[]>(() =>
+    Array(total).fill(null),
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedAttempt, setCompletedAttempt] = useState<Attempt | null>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
@@ -223,10 +227,13 @@ function Runner({ assessment }: { assessment: Assessment }) {
     setPhase("questions");
   }
 
-  function handleAnswer(value: number) {
+  function handleAnswer(value: number, optionIndex: number) {
     const next = [...answers];
     next[currentIndex] = value;
     setAnswers(next);
+    const nextSel = [...selections];
+    nextSel[currentIndex] = optionIndex;
+    setSelections(nextSel);
 
     // Crisis gate: PHQ-9 Q9 self-harm item > 0.
     if (
@@ -257,19 +264,33 @@ function Runner({ assessment }: { assessment: Assessment }) {
       return;
     }
 
-    advance(next);
+    advance(next, nextSel);
   }
 
-  function advance(currentAnswers: (number | null)[]) {
+  function advance(
+    currentAnswers: (number | null)[],
+    currentSelections: (number | null)[] = selections,
+  ) {
     if (currentIndex < total - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      finishAttempt(currentAnswers);
+      finishAttempt(currentAnswers, currentSelections);
     }
   }
 
-  function finishAttempt(finalAnswers: (number | null)[]) {
+  function finishAttempt(
+    finalAnswers: (number | null)[],
+    finalSelections: (number | null)[],
+  ) {
     const normalized = finalAnswers.map((v) => v ?? 0);
+    const normalizedSel = finalSelections.map((v, i) => {
+      if (v !== null) return v;
+      // Best-effort backfill: find first option matching the value.
+      const q = assessment.questions[i];
+      const val = normalized[i];
+      const idx = q ? q.options.findIndex((o) => o.value === val) : -1;
+      return idx >= 0 ? idx : 0;
+    });
     const score = normalized.reduce((s, v) => s + v, 0);
     const attempt: Attempt = {
       id: `${assessment.id}-${Date.now()}`,
@@ -279,6 +300,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
       summary: assessment.summarize(score),
       takenAt: Date.now(),
       answers: normalized,
+      selections: normalizedSel,
     };
     saveAttempt(attempt);
     clearInProgress(assessment.id);
@@ -620,7 +642,7 @@ function QuestionView({
   index: number;
   total: number;
   selected: number | null;
-  onAnswer: (value: number) => void;
+  onAnswer: (value: number, optionIndex: number) => void;
   onBack: () => void;
 }) {
   const q = assessment.questions[index];
@@ -671,7 +693,7 @@ function QuestionView({
               <li key={i}>
                 <button
                   type="button"
-                  onClick={() => onAnswer(opt.value)}
+                  onClick={() => onAnswer(opt.value, i)}
                   className={`flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-left transition ${
                     isSelected
                       ? "border-brand-purple bg-brand-lavender/80 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
@@ -711,41 +733,16 @@ function QuestionView({
 // ============================================================
 
 function isCrisisResult(assessment: Assessment, attempt: Attempt): boolean {
-  const score = attempt.score;
-  const answers = attempt.answers;
-  switch (assessment.id) {
-    case "phq-9":
-      return score >= 20 || (answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
-    case "who-5":
-      // WHO-5 scaled score = raw * 4. Crisis when scaled ≤ 28 (raw ≤ 7).
-      return score * 4 <= 28;
-    case "mdq":
-      return score >= 7;
-    case "pss-10":
-      return score >= 27;
-    case "gad-7":
-      return score >= 15;
-    case "pcl-5":
-      return score >= 33;
-    case "oci-r":
-      return score >= 21;
-    case "pdss-sr":
-      return score >= 15;
-    case "spin":
-      return score >= 41;
-    case "sleep-rest":
-      // Higher = better, max 24. "Severe" = bottom band (ratio < 0.25).
-      return score <= 6;
-    case "asrs-6":
-      // 4 or more items marked "Sometimes" (value 2) or higher.
-      return answers.filter((v) => (v ?? 0) >= 2).length >= 4;
-    case "scoff":
-      return score >= 2;
-    case "audit":
-      return score >= 16;
-    default:
-      return false;
-  }
+  const selfHarm =
+    assessment.id === "phq-9" &&
+    (attempt.answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
+  return getAssessmentStatus(
+    assessment.id,
+    attempt.score,
+    assessment.maxScore,
+    assessment.lowerIsBetter,
+    selfHarm,
+  ).isCrisis;
 }
 
 function ResultView({
@@ -757,6 +754,16 @@ function ResultView({
 }) {
   const [copied, setCopied] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
+  const selfHarm =
+    assessment.id === "phq-9" &&
+    (attempt.answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
+  const status = getAssessmentStatus(
+    assessment.id,
+    attempt.score,
+    assessment.maxScore,
+    assessment.lowerIsBetter,
+    selfHarm,
+  );
   const completedDate = new Date(attempt.takenAt);
   const dateLabel = completedDate.toLocaleDateString(undefined, {
     weekday: "long",
@@ -812,8 +819,25 @@ function ResultView({
         <h1 className="mt-3 text-[28px] font-semibold leading-tight text-brand-purple-dark md:text-[32px]">
           {assessment.name}
         </h1>
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple/70">
+          {assessment.clinicalName}
+        </p>
 
-        <div className="mt-7 flex items-end gap-4">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold ring-1 ${status.tone}`}
+          >
+            Status: {status.label}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[12px] font-medium text-brand-purple-dark/75 tabular-nums">
+            Score: {attempt.score} / {assessment.maxScore}
+          </span>
+        </div>
+        <p className="mt-3 text-[14px] leading-[1.6] text-brand-purple-dark/85">
+          {status.explanation}
+        </p>
+
+        <div className="mt-6 flex items-end gap-4">
           <span className="text-[56px] font-semibold leading-none text-brand-purple-dark tabular-nums">
             {attempt.score}
           </span>
@@ -888,7 +912,11 @@ function ResultView({
             <ol className="mt-4 divide-y divide-brand-purple/10 border-t border-brand-purple/10">
               {assessment.questions.map((q, i) => {
                 const ans = attempt.answers[i];
-                const opt = q.options.find((o) => o.value === ans);
+                const selIdx = attempt.selections?.[i];
+                const opt =
+                  typeof selIdx === "number" && q.options[selIdx]
+                    ? q.options[selIdx]
+                    : q.options.find((o) => o.value === ans);
                 const cleanLabel = opt
                   ? opt.label.replace(/^[^\p{L}\p{N}]+/u, "").trim()
                   : "—";
@@ -1002,6 +1030,45 @@ function ResultView({
 }
 
 function SupportCard({ crisis }: { crisis: boolean }) {
+  const [open, setOpen] = useState(false);
+  if (!crisis) {
+    // Positive / low-risk result: keep resources available but quiet — a
+    // small, collapsible support footer rather than a prominent card.
+    return (
+      <div className="mt-5 rounded-2xl bg-white/70 p-4 ring-1 ring-brand-purple/10">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="text-[13px] font-medium text-brand-purple-dark/75">
+            Need urgent support later? Helplines are always here.
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 flex-none text-brand-purple/60 transition-transform ${open ? "rotate-180" : ""}`}
+            strokeWidth={2.2}
+          />
+        </button>
+        {open && (
+          <div className="mt-3 space-y-2 border-t border-brand-purple/10 pt-3 text-[12.5px] leading-[1.5] text-brand-purple-dark/75">
+            <p>
+              <a href="tel:2919" className="font-semibold text-brand-purple no-underline">Hopeline PH — 2919</a>{" "}
+              · 24/7 emotional support in the Philippines.
+            </p>
+            <p>
+              <a href="tel:1553" className="font-semibold text-brand-purple no-underline">NCMH Crisis Hotline — 1553</a>{" "}
+              · Toll-free across the country.
+            </p>
+            <p>
+              <a href="https://findahelpline.com" target="_blank" rel="noreferrer" className="font-semibold text-brand-purple no-underline">findahelpline.com</a>{" "}
+              · Find a free, confidential helpline anywhere in the world.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
     <div
       className={`mt-5 rounded-3xl p-6 md:p-8 ${
