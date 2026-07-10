@@ -58,6 +58,7 @@ import {
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import {
   statusTier,
+  getAssessmentStatus,
 } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
 
