@@ -754,6 +754,16 @@ function ResultView({
 }) {
   const [copied, setCopied] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
+  const selfHarm =
+    assessment.id === "phq-9" &&
+    (attempt.answers[PHQ9_SELF_HARM_INDEX] ?? 0) > 0;
+  const status = getAssessmentStatus(
+    assessment.id,
+    attempt.score,
+    assessment.maxScore,
+    assessment.lowerIsBetter,
+    selfHarm,
+  );
   const completedDate = new Date(attempt.takenAt);
   const dateLabel = completedDate.toLocaleDateString(undefined, {
     weekday: "long",
@@ -809,8 +819,25 @@ function ResultView({
         <h1 className="mt-3 text-[28px] font-semibold leading-tight text-brand-purple-dark md:text-[32px]">
           {assessment.name}
         </h1>
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple/70">
+          {assessment.clinicalName}
+        </p>
 
-        <div className="mt-7 flex items-end gap-4">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold ring-1 ${status.tone}`}
+          >
+            Status: {status.label}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[12px] font-medium text-brand-purple-dark/75 tabular-nums">
+            Score: {attempt.score} / {assessment.maxScore}
+          </span>
+        </div>
+        <p className="mt-3 text-[14px] leading-[1.6] text-brand-purple-dark/85">
+          {status.explanation}
+        </p>
+
+        <div className="mt-6 flex items-end gap-4">
           <span className="text-[56px] font-semibold leading-none text-brand-purple-dark tabular-nums">
             {attempt.score}
           </span>
@@ -885,7 +912,11 @@ function ResultView({
             <ol className="mt-4 divide-y divide-brand-purple/10 border-t border-brand-purple/10">
               {assessment.questions.map((q, i) => {
                 const ans = attempt.answers[i];
-                const opt = q.options.find((o) => o.value === ans);
+                const selIdx = attempt.selections?.[i];
+                const opt =
+                  typeof selIdx === "number" && q.options[selIdx]
+                    ? q.options[selIdx]
+                    : q.options.find((o) => o.value === ans);
                 const cleanLabel = opt
                   ? opt.label.replace(/^[^\p{L}\p{N}]+/u, "").trim()
                   : "—";
