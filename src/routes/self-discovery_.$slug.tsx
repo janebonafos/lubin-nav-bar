@@ -642,7 +642,7 @@ function QuestionView({
   index: number;
   total: number;
   selected: number | null;
-  onAnswer: (value: number) => void;
+  onAnswer: (value: number, optionIndex: number) => void;
   onBack: () => void;
 }) {
   const q = assessment.questions[index];
@@ -693,7 +693,7 @@ function QuestionView({
               <li key={i}>
                 <button
                   type="button"
-                  onClick={() => onAnswer(opt.value)}
+                  onClick={() => onAnswer(opt.value, i)}
                   className={`flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-left transition ${
                     isSelected
                       ? "border-brand-purple bg-brand-lavender/80 shadow-[0_8px_24px_-16px_rgba(126,107,175,0.55)]"
