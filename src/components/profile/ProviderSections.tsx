@@ -892,6 +892,12 @@ export function CalendarAvailabilitySection() {
             </span>
           </div>
         </div>
+
+        {provider && (
+          <p className="mt-4 text-[12px] leading-relaxed text-[#7E6BAF]">
+            <span className="font-semibold text-[#5E4A8C]">Note:</span> If you disconnect this calendar and connect a different one, bookings previously synced to your old calendar will not be copied to the new calendar.
+          </p>
+        )}
       </section>
 
       {/* Weekly Hours */}

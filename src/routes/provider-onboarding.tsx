@@ -651,18 +651,23 @@ function ProviderOnboardingPage() {
                       </div>
 
                       {calendarChoice === "connected" && (
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F0EAFB] px-3 py-2 text-[12px] text-[#5E4A8C]">
-                          <span className="flex items-center gap-2">
-                            <strong className="font-semibold">you@gmail.com</strong>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setCalendarChoice(null)}
-                            className="text-[11px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
-                          >
-                            Disconnect
-                          </button>
-                        </div>
+                        <>
+                          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[#F0EAFB] px-3 py-2 text-[12px] text-[#5E4A8C]">
+                            <span className="flex items-center gap-2">
+                              <strong className="font-semibold">you@gmail.com</strong>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setCalendarChoice(null)}
+                              className="text-[11px] font-medium text-[#7E6BAF] underline-offset-2 hover:underline"
+                            >
+                              Disconnect
+                            </button>
+                          </div>
+                          <p className="mt-2 text-[11px] leading-relaxed text-[#7E6BAF]">
+                            <span className="font-semibold text-[#5E4A8C]">Note:</span> If you disconnect and connect a different calendar, bookings previously synced to your old calendar will not be copied to the new one.
+                          </p>
+                        </>
                       )}
 
                       {calendarChoice === "later" && (
