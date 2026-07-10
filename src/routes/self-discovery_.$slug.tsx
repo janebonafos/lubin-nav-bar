@@ -1030,6 +1030,45 @@ function ResultView({
 }
 
 function SupportCard({ crisis }: { crisis: boolean }) {
+  const [open, setOpen] = useState(false);
+  if (!crisis) {
+    // Positive / low-risk result: keep resources available but quiet — a
+    // small, collapsible support footer rather than a prominent card.
+    return (
+      <div className="mt-5 rounded-2xl bg-white/70 p-4 ring-1 ring-brand-purple/10">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="text-[13px] font-medium text-brand-purple-dark/75">
+            Need urgent support later? Helplines are always here.
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 flex-none text-brand-purple/60 transition-transform ${open ? "rotate-180" : ""}`}
+            strokeWidth={2.2}
+          />
+        </button>
+        {open && (
+          <div className="mt-3 space-y-2 border-t border-brand-purple/10 pt-3 text-[12.5px] leading-[1.5] text-brand-purple-dark/75">
+            <p>
+              <a href="tel:2919" className="font-semibold text-brand-purple no-underline">Hopeline PH — 2919</a>{" "}
+              · 24/7 emotional support in the Philippines.
+            </p>
+            <p>
+              <a href="tel:1553" className="font-semibold text-brand-purple no-underline">NCMH Crisis Hotline — 1553</a>{" "}
+              · Toll-free across the country.
+            </p>
+            <p>
+              <a href="https://findahelpline.com" target="_blank" rel="noreferrer" className="font-semibold text-brand-purple no-underline">findahelpline.com</a>{" "}
+              · Find a free, confidential helpline anywhere in the world.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
     <div
       className={`mt-5 rounded-3xl p-6 md:p-8 ${
