@@ -32,6 +32,7 @@ import {
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
@@ -164,6 +165,9 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null),
   );
+  const [selections, setSelections] = useState<(number | null)[]>(() =>
+    Array(total).fill(null),
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedAttempt, setCompletedAttempt] = useState<Attempt | null>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
@@ -223,10 +227,13 @@ function Runner({ assessment }: { assessment: Assessment }) {
     setPhase("questions");
   }
 
-  function handleAnswer(value: number) {
+  function handleAnswer(value: number, optionIndex: number) {
     const next = [...answers];
     next[currentIndex] = value;
     setAnswers(next);
+    const nextSel = [...selections];
+    nextSel[currentIndex] = optionIndex;
+    setSelections(nextSel);
 
     // Crisis gate: PHQ-9 Q9 self-harm item > 0.
     if (
@@ -257,19 +264,33 @@ function Runner({ assessment }: { assessment: Assessment }) {
       return;
     }
 
-    advance(next);
+    advance(next, nextSel);
   }
 
-  function advance(currentAnswers: (number | null)[]) {
+  function advance(
+    currentAnswers: (number | null)[],
+    currentSelections: (number | null)[] = selections,
+  ) {
     if (currentIndex < total - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      finishAttempt(currentAnswers);
+      finishAttempt(currentAnswers, currentSelections);
     }
   }
 
-  function finishAttempt(finalAnswers: (number | null)[]) {
+  function finishAttempt(
+    finalAnswers: (number | null)[],
+    finalSelections: (number | null)[],
+  ) {
     const normalized = finalAnswers.map((v) => v ?? 0);
+    const normalizedSel = finalSelections.map((v, i) => {
+      if (v !== null) return v;
+      // Best-effort backfill: find first option matching the value.
+      const q = assessment.questions[i];
+      const val = normalized[i];
+      const idx = q ? q.options.findIndex((o) => o.value === val) : -1;
+      return idx >= 0 ? idx : 0;
+    });
     const score = normalized.reduce((s, v) => s + v, 0);
     const attempt: Attempt = {
       id: `${assessment.id}-${Date.now()}`,
@@ -279,6 +300,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
       summary: assessment.summarize(score),
       takenAt: Date.now(),
       answers: normalized,
+      selections: normalizedSel,
     };
     saveAttempt(attempt);
     clearInProgress(assessment.id);
