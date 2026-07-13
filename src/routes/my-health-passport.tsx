@@ -392,48 +392,46 @@ function GuestBanner() {
 
   return (
     <div
-      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7E6BAF] bg-white transition-all duration-300 ${
+      className={`relative mb-6 rounded-[16px] border-l-4 border-l-[#7E6BAF] bg-white p-5 sm:p-7 transition-all duration-300 ${
         fading ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
       }`}
       style={{
         boxShadow: "0 2px 12px rgba(126, 107, 175, 0.08)",
-        padding: "28px 32px",
       }}
     >
       <button
         onClick={handleDismiss}
-        className="absolute top-5 right-5 text-[#9CA3AF] transition hover:text-[#6B7280]"
+        className="absolute top-3.5 right-3.5 text-[#9CA3AF] transition hover:text-[#6B7280]"
         aria-label="Dismiss"
       >
         <X size={18} />
       </button>
 
       <span
-        className="text-[11px] font-semibold uppercase"
+        className="text-[10px] sm:text-[11px] font-semibold uppercase"
         style={{ color: "#7E6BAF", letterSpacing: "0.08em" }}
       >
         FROM LUBIN
       </span>
 
       <h2
-        className="mt-2 text-[20px] font-bold"
+        className="mt-2 text-[17px] sm:text-[20px] font-bold leading-snug"
         style={{ color: "#2C2B4B", fontFamily: "Inter, sans-serif", marginBottom: 12 }}
       >
         Your Health Passport is your mental wellness story
       </h2>
 
       <p
-        className="text-[15px]"
+        className="text-[14px] sm:text-[15px] leading-relaxed sm:leading-[1.7]"
         style={{
           color: "#5A4E8A",
-          lineHeight: 1.7,
           fontFamily: "Inter, sans-serif",
         }}
       >
         Most people go through their mental health journey without ever seeing the full picture — what triggers their stress, when their mood tends to dip, what actually helps. Your Health Passport changes that. Every check-in, every assessment, every conversation with Lubin quietly builds a private record that's yours alone. Over time, you'll start to notice patterns you never saw before — and that awareness is where real change begins.
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
         {[
           "Private to you only",
           "Builds over time",
@@ -441,7 +439,7 @@ function GuestBanner() {
         ].map((text) => (
           <span
             key={text}
-            className="inline-flex items-center rounded-full px-3.5 py-1.5 text-[13px] font-medium"
+            className="inline-flex items-center rounded-full px-3 py-1 sm:px-3.5 sm:py-1.5 text-[12px] sm:text-[13px] font-medium"
             style={{ background: "#EDE9FE", color: "#7E6BAF" }}
           >
             {text}
