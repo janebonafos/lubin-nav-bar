@@ -302,8 +302,8 @@ function PassportPage() {
           )}
         </div>
 
-        {/* Mobile registration CTA */}
-        <div className="mt-6 flex sm:hidden">
+        {/* Mobile registration CTA — hidden on Share tab which has its own in-card CTA */}
+        <div className={`mt-6 sm:hidden ${tab === "share" ? "hidden" : "flex"}`}>
           <button
             type="button"
             onClick={() => openAuth("signup")}
@@ -810,27 +810,11 @@ export function Overview({
             </AnimatePresence>
           </div>
         ) : (
-          <>
-            <div className="mt-4 space-y-2 opacity-40" aria-hidden>
-              {[
-                { emoji: "🙂", label: "Good", note: "Slept well, productive morning.", date: "Mon, May 12" },
-                { emoji: "😐", label: "Okay", note: "A bit foggy after lunch.", date: "Sun, May 11" },
-                { emoji: "😄", label: "Great", note: "Long walk cleared my head.", date: "Sat, May 10" },
-              ].map((c, i) => (
-                <div key={i} className="flex items-center gap-4 rounded-xl bg-brand-lavender/40 px-3 py-2">
-                  <span className="text-2xl">{c.emoji}</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-brand-purple-dark">{c.label}</p>
-                    <p className="text-xs text-brand-purple-dark/60">{c.note}</p>
-                  </div>
-                  <p className="text-xs text-brand-purple-dark/50">{c.date}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-sm text-brand-purple-dark/55">
-              Your first check-in will appear here. Lubin remembers the rest.
+          <div className="mt-4 rounded-xl border border-dashed border-brand-purple/20 bg-brand-lavender/30 px-4 py-6 text-center">
+            <p className="text-sm text-brand-purple-dark/70">
+              No check-ins yet. Your first check-in will appear here — Lubin remembers the rest.
             </p>
-          </>
+          </div>
         )}
         </div>
       </Card>
@@ -1600,9 +1584,9 @@ export function Progress({
             >
               <div>
                 <p className="text-sm font-medium text-brand-purple-dark">
-                  Mood Check <span className="text-brand-purple-dark/60">(PHQ-9)</span>
+                  Mood &amp; wellbeing check
                 </p>
-                <p className="text-xs text-brand-purple-dark/55">May 14, 2026</p>
+                <p className="text-xs text-brand-purple-dark/55">Example</p>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium text-brand-purple-dark">Mild</span>
@@ -1739,8 +1723,8 @@ function ShareSnapshot({ onCreateAccount }: { onCreateAccount: () => void }) {
 
           <div className="mt-5 space-y-2">
             {[
-              { name: "Mood Check", date: "2026-04-12", tier: "Mild" },
-              { name: "Anxiety Check", date: "2026-04-19", tier: "Moderate" },
+              { name: "Mood & wellbeing check", date: "2026-04-12", tier: "Mild" },
+              { name: "Anxiety check-in", date: "2026-04-19", tier: "Moderate" },
             ].map((r) => (
               <div
                 key={r.name}
