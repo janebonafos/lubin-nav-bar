@@ -302,8 +302,8 @@ function PassportPage() {
           )}
         </div>
 
-        {/* Mobile registration CTA */}
-        <div className="mt-6 flex sm:hidden">
+        {/* Mobile registration CTA — hidden on Share tab which has its own in-card CTA */}
+        <div className={`mt-6 sm:hidden ${tab === "share" ? "hidden" : "flex"}`}>
           <button
             type="button"
             onClick={() => openAuth("signup")}
