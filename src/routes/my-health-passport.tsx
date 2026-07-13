@@ -1584,9 +1584,9 @@ export function Progress({
             >
               <div>
                 <p className="text-sm font-medium text-brand-purple-dark">
-                  Mood Check <span className="text-brand-purple-dark/60">(PHQ-9)</span>
+                  Mood &amp; wellbeing check
                 </p>
-                <p className="text-xs text-brand-purple-dark/55">May 14, 2026</p>
+                <p className="text-xs text-brand-purple-dark/55">Example</p>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium text-brand-purple-dark">Mild</span>
@@ -1723,8 +1723,8 @@ function ShareSnapshot({ onCreateAccount }: { onCreateAccount: () => void }) {
 
           <div className="mt-5 space-y-2">
             {[
-              { name: "Mood Check", date: "2026-04-12", tier: "Mild" },
-              { name: "Anxiety Check", date: "2026-04-19", tier: "Moderate" },
+              { name: "Mood & wellbeing check", date: "2026-04-12", tier: "Mild" },
+              { name: "Anxiety check-in", date: "2026-04-19", tier: "Moderate" },
             ].map((r) => (
               <div
                 key={r.name}
