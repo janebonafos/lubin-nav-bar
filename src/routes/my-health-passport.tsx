@@ -748,10 +748,18 @@ export function Overview({
             </p>
           </div>
           <button
-            onClick={onLogMood}
-            className="group inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-1 ring-brand-purple/10 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-purple hover:text-white hover:ring-brand-purple hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)]"
+            onClick={() => (checkInActive ? onCloseCheckIn() : onLogMood())}
+            className={`group inline-flex items-center justify-center gap-1.5 self-start rounded-full px-6 py-3 text-sm font-bold ring-1 transition-all duration-200 ease-out ${
+              checkInActive
+                ? "bg-white text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-brand-purple/10 hover:bg-brand-lavender"
+                : "bg-white text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-brand-purple/10 hover:-translate-y-0.5 md:hover:bg-brand-purple md:hover:text-white md:hover:ring-brand-purple md:hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)]"
+            }`}
           >
-            Check in <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+            {checkInActive ? (
+              <>Close <span aria-hidden>×</span></>
+            ) : (
+              <>Check in <span aria-hidden className="transition-transform duration-200 md:group-hover:translate-x-0.5">→</span></>
+            )}
           </button>
         </div>
       </Card>
