@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   ArrowLeft,
   CalendarDays,
+  CheckCircle2,
   Clock,
   CreditCard,
   Globe2,
@@ -115,22 +116,32 @@ function CheckoutPage() {
   const gatewayName = paymentGatewayName(provider.paymentGateway);
   const discount = promo ? Math.round(service.price * (promo.percent / 100)) : 0;
   const total = Math.max(0, service.price - discount);
+  const isFree = total === 0;
 
-  const PROMO_CODES: Record<string, number> = {
-    LUBIN10: 10,
-    WELCOME20: 20,
+  // In production this map lives on the server. `expiresAt` is an ISO date;
+  // a code is expired if today is past that date.
+  const PROMO_CODES: Record<string, { percent: number; expiresAt?: string }> = {
+    LUBIN10: { percent: 10 },
+    WELCOME20: { percent: 20 },
+    FREESESSION: { percent: 100 },
+    SUMMER25: { percent: 25, expiresAt: "2025-08-31" }, // demo: already expired
   };
 
   const applyPromo = () => {
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
-    const percent = PROMO_CODES[code];
-    if (!percent) {
+    const entry = PROMO_CODES[code];
+    if (!entry) {
       setPromo(null);
       setPromoError("That promo code isn't valid.");
       return;
     }
-    setPromo({ code, percent });
+    if (entry.expiresAt && new Date(entry.expiresAt) < new Date(new Date().toDateString())) {
+      setPromo(null);
+      setPromoError(`This promo code expired on ${new Date(entry.expiresAt).toLocaleDateString()}.`);
+      return;
+    }
+    setPromo({ code, percent: entry.percent });
     setPromoError(null);
   };
 
@@ -251,8 +262,18 @@ function CheckoutPage() {
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
-                You'll be redirected to <span className="font-semibold">{gatewayName}</span> to
-                complete payment. Your card details never touch our servers.
+                {isFree ? (
+                  <>
+                    Your promo covers <span className="font-semibold">100% of this session</span>.
+                    No payment needed — we'll confirm your appointment instantly and email your
+                    session details.
+                  </>
+                ) : (
+                  <>
+                    You'll be redirected to <span className="font-semibold">{gatewayName}</span> to
+                    complete payment. Your card details never touch our servers.
+                  </>
+                )}
               </p>
             </div>
 
@@ -261,18 +282,26 @@ function CheckoutPage() {
               disabled={!canPay || processing}
               className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              <CreditCard className="h-4 w-4" />
-              {processing ? `Redirecting to ${gatewayName}…` : `Pay ${symbol}${total.toLocaleString()} with ${gatewayName}`}
+              {isFree ? <CheckCircle2 className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+              {isFree
+                ? processing
+                  ? "Confirming your appointment…"
+                  : "Confirm appointment"
+                : processing
+                ? `Redirecting to ${gatewayName}…`
+                : `Pay ${symbol}${total.toLocaleString()} with ${gatewayName}`}
             </button>
-            <label className="mt-3 flex items-center gap-2 text-[11.5px] text-slate-400">
-              <input
-                type="checkbox"
-                checked={simulateFail}
-                onChange={(e) => setSimulateFail(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-slate-300 text-brand-purple focus:ring-brand-purple"
-              />
-              Simulate a payment failure (preview only)
-            </label>
+            {!isFree && (
+              <label className="mt-3 flex items-center gap-2 text-[11.5px] text-slate-400">
+                <input
+                  type="checkbox"
+                  checked={simulateFail}
+                  onChange={(e) => setSimulateFail(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-brand-purple focus:ring-brand-purple"
+                />
+                Simulate a payment failure (preview only)
+              </label>
+            )}
           </form>
 
           {/* Order summary */}
