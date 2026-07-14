@@ -124,7 +124,6 @@ function CheckoutPage() {
     LUBIN10: { percent: 10 },
     WELCOME20: { percent: 20 },
     FREESESSION: { percent: 100 },
-    SUMMER25: { percent: 25, expiresAt: "2025-08-31" }, // demo: already expired
   };
 
   const applyPromo = () => {
@@ -138,7 +137,7 @@ function CheckoutPage() {
     }
     if (entry.expiresAt && new Date(entry.expiresAt) < new Date(new Date().toDateString())) {
       setPromo(null);
-      setPromoError(`This promo code expired on ${new Date(entry.expiresAt).toLocaleDateString()}.`);
+      setPromoError("This promo code has expired.");
       return;
     }
     setPromo({ code, percent: entry.percent });
@@ -185,6 +184,8 @@ function CheckoutPage() {
             email,
             name,
             ref,
+            promo: promo?.code,
+            discountPct: promo?.percent,
           },
         });
       }

@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { getProviderById, getServicesForProvider, PROVIDERS } from "@/lib/providers";
+import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 
 const searchSchema = z.object({
   providerId: z.string().optional(),
@@ -21,6 +21,8 @@ const searchSchema = z.object({
   format: z.enum(["online", "in-person"]).optional(),
   email: z.string().optional(),
   name: z.string().optional(),
+  promo: z.string().optional(),
+  discountPct: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute("/payment-success")({
@@ -59,8 +61,10 @@ function PaymentSuccessPage() {
       })
     : "";
 
-  const fee = service ? Math.round(service.price * 0.05) : 0;
-  const total = service ? service.price + fee : 0;
+  const symbol = provider ? currencySymbol(provider.currency) : "₱";
+  const discountPct = search.discountPct ?? 0;
+  const discount = service ? Math.round(service.price * (discountPct / 100)) : 0;
+  const total = service ? Math.max(0, service.price - discount) : 0;
 
   // Parse "10:30 AM" → minutes since midnight
   const parseTime = (t?: string): number | null => {
@@ -201,16 +205,18 @@ function PaymentSuccessPage() {
             <dl className="space-y-2 text-[13px]">
               <div className="flex justify-between text-slate-600">
                 <dt>Session</dt>
-                <dd>₱{service.price.toLocaleString()}</dd>
+                <dd>{symbol}{service.price.toLocaleString()}</dd>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <dt>Platform fee</dt>
-                <dd>₱{fee.toLocaleString()}</dd>
-              </div>
+              {search.promo && discount > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <dt>Promo ({search.promo}) −{discountPct}%</dt>
+                  <dd>−{symbol}{discount.toLocaleString()}</dd>
+                </div>
+              )}
               <div className="flex items-baseline justify-between pt-2 text-slate-900">
-                <dt className="text-[13px] font-semibold">Paid</dt>
+                <dt className="text-[13px] font-semibold">{total === 0 ? "Total" : "Paid"}</dt>
                 <dd className="text-[20px] font-bold">
-                  ₱{total.toLocaleString()}
+                  {symbol}{total.toLocaleString()}
                 </dd>
               </div>
             </dl>
