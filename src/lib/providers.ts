@@ -183,6 +183,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.7,
     reviews: 58,
     price: 2800,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "PC",
     verified: true,
     expertise: "Expert in OCD, Anxiety & Family Therapy",
