@@ -341,12 +341,12 @@ function CheckoutPage() {
             <dl className="space-y-2 text-[13px]">
               <div className="flex justify-between text-slate-600">
                 <dt>Session</dt>
-                <dd>₱{service.price.toLocaleString()}</dd>
+                <dd>{symbol}{service.price.toLocaleString()}</dd>
               </div>
               {promo && (
                 <div className="flex justify-between text-emerald-600">
                   <dt>Promo ({promo.code}) −{promo.percent}%</dt>
-                  <dd>−₱{discount.toLocaleString()}</dd>
+                  <dd>−{symbol}{discount.toLocaleString()}</dd>
                 </div>
               )}
               <div className="pt-1">
@@ -405,7 +405,7 @@ function CheckoutPage() {
               </div>
               <div className="flex items-baseline justify-between pt-2 text-slate-900">
                 <dt className="text-[13px] font-semibold">Total</dt>
-                <dd className="text-[20px] font-bold">₱{total.toLocaleString()}</dd>
+                <dd className="text-[20px] font-bold">{symbol}{total.toLocaleString()}</dd>
               </div>
             </dl>
           </aside>
