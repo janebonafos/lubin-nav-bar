@@ -35,6 +35,8 @@ export type Provider = {
   rating?: number;
   reviews?: number;
   price: number;
+  currency: "PHP" | "USD";
+  paymentGateway: "stripe" | "xendit";
   initials: string;
   verified?: boolean;
   expertise?: string;
@@ -55,6 +57,14 @@ export type Provider = {
   references?: Reference[];
 };
 
+export function currencySymbol(currency: Provider["currency"]) {
+  return currency === "USD" ? "$" : "₱";
+}
+
+export function paymentGatewayName(gateway: Provider["paymentGateway"]) {
+  return gateway === "stripe" ? "Stripe" : "Xendit";
+}
+
 export const PROVIDERS: Provider[] = [
   {
     id: "1",
@@ -67,6 +77,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.9,
     reviews: 128,
     price: 2500,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "MS",
     verified: true,
     expertise: "Expert in Anxiety, Trauma & CBT",
@@ -104,6 +116,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.8,
     reviews: 92,
     price: 1800,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "JR",
     verified: true,
     expertise: "Expert in Relationships & LGBTQ+ Support",
@@ -139,6 +153,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.9,
     reviews: 74,
     price: 3200,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "AL",
     expertise: "Expert in Burnout & Mindfulness-Based Therapy",
     experience: 7,
@@ -167,6 +183,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.7,
     reviews: 58,
     price: 2800,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "PC",
     verified: true,
     expertise: "Expert in OCD, Anxiety & Family Therapy",
@@ -202,6 +220,8 @@ export const PROVIDERS: Provider[] = [
     bio: "Supportive counselling for students and early-career professionals navigating overwhelm and direction.",
     location: "Pasig City",
     price: 1400,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "BG",
     expertise: "Expert in Student & Career Counselling",
     experience: 5,
@@ -231,6 +251,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.9,
     reviews: 63,
     price: 6500,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "MT",
     verified: true,
     expertise: "Expert in Somatic & Trauma-Focused Therapy",
