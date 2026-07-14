@@ -251,7 +251,7 @@ function CheckoutPage() {
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
-                You'll be redirected to <span className="font-semibold">Stripe</span> to
+                You'll be redirected to <span className="font-semibold">{gatewayName}</span> to
                 complete payment. Your card details never touch our servers.
               </p>
             </div>
@@ -262,7 +262,7 @@ function CheckoutPage() {
               className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
               <CreditCard className="h-4 w-4" />
-              {processing ? "Redirecting to Stripe…" : `Pay ₱${total.toLocaleString()} with Stripe`}
+              {processing ? `Redirecting to ${gatewayName}…` : `Pay ${symbol}${total.toLocaleString()} with ${gatewayName}`}
             </button>
             <label className="mt-3 flex items-center gap-2 text-[11.5px] text-slate-400">
               <input
