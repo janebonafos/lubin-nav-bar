@@ -77,6 +77,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.9,
     reviews: 128,
     price: 2500,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "MS",
     verified: true,
     expertise: "Expert in Anxiety, Trauma & CBT",
