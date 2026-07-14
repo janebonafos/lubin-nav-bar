@@ -154,7 +154,7 @@ function CheckoutPage() {
     // TODO: replace with real Stripe Checkout session redirect once Stripe is enabled.
     setTimeout(() => {
       setProcessing(false);
-      if (simulateFail) {
+      if (simulateFail && !isFree) {
         const ref =
           "LBN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
         navigate({
