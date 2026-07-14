@@ -35,6 +35,8 @@ export type Provider = {
   rating?: number;
   reviews?: number;
   price: number;
+  currency: "PHP" | "USD";
+  paymentGateway: "stripe" | "xendit";
   initials: string;
   verified?: boolean;
   expertise?: string;
@@ -54,6 +56,14 @@ export type Provider = {
   socialLinks?: SocialLink[];
   references?: Reference[];
 };
+
+export function currencySymbol(currency: Provider["currency"]) {
+  return currency === "USD" ? "$" : "₱";
+}
+
+export function paymentGatewayName(gateway: Provider["paymentGateway"]) {
+  return gateway === "stripe" ? "Stripe" : "Xendit";
+}
 
 export const PROVIDERS: Provider[] = [
   {
