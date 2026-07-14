@@ -251,6 +251,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.9,
     reviews: 63,
     price: 6500,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "MT",
     verified: true,
     expertise: "Expert in Somatic & Trauma-Focused Therapy",
