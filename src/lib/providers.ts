@@ -116,6 +116,8 @@ export const PROVIDERS: Provider[] = [
     rating: 4.8,
     reviews: 92,
     price: 1800,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "JR",
     verified: true,
     expertise: "Expert in Relationships & LGBTQ+ Support",
