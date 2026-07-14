@@ -4,9 +4,11 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -125,9 +127,65 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <RouteProgressBar />
       <Outlet />
       <Toaster />
       <ChatWaitlistModal />
     </QueryClientProvider>
+  );
+}
+
+function RouteProgressBar() {
+  const isLoading = useRouterState({
+    select: (s) => s.status === "pending" || s.isLoading || s.isTransitioning,
+  });
+  const [visible, setVisible] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let trickle: ReturnType<typeof setInterval> | undefined;
+    let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+    let resetTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    if (isLoading) {
+      setVisible(true);
+      setProgress(12);
+      trickle = setInterval(() => {
+        setProgress((p) => {
+          if (p >= 90) return p;
+          const step = p < 40 ? 8 : p < 70 ? 4 : 1.5;
+          return Math.min(90, p + step);
+        });
+      }, 200);
+    } else if (visible) {
+      setProgress(100);
+      hideTimeout = setTimeout(() => {
+        setVisible(false);
+        resetTimeout = setTimeout(() => setProgress(0), 200);
+      }, 220);
+    }
+
+    return () => {
+      if (trickle) clearInterval(trickle);
+      if (hideTimeout) clearTimeout(hideTimeout);
+      if (resetTimeout) clearTimeout(resetTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[9999] h-[3px]"
+      style={{ opacity: visible ? 1 : 0, transition: "opacity 200ms ease" }}
+    >
+      <div
+        className="h-full bg-gradient-to-r from-[#7E6BAF] via-[#A89BD0] to-[#7E6BAF] shadow-[0_0_10px_rgba(126,107,175,0.6)]"
+        style={{
+          width: `${progress}%`,
+          transition: "width 200ms ease-out",
+        }}
+      />
+    </div>
   );
 }
