@@ -220,6 +220,8 @@ export const PROVIDERS: Provider[] = [
     bio: "Supportive counselling for students and early-career professionals navigating overwhelm and direction.",
     location: "Pasig City",
     price: 1400,
+    currency: "PHP",
+    paymentGateway: "xendit",
     initials: "BG",
     expertise: "Expert in Student & Career Counselling",
     experience: 5,
