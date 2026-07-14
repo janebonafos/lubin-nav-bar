@@ -79,6 +79,9 @@ function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [processing, setProcessing] = useState(false);
   const [simulateFail, setSimulateFail] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; percent: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   if (!provider || !service) {
     return (
@@ -108,8 +111,26 @@ function CheckoutPage() {
     year: "numeric",
   });
 
-  const fee = Math.round(service.price * 0.05);
-  const total = service.price + fee;
+  const discount = promo ? Math.round(service.price * (promo.percent / 100)) : 0;
+  const total = Math.max(0, service.price - discount);
+
+  const PROMO_CODES: Record<string, number> = {
+    LUBIN10: 10,
+    WELCOME20: 20,
+  };
+
+  const applyPromo = () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) return;
+    const percent = PROMO_CODES[code];
+    if (!percent) {
+      setPromo(null);
+      setPromoError("That promo code isn't valid.");
+      return;
+    }
+    setPromo({ code, percent });
+    setPromoError(null);
+  };
 
   const canPay = name.trim().length > 1 && /.+@.+\..+/.test(email);
 
@@ -320,9 +341,65 @@ function CheckoutPage() {
                 <dt>Session</dt>
                 <dd>₱{service.price.toLocaleString()}</dd>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <dt>Platform fee</dt>
-                <dd>₱{fee.toLocaleString()}</dd>
+              {promo && (
+                <div className="flex justify-between text-emerald-600">
+                  <dt>Promo ({promo.code}) −{promo.percent}%</dt>
+                  <dd>−₱{discount.toLocaleString()}</dd>
+                </div>
+              )}
+              <div className="pt-1">
+                {promo ? (
+                  <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-[12px]">
+                    <span className="font-semibold text-emerald-700">
+                      {promo.code} applied
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPromo(null);
+                        setPromoInput("");
+                      }}
+                      className="text-emerald-700 underline hover:no-underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-500">
+                      Promo code
+                    </label>
+                    <div className="mt-1.5 flex gap-2">
+                      <input
+                        type="text"
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value);
+                          if (promoError) setPromoError(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            applyPromo();
+                          }
+                        }}
+                        placeholder="Enter code"
+                        className="block w-full rounded-lg border border-[#E9E6FA] bg-white px-3 py-2 text-[13px] uppercase text-slate-900 outline-none placeholder:text-slate-400 placeholder:normal-case focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyPromo}
+                        disabled={!promoInput.trim()}
+                        className="rounded-lg border border-brand-purple px-3 py-2 text-[12.5px] font-semibold text-brand-purple transition-colors hover:bg-brand-purple hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-brand-purple"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {promoError && (
+                      <p className="mt-1.5 text-[11.5px] text-rose-500">{promoError}</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-baseline justify-between pt-2 text-slate-900">
                 <dt className="text-[13px] font-semibold">Total</dt>
