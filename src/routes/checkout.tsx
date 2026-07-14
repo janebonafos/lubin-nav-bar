@@ -14,7 +14,7 @@ import {
   Video,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { getProviderById, getServicesForProvider } from "@/lib/providers";
+import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
 
 const searchSchema = z.object({
   providerId: z.string(),
