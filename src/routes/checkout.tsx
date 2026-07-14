@@ -111,6 +111,8 @@ function CheckoutPage() {
     year: "numeric",
   });
 
+  const symbol = currencySymbol(provider.currency);
+  const gatewayName = paymentGatewayName(provider.paymentGateway);
   const discount = promo ? Math.round(service.price * (promo.percent / 100)) : 0;
   const total = Math.max(0, service.price - discount);
 
