@@ -184,6 +184,8 @@ function CheckoutPage() {
             email,
             name,
             ref,
+            promo: promo?.code,
+            discountPct: promo?.percent,
           },
         });
       }
