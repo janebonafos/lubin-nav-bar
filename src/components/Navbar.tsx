@@ -443,7 +443,7 @@ export default function Navbar() {
           )}
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
+            className="ml-5 inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
           >
             Find Service Provider
           </a>
