@@ -379,7 +379,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-end gap-4 2xl:gap-7">
+        <ul className="hidden min-[1400px]:flex min-w-0 flex-1 items-center justify-end gap-4 2xl:gap-7">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -431,7 +431,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex shrink-0 items-center gap-2">
+        <div className="hidden min-[1400px]:flex shrink-0 items-center gap-2">
           {!signedIn && (
             <button
               type="button"
@@ -527,7 +527,7 @@ export default function Navbar() {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="xl:hidden inline-flex items-center justify-center text-brand-purple-dark"
+          className="min-[1400px]:hidden inline-flex items-center justify-center text-brand-purple-dark"
         >
           <HamburgerIcon open={open} className="h-6 w-6" />
         </button>
@@ -535,7 +535,7 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="xl:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
+        <div className="min-[1400px]:hidden mx-auto mt-2 max-w-6xl rounded-2xl border border-white/40 bg-white/80 px-5 py-4 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
