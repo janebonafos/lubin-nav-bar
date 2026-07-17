@@ -371,7 +371,7 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 2xl:gap-6 2xl:pl-8 2xl:pr-6"
+        className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 xl:gap-5 2xl:gap-6 2xl:pl-8 2xl:pr-6"
       >
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center 2xl:mr-4" aria-label="Lubin home">
@@ -431,7 +431,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex shrink-0 items-center gap-2">
+        <div className="hidden xl:flex shrink-0 items-center gap-2 xl:ml-3 2xl:ml-4">
           {!signedIn && (
             <button
               type="button"

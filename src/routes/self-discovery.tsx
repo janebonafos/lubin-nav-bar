@@ -85,17 +85,61 @@ const GROUP_ORNAMENT: Record<PatternGroup, string> = {
   lifestyle: "04",
 };
 
+type HistoryItem = {
+  assessment: Assessment;
+  attempts: number;
+  inProgress: boolean;
+};
+
+function buildHistory(): HistoryItem[] {
+  const all = loadAttempts();
+  const counts = new Map<string, number>();
+  for (const a of all) {
+    counts.set(a.assessmentId, (counts.get(a.assessmentId) ?? 0) + 1);
+  }
+  const inProgressIds = new Set(
+    ASSESSMENT_IDS.filter((id) => {
+      const ip = loadInProgress(id);
+      if (!ip) return false;
+      return ip.answers.filter((v) => v !== null).length > 0;
+    }),
+  );
+  const ids = new Set<string>([...counts.keys(), ...inProgressIds]);
+  return Array.from(ids)
+    .map((id) => {
+      const a = ASSESSMENTS.find((x) => x.id === id);
+      if (!a) return null;
+      const attempts = counts.get(id) ?? 0;
+      const inProgress = inProgressIds.has(id);
+      return { assessment: a, attempts, inProgress };
+    })
+    .filter((x): x is HistoryItem => !!x)
+    .sort((a, b) => b.attempts - a.attempts);
+}
+
 function PatternsPage() {
   // Bump on focus / visibility so locked timers and completion state refresh.
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
   const [timingOpen, setTimingOpen] = useState(false);
   const [startOverId, setStartOverId] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
   useEffect(() => {
-    const onFocus = () => setTick((t) => t + 1);
+    setHistory(buildHistory());
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => {
+      setTick((t) => t + 1);
+      setHistory(buildHistory());
+    };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
-    const onChange = () => setTick((t) => t + 1);
+    const onChange = () => {
+      setTick((t) => t + 1);
+      setHistory(buildHistory());
+    };
     const onStorage = (e: StorageEvent) => {
       if (!e.key || e.key.startsWith("lubinai_inprogress_")) onChange();
     };
@@ -108,37 +152,6 @@ function PatternsPage() {
       window.removeEventListener("storage", onStorage);
     };
   }, []);
-
-  // Build a per-assessment history (number of attempts + in-progress flag).
-  // An in-progress entry with 0 answers is not counted as progress.
-  const history =
-    typeof window === "undefined"
-      ? []
-      : (() => {
-          const all = loadAttempts();
-          const counts = new Map<string, number>();
-          for (const a of all) {
-            counts.set(a.assessmentId, (counts.get(a.assessmentId) ?? 0) + 1);
-          }
-          const inProgressIds = new Set(
-            ASSESSMENT_IDS.filter((id) => {
-              const ip = loadInProgress(id);
-              if (!ip) return false;
-              return ip.answers.filter((v) => v !== null).length > 0;
-            }),
-          );
-          const ids = new Set<string>([...counts.keys(), ...inProgressIds]);
-          return Array.from(ids)
-            .map((id) => {
-              const a = ASSESSMENTS.find((x) => x.id === id);
-              if (!a) return null;
-              const attempts = counts.get(id) ?? 0;
-              const inProgress = inProgressIds.has(id);
-              return { assessment: a, attempts, inProgress };
-            })
-            .filter((x): x is { assessment: Assessment; attempts: number; inProgress: boolean } => !!x)
-            .sort((a, b) => b.attempts - a.attempts);
-        })();
 
   // Count how many check-ins are available to take right now (not in cooldown).
   // All check-ins are always available — recommended waits are guidance only.
