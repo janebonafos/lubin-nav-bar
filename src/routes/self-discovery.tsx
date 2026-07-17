@@ -603,10 +603,7 @@ function AssessmentCard({
             {assessment.name}
           </h3>
           <p className="mt-1 text-[12px] font-medium text-brand-purple-dark/60">
-            {PLAIN_TOPIC[assessment.id] ?? assessment.blurb}
-            <span className="ml-1.5 text-brand-purple-dark/40">
-              · based on {assessment.clinicalName}
-            </span>
+            {CARD_SUBTITLE[assessment.id] ?? assessment.blurb}
           </p>
         </div>
         <div className="flex flex-none items-center gap-2">
