@@ -379,11 +379,11 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-center gap-4 2xl:gap-7">
+        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-end gap-4 2xl:gap-7">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
-                <li key={link.href}>
+                <li key={link.href} className="shrink-0">
                   <a
                     href={link.href}
                     className="group relative inline-flex items-center whitespace-nowrap text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
@@ -398,7 +398,7 @@ export default function Navbar() {
             return (
               <li
                 key={link.href}
-                className="relative"
+                className="relative shrink-0 last:mr-5 2xl:last:mr-6"
                 onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
@@ -431,7 +431,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex shrink-0 items-center gap-2 xl:ml-3 2xl:ml-4">
+        <div className="hidden xl:flex shrink-0 items-center gap-2">
           {!signedIn && (
             <button
               type="button"
@@ -443,7 +443,7 @@ export default function Navbar() {
           )}
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
+            className="ml-5 inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
           >
             Find Service Provider
           </a>
