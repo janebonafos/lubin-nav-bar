@@ -37,23 +37,22 @@ import {
 } from "@/lib/patterns/storage";
 import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/types";
 
-// Plain-language topic labels shown on each card so users immediately
-// understand what the check is about, without needing to know the
-// clinical acronym (PHQ-9, GAD-7, etc.).
-const PLAIN_TOPIC: Record<string, string> = {
-  "phq-9": "Signs of low mood",
-  "gad-7": "Signs of anxiety",
-  "who-5": "General wellbeing",
-  "pss-10": "Stress load",
-  "sleep-rest": "Sleep quality",
-  "pcl-5": "Echoes of hard experiences",
-  "oci-r": "Intrusive thoughts & rituals",
-  "pdss-sr": "Panic patterns",
-  spin: "Social comfort",
-  mdq: "Energy & mood swings",
-  "asrs-6": "Focus & attention",
-  scoff: "Eating & body relationship",
-  audit: "Alcohol habits",
+// Secondary line shown beneath each card title — plain-language subject
+// followed by the full clinical questionnaire name.
+const CARD_SUBTITLE: Record<string, string> = {
+  "phq-9": "Depression symptoms · Patient Health Questionnaire-9 (PHQ-9)",
+  "gad-7": "Anxiety symptoms · Generalized Anxiety Disorder-7 (GAD-7)",
+  "who-5": "General wellbeing · WHO-5 Well-Being Index",
+  "pss-10": "Perceived stress · 10-item Perceived Stress Scale (PSS-10)",
+  "sleep-rest": "Sleep quality · Lubin Sleep & Rest Check (custom)",
+  "pcl-5": "Trauma-related stress · PTSD Checklist for DSM-5 (PCL-5)",
+  "oci-r": "Intrusive thoughts and repeated behaviors · Obsessive-Compulsive Inventory–Revised (OCI-R)",
+  "pdss-sr": "Panic symptoms · Panic Disorder Severity Scale–Self Report (PDSS-SR)",
+  spin: "Social anxiety · Social Phobia Inventory (SPIN)",
+  mdq: "Bipolar-spectrum symptoms · Mood Disorder Questionnaire (MDQ)",
+  "asrs-6": "Adult ADHD symptoms · Adult ADHD Self-Report Scale, 6-item Screener (ASRS)",
+  scoff: "Eating concerns · SCOFF Eating Disorder Questionnaire",
+  audit: "Alcohol use · Alcohol Use Disorders Identification Test (AUDIT)",
 };
 
 export const Route = createFileRoute("/self-discovery")({
