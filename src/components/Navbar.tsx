@@ -379,7 +379,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-center gap-4 2xl:gap-7">
+        <ul className="hidden xl:flex min-w-0 flex-1 items-center justify-end gap-4 2xl:gap-7">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
