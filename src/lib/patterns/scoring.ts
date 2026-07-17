@@ -135,7 +135,7 @@ export function statusTier(
     return { label: "Mild", tone: "bg-amber-50 text-amber-700 ring-amber-200/70" };
   if (intensity < 0.75)
     return { label: "Notable", tone: "bg-orange-50 text-orange-700 ring-orange-200/70" };
-  return { label: "Heavy", tone: "bg-rose-50 text-rose-700 ring-rose-200/70" };
+    return { label: "Heavy", tone: "bg-[#F4ECFB] text-[#5A3E8F] ring-[#D9C8EF]" };
 }
 
 // ============================================================
@@ -171,7 +171,7 @@ const TONE = {
   gentle: "bg-sky-50 text-sky-700 ring-sky-200/70",
   amber: "bg-amber-50 text-amber-800 ring-amber-200/70",
   warm: "bg-orange-50 text-orange-700 ring-orange-200/70",
-  heavy: "bg-rose-50 text-rose-700 ring-rose-200/70",
+  heavy: "bg-[#F4ECFB] text-[#5A3E8F] ring-[#D9C8EF]",
 } as const;
 
 function band<T>(score: number, bands: Array<{ upTo: number; value: T }>): T {
