@@ -398,7 +398,7 @@ export default function Navbar() {
             return (
               <li
                 key={link.href}
-                className="relative"
+                className="relative last:mr-5 2xl:last:mr-6"
                 onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
@@ -431,7 +431,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex shrink-0 items-center gap-2 xl:ml-3 2xl:ml-4">
+        <div className="hidden xl:flex shrink-0 items-center gap-2">
           {!signedIn && (
             <button
               type="button"
