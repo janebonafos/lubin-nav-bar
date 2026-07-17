@@ -37,6 +37,25 @@ import {
 } from "@/lib/patterns/storage";
 import type { Assessment, PatternGroup, TrendDirection } from "@/lib/patterns/types";
 
+// Plain-language topic labels shown on each card so users immediately
+// understand what the check is about, without needing to know the
+// clinical acronym (PHQ-9, GAD-7, etc.).
+const PLAIN_TOPIC: Record<string, string> = {
+  "phq-9": "Signs of low mood",
+  "gad-7": "Signs of anxiety",
+  "who-5": "General wellbeing",
+  "pss-10": "Stress load",
+  "sleep-rest": "Sleep quality",
+  "pcl-5": "Echoes of hard experiences",
+  "oci-r": "Intrusive thoughts & rituals",
+  "pdss-sr": "Panic patterns",
+  spin: "Social comfort",
+  mdq: "Energy & mood swings",
+  "asrs-6": "Focus & attention",
+  scoff: "Eating & body relationship",
+  audit: "Alcohol habits",
+};
+
 export const Route = createFileRoute("/self-discovery")({
   head: () => ({
     meta: [
