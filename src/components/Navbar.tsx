@@ -383,7 +383,7 @@ export default function Navbar() {
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
-                <li key={link.href}>
+                <li key={link.href} className="shrink-0">
                   <a
                     href={link.href}
                     className="group relative inline-flex items-center whitespace-nowrap text-sm font-medium text-brand-purple-dark/80 no-underline transition-colors hover:text-brand-purple-dark"
@@ -398,7 +398,7 @@ export default function Navbar() {
             return (
               <li
                 key={link.href}
-                className="relative last:mr-5 2xl:last:mr-6"
+                className="relative shrink-0 last:mr-5 2xl:last:mr-6"
                 onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
