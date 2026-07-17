@@ -586,14 +586,19 @@ function AssessmentCard({
       className="group flex h-full flex-col rounded-2xl border border-[#EFEAFE] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-purple/10"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-[17px] font-semibold leading-snug text-brand-purple-dark transition-colors group-hover:text-brand-purple">
-          {assessment.name}
-        </h3>
+        <div className="min-w-0">
+          <h3 className="text-[17px] font-semibold leading-snug text-brand-purple-dark transition-colors group-hover:text-brand-purple">
+            {assessment.name}
+          </h3>
+          <p className="mt-1 text-[12px] font-medium text-brand-purple-dark/60">
+            {PLAIN_TOPIC[assessment.id] ?? assessment.blurb}
+            <span className="ml-1.5 text-brand-purple-dark/40">
+              · based on {assessment.clinicalName}
+            </span>
+          </p>
+        </div>
         <div className="flex flex-none items-center gap-2">
           {trend && <TrendBadge direction={trend} />}
-          <span className="rounded-md bg-[#F5F3FF] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-            {assessment.clinicalName}
-          </span>
         </div>
       </div>
 
