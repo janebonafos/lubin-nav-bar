@@ -489,7 +489,7 @@ function PatternsPage() {
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/15 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple shadow-sm">
               <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.2} />
-              Trusted by clinicians
+              Clinically informed
             </span>
             <h2
               id="about-tools-heading"
@@ -498,22 +498,11 @@ function PatternsPage() {
               About these check-ins
             </h2>
             <p className="mx-auto mt-4 text-[14.5px] leading-[1.75] text-brand-purple-dark/70">
-              Each check uses an internationally recognised screening tool —
-              like the{" "}
-              <span className="font-semibold text-brand-purple-dark">PHQ-9</span>{" "}
-              for mood or{" "}
-              <span className="font-semibold text-brand-purple-dark">GAD-7</span>{" "}
-              for anxiety. These are the same tools used by mental health
-              professionals worldwide. The clinical name is shown so you can
-              look them up if you're curious — but they've been adapted into
-              everyday language so they're easy to answer. They help you
-              understand patterns, not diagnose conditions.
+              These check-ins use or are informed by recognised screening questionnaires used in healthcare. Their full names are shown so you know what each check measures and can discuss the results with a professional. They can help you notice patterns, but they cannot provide a diagnosis.
             </p>
             <div className="mx-auto mt-7 h-px w-16 bg-brand-purple/20" />
             <p className="mx-auto mt-5 max-w-[520px] text-[12.5px] italic leading-[1.7] text-brand-purple-dark/55">
-              Based on internationally recognised screening tools developed by
-              organisations like the World Health Organization. Adapted for
-              everyday use, not intended as clinical diagnoses.
+              Some questionnaires are presented in their standard form, while others may be adapted for everyday use. The Sleep & Rest Check is a Lubin-created reflection rather than a validated clinical screening questionnaire.
             </p>
           </motion.section>
         </div>
