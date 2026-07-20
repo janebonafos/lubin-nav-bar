@@ -1422,6 +1422,11 @@ export default function ProviderProfileSection({
           )}
         </div>
 
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#F7F2FE] px-3 py-2 text-[12px] text-[#7E6BAF]">
+          <Eye className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>Services with no schedule are hidden from clients until you set availability for them.</span>
+        </div>
+
         {/* Additional sessions */}
         <div className="mt-8">
           <div className="mb-5 flex items-center gap-4">
