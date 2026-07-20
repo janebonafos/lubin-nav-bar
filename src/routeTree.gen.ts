@@ -32,6 +32,7 @@ import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
+import { Route as ApiEmailPreviewRouteImport } from './routes/api.email-preview'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const TermsRoute = TermsRouteImport.update({
@@ -149,6 +150,11 @@ const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   path: '/api/enhance-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEmailPreviewRoute = ApiEmailPreviewRouteImport.update({
+  id: '/api/email-preview',
+  path: '/api/email-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
+    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -331,6 +343,7 @@ export interface RootRouteChildren {
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiEmailPreviewRoute: typeof ApiEmailPreviewRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
@@ -504,6 +517,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEnhanceProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/email-preview': {
+      id: '/api/email-preview'
+      path: '/api/email-preview'
+      fullPath: '/api/email-preview'
+      preLoaderRoute: typeof ApiEmailPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -541,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiEmailPreviewRoute: ApiEmailPreviewRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
@@ -553,3 +574,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
