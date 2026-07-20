@@ -42,6 +42,61 @@ import {
 
 
 
+type ServiceAvailability = {
+  hasSlots: boolean;
+  nextDate: Date | null;
+  times: string[];
+  availableDates: Set<string>;
+};
+
+const ALL_TIMES = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function ymd(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function getServiceAvailability(service: Service): ServiceAvailability {
+  const h = hashString(service.id);
+  const hasSlots = h % 4 !== 0;
+  if (!hasSlots) {
+    return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
+  }
+  const timeCount = 2 + (h % (ALL_TIMES.length - 1));
+  const times = ALL_TIMES.slice(0, timeCount);
+  const today = new Date();
+  const startOffset = 1 + (h % 5);
+  const dates = new Set<string>();
+  let firstDate: Date | null = null;
+  for (let i = startOffset; i < 45; i++) {
+    if ((hashString(service.id + ":" + i) % 100) < 55) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      dates.add(ymd(d));
+      if (!firstDate) firstDate = d;
+    }
+  }
+  if (!firstDate) {
+    return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
+  }
+  return { hasSlots: true, nextDate: firstDate, times, availableDates: dates };
+}
+
+function formatNextAvailable(d: Date, timeLabel: string): string {
+  const today = new Date();
+  const midToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diffDays = Math.round((d.getTime() - midToday.getTime()) / (1000 * 60 * 60 * 24));
+  let dayLabel: string;
+  if (diffDays === 0) dayLabel = "Today";
+  else if (diffDays === 1) dayLabel = "Tomorrow";
+  else dayLabel = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  return `${dayLabel}, ${timeLabel}`;
+}
+
 export const Route = createFileRoute("/provider/$id")({
   loader: ({ params }) => {
     const provider = getProviderById(params.id);
