@@ -34,6 +34,7 @@ import { Route as AppointmentCancelRouteImport } from './routes/appointment.canc
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiEmailPreviewRouteImport } from './routes/api.email-preview'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPublicTestRouteImport } from './routes/api/public/test'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -160,6 +161,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTestRoute = ApiPublicTestRouteImport.update({
+  id: '/api/public/test',
+  path: '/api/public/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/test'
   id:
     | '__root__'
     | '/'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -352,6 +364,7 @@ export interface RootRouteChildren {
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
+  ApiPublicTestRoute: typeof ApiPublicTestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -531,6 +544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/test': {
+      id: '/api/public/test'
+      path: '/api/public/test'
+      fullPath: '/api/public/test'
+      preLoaderRoute: typeof ApiPublicTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -570,7 +590,18 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
+  ApiPublicTestRoute: ApiPublicTestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
