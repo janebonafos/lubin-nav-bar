@@ -156,6 +156,17 @@ export const Route = createFileRoute("/provider/$id")({
 function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
+  const availabilityByService = new Map<string, ServiceAvailability>(
+    services.map((s) => [s.id, getServiceAvailability(s)]),
+  );
+  const withSlots = services.filter((s) => availabilityByService.get(s.id)?.hasSlots);
+  const earliest = withSlots
+    .map((s) => availabilityByService.get(s.id)!)
+    .sort((a, b) => (a.nextDate!.getTime() - b.nextDate!.getTime()))[0];
+  const heroNextLabel = earliest
+    ? `Some services available from ${formatNextAvailable(earliest.nextDate!, earliest.times[0])}`
+    : null;
+  const heroBookTarget = withSlots[0] ?? null;
   const [bookingService, setBookingService] = useState<Service | null>(null);
 
   return (
@@ -212,7 +223,7 @@ function ProviderProfilePage() {
                   </div>
 
                   <div className="w-full space-y-4">
-                    {provider.nextAvailable && (
+                    {heroNextLabel ? (
                       <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-[#F4F0FF]/50 p-4">
                         <div className="relative">
                           <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -220,18 +231,33 @@ function ProviderProfilePage() {
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                            Next Available
+                            Availability
                           </span>
                           <span className="text-sm font-semibold text-[#2C2B4B]">
-                            {provider.nextAvailable}
+                            {heroNextLabel}
+                          </span>
+                          <span className="mt-0.5 text-[11px] text-slate-500">
+                            Check each service for exact times.
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-slate-50 p-4">
+                        <div className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Availability
+                          </span>
+                          <span className="text-sm font-semibold text-slate-700">
+                            No times available right now
                           </span>
                         </div>
                       </div>
                     )}
                     <button
                       type="button"
-                      onClick={() => setBookingService(services[0] ?? null)}
-                      disabled={services.length === 0}
+                      onClick={() => setBookingService(heroBookTarget)}
+                      disabled={!heroBookTarget}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-purple py-4 font-bold text-white shadow-lg shadow-[#A89BD0]/30 transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Calendar className="h-5 w-5" />
@@ -437,7 +463,12 @@ function ProviderProfilePage() {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {services.map((s) => (
-              <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
+              <ServiceCard
+                key={s.id}
+                service={s}
+                availability={availabilityByService.get(s.id)!}
+                onBook={() => setBookingService(s)}
+              />
             ))}
           </div>
         </section>
@@ -447,16 +478,29 @@ function ProviderProfilePage() {
         <BookingModal
           provider={provider}
           service={bookingService}
+          availability={availabilityByService.get(bookingService.id)!}
           onClose={() => setBookingService(null)}
+          onChooseAnother={() => setBookingService(null)}
         />
       )}
     </div>
   );
 }
 
-function ServiceCard({ service, onBook }: { service: Service; onBook: () => void }) {
+function ServiceCard({
+  service,
+  availability,
+  onBook,
+}: {
+  service: Service;
+  availability: ServiceAvailability;
+  onBook: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
+  const availLabel = availability.hasSlots && availability.nextDate
+    ? `Next available: ${formatNextAvailable(availability.nextDate, availability.times[0])}`
+    : "No times available";
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
       {/* Gradient header band */}
@@ -523,6 +567,22 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
             <CalendarDays className="h-3 w-3 text-[#A799E2]" />
             {service.schedule}
           </span>
+        </div>
+
+        {/* Service-specific availability */}
+        <div
+          className={`mt-3 inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset ${
+            availability.hasSlots
+              ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+              : "bg-slate-50 text-slate-500 ring-slate-200"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              availability.hasSlots ? "bg-emerald-500" : "bg-slate-300"
+            }`}
+          />
+          {availLabel}
         </div>
 
         {/* Price + CTA */}
