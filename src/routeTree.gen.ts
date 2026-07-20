@@ -33,9 +33,7 @@ import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
-import { Route as ApiEmailPreviewRouteImport } from './routes/api.email-preview'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as ApiPublicTestRouteImport } from './routes/api/public/test'
 import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
 
 const TermsRoute = TermsRouteImport.update({
@@ -158,19 +156,9 @@ const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   path: '/api/enhance-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEmailPreviewRoute = ApiEmailPreviewRouteImport.update({
-  id: '/api/email-preview',
-  path: '/api/email-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicTestRoute = ApiPublicTestRouteImport.update({
-  id: '/api/public/test',
-  path: '/api/public/test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
@@ -196,7 +184,6 @@ export interface FileRoutesByFullPath {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -207,7 +194,6 @@ export interface FileRoutesByFullPath {
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
-  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -226,7 +212,6 @@ export interface FileRoutesByTo {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -237,7 +222,6 @@ export interface FileRoutesByTo {
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
-  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -257,7 +241,6 @@ export interface FileRoutesById {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -268,7 +251,6 @@ export interface FileRoutesById {
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
-  '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -289,7 +271,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -300,7 +281,6 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/share/preview'
     | '/api/public/email-preview'
-    | '/api/public/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -319,7 +299,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -330,7 +309,6 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/share/preview'
     | '/api/public/email-preview'
-    | '/api/public/test'
   id:
     | '__root__'
     | '/'
@@ -349,7 +327,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -360,7 +337,6 @@ export interface FileRouteTypes {
     | '/share/$token'
     | '/share/preview'
     | '/api/public/email-preview'
-    | '/api/public/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -380,7 +356,6 @@ export interface RootRouteChildren {
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
-  ApiEmailPreviewRoute: typeof ApiEmailPreviewRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
@@ -390,7 +365,6 @@ export interface RootRouteChildren {
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
   ApiPublicEmailPreviewRoute: typeof ApiPublicEmailPreviewRoute
-  ApiPublicTestRoute: typeof ApiPublicTestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -563,25 +537,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEnhanceProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/email-preview': {
-      id: '/api/email-preview'
-      path: '/api/email-preview'
-      fullPath: '/api/email-preview'
-      preLoaderRoute: typeof ApiEmailPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/test': {
-      id: '/api/public/test'
-      path: '/api/public/test'
-      fullPath: '/api/public/test'
-      preLoaderRoute: typeof ApiPublicTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/email-preview': {
@@ -622,7 +582,6 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
-  ApiEmailPreviewRoute: ApiEmailPreviewRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
@@ -632,7 +591,6 @@ const rootRouteChildren: RootRouteChildren = {
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
   ApiPublicEmailPreviewRoute: ApiPublicEmailPreviewRoute,
-  ApiPublicTestRoute: ApiPublicTestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
