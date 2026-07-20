@@ -242,9 +242,6 @@ function ProviderProfilePage() {
                               for {heroNextService.title}
                             </span>
                           )}
-                          <span className="mt-1 text-[11px] leading-snug text-slate-500">
-                            Each service may have its own schedule and time slots — check the service card for exact times.
-                          </span>
                         </div>
                       </div>
                     ) : (
@@ -260,6 +257,9 @@ function ProviderProfilePage() {
                         </div>
                       </div>
                     )}
+                    <p className="text-center text-[11px] leading-snug text-slate-500">
+                      Each service may have its own schedule and time slots — check the service card for exact times.
+                    </p>
                     <button
                       type="button"
                       onClick={() => setBookingService(heroBookTarget)}
