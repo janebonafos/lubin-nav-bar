@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
+import GuestAccountPrompt from "@/components/GuestAccountPrompt";
 
 const searchSchema = z.object({
   providerId: z.string().optional(),
@@ -164,6 +165,12 @@ function PaymentSuccessPage() {
             .
           </p>
         </div>
+
+        <GuestAccountPrompt
+          email={search.email}
+          scopeKey={`booking:${provider?.id ?? "unknown"}:${effectiveDate}:${effectiveTime}`}
+          contextLabel="save this booking"
+        />
 
         {/* Booking details */}
         {provider && service && (
