@@ -463,21 +463,43 @@ function ProviderProfilePage() {
               </p>
             </div>
             <span className="hidden rounded-full bg-[#F3F0FF] px-3 py-1 text-[12px] font-semibold text-brand-purple sm:inline-flex">
-              {services.length} {services.length === 1 ? "service" : "services"}
+              {withSlots.length} {withSlots.length === 1 ? "service" : "services"}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <ServiceCard
-                key={s.id}
-                service={s}
-                availability={availabilityByService.get(s.id)!}
-                onBook={() => setBookingService(s)}
-              />
-            ))}
-          </div>
+          {withSlots.length === 0 ? (
+            <div className="rounded-2xl border border-[#E9E6FA] bg-white p-8 text-center shadow-sm sm:p-10">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                <CalendarDays className="h-5 w-5 text-slate-400" />
+              </div>
+              <h3 className="text-[15px] font-semibold text-slate-900">
+                No available services right now
+              </h3>
+              <p className="mx-auto mt-1.5 max-w-md text-[13px] leading-relaxed text-slate-500">
+                This provider has no open time slots at the moment. Check back later, or explore other providers.
+              </p>
+              <Link
+                to="/find-provider"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark active:scale-95"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Find other providers
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {withSlots.map((s) => (
+                <ServiceCard
+                  key={s.id}
+                  service={s}
+                  availability={availabilityByService.get(s.id)!}
+                  onBook={() => setBookingService(s)}
+                />
+              ))}
+            </div>
+          )}
         </section>
+
       </main>
 
       {bookingService && (
