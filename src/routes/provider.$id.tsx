@@ -613,11 +613,15 @@ function ServiceCard({
 function BookingModal({
   provider,
   service,
+  availability,
   onClose,
+  onChooseAnother,
 }: {
   provider: Provider;
   service: Service;
+  availability: ServiceAvailability;
   onClose: () => void;
+  onChooseAnother: () => void;
 }) {
   const today = new Date();
   const [monthOffset, setMonthOffset] = useState(0);
@@ -640,7 +644,7 @@ function BookingModal({
     ),
   ];
   const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const times = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
+  const times = availability.times;
   const canConfirm = selectedDate && selectedTime;
 
   const goToCheckout = () => {
@@ -690,6 +694,29 @@ function BookingModal({
         </div>
 
         <div className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5">
+          {!availability.hasSlots && (
+            <div className="rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF] p-6 text-center">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                <CalendarDays className="h-5 w-5 text-slate-400" />
+              </div>
+              <h4 className="text-[15px] font-semibold text-slate-900">
+                No available times for this service right now.
+              </h4>
+              <p className="mt-1.5 text-[12.5px] text-slate-500">
+                Try another service — some of {provider.name.split(" ")[0]}'s sessions may have open slots.
+              </p>
+              <button
+                type="button"
+                onClick={onChooseAnother}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-brand-purple/30 bg-white px-4 py-2 text-[12.5px] font-semibold text-brand-purple hover:bg-[#F3F0FF]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Choose another service
+              </button>
+            </div>
+          )}
+          {availability.hasSlots && (
+          <>
           {(service.format === "Group" || service.format === "Both") &&
             service.minParticipants != null && (
               <div className="rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-4">
