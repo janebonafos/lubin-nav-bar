@@ -408,7 +408,7 @@ export const template = {
   component: BookingConfirmationEmail,
   subject: (data: BookingConfirmationProps) =>
     `Your Lubin appointment with ${data.providerName} is confirmed`,
-  displayName: "Booking confirmation — provider",
+  displayName: "Booking confirmation",
   previewData: {
     clientName: "Jane Edison",
     providerName: "LJ Basilio",
