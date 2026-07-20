@@ -20,6 +20,7 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as EmailPreviewRouteImport } from './routes/email-preview'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +36,7 @@ import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-prof
 import { Route as ApiEmailPreviewRouteImport } from './routes/api.email-preview'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicTestRouteImport } from './routes/api/public/test'
+import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -89,6 +91,11 @@ const FindProviderRoute = FindProviderRouteImport.update({
 const FaqsRoute = FaqsRouteImport.update({
   id: '/faqs',
   path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailPreviewRoute = EmailPreviewRouteImport.update({
+  id: '/email-preview',
+  path: '/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -166,11 +173,17 @@ const ApiPublicTestRoute = ApiPublicTestRouteImport.update({
   path: '/api/public/test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
+  id: '/api/public/email-preview',
+  path: '/api/public/email-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -193,12 +206,14 @@ export interface FileRoutesByFullPath {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
   '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -221,6 +236,7 @@ export interface FileRoutesByTo {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
   '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRoutesById {
@@ -228,6 +244,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -250,6 +267,7 @@ export interface FileRoutesById {
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
   '/api/public/test': typeof ApiPublicTestRoute
 }
 export interface FileRouteTypes {
@@ -258,6 +276,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -280,12 +299,14 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
     | '/api/public/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -308,12 +329,14 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
     | '/api/public/test'
   id:
     | '__root__'
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -336,6 +359,7 @@ export interface FileRouteTypes {
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
     | '/api/public/test'
   fileRoutesById: FileRoutesById
 }
@@ -343,6 +367,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
+  EmailPreviewRoute: typeof EmailPreviewRoute
   FaqsRoute: typeof FaqsRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
@@ -364,6 +389,7 @@ export interface RootRouteChildren {
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
+  ApiPublicEmailPreviewRoute: typeof ApiPublicEmailPreviewRoute
   ApiPublicTestRoute: typeof ApiPublicTestRoute
 }
 
@@ -444,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/faqs'
       fullPath: '/faqs'
       preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-preview': {
+      id: '/email-preview'
+      path: '/email-preview'
+      fullPath: '/email-preview'
+      preLoaderRoute: typeof EmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -551,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/email-preview': {
+      id: '/api/public/email-preview'
+      path: '/api/public/email-preview'
+      fullPath: '/api/public/email-preview'
+      preLoaderRoute: typeof ApiPublicEmailPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -569,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
+  EmailPreviewRoute: EmailPreviewRoute,
   FaqsRoute: FaqsRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
@@ -590,6 +631,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
+  ApiPublicEmailPreviewRoute: ApiPublicEmailPreviewRoute,
   ApiPublicTestRoute: ApiPublicTestRoute,
 }
 export const routeTree = rootRouteImport
