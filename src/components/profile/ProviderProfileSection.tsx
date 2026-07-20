@@ -768,11 +768,16 @@ function CalendarAvailabilitySummary() {
           </div>
         )}
 
-        {!connected && (
+      {!connected && (
           <p className="rounded-xl border border-amber-200/70 bg-amber-50/70 px-3 py-2 text-[12px] text-amber-800">
             Your profile won't go live until you connect a calendar.
           </p>
         )}
+      </div>
+
+      <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#F7F2FE] px-3 py-2 text-[12px] text-[#7E6BAF]">
+        <Eye className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>Only services with an available schedule are shown to clients. Add hours to make a service visible.</span>
       </div>
 
       {/* Weekly availability — sourced from Calendar & availability page */}
