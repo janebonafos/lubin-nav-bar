@@ -817,13 +817,14 @@ function BookingModal({
               {cells.map((d, i) => {
                 if (!d) return <div key={i} />;
                 const isPast = d < todayMid;
+                const inAvail = availability.availableDates.has(ymd(d));
                 const isSelected =
                   selectedDate && d.toDateString() === selectedDate.toDateString();
                 return (
                   <button
                     key={i}
                     type="button"
-                    disabled={isPast}
+                    disabled={isPast || !inAvail}
                     onClick={() => {
                       setSelectedDate(d);
                       setSelectedTime(null);
@@ -831,7 +832,7 @@ function BookingModal({
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-medium transition-colors ${
                       isSelected
                         ? "bg-brand-purple text-white shadow-[0_6px_14px_-6px_rgba(124,113,176,0.7)]"
-                        : isPast
+                        : isPast || !inAvail
                           ? "text-slate-300"
                           : "text-slate-700 hover:bg-[#F3F0FF]"
                     }`}
