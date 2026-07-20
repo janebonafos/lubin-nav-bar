@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { template as bookingConfirmation } from "./booking-confirmation";
+import { template as bookingConfirmationClient } from "./booking-confirmation-client";
 
 export type TemplateEntry = {
   component: ComponentType<any>;
