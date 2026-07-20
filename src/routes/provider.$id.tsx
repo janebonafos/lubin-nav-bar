@@ -160,13 +160,14 @@ function ProviderProfilePage() {
     services.map((s) => [s.id, getServiceAvailability(s)]),
   );
   const withSlots = services.filter((s) => availabilityByService.get(s.id)?.hasSlots);
-  const earliest = withSlots
-    .map((s) => availabilityByService.get(s.id)!)
-    .sort((a, b) => (a.nextDate!.getTime() - b.nextDate!.getTime()))[0];
-  const heroNextLabel = earliest
-    ? `Some services available from ${formatNextAvailable(earliest.nextDate!, earliest.times[0])}`
+  const earliestPair = withSlots
+    .map((s) => ({ service: s, avail: availabilityByService.get(s.id)! }))
+    .sort((a, b) => a.avail.nextDate!.getTime() - b.avail.nextDate!.getTime())[0];
+  const heroNextLabel = earliestPair
+    ? formatNextAvailable(earliestPair.avail.nextDate!, earliestPair.avail.times[0])
     : null;
-  const heroBookTarget = withSlots[0] ?? null;
+  const heroNextService = earliestPair?.service ?? null;
+  const heroBookTarget = earliestPair?.service ?? null;
   const [bookingService, setBookingService] = useState<Service | null>(null);
 
   return (
