@@ -2,10 +2,10 @@ import type { ComponentType } from "react";
 
 export type TemplateEntry = {
   component: ComponentType<any>;
-  subject: string | ((data: Record<string, unknown>) => string);
+  subject: string | ((data: any) => string);
   displayName?: string;
-  previewData?: Record<string, unknown>;
-  to?: string | ((data: Record<string, unknown>) => string);
+  previewData?: Record<string, any>;
+  to?: string | ((data: any) => string);
 };
 
 export const TEMPLATES: Record<string, TemplateEntry> = {};
