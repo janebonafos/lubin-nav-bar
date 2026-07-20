@@ -5,8 +5,10 @@ import { TEMPLATES } from "@/lib/email-templates/registry";
 export const Route = createFileRoute("/api/public/email-preview")({
   server: {
     handlers: {
-      GET: async () => {
-        const entry = TEMPLATES["booking-confirmation"];
+      GET: async ({ request }) => {
+        const url = new URL(request.url);
+        const templateName = url.searchParams.get("template") || "booking-confirmation";
+        const entry = TEMPLATES[templateName];
         if (!entry) {
           return new Response("Template not found", { status: 404 });
         }
