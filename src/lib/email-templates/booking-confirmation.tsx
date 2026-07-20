@@ -151,15 +151,7 @@ export default function BookingConfirmationEmail({
                 lineHeight: "1.5",
               }}
             >
-              Great news! Your{" "}
-              <span style={{ color: colors.brandDark, fontWeight: 600 }}>
-                {serviceName}
-              </span>{" "}
-              with{" "}
-              <span style={{ color: colors.brandDark, fontWeight: 600 }}>
-                {providerName}
-              </span>{" "}
-              has been successfully booked.
+              Great news! Your {serviceName} with {providerName} has been successfully booked.
             </Text>
 
             {/* Details */}
@@ -202,7 +194,7 @@ export default function BookingConfirmationEmail({
                     margin: "4px 0 0",
                     color: colors.brandNavy,
                     fontSize: 15,
-                    fontWeight: 600,
+                    fontWeight: 500,
                   }}
                 >
                   {serviceName}
@@ -225,9 +217,9 @@ export default function BookingConfirmationEmail({
                 <Text
                   style={{
                     margin: "4px 0 0",
-                    color: colors.brandPurple,
-                    fontSize: 16,
-                    fontWeight: 700,
+                    color: colors.brandNavy,
+                    fontSize: 15,
+                    fontWeight: 500,
                   }}
                 >
                   {dateTime}
@@ -281,6 +273,7 @@ export default function BookingConfirmationEmail({
                 style={{
                   display: "block",
                   width: "100%",
+                  boxSizing: "border-box",
                   backgroundColor: colors.brandDark,
                   color: colors.white,
                   fontSize: 15,
@@ -302,6 +295,7 @@ export default function BookingConfirmationEmail({
                 style={{
                   display: "block",
                   width: "100%",
+                  boxSizing: "border-box",
                   backgroundColor: colors.white,
                   color: colors.brandDark,
                   fontSize: 15,
