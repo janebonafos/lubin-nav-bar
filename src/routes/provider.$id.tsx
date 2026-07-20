@@ -42,6 +42,61 @@ import {
 
 
 
+type ServiceAvailability = {
+  hasSlots: boolean;
+  nextDate: Date | null;
+  times: string[];
+  availableDates: Set<string>;
+};
+
+const ALL_TIMES = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function ymd(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function getServiceAvailability(service: Service): ServiceAvailability {
+  const h = hashString(service.id);
+  const hasSlots = h % 4 !== 0;
+  if (!hasSlots) {
+    return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
+  }
+  const timeCount = 2 + (h % (ALL_TIMES.length - 1));
+  const times = ALL_TIMES.slice(0, timeCount);
+  const today = new Date();
+  const startOffset = 1 + (h % 5);
+  const dates = new Set<string>();
+  let firstDate: Date | null = null;
+  for (let i = startOffset; i < 45; i++) {
+    if ((hashString(service.id + ":" + i) % 100) < 55) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      dates.add(ymd(d));
+      if (!firstDate) firstDate = d;
+    }
+  }
+  if (!firstDate) {
+    return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
+  }
+  return { hasSlots: true, nextDate: firstDate, times, availableDates: dates };
+}
+
+function formatNextAvailable(d: Date, timeLabel: string): string {
+  const today = new Date();
+  const midToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diffDays = Math.round((d.getTime() - midToday.getTime()) / (1000 * 60 * 60 * 24));
+  let dayLabel: string;
+  if (diffDays === 0) dayLabel = "Today";
+  else if (diffDays === 1) dayLabel = "Tomorrow";
+  else dayLabel = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  return `${dayLabel}, ${timeLabel}`;
+}
+
 export const Route = createFileRoute("/provider/$id")({
   loader: ({ params }) => {
     const provider = getProviderById(params.id);
@@ -101,6 +156,17 @@ export const Route = createFileRoute("/provider/$id")({
 function ProviderProfilePage() {
   const { provider } = Route.useLoaderData();
   const services = getServicesForProvider(provider);
+  const availabilityByService = new Map<string, ServiceAvailability>(
+    services.map((s) => [s.id, getServiceAvailability(s)]),
+  );
+  const withSlots = services.filter((s) => availabilityByService.get(s.id)?.hasSlots);
+  const earliest = withSlots
+    .map((s) => availabilityByService.get(s.id)!)
+    .sort((a, b) => (a.nextDate!.getTime() - b.nextDate!.getTime()))[0];
+  const heroNextLabel = earliest
+    ? `Some services available from ${formatNextAvailable(earliest.nextDate!, earliest.times[0])}`
+    : null;
+  const heroBookTarget = withSlots[0] ?? null;
   const [bookingService, setBookingService] = useState<Service | null>(null);
 
   return (
@@ -157,7 +223,7 @@ function ProviderProfilePage() {
                   </div>
 
                   <div className="w-full space-y-4">
-                    {provider.nextAvailable && (
+                    {heroNextLabel ? (
                       <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-[#F4F0FF]/50 p-4">
                         <div className="relative">
                           <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -165,18 +231,33 @@ function ProviderProfilePage() {
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                            Next Available
+                            Availability
                           </span>
                           <span className="text-sm font-semibold text-[#2C2B4B]">
-                            {provider.nextAvailable}
+                            {heroNextLabel}
+                          </span>
+                          <span className="mt-0.5 text-[11px] text-slate-500">
+                            Check each service for exact times.
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-slate-50 p-4">
+                        <div className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Availability
+                          </span>
+                          <span className="text-sm font-semibold text-slate-700">
+                            No times available right now
                           </span>
                         </div>
                       </div>
                     )}
                     <button
                       type="button"
-                      onClick={() => setBookingService(services[0] ?? null)}
-                      disabled={services.length === 0}
+                      onClick={() => setBookingService(heroBookTarget)}
+                      disabled={!heroBookTarget}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-purple py-4 font-bold text-white shadow-lg shadow-[#A89BD0]/30 transition-all hover:-translate-y-0.5 hover:bg-brand-purple-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Calendar className="h-5 w-5" />
@@ -382,7 +463,12 @@ function ProviderProfilePage() {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {services.map((s) => (
-              <ServiceCard key={s.id} service={s} onBook={() => setBookingService(s)} />
+              <ServiceCard
+                key={s.id}
+                service={s}
+                availability={availabilityByService.get(s.id)!}
+                onBook={() => setBookingService(s)}
+              />
             ))}
           </div>
         </section>
@@ -392,16 +478,29 @@ function ProviderProfilePage() {
         <BookingModal
           provider={provider}
           service={bookingService}
+          availability={availabilityByService.get(bookingService.id)!}
           onClose={() => setBookingService(null)}
+          onChooseAnother={() => setBookingService(null)}
         />
       )}
     </div>
   );
 }
 
-function ServiceCard({ service, onBook }: { service: Service; onBook: () => void }) {
+function ServiceCard({
+  service,
+  availability,
+  onBook,
+}: {
+  service: Service;
+  availability: ServiceAvailability;
+  onBook: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
+  const availLabel = availability.hasSlots && availability.nextDate
+    ? `Next available: ${formatNextAvailable(availability.nextDate, availability.times[0])}`
+    : "No times available";
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
       {/* Gradient header band */}
@@ -470,6 +569,22 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
           </span>
         </div>
 
+        {/* Service-specific availability */}
+        <div
+          className={`mt-3 inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ring-inset ${
+            availability.hasSlots
+              ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+              : "bg-slate-50 text-slate-500 ring-slate-200"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              availability.hasSlots ? "bg-emerald-500" : "bg-slate-300"
+            }`}
+          />
+          {availLabel}
+        </div>
+
         {/* Price + CTA */}
         <div className="mt-5 grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
           <div className="flex flex-col gap-0.5">
@@ -498,11 +613,15 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: () => void
 function BookingModal({
   provider,
   service,
+  availability,
   onClose,
+  onChooseAnother,
 }: {
   provider: Provider;
   service: Service;
+  availability: ServiceAvailability;
   onClose: () => void;
+  onChooseAnother: () => void;
 }) {
   const today = new Date();
   const [monthOffset, setMonthOffset] = useState(0);
@@ -525,7 +644,7 @@ function BookingModal({
     ),
   ];
   const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const times = ["9:00 AM", "10:30 AM", "1:00 PM", "2:30 PM", "4:00 PM", "5:30 PM"];
+  const times = availability.times;
   const canConfirm = selectedDate && selectedTime;
 
   const goToCheckout = () => {
@@ -575,6 +694,29 @@ function BookingModal({
         </div>
 
         <div className="max-h-[60vh] space-y-5 overflow-y-auto px-6 py-5">
+          {!availability.hasSlots && (
+            <div className="rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF] p-6 text-center">
+              <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                <CalendarDays className="h-5 w-5 text-slate-400" />
+              </div>
+              <h4 className="text-[15px] font-semibold text-slate-900">
+                No available times for this service right now.
+              </h4>
+              <p className="mt-1.5 text-[12.5px] text-slate-500">
+                Try another service — some of {provider.name.split(" ")[0]}'s sessions may have open slots.
+              </p>
+              <button
+                type="button"
+                onClick={onChooseAnother}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-brand-purple/30 bg-white px-4 py-2 text-[12.5px] font-semibold text-brand-purple hover:bg-[#F3F0FF]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Choose another service
+              </button>
+            </div>
+          )}
+          {availability.hasSlots && (
+          <>
           {(service.format === "Group" || service.format === "Both") &&
             service.minParticipants != null && (
               <div className="rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-4">
@@ -675,13 +817,14 @@ function BookingModal({
               {cells.map((d, i) => {
                 if (!d) return <div key={i} />;
                 const isPast = d < todayMid;
+                const inAvail = availability.availableDates.has(ymd(d));
                 const isSelected =
                   selectedDate && d.toDateString() === selectedDate.toDateString();
                 return (
                   <button
                     key={i}
                     type="button"
-                    disabled={isPast}
+                    disabled={isPast || !inAvail}
                     onClick={() => {
                       setSelectedDate(d);
                       setSelectedTime(null);
@@ -689,7 +832,7 @@ function BookingModal({
                     className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-medium transition-colors ${
                       isSelected
                         ? "bg-brand-purple text-white shadow-[0_6px_14px_-6px_rgba(124,113,176,0.7)]"
-                        : isPast
+                        : isPast || !inAvail
                           ? "text-slate-300"
                           : "text-slate-700 hover:bg-[#F3F0FF]"
                     }`}
@@ -750,6 +893,8 @@ function BookingModal({
                 For your provider's privacy, the exact clinic address is shared by email once your booking is confirmed.
               </p>
             </div>
+          )}
+          </>
           )}
         </div>
 
