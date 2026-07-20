@@ -12,4 +12,5 @@ export type TemplateEntry = {
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   "booking-confirmation": bookingConfirmation,
+  "booking-confirmation-client": bookingConfirmationClient,
 };
