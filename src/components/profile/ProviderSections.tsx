@@ -1176,6 +1176,11 @@ export function CalendarAvailabilitySection() {
             <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#A89BD0]">Sessions</span>
           </div>
 
+          <div className="mb-4 flex items-start gap-2 rounded-xl bg-[#F7F2FE] px-3 py-2 text-[12px] text-[#7E6BAF]">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Services with no availability are hidden from your clients until you add a schedule.</span>
+          </div>
+
           <div className="space-y-6">
             {services.map((s) => {
               const mode = serviceMode[s.id] ?? "weekly";
