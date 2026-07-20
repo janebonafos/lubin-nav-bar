@@ -160,13 +160,14 @@ function ProviderProfilePage() {
     services.map((s) => [s.id, getServiceAvailability(s)]),
   );
   const withSlots = services.filter((s) => availabilityByService.get(s.id)?.hasSlots);
-  const earliest = withSlots
-    .map((s) => availabilityByService.get(s.id)!)
-    .sort((a, b) => (a.nextDate!.getTime() - b.nextDate!.getTime()))[0];
-  const heroNextLabel = earliest
-    ? `Some services available from ${formatNextAvailable(earliest.nextDate!, earliest.times[0])}`
+  const earliestPair = withSlots
+    .map((s) => ({ service: s, avail: availabilityByService.get(s.id)! }))
+    .sort((a, b) => a.avail.nextDate!.getTime() - b.avail.nextDate!.getTime())[0];
+  const heroNextLabel = earliestPair
+    ? formatNextAvailable(earliestPair.avail.nextDate!, earliestPair.avail.times[0])
     : null;
-  const heroBookTarget = withSlots[0] ?? null;
+  const heroNextService = earliestPair?.service ?? null;
+  const heroBookTarget = earliestPair?.service ?? null;
   const [bookingService, setBookingService] = useState<Service | null>(null);
 
   return (
@@ -229,15 +230,20 @@ function ProviderProfilePage() {
                           <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                           <div className="absolute inset-0 h-2.5 w-2.5 animate-ping rounded-full bg-emerald-500 opacity-75" />
                         </div>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col text-left">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                            Availability
+                            Next available
                           </span>
                           <span className="text-sm font-semibold text-[#2C2B4B]">
                             {heroNextLabel}
                           </span>
-                          <span className="mt-0.5 text-[11px] text-slate-500">
-                            Check each service for exact times.
+                          {heroNextService && (
+                            <span className="mt-0.5 text-[11px] font-medium text-brand-purple">
+                              for {heroNextService.title}
+                            </span>
+                          )}
+                          <span className="mt-1 text-[11px] leading-snug text-slate-500">
+                            Each service may have its own schedule and time slots — check the service card for exact times.
                           </span>
                         </div>
                       </div>
