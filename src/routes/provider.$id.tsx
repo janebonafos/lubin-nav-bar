@@ -893,6 +893,8 @@ function BookingModal({
               </p>
             </div>
           )}
+          </>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#E9E6FA] bg-[#FBFAFF] px-6 py-4">
