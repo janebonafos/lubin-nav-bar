@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { render } from "@react-email/render";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 
-export const Route = createFileRoute("/api/email-preview")({
+export const Route = createFileRoute("/api/public/email-preview")({
   server: {
     handlers: {
       GET: async () => {

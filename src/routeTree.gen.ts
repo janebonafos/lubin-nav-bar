@@ -20,6 +20,7 @@ import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as EmailPreviewRouteImport } from './routes/email-preview'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,8 +33,8 @@ import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
-import { Route as ApiEmailPreviewRouteImport } from './routes/api.email-preview'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -88,6 +89,11 @@ const FindProviderRoute = FindProviderRouteImport.update({
 const FaqsRoute = FaqsRouteImport.update({
   id: '/faqs',
   path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailPreviewRoute = EmailPreviewRouteImport.update({
+  id: '/email-preview',
+  path: '/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -150,14 +156,14 @@ const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   path: '/api/enhance-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEmailPreviewRoute = ApiEmailPreviewRouteImport.update({
-  id: '/api/email-preview',
-  path: '/api/email-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
+  id: '/api/public/email-preview',
+  path: '/api/public/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -177,7 +184,6 @@ export interface FileRoutesByFullPath {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -187,11 +193,13 @@ export interface FileRoutesByFullPath {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -204,7 +212,6 @@ export interface FileRoutesByTo {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -214,12 +221,14 @@ export interface FileRoutesByTo {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
   '/my-health-passport': typeof MyHealthPassportRoute
@@ -232,7 +241,6 @@ export interface FileRoutesById {
   '/self-discovery': typeof SelfDiscoveryRoute
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
-  '/api/email-preview': typeof ApiEmailPreviewRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -261,7 +271,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -271,11 +280,13 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -288,7 +299,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -298,11 +308,13 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
   id:
     | '__root__'
     | '/'
     | '/check-in'
     | '/checkout'
+    | '/email-preview'
     | '/faqs'
     | '/find-provider'
     | '/my-health-passport'
@@ -315,7 +327,6 @@ export interface FileRouteTypes {
     | '/self-discovery'
     | '/terms'
     | '/api/chat'
-    | '/api/email-preview'
     | '/api/enhance-profile'
     | '/appointment/cancel'
     | '/appointment/details'
@@ -325,12 +336,14 @@ export interface FileRouteTypes {
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/email-preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
+  EmailPreviewRoute: typeof EmailPreviewRoute
   FaqsRoute: typeof FaqsRoute
   FindProviderRoute: typeof FindProviderRoute
   MyHealthPassportRoute: typeof MyHealthPassportRoute
@@ -343,7 +356,6 @@ export interface RootRouteChildren {
   SelfDiscoveryRoute: typeof SelfDiscoveryRoute
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
-  ApiEmailPreviewRoute: typeof ApiEmailPreviewRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
@@ -352,6 +364,7 @@ export interface RootRouteChildren {
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
+  ApiPublicEmailPreviewRoute: typeof ApiPublicEmailPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -431,6 +444,13 @@ declare module '@tanstack/react-router' {
       path: '/faqs'
       fullPath: '/faqs'
       preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-preview': {
+      id: '/email-preview'
+      path: '/email-preview'
+      fullPath: '/email-preview'
+      preLoaderRoute: typeof EmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -517,18 +537,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEnhanceProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/email-preview': {
-      id: '/api/email-preview'
-      path: '/api/email-preview'
-      fullPath: '/api/email-preview'
-      preLoaderRoute: typeof ApiEmailPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email-preview': {
+      id: '/api/public/email-preview'
+      path: '/api/public/email-preview'
+      fullPath: '/api/public/email-preview'
+      preLoaderRoute: typeof ApiPublicEmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -549,6 +569,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
+  EmailPreviewRoute: EmailPreviewRoute,
   FaqsRoute: FaqsRoute,
   FindProviderRoute: FindProviderRoute,
   MyHealthPassportRoute: MyHealthPassportRoute,
@@ -561,7 +582,6 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoveryRoute: SelfDiscoveryRoute,
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
-  ApiEmailPreviewRoute: ApiEmailPreviewRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
@@ -570,6 +590,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
+  ApiPublicEmailPreviewRoute: ApiPublicEmailPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
