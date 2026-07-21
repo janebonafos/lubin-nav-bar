@@ -42,6 +42,14 @@ export function MoodPatternsSection({ summary }: { summary: SummaryData }) {
         <Stat label="Direction" value={summary.directionLabel} trend={summary.directionLabel} />
       </div>
 
+      <div className="mt-3 rounded-xl bg-[#FAF8FD] p-3 ring-1 ring-[#ECE7F6]">
+        <p className="text-[11px] text-[#5A4A8A]">
+          <span className="font-semibold text-[#3D2E6B]">{summary.checkinsInRange.length}</span>{" "}
+          check-in{summary.checkinsInRange.length === 1 ? "" : "s"} logged across{" "}
+          {summary.rangeLabel.toLowerCase()}.
+        </p>
+      </div>
+
       {series.length > 0 && (
         <div className="mt-4 rounded-xl bg-gradient-to-br from-[#FAF8FD] to-white p-4 ring-1 ring-[#ECE7F6]">
           <div className="flex items-end justify-between gap-1.5">
@@ -256,11 +264,8 @@ export function renderIncluded(summary: SummaryData, includedKeys: string[]) {
   const has = (k: string) => includedKeys.includes(k);
   return (
     <div className="space-y-4">
-      {has("narrative") && <NarrativeSection summary={summary} />}
       {has("mood") && <MoodPatternsSection summary={summary} />}
-      {has("topics") && <KeyTopicsSection summary={summary} />}
       {has("assessments") && <AssessmentsSection summary={summary} />}
-      {has("checkinCount") && <CheckinCountSection summary={summary} />}
     </div>
   );
 }

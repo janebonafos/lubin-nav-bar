@@ -25,7 +25,7 @@ export const Route = createFileRoute("/share/preview")({
 function PreviewPage() {
   const { recipient } = Route.useSearch();
   const summary = mockSummary();
-  const includedKeys = ["narrative", "mood", "topics", "assessments", "checkinCount"];
+  const includedKeys = ["mood", "assessments"];
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FAF8FD] to-white">
       {recipient === "trusted" ? (
