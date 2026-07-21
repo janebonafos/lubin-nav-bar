@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CalendarCheck, Eye, Lock, RefreshCw, ShieldOff, Sparkles } from "lucide-react";
+import { CalendarCheck, Eye, Lock, RefreshCw, ShieldOff } from "lucide-react";
 import {
   getProviderGrant,
   revokeProviderGrant,
@@ -48,8 +48,7 @@ export default function BookedProviderShareCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-            <Sparkles className="h-3 w-3" />
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
             Share with your booked provider
           </p>
           <h3 className="mt-2 text-lg font-bold text-[#2D245A]">
