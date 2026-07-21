@@ -328,6 +328,9 @@ function PassportPage() {
               isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
               onRequestSignup={() => openAuth("signup")}
               onStartCheckin={() => setTab("overview")}
+              upcomingAppointments={upcomingAppointments}
+              autoOpenAppointmentId={autoOpenAppointmentId}
+              onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
             />
           )}
         </div>
