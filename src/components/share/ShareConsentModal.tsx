@@ -936,31 +936,46 @@ function Step3({
       {
         title: "Assessment results",
         keys: ["assessments"],
-        body:
-          sharedAttempts.length > 0 ? (
-            <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
-              {sharedAttempts.slice(0, 5).map((a) => (
-                <li key={a.id} className="flex justify-between gap-3">
-                  <span className="truncate">– {a.assessmentName}</span>
-                  <span className="flex-none text-[11px] text-[#8B85A6]">
-                    {new Date(a.takenAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </li>
+        body: (() => {
+          // Group selected attempts by assessment and show date/score/severity
+          // for every selected attempt.
+          const byName = new Map<string, typeof sharedAttempts>();
+          for (const a of sharedAttempts) {
+            const list = byName.get(a.assessmentName) ?? [];
+            list.push(a);
+            byName.set(a.assessmentName, list);
+          }
+          return (
+            <div className="space-y-3 text-[12px] text-[#3D2E6B]">
+              {[...byName.entries()].map(([name, list]) => (
+                <div key={name}>
+                  <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                    {name}
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {list.map((a) => (
+                      <li
+                        key={a.id}
+                        className="flex justify-between gap-3 text-[11px] text-[#5A4A8A]"
+                      >
+                        <span className="truncate">
+                          {new Date(a.takenAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          {typeof a.score === "number"
+                            ? ` · Score ${a.score}`
+                            : ""}
+                          {a.severityLabel ? ` · ${a.severityLabel}` : ""}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-              {sharedAttempts.length > 5 && (
-                <li className="text-[11px] italic text-[#8B85A6]">
-                  + {sharedAttempts.length - 5} more
-                </li>
-              )}
-            </ul>
-          ) : (
-            <p className="text-[12px] italic text-[#8B85A6]">
-              None selected — no assessment results will be shared.
-            </p>
-          ),
+            </div>
+          );
+        })(),
       },
       {
         title: "Previous patient-facing appointment summaries",
