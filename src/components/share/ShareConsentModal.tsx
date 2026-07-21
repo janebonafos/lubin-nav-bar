@@ -615,7 +615,7 @@ function Step1({
           Always stays private
         </p>
         <ul className="mt-2 space-y-1.5 text-sm text-[#5A4A8A]">
-          <li>• Chat conversations</li>
+          <li>• Full Lubin chat transcripts</li>
           <li>• Your private notes</li>
           <li>• Anything you haven't shared</li>
         </ul>
