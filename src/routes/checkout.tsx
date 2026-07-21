@@ -316,6 +316,69 @@ function CheckoutPage() {
               </div>
             </div>
 
+            {/* Health Passport sharing — compact option inside the checkout form */}
+            <div className="mt-4 rounded-xl border border-[#E9E6FA] bg-white p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[13px] font-semibold text-slate-900">
+                    Share from your Health Passport
+                  </h3>
+                  {pending && pending.includedKeys.length > 0 ? (
+                    <>
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-emerald-700">
+                        <CheckCircle2 className="h-3.5 w-3.5 flex-none" />
+                        Health Passport sharing added
+                      </div>
+                      <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                        {pending.includedKeys.length} item
+                        {pending.includedKeys.length === 1 ? "" : "s"} will be shared with{" "}
+                        {provider.name.split(",")[0]} after your booking is confirmed.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                        If you'd like, choose what {provider.name.split(",")[0]} can see for this
+                        appointment.
+                      </p>
+                      <p className="mt-1 text-[11.5px] text-slate-400">
+                        Nothing is shared unless you confirm.
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="flex flex-none items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShareModalOpen(true)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#E1DAF1] bg-white px-3 py-2 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+                  >
+                    {pending && pending.includedKeys.length > 0 ? (
+                      <>
+                        <Pencil className="h-3.5 w-3.5" /> Review or change
+                      </>
+                    ) : (
+                      <>
+                        Choose <ChevronRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                  {pending && pending.includedKeys.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearPendingShare(bookingKey);
+                        setPending(null);
+                      }}
+                      className="text-[11.5px] font-medium text-slate-400 underline underline-offset-2 transition hover:text-slate-600"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
