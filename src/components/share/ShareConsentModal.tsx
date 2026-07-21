@@ -324,8 +324,10 @@ function Step0Choice({
         Share your Health Passport?
       </h2>
       <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        Your Health Passport can give <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong>{" "}
-        more context for this appointment. Review what’s included before deciding.
+        Lubin will create a short summary for{" "}
+        <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong> using the
+        information you choose to share. The provider can open the supporting
+        information when needed.
       </p>
       <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
         <Lock className="h-3 w-3" />
@@ -724,6 +726,16 @@ function Step3({
           </p>
         ),
       },
+      {
+        title: "Information from Lubin conversations",
+        keys: ["conversations"],
+        body: (
+          <p className="text-[12px] text-[#5A4A8A]">
+            A summary of themes and reflections from your Lubin chats. Full
+            transcripts are never shared.
+          </p>
+        ),
+      },
     ];
     const visibleSections = sectionMap.filter((s) =>
       s.keys.length === 0
@@ -761,10 +773,38 @@ function Step3({
             <dd className="text-right font-semibold">{summary.rangeLabel}</dd>
           </div>
           <div className="flex justify-between gap-4">
+            <dt className="text-[#6B6684]">Assessments included</dt>
+            <dd className="text-right font-semibold">
+              {includedKeys.includes("assessments")
+                ? `${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
+                : "Not included"}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#6B6684]">Lubin conversations</dt>
+            <dd className="text-right font-semibold">
+              {includedKeys.includes("conversations")
+                ? "Summary included (transcripts never shared)"
+                : "Not included"}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Access expires</dt>
             <dd className="text-right font-semibold">7 days after your appointment</dd>
           </div>
         </dl>
+
+        <div className="mt-4 rounded-2xl border border-[#E4DAF4] bg-gradient-to-br from-[#F7F1FB] to-[#FAF8FD] p-4">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+            What Dr. {providerContext.providerName.replace(/^Dr\.?\s*/i, "")} will see first
+          </p>
+          <p className="mt-1.5 text-[12px] text-[#3D2E6B]">
+            Lubin will generate a short <strong>AI Provider Brief</strong> from the
+            information above so the provider can quickly understand what has
+            been happening — without reading your full chats or every data
+            point. Supporting information is one tap away when they need it.
+          </p>
+        </div>
 
         <div className="mt-4 space-y-3">
           {visibleSections.length === 0 ? (
