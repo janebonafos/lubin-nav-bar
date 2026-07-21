@@ -422,6 +422,10 @@ function Step1({
   assessmentContext,
   providerContext,
   summary,
+  selectedAttemptIds,
+  toggleAttempt,
+  selectAllAttempts,
+  deselectAllAttempts,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -432,6 +436,10 @@ function Step1({
   assessmentContext?: AssessmentContext;
   providerContext?: ProviderContext;
   summary: SummaryData;
+  selectedAttemptIds: string[];
+  toggleAttempt: (id: string) => void;
+  selectAllAttempts: () => void;
+  deselectAllAttempts: () => void;
 }) {
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
