@@ -9,7 +9,6 @@ import {
   ArrowRight,
   CalendarPlus,
   ArrowLeft,
-  Shield,
   Share2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
