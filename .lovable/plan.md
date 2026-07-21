@@ -1,116 +1,92 @@
-# Share My Summary — Implementation Plan
+## Overview
 
-A multi-part feature: a new "Share" tab in My Health Passport, a 3-step consent modal, a share-options modal (PDF / link / email) with passcode sub-flow, a localStorage share persistence layer, and public recipient pages at `/share/$token` (plus a `/share/preview` route for design QA).
+Two connected changes:
+1. **Client sharing flow** — redesign the Health Passport consent modal to offer three choices with a "share everything" default option, plus a stricter review + confirmation gate.
+2. **Provider post-appointment workspace** — add a structured 6-section workflow inside the existing provider appointment details.
 
-## 1. Share persistence layer
+No dashboard redesigns. Reuse existing components, store, and snapshot logic where possible.
 
-New file: `src/lib/share/shareStore.ts`
+---
 
-- Types: `RecipientId = "therapist" | "psychiatrist" | "counselor" | "doctor" | "other-mhp" | "trusted"`
-- `SharePayload` exactly as spec'd (token, pin, recipient, includedKeys, createdAt, expiresAt, revoked?).
-- `createShare(input)` — 10-char URL-safe token from alphabet `abcdefghijkmnpqrstuvwxyz23456789`, sets `expiresAt = createdAt + 30 days`.
-- `getShare(token)` — returns payload or null; null when revoked or expired.
-- `buildShareUrl(token)` — `${window.location.origin}/share/${token}`.
-- Saved PIN helpers in `src/lib/share/savedPin.ts`: `getSavedPin / setSavedPin / clearSavedPin`, validating `^\d{4}$`. Key: `lubin.savedPin.v1`. Shares key: `lubin.shares.v1`. All reads/writes wrapped in try/catch.
+## Part 1 — Sharing modal rewrite
 
-## 2. Share summary data assembly
+**File:** `src/components/share/ShareConsentModal.tsx` (major rework)
 
-New file: `src/lib/share/summary.ts`
+New step flow:
 
-- `buildSummary(range: "latest" | "30d" | "90d")` reads existing localStorage:
-  - mood check-ins (existing CheckIn store in `my-health-passport.tsx`)
-  - completed pattern attempts via `loadAttempts()`
-- Returns: date span string, plain-language insight (rule-based on mood trend + recent topics), mood/stress/direction chips, theme tag counts, support stats (resources count from existing store if available, check-in count, appointments count if tracked — fall back to 0).
-- Pure functions, SSR-safe (guard `window`).
+```text
+Step 1: Choice   → Step 2: Selection (only if "Choose what to share")   → Step 3: Review + Confirm
+```
 
-## 3. Share tab in Passport
+**Step 1 — Choice screen**
+- Heading: "Share your Health Passport?"
+- Subcopy referencing the provider name.
+- Three radio-style option cards:
+  1. Share my current Health Passport (preselected, but not consent)
+  2. Choose what to share
+  3. Don't share (closes modal, clears any pending share)
+- Continue button advances to Step 2 (if custom) or Step 3 (if share-all).
 
-Edit `src/routes/my-health-passport.tsx`:
+**Step 2 — Selection (custom path only)**
+- Reuse existing category checkboxes and nested assessment list from current modal.
+- Add lightweight date-range control per category ("Last 30 days" / "Last 90 days" / "All time") where meaningful (check-ins, assessments). Store on the pending share.
 
-- Add third tab `"Share"` alongside Today / Patterns.
-- New component `ShareTabView` rendering:
-  - Header + subcopy as spec'd.
-  - Empty state when no attempts and no check-ins (or guest): blurred ghost card + "Start your first check-in →" CTA to `/check-in`.
-  - Pill toggle for range (Latest / 30d default / 90d) + 📅 date span line.
-  - Document-style preview card: lavender gradient header band with user name + range, "How you've been feeling" gradient panel, supporting chips (Mood / Stress / Direction), "What's been coming up most" theme tags with counts, "Support & care" stats list, footer with range + 🔒 User-owned chip.
-  - Lavender review banner (👁 Review this summary before sharing…).
-  - Action buttons: "Download Summary" (white) and "Share with a provider" (purple gradient).
-  - Footnote line.
-- Guest gate: if no user (existing auth check in passport), Download and Share open the existing AuthModal in signup mode with the spec'd headline.
+**Step 3 — Review**
+- Heading: "Review what Dr. [Name] will see"
+- Grouped sections (only those included):
+  - Recent check-ins
+  - Assessment results (nested list preserved)
+  - Patterns and observations
+  - Previous patient-facing appointment summaries
+  - Medication information
+- Metadata row: Recipient · Appointment · Access expires (7 days after appointment) · Date range.
+- "Remove" affordance per section (unchecks from the pending set).
+- "Include future Health Passport updates" toggle — OFF by default.
+- Required unchecked confirmation checkbox with exact copy from spec.
+- Primary button "Confirm and share" — disabled until checkbox is checked.
+- Secondary "Don't share" link.
 
-User name: pull from existing auth/profile if accessible in this file; fallback "You".
+**Downstream wiring**
+- `checkout.tsx` and `ClientAppointmentsSection.tsx` continue to open the modal — no API changes needed beyond passing provider name (already passed).
+- `providerShareStore.ts` already supports `futureUpdates` and snapshots; no schema change.
 
-## 4. 3-step consent modal
+---
 
-New component: `src/components/share/ShareConsentModal.tsx`
+## Part 2 — Provider appointment workspace
 
-- Centered modal desktop, full-sheet mobile (`md:` breakpoint).
-- Top progress bar `Step X of 3`. ESC closes (key listener + backdrop click).
-- Step 1 — Included checklist (5 items pre-checked, Select all / Deselect all, disabled rows with "Nothing to share yet." when data missing, warning when empty). Read-only "Always stays private" card. Assessment-context variant: optional `assessmentContext?: { id, label }` prop — when present only "Assessment results" is pre-checked and relabelled.
-- Step 2 — Radio recipient list (6 options w/ emoji + description). "Someone I trust" gets the subtext line.
-- Step 3 — Consent body + Confirm button.
-- Calls `onConfirm({ includedKeys, recipient })` which opens the Share Options modal.
+**File:** `src/components/profile/ProviderSections.tsx` (extend `ApptNotesBlock` area) and/or `src/routes/appointment.details.tsx`.
 
-## 5. Share options modal
+Add a new component `ProviderAppointmentWorkspace` rendered inside the existing appointment details page under the current key-facts card. Six collapsible sections in order:
 
-New component: `src/components/share/ShareOptionsModal.tsx`
+1. **Shared Health Passport** — reads `getAnyProviderGrant(appointmentId)`; renders the immutable snapshot. Shows "Shared by the patient for this appointment." Empty state when no grant / revoked / expired.
+2. **Assessments** — table with columns: assessment name, clinical name, date, score, severity (reuse `getAssessmentStatus`), delta vs previous. Row checkbox: "Include in visit summary".
+3. **Session notes** — structured textareas (presenting concerns, observations, impression, interventions, plan, follow-up). Persist to localStorage keyed by appointment id. Prominent "Private clinical notes — not shared with the patient through this summary." banner.
+4. **AI-assisted summary** — "Generate draft summary" button calls Lovable AI Gateway via a new server function `generateVisitSummary` in `src/lib/visit-summary.functions.ts`. Input: shared snapshot subset + selected assessments + notes. Output: editable draft object with the fields listed in the spec. Label "AI-generated draft — provider review required". Never auto-publishes.
+5. **Medication plan** — list editor: name, dose, form, frequency, instructions, status (continued/changed/stopped), patient-facing instructions, optional prescription upload. Prescription controls gated behind a `canPrescribe` flag (stub true for now, comment for future role check).
+6. **Publish** — patient-facing preview built from selected assessments + AI draft + medication (public-facing fields only, never notes). Required confirm checkbox. "Approve and share with patient" button writes an entry into a new `publishedSummaries` store keyed by appointment id, with version history array, provider name, approved date. Notifies patient (toast placeholder). Subsequent edits create a new version rather than mutating v1.
 
-- Header: ✅ Consent confirmed chip, back arrow (returns to consent step 3), close.
-- Title + subtitle, three option cards:
-  - **PDF** — calls `prepareSharePdf()` (toast: "Preparing PDF…" then "PDF ready" using existing toast system). Implementation: client-side print to PDF via `window.print()` of a hidden print-only summary template, or simple data-URL download of a basic HTML/PDF placeholder. Keep simple: render summary into a hidden printable div and trigger `window.print()`.
-  - **Link** — sub-flow:
-    1. Passcode choice screen (Add passcode [Recommended] / No passcode w/ warning).
-    2. Set passcode screen — two 4-digit inputs, validation. If saved PIN exists, show "Using your saved passcode •••• [Change]" plus "Or share without passcode" link.
-    3. Result screen — `createShare(...)` returns token, show copyable URL (`buildShareUrl`), copy button with "Link copied" toast, open-in-new-tab, 30-day note.
-  - **Email** — email field (regex), reuse saved PIN if any, on submit create share + open `mailto:` with subject/body per recipient. Clinical body addresses role; trusted body warm. Confirmation screen after.
-- Footnote: "Your provider will only see what you selected in step 1."
+**New files**
+- `src/lib/visit-summary/store.ts` — localStorage helpers for notes, medication, selected assessments, and published-summary versions.
+- `src/lib/visit-summary/visit-summary.functions.ts` — TanStack server fn wrapping Lovable AI Gateway (`google/gemini-3-flash-preview`) with a structured `Output.object` schema.
+- `src/components/profile/provider-workspace/*` — one file per section for readability.
 
-Component split: each option has its own subcomponent file under `src/components/share/` to keep files <300 lines.
+**Patient-side surfacing**
+- `my-health-passport.tsx`: when a published summary exists for an appointment, list it under "What you've explored" (or a new "Visit summaries" block) with label "AI-assisted summary, reviewed by Dr. [Name]". Reads from the new store.
 
-## 6. Recipient pages
-
-New route files:
-
-- `src/routes/share.$token.tsx` — resolves token via `getShare`. If null/expired/revoked → friendly "Link expired or revoked" view. If `pin` set, render PIN entry gate (4 inputs, matches stored pin). Once unlocked, render the appropriate report based on `recipient`:
-  - `trusted` → `<TrustedContactReport />`
-  - all others → `<TherapistReport />` (passing recipient label)
-  - Only render sections matching `includedKeys`.
-- `src/routes/share.preview.tsx` — reads `?recipient=` search param via zod validator, renders the matching report with mock data so no token needed.
-
-New components in `src/components/share/reports/`:
-- `TrustedContactReport.tsx` — warm, plain-language.
-- `TherapistReport.tsx` — clinical/structured layout, recipient-aware heading.
-- `ReportSections.tsx` — shared section primitives (Mood patterns, Key topics, Assessment results, Check-in count, General feeling summary, plus the "Always private" notice in the footer for clarity).
-
-## 7. Design tokens
-
-Add (or confirm) in `src/styles.css` the spec'd colors as CSS variables under `:root` (oklch where possible, hex fallback comments):
-
-- `--share-primary: #7E6BAF`
-- `--share-primary-hover: #6A5A98`
-- `--share-text-deep: #3D2E6B`
-- `--share-text-muted: #5A4A8A`
-- `--share-surface-1: #FAF8FD` / `-2: #F4F0FB` / `-3: #ECE7F6` / `-4: #EDE9FE`
-- `--share-accent-green-bg: #DCFCE7` / `-fg: #166534`
-- `--share-warning: #B45309`
-
-Buttons use pill rounded-full, gradient header bands, soft purple shadows `0 30px 80px -20px rgba(126,107,175,0.45)`.
-
-## 8. Out of scope (this pass)
-
-- No backend persistence — share payloads live in localStorage per device. Recipient pages will only work on the same device unless we later add a Cloud-backed share table. Spec did not request backend; we'll note this in the result screen so users understand the link is device-local.
-- No real PDF generation library — using `window.print()` of a styled hidden template. We can swap for `pdf-lib` later if requested.
-- No real email send — uses `mailto:` per spec.
+---
 
 ## Technical notes
 
-- All localStorage helpers SSR-guarded (`typeof window === "undefined"`).
-- Toasts via existing `sonner` setup (`src/components/ui/sonner.tsx`).
-- Keep files modular (one component per file) to avoid the 2294-line passport file growing further; the Share tab body lives in `src/components/share/ShareTabView.tsx` and is imported by `my-health-passport.tsx`.
-- All new routes added as files under `src/routes/`; `routeTree.gen.ts` regenerates automatically.
+- All persistence stays in localStorage for now — matches existing sharing/appointment stores.
+- AI call goes through `LOVABLE_API_KEY` via existing gateway helper (`src/lib/ai-gateway.server.ts` if present, otherwise create it per the connecting-to-ai-models-tanstack pattern).
+- Reuse `SummaryData` snapshot type for the shared Health Passport view.
+- Provider-change auto-revoke already exists (`revokeForProviderChange`); no new work.
 
-## Open questions
+---
 
-1. **PDF**: OK to use browser print-to-PDF for v1, or do you want a real generated PDF (would add `pdf-lib`)?
-2. **Cross-device share links**: should the recipient be able to open a link from any browser? If yes, this needs Lovable Cloud (DB table for shares) — happy to wire that up, but it's beyond what you spec'd.
-3. **"Resources accessed" and "Appointments booked" stats**: do these data sources exist in the app yet, or should they render as `0` placeholders for now?
+## Out of scope
+
+- Real backend/RLS (kept as localStorage per existing pattern).
+- Real prescription signing / e-Rx integration.
+- Real transcript/recording pipeline (AI input limited to snapshot + notes + selected assessments).
+- Provider role/permission system (single `canPrescribe` flag stubbed).
