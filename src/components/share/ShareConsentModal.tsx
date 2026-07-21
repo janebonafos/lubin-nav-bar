@@ -678,6 +678,7 @@ function Step3({
   futureUpdates,
   onFutureUpdatesChange,
   onRemoveIncluded,
+  selectedAttemptIds,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
@@ -687,6 +688,7 @@ function Step3({
   futureUpdates?: boolean;
   onFutureUpdatesChange?: (v: boolean) => void;
   onRemoveIncluded?: (key: string) => void;
+  selectedAttemptIds?: string[];
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   if (providerContext) {
