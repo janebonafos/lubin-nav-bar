@@ -851,7 +851,7 @@ function Step3({
             <dt className="text-[#6B6684]">Assessments included</dt>
             <dd className="text-right font-semibold">
               {includedKeys.includes("assessments")
-                ? `${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
+                ? `${sharedAttempts.length} of ${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
                 : "Not included"}
             </dd>
           </div>
