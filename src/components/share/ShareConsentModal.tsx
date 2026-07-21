@@ -173,7 +173,7 @@ export default function ShareConsentModal({
       if (step === 0) {
         // Choice step
         if (choice === "none") {
-          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp", futureUpdates: false });
+          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp" });
           return;
         }
         if (choice === "all") {
@@ -193,7 +193,6 @@ export default function ShareConsentModal({
         onConfirm({
           includedKeys: included,
           recipient,
-          futureUpdates,
           attemptIds: included.includes("assessments")
             ? selectedAttemptIds
             : undefined,
