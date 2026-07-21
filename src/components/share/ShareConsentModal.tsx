@@ -637,6 +637,201 @@ function Step2({
   recipient: RecipientId | null;
   setRecipient: (id: RecipientId) => void;
 }) {
+  return renderStep2(recipient, setRecipient);
+}
+
+function AssessmentGroupRow({
+  group,
+  selectedIds,
+  toggleAttempt,
+}: {
+  group: AssessmentGroup;
+  selectedIds: string[];
+  toggleAttempt: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(group.attempts.length > 1 ? false : true);
+  const single = group.attempts.length === 1;
+  const selectedInGroup = group.attempts.filter((a) => selectedIds.includes(a.id)).length;
+  const allOn = selectedInGroup === group.attempts.length;
+  const someOn = selectedInGroup > 0 && !allOn;
+  const chip = trendChip(group);
+  const chipTone =
+    chip.tone === "improving"
+      ? "bg-emerald-50 text-emerald-700"
+      : chip.tone === "worsening"
+        ? "bg-[#F4ECFB] text-[#5A3E8F]"
+        : "bg-[#F0EEF6] text-[#6B6684]";
+
+  const toggleGroup = () => {
+    if (allOn) {
+      // deselect every attempt in this group
+      group.attempts.forEach((a) => {
+        if (selectedIds.includes(a.id)) toggleAttempt(a.id);
+      });
+    } else {
+      group.attempts.forEach((a) => {
+        if (!selectedIds.includes(a.id)) toggleAttempt(a.id);
+      });
+    }
+  };
+
+  // Single-attempt: keep the current compact single-row treatment.
+  if (single) {
+    const a = group.attempts[0]!;
+    const isSel = selectedIds.includes(a.id);
+    return (
+      <li>
+        <label
+          className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-2 transition ${
+            isSel
+              ? "border-[#7E6BAF]/40 bg-[#FAF8FD]"
+              : "border-transparent hover:bg-[#FAF8FD]"
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={isSel}
+            onChange={() => toggleAttempt(a.id)}
+            className="sr-only"
+          />
+          <span
+            className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+              isSel
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                : "border-[#D6CCEC] bg-white text-transparent"
+            }`}
+          >
+            <Check className="h-2.5 w-2.5" strokeWidth={3} />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#3D2E6B]">
+            {group.friendlyName}{" "}
+            <span className="text-[10px] text-[#8B85A6]">({group.clinicalName})</span>
+          </span>
+          <span className="flex-none text-[11px] text-[#8B85A6]">
+            {formatShortDate(a.takenAt)}
+          </span>
+        </label>
+      </li>
+    );
+  }
+
+  return (
+    <li className="rounded-lg border border-[#ECE7F6] bg-white">
+      <div className="flex items-center gap-2 px-2.5 py-2">
+        <button
+          type="button"
+          onClick={toggleGroup}
+          aria-label={allOn ? "Deselect all in group" : "Select all in group"}
+          className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+            allOn
+              ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+              : someOn
+                ? "border-[#7E6BAF] bg-white text-[#7E6BAF]"
+                : "border-[#D6CCEC] bg-white text-transparent"
+          }`}
+        >
+          {allOn ? (
+            <Check className="h-2.5 w-2.5" strokeWidth={3} />
+          ) : someOn ? (
+            <span className="h-[2px] w-2 rounded-full bg-[#7E6BAF]" />
+          ) : null}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[12px] font-semibold text-[#3D2E6B]">
+              {group.friendlyName}{" "}
+              <span className="text-[10px] font-normal text-[#8B85A6]">
+                ({group.clinicalName}) · {group.attempts.length} results
+              </span>
+            </p>
+            <p className="mt-0.5 truncate text-[11px] text-[#6B6684]">
+              Latest:{" "}
+              <span className="font-medium text-[#3D2E6B]">
+                {group.latest.status?.label ?? `Score ${group.latest.score}`}
+              </span>{" "}
+              · {formatShortDate(group.latest.takenAt)}
+            </p>
+          </div>
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${chipTone}`}>
+            {chip.label}
+          </span>
+          {open ? (
+            <ChevronDown className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+          )}
+        </button>
+      </div>
+      {open && (
+        <div className="border-t border-[#ECE7F6] px-2.5 py-2">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-[10px] font-medium text-[#8B85A6]">
+              {selectedInGroup} of {group.attempts.length} selected
+            </span>
+            <button
+              type="button"
+              onClick={toggleGroup}
+              className="text-[10px] font-semibold text-[#7E6BAF] hover:underline"
+            >
+              {allOn ? "Deselect all" : `Select all ${group.attempts.length}`}
+            </button>
+          </div>
+          <ul className="space-y-1">
+            {group.attempts.map((a, idx) => {
+              const isSel = selectedIds.includes(a.id);
+              return (
+                <li key={a.id}>
+                  <label
+                    className={`flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[11px] transition ${
+                      isSel ? "bg-[#FAF8FD]" : "hover:bg-[#FAF8FD]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSel}
+                      onChange={() => toggleAttempt(a.id)}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`flex h-3.5 w-3.5 flex-none items-center justify-center rounded-[5px] border-2 transition ${
+                        isSel
+                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                          : "border-[#D6CCEC] bg-white text-transparent"
+                      }`}
+                    >
+                      <Check className="h-2 w-2" strokeWidth={3} />
+                    </span>
+                    <span className="flex-none font-medium text-[#3D2E6B]">
+                      {formatShortDate(a.takenAt)}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[#5A4A8A]">
+                      · Score {a.score}
+                      {a.status ? ` · ${a.status.label}` : ""}
+                    </span>
+                    {idx === 0 && (
+                      <span className="flex-none rounded-full bg-[#EEE8F8] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                        Latest
+                      </span>
+                    )}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function renderStep2(
+  recipient: RecipientId | null,
+  setRecipient: (id: RecipientId) => void,
+) {
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
