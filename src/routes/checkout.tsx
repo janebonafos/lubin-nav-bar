@@ -13,12 +13,9 @@ import {
   ShieldCheck,
   User as UserIcon,
   Video,
-  Share2,
+  CheckCircle2,
+  ChevronRight,
   Pencil,
-  X as XIcon,
-  Sparkles,
-  Eye,
-  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
