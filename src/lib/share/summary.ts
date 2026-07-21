@@ -260,6 +260,12 @@ export const INCLUDE_OPTIONS: { key: string; label: string; description: string 
     label: "General feeling summary",
     description: "An overall narrative of how you've been",
   },
+  {
+    key: "conversations",
+    label: "Information from Lubin conversations",
+    description:
+      "Themes and reflections from your Lubin chats. Full transcripts are never shared — only a summary.",
+  },
 ];
 
 export const RECIPIENT_OPTIONS: {
