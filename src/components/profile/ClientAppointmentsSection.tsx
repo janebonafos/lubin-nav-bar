@@ -384,19 +384,13 @@ export default function ClientAppointmentsSection() {
                     </div>
 
                     <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                      {a.status === "upcoming" && (
-                        grants[a.id] ? (
-                          <span
-                            title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
-                            className="hidden items-center gap-1 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69] sm:inline-flex"
-                          >
-                            <CheckCircle2 className="h-3 w-3" /> Shared
-                          </span>
-                        ) : (
-                          <span className="hidden items-center gap-1 rounded-full bg-[#F4F0FB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF] sm:inline-flex">
-                            <Lock className="h-3 w-3" /> Not shared
-                          </span>
-                        )
+                      {grants[a.id] && (
+                        <span
+                          title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
+                          className="hidden items-center gap-1 rounded-full bg-[#EEF6F1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69] sm:inline-flex"
+                        >
+                          <ShieldCheck className="h-3 w-3" /> Passport shared
+                        </span>
                       )}
                       <button
                         onClick={() => setExpanded(isExpanded ? null : a.id)}
