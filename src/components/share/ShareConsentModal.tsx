@@ -19,6 +19,8 @@ import {
   formatShortDate,
   type AssessmentGroup,
 } from "@/lib/patterns/grouping";
+import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
 
 export type ConsentResult = {
   includedKeys: string[];
