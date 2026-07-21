@@ -207,17 +207,18 @@ function statusForId(
   switch (id) {
     case "phq-9":
       return band<StatusMapEntry>(score, [
-        { upTo: 4, value: { kind: "concern", label: "Low", tone: TONE.calm, explanation: "Little sign of low mood in the last two weeks." } },
+        { upTo: 4, value: { kind: "concern", label: "Minimal", tone: TONE.calm, explanation: "Little sign of low mood in the last two weeks." } },
         { upTo: 9, value: { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some mild low-mood signs — worth a gentle check-in with yourself." } },
         { upTo: 14, value: { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "Moderate low-mood signs — talking to someone could help." } },
-        { upTo: 27, value: { kind: "concern", label: "High", tone: TONE.heavy, explanation: "Strong low-mood signs — please consider reaching out for support." } },
+        { upTo: 19, value: { kind: "concern", label: "Moderately severe", tone: TONE.warm, explanation: "Moderately severe low-mood signs — reaching out for support is a kind next step." } },
+        { upTo: 27, value: { kind: "concern", label: "Severe", tone: TONE.heavy, explanation: "Severe low-mood signs — please consider reaching out for support soon." } },
       ]);
     case "gad-7":
       return band<StatusMapEntry>(score, [
-        { upTo: 4, value: { kind: "concern", label: "Low", tone: TONE.calm, explanation: "Little sign of worry or unease this week." } },
+        { upTo: 4, value: { kind: "concern", label: "Minimal", tone: TONE.calm, explanation: "Little sign of worry or unease this week." } },
         { upTo: 9, value: { kind: "concern", label: "Mild", tone: TONE.gentle, explanation: "Some mild anxiety signs — steady, but worth noticing." } },
         { upTo: 14, value: { kind: "concern", label: "Moderate", tone: TONE.amber, explanation: "Moderate anxiety signs — practices or a chat with a pro can help." } },
-        { upTo: 21, value: { kind: "concern", label: "High", tone: TONE.heavy, explanation: "Strong anxiety signs — please consider reaching out for support." } },
+        { upTo: 21, value: { kind: "concern", label: "Severe", tone: TONE.heavy, explanation: "Severe anxiety signs — please consider reaching out for support." } },
       ]);
     case "who-5":
       // WHO-5 scaled = raw * 4 (0–100). Higher = better.
