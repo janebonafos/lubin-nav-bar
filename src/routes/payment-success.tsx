@@ -91,13 +91,21 @@ function PaymentSuccessPage() {
     if (effectiveKey) {
       const pending = getPendingShare(effectiveKey);
       if (pending && pending.includedKeys.length > 0 && !getProviderGrant(appointmentId)) {
+        const filteredSummary = pending.attemptIds
+          ? {
+              ...shareSummary,
+              attemptsInRange: shareSummary.attemptsInRange.filter((a) =>
+                pending.attemptIds!.includes(a.id),
+              ),
+            }
+          : shareSummary;
         createProviderGrant({
           appointmentId,
           providerId: pending.providerId,
           providerName: pending.providerName,
           appointmentLabel: pending.appointmentLabel,
           includedKeys: pending.includedKeys,
-          snapshot: shareSummary,
+          snapshot: filteredSummary,
         });
       }
       // Selection has now been either activated or the user chose not to share
