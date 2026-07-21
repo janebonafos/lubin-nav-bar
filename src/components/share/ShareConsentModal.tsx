@@ -968,7 +968,19 @@ function Step3({
                           {typeof a.score === "number"
                             ? ` · Score ${a.score}`
                             : ""}
-                          {a.severityLabel ? ` · ${a.severityLabel}` : ""}
+                          {(() => {
+                            const meta = ASSESSMENTS.find(
+                              (x) => x.id === a.assessmentId,
+                            );
+                            if (!meta) return null;
+                            const st = getAssessmentStatus(
+                              meta.id,
+                              a.score,
+                              meta.maxScore,
+                              meta.lowerIsBetter,
+                            );
+                            return ` · ${st.label}`;
+                          })()}
                         </span>
                       </li>
                     ))}
