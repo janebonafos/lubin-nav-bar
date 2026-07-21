@@ -19,7 +19,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
-import { buildSummary, mockSummary, INCLUDE_OPTIONS } from "@/lib/share/summary";
+import { buildSummary, mockSummary } from "@/lib/share/summary";
 import {
   bookingKeyFor,
   getPendingShare,
