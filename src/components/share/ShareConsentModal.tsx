@@ -457,12 +457,14 @@ function Step1({
 }) {
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
-  const visibleAttempts = showAllAssess ? attempts : attempts.slice(0, 3);
+  const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const selectedCount = attempts.filter((a) =>
     selectedAttemptIds.includes(a.id),
   ).length;
   const allAttemptsSelected =
     attempts.length > 0 && selectedCount === attempts.length;
+  void showAllAssess;
+  void setShowAllAssess;
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
@@ -564,61 +566,19 @@ function Step1({
                       </button>
                     </div>
                     <p className="mt-1 text-[11px] text-[#8B85A6]">
-                      Pick specific results, or share them all.
+                      Grouped by assessment. Expand a group to pick specific
+                      attempts.
                     </p>
-                    <ul className="mt-2 space-y-1">
-                      {visibleAttempts.map((a) => {
-                        const isSel = selectedAttemptIds.includes(a.id);
-                        return (
-                          <li key={a.id}>
-                            <label
-                              className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-2 transition ${
-                                isSel
-                                  ? "border-[#7E6BAF]/40 bg-[#FAF8FD]"
-                                  : "border-transparent hover:bg-[#FAF8FD]"
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSel}
-                                onChange={() => toggleAttempt(a.id)}
-                                className="sr-only"
-                              />
-                              <span
-                                className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
-                                  isSel
-                                    ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                                    : "border-[#D6CCEC] bg-white text-transparent"
-                                }`}
-                              >
-                                <Check
-                                  className="h-2.5 w-2.5"
-                                  strokeWidth={3}
-                                />
-                              </span>
-                              <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#3D2E6B]">
-                                {a.assessmentName}
-                              </span>
-                              <span className="flex-none text-[11px] text-[#8B85A6]">
-                                {new Date(a.takenAt).toLocaleDateString(
-                                  undefined,
-                                  { month: "short", day: "numeric" },
-                                )}
-                              </span>
-                            </label>
-                          </li>
-                        );
-                      })}
+                    <ul className="mt-2 space-y-2">
+                      {groups.map((g) => (
+                        <AssessmentGroupRow
+                          key={g.assessmentId}
+                          group={g}
+                          selectedIds={selectedAttemptIds}
+                          toggleAttempt={toggleAttempt}
+                        />
+                      ))}
                     </ul>
-                    {attempts.length > 3 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowAllAssess((v) => !v)}
-                        className="mt-2 text-[11px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
-                      >
-                        {showAllAssess ? "Show fewer" : `Show all ${attempts.length}`}
-                      </button>
-                    )}
                   </div>
                 )}
               </li>
