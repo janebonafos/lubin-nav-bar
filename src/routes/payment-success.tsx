@@ -479,13 +479,21 @@ function PaymentSuccessPage() {
               }}
               onConfirm={(r) => {
                 if (r.includedKeys.length > 0) {
+                  const filteredSnap = r.attemptIds
+                    ? {
+                        ...shareSummary,
+                        attemptsInRange: shareSummary.attemptsInRange.filter(
+                          (a) => r.attemptIds!.includes(a.id),
+                        ),
+                      }
+                    : shareSummary;
                   createProviderGrant({
                     appointmentId,
                     providerId: provider.id,
                     providerName: provider.name,
                     appointmentLabel: appointmentShortLabel,
                     includedKeys: r.includedKeys,
-                    snapshot: shareSummary,
+                    snapshot: filteredSnap,
                   });
                 }
                 setShareOpen(false);
