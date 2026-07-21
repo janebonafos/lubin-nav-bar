@@ -101,6 +101,7 @@ function CheckoutPage() {
   const [promoError, setPromoError] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [pending, setPending] = useState<PendingShare | null>(null);
+  const [consent, setConsent] = useState(false);
   const [localCheckins, setLocalCheckins] = useState<
     { id: string; mood: number; note: string; date: string }[]
   >([]);
@@ -202,7 +203,7 @@ function CheckoutPage() {
     setPromoError(null);
   };
 
-  const canPay = name.trim().length > 1 && /.+@.+\..+/.test(email);
+  const canPay = name.trim().length > 1 && /.+@.+\..+/.test(email) && consent;
 
   const handlePay = (e: React.FormEvent) => {
     e.preventDefault();
@@ -498,6 +499,46 @@ function CheckoutPage() {
                 )}
               </p>
             </div>
+
+            {/* Consent — required before payment / confirmation */}
+            <label
+              htmlFor="checkout-consent"
+              className={`mt-4 flex cursor-pointer items-start gap-2.5 rounded-xl border p-4 transition ${
+                consent
+                  ? "border-[#D3C8EE] bg-[#F7F4FC]"
+                  : "border-[#E9E6FA] bg-white hover:border-[#D3C8EE]"
+              }`}
+            >
+              <input
+                id="checkout-consent"
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-none rounded border-slate-300 text-brand-purple focus:ring-brand-purple"
+              />
+              <span className="text-[12.5px] leading-relaxed text-slate-700">
+                I agree to Lubin's{" "}
+                <Link to="/terms" className="font-semibold text-brand-purple underline underline-offset-2">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="font-semibold text-brand-purple underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+                {pending && pending.includedKeys.length > 0 ? (
+                  <>
+                    , and I consent to sharing the selected Health Passport information with{" "}
+                    <span className="font-semibold text-slate-900">{provider.name}</span> for this
+                    appointment. I understand nothing else is shared, and I can revoke access anytime.
+                  </>
+                ) : (
+                  <>
+                    . I understand my personal information will only be used to confirm and deliver
+                    this appointment, and nothing from my Health Passport is shared unless I choose to.
+                  </>
+                )}
+              </span>
+            </label>
 
             <button
               type="submit"
