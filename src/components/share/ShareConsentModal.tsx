@@ -543,7 +543,29 @@ function Step3({
             ) : (
               <ul className="mt-2 space-y-1 text-[13px]">
                 {includedLabels.map((o) => (
-                  <li key={o.key}>• {o.label}</li>
+                  <li key={o.key}>
+                    <div>• {o.label}</div>
+                    {o.key === "assessments" && summary.attemptsInRange.length > 0 && (
+                      <ul className="mt-1 ml-4 space-y-0.5 text-[12px] text-[#5A4A8A]">
+                        {summary.attemptsInRange.slice(0, 4).map((a) => (
+                          <li key={a.id} className="flex justify-between gap-3">
+                            <span className="truncate">– {a.assessmentName}</span>
+                            <span className="flex-none text-[11px] text-[#8B85A6]">
+                              {new Date(a.takenAt).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </li>
+                        ))}
+                        {summary.attemptsInRange.length > 4 && (
+                          <li className="text-[11px] italic text-[#8B85A6]">
+                            + {summary.attemptsInRange.length - 4} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </li>
                 ))}
               </ul>
             )}
