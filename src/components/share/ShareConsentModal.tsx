@@ -182,6 +182,7 @@ export default function ShareConsentModal({
               deselectAll={() => setIncluded([])}
               assessmentContext={assessmentContext}
               providerContext={providerContext}
+              summary={summary}
             />
           )}
           {step === 2 && !providerContext && (
@@ -239,6 +240,7 @@ function Step1({
   deselectAll,
   assessmentContext,
   providerContext,
+  summary,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -248,7 +250,11 @@ function Step1({
   deselectAll: () => void;
   assessmentContext?: AssessmentContext;
   providerContext?: ProviderContext;
+  summary: SummaryData;
 }) {
+  const [showAllAssess, setShowAllAssess] = useState(false);
+  const attempts = summary.attemptsInRange;
+  const visibleAttempts = showAllAssess ? attempts : attempts.slice(0, 3);
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
@@ -331,6 +337,38 @@ function Step1({
                     <Check className="h-3.5 w-3.5" strokeWidth={3} />
                   </span>
                 </label>
+                {opt.key === "assessments" && checked && attempts.length > 0 && (
+                  <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                      Results included ({attempts.length})
+                    </p>
+                    <ul className="mt-1.5 space-y-1">
+                      {visibleAttempts.map((a) => (
+                        <li
+                          key={a.id}
+                          className="flex items-baseline justify-between gap-3 text-[12px] text-[#3D2E6B]"
+                        >
+                          <span className="truncate font-medium">{a.assessmentName}</span>
+                          <span className="flex-none text-[11px] text-[#8B85A6]">
+                            {new Date(a.takenAt).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {attempts.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllAssess((v) => !v)}
+                        className="mt-2 text-[11px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+                      >
+                        {showAllAssess ? "Show fewer" : `Show all ${attempts.length}`}
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
@@ -505,7 +543,29 @@ function Step3({
             ) : (
               <ul className="mt-2 space-y-1 text-[13px]">
                 {includedLabels.map((o) => (
-                  <li key={o.key}>• {o.label}</li>
+                  <li key={o.key}>
+                    <div>• {o.label}</div>
+                    {o.key === "assessments" && summary.attemptsInRange.length > 0 && (
+                      <ul className="mt-1 ml-4 space-y-0.5 text-[12px] text-[#5A4A8A]">
+                        {summary.attemptsInRange.slice(0, 4).map((a) => (
+                          <li key={a.id} className="flex justify-between gap-3">
+                            <span className="truncate">– {a.assessmentName}</span>
+                            <span className="flex-none text-[11px] text-[#8B85A6]">
+                              {new Date(a.takenAt).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </li>
+                        ))}
+                        {summary.attemptsInRange.length > 4 && (
+                          <li className="text-[11px] italic text-[#8B85A6]">
+                            + {summary.attemptsInRange.length - 4} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </li>
                 ))}
               </ul>
             )}
