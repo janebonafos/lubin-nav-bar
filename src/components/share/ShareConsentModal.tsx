@@ -945,7 +945,7 @@ function Step3({
             </ul>
           ) : (
             <p className="text-[12px] italic text-[#8B85A6]">
-              No assessment results yet.
+              None selected — no assessment results will be shared.
             </p>
           ),
       },
