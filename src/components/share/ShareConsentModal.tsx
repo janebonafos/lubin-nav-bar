@@ -297,8 +297,6 @@ export default function ShareConsentModal({
               agreed={agreed}
               onAgreedChange={setAgreed}
               summary={summary}
-              futureUpdates={futureUpdates}
-              onFutureUpdatesChange={setFutureUpdates}
               onRemoveIncluded={removeIncluded}
               selectedAttemptIds={selectedAttemptIds}
             />
