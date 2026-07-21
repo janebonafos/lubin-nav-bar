@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Lock, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Check, X as XIcon } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
@@ -10,6 +10,7 @@ import type { RecipientId } from "@/lib/share/shareStore";
 export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
+  futureUpdates?: boolean;
 };
 
 export type AssessmentContext = {
@@ -41,7 +42,12 @@ export default function ShareConsentModal({
   initialIncluded?: string[];
   confirmLabelOverride?: string;
 }) {
-  const [step, setStep] = useState(1);
+  // Provider-linked flow adds a "choice" step (0) before the existing flow.
+  // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
+  // Non-provider flow keeps the classic 1 → 2 → 3 shape.
+  const [step, setStep] = useState<number>(providerContext ? 0 : 1);
+  const [choice, setChoice] = useState<"all" | "custom" | "none">("all");
+  const [futureUpdates, setFutureUpdates] = useState(false);
 
   // Which include options have data
   const itemHasData = useMemo(() => {
@@ -56,8 +62,12 @@ export default function ShareConsentModal({
 
   const defaultSelection = useMemo(() => {
     if (initialIncluded) return initialIncluded.filter((k) => itemHasData[k]);
-    // Provider-linked sharing: nothing preselected. The user is the decision-maker.
-    if (providerContext) return [];
+    // Provider-linked sharing: default is "share current Health Passport",
+    // which pre-fills every available item. The user still has to review
+    // and explicitly confirm on the final step.
+    if (providerContext) {
+      return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
+    }
     if (assessmentContext) return ["assessments"].filter((k) => itemHasData[k]);
     return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
   }, [assessmentContext, itemHasData, providerContext, initialIncluded]);
@@ -68,7 +78,9 @@ export default function ShareConsentModal({
 
   useEffect(() => {
     if (open) {
-      setStep(1);
+      setStep(providerContext ? 0 : 1);
+      setChoice("all");
+      setFutureUpdates(false);
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
@@ -94,34 +106,64 @@ export default function ShareConsentModal({
   const canStep1Continue = providerContext ? true : included.length > 0;
   const canStep2Continue = recipient !== null;
 
-  // In provider mode, recipient is known; consent flow is 2 steps.
-  const totalSteps = providerContext ? 2 : 3;
-  const displayedStep = providerContext && step === 3 ? 2 : step;
+  // In provider mode we render a choice → (custom selection) → review flow.
+  // Progress shown to the user: choice = 1/2 or 1/3, review = last.
+  const providerStepsTotal = choice === "custom" ? 3 : 2;
+  const totalSteps = providerContext ? providerStepsTotal : 3;
+  const displayedStep = providerContext
+    ? step === 0
+      ? 1
+      : step === 1
+        ? 2
+        : providerStepsTotal
+    : step;
   const stepTitle = providerContext
-    ? step === 1
-      ? "Choose what to include"
-      : "Confirm & consent"
+    ? step === 0
+      ? "How would you like to share?"
+      : step === 1
+        ? "Choose what to share"
+        : "Review & confirm"
     : step === 1
       ? "Choose what to include"
       : step === 2
         ? "Choose recipient"
         : "Confirm & consent";
   const isConfirmStep = step === 3 || (providerContext && step === 2);
-  const nextButtonLabel = isConfirmStep
-    ? providerContext
+  const nextButtonLabel =
+    providerContext && step === 3
       ? confirmLabelOverride ?? "Confirm and share"
-      : "I agree"
-    : "Continue";
+      : !providerContext && step === 3
+        ? "I agree"
+        : "Continue";
   const confirmDisabled =
-    isConfirmStep && providerContext
+    step === 3 && providerContext
       ? !agreed || included.length === 0
       : false;
 
   const advance = () => {
     if (providerContext) {
-      if (step === 1) setStep(3); // skip recipient
-      else if (recipient && !confirmDisabled)
-        onConfirm({ includedKeys: included, recipient });
+      if (step === 0) {
+        // Choice step
+        if (choice === "none") {
+          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp", futureUpdates: false });
+          return;
+        }
+        if (choice === "all") {
+          setIncluded(allAvailable);
+          setStep(3);
+          return;
+        }
+        // custom
+        setStep(1);
+        return;
+      }
+      if (step === 1) {
+        setStep(3);
+        return;
+      }
+      if (recipient && !confirmDisabled) {
+        onConfirm({ includedKeys: included, recipient, futureUpdates });
+      }
     } else {
       if (step < 3) setStep(step + 1);
       else if (recipient)
@@ -130,9 +172,18 @@ export default function ShareConsentModal({
   };
 
   const back = () => {
-    if (providerContext && step === 3) setStep(1);
-    else setStep(step - 1);
+    if (providerContext) {
+      if (step === 3) setStep(choice === "custom" ? 1 : 0);
+      else if (step === 1) setStep(0);
+      else if (step > 0) setStep(step - 1);
+    } else {
+      setStep(step - 1);
+    }
   };
+
+  const removeIncluded = (key: string) =>
+    setIncluded((prev) => prev.filter((k) => k !== key));
+  void isConfirmStep;
 
   return (
     <section
@@ -172,6 +223,13 @@ export default function ShareConsentModal({
         </div>
 
         <div className="px-5 pb-6 md:px-7">
+          {providerContext && step === 0 && (
+            <Step0Choice
+              providerName={providerContext.providerName}
+              choice={choice}
+              onChoice={setChoice}
+            />
+          )}
           {step === 1 && (
             <Step1
               included={included}
@@ -195,12 +253,15 @@ export default function ShareConsentModal({
               agreed={agreed}
               onAgreedChange={setAgreed}
               summary={summary}
+              futureUpdates={futureUpdates}
+              onFutureUpdatesChange={setFutureUpdates}
+              onRemoveIncluded={removeIncluded}
             />
           )}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {step > 1 ? (
+          {(step > 1 || (providerContext && step === 1)) ? (
             <button
               type="button"
               onClick={back}
@@ -228,6 +289,89 @@ export default function ShareConsentModal({
         </div>
       </div>
     </section>
+  );
+}
+
+function Step0Choice({
+  providerName,
+  choice,
+  onChoice,
+}: {
+  providerName: string;
+  choice: "all" | "custom" | "none";
+  onChoice: (v: "all" | "custom" | "none") => void;
+}) {
+  const options: { id: "all" | "custom" | "none"; title: string; blurb: string }[] = [
+    {
+      id: "all",
+      title: "Share my current Health Passport",
+      blurb: "Includes the information currently in your Health Passport.",
+    },
+    {
+      id: "custom",
+      title: "Choose what to share",
+      blurb: "Select individual sections and date ranges.",
+    },
+    {
+      id: "none",
+      title: "Don't share",
+      blurb: "Continue without sharing your Health Passport.",
+    },
+  ];
+  return (
+    <div>
+      <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
+        Share your Health Passport?
+      </h2>
+      <p className="mt-1.5 text-sm text-[#5A4A8A]">
+        Your Health Passport can give <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong>{" "}
+        more context for this appointment. Review what’s included before deciding.
+      </p>
+      <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+        <Lock className="h-3 w-3" />
+        Nothing is shared until you review and confirm
+      </span>
+
+      <ul className="mt-5 space-y-2">
+        {options.map((opt) => {
+          const active = choice === opt.id;
+          return (
+            <li key={opt.id}>
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
+                  active
+                    ? "border-[#7E6BAF] bg-[#FAF8FD] ring-2 ring-[#7E6BAF]/20"
+                    : "border-[#ECE7F6] bg-white hover:border-[#7E6BAF]/40"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="share-choice"
+                  checked={active}
+                  onChange={() => onChoice(opt.id)}
+                  className="sr-only"
+                />
+                <span
+                  className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
+                    active ? "border-[#7E6BAF]" : "border-[#D6CCEC]"
+                  }`}
+                >
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full transition ${
+                      active ? "bg-[#7E6BAF]" : "bg-transparent"
+                    }`}
+                  />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#3D2E6B]">{opt.title}</p>
+                  <p className="mt-1 text-xs text-[#5A4A8A]">{opt.blurb}</p>
+                </div>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -486,22 +630,114 @@ function Step3({
   agreed,
   onAgreedChange,
   summary,
+  futureUpdates,
+  onFutureUpdatesChange,
+  onRemoveIncluded,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
   agreed: boolean;
   onAgreedChange: (v: boolean) => void;
   summary: SummaryData;
+  futureUpdates?: boolean;
+  onFutureUpdatesChange?: (v: boolean) => void;
+  onRemoveIncluded?: (key: string) => void;
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   if (providerContext) {
+    // Group into the five patient-facing spec sections. We map existing
+    // include keys onto the closest spec section; sections without data
+    // are omitted.
+    const sectionMap: {
+      title: string;
+      keys: string[];
+      body: React.ReactNode;
+    }[] = [
+      {
+        title: "Recent check-ins",
+        keys: ["mood", "checkinCount"],
+        body: (
+          <p className="text-[12px] text-[#5A4A8A]">
+            {summary.checkinsInRange.length} check-in
+            {summary.checkinsInRange.length === 1 ? "" : "s"} · mood “
+            {summary.moodLabel.toLowerCase()}”, direction “
+            {summary.directionLabel.toLowerCase()}”.
+          </p>
+        ),
+      },
+      {
+        title: "Assessment results",
+        keys: ["assessments"],
+        body:
+          summary.attemptsInRange.length > 0 ? (
+            <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
+              {summary.attemptsInRange.slice(0, 5).map((a) => (
+                <li key={a.id} className="flex justify-between gap-3">
+                  <span className="truncate">– {a.assessmentName}</span>
+                  <span className="flex-none text-[11px] text-[#8B85A6]">
+                    {new Date(a.takenAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </li>
+              ))}
+              {summary.attemptsInRange.length > 5 && (
+                <li className="text-[11px] italic text-[#8B85A6]">
+                  + {summary.attemptsInRange.length - 5} more
+                </li>
+              )}
+            </ul>
+          ) : (
+            <p className="text-[12px] italic text-[#8B85A6]">
+              No assessment results yet.
+            </p>
+          ),
+      },
+      {
+        title: "Patterns and observations",
+        keys: ["topics", "narrative"],
+        body: (
+          <div className="space-y-1 text-[12px] text-[#5A4A8A]">
+            {summary.themes.length > 0 && (
+              <p>Themes: {summary.themes.slice(0, 4).map((t) => t.label).join(" · ")}</p>
+            )}
+            {summary.insight && <p className="italic">{summary.insight}</p>}
+          </div>
+        ),
+      },
+      {
+        title: "Previous patient-facing appointment summaries",
+        keys: [],
+        body: (
+          <p className="text-[12px] italic text-[#8B85A6]">
+            No previous shared visit summaries yet.
+          </p>
+        ),
+      },
+      {
+        title: "Medication information",
+        keys: [],
+        body: (
+          <p className="text-[12px] italic text-[#8B85A6]">
+            No medication information on file.
+          </p>
+        ),
+      },
+    ];
+    const visibleSections = sectionMap.filter((s) =>
+      s.keys.length === 0
+        ? false // hide "no data" sections from the review by default
+        : s.keys.some((k) => includedKeys.includes(k)),
+    );
     return (
       <div>
-        <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">Review before sharing</h2>
+        <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
+          Review what {providerContext.providerName} will see
+        </h2>
         <p className="mt-1.5 text-sm text-[#5A4A8A]">
-          You are choosing to share the information below with{" "}
-          <strong>{providerContext.providerName}</strong> for your appointment on{" "}
-          <strong>{providerContext.appointmentDate ?? providerContext.appointmentLabel}</strong>.
+          The sections below will be visible for this appointment only. You can
+          remove anything before confirming.
         </p>
 
         <dl className="mt-5 space-y-3 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-5 text-sm text-[#3D2E6B]">
@@ -528,51 +764,58 @@ function Step3({
             <dt className="text-[#6B6684]">Access expires</dt>
             <dd className="text-right font-semibold">7 days after your appointment</dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#6B6684]">Future updates</dt>
-            <dd className="text-right font-semibold">Off — only this snapshot is shared</dd>
-          </div>
-          <div className="border-t border-[#ECE7F6] pt-3">
-            <dt className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-              Items you are sharing
-            </dt>
-            {includedLabels.length === 0 ? (
-              <p className="mt-2 text-[13px] text-[#6B6684]">
-                Nothing selected — no information will be shared.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-1 text-[13px]">
-                {includedLabels.map((o) => (
-                  <li key={o.key}>
-                    <div>• {o.label}</div>
-                    {o.key === "assessments" && summary.attemptsInRange.length > 0 && (
-                      <ul className="mt-1 ml-4 space-y-0.5 text-[12px] text-[#5A4A8A]">
-                        {summary.attemptsInRange.slice(0, 4).map((a) => (
-                          <li key={a.id} className="flex justify-between gap-3">
-                            <span className="truncate">– {a.assessmentName}</span>
-                            <span className="flex-none text-[11px] text-[#8B85A6]">
-                              {new Date(a.takenAt).toLocaleDateString(undefined, {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </li>
-                        ))}
-                        {summary.attemptsInRange.length > 4 && (
-                          <li className="text-[11px] italic text-[#8B85A6]">
-                            + {summary.attemptsInRange.length - 4} more
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </dl>
 
-        <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]/40">
+        <div className="mt-4 space-y-3">
+          {visibleSections.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-white p-4 text-[13px] italic text-[#6B6684]">
+              Nothing selected — no information will be shared.
+            </div>
+          ) : (
+            visibleSections.map((sec) => (
+              <div
+                key={sec.title}
+                className="rounded-2xl border border-[#ECE7F6] bg-white p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    {sec.title}
+                  </p>
+                  {onRemoveIncluded && (
+                    <button
+                      type="button"
+                      onClick={() => sec.keys.forEach((k) => onRemoveIncluded(k))}
+                      className="inline-flex items-center gap-1 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-[#7E6BAF] hover:bg-[#F4F0FB]"
+                      aria-label={`Remove ${sec.title}`}
+                    >
+                      <XIcon className="h-3 w-3" /> Remove
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2">{sec.body}</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]/40">
+          <input
+            type="checkbox"
+            checked={!!futureUpdates}
+            onChange={(e) => onFutureUpdatesChange?.(e.target.checked)}
+            className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+          />
+          <span className="leading-relaxed">
+            <span className="font-semibold text-[#3D2E6B]">
+              Include future Health Passport updates
+            </span>
+            <span className="mt-0.5 block text-xs text-[#5A4A8A]">
+              Off by default. When off, only this snapshot is shared.
+            </span>
+          </span>
+        </label>
+
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">
           <input
             type="checkbox"
             checked={agreed}
@@ -581,15 +824,19 @@ function Step3({
           />
           <span className="leading-relaxed">
             I have reviewed the information above and agree to share it with{" "}
-            <strong>{providerContext.providerName}</strong>. I understand that no other
-            Health Passport information or future updates will be shared unless I choose
-            to share them.
+            <strong>{providerContext.providerName}</strong> for this appointment.
+            I understand that I can change or revoke access.
           </span>
         </label>
 
         <p className="mt-3 text-xs text-[#5A4A8A]">
           You can revoke access from your Health Passport at any time.
         </p>
+        {includedLabels.length === 0 && (
+          <p className="mt-2 text-xs font-medium text-[#B45309]">
+            Nothing selected — go back to include at least one section.
+          </p>
+        )}
       </div>
     );
   }
