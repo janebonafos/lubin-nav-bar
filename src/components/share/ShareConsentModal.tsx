@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Lock, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Check, X as XIcon } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
@@ -10,6 +10,7 @@ import type { RecipientId } from "@/lib/share/shareStore";
 export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
+  futureUpdates?: boolean;
 };
 
 export type AssessmentContext = {
@@ -41,7 +42,12 @@ export default function ShareConsentModal({
   initialIncluded?: string[];
   confirmLabelOverride?: string;
 }) {
-  const [step, setStep] = useState(1);
+  // Provider-linked flow adds a "choice" step (0) before the existing flow.
+  // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
+  // Non-provider flow keeps the classic 1 → 2 → 3 shape.
+  const [step, setStep] = useState<number>(providerContext ? 0 : 1);
+  const [choice, setChoice] = useState<"all" | "custom" | "none">("all");
+  const [futureUpdates, setFutureUpdates] = useState(false);
 
   // Which include options have data
   const itemHasData = useMemo(() => {
@@ -56,8 +62,12 @@ export default function ShareConsentModal({
 
   const defaultSelection = useMemo(() => {
     if (initialIncluded) return initialIncluded.filter((k) => itemHasData[k]);
-    // Provider-linked sharing: nothing preselected. The user is the decision-maker.
-    if (providerContext) return [];
+    // Provider-linked sharing: default is "share current Health Passport",
+    // which pre-fills every available item. The user still has to review
+    // and explicitly confirm on the final step.
+    if (providerContext) {
+      return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
+    }
     if (assessmentContext) return ["assessments"].filter((k) => itemHasData[k]);
     return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
   }, [assessmentContext, itemHasData, providerContext, initialIncluded]);
@@ -68,7 +78,9 @@ export default function ShareConsentModal({
 
   useEffect(() => {
     if (open) {
-      setStep(1);
+      setStep(providerContext ? 0 : 1);
+      setChoice("all");
+      setFutureUpdates(false);
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
@@ -94,34 +106,64 @@ export default function ShareConsentModal({
   const canStep1Continue = providerContext ? true : included.length > 0;
   const canStep2Continue = recipient !== null;
 
-  // In provider mode, recipient is known; consent flow is 2 steps.
-  const totalSteps = providerContext ? 2 : 3;
-  const displayedStep = providerContext && step === 3 ? 2 : step;
+  // In provider mode we render a choice → (custom selection) → review flow.
+  // Progress shown to the user: choice = 1/2 or 1/3, review = last.
+  const providerStepsTotal = choice === "custom" ? 3 : 2;
+  const totalSteps = providerContext ? providerStepsTotal : 3;
+  const displayedStep = providerContext
+    ? step === 0
+      ? 1
+      : step === 1
+        ? 2
+        : providerStepsTotal
+    : step;
   const stepTitle = providerContext
-    ? step === 1
-      ? "Choose what to include"
-      : "Confirm & consent"
+    ? step === 0
+      ? "How would you like to share?"
+      : step === 1
+        ? "Choose what to share"
+        : "Review & confirm"
     : step === 1
       ? "Choose what to include"
       : step === 2
         ? "Choose recipient"
         : "Confirm & consent";
   const isConfirmStep = step === 3 || (providerContext && step === 2);
-  const nextButtonLabel = isConfirmStep
-    ? providerContext
+  const nextButtonLabel =
+    providerContext && step === 3
       ? confirmLabelOverride ?? "Confirm and share"
-      : "I agree"
-    : "Continue";
+      : !providerContext && step === 3
+        ? "I agree"
+        : "Continue";
   const confirmDisabled =
-    isConfirmStep && providerContext
+    step === 3 && providerContext
       ? !agreed || included.length === 0
       : false;
 
   const advance = () => {
     if (providerContext) {
-      if (step === 1) setStep(3); // skip recipient
-      else if (recipient && !confirmDisabled)
-        onConfirm({ includedKeys: included, recipient });
+      if (step === 0) {
+        // Choice step
+        if (choice === "none") {
+          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp", futureUpdates: false });
+          return;
+        }
+        if (choice === "all") {
+          setIncluded(allAvailable);
+          setStep(3);
+          return;
+        }
+        // custom
+        setStep(1);
+        return;
+      }
+      if (step === 1) {
+        setStep(3);
+        return;
+      }
+      if (recipient && !confirmDisabled) {
+        onConfirm({ includedKeys: included, recipient, futureUpdates });
+      }
     } else {
       if (step < 3) setStep(step + 1);
       else if (recipient)
@@ -130,9 +172,18 @@ export default function ShareConsentModal({
   };
 
   const back = () => {
-    if (providerContext && step === 3) setStep(1);
-    else setStep(step - 1);
+    if (providerContext) {
+      if (step === 3) setStep(choice === "custom" ? 1 : 0);
+      else if (step === 1) setStep(0);
+      else if (step > 0) setStep(step - 1);
+    } else {
+      setStep(step - 1);
+    }
   };
+
+  const removeIncluded = (key: string) =>
+    setIncluded((prev) => prev.filter((k) => k !== key));
+  void isConfirmStep;
 
   return (
     <section
@@ -172,6 +223,13 @@ export default function ShareConsentModal({
         </div>
 
         <div className="px-5 pb-6 md:px-7">
+          {providerContext && step === 0 && (
+            <Step0Choice
+              providerName={providerContext.providerName}
+              choice={choice}
+              onChoice={setChoice}
+            />
+          )}
           {step === 1 && (
             <Step1
               included={included}
@@ -195,12 +253,15 @@ export default function ShareConsentModal({
               agreed={agreed}
               onAgreedChange={setAgreed}
               summary={summary}
+              futureUpdates={futureUpdates}
+              onFutureUpdatesChange={setFutureUpdates}
+              onRemoveIncluded={removeIncluded}
             />
           )}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {step > 1 ? (
+          {(step > 1 || (providerContext && step === 1)) ? (
             <button
               type="button"
               onClick={back}
@@ -228,6 +289,89 @@ export default function ShareConsentModal({
         </div>
       </div>
     </section>
+  );
+}
+
+function Step0Choice({
+  providerName,
+  choice,
+  onChoice,
+}: {
+  providerName: string;
+  choice: "all" | "custom" | "none";
+  onChoice: (v: "all" | "custom" | "none") => void;
+}) {
+  const options: { id: "all" | "custom" | "none"; title: string; blurb: string }[] = [
+    {
+      id: "all",
+      title: "Share my current Health Passport",
+      blurb: "Includes the information currently in your Health Passport.",
+    },
+    {
+      id: "custom",
+      title: "Choose what to share",
+      blurb: "Select individual sections and date ranges.",
+    },
+    {
+      id: "none",
+      title: "Don't share",
+      blurb: "Continue without sharing your Health Passport.",
+    },
+  ];
+  return (
+    <div>
+      <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
+        Share your Health Passport?
+      </h2>
+      <p className="mt-1.5 text-sm text-[#5A4A8A]">
+        Your Health Passport can give <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong>{" "}
+        more context for this appointment. Review what’s included before deciding.
+      </p>
+      <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+        <Lock className="h-3 w-3" />
+        Nothing is shared until you review and confirm
+      </span>
+
+      <ul className="mt-5 space-y-2">
+        {options.map((opt) => {
+          const active = choice === opt.id;
+          return (
+            <li key={opt.id}>
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
+                  active
+                    ? "border-[#7E6BAF] bg-[#FAF8FD] ring-2 ring-[#7E6BAF]/20"
+                    : "border-[#ECE7F6] bg-white hover:border-[#7E6BAF]/40"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="share-choice"
+                  checked={active}
+                  onChange={() => onChoice(opt.id)}
+                  className="sr-only"
+                />
+                <span
+                  className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border-2 transition ${
+                    active ? "border-[#7E6BAF]" : "border-[#D6CCEC]"
+                  }`}
+                >
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full transition ${
+                      active ? "bg-[#7E6BAF]" : "bg-transparent"
+                    }`}
+                  />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#3D2E6B]">{opt.title}</p>
+                  <p className="mt-1 text-xs text-[#5A4A8A]">{opt.blurb}</p>
+                </div>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
