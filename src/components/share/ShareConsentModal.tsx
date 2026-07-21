@@ -887,8 +887,6 @@ function Step3({
   agreed,
   onAgreedChange,
   summary,
-  futureUpdates,
-  onFutureUpdatesChange,
   onRemoveIncluded,
   selectedAttemptIds,
 }: {
@@ -897,8 +895,6 @@ function Step3({
   agreed: boolean;
   onAgreedChange: (v: boolean) => void;
   summary: SummaryData;
-  futureUpdates?: boolean;
-  onFutureUpdatesChange?: (v: boolean) => void;
   onRemoveIncluded?: (key: string) => void;
   selectedAttemptIds?: string[];
 }) {
