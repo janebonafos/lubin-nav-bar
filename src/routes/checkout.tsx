@@ -16,6 +16,9 @@ import {
   Share2,
   Pencil,
   X as XIcon,
+  Sparkles,
+  Eye,
+  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
@@ -98,6 +101,9 @@ function CheckoutPage() {
   const [promoError, setPromoError] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [pending, setPending] = useState<PendingShare | null>(null);
+  const [localCheckins, setLocalCheckins] = useState<
+    { id: string; mood: number; note: string; date: string }[]
+  >([]);
 
   const bookingKey = useMemo(
     () => bookingKeyFor(search.providerId, search.date, search.time),
@@ -108,12 +114,22 @@ function CheckoutPage() {
     setPending(getPendingShare(bookingKey));
   }, [bookingKey]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("lubinai_checkins");
+      if (raw) setLocalCheckins(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   // Build a summary snapshot for the modal (uses local check-ins if available,
   // otherwise falls back to the mock so the user can preview categories).
   const shareSummary = useMemo(() => {
-    const real = buildSummary("30d", { checkins: [] });
+    const real = buildSummary("30d", { checkins: localCheckins });
     return real.hasAnyData ? real : mockSummary();
-  }, []);
+  }, [localCheckins]);
 
   if (!provider || !service) {
     return (
