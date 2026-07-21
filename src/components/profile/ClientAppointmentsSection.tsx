@@ -754,8 +754,8 @@ function ShareDetails({
           value={grant.dateRangeLabel ?? "All included Health Passport entries"}
         />
         <DetailRow
-          label="Future updates"
-          value={grant.futureUpdates ? "Included" : "Not included"}
+          label="Snapshot"
+          value={`Fixed at share time${grant.previousVersions?.length ? ` · v${(grant.previousVersions.length ?? 0) + 1}` : ""}`}
         />
       </dl>
 

@@ -24,7 +24,6 @@ import {
 export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
-  futureUpdates?: boolean;
   /**
    * When `includedKeys` includes "assessments", this narrows the shared
    * results to a specific subset of attempt IDs. When undefined, all
@@ -67,7 +66,6 @@ export default function ShareConsentModal({
   // Non-provider flow keeps the classic 1 → 2 → 3 shape.
   const [step, setStep] = useState<number>(providerContext ? 0 : 1);
   const [choice, setChoice] = useState<"all" | "custom" | "none">("all");
-  const [futureUpdates, setFutureUpdates] = useState(false);
 
   // Which include options have data
   const itemHasData = useMemo(() => {
@@ -103,7 +101,6 @@ export default function ShareConsentModal({
     if (open) {
       setStep(providerContext ? 0 : 1);
       setChoice("all");
-      setFutureUpdates(false);
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
@@ -176,7 +173,7 @@ export default function ShareConsentModal({
       if (step === 0) {
         // Choice step
         if (choice === "none") {
-          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp", futureUpdates: false });
+          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp" });
           return;
         }
         if (choice === "all") {
@@ -196,7 +193,6 @@ export default function ShareConsentModal({
         onConfirm({
           includedKeys: included,
           recipient,
-          futureUpdates,
           attemptIds: included.includes("assessments")
             ? selectedAttemptIds
             : undefined,
@@ -301,8 +297,6 @@ export default function ShareConsentModal({
               agreed={agreed}
               onAgreedChange={setAgreed}
               summary={summary}
-              futureUpdates={futureUpdates}
-              onFutureUpdatesChange={setFutureUpdates}
               onRemoveIncluded={removeIncluded}
               selectedAttemptIds={selectedAttemptIds}
             />
@@ -893,8 +887,6 @@ function Step3({
   agreed,
   onAgreedChange,
   summary,
-  futureUpdates,
-  onFutureUpdatesChange,
   onRemoveIncluded,
   selectedAttemptIds,
 }: {
@@ -903,8 +895,6 @@ function Step3({
   agreed: boolean;
   onAgreedChange: (v: boolean) => void;
   summary: SummaryData;
-  futureUpdates?: boolean;
-  onFutureUpdatesChange?: (v: boolean) => void;
   onRemoveIncluded?: (key: string) => void;
   selectedAttemptIds?: string[];
 }) {
@@ -1074,22 +1064,12 @@ function Step3({
           )}
         </div>
 
-        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]/40">
-          <input
-            type="checkbox"
-            checked={!!futureUpdates}
-            onChange={(e) => onFutureUpdatesChange?.(e.target.checked)}
-            className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-          />
-          <span className="leading-relaxed">
-            <span className="font-semibold text-[#3D2E6B]">
-              Include future Health Passport updates
-            </span>
-            <span className="mt-0.5 block text-xs text-[#5A4A8A]">
-              Off by default. When off, only this snapshot is shared.
-            </span>
-          </span>
-        </label>
+        <p className="mt-4 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-xs leading-relaxed text-[#5A4A8A]">
+          This creates a fixed snapshot of the information above. New
+          check-ins, assessments, or other Health Passport updates won't
+          appear automatically — you can send newer information later with
+          <span className="font-semibold text-[#3D2E6B]"> Update shared information</span>.
+        </p>
 
         <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">
           <input

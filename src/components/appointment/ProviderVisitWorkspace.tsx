@@ -265,11 +265,6 @@ function SharedSection({
         <span>
           <strong className="text-[#3D2E6B]">Access ends:</strong> {expires}
         </span>
-        {grant.futureUpdates && (
-          <span className="rounded-full bg-[#F4F0FB] px-2 py-0.5 font-semibold text-[#7E6BAF]">
-            Future updates included
-          </span>
-        )}
       </div>
       <dl className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <MiniStat label="Check-ins" value={String(s.checkinsInRange.length)} />
