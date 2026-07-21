@@ -238,33 +238,12 @@ export const INCLUDE_OPTIONS: { key: string; label: string; description: string 
   {
     key: "mood",
     label: "Mood patterns",
-    description: "Your emotional trends over the selected range",
-  },
-  {
-    key: "topics",
-    label: "Key topics",
-    description: "Themes that came up most in your check-ins",
+    description: "Your emotional trends and how often you've checked in",
   },
   {
     key: "assessments",
     label: "Assessment results",
     description: "Checks you completed from Self Discovery",
-  },
-  {
-    key: "checkinCount",
-    label: "Check-in count",
-    description: "How many times you've checked in",
-  },
-  {
-    key: "narrative",
-    label: "General feeling summary",
-    description: "An overall narrative of how you've been",
-  },
-  {
-    key: "conversations",
-    label: "Information from Lubin conversations",
-    description:
-      "Themes and reflections from your Lubin chats. Full transcripts are never shared — only a summary.",
   },
 ];
 
