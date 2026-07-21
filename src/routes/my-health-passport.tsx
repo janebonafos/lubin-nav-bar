@@ -65,6 +65,10 @@ import {
   getClientUpcomingAppointments,
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
+import {
+  getProviderGrant,
+  subscribeProviderShares,
+} from "@/lib/share/providerShareStore";
 import { z } from "zod";
 
 export const Route = createFileRoute("/my-health-passport")({
@@ -152,6 +156,19 @@ function PassportPage() {
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
+  const [pendingShareCount, setPendingShareCount] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => {
+      const count = upcomingAppointments.reduce(
+        (n, a) => (getProviderGrant(a.id) ? n : n + 1),
+        0,
+      );
+      setPendingShareCount(count);
+    };
+    refresh();
+    return subscribeProviderShares(refresh);
+  }, [upcomingAppointments]);
 
   useEffect(() => {
     const refresh = () =>
@@ -281,6 +298,7 @@ function PassportPage() {
           ] as const).map(([key, label]) => {
             const active = tab === key;
             const showDot = key === "progress" && hasInProgress;
+            const showBadge = key === "share" && pendingShareCount > 0;
             return (
               <button
                 key={key}
@@ -297,6 +315,14 @@ function PassportPage() {
                     aria-label="In-progress check-in"
                     className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple shadow-[0_0_0_3px_rgba(126,107,175,0.18)]"
                   />
+                )}
+                {showBadge && (
+                  <span
+                    aria-label={`${pendingShareCount} pending share${pendingShareCount === 1 ? "" : "s"}`}
+                    className="ml-0.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-brand-purple px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-[0_0_0_3px_rgba(126,107,175,0.15)]"
+                  >
+                    {pendingShareCount}
+                  </span>
                 )}
                 {active && (
                   <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
