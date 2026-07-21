@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
-  ChevronRight,
   Clock,
   CreditCard,
   Globe2,
@@ -317,7 +316,7 @@ function CheckoutPage() {
             </div>
 
             {/* Health Passport sharing — compact option inside the checkout form */}
-            <div className="mt-4 rounded-xl border border-[#E9E6FA] bg-white p-4">
+            <div className="mt-4 rounded-xl border border-[#D3C8EE] bg-[#F7F4FC] p-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <h3 className="text-[13px] font-semibold text-slate-900">
@@ -359,7 +358,7 @@ function CheckoutPage() {
                       </>
                     ) : (
                       <>
-                        Choose <ChevronRight className="h-3.5 w-3.5" />
+                        Choose
                       </>
                     )}
                   </button>
