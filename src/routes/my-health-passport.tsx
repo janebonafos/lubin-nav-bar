@@ -65,6 +65,10 @@ import {
   getClientUpcomingAppointments,
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
+import {
+  getProviderGrant,
+  subscribeProviderShares,
+} from "@/lib/share/providerShareStore";
 import { z } from "zod";
 
 export const Route = createFileRoute("/my-health-passport")({
