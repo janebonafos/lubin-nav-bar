@@ -240,6 +240,7 @@ function Step1({
   deselectAll,
   assessmentContext,
   providerContext,
+  summary,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -249,7 +250,11 @@ function Step1({
   deselectAll: () => void;
   assessmentContext?: AssessmentContext;
   providerContext?: ProviderContext;
+  summary: SummaryData;
 }) {
+  const [showAllAssess, setShowAllAssess] = useState(false);
+  const attempts = summary.attemptsInRange;
+  const visibleAttempts = showAllAssess ? attempts : attempts.slice(0, 3);
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
