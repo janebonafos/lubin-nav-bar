@@ -740,6 +740,9 @@ function Step3({
   selectedAttemptIds?: string[];
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
+  const sharedAttempts = summary.attemptsInRange.filter((a) =>
+    selectedAttemptIds ? selectedAttemptIds.includes(a.id) : true,
+  );
   if (providerContext) {
     // Group into the five patient-facing spec sections. We map existing
     // include keys onto the closest spec section; sections without data
@@ -765,9 +768,9 @@ function Step3({
         title: "Assessment results",
         keys: ["assessments"],
         body:
-          summary.attemptsInRange.length > 0 ? (
+          sharedAttempts.length > 0 ? (
             <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
-              {summary.attemptsInRange.slice(0, 5).map((a) => (
+              {sharedAttempts.slice(0, 5).map((a) => (
                 <li key={a.id} className="flex justify-between gap-3">
                   <span className="truncate">– {a.assessmentName}</span>
                   <span className="flex-none text-[11px] text-[#8B85A6]">
@@ -778,9 +781,9 @@ function Step3({
                   </span>
                 </li>
               ))}
-              {summary.attemptsInRange.length > 5 && (
+              {sharedAttempts.length > 5 && (
                 <li className="text-[11px] italic text-[#8B85A6]">
-                  + {summary.attemptsInRange.length - 5} more
+                  + {sharedAttempts.length - 5} more
                 </li>
               )}
             </ul>
