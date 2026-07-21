@@ -117,10 +117,13 @@ export function trendChip(g: AssessmentGroup): {
     return { label: "Single result", tone: "single" };
   }
   const abs = Math.abs(g.change);
-  if (g.direction === "stable") return { label: `Stable · ±${abs}`, tone: "stable" };
+  const prevDate = g.previous ? formatShortDate(g.previous.takenAt) : "";
+  const pts = abs === 1 ? "point" : "points";
+  if (g.direction === "stable") {
+    return { label: `No change since ${prevDate}`, tone: "stable" };
+  }
   const arrow = g.direction === "increased" ? "↑" : "↓";
-  const word = g.improving ? "improving" : "worsening";
-  return { label: `${arrow} ${abs} pts · ${word}`, tone: g.improving ? "improving" : "worsening" };
+  return { label: `${arrow} ${abs} ${pts} since ${prevDate}`, tone: "stable" };
 }
 
 /**

@@ -588,7 +588,11 @@ function Step1({
           <p className="mt-3 text-xs text-[#5A4A8A]">
             {included.length === 0
               ? "Nothing selected. You can still continue and choose to share nothing."
-              : `${included.length} item${included.length === 1 ? "" : "s"} selected.`}{" "}
+              : `${included.length} categor${included.length === 1 ? "y" : "ies"} selected${
+                  included.includes("assessments")
+                    ? ` · ${selectedCount} assessment result${selectedCount === 1 ? "" : "s"}`
+                    : ""
+                }.`}{" "}
             {allSelected ? (
               <button
                 type="button"
@@ -615,7 +619,7 @@ function Step1({
           Always stays private
         </p>
         <ul className="mt-2 space-y-1.5 text-sm text-[#5A4A8A]">
-          <li>• Chat conversations</li>
+          <li>• Full Lubin chat transcripts</li>
           <li>• Your private notes</li>
           <li>• Anything you haven't shared</li>
         </ul>
@@ -649,12 +653,7 @@ function AssessmentGroupRow({
   const allOn = selectedInGroup === group.attempts.length;
   const someOn = selectedInGroup > 0 && !allOn;
   const chip = trendChip(group);
-  const chipTone =
-    chip.tone === "improving"
-      ? "bg-emerald-50 text-emerald-700"
-      : chip.tone === "worsening"
-        ? "bg-[#F4ECFB] text-[#5A3E8F]"
-        : "bg-[#F0EEF6] text-[#6B6684]";
+  const chipTone = "bg-[#F0EEF6] text-[#6B6684]";
 
   const toggleGroup = () => {
     if (allOn) {
@@ -743,11 +742,12 @@ function AssessmentGroupRow({
               </span>
             </p>
             <p className="mt-0.5 truncate text-[11px] text-[#6B6684]">
-              Latest:{" "}
+              Latest: Score{" "}
               <span className="font-medium text-[#3D2E6B]">
-                {group.latest.status?.label ?? `Score ${group.latest.score}`}
-              </span>{" "}
-              · {formatShortDate(group.latest.takenAt)}
+                {group.latest.score}
+              </span>
+              {group.latest.status ? ` · ${group.latest.status.label}` : ""} ·{" "}
+              {formatShortDate(group.latest.takenAt)}
             </p>
           </div>
           <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${chipTone}`}>
