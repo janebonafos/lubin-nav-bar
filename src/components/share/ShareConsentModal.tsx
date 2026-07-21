@@ -24,7 +24,6 @@ import {
 export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
-  futureUpdates?: boolean;
   /**
    * When `includedKeys` includes "assessments", this narrows the shared
    * results to a specific subset of attempt IDs. When undefined, all
@@ -67,7 +66,6 @@ export default function ShareConsentModal({
   // Non-provider flow keeps the classic 1 → 2 → 3 shape.
   const [step, setStep] = useState<number>(providerContext ? 0 : 1);
   const [choice, setChoice] = useState<"all" | "custom" | "none">("all");
-  const [futureUpdates, setFutureUpdates] = useState(false);
 
   // Which include options have data
   const itemHasData = useMemo(() => {
@@ -103,7 +101,6 @@ export default function ShareConsentModal({
     if (open) {
       setStep(providerContext ? 0 : 1);
       setChoice("all");
-      setFutureUpdates(false);
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
