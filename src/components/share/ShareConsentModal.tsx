@@ -649,12 +649,7 @@ function AssessmentGroupRow({
   const allOn = selectedInGroup === group.attempts.length;
   const someOn = selectedInGroup > 0 && !allOn;
   const chip = trendChip(group);
-  const chipTone =
-    chip.tone === "improving"
-      ? "bg-emerald-50 text-emerald-700"
-      : chip.tone === "worsening"
-        ? "bg-[#F4ECFB] text-[#5A3E8F]"
-        : "bg-[#F0EEF6] text-[#6B6684]";
+  const chipTone = "bg-[#F0EEF6] text-[#6B6684]";
 
   const toggleGroup = () => {
     if (allOn) {
