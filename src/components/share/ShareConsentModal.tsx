@@ -1013,7 +1013,10 @@ function Step3({
     const visibleSections = sectionMap.filter((s) =>
       s.keys.length === 0
         ? false // hide "no data" sections from the review by default
-        : s.keys.some((k) => includedKeys.includes(k)),
+        : s.keys.some((k) => includedKeys.includes(k)) &&
+          // For assessments specifically, hide the whole card when the
+          // user hasn't selected any individual attempt to share.
+          !(s.keys.includes("assessments") && sharedAttempts.length === 0),
     );
     return (
       <div>
