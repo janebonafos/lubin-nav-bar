@@ -324,8 +324,10 @@ function Step0Choice({
         Share your Health Passport?
       </h2>
       <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        Your Health Passport can give <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong>{" "}
-        more context for this appointment. Review what’s included before deciding.
+        Lubin will create a short summary for{" "}
+        <strong>Dr. {providerName.replace(/^Dr\.?\s*/i, "")}</strong> using the
+        information you choose to share. The provider can open the supporting
+        information when needed.
       </p>
       <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
         <Lock className="h-3 w-3" />
