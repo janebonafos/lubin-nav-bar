@@ -17,7 +17,6 @@ import type { RecipientId } from "@/lib/share/shareStore";
 import {
   groupAttemptsByAssessment,
   formatShortDate,
-  trendChip,
   type AssessmentGroup,
 } from "@/lib/patterns/grouping";
 
@@ -652,9 +651,6 @@ function AssessmentGroupRow({
   const selectedInGroup = group.attempts.filter((a) => selectedIds.includes(a.id)).length;
   const allOn = selectedInGroup === group.attempts.length;
   const someOn = selectedInGroup > 0 && !allOn;
-  const chip = trendChip(group);
-  const chipTone = "bg-[#F0EEF6] text-[#6B6684]";
-
   const toggleGroup = () => {
     if (allOn) {
       // deselect every attempt in this group
@@ -742,17 +738,16 @@ function AssessmentGroupRow({
               </span>
             </p>
             <p className="mt-0.5 truncate text-[11px] text-[#6B6684]">
-              Latest: Score{" "}
-              <span className="font-medium text-[#3D2E6B]">
-                {group.latest.score}
-              </span>
-              {group.latest.status ? ` · ${group.latest.status.label}` : ""} ·{" "}
+              Latest:{" "}
+              {group.latest.status ? (
+                <span className="font-medium text-[#3D2E6B]">
+                  {group.latest.status.label}
+                </span>
+              ) : null}
+              {group.latest.status ? " · " : ""}
               {formatShortDate(group.latest.takenAt)}
             </p>
           </div>
-          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${chipTone}`}>
-            {chip.label}
-          </span>
           {open ? (
             <ChevronDown className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
           ) : (
@@ -760,6 +755,7 @@ function AssessmentGroupRow({
           )}
         </button>
       </div>
+
       {open && (
         <div className="border-t border-[#ECE7F6] px-2.5 py-2">
           <div className="mb-1 flex items-center justify-between">
