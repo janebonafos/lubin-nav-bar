@@ -179,12 +179,25 @@ export default function ShareConsentModal({
         return;
       }
       if (recipient && !confirmDisabled) {
-        onConfirm({ includedKeys: included, recipient, futureUpdates });
+        onConfirm({
+          includedKeys: included,
+          recipient,
+          futureUpdates,
+          attemptIds: included.includes("assessments")
+            ? selectedAttemptIds
+            : undefined,
+        });
       }
     } else {
       if (step < 3) setStep(step + 1);
       else if (recipient)
-        onConfirm({ includedKeys: included, recipient });
+        onConfirm({
+          includedKeys: included,
+          recipient,
+          attemptIds: included.includes("assessments")
+            ? selectedAttemptIds
+            : undefined,
+        });
     }
   };
 
@@ -258,6 +271,10 @@ export default function ShareConsentModal({
               assessmentContext={assessmentContext}
               providerContext={providerContext}
               summary={summary}
+              selectedAttemptIds={selectedAttemptIds}
+              toggleAttempt={toggleAttempt}
+              selectAllAttempts={selectAllAttempts}
+              deselectAllAttempts={deselectAllAttempts}
             />
           )}
           {step === 2 && !providerContext && (
@@ -273,6 +290,7 @@ export default function ShareConsentModal({
               futureUpdates={futureUpdates}
               onFutureUpdatesChange={setFutureUpdates}
               onRemoveIncluded={removeIncluded}
+              selectedAttemptIds={selectedAttemptIds}
             />
           )}
         </div>
