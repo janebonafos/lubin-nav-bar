@@ -5,17 +5,16 @@ import {
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
+  ChevronRight,
   Clock,
   CreditCard,
   Globe2,
   Lock,
   MapPin,
+  Pencil,
   ShieldCheck,
   User as UserIcon,
   Video,
-  CheckCircle2,
-  ChevronRight,
-  Pencil,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
