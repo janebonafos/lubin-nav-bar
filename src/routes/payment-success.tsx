@@ -9,6 +9,7 @@ import {
   ArrowRight,
   CalendarPlus,
   ArrowLeft,
+  Shield,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
