@@ -11,6 +11,12 @@ export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
   futureUpdates?: boolean;
+  /**
+   * When `includedKeys` includes "assessments", this narrows the shared
+   * results to a specific subset of attempt IDs. When undefined, all
+   * assessments in range are shared.
+   */
+  attemptIds?: string[];
 };
 
 export type AssessmentContext = {
