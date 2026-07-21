@@ -25,10 +25,10 @@ import {
   type MedicationEntry,
 } from "@/lib/visit-workspace/store";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
-import { assessments } from "@/lib/patterns/assessments";
+import { ASSESSMENTS as assessments } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import { getAttemptsFor } from "@/lib/patterns/storage";
-import type { Attempt } from "@/lib/patterns/types";
+import type { Attempt, Assessment } from "@/lib/patterns/types";
 
 type Step = "shared" | "assessments" | "notes" | "ai" | "meds" | "publish";
 
@@ -317,7 +317,7 @@ function AssessmentsSection({
       </p>
       <ul className="divide-y divide-[#ECE7F6] rounded-xl border border-[#ECE7F6]">
         {attempts.slice(0, 12).map((a) => {
-          const meta = assessments.find((x) => x.id === a.assessmentId);
+          const meta = (assessments as Assessment[]).find((x) => x.id === a.assessmentId);
           const status = meta
             ? getAssessmentStatus(
                 meta.id,
@@ -438,7 +438,7 @@ function AiSection({
       const includedAssessments = attempts
         .filter((a) => ws.includedAssessments[a.id])
         .map((a) => {
-          const meta = assessments.find((x) => x.id === a.assessmentId);
+          const meta = (assessments as Assessment[]).find((x) => x.id === a.assessmentId);
           const status = meta
             ? getAssessmentStatus(meta.id, a.score, meta.maxScore, meta.lowerIsBetter)
             : null;
