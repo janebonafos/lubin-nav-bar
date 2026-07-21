@@ -13,9 +13,22 @@ import {
   ShieldCheck,
   User as UserIcon,
   Video,
+  Share2,
+  Pencil,
+  X as XIcon,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
+import ShareConsentModal from "@/components/share/ShareConsentModal";
+import { buildSummary, mockSummary, INCLUDE_OPTIONS } from "@/lib/share/summary";
+import {
+  bookingKeyFor,
+  getPendingShare,
+  setPendingShare,
+  clearPendingShare,
+  type PendingShare,
+} from "@/lib/share/pendingShare";
+import { useEffect } from "react";
 
 const searchSchema = z.object({
   providerId: z.string(),
@@ -83,6 +96,24 @@ function CheckoutPage() {
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState<{ code: string; percent: number } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [pending, setPending] = useState<PendingShare | null>(null);
+
+  const bookingKey = useMemo(
+    () => bookingKeyFor(search.providerId, search.date, search.time),
+    [search.providerId, search.date, search.time],
+  );
+
+  useEffect(() => {
+    setPending(getPendingShare(bookingKey));
+  }, [bookingKey]);
+
+  // Build a summary snapshot for the modal (uses local check-ins if available,
+  // otherwise falls back to the mock so the user can preview categories).
+  const shareSummary = useMemo(() => {
+    const real = buildSummary("30d", { checkins: [] });
+    return real.hasAnyData ? real : mockSummary();
+  }, []);
 
   if (!provider || !service) {
     return (
@@ -107,6 +138,17 @@ function CheckoutPage() {
   const dateObj = new Date(search.date + "T00:00:00");
   const dateLabel = dateObj.toLocaleDateString(undefined, {
     weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const shortDateLabel = dateObj.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+  const appointmentLabel = `${shortDateLabel} · ${search.time}`;
+  const appointmentDate = dateObj.toLocaleDateString(undefined, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -186,6 +228,7 @@ function CheckoutPage() {
             ref,
             promo: promo?.code,
             discountPct: promo?.percent,
+            bookingKey,
           },
         });
       }
@@ -210,6 +253,99 @@ function CheckoutPage() {
             onSubmit={handlePay}
             className="rounded-3xl border border-[#E9E6FA] bg-white p-6 shadow-sm sm:p-8"
           >
+            {/* Optional Health Passport sharing (before payment section) */}
+            <div
+              className={`mb-6 rounded-2xl border p-4 sm:p-5 ${
+                pending
+                  ? "border-[#D3C8EE] bg-[#F7F4FC]"
+                  : "border-[#E9E6FA] bg-white"
+              }`}
+            >
+              {pending ? (
+                <div>
+                  <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                    <Share2 className="h-3 w-3" /> Health Passport
+                  </p>
+                  <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
+                    Ready to share with {provider.name.split(",")[0]}
+                  </h3>
+                  {pending.includedKeys.length === 0 ? (
+                    <p className="mt-2 text-[13px] text-[#5A4A8A]">
+                      You've chosen not to share anything for this appointment.
+                    </p>
+                  ) : (
+                    <ul className="mt-2 space-y-1 text-[13px] text-[#3D2E6B]">
+                      {INCLUDE_OPTIONS.filter((o) =>
+                        pending.includedKeys.includes(o.key),
+                      ).map((o) => (
+                        <li key={o.key}>• {o.label}</li>
+                      ))}
+                      <li className="text-[12px] text-[#6B6684]">
+                        • Last 30 days
+                      </li>
+                    </ul>
+                  )}
+                  <p className="mt-3 text-[11.5px] text-[#6B6684]">
+                    Sharing activates only after your appointment is confirmed.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShareModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3.5 py-1.5 text-[12px] font-semibold text-[#3D2E6B] hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit selection
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearPendingShare(bookingKey);
+                        setPending(null);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-rose-700 hover:bg-rose-50"
+                    >
+                      <XIcon className="h-3.5 w-3.5" /> Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                    <Share2 className="h-3 w-3" /> Health Passport
+                  </p>
+                  <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
+                    Share your Health Passport?
+                  </h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-[#5A4A8A]">
+                    You can choose whether to share anything with {provider.name} for this appointment.
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShareModalOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                    >
+                      Choose what to share
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // "Not now" — do nothing; the reminder respects this choice by
+                        // simply leaving the pending share empty.
+                        setShareModalOpen(false);
+                      }}
+                      className="inline-flex items-center rounded-full px-3 py-2 text-[12.5px] font-medium text-[#6B6684] hover:text-[#3D2E6B]"
+                    >
+                      Not now
+                    </button>
+                  </div>
+                  <p className="mt-2 text-[11.5px] text-[#6B6684]">
+                    Nothing will be shared unless you review and confirm it.
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-2 text-brand-purple">
               <Lock className="h-4 w-4" />
               <span className="text-[12px] font-semibold uppercase tracking-wider">
