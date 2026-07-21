@@ -22,6 +22,7 @@ import {
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import type { Assessment } from "@/lib/patterns/types";
+import { groupAttemptsByAssessment } from "@/lib/patterns/grouping";
 
 type Props = {
   appointmentId: string;
@@ -69,29 +70,39 @@ export function AiProviderBrief({
       const includeAssessments = included.has("assessments");
       const includeConversations = included.has("conversations");
 
-      const assessmentPayload = includeAssessments
-        ? snap.attemptsInRange.map((a) => {
-            const meta = (ASSESSMENTS as Assessment[]).find(
-              (x) => x.id === a.assessmentId,
-            );
-            const status = meta
-              ? getAssessmentStatus(
-                  meta.id,
-                  a.score,
-                  meta.maxScore,
-                  meta.lowerIsBetter,
-                )
-              : null;
-            return {
-              name: a.assessmentName,
-              clinicalName: meta?.clinicalName,
-              score: a.score,
-              statusLabel: status?.label,
-              statusKind: status?.kind,
-              takenAt: a.takenAt,
-            };
-          })
+      // Group by clinical tool so the model can talk about change over time
+      // per instrument (e.g. PHQ-9 across 3 attempts) rather than treating
+      // each attempt as an independent instrument.
+      const groups = includeAssessments
+        ? groupAttemptsByAssessment(snap.attemptsInRange)
         : [];
+      const assessmentPayload = groups.map((g) => ({
+        name: g.friendlyName,
+        clinicalName: g.clinicalName,
+        resultCount: g.attempts.length,
+        latestScore: g.latest.score,
+        latestStatusLabel: g.latest.status?.label,
+        latestStatusKind: g.latest.status?.kind,
+        latestTakenAt: g.latest.takenAt,
+        previousScore: g.previous?.score ?? null,
+        previousTakenAt: g.previous?.takenAt ?? null,
+        change: g.change,
+        direction: g.direction, // increased | decreased | stable | null
+        improving: g.improving, // true = clinically improving, false = worsening, null = n/a
+        history: g.attempts.map((a) => ({
+          score: a.score,
+          takenAt: a.takenAt,
+          statusLabel: a.status?.label,
+        })),
+        safetyFlag: g.safetyFlag
+          ? {
+              itemIndex: g.safetyFlag.itemIndex,
+              itemText: g.safetyFlag.itemText,
+              response: g.safetyFlag.response,
+              date: g.safetyFlag.date,
+            }
+          : null,
+      }));
 
       const res = await fetch("/api/generate-provider-brief", {
         method: "POST",
