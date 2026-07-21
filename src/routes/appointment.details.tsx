@@ -9,6 +9,7 @@ import {
   type ApptLite,
 } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
+import { ProviderVisitWorkspace } from "@/components/appointment/ProviderVisitWorkspace";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -254,6 +255,16 @@ function DetailsPage() {
 
         {/* Notes / follow-up / private / AI — each floats as its own card via internal styling */}
         <ApptNotesBlock appt={appt} onChange={onChange} />
+
+        {(appt.status === "completed" || appt.status === "upcoming") && (
+          <ProviderVisitWorkspace
+            appointmentId={appt.id}
+            providerName={appt.client}
+            appointmentLabel={[appt.month, appt.date, "·", appt.time]
+              .filter(Boolean)
+              .join(" ")}
+          />
+        )}
 
         {appt.status === "completed" && (
           <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
