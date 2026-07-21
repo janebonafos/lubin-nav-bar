@@ -10,6 +10,7 @@ import {
 } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { ProviderVisitWorkspace } from "@/components/appointment/ProviderVisitWorkspace";
+import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -252,6 +253,30 @@ function DetailsPage() {
             </div>
           </div>
         </section>
+
+        {/* Pre-appointment AI brief for the provider */}
+        <AiProviderBrief
+          appointmentId={appt.id}
+          providerName={appt.client}
+          appointmentLabel={[appt.month, appt.date, "·", appt.time]
+            .filter(Boolean)
+            .join(" ")}
+          onViewSupporting={() => {
+            document
+              .getElementById("shared-passport-block")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          onViewAssessments={() => {
+            document
+              .getElementById("assessments-block")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          onViewTimeline={() => {
+            document
+              .getElementById("shared-timeline-block")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
 
         {/* Notes / follow-up / private / AI — each floats as its own card via internal styling */}
         <ApptNotesBlock appt={appt} onChange={onChange} />
