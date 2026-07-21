@@ -5,9 +5,7 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  Share2,
-  Lock,
-  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,6 +14,11 @@ import {
 } from "@/lib/appointments-bus";
 import {
   getProviderGrant,
+  getAnyProviderGrant,
+  revokeProviderGrant,
+  revokeForAppointmentCancelled,
+  markGrantPendingReconfirm,
+  reconfirmGrant,
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
@@ -165,12 +168,16 @@ export default function ClientAppointmentsSection() {
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<number | null>(null);
   const [grants, setGrants] = useState<Record<string, ProviderShareGrant | null>>({});
+  const [anyGrants, setAnyGrants] = useState<Record<string, ProviderShareGrant | null>>({});
 
   useEffect(() => {
     const refresh = () => {
       const next: Record<string, ProviderShareGrant | null> = {};
+      const nextAny: Record<string, ProviderShareGrant | null> = {};
       for (const a of seed) next[a.id] = getProviderGrant(a.id);
+      for (const a of seed) nextAny[a.id] = getAnyProviderGrant(a.id);
       setGrants(next);
+      setAnyGrants(nextAny);
     };
     refresh();
     return subscribeProviderShares(refresh);
@@ -192,6 +199,7 @@ export default function ClientAppointmentsSection() {
         });
       } else if (evt.type === "cancelled") {
         setRefreshing(true);
+        revokeForAppointmentCancelled(evt.id);
         setAll((list) =>
           list.map((a) => (a.id === evt.id ? { ...a, status: "cancelled" as const } : a)),
         );
@@ -203,6 +211,7 @@ export default function ClientAppointmentsSection() {
         refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
       } else if (evt.type === "rescheduled") {
         setRefreshing(true);
+        markGrantPendingReconfirm(evt.id);
         setAll((list) =>
           list.map((a) => (a.id === evt.id ? { ...a, time: evt.time ?? a.time } : a)),
         );
@@ -375,19 +384,13 @@ export default function ClientAppointmentsSection() {
                     </div>
 
                     <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                      {a.status === "upcoming" && (
-                        grants[a.id] ? (
-                          <span
-                            title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
-                            className="hidden items-center gap-1 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69] sm:inline-flex"
-                          >
-                            <CheckCircle2 className="h-3 w-3" /> Shared
-                          </span>
-                        ) : (
-                          <span className="hidden items-center gap-1 rounded-full bg-[#F4F0FB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF] sm:inline-flex">
-                            <Lock className="h-3 w-3" /> Not shared
-                          </span>
-                        )
+                      {grants[a.id] && (
+                        <span
+                          title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
+                          className="hidden items-center gap-1 rounded-full bg-[#EEF6F1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69] sm:inline-flex"
+                        >
+                          <ShieldCheck className="h-3 w-3" /> Passport shared
+                        </span>
                       )}
                       <button
                         onClick={() => setExpanded(isExpanded ? null : a.id)}
@@ -451,16 +454,19 @@ export default function ClientAppointmentsSection() {
                         </div>
                       )}
 
-                      {(a.status === "upcoming" || a.status === "completed") && (
-                        <div className="mb-6">
-                          <SharingBlock
-                            appointmentId={a.id}
-                            providerName={a.provider}
-                            grant={grants[a.id] ?? null}
-                            upcoming={a.status === "upcoming"}
-                          />
-                        </div>
-                      )}
+                      <SharingRow
+                        appointmentId={a.id}
+                        providerName={a.provider}
+                        status={a.status}
+                        grant={grants[a.id] ?? null}
+                        anyGrant={anyGrants[a.id] ?? null}
+                        onReconfirm={() => {
+                          reconfirmGrant(a.id);
+                        }}
+                        onRevoke={() => {
+                          revokeProviderGrant(a.id);
+                        }}
+                      />
 
                       {a.status === "upcoming" && (
                         <div className="space-y-2">
@@ -538,100 +544,263 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function SharingBlock({
+function fmtDate(ts?: number) {
+  if (!ts) return "";
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function SharingRow({
   appointmentId,
   providerName,
+  status,
   grant,
-  upcoming,
+  anyGrant,
+  onReconfirm,
+  onRevoke,
 }: {
   appointmentId: string;
   providerName: string;
+  status: "upcoming" | "completed" | "cancelled";
   grant: ProviderShareGrant | null;
-  upcoming: boolean;
+  anyGrant: ProviderShareGrant | null;
+  onReconfirm: () => void;
+  onRevoke: () => void;
 }) {
+  const [showDetails, setShowDetails] = useState(false);
   const shared = !!grant;
-  const expiresLabel = grant
-    ? new Date(grant.expiresAt).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null;
-  const shareHref = `/my-health-passport?tab=share&share=${encodeURIComponent(appointmentId)}`;
+  const cancelled = status === "cancelled";
+  const completed = status === "completed";
+
+  // Cancelled: show ended note only when there was ever a grant.
+  if (cancelled) {
+    if (!anyGrant) return null;
+    return (
+      <div className="mb-6 border-t border-[#F0EAFB] pt-5">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+          Health Passport
+        </p>
+        <p className="mt-2 text-sm text-[#6B6684]">
+          Health Passport access ended when this appointment was cancelled.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={`rounded-[12px] border p-5 shadow-[0_8px_24px_-12px_rgba(61,46,107,0.08)] ${
-        shared
-          ? "border-[#D6EEE1] bg-[#F6FBF9]"
-          : "border-[#EAE7F5] bg-white"
-      }`}
-    >
+    <div className="mb-6 border-t border-[#F0EAFB] pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-            Health Passport sharing
+            Health Passport
           </p>
-          {shared && grant ? (
+
+          {!shared && !completed && (
+            <p className="mt-2 text-sm text-[#6B6684]">
+              Nothing from your Health Passport is shared for this appointment.
+            </p>
+          )}
+
+          {!shared && completed && anyGrant && anyGrant.revoked && (
+            <p className="mt-2 text-sm text-[#6B6684]">
+              Health Passport access ended{" "}
+              <span className="font-semibold text-[#3D2E6B]">
+                {fmtDate(anyGrant.revokedAt ?? anyGrant.expiresAt)}
+              </span>
+              .
+            </p>
+          )}
+
+          {!shared && completed && anyGrant && !anyGrant.revoked && (
+            <p className="mt-2 text-sm text-[#6B6684]">
+              Health Passport access ended{" "}
+              <span className="font-semibold text-[#3D2E6B]">
+                {fmtDate(anyGrant.expiresAt)}
+              </span>
+              .
+            </p>
+          )}
+
+          {!shared && completed && !anyGrant && (
+            <p className="mt-2 text-sm text-[#6B6684]">
+              Nothing from your Health Passport was shared for this appointment.
+            </p>
+          )}
+
+          {shared && grant && (
             <>
               <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#2D8E69]">
-                <CheckCircle2 className="h-4 w-4" />
-                Shared with {providerName}
+                <ShieldCheck className="h-4 w-4" />
+                {completed
+                  ? `Shared with ${providerName} · Access ends ${fmtDate(grant.expiresAt)}`
+                  : `Shared with ${providerName}`}
               </p>
-              <p className="mt-1 text-xs text-[#6B6684]">
-                {grant.includedKeys.length} item
-                {grant.includedKeys.length === 1 ? "" : "s"} · available until{" "}
-                <span className="font-semibold text-[#3D2E6B]">{expiresLabel}</span>
-                {grant.updatedAt && (
-                  <>
-                    {" · updated "}
-                    {new Date(grant.updatedAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </>
-                )}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mt-2 text-sm font-semibold text-[#3D2E6B]">
-                {upcoming
-                  ? `Share context with ${providerName} before your session`
-                  : `You didn't share your Health Passport for this session`}
-              </p>
-              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-[#7E6BAF]">
-                <Lock className="h-3 w-3" />
-                You choose what's included. Nothing is shared without your permission.
-              </p>
+              {!completed && (
+                <p className="mt-1 text-xs text-[#6B6684]">
+                  {grant.includedKeys.length} item
+                  {grant.includedKeys.length === 1 ? "" : "s"} · Access until{" "}
+                  <span className="font-semibold text-[#3D2E6B]">
+                    {fmtDate(grant.expiresAt)}
+                  </span>
+                </p>
+              )}
+              {grant.pendingReconfirm && (
+                <div className="mt-3 rounded-[10px] border border-[#F0E2C6] bg-[#FDF8EE] p-3">
+                  <p className="text-xs font-semibold text-[#8A6A1E]">
+                    Please reconfirm sharing for the new appointment date.
+                  </p>
+                  <p className="mt-1 text-xs text-[#8A6A1E]/80">
+                    Your selections were kept. Confirm to update the access period.
+                  </p>
+                  <button
+                    onClick={onReconfirm}
+                    className="mt-2 inline-flex items-center rounded-[6px] bg-[#8A6A1E] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#6E5416]"
+                  >
+                    Reconfirm sharing
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
-        {upcoming && (
+
+        <div className="flex flex-none flex-wrap items-center gap-2">
+          {!shared && !completed && (
+            <Link
+              to="/my-health-passport"
+              search={{ tab: "share", share: appointmentId }}
+              className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+            >
+              Choose what to share
+            </Link>
+          )}
+          {shared && (
+            <>
+              <button
+                onClick={() => setShowDetails((s) => !s)}
+                className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+              >
+                {showDetails ? "Hide details" : "View or change"}
+              </button>
+              <button
+                onClick={onRevoke}
+                className="inline-flex items-center rounded-[8px] border border-[#EAD9D9] bg-white px-3.5 py-2 text-sm font-medium text-[#B0453A] transition hover:bg-[#FBF4F4]"
+              >
+                Revoke
+              </button>
+            </>
+          )}
+          {!shared && completed && anyGrant && !anyGrant.revoked && (
+            <button
+              onClick={() => setShowDetails((s) => !s)}
+              className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+            >
+              {showDetails ? "Hide details" : "View what was shared"}
+            </button>
+          )}
+          {!shared && completed && anyGrant && anyGrant.revoked && (
+            <button
+              onClick={() => setShowDetails((s) => !s)}
+              className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+            >
+              {showDetails ? "Hide details" : "View what was shared"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {showDetails && (grant || anyGrant) && (
+        <ShareDetails
+          providerName={providerName}
+          grant={(grant ?? anyGrant)!}
+          canManage={shared && !completed}
+          appointmentId={appointmentId}
+        />
+      )}
+    </div>
+  );
+}
+
+function ShareDetails({
+  providerName,
+  grant,
+  canManage,
+  appointmentId,
+}: {
+  providerName: string;
+  grant: ProviderShareGrant;
+  canManage: boolean;
+  appointmentId: string;
+}) {
+  const active = !grant.revoked && grant.expiresAt > Date.now();
+  return (
+    <div className="mt-4 rounded-[10px] border border-[#EAE7F5] bg-[#FBFAFE] p-4">
+      <dl className="grid gap-3 sm:grid-cols-2">
+        <DetailRow label="Recipient" value={providerName} />
+        <DetailRow label="Appointment" value={grant.appointmentLabel} />
+        <DetailRow
+          label="Date shared"
+          value={fmtDate(grant.updatedAt ?? grant.createdAt)}
+        />
+        <DetailRow
+          label={active ? "Access expires" : "Access ended"}
+          value={fmtDate(grant.revokedAt ?? grant.expiresAt)}
+        />
+        <DetailRow
+          label="Date range covered"
+          value={grant.dateRangeLabel ?? "All included Health Passport entries"}
+        />
+        <DetailRow
+          label="Future updates"
+          value={grant.futureUpdates ? "Included" : "Not included"}
+        />
+      </dl>
+
+      <div className="mt-4">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+          Exact shared information
+        </p>
+        {grant.includedKeys.length === 0 ? (
+          <p className="mt-1 text-sm text-[#6B6684]">Nothing selected.</p>
+        ) : (
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {grant.includedKeys.map((k) => (
+              <li
+                key={k}
+                className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs text-[#3D2E6B] ring-1 ring-[#EAE7F5]"
+              >
+                {k}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {canManage && (
+        <div className="mt-4">
           <Link
             to="/my-health-passport"
             search={{ tab: "share", share: appointmentId }}
-            className={`inline-flex flex-none items-center gap-1.5 rounded-[8px] px-4 py-2 text-sm font-semibold transition ${
-              shared
-                ? "border border-[#E1DAF1] bg-white text-[#3D2E6B] hover:bg-[#FBFAFE]"
-                : "bg-[#7C69BA] text-white shadow-sm hover:bg-[#6857A3]"
-            }`}
-            aria-label={shared ? "Manage Health Passport sharing" : "Share from Health Passport"}
+            className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
           >
-            <Share2 className="h-3.5 w-3.5" />
-            {shared ? "Manage sharing" : "Share from Health Passport"}
+            Change what's shared
           </Link>
-        )}
-        {!upcoming && shared && (
-          <a
-            href={shareHref}
-            className="inline-flex flex-none items-center gap-1.5 rounded-[8px] border border-[#E1DAF1] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
-          >
-            <Share2 className="h-3.5 w-3.5" />
-            View what was shared
-          </a>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div>
+      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+        {label}
+      </dt>
+      <dd className="mt-0.5 text-sm text-[#3D2E6B]">{value}</dd>
     </div>
   );
 }

@@ -20,11 +20,22 @@ export type ProviderShareGrant = {
   /** Defaults to 7 days after the appointment. */
   expiresAt: number;
   revoked?: boolean;
+  revokedAt?: number;
+  revokeReason?: "user" | "cancelled" | "provider_change";
   /**
    * When the user picks "Update shared information", we create a new
    * snapshot and bump this timestamp; older snapshots are replaced.
    */
   updatedAt?: number;
+  /**
+   * Set when the appointment is rescheduled. The grant stays active on the
+   * old expiration until the user reconfirms against the new date.
+   */
+  pendingReconfirm?: boolean;
+  /** Whether the provider automatically sees future Health Passport updates. */
+  futureUpdates?: boolean;
+  /** Optional date range covered by the shared snapshot. */
+  dateRangeLabel?: string;
 };
 
 const STORE_KEY = "lubin.providerShares.v1";
@@ -59,6 +70,11 @@ export function getProviderGrant(appointmentId: string): ProviderShareGrant | nu
   if (g.revoked) return null;
   if (g.expiresAt < Date.now()) return null;
   return g;
+}
+
+/** Returns the raw grant regardless of revoked/expired state (for history views). */
+export function getAnyProviderGrant(appointmentId: string): ProviderShareGrant | null {
+  return readStore()[appointmentId] ?? null;
 }
 
 export function createProviderGrant(input: {
@@ -109,8 +125,71 @@ export function updateProviderGrant(
 export function revokeProviderGrant(appointmentId: string): void {
   const store = readStore();
   if (!store[appointmentId]) return;
-  store[appointmentId] = { ...store[appointmentId], revoked: true };
+  store[appointmentId] = {
+    ...store[appointmentId],
+    revoked: true,
+    revokedAt: Date.now(),
+    revokeReason: store[appointmentId].revokeReason ?? "user",
+  };
   writeStore(store);
+}
+
+/** Auto-revoke because the appointment was cancelled. */
+export function revokeForAppointmentCancelled(appointmentId: string): void {
+  const store = readStore();
+  const g = store[appointmentId];
+  if (!g || g.revoked) return;
+  store[appointmentId] = {
+    ...g,
+    revoked: true,
+    revokedAt: Date.now(),
+    revokeReason: "cancelled",
+  };
+  writeStore(store);
+}
+
+/** Auto-revoke because the provider changed. Caller then re-asks the user. */
+export function revokeForProviderChange(appointmentId: string): void {
+  const store = readStore();
+  const g = store[appointmentId];
+  if (!g || g.revoked) return;
+  store[appointmentId] = {
+    ...g,
+    revoked: true,
+    revokedAt: Date.now(),
+    revokeReason: "provider_change",
+  };
+  writeStore(store);
+}
+
+/** Mark a grant as needing reconfirmation after a reschedule. */
+export function markGrantPendingReconfirm(appointmentId: string): void {
+  const store = readStore();
+  const g = store[appointmentId];
+  if (!g || g.revoked) return;
+  store[appointmentId] = { ...g, pendingReconfirm: true };
+  writeStore(store);
+}
+
+/** User reconfirmed after a reschedule; extend expiration from the new date. */
+export function reconfirmGrant(
+  appointmentId: string,
+  newAppointmentTs?: number,
+): ProviderShareGrant | null {
+  const store = readStore();
+  const g = store[appointmentId];
+  if (!g) return null;
+  const now = Date.now();
+  const base = newAppointmentTs && newAppointmentTs > now ? newAppointmentTs : now;
+  const next: ProviderShareGrant = {
+    ...g,
+    pendingReconfirm: false,
+    expiresAt: base + SEVEN_DAYS_MS,
+    updatedAt: now,
+  };
+  store[appointmentId] = next;
+  writeStore(store);
+  return next;
 }
 
 export function subscribeProviderShares(handler: () => void): () => void {
