@@ -5,25 +5,21 @@ import {
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
+  ChevronRight,
   Clock,
   CreditCard,
   Globe2,
   Lock,
   MapPin,
+  Pencil,
   ShieldCheck,
   User as UserIcon,
   Video,
-  Share2,
-  Pencil,
-  X as XIcon,
-  Sparkles,
-  Eye,
-  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
-import { buildSummary, mockSummary, INCLUDE_OPTIONS } from "@/lib/share/summary";
+import { buildSummary, mockSummary } from "@/lib/share/summary";
 import {
   bookingKeyFor,
   getPendingShare,
@@ -264,86 +260,6 @@ function CheckoutPage() {
           <ArrowLeft className="h-3.5 w-3.5" /> Back to provider
         </Link>
 
-        {/* Optional Health Passport sharing — compact card, outside checkout */}
-        <section
-          className={`mt-6 rounded-2xl border bg-white p-5 sm:p-6 ${
-            pending ? "border-[#D3C8EE]" : "border-[#E9E6FA]"
-          }`}
-        >
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                <Share2 className="h-3 w-3" /> Health Passport · Optional
-              </p>
-              <h2 className="mt-2 text-[16px] font-semibold tracking-tight text-slate-900 sm:text-[17px]">
-                {pending
-                  ? `Ready to share with ${provider.name.split(",")[0]}`
-                  : `Share context with ${provider.name.split(",")[0]}?`}
-              </h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
-                {pending
-                  ? "You can edit or remove this anytime. Sharing activates only after your appointment is confirmed."
-                  : "You choose what's included. Nothing is shared unless you review and confirm it."}
-              </p>
-
-              {pending && pending.includedKeys.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {INCLUDE_OPTIONS.filter((o) =>
-                    pending.includedKeys.includes(o.key),
-                  ).map((o) => (
-                    <span
-                      key={o.key}
-                      className="inline-flex items-center gap-1 rounded-full bg-[#F4EEFB] px-2.5 py-0.5 text-[11.5px] font-medium text-[#3D2E6B]"
-                    >
-                      <CheckCircle2 className="h-3 w-3" /> {o.label}
-                    </span>
-                  ))}
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-0.5 text-[11.5px] font-medium text-slate-500">
-                    <Clock3 className="h-3 w-3" /> Last 30 days
-                  </span>
-                </div>
-              )}
-              {pending && pending.includedKeys.length === 0 && (
-                <p className="mt-3 text-[12.5px] text-slate-500">
-                  You've chosen not to share anything for this appointment.
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-none flex-wrap items-center gap-2">
-              {pending ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setShareModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3.5 py-2 text-[12.5px] font-semibold text-[#3D2E6B] hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearPendingShare(bookingKey);
-                      setPending(null);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-slate-600 hover:bg-slate-50"
-                  >
-                    <XIcon className="h-3.5 w-3.5" /> Remove
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShareModalOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
-                >
-                  Choose what to share
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
           {/* Payment form */}
           <form
@@ -400,6 +316,69 @@ function CheckoutPage() {
               </div>
             </div>
 
+            {/* Health Passport sharing — compact option inside the checkout form */}
+            <div className="mt-4 rounded-xl border border-[#E9E6FA] bg-white p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[13px] font-semibold text-slate-900">
+                    Share from your Health Passport
+                  </h3>
+                  {pending && pending.includedKeys.length > 0 ? (
+                    <>
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-emerald-700">
+                        <CheckCircle2 className="h-3.5 w-3.5 flex-none" />
+                        Health Passport sharing added
+                      </div>
+                      <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                        {pending.includedKeys.length} item
+                        {pending.includedKeys.length === 1 ? "" : "s"} will be shared with{" "}
+                        {provider.name.split(",")[0]} after your booking is confirmed.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
+                        If you'd like, choose what {provider.name.split(",")[0]} can see for this
+                        appointment.
+                      </p>
+                      <p className="mt-1 text-[11.5px] text-slate-400">
+                        Nothing is shared unless you confirm.
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="flex flex-none items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShareModalOpen(true)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#E1DAF1] bg-white px-3 py-2 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+                  >
+                    {pending && pending.includedKeys.length > 0 ? (
+                      <>
+                        <Pencil className="h-3.5 w-3.5" /> Review or change
+                      </>
+                    ) : (
+                      <>
+                        Choose <ChevronRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                  {pending && pending.includedKeys.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearPendingShare(bookingKey);
+                        setPending(null);
+                      }}
+                      className="text-[11.5px] font-medium text-slate-400 underline underline-offset-2 transition hover:text-slate-600"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
               <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-brand-purple" />
               <p className="text-[12.5px] leading-relaxed text-slate-600">
@@ -443,18 +422,8 @@ function CheckoutPage() {
                 <Link to="/privacy" className="font-semibold text-brand-purple underline underline-offset-2">
                   Privacy Policy
                 </Link>
-                {pending && pending.includedKeys.length > 0 ? (
-                  <>
-                    , and I consent to sharing the selected Health Passport information with{" "}
-                    <span className="font-semibold text-slate-900">{provider.name}</span> for this
-                    appointment. I understand nothing else is shared, and I can revoke access anytime.
-                  </>
-                ) : (
-                  <>
-                    . I understand my personal information will only be used to confirm and deliver
-                    this appointment, and nothing from my Health Passport is shared unless I choose to.
-                  </>
-                )}
+                . I understand my personal information will only be used to confirm and deliver this
+                appointment.
               </span>
             </label>
 
