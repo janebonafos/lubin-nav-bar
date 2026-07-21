@@ -337,6 +337,38 @@ function Step1({
                     <Check className="h-3.5 w-3.5" strokeWidth={3} />
                   </span>
                 </label>
+                {opt.key === "assessments" && checked && attempts.length > 0 && (
+                  <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                      Results included ({attempts.length})
+                    </p>
+                    <ul className="mt-1.5 space-y-1">
+                      {visibleAttempts.map((a) => (
+                        <li
+                          key={a.id}
+                          className="flex items-baseline justify-between gap-3 text-[12px] text-[#3D2E6B]"
+                        >
+                          <span className="truncate font-medium">{a.assessmentName}</span>
+                          <span className="flex-none text-[11px] text-[#8B85A6]">
+                            {new Date(a.takenAt).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {attempts.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllAssess((v) => !v)}
+                        className="mt-2 text-[11px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+                      >
+                        {showAllAssess ? "Show fewer" : `Show all ${attempts.length}`}
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
