@@ -324,7 +324,7 @@ function CheckoutPage() {
                   </h3>
                   {pending && pending.includedKeys.length > 0 ? (
                     <>
-                      <div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-emerald-700">
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#4A3E7F]">
                         <CheckCircle2 className="h-3.5 w-3.5 flex-none" />
                         Health Passport sharing added
                       </div>
