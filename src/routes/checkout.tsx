@@ -422,18 +422,8 @@ function CheckoutPage() {
                 <Link to="/privacy" className="font-semibold text-brand-purple underline underline-offset-2">
                   Privacy Policy
                 </Link>
-                {pending && pending.includedKeys.length > 0 ? (
-                  <>
-                    , and I consent to sharing the selected Health Passport information with{" "}
-                    <span className="font-semibold text-slate-900">{provider.name}</span> for this
-                    appointment. I understand nothing else is shared, and I can revoke access anytime.
-                  </>
-                ) : (
-                  <>
-                    . I understand my personal information will only be used to confirm and deliver
-                    this appointment, and nothing from my Health Passport is shared unless I choose to.
-                  </>
-                )}
+                . I understand my personal information will only be used to confirm and deliver this
+                appointment.
               </span>
             </label>
 
