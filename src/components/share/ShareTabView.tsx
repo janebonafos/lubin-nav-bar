@@ -14,6 +14,14 @@ import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
 import { buildSummary, mockSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
+import BookedProviderShareCard from "./BookedProviderShareCard";
+import type { ClientUpcomingAppointment } from "@/components/profile/ClientAppointmentsSection";
+import {
+  createProviderGrant,
+  updateProviderGrant,
+  getProviderGrant,
+  type ProviderShareGrant,
+} from "@/lib/share/providerShareStore";
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
 
@@ -25,12 +33,18 @@ export default function ShareTabView({
   onRequestSignup,
   onStartCheckin,
   sharerName = "You",
+  upcomingAppointments = [],
+  autoOpenAppointmentId,
+  onAutoOpenHandled,
 }: {
   checkins: MoodCheckin[];
   isGuest: boolean;
   onRequestSignup: () => void;
   onStartCheckin?: () => void;
   sharerName?: string;
+  upcomingAppointments?: ClientUpcomingAppointment[];
+  autoOpenAppointmentId?: string | null;
+  onAutoOpenHandled?: () => void;
 }) {
   const [range, setRange] = useState<RangeKey>("30d");
   const [consentOpen, setConsentOpen] = useState(false);
@@ -39,6 +53,10 @@ export default function ShareTabView({
     includedKeys: string[];
     recipient: RecipientId;
   } | null>(null);
+  // Provider (appointment-linked) sharing state
+  const [providerAppt, setProviderAppt] = useState<ClientUpcomingAppointment | null>(null);
+  const [providerMode, setProviderMode] = useState<"share" | "update" | null>(null);
+  const [viewingGrant, setViewingGrant] = useState<ProviderShareGrant | null>(null);
 
   // mounted flag so SSR & first-paint don't mismatch on localStorage reads
   const [mounted, setMounted] = useState(false);
@@ -69,8 +87,57 @@ export default function ShareTabView({
     action();
   };
 
+  const openProviderConsent = (
+    appt: ClientUpcomingAppointment,
+    mode: "share" | "update" = "share",
+  ) => {
+    requireAccount(() => {
+      setProviderAppt(appt);
+      setProviderMode(mode);
+    });
+  };
+
+  // Auto-open from deep link (e.g. from payment success page)
+  useEffect(() => {
+    if (!autoOpenAppointmentId || !mounted) return;
+    const appt = upcomingAppointments.find(
+      (a) => a.id === autoOpenAppointmentId,
+    );
+    if (appt && !getProviderGrant(appt.id)) {
+      openProviderConsent(appt, "share");
+    }
+    onAutoOpenHandled?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenAppointmentId, mounted, upcomingAppointments.length]);
+
   return (
     <div className="grid gap-6">
+      {/* Booked-provider share cards (appointment-linked) */}
+      {upcomingAppointments.length > 0 && (
+        <div className="grid gap-3">
+          {upcomingAppointments.map((a) => (
+            <BookedProviderShareCard
+              key={a.id}
+              appointment={a}
+              highlight={a.id === autoOpenAppointmentId}
+              onReviewAndShare={() => openProviderConsent(a, "share")}
+              onUpdate={() => openProviderConsent(a, "update")}
+              onViewShared={(g) => setViewingGrant(g)}
+            />
+          ))}
+        </div>
+      )}
+
+      {upcomingAppointments.length > 0 && (
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#ECE7F6]" />
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
+            Other ways to share
+          </p>
+          <div className="h-px flex-1 bg-[#ECE7F6]" />
+        </div>
+      )}
+
       <header>
         <h2
           className="text-2xl md:text-3xl font-bold text-[#3D2E6B] tracking-tight"
@@ -304,6 +371,110 @@ export default function ShareTabView({
           )}
         </>
       )}
+
+      {/* Provider-mode consent flow (skips recipient step) */}
+      {providerAppt && (
+        <ShareConsentModal
+          open={true}
+          summary={summary}
+          providerContext={{
+            providerName: providerAppt.providerName,
+            appointmentLabel: providerAppt.fullLabel,
+          }}
+          onConfirm={(r) => {
+            if (providerMode === "update") {
+              updateProviderGrant(providerAppt.id, {
+                includedKeys: r.includedKeys,
+                snapshot: summary,
+              });
+            } else {
+              createProviderGrant({
+                appointmentId: providerAppt.id,
+                providerName: providerAppt.providerName,
+                appointmentLabel: providerAppt.fullLabel,
+                appointmentTs: providerAppt.ts,
+                includedKeys: r.includedKeys,
+                snapshot: summary,
+              });
+            }
+            setProviderAppt(null);
+            setProviderMode(null);
+          }}
+        />
+      )}
+
+      {/* View-what-was-shared read-only sheet */}
+      {viewingGrant && (
+        <ViewSharedSheet
+          grant={viewingGrant}
+          onClose={() => setViewingGrant(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function ViewSharedSheet({
+  grant,
+  onClose,
+}: {
+  grant: ProviderShareGrant;
+  onClose: () => void;
+}) {
+  const expiresLabel = new Date(grant.expiresAt).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-[24px] border border-[#ECE7F6] bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="border-b border-[#F0EDF8] px-6 py-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
+            Snapshot shared with {grant.providerName}
+          </p>
+          <p className="mt-1 text-sm text-[#3D2E6B]">
+            For {grant.appointmentLabel} · Available until {expiresLabel}
+          </p>
+        </div>
+        <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-5 text-sm text-[#3D2E6B]">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Included
+            </p>
+            <ul className="mt-2 space-y-1">
+              {grant.includedKeys.map((k) => (
+                <li key={k} className="text-[13px]">
+                  • {k}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Summary snapshot
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#4A3E7F]">
+              {grant.snapshot.insight}
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end border-t border-[#F0EDF8] px-6 py-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white hover:bg-[#6857A3]"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

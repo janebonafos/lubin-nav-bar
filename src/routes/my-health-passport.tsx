@@ -61,9 +61,20 @@ import {
   getAssessmentStatus,
 } from "@/lib/patterns/scoring";
 import type { Attempt as PatternAttempt, InProgress } from "@/lib/patterns/types";
+import {
+  getClientUpcomingAppointments,
+  type ClientUpcomingAppointment,
+} from "@/components/profile/ClientAppointmentsSection";
+import { z } from "zod";
 
 export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
+  validateSearch: z
+    .object({
+      tab: z.enum(["overview", "progress", "share"]).optional(),
+      share: z.string().optional(),
+    })
+    .partial(),
   head: () => ({
     meta: [
       { title: "Health Passport — Lubin" },
@@ -110,7 +121,26 @@ const MOODS = [
 
 // ---------- Page ----------
 function PassportPage() {
-  const [tab, setTab] = useState<"overview" | "progress" | "share">("overview");
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<"overview" | "progress" | "share">(
+    search.tab ?? "overview",
+  );
+  const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
+    string | null
+  >(search.share ?? null);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<
+    ClientUpcomingAppointment[]
+  >([]);
+  useEffect(() => {
+    setUpcomingAppointments(getClientUpcomingAppointments());
+  }, []);
+  useEffect(() => {
+    if (search.tab) setTab(search.tab);
+    if (search.share) {
+      setTab("share");
+      setAutoOpenAppointmentId(search.share);
+    }
+  }, [search.tab, search.share]);
   const [checkins, setCheckins] = useState<CheckIn[]>([]);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -298,6 +328,9 @@ function PassportPage() {
               isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
               onRequestSignup={() => openAuth("signup")}
               onStartCheckin={() => setTab("overview")}
+              upcomingAppointments={upcomingAppointments}
+              autoOpenAppointmentId={autoOpenAppointmentId}
+              onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
             />
           )}
         </div>

@@ -102,6 +102,45 @@ const seed: Appt[] = [
 
 export const CLIENT_UPCOMING_COUNT = seed.filter((a) => a.status === "upcoming").length;
 
+export type ClientUpcomingAppointment = {
+  id: string;
+  providerName: string;
+  providerRole: string;
+  providerInitials: string;
+  dateLabel: string;
+  timeLabel: string;
+  fullLabel: string;
+  ts?: number;
+};
+
+function initialsFor(name: string): string {
+  return name
+    .replace(/^(Dr\.|Coach|Ms\.|Mr\.)\s+/i, "")
+    .split(/\s+/)
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+export function getClientUpcomingAppointments(): ClientUpcomingAppointment[] {
+  return seed
+    .filter((a) => a.status === "upcoming")
+    .map((a) => {
+      const dateLabel = `${a.day.charAt(0) + a.day.slice(1).toLowerCase()}, ${a.month.charAt(0) + a.month.slice(1).toLowerCase()} ${a.date}`;
+      return {
+        id: a.id,
+        providerName: a.provider,
+        providerRole: a.specialty,
+        providerInitials: initialsFor(a.provider),
+        dateLabel,
+        timeLabel: a.time,
+        fullLabel: `${dateLabel} · ${a.time}`,
+      };
+    });
+}
+
 export default function ClientAppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
   const [all, setAll] = useState<Appt[]>(seed);

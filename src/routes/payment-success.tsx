@@ -9,6 +9,7 @@ import {
   ArrowRight,
   CalendarPlus,
   ArrowLeft,
+  Shield,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
@@ -267,6 +268,13 @@ function PaymentSuccessPage() {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-5 py-3 text-[13px] font-semibold text-brand-purple-dark transition-all hover:-translate-y-0.5 hover:bg-[#FBFAFF]"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to {provider.name.split(",")[0]}'s profile
+              </Link>
+              <Link
+                to="/my-health-passport"
+                search={{ tab: "share" }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-5 py-3 text-[13px] font-semibold text-brand-purple-dark transition-all hover:-translate-y-0.5 hover:bg-[#FBFAFF]"
+              >
+                <Shield className="h-3.5 w-3.5" /> Review Health Passport sharing
               </Link>
               <Link
                 to="/profile"
