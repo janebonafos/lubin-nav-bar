@@ -444,6 +444,11 @@ function Step1({
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
   const visibleAttempts = showAllAssess ? attempts : attempts.slice(0, 3);
+  const selectedCount = attempts.filter((a) =>
+    selectedAttemptIds.includes(a.id),
+  ).length;
+  const allAttemptsSelected =
+    attempts.length > 0 && selectedCount === attempts.length;
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
@@ -528,24 +533,68 @@ function Step1({
                 </label>
                 {opt.key === "assessments" && checked && attempts.length > 0 && (
                   <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-                      Results included ({attempts.length})
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                        Results included ({selectedCount} of {attempts.length})
+                      </p>
+                      <button
+                        type="button"
+                        onClick={
+                          allAttemptsSelected
+                            ? deselectAllAttempts
+                            : selectAllAttempts
+                        }
+                        className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#6A5A98]"
+                      >
+                        {allAttemptsSelected ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-[#8B85A6]">
+                      Pick specific results, or share them all.
                     </p>
-                    <ul className="mt-1.5 space-y-1">
-                      {visibleAttempts.map((a) => (
-                        <li
-                          key={a.id}
-                          className="flex items-baseline justify-between gap-3 text-[12px] text-[#3D2E6B]"
-                        >
-                          <span className="truncate font-medium">{a.assessmentName}</span>
-                          <span className="flex-none text-[11px] text-[#8B85A6]">
-                            {new Date(a.takenAt).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        </li>
-                      ))}
+                    <ul className="mt-2 space-y-1">
+                      {visibleAttempts.map((a) => {
+                        const isSel = selectedAttemptIds.includes(a.id);
+                        return (
+                          <li key={a.id}>
+                            <label
+                              className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-2 transition ${
+                                isSel
+                                  ? "border-[#7E6BAF]/40 bg-[#FAF8FD]"
+                                  : "border-transparent hover:bg-[#FAF8FD]"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSel}
+                                onChange={() => toggleAttempt(a.id)}
+                                className="sr-only"
+                              />
+                              <span
+                                className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+                                  isSel
+                                    ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                                    : "border-[#D6CCEC] bg-white text-transparent"
+                                }`}
+                              >
+                                <Check
+                                  className="h-2.5 w-2.5"
+                                  strokeWidth={3}
+                                />
+                              </span>
+                              <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#3D2E6B]">
+                                {a.assessmentName}
+                              </span>
+                              <span className="flex-none text-[11px] text-[#8B85A6]">
+                                {new Date(a.takenAt).toLocaleDateString(
+                                  undefined,
+                                  { month: "short", day: "numeric" },
+                                )}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
                     </ul>
                     {attempts.length > 3 && (
                       <button
