@@ -1,9 +1,24 @@
 import { useEffect, useRef, useState } from "react";
-import { CalendarClock, Video, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  CalendarClock,
+  Video,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Share2,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
 } from "@/lib/appointments-bus";
+import {
+  getProviderGrant,
+  subscribeProviderShares,
+  type ProviderShareGrant,
+} from "@/lib/share/providerShareStore";
 
 type Appt = {
   id: string;
@@ -149,6 +164,17 @@ export default function ClientAppointmentsSection() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<number | null>(null);
+  const [grants, setGrants] = useState<Record<string, ProviderShareGrant | null>>({});
+
+  useEffect(() => {
+    const refresh = () => {
+      const next: Record<string, ProviderShareGrant | null> = {};
+      for (const a of seed) next[a.id] = getProviderGrant(a.id);
+      setGrants(next);
+    };
+    refresh();
+    return subscribeProviderShares(refresh);
+  }, []);
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 400);
