@@ -451,6 +451,17 @@ export default function ClientAppointmentsSection() {
                         </div>
                       )}
 
+                      {(a.status === "upcoming" || a.status === "completed") && (
+                        <div className="mb-6">
+                          <SharingBlock
+                            appointmentId={a.id}
+                            providerName={a.provider}
+                            grant={grants[a.id] ?? null}
+                            upcoming={a.status === "upcoming"}
+                          />
+                        </div>
+                      )}
+
                       {a.status === "upcoming" && (
                         <div className="space-y-2">
                           <div className="flex flex-wrap gap-3">
