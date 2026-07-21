@@ -53,10 +53,7 @@ export default function ShareConsentModal({
   const itemHasData = useMemo(() => {
     return {
       mood: summary.checkinsInRange.length > 0,
-      topics: summary.themes.length > 0,
       assessments: summary.attemptsInRange.length > 0,
-      checkinCount: summary.checkinsInRange.length > 0,
-      narrative: summary.hasAnyData,
     } as Record<string, boolean>;
   }, [summary]);
 
