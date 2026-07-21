@@ -1,9 +1,24 @@
 import { useEffect, useRef, useState } from "react";
-import { CalendarClock, Video, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  CalendarClock,
+  Video,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Share2,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
 } from "@/lib/appointments-bus";
+import {
+  getProviderGrant,
+  subscribeProviderShares,
+  type ProviderShareGrant,
+} from "@/lib/share/providerShareStore";
 
 type Appt = {
   id: string;
@@ -149,6 +164,17 @@ export default function ClientAppointmentsSection() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<number | null>(null);
+  const [grants, setGrants] = useState<Record<string, ProviderShareGrant | null>>({});
+
+  useEffect(() => {
+    const refresh = () => {
+      const next: Record<string, ProviderShareGrant | null> = {};
+      for (const a of seed) next[a.id] = getProviderGrant(a.id);
+      setGrants(next);
+    };
+    refresh();
+    return subscribeProviderShares(refresh);
+  }, []);
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 400);
@@ -349,6 +375,20 @@ export default function ClientAppointmentsSection() {
                     </div>
 
                     <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+                      {a.status === "upcoming" && (
+                        grants[a.id] ? (
+                          <span
+                            title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
+                            className="hidden items-center gap-1 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69] sm:inline-flex"
+                          >
+                            <CheckCircle2 className="h-3 w-3" /> Shared
+                          </span>
+                        ) : (
+                          <span className="hidden items-center gap-1 rounded-full bg-[#F4F0FB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF] sm:inline-flex">
+                            <Lock className="h-3 w-3" /> Not shared
+                          </span>
+                        )
+                      )}
                       <button
                         onClick={() => setExpanded(isExpanded ? null : a.id)}
                         className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#EAE7F5] px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-white"
@@ -408,6 +448,17 @@ export default function ClientAppointmentsSection() {
                           <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[#3D2E6B]">
                             {a.followUp}
                           </p>
+                        </div>
+                      )}
+
+                      {(a.status === "upcoming" || a.status === "completed") && (
+                        <div className="mb-6">
+                          <SharingBlock
+                            appointmentId={a.id}
+                            providerName={a.provider}
+                            grant={grants[a.id] ?? null}
+                            upcoming={a.status === "upcoming"}
+                          />
                         </div>
                       )}
 
@@ -483,6 +534,104 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
         {label}
       </p>
       <p className="mt-1 text-sm font-medium text-[#3D2E6B]">{value}</p>
+    </div>
+  );
+}
+
+function SharingBlock({
+  appointmentId,
+  providerName,
+  grant,
+  upcoming,
+}: {
+  appointmentId: string;
+  providerName: string;
+  grant: ProviderShareGrant | null;
+  upcoming: boolean;
+}) {
+  const shared = !!grant;
+  const expiresLabel = grant
+    ? new Date(grant.expiresAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+  const shareHref = `/my-health-passport?tab=share&share=${encodeURIComponent(appointmentId)}`;
+
+  return (
+    <div
+      className={`rounded-[12px] border p-5 shadow-[0_8px_24px_-12px_rgba(61,46,107,0.08)] ${
+        shared
+          ? "border-[#D6EEE1] bg-[#F6FBF9]"
+          : "border-[#EAE7F5] bg-white"
+      }`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+            Health Passport sharing
+          </p>
+          {shared && grant ? (
+            <>
+              <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#2D8E69]">
+                <CheckCircle2 className="h-4 w-4" />
+                Shared with {providerName}
+              </p>
+              <p className="mt-1 text-xs text-[#6B6684]">
+                {grant.includedKeys.length} item
+                {grant.includedKeys.length === 1 ? "" : "s"} · available until{" "}
+                <span className="font-semibold text-[#3D2E6B]">{expiresLabel}</span>
+                {grant.updatedAt && (
+                  <>
+                    {" · updated "}
+                    {new Date(grant.updatedAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </>
+                )}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-2 text-sm font-semibold text-[#3D2E6B]">
+                {upcoming
+                  ? `Share context with ${providerName} before your session`
+                  : `You didn't share your Health Passport for this session`}
+              </p>
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-[#7E6BAF]">
+                <Lock className="h-3 w-3" />
+                You choose what's included. Nothing is shared without your permission.
+              </p>
+            </>
+          )}
+        </div>
+        {upcoming && (
+          <Link
+            to="/my-health-passport"
+            search={{ tab: "share", share: appointmentId }}
+            className={`inline-flex flex-none items-center gap-1.5 rounded-[8px] px-4 py-2 text-sm font-semibold transition ${
+              shared
+                ? "border border-[#E1DAF1] bg-white text-[#3D2E6B] hover:bg-[#FBFAFE]"
+                : "bg-[#7C69BA] text-white shadow-sm hover:bg-[#6857A3]"
+            }`}
+            aria-label={shared ? "Manage Health Passport sharing" : "Share from Health Passport"}
+          >
+            <Share2 className="h-3.5 w-3.5" />
+            {shared ? "Manage sharing" : "Share from Health Passport"}
+          </Link>
+        )}
+        {!upcoming && shared && (
+          <a
+            href={shareHref}
+            className="inline-flex flex-none items-center gap-1.5 rounded-[8px] border border-[#E1DAF1] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+            View what was shared
+          </a>
+        )}
+      </div>
     </div>
   );
 }
