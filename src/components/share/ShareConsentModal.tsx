@@ -588,7 +588,11 @@ function Step1({
           <p className="mt-3 text-xs text-[#5A4A8A]">
             {included.length === 0
               ? "Nothing selected. You can still continue and choose to share nothing."
-              : `${included.length} item${included.length === 1 ? "" : "s"} selected.`}{" "}
+              : `${included.length} categor${included.length === 1 ? "y" : "ies"} selected${
+                  included.includes("assessments")
+                    ? ` · ${selectedCount} assessment result${selectedCount === 1 ? "" : "s"}`
+                    : ""
+                }.`}{" "}
             {allSelected ? (
               <button
                 type="button"
