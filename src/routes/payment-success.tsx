@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
   CalendarDays,
@@ -10,10 +11,28 @@ import {
   CalendarPlus,
   ArrowLeft,
   Share2,
+  Pencil,
+  Eye,
+  ShieldOff,
+  Lock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 import GuestAccountPrompt from "@/components/GuestAccountPrompt";
+import {
+  bookingKeyFor,
+  getPendingShare,
+  clearPendingShare,
+} from "@/lib/share/pendingShare";
+import {
+  createProviderGrant,
+  getProviderGrant,
+  revokeProviderGrant,
+  subscribeProviderShares,
+  type ProviderShareGrant,
+} from "@/lib/share/providerShareStore";
+import { buildSummary, mockSummary, INCLUDE_OPTIONS } from "@/lib/share/summary";
+import ShareConsentModal from "@/components/share/ShareConsentModal";
 
 const searchSchema = z.object({
   providerId: z.string().optional(),
@@ -23,8 +42,10 @@ const searchSchema = z.object({
   format: z.enum(["online", "in-person"]).optional(),
   email: z.string().optional(),
   name: z.string().optional(),
+  ref: z.string().optional(),
   promo: z.string().optional(),
   discountPct: z.coerce.number().optional(),
+  bookingKey: z.string().optional(),
 });
 
 export const Route = createFileRoute("/payment-success")({
@@ -50,6 +71,43 @@ function PaymentSuccessPage() {
   const service =
     (search.serviceId ? providerServices.find((s) => s.id === search.serviceId) : undefined) ??
     providerServices[0];
+
+  // ---- Appointment-linked Health Passport sharing ----
+  const appointmentId = `booking-${search.ref ?? "session"}`;
+  const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareSummary] = useState(() => {
+    const real = buildSummary("30d", { checkins: [] });
+    return real.hasAnyData ? real : mockSummary();
+  });
+
+  useEffect(() => {
+    // Activate any pending pre-payment selection now that the booking is confirmed.
+    const effectiveKey =
+      search.bookingKey ??
+      (search.providerId && search.date && search.time
+        ? bookingKeyFor(search.providerId, search.date, search.time)
+        : null);
+    if (effectiveKey) {
+      const pending = getPendingShare(effectiveKey);
+      if (pending && pending.includedKeys.length > 0 && !getProviderGrant(appointmentId)) {
+        createProviderGrant({
+          appointmentId,
+          providerId: pending.providerId,
+          providerName: pending.providerName,
+          appointmentLabel: pending.appointmentLabel,
+          includedKeys: pending.includedKeys,
+          snapshot: shareSummary,
+        });
+      }
+      // Selection has now been either activated or the user chose not to share
+      // anything — clear it either way so it doesn't linger.
+      if (pending) clearPendingShare(effectiveKey);
+    }
+    const refresh = () => setGrant(getProviderGrant(appointmentId));
+    refresh();
+    return subscribeProviderShares(refresh);
+  }, [appointmentId, search.bookingKey, search.providerId, search.date, search.time, shareSummary]);
 
   const effectiveDate =
     search.date ?? new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
@@ -119,6 +177,25 @@ function PaymentSuccessPage() {
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   };
   const calendarUrl = buildGoogleCalUrl();
+
+  const providerShortName = provider ? provider.name.split(",")[0] : "your provider";
+  const appointmentShortLabel = `${new Date(effectiveDate + "T00:00:00").toLocaleDateString(
+    undefined,
+    { weekday: "short", month: "short", day: "numeric" },
+  )} · ${effectiveTime}`;
+  const grantExpiresLabel = grant
+    ? new Date(grant.expiresAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+  const grantCreatedLabel = grant
+    ? new Date(grant.createdAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
@@ -229,6 +306,94 @@ function PaymentSuccessPage() {
               </div>
             </dl>
 
+            {/* Health Passport sharing — placed above "What happens next" */}
+            {grant ? (
+              <section className="mt-6 rounded-2xl border border-[#D6E9DE] bg-[#F4FBF7] p-4">
+                <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2D8E69]">
+                  <Share2 className="h-3 w-3" /> Health Passport shared
+                </p>
+                <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
+                  {providerShortName} can view the information you selected until{" "}
+                  {grantExpiresLabel}.
+                </h3>
+                <dl className="mt-3 space-y-1.5 text-[12.5px] text-slate-600">
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-slate-500">Shared sections</dt>
+                    <dd className="text-right font-medium text-slate-800">
+                      {grant.includedKeys.length === 0
+                        ? "None"
+                        : INCLUDE_OPTIONS.filter((o) =>
+                            grant.includedKeys.includes(o.key),
+                          )
+                            .map((o) => o.label)
+                            .join(", ")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-slate-500">Date shared</dt>
+                    <dd className="font-medium text-slate-800">{grantCreatedLabel}</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-slate-500">Access expires</dt>
+                    <dd className="font-medium text-slate-800">{grantExpiresLabel}</dd>
+                  </div>
+                </dl>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to="/my-health-passport"
+                    search={{ tab: "share", share: appointmentId }}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#7C69BA] px-4 py-2 text-[12px] font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Manage shared information
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        typeof window !== "undefined" &&
+                        !window.confirm(
+                          `Revoke ${providerShortName}'s access to your Health Passport?`,
+                        )
+                      )
+                        return;
+                      revokeProviderGrant(appointmentId);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3.5 py-2 text-[12px] font-semibold text-rose-700 hover:bg-rose-50"
+                  >
+                    <ShieldOff className="h-3.5 w-3.5" /> Revoke access
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <section className="mt-6 rounded-2xl border border-[#D3C8EE] bg-[#F7F4FC] p-4">
+                <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                  <Share2 className="h-3 w-3" /> Health Passport
+                </p>
+                <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
+                  Share your Health Passport with {providerShortName}?
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-[#5A4A8A]">
+                  You can choose whether to share anything with {providerShortName} for this
+                  appointment.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShareOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                  >
+                    Choose what to share
+                  </button>
+                  <span className="inline-flex items-center gap-1.5 text-[11.5px] text-[#6B6684]">
+                    <Lock className="h-3 w-3" /> Optional — you can also do this later.
+                  </span>
+                </div>
+                <p className="mt-2 text-[11.5px] text-[#6B6684]">
+                  Nothing will be shared unless you review and confirm it.
+                </p>
+              </section>
+            )}
+
             {/* Next steps */}
             <div className="mt-6 rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF] p-4">
               <p className="text-[12px] font-semibold uppercase tracking-wider text-[#A799E2]">
@@ -242,6 +407,12 @@ function PaymentSuccessPage() {
                 <li className="flex items-start gap-2">
                   <CalendarDays className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                   You'll get a reminder 24 hours before your session.
+                  {!grant && (
+                    <span className="ml-1 text-[12px] text-[#6B6684]">
+                      Want to help {providerShortName} prepare? You can choose parts of
+                      your Health Passport to share before your session.
+                    </span>
+                  )}
                 </li>
                 <li className="flex items-start gap-2">
                   <Video className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
@@ -270,13 +441,6 @@ function PaymentSuccessPage() {
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to {provider.name.split(",")[0]}'s profile
               </Link>
               <Link
-                to="/my-health-passport"
-                search={{ tab: "share" }}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-5 py-3 text-[13px] font-semibold text-brand-purple-dark transition-all hover:-translate-y-0.5 hover:bg-[#FBFAFF]"
-              >
-                <Share2 className="h-3.5 w-3.5" /> Share Health Passport with provider
-              </Link>
-              <Link
                 to="/profile"
                 className="inline-flex w-full items-center justify-center gap-2 text-[12.5px] font-medium text-slate-500 hover:text-brand-purple"
               >
@@ -286,6 +450,42 @@ function PaymentSuccessPage() {
           </div>
         )}
       </main>
+
+      {shareOpen && provider && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShareOpen(false)}
+        >
+          <div
+            className="w-full max-w-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ShareConsentModal
+              open={shareOpen}
+              summary={shareSummary}
+              providerContext={{
+                providerName: provider.name,
+                providerRole: provider.bio,
+                appointmentLabel: appointmentShortLabel,
+                appointmentDate: dateLabel,
+              }}
+              onConfirm={(r) => {
+                if (r.includedKeys.length > 0) {
+                  createProviderGrant({
+                    appointmentId,
+                    providerId: provider.id,
+                    providerName: provider.name,
+                    appointmentLabel: appointmentShortLabel,
+                    includedKeys: r.includedKeys,
+                    snapshot: shareSummary,
+                  });
+                }
+                setShareOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
