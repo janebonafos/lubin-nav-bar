@@ -182,6 +182,7 @@ export default function ShareConsentModal({
               deselectAll={() => setIncluded([])}
               assessmentContext={assessmentContext}
               providerContext={providerContext}
+              summary={summary}
             />
           )}
           {step === 2 && !providerContext && (
