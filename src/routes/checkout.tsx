@@ -16,6 +16,9 @@ import {
   Share2,
   Pencil,
   X as XIcon,
+  Sparkles,
+  Eye,
+  Clock3,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
@@ -98,6 +101,9 @@ function CheckoutPage() {
   const [promoError, setPromoError] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [pending, setPending] = useState<PendingShare | null>(null);
+  const [localCheckins, setLocalCheckins] = useState<
+    { id: string; mood: number; note: string; date: string }[]
+  >([]);
 
   const bookingKey = useMemo(
     () => bookingKeyFor(search.providerId, search.date, search.time),
@@ -108,12 +114,22 @@ function CheckoutPage() {
     setPending(getPendingShare(bookingKey));
   }, [bookingKey]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("lubinai_checkins");
+      if (raw) setLocalCheckins(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   // Build a summary snapshot for the modal (uses local check-ins if available,
   // otherwise falls back to the mock so the user can preview categories).
   const shareSummary = useMemo(() => {
-    const real = buildSummary("30d", { checkins: [] });
+    const real = buildSummary("30d", { checkins: localCheckins });
     return real.hasAnyData ? real : mockSummary();
-  }, []);
+  }, [localCheckins]);
 
   if (!provider || !service) {
     return (
@@ -247,52 +263,77 @@ function CheckoutPage() {
           <ArrowLeft className="h-3.5 w-3.5" /> Back to provider
         </Link>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
-          {/* Payment form */}
-          <form
-            onSubmit={handlePay}
-            className="rounded-3xl border border-[#E9E6FA] bg-white p-6 shadow-sm sm:p-8"
-          >
-            {/* Optional Health Passport sharing (before payment section) */}
-            <div
-              className={`mb-6 rounded-2xl border p-4 sm:p-5 ${
-                pending
-                  ? "border-[#D3C8EE] bg-[#F7F4FC]"
-                  : "border-[#E9E6FA] bg-white"
-              }`}
-            >
-              {pending ? (
-                <div>
-                  <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                    <Share2 className="h-3 w-3" /> Health Passport
-                  </p>
-                  <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
-                    Ready to share with {provider.name.split(",")[0]}
-                  </h3>
-                  {pending.includedKeys.length === 0 ? (
-                    <p className="mt-2 text-[13px] text-[#5A4A8A]">
-                      You've chosen not to share anything for this appointment.
-                    </p>
-                  ) : (
-                    <ul className="mt-2 space-y-1 text-[13px] text-[#3D2E6B]">
-                      {INCLUDE_OPTIONS.filter((o) =>
-                        pending.includedKeys.includes(o.key),
-                      ).map((o) => (
-                        <li key={o.key}>• {o.label}</li>
-                      ))}
-                      <li className="text-[12px] text-[#6B6684]">
-                        • Last 30 days
-                      </li>
-                    </ul>
-                  )}
-                  <p className="mt-3 text-[11.5px] text-[#6B6684]">
-                    Sharing activates only after your appointment is confirmed.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
+        {/* Optional Health Passport sharing — full width, outside the checkout container */}
+        <section
+          className={`mt-6 overflow-hidden rounded-3xl border shadow-[0_18px_40px_-24px_rgba(74,62,127,0.18)] ${
+            pending
+              ? "border-[#D3C8EE] bg-gradient-to-br from-[#F7F4FC] to-white"
+              : "border-[#E1D8F5] bg-gradient-to-br from-[#F4EEFB] via-white to-white"
+          }`}
+        >
+          <div className="grid grid-cols-1 gap-0 md:grid-cols-[1.15fr_1fr]">
+            {/* Left: intent + actions */}
+            <div className="p-5 sm:p-6">
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF] ring-1 ring-[#E1D8F5]">
+                <Share2 className="h-3 w-3" /> Health Passport · Optional
+              </p>
+              <h2 className="mt-2.5 text-[18px] font-semibold tracking-tight text-slate-900 sm:text-[20px]">
+                {pending
+                  ? `Ready to share with ${provider.name.split(",")[0]}`
+                  : `Help ${provider.name.split(",")[0]} prepare for your session`}
+              </h2>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#5A4A8A]">
+                {pending
+                  ? "You've selected what your provider can see. You can edit or remove this anytime — sharing only activates after your appointment is confirmed."
+                  : `Sharing selected parts of your Health Passport with ${provider.name} gives them context before you meet. It's completely optional and always your choice.`}
+              </p>
+
+              {!pending && (
+                <ul className="mt-4 space-y-2 text-[12.5px] text-[#3D2E6B]">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
+                    <span>Less time recapping — more time on what matters.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
+                    <span>You pick exactly what's included and for how long.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
+                    <span>Revoke access anytime from your Health Passport.</span>
+                  </li>
+                </ul>
+              )}
+
+              {pending && pending.includedKeys.length > 0 && (
+                <ul className="mt-4 space-y-1 text-[13px] text-[#3D2E6B]">
+                  {INCLUDE_OPTIONS.filter((o) =>
+                    pending.includedKeys.includes(o.key),
+                  ).map((o) => (
+                    <li key={o.key} className="flex items-center gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[#7E6BAF]" />
+                      {o.label}
+                    </li>
+                  ))}
+                  <li className="flex items-center gap-2 text-[12px] text-[#6B6684]">
+                    <Clock3 className="h-3.5 w-3.5" />
+                    Last 30 days
+                  </li>
+                </ul>
+              )}
+              {pending && pending.includedKeys.length === 0 && (
+                <p className="mt-3 rounded-xl border border-[#E1DAF1] bg-white/70 p-3 text-[12.5px] text-[#5A4A8A]">
+                  You've chosen not to share anything for this appointment.
+                </p>
+              )}
+
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                {pending ? (
+                  <>
                     <button
                       type="button"
                       onClick={() => setShareModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3.5 py-1.5 text-[12px] font-semibold text-[#3D2E6B] hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3.5 py-2 text-[12.5px] font-semibold text-[#3D2E6B] hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
                     >
                       <Pencil className="h-3.5 w-3.5" /> Edit selection
                     </button>
@@ -302,50 +343,94 @@ function CheckoutPage() {
                         clearPendingShare(bookingKey);
                         setPending(null);
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-rose-700 hover:bg-rose-50"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-rose-700 hover:bg-rose-50"
                     >
                       <XIcon className="h-3.5 w-3.5" /> Remove
                     </button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                    <Share2 className="h-3 w-3" /> Health Passport
-                  </p>
-                  <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
-                    Share your Health Passport?
-                  </h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-[#5A4A8A]">
-                    You can choose whether to share anything with {provider.name} for this appointment.
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  </>
+                ) : (
+                  <>
                     <button
                       type="button"
                       onClick={() => setShareModalOpen(true)}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_12px_24px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
                     >
                       Choose what to share
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // "Not now" — do nothing; the reminder respects this choice by
-                        // simply leaving the pending share empty.
-                        setShareModalOpen(false);
-                      }}
-                      className="inline-flex items-center rounded-full px-3 py-2 text-[12.5px] font-medium text-[#6B6684] hover:text-[#3D2E6B]"
-                    >
-                      Not now
-                    </button>
-                  </div>
-                  <p className="mt-2 text-[11.5px] text-[#6B6684]">
-                    Nothing will be shared unless you review and confirm it.
-                  </p>
-                </div>
-              )}
+                    <span className="inline-flex items-center rounded-full px-3 py-2 text-[12.5px] font-medium text-[#6B6684]">
+                      Not now — continue below
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] text-[#6B6684]">
+                <Lock className="h-3 w-3" />
+                Nothing is shared unless you review and confirm it.
+              </p>
             </div>
 
+            {/* Right: AI-generated preview of what the provider would see */}
+            <div className="border-t border-[#ECE4F7] bg-white/70 p-5 sm:p-6 md:border-l md:border-t-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                  <Sparkles className="h-3 w-3" /> AI preview
+                </p>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#F4EEFB] px-2 py-0.5 text-[10px] font-semibold text-[#7E6BAF]">
+                  <Eye className="h-3 w-3" /> What they'd see
+                </span>
+              </div>
+              <div className="mt-3 space-y-3">
+                <div className="rounded-2xl border border-[#ECE4F7] bg-white p-3.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    Summary
+                  </p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+                    {shareSummary.insight}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-xl border border-[#ECE4F7] bg-white p-2.5 text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">Mood</p>
+                    <p className="mt-0.5 text-[12.5px] font-semibold text-[#3D2E6B]">{shareSummary.moodLabel}</p>
+                  </div>
+                  <div className="rounded-xl border border-[#ECE4F7] bg-white p-2.5 text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">Direction</p>
+                    <p className="mt-0.5 text-[12.5px] font-semibold text-[#3D2E6B]">{shareSummary.directionLabel}</p>
+                  </div>
+                  <div className="rounded-xl border border-[#ECE4F7] bg-white p-2.5 text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">Stress</p>
+                    <p className="mt-0.5 text-[12.5px] font-semibold text-[#3D2E6B]">{shareSummary.stressLabel}</p>
+                  </div>
+                </div>
+                {shareSummary.themes.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">Top themes</p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {shareSummary.themes.slice(0, 5).map((t) => (
+                        <span
+                          key={t.label}
+                          className="inline-flex items-center rounded-full bg-[#F4EEFB] px-2.5 py-0.5 text-[11px] font-medium text-[#3D2E6B]"
+                        >
+                          {t.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="text-[11px] italic text-[#6B6684]">
+                  Preview generated from your Health Passport. Final content depends on what you select.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
+          {/* Payment form */}
+          <form
+            onSubmit={handlePay}
+            className="rounded-3xl border border-[#E9E6FA] bg-white p-6 shadow-sm sm:p-8"
+          >
             <div className="flex items-center gap-2 text-brand-purple">
               <Lock className="h-4 w-4" />
               <span className="text-[12px] font-semibold uppercase tracking-wider">
