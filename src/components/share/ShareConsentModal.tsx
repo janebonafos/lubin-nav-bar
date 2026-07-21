@@ -1034,7 +1034,7 @@ function Step3({
             <dd className="text-right font-semibold">
               {providerContext.providerName}
               {providerContext.providerRole && (
-                <span className="block text-[11px] font-normal text-[#6B6684]">
+                <span className="mt-0.5 block whitespace-nowrap text-[11px] font-normal text-[#6B6684]">
                   {providerContext.providerRole}
                 </span>
               )}
@@ -1069,10 +1069,10 @@ function Step3({
             What Dr. {providerContext.providerName.replace(/^Dr\.?\s*/i, "")} will see first
           </p>
           <p className="mt-1.5 text-[12px] text-[#3D2E6B]">
-            Lubin will generate a short <strong>AI Provider Brief</strong> from the
-            information above so the provider can quickly understand what has
-            been happening — without reading your full chats or every data
-            point. Supporting information is one tap away when they need it.
+            Lubin will create a short <strong>AI Provider Brief</strong> from
+            the information above, helping your provider understand the shared
+            information before your appointment. Supporting details are
+            available when needed.
           </p>
         </div>
 
@@ -1109,10 +1109,8 @@ function Step3({
         </div>
 
         <p className="mt-4 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-xs leading-relaxed text-[#5A4A8A]">
-          This creates a fixed snapshot of the information above. New
-          check-ins, assessments, or other Health Passport updates won't
-          appear automatically — you can send newer information later with
-          <span className="font-semibold text-[#3D2E6B]"> Update shared information</span>.
+          This is a fixed snapshot. New Health Passport updates won't be
+          shared automatically. You can update the shared information later.
         </p>
 
         <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">
