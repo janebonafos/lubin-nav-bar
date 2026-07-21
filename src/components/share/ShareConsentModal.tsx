@@ -654,7 +654,7 @@ function Step3({
     }[] = [
       {
         title: "Recent check-ins",
-        keys: ["mood", "checkinCount"],
+        keys: ["mood"],
         body: (
           <p className="text-[12px] text-[#5A4A8A]">
             {summary.checkinsInRange.length} check-in
@@ -694,18 +694,6 @@ function Step3({
           ),
       },
       {
-        title: "Patterns and observations",
-        keys: ["topics", "narrative"],
-        body: (
-          <div className="space-y-1 text-[12px] text-[#5A4A8A]">
-            {summary.themes.length > 0 && (
-              <p>Themes: {summary.themes.slice(0, 4).map((t) => t.label).join(" · ")}</p>
-            )}
-            {summary.insight && <p className="italic">{summary.insight}</p>}
-          </div>
-        ),
-      },
-      {
         title: "Previous patient-facing appointment summaries",
         keys: [],
         body: (
@@ -720,16 +708,6 @@ function Step3({
         body: (
           <p className="text-[12px] italic text-[#8B85A6]">
             No medication information on file.
-          </p>
-        ),
-      },
-      {
-        title: "Information from Lubin conversations",
-        keys: ["conversations"],
-        body: (
-          <p className="text-[12px] text-[#5A4A8A]">
-            A summary of themes and reflections from your Lubin chats. Full
-            transcripts are never shared.
           </p>
         ),
       },
@@ -774,14 +752,6 @@ function Step3({
             <dd className="text-right font-semibold">
               {includedKeys.includes("assessments")
                 ? `${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
-                : "Not included"}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#6B6684]">Lubin conversations</dt>
-            <dd className="text-right font-semibold">
-              {includedKeys.includes("conversations")
-                ? "Summary included (transcripts never shared)"
                 : "Not included"}
             </dd>
           </div>
