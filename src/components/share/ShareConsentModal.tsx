@@ -17,16 +17,23 @@ export type AssessmentContext = {
   label: string; // e.g. "Wellbeing Check (Feb 20, 2026)"
 };
 
+export type ProviderContext = {
+  providerName: string; // "Dr. Camille Lazaro"
+  appointmentLabel: string; // "Fri, Jun 28 at 3:00 PM"
+};
+
 export default function ShareConsentModal({
   open,
   onConfirm,
   summary,
   assessmentContext,
+  providerContext,
 }: {
   open: boolean;
   onConfirm: (result: ConsentResult) => void;
   summary: SummaryData;
   assessmentContext?: AssessmentContext;
+  providerContext?: ProviderContext;
 }) {
   const [step, setStep] = useState(1);
 
@@ -53,9 +60,9 @@ export default function ShareConsentModal({
     if (open) {
       setStep(1);
       setIncluded(defaultSelection);
-      setRecipient(null);
+      setRecipient(providerContext ? "other-mhp" : null);
     }
-  }, [open, defaultSelection]);
+  }, [open, defaultSelection, providerContext]);
 
   if (!open) return null;
 
@@ -73,6 +80,42 @@ export default function ShareConsentModal({
   const canStep1Continue = included.length > 0;
   const canStep2Continue = recipient !== null;
 
+  // In provider mode, recipient is known; consent flow is 2 steps.
+  const totalSteps = providerContext ? 2 : 3;
+  const displayedStep = providerContext && step === 3 ? 2 : step;
+  const stepTitle = providerContext
+    ? step === 1
+      ? "Choose what to include"
+      : "Confirm & consent"
+    : step === 1
+      ? "Choose what to include"
+      : step === 2
+        ? "Choose recipient"
+        : "Confirm & consent";
+  const isConfirmStep = step === 3 || (providerContext && step === 2);
+  const nextButtonLabel = isConfirmStep
+    ? providerContext
+      ? `Share with ${providerContext.providerName}`
+      : "I agree"
+    : "Continue";
+
+  const advance = () => {
+    if (providerContext) {
+      if (step === 1) setStep(3); // skip recipient
+      else if (recipient)
+        onConfirm({ includedKeys: included, recipient });
+    } else {
+      if (step < 3) setStep(step + 1);
+      else if (recipient)
+        onConfirm({ includedKeys: included, recipient });
+    }
+  };
+
+  const back = () => {
+    if (providerContext && step === 3) setStep(1);
+    else setStep(step - 1);
+  };
+
   return (
     <section
       aria-label="Share consent"
@@ -83,28 +126,24 @@ export default function ShareConsentModal({
         <div className="relative">
           <div className="flex items-center justify-between gap-3 px-5 pt-4 md:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5A4A8A]">
-              Step {step} of 3
+              Step {displayedStep} of {totalSteps}
             </p>
             <p className="text-[11px] font-medium text-[#A29EB6]">
-              {step === 1
-                ? "Choose what to include"
-                : step === 2
-                  ? "Choose recipient"
-                  : "Confirm & consent"}
+              {stepTitle}
             </p>
           </div>
           <div
             className="mt-3 flex w-full gap-1.5 px-5 md:px-7"
             role="progressbar"
             aria-valuemin={1}
-            aria-valuemax={3}
-            aria-valuenow={step}
+            aria-valuemax={totalSteps}
+            aria-valuenow={displayedStep}
           >
-            {[1, 2, 3].map((s) => (
+            {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
               <span
                 key={s}
                 className={`h-1.5 flex-1 rounded-[12px] transition-all duration-300 ${
-                  s <= step
+                  s <= displayedStep
                     ? "bg-gradient-to-r from-[#7E6BAF] to-[#A89BD0]"
                     : "bg-[#F4F0FB]"
                 }`}
@@ -124,17 +163,20 @@ export default function ShareConsentModal({
               selectAll={() => setIncluded(allAvailable)}
               deselectAll={() => setIncluded([])}
               assessmentContext={assessmentContext}
+              providerContext={providerContext}
             />
           )}
-          {step === 2 && <Step2 recipient={recipient} setRecipient={setRecipient} />}
-          {step === 3 && <Step3 />}
+          {step === 2 && !providerContext && (
+            <Step2 recipient={recipient} setRecipient={setRecipient} />
+          )}
+          {step === 3 && <Step3 providerContext={providerContext} />}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
           {step > 1 ? (
             <button
               type="button"
-              onClick={() => setStep(step - 1)}
+              onClick={back}
               className="inline-flex items-center gap-1.5 rounded-[12px] px-4 py-2 text-sm font-medium text-[#5A4A8A] hover:text-[#3D2E6B]"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -148,14 +190,10 @@ export default function ShareConsentModal({
             disabled={
               (step === 1 && !canStep1Continue) || (step === 2 && !canStep2Continue)
             }
-            onClick={() => {
-              if (step < 3) setStep(step + 1);
-              else if (recipient)
-                onConfirm({ includedKeys: included, recipient });
-            }}
+            onClick={advance}
             className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {step < 3 ? "Continue" : "I agree"}
+            {nextButtonLabel}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -172,6 +210,7 @@ function Step1({
   selectAll,
   deselectAll,
   assessmentContext,
+  providerContext,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -180,14 +219,19 @@ function Step1({
   selectAll: () => void;
   deselectAll: () => void;
   assessmentContext?: AssessmentContext;
+  providerContext?: ProviderContext;
 }) {
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
-        Here's what's included in your summary
+        {providerContext
+          ? `Choose what ${providerContext.providerName} can see`
+          : "Here's what's included in your summary"}
       </h2>
       <p className="mt-1.5 text-sm text-[#5A4A8A]">
-        A quick look at what your provider will see, and what stays just with you.
+        {providerContext
+          ? `Pick which parts of your Health Passport to share for your ${providerContext.appointmentLabel} appointment.`
+          : "A quick look at what your provider will see, and what stays just with you."}
       </p>
       <span className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#F4F0FB] px-3 py-1 text-[11px] font-semibold text-[#7E6BAF]">
         <Lock className="h-3 w-3" />
@@ -344,18 +388,30 @@ function Step2({
   );
 }
 
-function Step3() {
+function Step3({ providerContext }: { providerContext?: ProviderContext }) {
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">Your consent matters</h2>
       <p className="mt-1.5 text-sm text-[#5A4A8A]">One last look before you share.</p>
 
       <div className="mt-5 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-5 text-sm leading-relaxed text-[#3D2E6B]">
-        <p>By sharing your summary you confirm:</p>
+        {providerContext ? (
+          <p>
+            I agree to share the selected Health Passport information with{" "}
+            <strong>{providerContext.providerName}</strong> for my appointment on{" "}
+            <strong>{providerContext.appointmentLabel}</strong>. I can revoke
+            access at any time.
+          </p>
+        ) : (
+          <p>By sharing your summary you confirm:</p>
+        )}
         <ul className="mt-3 space-y-2 text-[#5A4A8A]">
           <li>• You've reviewed what's included</li>
           <li>• You're sharing this voluntarily</li>
           <li>• This is not a clinical diagnosis</li>
+          {providerContext && (
+            <li>• Access expires 7 days after your appointment</li>
+          )}
         </ul>
         <p className="mt-4 text-xs text-[#5A4A8A]">
           You can revoke access at any time from your settings.
