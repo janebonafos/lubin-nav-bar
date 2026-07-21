@@ -8,6 +8,8 @@ export type PendingShare = {
   providerId: string;
   appointmentLabel: string; // e.g. "Fri, Jun 28 · 3:00 PM"
   includedKeys: string[];
+  /** When set, narrows shared assessment results to these attempt IDs. */
+  attemptIds?: string[];
   createdAt: number;
 };
 
