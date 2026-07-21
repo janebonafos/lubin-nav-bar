@@ -50,6 +50,8 @@ Hard rules:
 - If a section has insufficient input, emit exactly one bullet with text "Not enough information" and sourceType "system".
 - Keep the whole brief scannable in about one minute: short bullet fragments, not paragraphs. Aim for 1–4 bullets per section.
 - Every bullet MUST carry a sourceLabel that identifies where it came from and, when relevant, a date (e.g. "PHQ-9 · Jul 18, 2026", "3 check-ins · Jul 12–20", "Lubin conversations", "Patient-reported").
+- Assessments arrive grouped by clinical tool. Each group carries resultCount, latestScore, previousScore, change, direction, improving, and a history array. When resultCount > 1, describe change over time (e.g. "PHQ-9 decreased 4 pts across 3 attempts") in the "changesOverTime" and "relevantAssessments" sections instead of listing every attempt as a separate finding.
+- If an assessment group carries a non-null safetyFlag (currently only PHQ-9 item 9), include a dedicated "currentConcerns" bullet worded: "Safety-related response on PHQ-9 item 9 — review recommended" with sourceLabel like "PHQ-9 · <date>" and sourceType "assessment". Do NOT infer suicidal intent, do NOT produce a diagnosis, and do NOT restate the raw response text verbatim in more than one bullet.
 
 Return ONLY valid minified JSON matching this exact shape (no prose, no markdown fences):
 {
