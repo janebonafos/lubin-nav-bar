@@ -28,12 +28,27 @@ export type ProviderShareGrant = {
    */
   updatedAt?: number;
   /**
+   * Version number of the current snapshot. Starts at 1 and increments
+   * every time the patient explicitly re-confirms an "Update shared
+   * information" flow.
+   */
+  version?: number;
+  /**
+   * Consent history: prior snapshots preserved when the patient sends a
+   * newer version. Newest previous first.
+   */
+  previousVersions?: Array<{
+    version: number;
+    includedKeys: string[];
+    snapshot: SummaryData;
+    createdAt: number;
+    replacedAt: number;
+  }>;
+  /**
    * Set when the appointment is rescheduled. The grant stays active on the
    * old expiration until the user reconfirms against the new date.
    */
   pendingReconfirm?: boolean;
-  /** Whether the provider automatically sees future Health Passport updates. */
-  futureUpdates?: boolean;
   /** Optional date range covered by the shared snapshot. */
   dateRangeLabel?: string;
 };
@@ -97,6 +112,8 @@ export function createProviderGrant(input: {
     snapshot: input.snapshot,
     createdAt: now,
     expiresAt: base + SEVEN_DAYS_MS,
+    version: 1,
+    previousVersions: [],
   };
   const store = readStore();
   store[input.appointmentId] = grant;
@@ -111,11 +128,22 @@ export function updateProviderGrant(
   const store = readStore();
   const g = store[appointmentId];
   if (!g) return null;
+  const now = Date.now();
+  const priorVersion = g.version ?? 1;
+  const priorEntry = {
+    version: priorVersion,
+    includedKeys: g.includedKeys,
+    snapshot: g.snapshot,
+    createdAt: g.updatedAt ?? g.createdAt,
+    replacedAt: now,
+  };
   const next: ProviderShareGrant = {
     ...g,
     ...(patch.includedKeys ? { includedKeys: patch.includedKeys } : {}),
     ...(patch.snapshot ? { snapshot: patch.snapshot } : {}),
-    updatedAt: Date.now(),
+    updatedAt: now,
+    version: priorVersion + 1,
+    previousVersions: [priorEntry, ...(g.previousVersions ?? [])],
   };
   store[appointmentId] = next;
   writeStore(store);
