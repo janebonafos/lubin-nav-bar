@@ -52,6 +52,7 @@ export default function ShareTabView({
   const [confirmed, setConfirmed] = useState<{
     includedKeys: string[];
     recipient: RecipientId;
+    attemptIds?: string[];
   } | null>(null);
   // Provider (appointment-linked) sharing state
   const [providerAppt, setProviderAppt] = useState<ClientUpcomingAppointment | null>(null);
