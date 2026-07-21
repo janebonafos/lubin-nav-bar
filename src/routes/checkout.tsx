@@ -577,6 +577,49 @@ function CheckoutPage() {
           </aside>
         </div>
       </main>
+
+      {shareModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShareModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ShareConsentModal
+              open={shareModalOpen}
+              summary={shareSummary}
+              providerContext={{
+                providerName: provider.name,
+                providerRole: provider.bio,
+                appointmentLabel,
+                appointmentDate,
+              }}
+              initialIncluded={pending?.includedKeys}
+              onConfirm={(r) => {
+                setPendingShare({
+                  bookingKey,
+                  providerId: provider.id,
+                  providerName: provider.name,
+                  appointmentLabel,
+                  includedKeys: r.includedKeys,
+                  createdAt: Date.now(),
+                });
+                setPending({
+                  bookingKey,
+                  providerId: provider.id,
+                  providerName: provider.name,
+                  appointmentLabel,
+                  includedKeys: r.includedKeys,
+                  createdAt: Date.now(),
+                });
+                setShareModalOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
