@@ -107,6 +107,19 @@ export default function ShareConsentModal({
     }
   }, [open, defaultSelection, providerContext, allAttemptIds]);
 
+  // Auto-uncheck the "Assessment results" parent category when the user has
+  // deselected every individual attempt. Keeps parent state in sync with
+  // child selections.
+  useEffect(() => {
+    if (
+      included.includes("assessments") &&
+      allAttemptIds.length > 0 &&
+      selectedAttemptIds.length === 0
+    ) {
+      setIncluded((prev) => prev.filter((k) => k !== "assessments"));
+    }
+  }, [selectedAttemptIds, included, allAttemptIds]);
+
   if (!open) return null;
 
   const toggleIncluded = (key: string) => {
