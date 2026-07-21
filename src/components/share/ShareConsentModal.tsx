@@ -19,6 +19,8 @@ import {
   formatShortDate,
   type AssessmentGroup,
 } from "@/lib/patterns/grouping";
+import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
 
 export type ConsentResult = {
   includedKeys: string[];
@@ -106,6 +108,19 @@ export default function ShareConsentModal({
       setSelectedAttemptIds(allAttemptIds);
     }
   }, [open, defaultSelection, providerContext, allAttemptIds]);
+
+  // Auto-uncheck the "Assessment results" parent category when the user has
+  // deselected every individual attempt. Keeps parent state in sync with
+  // child selections.
+  useEffect(() => {
+    if (
+      included.includes("assessments") &&
+      allAttemptIds.length > 0 &&
+      selectedAttemptIds.length === 0
+    ) {
+      setIncluded((prev) => prev.filter((k) => k !== "assessments"));
+    }
+  }, [selectedAttemptIds, included, allAttemptIds]);
 
   if (!open) return null;
 
@@ -923,31 +938,58 @@ function Step3({
       {
         title: "Assessment results",
         keys: ["assessments"],
-        body:
-          sharedAttempts.length > 0 ? (
-            <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
-              {sharedAttempts.slice(0, 5).map((a) => (
-                <li key={a.id} className="flex justify-between gap-3">
-                  <span className="truncate">– {a.assessmentName}</span>
-                  <span className="flex-none text-[11px] text-[#8B85A6]">
-                    {new Date(a.takenAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </li>
+        body: (() => {
+          // Group selected attempts by assessment and show date/score/severity
+          // for every selected attempt.
+          const byName = new Map<string, typeof sharedAttempts>();
+          for (const a of sharedAttempts) {
+            const list = byName.get(a.assessmentName) ?? [];
+            list.push(a);
+            byName.set(a.assessmentName, list);
+          }
+          return (
+            <div className="space-y-3 text-[12px] text-[#3D2E6B]">
+              {[...byName.entries()].map(([name, list]) => (
+                <div key={name}>
+                  <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                    {name}
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {list.map((a) => (
+                      <li
+                        key={a.id}
+                        className="flex justify-between gap-3 text-[11px] text-[#5A4A8A]"
+                      >
+                        <span className="truncate">
+                          {new Date(a.takenAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          {typeof a.score === "number"
+                            ? ` · Score ${a.score}`
+                            : ""}
+                          {(() => {
+                            const meta = ASSESSMENTS.find(
+                              (x) => x.id === a.assessmentId,
+                            );
+                            if (!meta) return null;
+                            const st = getAssessmentStatus(
+                              meta.id,
+                              a.score,
+                              meta.maxScore,
+                              meta.lowerIsBetter,
+                            );
+                            return ` · ${st.label}`;
+                          })()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-              {sharedAttempts.length > 5 && (
-                <li className="text-[11px] italic text-[#8B85A6]">
-                  + {sharedAttempts.length - 5} more
-                </li>
-              )}
-            </ul>
-          ) : (
-            <p className="text-[12px] italic text-[#8B85A6]">
-              None selected — no assessment results will be shared.
-            </p>
-          ),
+            </div>
+          );
+        })(),
       },
       {
         title: "Previous patient-facing appointment summaries",
@@ -971,7 +1013,10 @@ function Step3({
     const visibleSections = sectionMap.filter((s) =>
       s.keys.length === 0
         ? false // hide "no data" sections from the review by default
-        : s.keys.some((k) => includedKeys.includes(k)),
+        : s.keys.some((k) => includedKeys.includes(k)) &&
+          // For assessments specifically, hide the whole card when the
+          // user hasn't selected any individual attempt to share.
+          !(s.keys.includes("assessments") && sharedAttempts.length === 0),
     );
     return (
       <div>
@@ -989,7 +1034,7 @@ function Step3({
             <dd className="text-right font-semibold">
               {providerContext.providerName}
               {providerContext.providerRole && (
-                <span className="block text-[11px] font-normal text-[#6B6684]">
+                <span className="mt-0.5 block whitespace-nowrap text-[11px] font-normal text-[#6B6684]">
                   {providerContext.providerRole}
                 </span>
               )}
@@ -1024,10 +1069,10 @@ function Step3({
             What Dr. {providerContext.providerName.replace(/^Dr\.?\s*/i, "")} will see first
           </p>
           <p className="mt-1.5 text-[12px] text-[#3D2E6B]">
-            Lubin will generate a short <strong>AI Provider Brief</strong> from the
-            information above so the provider can quickly understand what has
-            been happening — without reading your full chats or every data
-            point. Supporting information is one tap away when they need it.
+            Lubin will create a short <strong>AI Provider Brief</strong> from
+            the information above, helping your provider understand the shared
+            information before your appointment. Supporting details are
+            available when needed.
           </p>
         </div>
 
@@ -1064,10 +1109,8 @@ function Step3({
         </div>
 
         <p className="mt-4 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-xs leading-relaxed text-[#5A4A8A]">
-          This creates a fixed snapshot of the information above. New
-          check-ins, assessments, or other Health Passport updates won't
-          appear automatically — you can send newer information later with
-          <span className="font-semibold text-[#3D2E6B]"> Update shared information</span>.
+          This is a fixed snapshot. New Health Passport updates won't be
+          shared automatically. You can update the shared information later.
         </p>
 
         <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">

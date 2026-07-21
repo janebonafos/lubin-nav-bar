@@ -473,7 +473,7 @@ function PaymentSuccessPage() {
               summary={shareSummary}
               providerContext={{
                 providerName: provider.name,
-                providerRole: provider.bio,
+                providerRole: `${provider.title.split(",")[0].trim()}${provider.verified ? " · Verified provider" : ""}`,
                 appointmentLabel: appointmentShortLabel,
                 appointmentDate: dateLabel,
               }}
