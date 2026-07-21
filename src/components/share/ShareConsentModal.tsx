@@ -714,16 +714,10 @@ function AssessmentGroupRow({
           className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
             allOn
               ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-              : someOn
-                ? "border-[#7E6BAF] bg-white text-[#7E6BAF]"
-                : "border-[#D6CCEC] bg-white text-transparent"
+              : "border-[#D6CCEC] bg-white text-transparent"
           }`}
         >
-          {allOn ? (
-            <Check className="h-2.5 w-2.5" strokeWidth={3} />
-          ) : someOn ? (
-            <span className="h-[2px] w-2 rounded-full bg-[#7E6BAF]" />
-          ) : null}
+          {allOn ? <Check className="h-2.5 w-2.5" strokeWidth={3} /> : null}
         </button>
         <button
           type="button"
