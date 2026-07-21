@@ -1,11 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Lock, Check, X as XIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Lock,
+  Check,
+  X as XIcon,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
   type SummaryData,
 } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
+import {
+  groupAttemptsByAssessment,
+  formatShortDate,
+  trendChip,
+  type AssessmentGroup,
+} from "@/lib/patterns/grouping";
 
 export type ConsentResult = {
   includedKeys: string[];
