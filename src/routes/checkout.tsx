@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
-  ChevronRight,
   Clock,
   CreditCard,
   Globe2,
