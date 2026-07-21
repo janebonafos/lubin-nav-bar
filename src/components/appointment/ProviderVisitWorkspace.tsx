@@ -322,58 +322,292 @@ function AssessmentsSection({
       </p>
     );
   }
+  const groups = groupAttemptsByAssessment(attempts);
   return (
     <div className="space-y-2">
       <p className="text-xs text-[#6B6684]">
-        Choose which results to include in the patient-facing summary.
+        Grouped by clinical tool. Choose which results to include in the
+        patient-facing summary.
       </p>
-      <ul className="divide-y divide-[#ECE7F6] rounded-xl border border-[#ECE7F6]">
-        {attempts.slice(0, 12).map((a) => {
-          const meta = (assessments as Assessment[]).find((x) => x.id === a.assessmentId);
-          const status = meta
-            ? getAssessmentStatus(
-                meta.id,
-                a.score,
-                meta.maxScore,
-                meta.lowerIsBetter,
-              )
-            : null;
-          const isOn = !!included[a.id];
+      <ul className="space-y-3">
+        {groups.map((g) => (
+          <AssessmentGroupCard
+            key={g.assessmentId}
+            group={g}
+            included={included}
+            onToggle={onToggle}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function AssessmentGroupCard({
+  group,
+  included,
+  onToggle,
+}: {
+  group: AssessmentGroup;
+  included: Record<string, boolean>;
+  onToggle: (id: string, v: boolean) => void;
+}) {
+  const [view, setView] = useState<"none" | "trend" | "responses">("none");
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const includedCount = group.attempts.filter((a) => included[a.id]).length;
+  const allOn = includedCount === group.attempts.length;
+
+  const toggleAll = () => {
+    group.attempts.forEach((a) => onToggle(a.id, !allOn));
+  };
+
+  const changeInfo = () => {
+    if (group.change === null || group.direction === null) return null;
+    const abs = Math.abs(group.change);
+    const Icon =
+      group.direction === "increased"
+        ? TrendingUp
+        : group.direction === "decreased"
+          ? TrendingDown
+          : Minus;
+    const tone =
+      group.improving === true
+        ? "text-emerald-700 bg-emerald-50"
+        : group.improving === false
+          ? "text-[#5A3E8F] bg-[#F4ECFB]"
+          : "text-[#6B6684] bg-[#F0EEF6]";
+    const word =
+      group.direction === "stable"
+        ? "stable"
+        : `${group.direction} ${abs} pt${abs === 1 ? "" : "s"}`;
+    return (
+      <span
+        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${tone}`}
+      >
+        <Icon className="h-3 w-3" />
+        {word}
+      </span>
+    );
+  };
+
+  return (
+    <li className="rounded-xl border border-[#ECE7F6] bg-white">
+      <div className="flex flex-wrap items-start gap-3 px-3.5 py-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-[#3D2E6B]">
+            {group.friendlyName}{" "}
+            <span className="text-[11px] font-normal text-[#8B85A6]">
+              · {group.clinicalName} · {group.attempts.length} result
+              {group.attempts.length === 1 ? "" : "s"}
+            </span>
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#6B6684]">
+            <span>
+              <span className="font-semibold text-[#3D2E6B]">
+                Latest: {group.latest.score}
+                <span className="text-[#8B85A6]">/{group.maxScore}</span>
+              </span>
+              {group.latest.status ? ` · ${group.latest.status.label}` : ""} ·{" "}
+              {formatShortDate(group.latest.takenAt)}
+            </span>
+            {group.previous && (
+              <span className="text-[#8B85A6]">
+                Previous: {group.previous.score} ·{" "}
+                {formatShortDate(group.previous.takenAt)}
+              </span>
+            )}
+            {changeInfo()}
+          </div>
+        </div>
+        <label className="inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-[#5A4A8A]">
+          <input
+            type="checkbox"
+            checked={allOn}
+            onChange={toggleAll}
+            className="h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+          />
+          Include all
+        </label>
+      </div>
+
+      {group.safetyFlag && (
+        <div className="mx-3.5 mb-2 rounded-lg border border-amber-300 bg-amber-50 p-2.5">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-none text-amber-700" />
+            <div className="min-w-0 text-[12px] text-amber-900">
+              <p className="font-semibold">
+                Safety-related response — review recommended
+              </p>
+              <p className="mt-0.5">
+                On {formatShortDate(group.safetyFlag.date)}, the patient
+                responded <strong>“{group.safetyFlag.response}”</strong> to
+                item {group.safetyFlag.itemIndex + 1}: “
+                {group.safetyFlag.itemText}”. This is a screening response, not
+                a diagnosis or an inference of intent.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 border-t border-[#ECE7F6] px-3.5 py-2">
+        <button
+          type="button"
+          onClick={() => setView(view === "trend" ? "none" : "trend")}
+          className="inline-flex items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+        >
+          <Activity className="h-3 w-3" /> View trend
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setReviewIdx(0);
+            setView(view === "responses" ? "none" : "responses");
+          }}
+          className="inline-flex items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+        >
+          <ListChecks className="h-3 w-3" /> Review responses
+        </button>
+      </div>
+
+      {view === "trend" && (
+        <div className="border-t border-[#ECE7F6] bg-[#FCFAFE] px-3.5 py-3">
+          <Sparkline group={group} />
+        </div>
+      )}
+
+      {view === "responses" && (
+        <ResponsesPanel
+          group={group}
+          index={reviewIdx}
+          onChangeIndex={setReviewIdx}
+          onToggleInclude={onToggle}
+          included={included}
+        />
+      )}
+    </li>
+  );
+}
+
+function Sparkline({ group }: { group: AssessmentGroup }) {
+  // Chronological (oldest → newest) for the sparkline.
+  const chron = [...group.attempts].reverse();
+  const w = 200;
+  const h = 40;
+  const max = group.maxScore || 1;
+  const step = chron.length > 1 ? w / (chron.length - 1) : 0;
+  const points = chron.map((a, i) => {
+    const x = chron.length > 1 ? i * step : w / 2;
+    const y = h - (a.score / max) * (h - 4) - 2;
+    return { x, y, a };
+  });
+  const path = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+        Score over time
+      </p>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className="mt-1 h-10 w-full max-w-[220px]"
+        aria-label="Trend sparkline"
+      >
+        <path d={path} fill="none" stroke="#7E6BAF" strokeWidth="1.5" />
+        {points.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={2.5} fill={i === points.length - 1 ? "#3D2E6B" : "#A89BD0"} />
+        ))}
+      </svg>
+      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[#6B6684]">
+        {chron.map((a, i) => (
+          <li key={a.id}>
+            {formatShortDate(a.takenAt)}: <strong className="text-[#3D2E6B]">{a.score}</strong>
+            {i === chron.length - 1 ? " (latest)" : ""}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ResponsesPanel({
+  group,
+  index,
+  onChangeIndex,
+  onToggleInclude,
+  included,
+}: {
+  group: AssessmentGroup;
+  index: number;
+  onChangeIndex: (i: number) => void;
+  onToggleInclude: (id: string, v: boolean) => void;
+  included: Record<string, boolean>;
+}) {
+  const attempt = group.attempts[index];
+  if (!attempt) return null;
+  const meta = (assessments as Assessment[]).find((x) => x.id === group.assessmentId);
+  const items = meta?.questions.map((_, i) =>
+    labelForItem(attempt, group.assessmentId, i),
+  ) ?? [];
+  const isSafety = group.assessmentId === "phq-9";
+  const isOn = !!included[attempt.id];
+  return (
+    <div className="border-t border-[#ECE7F6] bg-white px-3.5 py-3">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+          Item responses
+        </span>
+        {group.attempts.length > 1 && (
+          <select
+            value={index}
+            onChange={(e) => onChangeIndex(Number(e.target.value))}
+            className="rounded-md border border-[#ECE7F6] bg-white px-2 py-1 text-[11px] text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none"
+          >
+            {group.attempts.map((a, i) => (
+              <option key={a.id} value={i}>
+                {formatShortDate(a.takenAt)} — Score {a.score}
+                {i === 0 ? " (latest)" : ""}
+              </option>
+            ))}
+          </select>
+        )}
+        <label className="ml-auto inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-[#5A4A8A]">
+          <input
+            type="checkbox"
+            checked={isOn}
+            onChange={(e) => onToggleInclude(attempt.id, e.target.checked)}
+            className="h-3.5 w-3.5 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+          />
+          Include this attempt
+        </label>
+      </div>
+      <ol className="space-y-1.5 text-[12px] text-[#3D2E6B]">
+        {items.map((it, i) => {
+          if (!it) return null;
+          const isSafetyItem = isSafety && i === 8 && it.value > 0;
           return (
-            <li key={a.id} className="flex items-center gap-3 px-3 py-2.5">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-[#3D2E6B]">
-                  {a.assessmentName}
-                  {meta && (
-                    <span className="ml-1.5 text-[11px] font-normal text-[#8B85A6]">
-                      ({meta.clinicalName})
-                    </span>
-                  )}
-                </p>
-                <p className="text-[11px] text-[#6B6684]">
-                  Score {a.score}
-                  {status ? ` · ${status.label}` : ""}
-                  {" · "}
-                  {new Date(a.takenAt).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
-              <label className="inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-[#5A4A8A]">
-                <input
-                  type="checkbox"
-                  checked={isOn}
-                  onChange={(e) => onToggle(a.id, e.target.checked)}
-                  className="h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-                />
-                Include
-              </label>
+            <li
+              key={i}
+              className={`rounded-md px-2 py-1.5 ${
+                isSafetyItem
+                  ? "border border-amber-300 bg-amber-50"
+                  : "bg-[#FCFAFE]"
+              }`}
+            >
+              <p className="text-[11px] text-[#6B6684]">
+                Item {i + 1}
+                {isSafetyItem ? " · safety-related" : ""}
+              </p>
+              <p className="mt-0.5 leading-snug">{it.text}</p>
+              <p className="mt-1 text-[12px] font-semibold text-[#3D2E6B]">
+                → {it.response}{" "}
+                <span className="text-[10px] font-normal text-[#8B85A6]">
+                  (value {it.value})
+                </span>
+              </p>
             </li>
           );
         })}
-      </ul>
+      </ol>
     </div>
   );
 }
