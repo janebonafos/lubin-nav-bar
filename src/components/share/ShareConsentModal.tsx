@@ -630,22 +630,114 @@ function Step3({
   agreed,
   onAgreedChange,
   summary,
+  futureUpdates,
+  onFutureUpdatesChange,
+  onRemoveIncluded,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
   agreed: boolean;
   onAgreedChange: (v: boolean) => void;
   summary: SummaryData;
+  futureUpdates?: boolean;
+  onFutureUpdatesChange?: (v: boolean) => void;
+  onRemoveIncluded?: (key: string) => void;
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   if (providerContext) {
+    // Group into the five patient-facing spec sections. We map existing
+    // include keys onto the closest spec section; sections without data
+    // are omitted.
+    const sectionMap: {
+      title: string;
+      keys: string[];
+      body: React.ReactNode;
+    }[] = [
+      {
+        title: "Recent check-ins",
+        keys: ["mood", "checkinCount"],
+        body: (
+          <p className="text-[12px] text-[#5A4A8A]">
+            {summary.checkinsInRange.length} check-in
+            {summary.checkinsInRange.length === 1 ? "" : "s"} · mood “
+            {summary.moodLabel.toLowerCase()}”, direction “
+            {summary.directionLabel.toLowerCase()}”.
+          </p>
+        ),
+      },
+      {
+        title: "Assessment results",
+        keys: ["assessments"],
+        body:
+          summary.attemptsInRange.length > 0 ? (
+            <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
+              {summary.attemptsInRange.slice(0, 5).map((a) => (
+                <li key={a.id} className="flex justify-between gap-3">
+                  <span className="truncate">– {a.assessmentName}</span>
+                  <span className="flex-none text-[11px] text-[#8B85A6]">
+                    {new Date(a.takenAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </li>
+              ))}
+              {summary.attemptsInRange.length > 5 && (
+                <li className="text-[11px] italic text-[#8B85A6]">
+                  + {summary.attemptsInRange.length - 5} more
+                </li>
+              )}
+            </ul>
+          ) : (
+            <p className="text-[12px] italic text-[#8B85A6]">
+              No assessment results yet.
+            </p>
+          ),
+      },
+      {
+        title: "Patterns and observations",
+        keys: ["topics", "narrative"],
+        body: (
+          <div className="space-y-1 text-[12px] text-[#5A4A8A]">
+            {summary.themes.length > 0 && (
+              <p>Themes: {summary.themes.slice(0, 4).map((t) => t.label).join(" · ")}</p>
+            )}
+            {summary.insight && <p className="italic">{summary.insight}</p>}
+          </div>
+        ),
+      },
+      {
+        title: "Previous patient-facing appointment summaries",
+        keys: [],
+        body: (
+          <p className="text-[12px] italic text-[#8B85A6]">
+            No previous shared visit summaries yet.
+          </p>
+        ),
+      },
+      {
+        title: "Medication information",
+        keys: [],
+        body: (
+          <p className="text-[12px] italic text-[#8B85A6]">
+            No medication information on file.
+          </p>
+        ),
+      },
+    ];
+    const visibleSections = sectionMap.filter((s) =>
+      s.keys.length === 0
+        ? false // hide "no data" sections from the review by default
+        : s.keys.some((k) => includedKeys.includes(k)),
+    );
     return (
       <div>
-        <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">Review before sharing</h2>
+        <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
+          Review what {providerContext.providerName} will see
+        </h2>
         <p className="mt-1.5 text-sm text-[#5A4A8A]">
-          You are choosing to share the information below with{" "}
-          <strong>{providerContext.providerName}</strong> for your appointment on{" "}
-          <strong>{providerContext.appointmentDate ?? providerContext.appointmentLabel}</strong>.
+          The sections below will be visible for this appointment only. You can
+          remove anything before confirming.
         </p>
 
         <dl className="mt-5 space-y-3 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-5 text-sm text-[#3D2E6B]">
@@ -672,51 +764,58 @@ function Step3({
             <dt className="text-[#6B6684]">Access expires</dt>
             <dd className="text-right font-semibold">7 days after your appointment</dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#6B6684]">Future updates</dt>
-            <dd className="text-right font-semibold">Off — only this snapshot is shared</dd>
-          </div>
-          <div className="border-t border-[#ECE7F6] pt-3">
-            <dt className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-              Items you are sharing
-            </dt>
-            {includedLabels.length === 0 ? (
-              <p className="mt-2 text-[13px] text-[#6B6684]">
-                Nothing selected — no information will be shared.
-              </p>
-            ) : (
-              <ul className="mt-2 space-y-1 text-[13px]">
-                {includedLabels.map((o) => (
-                  <li key={o.key}>
-                    <div>• {o.label}</div>
-                    {o.key === "assessments" && summary.attemptsInRange.length > 0 && (
-                      <ul className="mt-1 ml-4 space-y-0.5 text-[12px] text-[#5A4A8A]">
-                        {summary.attemptsInRange.slice(0, 4).map((a) => (
-                          <li key={a.id} className="flex justify-between gap-3">
-                            <span className="truncate">– {a.assessmentName}</span>
-                            <span className="flex-none text-[11px] text-[#8B85A6]">
-                              {new Date(a.takenAt).toLocaleDateString(undefined, {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </li>
-                        ))}
-                        {summary.attemptsInRange.length > 4 && (
-                          <li className="text-[11px] italic text-[#8B85A6]">
-                            + {summary.attemptsInRange.length - 4} more
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </dl>
 
-        <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]/40">
+        <div className="mt-4 space-y-3">
+          {visibleSections.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-white p-4 text-[13px] italic text-[#6B6684]">
+              Nothing selected — no information will be shared.
+            </div>
+          ) : (
+            visibleSections.map((sec) => (
+              <div
+                key={sec.title}
+                className="rounded-2xl border border-[#ECE7F6] bg-white p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    {sec.title}
+                  </p>
+                  {onRemoveIncluded && (
+                    <button
+                      type="button"
+                      onClick={() => sec.keys.forEach((k) => onRemoveIncluded(k))}
+                      className="inline-flex items-center gap-1 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-[#7E6BAF] hover:bg-[#F4F0FB]"
+                      aria-label={`Remove ${sec.title}`}
+                    >
+                      <XIcon className="h-3 w-3" /> Remove
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2">{sec.body}</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]/40">
+          <input
+            type="checkbox"
+            checked={!!futureUpdates}
+            onChange={(e) => onFutureUpdatesChange?.(e.target.checked)}
+            className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+          />
+          <span className="leading-relaxed">
+            <span className="font-semibold text-[#3D2E6B]">
+              Include future Health Passport updates
+            </span>
+            <span className="mt-0.5 block text-xs text-[#5A4A8A]">
+              Off by default. When off, only this snapshot is shared.
+            </span>
+          </span>
+        </label>
+
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">
           <input
             type="checkbox"
             checked={agreed}
@@ -725,15 +824,19 @@ function Step3({
           />
           <span className="leading-relaxed">
             I have reviewed the information above and agree to share it with{" "}
-            <strong>{providerContext.providerName}</strong>. I understand that no other
-            Health Passport information or future updates will be shared unless I choose
-            to share them.
+            <strong>{providerContext.providerName}</strong> for this appointment.
+            I understand that I can change or revoke access.
           </span>
         </label>
 
         <p className="mt-3 text-xs text-[#5A4A8A]">
           You can revoke access from your Health Passport at any time.
         </p>
+        {includedLabels.length === 0 && (
+          <p className="mt-2 text-xs font-medium text-[#B45309]">
+            Nothing selected — go back to include at least one section.
+          </p>
+        )}
       </div>
     );
   }
