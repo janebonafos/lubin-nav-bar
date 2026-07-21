@@ -616,6 +616,7 @@ function CheckoutPage() {
                   providerName: provider.name,
                   appointmentLabel,
                   includedKeys: r.includedKeys,
+                  attemptIds: r.attemptIds,
                   createdAt: Date.now(),
                 });
                 setPending({
@@ -624,6 +625,7 @@ function CheckoutPage() {
                   providerName: provider.name,
                   appointmentLabel,
                   includedKeys: r.includedKeys,
+                  attemptIds: r.attemptIds,
                   createdAt: Date.now(),
                 });
                 setShareModalOpen(false);

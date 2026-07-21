@@ -11,6 +11,12 @@ export type ConsentResult = {
   includedKeys: string[];
   recipient: RecipientId;
   futureUpdates?: boolean;
+  /**
+   * When `includedKeys` includes "assessments", this narrows the shared
+   * results to a specific subset of attempt IDs. When undefined, all
+   * assessments in range are shared.
+   */
+  attemptIds?: string[];
 };
 
 export type AssessmentContext = {
@@ -72,6 +78,12 @@ export default function ShareConsentModal({
   const [included, setIncluded] = useState<string[]>(defaultSelection);
   const [recipient, setRecipient] = useState<RecipientId | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const allAttemptIds = useMemo(
+    () => summary.attemptsInRange.map((a) => a.id),
+    [summary],
+  );
+  const [selectedAttemptIds, setSelectedAttemptIds] =
+    useState<string[]>(allAttemptIds);
 
   useEffect(() => {
     if (open) {
@@ -81,8 +93,9 @@ export default function ShareConsentModal({
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
+      setSelectedAttemptIds(allAttemptIds);
     }
-  }, [open, defaultSelection, providerContext]);
+  }, [open, defaultSelection, providerContext, allAttemptIds]);
 
   if (!open) return null;
 
@@ -96,6 +109,13 @@ export default function ShareConsentModal({
     (k) => itemHasData[k],
   );
   const allSelected = allAvailable.every((k) => included.includes(k));
+
+  const toggleAttempt = (id: string) =>
+    setSelectedAttemptIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const selectAllAttempts = () => setSelectedAttemptIds(allAttemptIds);
+  const deselectAllAttempts = () => setSelectedAttemptIds([]);
 
   // Provider-linked sharing: the user is allowed to proceed with an empty
   // selection (they may choose to share nothing). The consent screen is
@@ -159,12 +179,25 @@ export default function ShareConsentModal({
         return;
       }
       if (recipient && !confirmDisabled) {
-        onConfirm({ includedKeys: included, recipient, futureUpdates });
+        onConfirm({
+          includedKeys: included,
+          recipient,
+          futureUpdates,
+          attemptIds: included.includes("assessments")
+            ? selectedAttemptIds
+            : undefined,
+        });
       }
     } else {
       if (step < 3) setStep(step + 1);
       else if (recipient)
-        onConfirm({ includedKeys: included, recipient });
+        onConfirm({
+          includedKeys: included,
+          recipient,
+          attemptIds: included.includes("assessments")
+            ? selectedAttemptIds
+            : undefined,
+        });
     }
   };
 
@@ -238,6 +271,10 @@ export default function ShareConsentModal({
               assessmentContext={assessmentContext}
               providerContext={providerContext}
               summary={summary}
+              selectedAttemptIds={selectedAttemptIds}
+              toggleAttempt={toggleAttempt}
+              selectAllAttempts={selectAllAttempts}
+              deselectAllAttempts={deselectAllAttempts}
             />
           )}
           {step === 2 && !providerContext && (
@@ -253,6 +290,7 @@ export default function ShareConsentModal({
               futureUpdates={futureUpdates}
               onFutureUpdatesChange={setFutureUpdates}
               onRemoveIncluded={removeIncluded}
+              selectedAttemptIds={selectedAttemptIds}
             />
           )}
         </div>
@@ -384,6 +422,10 @@ function Step1({
   assessmentContext,
   providerContext,
   summary,
+  selectedAttemptIds,
+  toggleAttempt,
+  selectAllAttempts,
+  deselectAllAttempts,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -394,10 +436,19 @@ function Step1({
   assessmentContext?: AssessmentContext;
   providerContext?: ProviderContext;
   summary: SummaryData;
+  selectedAttemptIds: string[];
+  toggleAttempt: (id: string) => void;
+  selectAllAttempts: () => void;
+  deselectAllAttempts: () => void;
 }) {
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
   const visibleAttempts = showAllAssess ? attempts : attempts.slice(0, 3);
+  const selectedCount = attempts.filter((a) =>
+    selectedAttemptIds.includes(a.id),
+  ).length;
+  const allAttemptsSelected =
+    attempts.length > 0 && selectedCount === attempts.length;
   return (
     <div>
       <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">
@@ -482,24 +533,68 @@ function Step1({
                 </label>
                 {opt.key === "assessments" && checked && attempts.length > 0 && (
                   <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-                      Results included ({attempts.length})
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                        Results included ({selectedCount} of {attempts.length})
+                      </p>
+                      <button
+                        type="button"
+                        onClick={
+                          allAttemptsSelected
+                            ? deselectAllAttempts
+                            : selectAllAttempts
+                        }
+                        className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#6A5A98]"
+                      >
+                        {allAttemptsSelected ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-[#8B85A6]">
+                      Pick specific results, or share them all.
                     </p>
-                    <ul className="mt-1.5 space-y-1">
-                      {visibleAttempts.map((a) => (
-                        <li
-                          key={a.id}
-                          className="flex items-baseline justify-between gap-3 text-[12px] text-[#3D2E6B]"
-                        >
-                          <span className="truncate font-medium">{a.assessmentName}</span>
-                          <span className="flex-none text-[11px] text-[#8B85A6]">
-                            {new Date(a.takenAt).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        </li>
-                      ))}
+                    <ul className="mt-2 space-y-1">
+                      {visibleAttempts.map((a) => {
+                        const isSel = selectedAttemptIds.includes(a.id);
+                        return (
+                          <li key={a.id}>
+                            <label
+                              className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-2 transition ${
+                                isSel
+                                  ? "border-[#7E6BAF]/40 bg-[#FAF8FD]"
+                                  : "border-transparent hover:bg-[#FAF8FD]"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSel}
+                                onChange={() => toggleAttempt(a.id)}
+                                className="sr-only"
+                              />
+                              <span
+                                className={`flex h-4 w-4 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+                                  isSel
+                                    ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                                    : "border-[#D6CCEC] bg-white text-transparent"
+                                }`}
+                              >
+                                <Check
+                                  className="h-2.5 w-2.5"
+                                  strokeWidth={3}
+                                />
+                              </span>
+                              <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#3D2E6B]">
+                                {a.assessmentName}
+                              </span>
+                              <span className="flex-none text-[11px] text-[#8B85A6]">
+                                {new Date(a.takenAt).toLocaleDateString(
+                                  undefined,
+                                  { month: "short", day: "numeric" },
+                                )}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
                     </ul>
                     {attempts.length > 3 && (
                       <button
@@ -632,6 +727,7 @@ function Step3({
   futureUpdates,
   onFutureUpdatesChange,
   onRemoveIncluded,
+  selectedAttemptIds,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
@@ -641,8 +737,12 @@ function Step3({
   futureUpdates?: boolean;
   onFutureUpdatesChange?: (v: boolean) => void;
   onRemoveIncluded?: (key: string) => void;
+  selectedAttemptIds?: string[];
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
+  const sharedAttempts = summary.attemptsInRange.filter((a) =>
+    selectedAttemptIds ? selectedAttemptIds.includes(a.id) : true,
+  );
   if (providerContext) {
     // Group into the five patient-facing spec sections. We map existing
     // include keys onto the closest spec section; sections without data
@@ -668,9 +768,9 @@ function Step3({
         title: "Assessment results",
         keys: ["assessments"],
         body:
-          summary.attemptsInRange.length > 0 ? (
+          sharedAttempts.length > 0 ? (
             <ul className="space-y-1 text-[12px] text-[#3D2E6B]">
-              {summary.attemptsInRange.slice(0, 5).map((a) => (
+              {sharedAttempts.slice(0, 5).map((a) => (
                 <li key={a.id} className="flex justify-between gap-3">
                   <span className="truncate">– {a.assessmentName}</span>
                   <span className="flex-none text-[11px] text-[#8B85A6]">
@@ -681,9 +781,9 @@ function Step3({
                   </span>
                 </li>
               ))}
-              {summary.attemptsInRange.length > 5 && (
+              {sharedAttempts.length > 5 && (
                 <li className="text-[11px] italic text-[#8B85A6]">
-                  + {summary.attemptsInRange.length - 5} more
+                  + {sharedAttempts.length - 5} more
                 </li>
               )}
             </ul>
@@ -751,7 +851,7 @@ function Step3({
             <dt className="text-[#6B6684]">Assessments included</dt>
             <dd className="text-right font-semibold">
               {includedKeys.includes("assessments")
-                ? `${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
+                ? `${sharedAttempts.length} of ${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
                 : "Not included"}
             </dd>
           </div>

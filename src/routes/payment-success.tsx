@@ -91,13 +91,21 @@ function PaymentSuccessPage() {
     if (effectiveKey) {
       const pending = getPendingShare(effectiveKey);
       if (pending && pending.includedKeys.length > 0 && !getProviderGrant(appointmentId)) {
+        const filteredSummary = pending.attemptIds
+          ? {
+              ...shareSummary,
+              attemptsInRange: shareSummary.attemptsInRange.filter((a) =>
+                pending.attemptIds!.includes(a.id),
+              ),
+            }
+          : shareSummary;
         createProviderGrant({
           appointmentId,
           providerId: pending.providerId,
           providerName: pending.providerName,
           appointmentLabel: pending.appointmentLabel,
           includedKeys: pending.includedKeys,
-          snapshot: shareSummary,
+          snapshot: filteredSummary,
         });
       }
       // Selection has now been either activated or the user chose not to share
@@ -471,13 +479,21 @@ function PaymentSuccessPage() {
               }}
               onConfirm={(r) => {
                 if (r.includedKeys.length > 0) {
+                  const filteredSnap = r.attemptIds
+                    ? {
+                        ...shareSummary,
+                        attemptsInRange: shareSummary.attemptsInRange.filter(
+                          (a) => r.attemptIds!.includes(a.id),
+                        ),
+                      }
+                    : shareSummary;
                   createProviderGrant({
                     appointmentId,
                     providerId: provider.id,
                     providerName: provider.name,
                     appointmentLabel: appointmentShortLabel,
                     includedKeys: r.includedKeys,
-                    snapshot: shareSummary,
+                    snapshot: filteredSnap,
                   });
                 }
                 setShareOpen(false);
