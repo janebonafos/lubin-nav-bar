@@ -13,6 +13,12 @@ import {
   RefreshCw,
   Trash2,
   ShieldCheck,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  AlertTriangle,
+  Activity,
+  ListChecks,
 } from "lucide-react";
 import {
   loadWorkspace,
@@ -29,6 +35,12 @@ import { ASSESSMENTS as assessments } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import { getAttemptsFor } from "@/lib/patterns/storage";
 import type { Attempt, Assessment } from "@/lib/patterns/types";
+import {
+  groupAttemptsByAssessment,
+  formatShortDate,
+  labelForItem,
+  type AssessmentGroup,
+} from "@/lib/patterns/grouping";
 
 type Step = "shared" | "assessments" | "notes" | "ai" | "meds" | "publish";
 
