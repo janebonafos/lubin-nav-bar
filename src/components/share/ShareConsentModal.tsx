@@ -78,6 +78,12 @@ export default function ShareConsentModal({
   const [included, setIncluded] = useState<string[]>(defaultSelection);
   const [recipient, setRecipient] = useState<RecipientId | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const allAttemptIds = useMemo(
+    () => summary.attemptsInRange.map((a) => a.id),
+    [summary],
+  );
+  const [selectedAttemptIds, setSelectedAttemptIds] =
+    useState<string[]>(allAttemptIds);
 
   useEffect(() => {
     if (open) {
@@ -87,8 +93,9 @@ export default function ShareConsentModal({
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
+      setSelectedAttemptIds(allAttemptIds);
     }
-  }, [open, defaultSelection, providerContext]);
+  }, [open, defaultSelection, providerContext, allAttemptIds]);
 
   if (!open) return null;
 
@@ -102,6 +109,13 @@ export default function ShareConsentModal({
     (k) => itemHasData[k],
   );
   const allSelected = allAvailable.every((k) => included.includes(k));
+
+  const toggleAttempt = (id: string) =>
+    setSelectedAttemptIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const selectAllAttempts = () => setSelectedAttemptIds(allAttemptIds);
+  const deselectAllAttempts = () => setSelectedAttemptIds([]);
 
   // Provider-linked sharing: the user is allowed to proceed with an empty
   // selection (they may choose to share nothing). The consent screen is
