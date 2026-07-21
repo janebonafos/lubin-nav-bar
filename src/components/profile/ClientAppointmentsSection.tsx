@@ -5,9 +5,7 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  Share2,
-  Lock,
-  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,6 +14,11 @@ import {
 } from "@/lib/appointments-bus";
 import {
   getProviderGrant,
+  getAnyProviderGrant,
+  revokeProviderGrant,
+  revokeForAppointmentCancelled,
+  markGrantPendingReconfirm,
+  reconfirmGrant,
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
@@ -165,12 +168,16 @@ export default function ClientAppointmentsSection() {
   const [refreshing, setRefreshing] = useState(false);
   const refreshTimer = useRef<number | null>(null);
   const [grants, setGrants] = useState<Record<string, ProviderShareGrant | null>>({});
+  const [anyGrants, setAnyGrants] = useState<Record<string, ProviderShareGrant | null>>({});
 
   useEffect(() => {
     const refresh = () => {
       const next: Record<string, ProviderShareGrant | null> = {};
+      const nextAny: Record<string, ProviderShareGrant | null> = {};
       for (const a of seed) next[a.id] = getProviderGrant(a.id);
+      for (const a of seed) nextAny[a.id] = getAnyProviderGrant(a.id);
       setGrants(next);
+      setAnyGrants(nextAny);
     };
     refresh();
     return subscribeProviderShares(refresh);
@@ -192,6 +199,7 @@ export default function ClientAppointmentsSection() {
         });
       } else if (evt.type === "cancelled") {
         setRefreshing(true);
+        revokeForAppointmentCancelled(evt.id);
         setAll((list) =>
           list.map((a) => (a.id === evt.id ? { ...a, status: "cancelled" as const } : a)),
         );
@@ -203,6 +211,7 @@ export default function ClientAppointmentsSection() {
         refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
       } else if (evt.type === "rescheduled") {
         setRefreshing(true);
+        markGrantPendingReconfirm(evt.id);
         setAll((list) =>
           list.map((a) => (a.id === evt.id ? { ...a, time: evt.time ?? a.time } : a)),
         );
