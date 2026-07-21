@@ -367,7 +367,16 @@ export default function ShareTabView({
               }}
               includedKeys={confirmed.includedKeys}
               recipient={confirmed.recipient}
-              summary={summary}
+              summary={
+                confirmed.attemptIds
+                  ? {
+                      ...summary,
+                      attemptsInRange: summary.attemptsInRange.filter((a) =>
+                        confirmed.attemptIds!.includes(a.id),
+                      ),
+                    }
+                  : summary
+              }
             />
           )}
         </>
@@ -383,10 +392,18 @@ export default function ShareTabView({
             appointmentLabel: providerAppt.fullLabel,
           }}
           onConfirm={(r) => {
+            const filteredSummary = r.attemptIds
+              ? {
+                  ...summary,
+                  attemptsInRange: summary.attemptsInRange.filter((a) =>
+                    r.attemptIds!.includes(a.id),
+                  ),
+                }
+              : summary;
             if (providerMode === "update") {
               updateProviderGrant(providerAppt.id, {
                 includedKeys: r.includedKeys,
-                snapshot: summary,
+                snapshot: filteredSummary,
               });
             } else {
               createProviderGrant({
@@ -395,7 +412,7 @@ export default function ShareTabView({
                 appointmentLabel: providerAppt.fullLabel,
                 appointmentTs: providerAppt.ts,
                 includedKeys: r.includedKeys,
-                snapshot: summary,
+                snapshot: filteredSummary,
               });
             }
             setProviderAppt(null);
