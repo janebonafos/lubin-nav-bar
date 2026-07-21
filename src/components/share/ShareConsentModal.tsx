@@ -502,6 +502,13 @@ function Step1({
           {INCLUDE_OPTIONS.map((opt) => {
             const disabled = !itemHasData[opt.key];
             const checked = included.includes(opt.key);
+            // For assessments, treat the tile as visually unchecked when the
+            // category is included but the patient hasn't picked any attempts
+            // yet — the purple check should only appear once at least one
+            // result is selected.
+            const visuallyChecked =
+              checked &&
+              !(opt.key === "assessments" && attempts.length > 0 && selectedCount === 0);
             const label =
               opt.key === "assessments" && assessmentContext
                 ? assessmentContext.label
@@ -512,7 +519,7 @@ function Step1({
                   className={`flex items-center gap-3 rounded-xl border bg-white p-3.5 transition ${
                     disabled
                       ? "cursor-not-allowed border-[#ECE7F6] opacity-60"
-                      : checked
+                      : visuallyChecked
                         ? "cursor-pointer border-[#7E6BAF] bg-white shadow-sm"
                         : "cursor-pointer border-[#ECE7F6] hover:border-[#7E6BAF]/40"
                   }`}
@@ -532,7 +539,7 @@ function Step1({
                   </div>
                   <span
                     className={`flex h-6 w-6 flex-none items-center justify-center rounded-[12px] border-2 transition ${
-                      checked
+                      visuallyChecked
                         ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                         : "border-[#D6CCEC] bg-white text-transparent"
                     }`}
@@ -938,7 +945,7 @@ function Step3({
             </ul>
           ) : (
             <p className="text-[12px] italic text-[#8B85A6]">
-              No assessment results yet.
+              None selected — no assessment results will be shared.
             </p>
           ),
       },
@@ -1000,7 +1007,9 @@ function Step3({
             <dt className="text-[#6B6684]">Assessments included</dt>
             <dd className="text-right font-semibold">
               {includedKeys.includes("assessments")
-                ? `${sharedAttempts.length} of ${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
+                ? sharedAttempts.length === 0
+                  ? "None selected"
+                  : `${sharedAttempts.length} of ${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
                 : "Not included"}
             </dd>
           </div>
