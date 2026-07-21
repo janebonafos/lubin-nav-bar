@@ -32,6 +32,7 @@ import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
+import { Route as ApiGenerateVisitSummaryRouteImport } from './routes/api/generate-visit-summary'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
@@ -151,6 +152,11 @@ const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
   path: '/appointment/cancel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateVisitSummaryRoute = ApiGenerateVisitSummaryRouteImport.update({
+  id: '/api/generate-visit-summary',
+  path: '/api/generate-visit-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
   id: '/api/enhance-profile',
   path: '/api/enhance-profile',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
+  '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/api/generate-visit-summary'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/api/generate-visit-summary'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/chat'
     | '/api/enhance-profile'
+    | '/api/generate-visit-summary'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
+  ApiGenerateVisitSummaryRoute: typeof ApiGenerateVisitSummaryRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
@@ -530,6 +543,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppointmentCancelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-visit-summary': {
+      id: '/api/generate-visit-summary'
+      path: '/api/generate-visit-summary'
+      fullPath: '/api/generate-visit-summary'
+      preLoaderRoute: typeof ApiGenerateVisitSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/enhance-profile': {
       id: '/api/enhance-profile'
       path: '/api/enhance-profile'
@@ -583,6 +603,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
+  ApiGenerateVisitSummaryRoute: ApiGenerateVisitSummaryRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
