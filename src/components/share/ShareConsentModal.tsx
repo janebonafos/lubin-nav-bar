@@ -742,11 +742,12 @@ function AssessmentGroupRow({
               </span>
             </p>
             <p className="mt-0.5 truncate text-[11px] text-[#6B6684]">
-              Latest:{" "}
+              Latest: Score{" "}
               <span className="font-medium text-[#3D2E6B]">
-                {group.latest.status?.label ?? `Score ${group.latest.score}`}
-              </span>{" "}
-              · {formatShortDate(group.latest.takenAt)}
+                {group.latest.score}
+              </span>
+              {group.latest.status ? ` · ${group.latest.status.label}` : ""} ·{" "}
+              {formatShortDate(group.latest.takenAt)}
             </p>
           </div>
           <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${chipTone}`}>
