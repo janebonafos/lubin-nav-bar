@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ChevronDown, Eye, RefreshCw, ShieldOff } from "lucide-react";
 import {
   getProviderGrant,
@@ -14,15 +14,27 @@ export default function BookedProviderShareCard({
   onViewShared,
   onUpdate,
   highlight = false,
+  expanded: expandedProp,
+  onToggleExpand,
+  expandedContent,
 }: {
   appointment: ClientUpcomingAppointment;
   onReviewAndShare: () => void;
   onViewShared: (grant: ProviderShareGrant) => void;
   onUpdate: () => void;
   highlight?: boolean;
+  expanded?: boolean;
+  onToggleExpand?: (next: boolean) => void;
+  expandedContent?: ReactNode;
 }) {
   const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expandedInternal, setExpandedInternal] = useState(false);
+  const isControlled = expandedProp !== undefined;
+  const expanded = isControlled ? !!expandedProp : expandedInternal;
+  const setExpanded = (next: boolean) => {
+    if (isControlled) onToggleExpand?.(next);
+    else setExpandedInternal(next);
+  };
 
   useEffect(() => {
     const refresh = () => setGrant(getProviderGrant(appointment.id));
@@ -74,7 +86,7 @@ export default function BookedProviderShareCard({
           {shared ? (
             <button
               type="button"
-              onClick={() => setExpanded((v) => !v)}
+              onClick={() => setExpanded(!expanded)}
               aria-expanded={expanded}
               className="inline-flex items-center gap-1 rounded-xl border-2 border-[#7C69BA]/20 px-4 py-2 text-[13px] font-semibold text-[#7C69BA] transition-all hover:border-[#7C69BA] hover:bg-[#F7F4FC]"
             >
@@ -86,16 +98,25 @@ export default function BookedProviderShareCard({
           ) : (
             <button
               type="button"
-              onClick={onReviewAndShare}
-              className="inline-flex items-center rounded-xl bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
+              onClick={() => {
+                if (isControlled) setExpanded(!expanded);
+                else onReviewAndShare();
+              }}
+              aria-expanded={isControlled ? expanded : undefined}
+              className="inline-flex items-center gap-1 rounded-xl bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
             >
-              Review and share
+              {isControlled && expanded ? "Close" : "Review and share"}
+              {isControlled ? (
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
+                />
+              ) : null}
             </button>
           )}
         </div>
       </div>
 
-      {shared && grant && expanded && (
+      {shared && grant && expanded && !expandedContent && (
         <div className="border-t border-[#F4F0FB] bg-[#FBFAFE] px-4 py-3">
           <div className="flex flex-wrap gap-2">
             <button
@@ -129,6 +150,12 @@ export default function BookedProviderShareCard({
               <ShieldOff className="h-3.5 w-3.5" /> Revoke
             </button>
           </div>
+        </div>
+      )}
+
+      {expanded && expandedContent && (
+        <div className="border-t border-[#F4F0FB] bg-[#FBFAFE] p-3 sm:p-4">
+          {expandedContent}
         </div>
       )}
     </div>

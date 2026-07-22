@@ -58,6 +58,7 @@ export default function ShareTabView({
   const [providerAppt, setProviderAppt] = useState<ClientUpcomingAppointment | null>(null);
   const [providerMode, setProviderMode] = useState<"share" | "update" | null>(null);
   const [viewingGrant, setViewingGrant] = useState<ProviderShareGrant | null>(null);
+  const [expandedApptId, setExpandedApptId] = useState<string | null>(null);
 
   // mounted flag so SSR & first-paint don't mismatch on localStorage reads
   const [mounted, setMounted] = useState(false);
@@ -95,6 +96,7 @@ export default function ShareTabView({
     requireAccount(() => {
       setProviderAppt(appt);
       setProviderMode(mode);
+      setExpandedApptId(appt.id);
     });
   };
 
@@ -110,6 +112,12 @@ export default function ShareTabView({
     onAutoOpenHandled?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpenAppointmentId, mounted, upcomingAppointments.length]);
+
+  const closeInline = () => {
+    setProviderAppt(null);
+    setProviderMode(null);
+    setExpandedApptId(null);
+  };
 
   return (
     <div className="grid gap-6">
@@ -143,6 +151,53 @@ export default function ShareTabView({
                   onReviewAndShare={() => openProviderConsent(a, "share")}
                   onUpdate={() => openProviderConsent(a, "update")}
                   onViewShared={(g) => setViewingGrant(g)}
+                  expanded={expandedApptId === a.id}
+                  onToggleExpand={(next) => {
+                    if (next) {
+                      const grant = getProviderGrant(a.id);
+                      openProviderConsent(a, grant ? "update" : "share");
+                    } else {
+                      closeInline();
+                    }
+                  }}
+                  expandedContent={
+                    expandedApptId === a.id && providerAppt?.id === a.id ? (
+                      <ShareConsentModal
+                        open={true}
+                        summary={summary}
+                        providerContext={{
+                          providerName: a.providerName,
+                          appointmentLabel: a.fullLabel,
+                        }}
+                        onConfirm={(r) => {
+                          const filteredSummary = r.attemptIds
+                            ? {
+                                ...summary,
+                                attemptsInRange: summary.attemptsInRange.filter(
+                                  (att) => r.attemptIds!.includes(att.id),
+                                ),
+                              }
+                            : summary;
+                          if (providerMode === "update") {
+                            updateProviderGrant(a.id, {
+                              includedKeys: r.includedKeys,
+                              snapshot: filteredSummary,
+                            });
+                          } else {
+                            createProviderGrant({
+                              appointmentId: a.id,
+                              providerName: a.providerName,
+                              appointmentLabel: a.fullLabel,
+                              appointmentTs: a.ts,
+                              includedKeys: r.includedKeys,
+                              snapshot: filteredSummary,
+                            });
+                          }
+                          closeInline();
+                        }}
+                      />
+                    ) : null
+                  }
                 />
               ))}
             </div>
@@ -402,45 +457,6 @@ export default function ShareTabView({
             />
           )}
         </>
-      )}
-
-      {/* Provider-mode consent flow (skips recipient step) */}
-      {providerAppt && (
-        <ShareConsentModal
-          open={true}
-          summary={summary}
-          providerContext={{
-            providerName: providerAppt.providerName,
-            appointmentLabel: providerAppt.fullLabel,
-          }}
-          onConfirm={(r) => {
-            const filteredSummary = r.attemptIds
-              ? {
-                  ...summary,
-                  attemptsInRange: summary.attemptsInRange.filter((a) =>
-                    r.attemptIds!.includes(a.id),
-                  ),
-                }
-              : summary;
-            if (providerMode === "update") {
-              updateProviderGrant(providerAppt.id, {
-                includedKeys: r.includedKeys,
-                snapshot: filteredSummary,
-              });
-            } else {
-              createProviderGrant({
-                appointmentId: providerAppt.id,
-                providerName: providerAppt.providerName,
-                appointmentLabel: providerAppt.fullLabel,
-                appointmentTs: providerAppt.ts,
-                includedKeys: r.includedKeys,
-                snapshot: filteredSummary,
-              });
-            }
-            setProviderAppt(null);
-            setProviderMode(null);
-          }}
-        />
       )}
 
       {/* View-what-was-shared read-only sheet */}
