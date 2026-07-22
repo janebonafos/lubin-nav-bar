@@ -312,7 +312,24 @@ function PaymentSuccessPage() {
               </div>
             </dl>
 
-            {/* Health Passport sharing — placed above "What happens next" */}
+            {/* Primary action: Add to calendar */}
+            {calendarUrl && (
+              <div className="mt-5 rounded-2xl bg-white p-4 shadow-[0_8px_24px_-12px_rgba(124,113,176,0.35)] ring-1 ring-[#E9E6FA]">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[#A799E2]">
+                  Don't forget your session
+                </p>
+                <a
+                  href={calendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
+                >
+                  <CalendarPlus className="h-4 w-4" /> Add to Google Calendar
+                </a>
+              </div>
+            )}
+
+            {/* Health Passport sharing — secondary */}
             {grant ? (
               <section className="mt-4 overflow-hidden rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF]">
                 <div className="p-4">
