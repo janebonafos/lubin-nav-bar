@@ -169,9 +169,9 @@ export default function ShareTabView({
           Share My Summary
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6B6684]">
-          Create a summary you can share when you're ready, a simple recap of
-          how you've been feeling, in plain language. You decide what to share
-          and when.
+          Create a general summary you can share with anyone — a therapist,
+          doctor, counselor, or someone you trust. You choose the recipient,
+          what to include, and when to share.
         </p>
       </header>
 
@@ -356,7 +356,7 @@ export default function ShareTabView({
                 <Share2 className="h-4 w-4" />
                 {consentOpen || optionsOpen
                   ? "Preparing share…"
-                  : "Share with a provider"}
+                  : "Share summary"}
               </button>
             </div>
             <p className="text-center text-[11px] italic text-[#A29EB6]">
