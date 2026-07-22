@@ -115,36 +115,39 @@ export default function ShareTabView({
     <div className="grid gap-6">
       {/* Booked-provider share cards (appointment-linked) */}
       {upcomingAppointments.length > 0 && (
-        <section className="rounded-[24px] border border-[#ECE7F6] bg-white p-4 shadow-[0_18px_40px_-24px_rgba(74,62,127,0.12)] sm:p-5">
-          <div className="mb-3 flex items-baseline justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7E6BAF]">
+        <section className="overflow-hidden rounded-3xl border border-[#F4F0FB] bg-white shadow-xl shadow-[#2D245A]/[0.06]">
+          <div className="px-6 pb-4 pt-6 sm:px-8 sm:pt-8">
+            <div className="mb-1 flex items-end justify-between gap-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[#7C69BA]">
                 Share with your booked providers
               </p>
-              <h2 className="mt-1 text-lg font-bold text-[#2D245A]">
-                Upcoming appointments
-              </h2>
+              <span className="text-xs font-medium text-[#7C69BA]/60">
+                {upcomingAppointments.length}{" "}
+                {upcomingAppointments.length === 1 ? "appointment" : "appointments"}
+              </span>
             </div>
-            <span className="text-[11px] text-[#6B6684]">
-              {upcomingAppointments.length}{" "}
-              {upcomingAppointments.length === 1 ? "appointment" : "appointments"}
-            </span>
+            <h2 className="mb-2 text-2xl font-bold text-[#2D245A]">
+              Upcoming appointments
+            </h2>
+            <p className="text-sm leading-relaxed text-[#4A3E7F]/70">
+              Pick an appointment to choose what your provider sees before your session. Nothing is shared without your permission.
+            </p>
           </div>
-          <p className="mb-3 text-[12.5px] leading-relaxed text-[#6B6684]">
-            Pick an appointment to choose what your provider sees before your session. Nothing is shared without your permission.
-          </p>
-          <div className="grid gap-2">
-            {upcomingAppointments.map((a) => (
-              <BookedProviderShareCard
-                key={a.id}
-                appointment={a}
-                highlight={a.id === autoOpenAppointmentId}
-                onReviewAndShare={() => openProviderConsent(a, "share")}
-                onUpdate={() => openProviderConsent(a, "update")}
-                onViewShared={(g) => setViewingGrant(g)}
-              />
-            ))}
+          <div className="px-4 pb-6 sm:px-6 sm:pb-8">
+            <div className="flex flex-col space-y-3">
+              {upcomingAppointments.map((a) => (
+                <BookedProviderShareCard
+                  key={a.id}
+                  appointment={a}
+                  highlight={a.id === autoOpenAppointmentId}
+                  onReviewAndShare={() => openProviderConsent(a, "share")}
+                  onUpdate={() => openProviderConsent(a, "update")}
+                  onViewShared={(g) => setViewingGrant(g)}
+                />
+              ))}
+            </div>
           </div>
+          <div className="h-1 bg-gradient-to-r from-transparent via-[#7C69BA]/10 to-transparent" />
         </section>
       )}
 

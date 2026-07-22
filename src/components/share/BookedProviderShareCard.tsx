@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CalendarCheck, ChevronRight, Eye, RefreshCw, ShieldOff } from "lucide-react";
+import { CalendarCheck, ChevronDown, Eye, RefreshCw, ShieldOff } from "lucide-react";
 import {
   getProviderGrant,
   revokeProviderGrant,
@@ -40,34 +40,34 @@ export default function BookedProviderShareCard({
 
   return (
     <div
-      className={`rounded-2xl border bg-white transition ${
+      className={`group overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:shadow-md ${
         highlight
-          ? "border-[#7E6BAF]/50 ring-2 ring-[#7E6BAF]/25"
-          : "border-[#ECE7F6]"
+          ? "border-[#7C69BA]/40 ring-2 ring-[#7C69BA]/20"
+          : "border-[#F4F0FB] hover:border-[#7C69BA]/30"
       }`}
     >
-      <div className="flex items-center gap-3 p-3 sm:p-4">
-        <div
-          aria-hidden
-          className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-gradient-to-br from-[#7E6BAF] to-[#4A3E7F] text-[11px] font-bold text-white"
-        >
-          {appointment.providerInitials}
+      <div className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[#7C69BA]/10 bg-[#F7F4FC] text-[15px] font-bold text-[#7C69BA] sm:h-12 sm:w-12 sm:text-lg">
+            {appointment.providerInitials}
+          </div>
+          <div className="min-w-0">
+            <h3 className="truncate text-[14.5px] font-semibold text-[#2D245A] transition-colors group-hover:text-[#4A3E7F]">
+              {appointment.providerName}
+            </h3>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[#4A3E7F]/60">
+              <CalendarCheck className="h-3.5 w-3.5 flex-none" />
+              <span className="truncate">{appointment.fullLabel}</span>
+            </div>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[13.5px] font-semibold text-[#2D245A]">
-            {appointment.providerName}
-          </p>
-          <p className="mt-0.5 inline-flex items-center gap-1.5 text-[11.5px] text-[#6B6684]">
-            <CalendarCheck className="h-3 w-3 text-[#7E6BAF]" />
-            {appointment.fullLabel}
-          </p>
-        </div>
-        <div className="flex flex-none items-center gap-2">
+
+        <div className="flex flex-none items-center justify-between gap-3 sm:justify-end">
           <span
-            className={`hidden sm:inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+            className={`inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
               shared
-                ? "bg-[#F4F0FB] text-[#4A3E7F]"
-                : "bg-[#F8F7FB] text-[#7E6BAF]"
+                ? "bg-[#2D245A] text-white"
+                : "border border-[#7C69BA]/10 bg-[#F7F4FC] text-[#7C69BA]"
             }`}
           >
             {shared ? `Shared · until ${expiresLabel}` : "Not shared"}
@@ -76,19 +76,19 @@ export default function BookedProviderShareCard({
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="inline-flex items-center gap-1 rounded-full border border-[#E1DAF1] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
               aria-expanded={expanded}
+              className="inline-flex items-center gap-1 rounded-xl border-2 border-[#7C69BA]/20 px-4 py-2 text-[13px] font-semibold text-[#7C69BA] transition-all hover:border-[#7C69BA] hover:bg-[#F7F4FC]"
             >
               Manage
-              <ChevronRight
-                className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-90" : ""}`}
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
               />
             </button>
           ) : (
             <button
               type="button"
               onClick={onReviewAndShare}
-              className="inline-flex items-center gap-1 rounded-full bg-[#7C69BA] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+              className="inline-flex items-center rounded-xl bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
             >
               Review and share
             </button>
@@ -97,22 +97,19 @@ export default function BookedProviderShareCard({
       </div>
 
       {shared && grant && expanded && (
-        <div className="border-t border-[#F0EDF8] px-3 py-3 sm:px-4">
-          <p className="text-[11.5px] text-[#6B6684] sm:hidden">
-            Available until <span className="font-semibold text-[#3D2E6B]">{expiresLabel}</span>
-          </p>
-          <div className="mt-1 flex flex-wrap gap-2">
+        <div className="border-t border-[#F4F0FB] bg-[#FBFAFE] px-4 py-3">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => onViewShared(grant)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7C69BA]/40 hover:bg-white"
             >
               <Eye className="h-3.5 w-3.5" /> View
             </button>
             <button
               type="button"
               onClick={onUpdate}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40 hover:bg-[#FBFAFE]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7C69BA]/40 hover:bg-white"
             >
               <RefreshCw className="h-3.5 w-3.5" /> Update
             </button>
@@ -128,7 +125,7 @@ export default function BookedProviderShareCard({
                   return;
                 revokeProviderGrant(appointment.id);
               }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#E1DAF1] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#4A3E7F] transition hover:bg-[#F8F7FB]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#4A3E7F] transition hover:bg-[#F7F4FC]"
             >
               <ShieldOff className="h-3.5 w-3.5" /> Revoke
             </button>
