@@ -316,77 +316,88 @@ function PaymentSuccessPage() {
 
             {/* Health Passport sharing — placed above "What happens next" */}
             {grant ? (
-              <section className="mt-6 rounded-2xl border border-[#7E6BAF]/20 bg-[#F7F4FC] p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7E6BAF]/15 text-[#7E6BAF]">
-                      <Share2 className="h-3.5 w-3.5" />
+              <section className="mt-6 overflow-hidden rounded-3xl border border-[#7E6BAF]/15 bg-white shadow-[0_20px_50px_-12px_rgba(126,107,175,0.12)]">
+                <div className="p-6 md:p-8">
+                  {/* Header */}
+                  <div className="mb-6 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7E6BAF]/10 text-[#7E6BAF]">
+                        <Share2 className="h-5 w-5" />
+                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#7E6BAF]">
+                        Health Passport Shared
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                      Health Passport shared
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#7E6BAF]/10 bg-[#F5F3FF] px-3 py-1 text-xs font-semibold text-[#4A3E7F]">
+                      {grant.includedKeys.length} item
+                      {grant.includedKeys.length === 1 ? "" : "s"}
                     </span>
                   </div>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#4A3E7F] shadow-sm">
-                    {grant.includedKeys.length} item
-                    {grant.includedKeys.length === 1 ? "" : "s"}
-                  </span>
-                </div>
 
-                <h3 className="mt-3 text-[16px] font-semibold text-[#4A3E7F]">
-                  Shared with {providerShortName}
-                </h3>
-                <p className="mt-1 text-[13px] leading-relaxed text-[#5A4A8A]">
-                  {providerShortName} can view the information you selected until{" "}
-                  {grantExpiresLabel}.
-                </p>
+                  {/* Main info */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-bold text-[#2D264B]">
+                      Shared with {providerShortName}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[#4A3E7F]/70">
+                      {providerShortName} can view the information you selected until{" "}
+                      <span className="font-medium text-[#4A3E7F]">{grantExpiresLabel}</span>.
+                    </p>
+                  </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {INCLUDE_OPTIONS.filter((o) => grant.includedKeys.includes(o.key)).map((o) => (
-                    <span
-                      key={o.key}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#7E6BAF]/10 bg-white px-3 py-1.5 text-[11px] font-medium text-[#4A3E7F]"
-                    >
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
-                      {o.label}
+                  {/* Shared items */}
+                  <div className="mb-8 flex flex-wrap gap-2">
+                    {INCLUDE_OPTIONS.filter((o) => grant.includedKeys.includes(o.key)).map((o) => (
+                      <span
+                        key={o.key}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-[#F8F7FB] px-4 py-2 text-sm font-medium text-[#4A3E7F]"
+                      >
+                        <div className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
+                        {o.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="mb-8 flex flex-wrap items-center gap-6 border-y border-[#7E6BAF]/10 py-4 text-xs text-[#4A3E7F]/60">
+                    <span className="inline-flex items-center gap-2 font-medium">
+                      <CalendarDays className="h-4 w-4 text-[#7E6BAF]/60" />
+                      Shared {grantCreatedLabel}
                     </span>
-                  ))}
-                </div>
+                    <span className="inline-flex items-center gap-2 font-medium">
+                      <Lock className="h-4 w-4 text-[#7E6BAF]/60" />
+                      Expires {grantExpiresLabel}
+                    </span>
+                  </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[#7E6BAF]/10 pt-3 text-[11.5px] text-[#7E6BAF]">
-                  <span className="inline-flex items-center gap-1">
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    Shared {grantCreatedLabel}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Lock className="h-3.5 w-3.5" />
-                    Expires {grantExpiresLabel}
-                  </span>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    to="/my-health-passport"
-                    search={{ tab: "share", share: appointmentId }}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#7C69BA] px-4 py-2 text-[12px] font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
-                  >
-                    <Eye className="h-3.5 w-3.5" /> Manage shared information
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        typeof window !== "undefined" &&
-                        !window.confirm(
-                          `Revoke ${providerShortName}'s access to your Health Passport?`,
+                  {/* Actions */}
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Link
+                      to="/my-health-passport"
+                      search={{ tab: "share", share: appointmentId }}
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#7E6BAF] px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-[#7E6BAF]/20 transition hover:-translate-y-0.5 hover:bg-[#6D5BA0] active:scale-[0.98]"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Manage shared information
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          typeof window !== "undefined" &&
+                          !window.confirm(
+                            `Revoke ${providerShortName}'s access to your Health Passport?`,
+                          )
                         )
-                      )
-                        return;
-                      revokeProviderGrant(appointmentId);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E6FA] bg-white px-3.5 py-2 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
-                  >
-                    <ShieldOff className="h-3.5 w-3.5" /> Revoke access
-                  </button>
+                          return;
+                        revokeProviderGrant(appointmentId);
+                      }}
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-transparent bg-white px-6 py-4 text-sm font-semibold text-[#4A3E7F]/60 transition hover:bg-red-50 hover:text-red-600 active:scale-[0.98]"
+                    >
+                      <ShieldOff className="h-4 w-4" />
+                      Revoke access
+                    </button>
+                  </div>
                 </div>
               </section>
             ) : (
