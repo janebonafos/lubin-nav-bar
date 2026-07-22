@@ -220,6 +220,9 @@ export default function ShareConsentModal({
   const removeIncluded = (key: string) =>
     setIncluded((prev) => prev.filter((k) => k !== key));
   void isConfirmStep;
+  void choice;
+  void setChoice;
+  void Step0Choice;
 
   return (
     <section
