@@ -65,8 +65,11 @@ export default function ShareConsentModal({
   // Provider-linked flow adds a "choice" step (0) before the existing flow.
   // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
   // Non-provider flow keeps the classic 1 → 2 → 3 shape.
-  const [step, setStep] = useState<number>(providerContext ? 0 : 1);
-  const [choice, setChoice] = useState<"all" | "custom" | "none">("all");
+  // Provider-linked flow: skip the "how would you like to share" choice
+  // screen and go straight to selecting what to share. The review step
+  // (3) still confirms the snapshot before it's sent.
+  const [step, setStep] = useState<number>(1);
+  const [choice, setChoice] = useState<"all" | "custom" | "none">("custom");
 
   // Which include options have data
   const itemHasData = useMemo(() => {
@@ -100,8 +103,8 @@ export default function ShareConsentModal({
 
   useEffect(() => {
     if (open) {
-      setStep(providerContext ? 0 : 1);
-      setChoice("all");
+      setStep(1);
+      setChoice("custom");
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
@@ -150,21 +153,17 @@ export default function ShareConsentModal({
 
   // In provider mode we render a choice → (custom selection) → review flow.
   // Progress shown to the user: choice = 1/2 or 1/3, review = last.
-  const providerStepsTotal = choice === "custom" ? 3 : 2;
+  const providerStepsTotal = 2;
   const totalSteps = providerContext ? providerStepsTotal : 3;
   const displayedStep = providerContext
-    ? step === 0
+    ? step === 1
       ? 1
-      : step === 1
-        ? 2
-        : providerStepsTotal
+      : providerStepsTotal
     : step;
   const stepTitle = providerContext
-    ? step === 0
-      ? "How would you like to share?"
-      : step === 1
-        ? "Choose what to share"
-        : "Review & confirm"
+    ? step === 1
+      ? "Choose what to share"
+      : "Review & confirm"
     : step === 1
       ? "Choose what to include"
       : step === 2
@@ -184,21 +183,6 @@ export default function ShareConsentModal({
 
   const advance = () => {
     if (providerContext) {
-      if (step === 0) {
-        // Choice step
-        if (choice === "none") {
-          onConfirm({ includedKeys: [], recipient: recipient ?? "other-mhp" });
-          return;
-        }
-        if (choice === "all") {
-          setIncluded(allAvailable);
-          setStep(3);
-          return;
-        }
-        // custom
-        setStep(1);
-        return;
-      }
       if (step === 1) {
         setStep(3);
         return;
@@ -227,9 +211,7 @@ export default function ShareConsentModal({
 
   const back = () => {
     if (providerContext) {
-      if (step === 3) setStep(choice === "custom" ? 1 : 0);
-      else if (step === 1) setStep(0);
-      else if (step > 0) setStep(step - 1);
+      if (step === 3) setStep(1);
     } else {
       setStep(step - 1);
     }
@@ -238,6 +220,9 @@ export default function ShareConsentModal({
   const removeIncluded = (key: string) =>
     setIncluded((prev) => prev.filter((k) => k !== key));
   void isConfirmStep;
+  void choice;
+  void setChoice;
+  void Step0Choice;
 
   return (
     <section
@@ -277,13 +262,6 @@ export default function ShareConsentModal({
         </div>
 
         <div className="px-5 pb-6 md:px-7">
-          {providerContext && step === 0 && (
-            <Step0Choice
-              providerName={providerContext.providerName}
-              choice={choice}
-              onChoice={setChoice}
-            />
-          )}
           {step === 1 && (
             <Step1
               included={included}
@@ -318,7 +296,7 @@ export default function ShareConsentModal({
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {(step > 1 || (providerContext && step === 1)) ? (
+          {step > 1 ? (
             <button
               type="button"
               onClick={back}
