@@ -12,8 +12,6 @@ import {
   ArrowLeft,
   Share2,
   Pencil,
-  Eye,
-  ShieldOff,
   Lock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -317,38 +315,23 @@ function PaymentSuccessPage() {
             {/* Health Passport sharing — placed above "What happens next" */}
             {grant ? (
               <section className="mt-6 overflow-hidden rounded-2xl border border-[#7E6BAF]/20 bg-white shadow-sm">
-                <div className="p-6 md:p-8">
+                <div className="p-5">
                   {/* Header row */}
-                  <div className="mb-6 flex items-center justify-between gap-3">
-                    <h2 className="text-xl font-bold tracking-tight text-[#2D264B]">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h2 className="text-lg font-bold tracking-tight text-[#2D264B]">
                       Shared Access
                     </h2>
-                    <span className="inline-flex items-center gap-1 rounded-md border border-[#7E6BAF]/20 bg-[#F8F7FB] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-[#7E6BAF]/20 bg-[#F8F7FB] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
                       Expires {grantExpiresLabel}
                     </span>
                   </div>
 
-                  {/* Provider info */}
-                  <div className="mb-6 flex items-center gap-4">
-                    <div className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-[#7E6BAF]/10 text-lg font-bold text-[#4A3E7F]">
-                      {provider?.initials ?? providerShortName.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold leading-tight text-[#2D264B]">
-                        {providerShortName}
-                      </h3>
-                      <p className="mt-0.5 text-sm text-[#7E6BAF]">
-                        {provider?.title?.split(",")[0].trim() ?? "Your provider"}
-                      </p>
-                    </div>
-                  </div>
-
                   {/* Shared items list */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {INCLUDE_OPTIONS.filter((o) => grant.includedKeys.includes(o.key)).map((o) => (
                       <div
                         key={o.key}
-                        className="group flex items-start gap-4 rounded-xl border border-[#F8F7FB] bg-[#F8F7FB]/50 p-4 transition-all hover:border-[#7E6BAF]/30 hover:bg-white hover:shadow-sm"
+                        className="group flex items-start gap-3 rounded-xl border border-[#F8F7FB] bg-[#F8F7FB]/50 p-3 transition-all hover:border-[#7E6BAF]/30 hover:bg-white hover:shadow-sm"
                       >
                         <div className="mt-1.5 h-2 w-2 flex-none rounded-full bg-[#7E6BAF] ring-4 ring-[#7E6BAF]/10" />
                         <div>
@@ -362,13 +345,12 @@ function PaymentSuccessPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-6 flex flex-col gap-3">
+                  <div className="mt-4 flex flex-col gap-2">
                     <Link
                       to="/my-health-passport"
                       search={{ tab: "share", share: appointmentId }}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#4A3E7F] px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-[#4A3E7F]/10 transition hover:bg-[#2D264B] active:scale-[0.98]"
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-[#4A3E7F] px-5 py-3 text-sm font-semibold text-white shadow-md shadow-[#4A3E7F]/10 transition hover:bg-[#2D264B] active:scale-[0.98]"
                     >
-                      <Eye className="h-4 w-4" />
                       Manage Permissions
                     </Link>
                     <button
@@ -383,15 +365,14 @@ function PaymentSuccessPage() {
                           return;
                         revokeProviderGrant(appointmentId);
                       }}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#7E6BAF]/30 bg-white px-6 py-3.5 text-sm font-semibold text-[#4A3E7F] transition hover:bg-[#F8F7FB] active:scale-[0.98]"
+                      className="inline-flex w-full items-center justify-center rounded-xl border border-[#7E6BAF]/30 bg-white px-5 py-3 text-sm font-semibold text-[#4A3E7F] transition hover:bg-[#F8F7FB] active:scale-[0.98]"
                     >
-                      <ShieldOff className="h-4 w-4" />
                       Revoke All Access
                     </button>
                   </div>
 
                   {/* Footer note */}
-                  <div className="mt-4 rounded-lg border border-dashed border-[#7E6BAF]/30 bg-[#F8F7FB] p-3">
+                  <div className="mt-3 rounded-lg border border-dashed border-[#7E6BAF]/30 bg-[#F8F7FB] p-2.5">
                     <p className="text-center text-[10px] leading-normal text-[#7E6BAF]">
                       Sharing your Health Passport helps your provider prepare for your session.
                       You can adjust these settings at any time.
