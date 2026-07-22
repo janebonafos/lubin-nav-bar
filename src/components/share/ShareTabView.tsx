@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
   ArrowRight,
   CalendarDays,
@@ -183,6 +184,9 @@ export default function ShareTabView({
                               includedKeys: r.includedKeys,
                               snapshot: filteredSummary,
                             });
+                            toast.success("Shared information updated", {
+                              description: `${a.providerName} will see your updated summary before your session.`,
+                            });
                           } else {
                             createProviderGrant({
                               appointmentId: a.id,
@@ -191,6 +195,9 @@ export default function ShareTabView({
                               appointmentTs: a.ts,
                               includedKeys: r.includedKeys,
                               snapshot: filteredSummary,
+                            });
+                            toast.success("Health Passport shared", {
+                              description: `${a.providerName} can now view your summary before your session.`,
                             });
                           }
                           closeInline();
