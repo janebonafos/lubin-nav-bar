@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CalendarCheck, ChevronDown, Eye, RefreshCw, ShieldOff } from "lucide-react";
+import { ChevronDown, Eye, RefreshCw, ShieldOff } from "lucide-react";
 import {
   getProviderGrant,
   revokeProviderGrant,
@@ -55,8 +55,7 @@ export default function BookedProviderShareCard({
             <h3 className="truncate text-[14.5px] font-semibold text-[#2D245A] transition-colors group-hover:text-[#4A3E7F]">
               {appointment.providerName}
             </h3>
-            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[#4A3E7F]/60">
-              <CalendarCheck className="h-3.5 w-3.5 flex-none" />
+            <div className="mt-0.5 text-[12px] text-[#4A3E7F]/60">
               <span className="truncate">{appointment.fullLabel}</span>
             </div>
           </div>
