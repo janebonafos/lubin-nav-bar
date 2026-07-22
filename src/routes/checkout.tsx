@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   User as UserIcon,
   Video,
-  FileHeart,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
@@ -329,50 +328,45 @@ function CheckoutPage() {
                 className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#7E6BAF]/10 blur-3xl"
               />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex min-w-0 flex-1 items-start gap-3">
-                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#7E6BAF] to-[#4A3E7F] text-white shadow-[0_8px_18px_-8px_rgba(74,62,127,0.55)]">
-                    <FileHeart className="h-5 w-5" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-[14px] font-semibold text-[#2D245A]">
+                      Share from your Health Passport
+                    </h3>
+                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple ring-1 ring-[#E1DAF1]">
+                      Optional
+                    </span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-[14px] font-semibold text-[#2D245A]">
-                        Share from your Health Passport
-                      </h3>
-                      <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF] ring-1 ring-[#E1DAF1]">
-                        Optional
-                      </span>
-                    </div>
-                    {pending && pending.includedKeys.length > 0 ? (
-                      <>
-                        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#EFE8FB] px-2.5 py-0.5 text-[11.5px] font-semibold text-[#4A3E7F]">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          Sharing added
-                        </div>
-                        <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
-                          <span className="font-semibold text-[#3D2E6B]">
-                            {pending.includedKeys.length} item
-                            {pending.includedKeys.length === 1 ? "" : "s"}
-                          </span>{" "}
-                          will be shared with{" "}
-                          <span className="font-semibold text-[#3D2E6B]">
-                            {provider.name.split(",")[0]}
-                          </span>{" "}
-                          after your booking is confirmed.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
-                          Choose what {provider.name.split(",")[0]} can see for this
-                          appointment — a short brief helps them prepare.
-                        </p>
-                        <p className="mt-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-[#7E6BAF]">
-                          <Lock className="h-3 w-3" />
-                          Nothing is shared unless you confirm
-                        </p>
-                      </>
-                    )}
-                  </div>
+                  {pending && pending.includedKeys.length > 0 ? (
+                    <>
+                      <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#EFE8FB] px-2.5 py-0.5 text-[11.5px] font-semibold text-brand-purple">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Sharing added
+                      </div>
+                      <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                        <span className="font-semibold text-[#3D2E6B]">
+                          {pending.includedKeys.length} item
+                          {pending.includedKeys.length === 1 ? "" : "s"}
+                        </span>{" "}
+                        will be shared with{" "}
+                        <span className="font-semibold text-[#3D2E6B]">
+                          {provider.name.split(",")[0]}
+                        </span>{" "}
+                        after your booking is confirmed.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                        Choose what {provider.name.split(",")[0]} can see for this
+                        appointment — a short brief helps them prepare.
+                      </p>
+                      <p className="mt-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-brand-purple">
+                        <Lock className="h-3 w-3" />
+                        Nothing is shared unless you confirm
+                      </p>
+                    </>
+                  )}
                 </div>
                 <div className="flex flex-none items-center gap-2 sm:flex-col sm:items-end">
                   {pending && pending.includedKeys.length > 0 ? (
@@ -380,7 +374,7 @@ function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => setShareModalOpen(true)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-[#D3C8EE] bg-white px-4 py-2 text-[12px] font-semibold text-[#3D2E6B] shadow-sm transition hover:-translate-y-0.5 hover:border-[#7E6BAF]/50 hover:bg-[#FBFAFE]"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#D3C8EE] bg-white px-4 py-2 text-[12px] font-semibold text-[#3D2E6B] shadow-sm transition hover:-translate-y-0.5 hover:border-brand-purple/50 hover:bg-[#FBFAFE]"
                       >
                         <Pencil className="h-3.5 w-3.5" /> Review or change
                       </button>
@@ -399,7 +393,7 @@ function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setShareModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#7C69BA] px-4 py-2 text-[12px] font-semibold text-white shadow-[0_10px_22px_-10px_rgba(124,105,186,0.6)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white shadow-[0_10px_22px_-10px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
                     >
                       Choose what to share
                     </button>
