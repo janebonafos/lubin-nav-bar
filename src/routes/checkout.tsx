@@ -431,11 +431,21 @@ function CheckoutPage() {
               />
               <span className="text-[12.5px] leading-relaxed text-slate-700">
                 I agree to Lubin's{" "}
-                <Link to="/terms" className="font-semibold text-brand-purple underline underline-offset-2">
+                <Link
+                  to="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-brand-purple underline underline-offset-2"
+                >
                   Terms
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className="font-semibold text-brand-purple underline underline-offset-2">
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-brand-purple underline underline-offset-2"
+                >
                   Privacy Policy
                 </Link>
                 . I understand my personal information will only be used to confirm and deliver this
