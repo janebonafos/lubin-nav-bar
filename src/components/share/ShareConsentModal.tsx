@@ -948,45 +948,68 @@ function Step3({
             byName.set(a.assessmentName, list);
           }
           return (
-            <div className="space-y-3 text-[12px] text-[#3D2E6B]">
-              {[...byName.entries()].map(([name, list]) => (
-                <div key={name}>
-                  <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                    {name}
-                  </p>
-                  <ul className="mt-1 space-y-0.5">
-                    {list.map((a) => (
-                      <li
-                        key={a.id}
-                        className="flex justify-between gap-3 text-[11px] text-[#5A4A8A]"
-                      >
-                        <span className="truncate">
-                          {new Date(a.takenAt).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                          {typeof a.score === "number"
-                            ? ` · Score ${a.score}`
-                            : ""}
-                          {(() => {
-                            const meta = ASSESSMENTS.find(
-                              (x) => x.id === a.assessmentId,
-                            );
-                            if (!meta) return null;
-                            const st = getAssessmentStatus(
-                              meta.id,
-                              a.score,
-                              meta.maxScore,
-                              meta.lowerIsBetter,
-                            );
-                            return ` · ${st.label}`;
-                          })()}
+            <div className="space-y-2 text-[12px] text-[#3D2E6B]">
+              {[...byName.entries()].map(([name, list]) => {
+                const sorted = [...list].sort((a, b) => b.takenAt - a.takenAt);
+                const latest = sorted[0];
+                const meta = latest
+                  ? ASSESSMENTS.find((x) => x.id === latest.assessmentId)
+                  : null;
+                const latestStatus =
+                  latest && meta
+                    ? getAssessmentStatus(
+                        meta.id,
+                        latest.score,
+                        meta.maxScore,
+                        meta.lowerIsBetter,
+                      )
+                    : null;
+                return (
+                  <details
+                    key={name}
+                    className="group rounded-xl border border-[#ECE7F6] bg-white open:bg-[#FAF8FD]"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 py-2 hover:bg-[#FAF8FD]">
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[12px] font-semibold text-[#3D2E6B]">
+                          {name}
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                        <span className="mt-0.5 block truncate text-[11px] text-[#6B6684]">
+                          {sorted.length} result{sorted.length === 1 ? "" : "s"}
+                          {latestStatus ? ` · Latest: ${latestStatus.label}` : ""}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden
+                        className="flex-none text-[11px] text-[#7E6BAF] transition-transform group-open:rotate-180"
+                      >
+                        ▾
+                      </span>
+                    </summary>
+                    <ul className="space-y-0.5 border-t border-[#ECE7F6] px-3 py-2">
+                      {sorted.map((a) => {
+                        const m = ASSESSMENTS.find((x) => x.id === a.assessmentId);
+                        const st = m
+                          ? getAssessmentStatus(m.id, a.score, m.maxScore, m.lowerIsBetter)
+                          : null;
+                        return (
+                          <li
+                            key={a.id}
+                            className="text-[11px] text-[#5A4A8A]"
+                          >
+                            {new Date(a.takenAt).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                            {typeof a.score === "number" ? ` · Score ${a.score}` : ""}
+                            {st ? ` · ${st.label}` : ""}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </details>
+                );
+              })}
             </div>
           );
         })(),
