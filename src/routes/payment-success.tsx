@@ -316,37 +316,54 @@ function PaymentSuccessPage() {
 
             {/* Health Passport sharing — placed above "What happens next" */}
             {grant ? (
-              <section className="mt-6 rounded-2xl border border-[#D6E9DE] bg-[#F4FBF7] p-4">
-                <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2D8E69]">
-                  <Share2 className="h-3 w-3" /> Health Passport shared
-                </p>
-                <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
+              <section className="mt-6 rounded-2xl border border-[#7E6BAF]/20 bg-[#F7F4FC] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#7E6BAF]/15 text-[#7E6BAF]">
+                      <Share2 className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                      Health Passport shared
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#4A3E7F] shadow-sm">
+                    {grant.includedKeys.length} item
+                    {grant.includedKeys.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+
+                <h3 className="mt-3 text-[16px] font-semibold text-[#4A3E7F]">
+                  Shared with {providerShortName}
+                </h3>
+                <p className="mt-1 text-[13px] leading-relaxed text-[#5A4A8A]">
                   {providerShortName} can view the information you selected until{" "}
                   {grantExpiresLabel}.
-                </h3>
-                <dl className="mt-3 space-y-1.5 text-[12.5px] text-slate-600">
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-slate-500">Shared sections</dt>
-                    <dd className="text-right font-medium text-slate-800">
-                      {grant.includedKeys.length === 0
-                        ? "None"
-                        : INCLUDE_OPTIONS.filter((o) =>
-                            grant.includedKeys.includes(o.key),
-                          )
-                            .map((o) => o.label)
-                            .join(", ")}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-slate-500">Date shared</dt>
-                    <dd className="font-medium text-slate-800">{grantCreatedLabel}</dd>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-slate-500">Access expires</dt>
-                    <dd className="font-medium text-slate-800">{grantExpiresLabel}</dd>
-                  </div>
-                </dl>
-                <div className="mt-3 flex flex-wrap gap-2">
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {INCLUDE_OPTIONS.filter((o) => grant.includedKeys.includes(o.key)).map((o) => (
+                    <span
+                      key={o.key}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#7E6BAF]/10 bg-white px-3 py-1.5 text-[11px] font-medium text-[#4A3E7F]"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF]" />
+                      {o.label}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[#7E6BAF]/10 pt-3 text-[11.5px] text-[#7E6BAF]">
+                  <span className="inline-flex items-center gap-1">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    Shared {grantCreatedLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Lock className="h-3.5 w-3.5" />
+                    Expires {grantExpiresLabel}
+                  </span>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     to="/my-health-passport"
                     search={{ tab: "share", share: appointmentId }}
@@ -366,7 +383,7 @@ function PaymentSuccessPage() {
                         return;
                       revokeProviderGrant(appointmentId);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-rose-100 bg-white px-3.5 py-2 text-[12px] font-semibold text-rose-700 hover:bg-rose-50"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E9E6FA] bg-white px-3.5 py-2 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
                   >
                     <ShieldOff className="h-3.5 w-3.5" /> Revoke access
                   </button>
