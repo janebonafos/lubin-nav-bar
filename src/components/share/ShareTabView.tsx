@@ -115,18 +115,37 @@ export default function ShareTabView({
     <div className="grid gap-6">
       {/* Booked-provider share cards (appointment-linked) */}
       {upcomingAppointments.length > 0 && (
-        <div className="grid gap-3">
-          {upcomingAppointments.map((a) => (
-            <BookedProviderShareCard
-              key={a.id}
-              appointment={a}
-              highlight={a.id === autoOpenAppointmentId}
-              onReviewAndShare={() => openProviderConsent(a, "share")}
-              onUpdate={() => openProviderConsent(a, "update")}
-              onViewShared={(g) => setViewingGrant(g)}
-            />
-          ))}
-        </div>
+        <section className="rounded-[24px] border border-[#ECE7F6] bg-white p-4 shadow-[0_18px_40px_-24px_rgba(74,62,127,0.12)] sm:p-5">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#7E6BAF]">
+                Share with your booked providers
+              </p>
+              <h2 className="mt-1 text-lg font-bold text-[#2D245A]">
+                Upcoming appointments
+              </h2>
+            </div>
+            <span className="text-[11px] text-[#6B6684]">
+              {upcomingAppointments.length}{" "}
+              {upcomingAppointments.length === 1 ? "appointment" : "appointments"}
+            </span>
+          </div>
+          <p className="mb-3 text-[12.5px] leading-relaxed text-[#6B6684]">
+            Pick an appointment to choose what your provider sees before your session. Nothing is shared without your permission.
+          </p>
+          <div className="grid gap-2">
+            {upcomingAppointments.map((a) => (
+              <BookedProviderShareCard
+                key={a.id}
+                appointment={a}
+                highlight={a.id === autoOpenAppointmentId}
+                onReviewAndShare={() => openProviderConsent(a, "share")}
+                onUpdate={() => openProviderConsent(a, "update")}
+                onViewShared={(g) => setViewingGrant(g)}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
       {upcomingAppointments.length > 0 && (
