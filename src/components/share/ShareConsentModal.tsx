@@ -242,7 +242,7 @@ export default function ShareConsentModal({
   return (
     <section
       aria-label="Share consent"
-      className="overflow-hidden rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
+      className="max-h-[85vh] overflow-y-auto rounded-[28px] border border-[#ECE7F6] bg-white shadow-[0_24px_60px_-30px_rgba(74,62,127,0.18)]"
     >
       <div>
         {/* Stepped progress indicator */}
