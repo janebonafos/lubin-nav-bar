@@ -10,7 +10,6 @@ import {
   Globe2,
   Lock,
   MapPin,
-  Pencil,
   ShieldCheck,
   User as UserIcon,
   Video,
