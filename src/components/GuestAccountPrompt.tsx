@@ -9,6 +9,11 @@ interface GuestAccountPromptProps {
   scopeKey?: string;
   /** Short line describing what account unlocks in this context. */
   contextLabel?: string;
+  /**
+   * Visual weight. "card" (default) is the prominent marketing card.
+   * "compact" is a single, subtle row for secondary placement.
+   */
+  variant?: "card" | "compact";
 }
 
 /**
@@ -19,6 +24,7 @@ export default function GuestAccountPrompt({
   email,
   scopeKey = "default",
   contextLabel = "manage this booking",
+  variant = "card",
 }: GuestAccountPromptProps) {
   const [isGuest, setIsGuest] = useState(false);
   const [dismissed, setDismissed] = useState(true);
@@ -44,6 +50,74 @@ export default function GuestAccountPrompt({
     }
     setDismissed(true);
   };
+
+  const openSignup = () => {
+    setAuthMode("signup");
+    setAuthOpen(true);
+  };
+
+  const openSignin = () => {
+    setAuthMode("signin");
+    setAuthOpen(true);
+  };
+
+  if (variant === "compact") {
+    return (
+      <>
+        <div className="rounded-xl border border-[#E9E6FA] bg-white p-3.5 shadow-[0_2px_12px_-6px_rgba(124,113,176,0.18)]">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-[#F3EFFB] text-brand-purple-dark">
+              <UserPlus className="h-4 w-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[13px] font-medium text-slate-900">
+                  Save this booking to your account
+                </p>
+                <button
+                  type="button"
+                  onClick={openSignup}
+                  className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-dark px-3 py-1.5 text-[11.5px] font-semibold text-white shadow-[0_4px_12px_-4px_rgba(124,113,176,0.5)] transition-all hover:-translate-y-0.5"
+                >
+                  Create account
+                </button>
+              </div>
+              <p className="mt-0.5 text-[12px] leading-relaxed text-slate-500">
+                Reschedule, message your provider, and keep receipts in one place. Already have one?{" "}
+                <button
+                  type="button"
+                  onClick={openSignin}
+                  className="font-semibold text-brand-purple-dark underline-offset-2 hover:underline"
+                >
+                  Log in
+                </button>
+                {email && (
+                  <span className="text-slate-400">
+                    {" "}· We'll use <span className="font-medium text-slate-500">{email}</span> to link it.
+                  </span>
+                )}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              aria-label="Dismiss"
+              className="-mr-1 -mt-1 rounded-full p-1 text-slate-400 transition hover:bg-[#F3EFFB] hover:text-brand-purple-dark"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <AuthModal
+          open={authOpen}
+          mode={authMode}
+          onClose={() => setAuthOpen(false)}
+          onSwitchMode={(m) => setAuthMode(m)}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -88,20 +162,14 @@ export default function GuestAccountPrompt({
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setAuthMode("signup");
-                    setAuthOpen(true);
-                  }}
+                  onClick={openSignup}
                   className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_8px_20px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
                 >
                   Create free account
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setAuthMode("signin");
-                    setAuthOpen(true);
-                  }}
+                  onClick={openSignin}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition-all hover:-translate-y-0.5 hover:bg-[#FBFAFF]"
                 >
                   I already have one

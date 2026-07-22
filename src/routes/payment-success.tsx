@@ -250,12 +250,6 @@ function PaymentSuccessPage() {
           </p>
         </div>
 
-        <GuestAccountPrompt
-          email={search.email}
-          scopeKey={`booking:${provider?.id ?? "unknown"}:${effectiveDate}:${effectiveTime}`}
-          contextLabel="save this booking"
-        />
-
         {/* Booking details */}
         {provider && service && (
           <div className="px-6 py-6 sm:px-10">
@@ -409,6 +403,16 @@ function PaymentSuccessPage() {
                 </p>
               </section>
             )}
+
+            {/* Subtle guest account option — placed low on the page, not in the header */}
+            <div className="mt-5">
+              <GuestAccountPrompt
+                email={search.email}
+                scopeKey={`booking:${provider?.id ?? "unknown"}:${effectiveDate}:${effectiveTime}`}
+                contextLabel="save this booking"
+                variant="compact"
+              />
+            </div>
 
             {/* Next steps */}
             <div className="mt-6 rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF] p-4">
