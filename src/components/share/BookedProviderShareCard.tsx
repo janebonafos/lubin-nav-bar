@@ -48,7 +48,7 @@ export default function BookedProviderShareCard({
     >
       <div className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[#7C69BA]/10 bg-[#F7F4FC] text-[15px] font-bold text-[#7C69BA] sm:h-12 sm:w-12 sm:text-lg">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple-dark text-[15px] font-extrabold text-white shadow-md shadow-[#A89BD0]/40 ring-2 ring-white sm:h-12 sm:w-12 sm:text-lg">
             {appointment.providerInitials}
           </div>
           <div className="min-w-0">
