@@ -465,7 +465,7 @@ function PaymentSuccessPage() {
           onClick={() => setShareOpen(false)}
         >
           <div
-            className="w-full max-w-xl"
+            className="w-full max-w-xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <ShareConsentModal
