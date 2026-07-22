@@ -362,17 +362,17 @@ function Step0Choice({
     {
       id: "all",
       title: "Share my current Health Passport",
-      blurb: "Includes the information currently in your Health Passport.",
+      blurb: "Send your latest mood patterns and assessment results so your provider can prepare for your session.",
     },
     {
       id: "custom",
       title: "Choose what to share",
-      blurb: "Select individual sections and date ranges.",
+      blurb: "Pick exactly what goes into the summary — skip anything you’re not comfortable sharing.",
     },
     {
       id: "none",
       title: "Don't share",
-      blurb: "Continue without sharing your Health Passport.",
+      blurb: "Continue without sharing now. You can always come back and share later from your Health Passport.",
     },
   ];
   return (
