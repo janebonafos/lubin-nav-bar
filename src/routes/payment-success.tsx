@@ -12,8 +12,6 @@ import {
   ArrowLeft,
   Share2,
   Pencil,
-  Eye,
-  ShieldOff,
   Lock,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
