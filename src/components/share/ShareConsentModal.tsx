@@ -1074,11 +1074,14 @@ function Step3({
           <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Assessments included</dt>
             <dd className="text-right font-semibold">
-              {includedKeys.includes("assessments")
-                ? sharedAttempts.length === 0
-                  ? "None selected"
-                  : `${sharedAttempts.length} of ${summary.attemptsInRange.length} result${summary.attemptsInRange.length === 1 ? "" : "s"}`
-                : "Not included"}
+              {(() => {
+                if (!includedKeys.includes("assessments")) return "Not included";
+                if (sharedAttempts.length === 0) return "None selected";
+                const distinct = new Set(
+                  sharedAttempts.map((a) => a.assessmentName),
+                ).size;
+                return `${distinct} assessment${distinct === 1 ? "" : "s"} · ${sharedAttempts.length} result${sharedAttempts.length === 1 ? "" : "s"}`;
+              })()}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
