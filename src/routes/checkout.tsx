@@ -316,84 +316,120 @@ function CheckoutPage() {
               </div>
             </div>
 
-            {/* Health Passport sharing — compact option inside the checkout form */}
-            <div className="relative mt-4 rounded-2xl border border-[#7E6BAF]/20 bg-[#FAF8FD] p-4 shadow-sm">
-              {pending && pending.includedKeys.length > 0 && (
-                <button
-                  type="button"
-                  aria-label="Remove sharing selection"
-                  onClick={() => {
-                    clearPendingShare(bookingKey);
-                    setPending(null);
-                  }}
-                  className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#7E6BAF]/20 bg-white text-[#7E6BAF] shadow-sm transition-all hover:rotate-90 hover:border-red-200 hover:text-red-500"
-                >
-                  <X className="h-4 w-4" strokeWidth={2.5} />
-                </button>
-              )}
-
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-[15px] font-semibold text-[#4A3E7F]">
-                  Share from your Health Passport
-                </h3>
-                {pending && pending.includedKeys.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setShareModalOpen(true)}
-                    className="text-[12px] font-semibold text-[#7E6BAF] underline decoration-[#7E6BAF]/30 underline-offset-4 transition-colors hover:text-[#4A3E7F]"
-                  >
-                    Change
-                  </button>
-                ) : (
-                  <div className="flex flex-none items-center gap-2">
-                    <span className="rounded-md bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
-                      Optional
-                    </span>
+            {/* Health Passport sharing — elegant boutique option inside the checkout form */}
+            <div className="relative mt-6 rounded-[2rem] border border-[#E9E6FA] bg-white p-6 shadow-[0_24px_48px_-12px_rgba(74,62,127,0.08)] sm:p-8">
+              {pending && pending.includedKeys.length > 0 ? (
+                <>
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-full bg-[#F4ECFB] p-1.5 text-[#7E6BAF]">
+                        <Share2 className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7E6BAF]">
+                        Health Passport
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setShareModalOpen(true)}
-                      className="inline-flex items-center gap-1 rounded-xl bg-brand-purple px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+                      aria-label="Remove sharing selection"
+                      onClick={() => {
+                        clearPendingShare(bookingKey);
+                        setPending(null);
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-[#E9E6FA] bg-white text-[#9F96C6] shadow-sm transition-all hover:rotate-90 hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
                     >
-                      Choose
+                      <X className="h-4 w-4" strokeWidth={2.5} />
                     </button>
                   </div>
-                )}
-              </div>
 
-              {pending && pending.includedKeys.length > 0 ? (
-                <div className="mt-3 flex flex-col gap-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-[#7E6BAF]/20 bg-[#F4ECFB] px-2.5 py-0.5 text-[11px] font-semibold text-[#4A3E7F]">
+                  <h3 className="font-serif-display text-[22px] leading-[1.2] text-[#4A3E7F] sm:text-[24px]">
+                    Shared with {provider.name.split(",")[0]}
+                  </h3>
+                  <p className="mt-3 text-[14px] leading-relaxed text-[#7E6BAF]">
+                    A fixed snapshot will be sent to your provider before your{" "}
+                    {search.format === "online" ? "online session" : "visit"}.
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-full border border-[#7E6BAF]/20 bg-[#F4ECFB] px-3 py-1 text-[12px] font-semibold text-[#4A3E7F]">
                       {pending.includedKeys.length} item
                       {pending.includedKeys.length === 1 ? "" : "s"}
                     </span>
-                    <span className="text-[12px] text-[#7E6BAF]">
-                      will be shared with
+                    <span className="text-[13px] text-[#7E6BAF]">
+                      will be shared
                     </span>
                   </div>
-                  <p className="text-[14px] font-semibold text-[#4A3E7F]">
-                    {provider.name.split(",")[0]}
-                  </p>
-                </div>
-              ) : (
-                <p className="mt-2 text-[13px] leading-relaxed text-[#7E6BAF]">
-                  Send a one-time{" "}
-                  <span className="font-semibold text-[#4A3E7F]">
-                    AI Provider Brief
-                  </span>{" "}
-                  so your provider can prepare for your{" "}
-                  {search.format === "online" ? "online session" : "visit"}.
-                </p>
-              )}
 
-              <div className="mt-4 flex items-center gap-2 border-t border-[#7E6BAF]/10 pt-3">
-                <Lock className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
-                <span className="text-[11px] font-medium text-[#7E6BAF]">
-                  {pending && pending.includedKeys.length > 0
-                    ? "Nothing is shared unless you confirm."
-                    : "Fixed snapshot. Nothing is shared unless you confirm."}
-                </span>
-              </div>
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShareModalOpen(true)}
+                      className="text-[13px] font-semibold text-[#7E6BAF] underline decoration-[#7E6BAF]/30 underline-offset-4 transition-colors hover:text-[#4A3E7F]"
+                    >
+                      Change
+                    </button>
+                  </div>
+
+                  <div className="mt-6 flex items-center gap-2 border-t border-[#E9E6FA] pt-4">
+                    <Lock className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+                    <span className="text-[12px] text-[#7E6BAF]">
+                      Fixed snapshot. Nothing is shared unless you confirm.
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-4 flex items-center gap-2">
+                    <div className="rounded-full bg-[#F4ECFB] p-1.5 text-[#7E6BAF]">
+                      <Share2 className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7E6BAF]">
+                      Health Passport
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif-display text-[22px] leading-[1.2] text-[#4A3E7F] sm:text-[24px]">
+                    Share your Health Passport with {provider.name.split(",")[0]}?
+                  </h3>
+                  <p className="mt-3 text-[14px] leading-relaxed text-[#7E6BAF]">
+                    You can choose whether to share anything with{" "}
+                    {provider.name.split(",")[0]} for this appointment.
+                  </p>
+
+                  <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <button
+                      type="button"
+                      onClick={() => setShareModalOpen(true)}
+                      className="inline-flex items-center justify-center rounded-full bg-brand-purple px-6 py-3 text-[14px] font-semibold text-white shadow-md shadow-purple-100 transition-all hover:bg-brand-purple-dark"
+                    >
+                      Choose what to share
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearPendingShare(bookingKey);
+                        setPending(null);
+                      }}
+                      className="text-[13px] font-medium text-[#9F96C6] transition-colors hover:text-[#4A3E7F]"
+                    >
+                      Skip for now
+                    </button>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-2">
+                    <Lock className="h-3.5 w-3.5 text-[#9F96C6]" />
+                    <span className="text-[12px] text-[#9F96C6]">
+                      Optional — you can also do this later.
+                    </span>
+                  </div>
+
+                  <div className="mt-6 border-t border-[#E9E6FA] pt-4">
+                    <p className="text-[12px] leading-relaxed text-[#7E6BAF]">
+                      Nothing will be shared unless you review and confirm it.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
