@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   User as UserIcon,
   Video,
-  FileHeart,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
