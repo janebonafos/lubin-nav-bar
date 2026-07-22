@@ -345,7 +345,8 @@ function CheckoutPage() {
                       <span className="font-semibold text-[#3D2E6B]">
                         AI Provider Brief
                       </span>{" "}
-                      so your provider can prepare for your visit.
+                      so your provider can prepare for your{" "}
+                      {search.format === "online" ? "online session" : "visit"}.
                     </p>
                   )}
                 </div>
