@@ -319,11 +319,11 @@ function CheckoutPage() {
             <div className="mt-4 rounded-2xl border border-[#E5DEF5] bg-white p-5 shadow-[0_4px_20px_-4px_rgba(74,62,127,0.08)]">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1 space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <h3 className="text-[15px] font-semibold text-[#2D245A]">
                       Share from your Health Passport
                     </h3>
-                    <span className="rounded-md bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
+                    <span className="flex-none rounded-md bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
                       Optional
                     </span>
                   </div>
