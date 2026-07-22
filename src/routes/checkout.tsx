@@ -317,13 +317,20 @@ function CheckoutPage() {
 
             {/* Health Passport sharing — compact option inside the checkout form */}
             <div className="mt-4 rounded-2xl border border-[#E5DEF5] bg-white p-5 shadow-[0_4px_20px_-4px_rgba(74,62,127,0.08)]">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 flex-1 space-y-1">
-                  <h3 className="text-[15px] font-semibold text-[#2D245A]">
-                    Share from your Health Passport
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[15px] font-semibold text-[#2D245A]">
+                      Share from your Health Passport
+                    </h3>
+                    {(!pending || pending.includedKeys.length === 0) && (
+                      <span className="flex-none rounded-md bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
+                        Optional
+                      </span>
+                    )}
+                  </div>
                   {pending && pending.includedKeys.length > 0 ? (
-                    <p className="truncate text-[13px] leading-relaxed text-[#5A4A8A]">
+                    <p className="text-[13px] leading-relaxed text-[#5A4A8A]">
                       <span className="font-semibold text-[#3D2E6B]">
                         {pending.includedKeys.length} item
                         {pending.includedKeys.length === 1 ? "" : "s"}
@@ -335,7 +342,7 @@ function CheckoutPage() {
                       after booking.
                     </p>
                   ) : (
-                    <p className="truncate text-[13px] leading-relaxed text-[#5A4A8A]">
+                    <p className="text-[13px] leading-relaxed text-[#5A4A8A] whitespace-nowrap">
                       Send a one-time{" "}
                       <span className="font-semibold text-[#3D2E6B]">
                         AI Provider Brief
@@ -345,10 +352,7 @@ function CheckoutPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-none flex-col items-end gap-2">
-                  <span className="rounded-md bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
-                    Optional
-                  </span>
+                <div className="flex flex-none items-center gap-2">
                   {pending && pending.includedKeys.length > 0 ? (
                     <>
                       <button
