@@ -427,7 +427,7 @@ function CheckoutPage() {
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-none rounded border-slate-300 text-brand-purple focus:ring-brand-purple"
+                className="mt-0.5 h-4 w-4 flex-none rounded border-slate-300 accent-brand-purple text-brand-purple focus:ring-brand-purple"
               />
               <span className="text-[12.5px] leading-relaxed text-slate-700">
                 I agree to Lubin's{" "}
