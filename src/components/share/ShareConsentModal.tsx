@@ -293,7 +293,7 @@ export default function ShareConsentModal({
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {(step > 1 && !(providerContext && step === 1)) ? (
+          {step > 1 ? (
             <button
               type="button"
               onClick={back}
