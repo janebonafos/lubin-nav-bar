@@ -314,14 +314,14 @@ function PaymentSuccessPage() {
 
             {/* Health Passport sharing — placed above "What happens next" */}
             {grant ? (
-              <section className="mt-5 overflow-hidden rounded-2xl border border-[#7E6BAF]/20 bg-white shadow-sm">
+              <section className="mt-4 overflow-hidden rounded-2xl border border-[#E9E6FA] bg-[#FBFAFF]">
                 <div className="p-4">
                   {/* Header row */}
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <h2 className="text-base font-bold tracking-tight text-[#2D264B]">
                       Shared Access
                     </h2>
-                    <span className="inline-flex items-center gap-1 rounded-md border border-[#7E6BAF]/20 bg-[#F8F7FB] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-[#E9E6FA] bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
                       Expires {grantExpiresLabel}
                     </span>
                   </div>
@@ -331,7 +331,7 @@ function PaymentSuccessPage() {
                     {INCLUDE_OPTIONS.filter((o) => grant.includedKeys.includes(o.key)).map((o) => (
                       <div
                         key={o.key}
-                        className="group flex items-start gap-2.5 rounded-xl border border-[#F8F7FB] bg-[#F8F7FB]/50 p-2.5 transition-all hover:border-[#7E6BAF]/30 hover:bg-white hover:shadow-sm"
+                        className="group flex items-start gap-2.5 rounded-xl border border-[#E9E6FA] bg-white p-2.5"
                       >
                         <div className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-[#7E6BAF] ring-2 ring-[#7E6BAF]/10" />
                         <div>
@@ -349,7 +349,7 @@ function PaymentSuccessPage() {
                     <Link
                       to="/my-health-passport"
                       search={{ tab: "share", share: appointmentId }}
-                      className="inline-flex w-full items-center justify-center rounded-xl bg-[#4A3E7F] px-4 py-2.5 text-[13px] font-semibold text-white shadow-md shadow-[#4A3E7F]/10 transition hover:bg-[#2D264B] active:scale-[0.98]"
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-[13px] font-semibold text-[#4A3E7F] border border-[#E9E6FA] transition hover:bg-[#F8F7FB] active:scale-[0.98]"
                     >
                       Manage Permissions
                     </Link>
@@ -365,14 +365,14 @@ function PaymentSuccessPage() {
                           return;
                         revokeProviderGrant(appointmentId);
                       }}
-                      className="inline-flex w-full items-center justify-center rounded-xl border border-[#7E6BAF]/30 bg-white px-4 py-2.5 text-[13px] font-semibold text-[#4A3E7F] transition hover:bg-[#F8F7FB] active:scale-[0.98]"
+                      className="inline-flex w-full items-center justify-center rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#4A3E7F] transition hover:bg-[#F8F7FB] active:scale-[0.98]"
                     >
                       Revoke All Access
                     </button>
                   </div>
 
                   {/* Footer note */}
-                  <div className="mt-2.5 rounded-lg border border-dashed border-[#7E6BAF]/30 bg-[#F8F7FB] p-2">
+                  <div className="mt-2.5 rounded-lg bg-[#F4F0FC] p-2">
                     <p className="text-center text-[10px] leading-normal text-[#7E6BAF]">
                       Helps your provider prepare for your session. You can adjust these settings
                       at any time.
