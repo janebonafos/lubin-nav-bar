@@ -172,9 +172,9 @@ export default function ShareConsentModal({
   const isConfirmStep = step === 3 || (providerContext && step === 2);
   const nextButtonLabel =
     providerContext && step === 3
-      ? confirmLabelOverride ?? "Confirm and share"
+      ? confirmLabelOverride ?? "Continue and share"
       : !providerContext && step === 3
-        ? "Confirm and share"
+        ? "Continue and share"
         : "Continue";
   const confirmDisabled =
     step === 3 && providerContext
