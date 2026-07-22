@@ -316,24 +316,14 @@ function CheckoutPage() {
             </div>
 
             {/* Health Passport sharing — compact option inside the checkout form */}
-            <div
-              className={`group relative mt-4 overflow-hidden rounded-2xl border p-5 transition ${
-                pending && pending.includedKeys.length > 0
-                  ? "border-[#C9BBEA] bg-gradient-to-br from-[#F7F3FE] via-white to-[#F3EEFB] shadow-[0_10px_28px_-18px_rgba(74,62,127,0.35)]"
-                  : "border-[#E5DEF5] bg-gradient-to-br from-[#FAF7FE] to-white"
-              }`}
-            >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#7E6BAF]/10 blur-3xl"
-              />
-              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="mt-4 rounded-2xl border border-[#E5DEF5] bg-white p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-[14px] font-semibold text-[#2D245A]">
+                    <h3 className="text-[15px] font-semibold text-[#2D245A]">
                       Share from your Health Passport
                     </h3>
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple ring-1 ring-[#E1DAF1]">
+                    <span className="rounded-full bg-[#F0EEF6] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
                       Optional
                     </span>
                   </div>
@@ -356,19 +346,45 @@ function CheckoutPage() {
                       </p>
                     </>
                   ) : (
-                    <>
-                      <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
-                        Choose what {provider.name.split(",")[0]} can see for this
-                        appointment — a short brief helps them prepare.
+                    <div className="mt-2 space-y-2">
+                      <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                        Send a one-time AI Provider Brief so{" "}
+                        <span className="font-semibold text-[#3D2E6B]">
+                          {provider.name.split(",")[0]}
+                        </span>{" "}
+                        can prepare before your session.
                       </p>
-                      <p className="mt-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-brand-purple">
+                      <ul className="space-y-1 text-[11.5px] text-[#6B6684]">
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-brand-purple">•</span>
+                          <span>
+                            Share mood patterns, assessment results, and the topics you
+                            choose.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-brand-purple">•</span>
+                          <span>
+                            Your provider receives a short, scannable summary — not raw
+                            chat transcripts.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-brand-purple">•</span>
+                          <span>
+                            This is a fixed snapshot. New Health Passport updates are not
+                            shared automatically.
+                          </span>
+                        </li>
+                      </ul>
+                      <p className="inline-flex items-center gap-1 text-[11.5px] font-medium text-brand-purple">
                         <Lock className="h-3 w-3" />
-                        Nothing is shared unless you confirm
+                        Nothing is shared unless you confirm.
                       </p>
-                    </>
+                    </div>
                   )}
                 </div>
-                <div className="flex flex-none items-center gap-2 sm:flex-col sm:items-end">
+                <div className="flex flex-none items-start gap-2 sm:flex-col sm:items-end">
                   {pending && pending.includedKeys.length > 0 ? (
                     <>
                       <button
@@ -393,7 +409,7 @@ function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setShareModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white shadow-[0_10px_22px_-10px_rgba(126,107,175,0.6)] transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
                     >
                       Choose what to share
                     </button>
