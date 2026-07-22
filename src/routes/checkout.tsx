@@ -391,12 +391,13 @@ function CheckoutPage() {
               ) : (
                 <div className="mt-4 border-t border-[#F0EEF6] pt-3">
                   <p className="text-[12px] text-[#6B6684]">
-                    You choose the mood, assessments, and topics included.{" "}
-                    <span className="font-medium text-[#5A4A8A]">Fixed snapshot.</span>
+                    Your provider gets a short, scannable summary before the
+                    session, so you can spend less time explaining and more time
+                    on care. You choose what goes in — nothing else is shared.
                   </p>
                   <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-slate-400">
                     <Lock className="h-3.5 w-3.5 flex-none" />
-                    Nothing is shared unless you confirm.
+                    Fixed snapshot. Nothing is shared unless you confirm.
                   </div>
                 </div>
               )}
