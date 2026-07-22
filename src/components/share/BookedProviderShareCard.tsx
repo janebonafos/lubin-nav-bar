@@ -105,7 +105,7 @@ export default function BookedProviderShareCard({
               aria-expanded={isControlled ? expanded : undefined}
               className="inline-flex items-center gap-1 rounded-xl bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
             >
-              {isControlled && expanded ? "Close" : "Review and share"}
+              {isControlled && expanded ? "Review and Share" : "Review and share"}
               {isControlled ? (
                 <ChevronDown
                   className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
