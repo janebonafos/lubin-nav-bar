@@ -687,6 +687,18 @@ export default function Navbar() {
         window.dispatchEvent(new Event("lubin:auth-change"));
       } catch { /* ignore */ }
     }
+    // Prefer returning the user to the page they came from.
+    const returnTo = authReturnRef.current;
+    authReturnRef.current = null;
+    const isAuthNeutral =
+      !returnTo ||
+      returnTo === "/" ||
+      returnTo.startsWith("/profile") ||
+      returnTo.startsWith("/provider-onboarding");
+    if (!isAuthNeutral) {
+      navigate({ to: returnTo });
+      return;
+    }
     if (role === "provider") {
       navigate({ to: "/provider-onboarding" });
     } else {
