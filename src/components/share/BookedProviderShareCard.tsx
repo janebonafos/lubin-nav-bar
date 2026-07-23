@@ -1,8 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ChevronDown, Eye, RefreshCw, ShieldOff } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   getProviderGrant,
-  revokeProviderGrant,
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
@@ -11,8 +10,8 @@ import type { ClientUpcomingAppointment } from "@/components/profile/ClientAppoi
 export default function BookedProviderShareCard({
   appointment,
   onReviewAndShare,
-  onViewShared,
-  onUpdate,
+  onViewShared: _onViewShared,
+  onUpdate: _onUpdate,
   highlight = false,
   expanded: expandedProp,
   onToggleExpand,
@@ -27,6 +26,8 @@ export default function BookedProviderShareCard({
   onToggleExpand?: (next: boolean) => void;
   expandedContent?: ReactNode;
 }) {
+  void _onViewShared;
+  void _onUpdate;
   const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
   const [expandedInternal, setExpandedInternal] = useState(false);
   const isControlled = expandedProp !== undefined;
@@ -118,41 +119,6 @@ export default function BookedProviderShareCard({
 
       {expanded && (shared || expandedContent) && (
         <div className="border-t border-[#F4F0FB] bg-[#FBFAFE]">
-          {shared && grant && (
-            <div className="flex flex-wrap gap-2 px-4 py-3">
-              <button
-                type="button"
-                onClick={() => onViewShared(grant)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7C69BA]/40 hover:bg-white"
-              >
-                <Eye className="h-3.5 w-3.5" /> View
-              </button>
-              <button
-                type="button"
-                onClick={onUpdate}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:border-[#7C69BA]/40 hover:bg-white"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Update
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (
-                    typeof window !== "undefined" &&
-                    !window.confirm(
-                      `Revoke ${grant.providerName}'s access to your Health Passport?`,
-                    )
-                  )
-                    return;
-                  revokeProviderGrant(appointment.id);
-                  setExpanded(false);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#7C69BA]/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#4A3E7F] transition hover:bg-[#F7F4FC]"
-              >
-                <ShieldOff className="h-3.5 w-3.5" /> Revoke
-              </button>
-            </div>
-          )}
           {expandedContent && (
             <div className="p-3 sm:p-4">{expandedContent}</div>
           )}

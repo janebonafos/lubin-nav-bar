@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   Loader2,
+  ShieldOff,
 } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
@@ -53,6 +54,9 @@ export default function ShareConsentModal({
   assessmentContext,
   providerContext,
   initialIncluded,
+  initialAttemptIds,
+  mode = "share",
+  onRevoke,
   confirmLabelOverride,
   submitting = false,
 }: {
@@ -62,6 +66,9 @@ export default function ShareConsentModal({
   assessmentContext?: AssessmentContext;
   providerContext?: ProviderContext;
   initialIncluded?: string[];
+  initialAttemptIds?: string[];
+  mode?: "share" | "update";
+  onRevoke?: () => void;
   confirmLabelOverride?: string;
   submitting?: boolean;
 }) {
@@ -101,8 +108,15 @@ export default function ShareConsentModal({
     () => summary.attemptsInRange.map((a) => a.id),
     [summary],
   );
+  const defaultAttemptIds = useMemo(() => {
+    if (initialAttemptIds) {
+      const set = new Set(allAttemptIds);
+      return initialAttemptIds.filter((id) => set.has(id));
+    }
+    return allAttemptIds;
+  }, [initialAttemptIds, allAttemptIds]);
   const [selectedAttemptIds, setSelectedAttemptIds] =
-    useState<string[]>(allAttemptIds);
+    useState<string[]>(defaultAttemptIds);
 
   useEffect(() => {
     if (open) {
@@ -111,9 +125,31 @@ export default function ShareConsentModal({
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
       setAgreed(false);
-      setSelectedAttemptIds(allAttemptIds);
+      setSelectedAttemptIds(defaultAttemptIds);
     }
-  }, [open, defaultSelection, providerContext, allAttemptIds]);
+  }, [open, defaultSelection, providerContext, defaultAttemptIds]);
+
+  // Dirty tracking (update mode): the "share update" button only appears
+  // when the patient actually changed something vs the current grant.
+  const dirty = useMemo(() => {
+    const baselineIncluded = initialIncluded ?? defaultSelection;
+    const incSet = new Set(baselineIncluded);
+    const incDirty =
+      included.length !== incSet.size ||
+      included.some((k) => !incSet.has(k));
+    const attemptsBaseline = defaultAttemptIds;
+    const attSet = new Set(attemptsBaseline);
+    const attDirty =
+      selectedAttemptIds.length !== attSet.size ||
+      selectedAttemptIds.some((id) => !attSet.has(id));
+    return incDirty || attDirty;
+  }, [
+    included,
+    initialIncluded,
+    defaultSelection,
+    selectedAttemptIds,
+    defaultAttemptIds,
+  ]);
 
   // Auto-uncheck the "Assessment results" parent category when the user has
   // deselected every individual attempt. Keeps parent state in sync with
@@ -167,8 +203,13 @@ export default function ShareConsentModal({
         ? "Choose recipient"
         : "Confirm & consent";
   const isConfirmStep = step === 3 || (providerContext && step === 1);
+  const isUpdateMode = !!providerContext && mode === "update";
+  // In update mode, hide the primary "share update" button until the
+  // patient actually changes something.
+  const showPrimary = isUpdateMode ? dirty : true;
   const nextButtonLabel = isConfirmStep
-    ? confirmLabelOverride ?? "Continue and share"
+    ? confirmLabelOverride ??
+      (isUpdateMode ? "Share update" : "Continue and share")
     : "Continue";
   const confirmDisabled =
     isConfirmStep && providerContext
@@ -297,7 +338,17 @@ export default function ShareConsentModal({
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {step > 1 && !providerContext ? (
+          {onRevoke ? (
+            <button
+              type="button"
+              onClick={onRevoke}
+              disabled={submitting}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#E1DAF1] bg-white px-4 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:border-[#7E6BAF]/40 hover:bg-[#F7F4FC] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ShieldOff className="h-4 w-4" />
+              Revoke access
+            </button>
+          ) : step > 1 && !providerContext ? (
             <button
               type="button"
               onClick={back}
@@ -309,6 +360,7 @@ export default function ShareConsentModal({
           ) : (
             <span />
           )}
+          {showPrimary ? (
           <button
             type="button"
             disabled={
@@ -333,6 +385,11 @@ export default function ShareConsentModal({
               </>
             )}
           </button>
+          ) : (
+            <p className="text-xs text-[#8B85A6]">
+              Change a selection above to share an update.
+            </p>
+          )}
         </div>
       </div>
     </section>
