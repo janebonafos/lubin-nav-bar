@@ -21,6 +21,7 @@ import {
   createProviderGrant,
   updateProviderGrant,
   getProviderGrant,
+  revokeProviderGrant,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 
@@ -549,7 +550,27 @@ function ViewSharedSheet({
             </p>
           </div>
         </div>
-        <div className="flex justify-end border-t border-[#F0EDF8] px-6 py-3">
+        <div className="flex justify-end gap-2 border-t border-[#F0EDF8] px-6 py-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (
+                typeof window !== "undefined" &&
+                !window.confirm(
+                  `Revoke ${grant.providerName}'s access to your Health Passport?`,
+                )
+              )
+                return;
+              revokeProviderGrant(grant.appointmentId);
+              toast.success("Access revoked", {
+                description: `${grant.providerName} can no longer view this snapshot.`,
+              });
+              onClose();
+            }}
+            className="rounded-full border border-[#7C69BA]/15 bg-white px-5 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:bg-[#F7F4FC]"
+          >
+            Revoke access
+          </button>
           <button
             type="button"
             onClick={onClose}
