@@ -60,6 +60,7 @@ export default function ShareTabView({
   const [providerMode, setProviderMode] = useState<"share" | "update" | null>(null);
   const [viewingGrant, setViewingGrant] = useState<ProviderShareGrant | null>(null);
   const [expandedApptId, setExpandedApptId] = useState<string | null>(null);
+  const [submittingApptId, setSubmittingApptId] = useState<string | null>(null);
 
   // mounted flag so SSR & first-paint don't mismatch on localStorage reads
   const [mounted, setMounted] = useState(false);
@@ -118,6 +119,16 @@ export default function ShareTabView({
     setProviderAppt(null);
     setProviderMode(null);
     setExpandedApptId(null);
+  };
+
+  const scrollToAppt = (id: string) => {
+    if (typeof window === "undefined") return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`appt-share-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
   };
 
   return (
