@@ -259,9 +259,19 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const authReturnRef = useRef<string | null>(null);
   const navigate = useNavigate();
 
   const openAuth = (mode: AuthMode) => {
+    // Remember where the user was when they opened auth so we can send them
+    // back to the same page after a successful login/register instead of
+    // always dropping them on the Profile "Today" tab.
+    try {
+      if (typeof window !== "undefined") {
+        const here = window.location.pathname + window.location.search + window.location.hash;
+        authReturnRef.current = here;
+      }
+    } catch { /* ignore */ }
     setAuthMode(mode);
     setAuthOpen(true);
   };
@@ -676,6 +686,18 @@ export default function Navbar() {
         window.localStorage.setItem("lubin.signedIn", "1");
         window.dispatchEvent(new Event("lubin:auth-change"));
       } catch { /* ignore */ }
+    }
+    // Prefer returning the user to the page they came from.
+    const returnTo = authReturnRef.current;
+    authReturnRef.current = null;
+    const isAuthNeutral =
+      !returnTo ||
+      returnTo === "/" ||
+      returnTo.startsWith("/profile") ||
+      returnTo.startsWith("/provider-onboarding");
+    if (!isAuthNeutral) {
+      navigate({ to: returnTo });
+      return;
     }
     if (role === "provider") {
       navigate({ to: "/provider-onboarding" });
