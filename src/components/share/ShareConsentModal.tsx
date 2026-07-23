@@ -1134,8 +1134,17 @@ function Step3({
             type="checkbox"
             checked={agreed}
             onChange={(e) => onAgreedChange(e.target.checked)}
-            className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+            className="sr-only"
           />
+          <span
+            className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border-2 transition ${
+              agreed
+                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                : "border-[#D6CCEC] bg-white text-transparent"
+            }`}
+          >
+            <Check className="h-3 w-3" strokeWidth={3} />
+          </span>
           <span className="leading-relaxed">
             I have reviewed the information above and agree to share it with{" "}
             <strong>{providerContext.providerName}</strong> for this appointment.
