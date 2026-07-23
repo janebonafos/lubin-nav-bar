@@ -262,6 +262,15 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const openAuth = (mode: AuthMode) => {
+    // Remember where the user was when they opened auth so we can send them
+    // back to the same page after a successful login/register instead of
+    // always dropping them on the Profile "Today" tab.
+    try {
+      if (typeof window !== "undefined") {
+        const here = window.location.pathname + window.location.search + window.location.hash;
+        authReturnRef.current = here;
+      }
+    } catch { /* ignore */ }
     setAuthMode(mode);
     setAuthOpen(true);
   };
