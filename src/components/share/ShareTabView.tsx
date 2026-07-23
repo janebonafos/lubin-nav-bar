@@ -21,6 +21,7 @@ import {
   createProviderGrant,
   updateProviderGrant,
   getProviderGrant,
+  revokeProviderGrant,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 
