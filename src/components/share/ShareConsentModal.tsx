@@ -148,48 +148,35 @@ export default function ShareConsentModal({
   const selectAllAttempts = () => setSelectedAttemptIds(allAttemptIds);
   const deselectAllAttempts = () => setSelectedAttemptIds([]);
 
-  // Provider-linked sharing: the user is allowed to proceed with an empty
-  // selection (they may choose to share nothing). The consent screen is
-  // where they finalise the decision.
+  // Provider-linked sharing: we show the selection, review, and consent in a
+  // single step so the user can choose what to share, see the review, check
+  // "I agree", and then click "Continue and share" directly.
   const canStep1Continue = providerContext ? true : included.length > 0;
   const canStep2Continue = recipient !== null;
 
-  // In provider mode we render a choice → (custom selection) → review flow.
-  // Progress shown to the user: choice = 1/2 or 1/3, review = last.
-  const providerStepsTotal = 2;
+  // In provider mode there's only one visible step: choose + review + consent.
+  // Non-provider flow keeps the classic 1 → 2 → 3 shape.
+  const providerStepsTotal = 1;
   const totalSteps = providerContext ? providerStepsTotal : 3;
-  const displayedStep = providerContext
-    ? step === 1
-      ? 1
-      : providerStepsTotal
-    : step;
+  const displayedStep = providerContext ? 1 : step;
   const stepTitle = providerContext
-    ? step === 1
-      ? "Choose what to share"
-      : "Review & confirm"
+    ? "Review and share"
     : step === 1
       ? "Choose what to include"
       : step === 2
         ? "Choose recipient"
         : "Confirm & consent";
-  const isConfirmStep = step === 3 || (providerContext && step === 2);
-  const nextButtonLabel =
-    providerContext && step === 3
-      ? confirmLabelOverride ?? "Continue and share"
-      : !providerContext && step === 3
-        ? "Continue and share"
-        : "Continue";
+  const isConfirmStep = step === 3 || (providerContext && step === 1);
+  const nextButtonLabel = isConfirmStep
+    ? confirmLabelOverride ?? "Continue and share"
+    : "Continue";
   const confirmDisabled =
-    step === 3 && providerContext
+    isConfirmStep && providerContext
       ? !agreed || included.length === 0
       : false;
 
   const advance = () => {
     if (providerContext) {
-      if (step === 1) {
-        setStep(3);
-        return;
-      }
       if (recipient && !confirmDisabled) {
         onConfirm({
           includedKeys: included,
@@ -213,16 +200,13 @@ export default function ShareConsentModal({
   };
 
   const back = () => {
-    if (providerContext) {
-      if (step === 3) setStep(1);
-    } else {
+    if (!providerContext) {
       setStep(step - 1);
     }
   };
 
   const removeIncluded = (key: string) =>
     setIncluded((prev) => prev.filter((k) => k !== key));
-  void isConfirmStep;
   void choice;
   void setChoice;
   void Step0Choice;
@@ -296,10 +280,24 @@ export default function ShareConsentModal({
               selectedAttemptIds={selectedAttemptIds}
             />
           )}
+          {/* Provider-linked flow: merge review/consent into the selection step. */}
+          {providerContext && step === 1 && (
+            <div className="mt-2">
+              <Step3
+                providerContext={providerContext}
+                includedKeys={included}
+                agreed={agreed}
+                onAgreedChange={setAgreed}
+                summary={summary}
+                onRemoveIncluded={removeIncluded}
+                selectedAttemptIds={selectedAttemptIds}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
-          {step > 1 ? (
+          {step > 1 && !providerContext ? (
             <button
               type="button"
               onClick={back}
@@ -314,7 +312,8 @@ export default function ShareConsentModal({
           <button
             type="button"
             disabled={
-              (step === 1 && !canStep1Continue) ||
+              (step === 1 && !providerContext && !canStep1Continue) ||
+              (step === 1 && providerContext && !agreed) ||
               (step === 2 && !canStep2Continue) ||
               confirmDisabled ||
               submitting
