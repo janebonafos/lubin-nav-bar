@@ -54,6 +54,7 @@ export default function ShareConsentModal({
   providerContext,
   initialIncluded,
   confirmLabelOverride,
+  submitting = false,
 }: {
   open: boolean;
   onConfirm: (result: ConsentResult) => void;
@@ -62,6 +63,7 @@ export default function ShareConsentModal({
   providerContext?: ProviderContext;
   initialIncluded?: string[];
   confirmLabelOverride?: string;
+  submitting?: boolean;
 }) {
   // Provider-linked flow adds a "choice" step (0) before the existing flow.
   // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
