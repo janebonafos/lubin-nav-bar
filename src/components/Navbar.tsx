@@ -259,6 +259,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const authReturnRef = useRef<string | null>(null);
   const navigate = useNavigate();
 
   const openAuth = (mode: AuthMode) => {
