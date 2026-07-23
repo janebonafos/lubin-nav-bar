@@ -62,6 +62,7 @@ export default function ShareTabView({
   const [viewingGrant, setViewingGrant] = useState<ProviderShareGrant | null>(null);
   const [expandedApptId, setExpandedApptId] = useState<string | null>(null);
   const [submittingApptId, setSubmittingApptId] = useState<string | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<ClientUpcomingAppointment | null>(null);
 
   // mounted flag so SSR & first-paint don't mismatch on localStorage reads
   const [mounted, setMounted] = useState(false);
@@ -175,7 +176,18 @@ export default function ShareTabView({
                     }
                   }}
                   expandedContent={
-                    expandedApptId === a.id && providerAppt?.id === a.id ? (
+                    expandedApptId === a.id && providerAppt?.id === a.id ? (() => {
+                      const existing = getProviderGrant(a.id);
+                      const currentIds = summary.attemptsInRange.map((x) => x.id);
+                      const initialAttemptIds =
+                        existing && existing.includedKeys.includes("assessments")
+                          ? existing.snapshot.attemptsInRange
+                              .map((x) => x.id)
+                              .filter((id) => currentIds.includes(id))
+                          : undefined;
+                      const effectiveMode: "share" | "update" =
+                        existing ? "update" : "share";
+                      return (
                       <ShareConsentModal
                         open={true}
                         summary={summary}
@@ -184,6 +196,12 @@ export default function ShareTabView({
                           appointmentLabel: a.fullLabel,
                         }}
                         submitting={submittingApptId === a.id}
+                        mode={effectiveMode}
+                        initialIncluded={existing?.includedKeys}
+                        initialAttemptIds={initialAttemptIds}
+                        onRevoke={
+                          existing ? () => setRevokeTarget(a) : undefined
+                        }
                         onConfirm={(r) => {
                           const filteredSummary = r.attemptIds
                             ? {
@@ -195,7 +213,7 @@ export default function ShareTabView({
                             : summary;
                           if (submittingApptId) return;
                           setSubmittingApptId(a.id);
-                          const isUpdate = providerMode === "update";
+                          const isUpdate = effectiveMode === "update";
                           window.setTimeout(() => {
                             if (isUpdate) {
                               updateProviderGrant(a.id, {
@@ -224,7 +242,8 @@ export default function ShareTabView({
                           }, 700);
                         }}
                       />
-                    ) : null
+                      );
+                    })() : null
                   }
                 />
                 </div>
@@ -495,6 +514,75 @@ export default function ShareTabView({
           onClose={() => setViewingGrant(null)}
         />
       )}
+
+      {revokeTarget && (
+        <RevokeConfirmDialog
+          providerName={revokeTarget.providerName}
+          onCancel={() => setRevokeTarget(null)}
+          onConfirm={() => {
+            const appt = revokeTarget;
+            revokeProviderGrant(appt.id);
+            toast.success("Access revoked", {
+              description: `${appt.providerName} can no longer view this snapshot.`,
+            });
+            setRevokeTarget(null);
+            closeInline();
+            scrollToAppt(appt.id);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function RevokeConfirmDialog({
+  providerName,
+  onCancel,
+  onConfirm,
+}: {
+  providerName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md overflow-hidden rounded-[24px] border border-[#ECE7F6] bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 pb-2 pt-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
+            Revoke access
+          </p>
+          <h3 className="mt-1 text-lg font-bold text-[#2D245A]">
+            Stop sharing with {providerName}?
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#5A4A8A]">
+            {providerName} will immediately lose access to the Health Passport
+            snapshot you shared. This cannot be undone — you can share again
+            later if you change your mind.
+          </p>
+        </div>
+        <div className="mt-4 flex items-center justify-end gap-2 border-t border-[#F0EDF8] px-6 py-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full border border-[#ECE7F6] bg-white px-5 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+          >
+            Keep sharing
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+          >
+            Revoke access
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
