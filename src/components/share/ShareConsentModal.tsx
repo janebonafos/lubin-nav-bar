@@ -7,6 +7,7 @@ import {
   X as XIcon,
   ChevronDown,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
@@ -53,6 +54,7 @@ export default function ShareConsentModal({
   providerContext,
   initialIncluded,
   confirmLabelOverride,
+  submitting = false,
 }: {
   open: boolean;
   onConfirm: (result: ConsentResult) => void;
@@ -61,6 +63,7 @@ export default function ShareConsentModal({
   providerContext?: ProviderContext;
   initialIncluded?: string[];
   confirmLabelOverride?: string;
+  submitting?: boolean;
 }) {
   // Provider-linked flow adds a "choice" step (0) before the existing flow.
   // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
@@ -313,13 +316,23 @@ export default function ShareConsentModal({
             disabled={
               (step === 1 && !canStep1Continue) ||
               (step === 2 && !canStep2Continue) ||
-              confirmDisabled
+              confirmDisabled ||
+              submitting
             }
             onClick={advance}
             className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {nextButtonLabel}
-            <ArrowRight className="h-4 w-4" />
+            {submitting && isConfirmStep ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sharing…
+              </>
+            ) : (
+              <>
+                {nextButtonLabel}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </div>
       </div>

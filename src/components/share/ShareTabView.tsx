@@ -60,6 +60,7 @@ export default function ShareTabView({
   const [providerMode, setProviderMode] = useState<"share" | "update" | null>(null);
   const [viewingGrant, setViewingGrant] = useState<ProviderShareGrant | null>(null);
   const [expandedApptId, setExpandedApptId] = useState<string | null>(null);
+  const [submittingApptId, setSubmittingApptId] = useState<string | null>(null);
 
   // mounted flag so SSR & first-paint don't mismatch on localStorage reads
   const [mounted, setMounted] = useState(false);
@@ -120,6 +121,16 @@ export default function ShareTabView({
     setExpandedApptId(null);
   };
 
+  const scrollToAppt = (id: string) => {
+    if (typeof window === "undefined") return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`appt-share-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  };
+
   return (
     <div className="grid gap-6">
       {/* Booked-provider share cards (appointment-linked) */}
@@ -145,6 +156,7 @@ export default function ShareTabView({
           <div className="px-4 pb-6 sm:px-6 sm:pb-8">
             <div className="flex flex-col space-y-3">
               {upcomingAppointments.map((a) => (
+                <div key={a.id} id={`appt-share-${a.id}`}>
                 <BookedProviderShareCard
                   key={a.id}
                   appointment={a}
@@ -170,6 +182,7 @@ export default function ShareTabView({
                           providerName: a.providerName,
                           appointmentLabel: a.fullLabel,
                         }}
+                        submitting={submittingApptId === a.id}
                         onConfirm={(r) => {
                           const filteredSummary = r.attemptIds
                             ? {
@@ -179,33 +192,41 @@ export default function ShareTabView({
                                 ),
                               }
                             : summary;
-                          if (providerMode === "update") {
-                            updateProviderGrant(a.id, {
-                              includedKeys: r.includedKeys,
-                              snapshot: filteredSummary,
-                            });
-                            toast.success("Shared information updated", {
-                              description: `${a.providerName} will see your updated summary before your session.`,
-                            });
-                          } else {
-                            createProviderGrant({
-                              appointmentId: a.id,
-                              providerName: a.providerName,
-                              appointmentLabel: a.fullLabel,
-                              appointmentTs: a.ts,
-                              includedKeys: r.includedKeys,
-                              snapshot: filteredSummary,
-                            });
-                            toast.success("Health Passport shared", {
-                              description: `${a.providerName} can now view your summary before your session.`,
-                            });
-                          }
-                          closeInline();
+                          if (submittingApptId) return;
+                          setSubmittingApptId(a.id);
+                          const isUpdate = providerMode === "update";
+                          window.setTimeout(() => {
+                            if (isUpdate) {
+                              updateProviderGrant(a.id, {
+                                includedKeys: r.includedKeys,
+                                snapshot: filteredSummary,
+                              });
+                              toast.success("Shared information updated", {
+                                description: `${a.providerName} will see your updated summary before your session.`,
+                              });
+                            } else {
+                              createProviderGrant({
+                                appointmentId: a.id,
+                                providerName: a.providerName,
+                                appointmentLabel: a.fullLabel,
+                                appointmentTs: a.ts,
+                                includedKeys: r.includedKeys,
+                                snapshot: filteredSummary,
+                              });
+                              toast.success("Health Passport shared", {
+                                description: `${a.providerName} can now view your summary before your session.`,
+                              });
+                            }
+                            setSubmittingApptId(null);
+                            closeInline();
+                            scrollToAppt(a.id);
+                          }, 700);
                         }}
                       />
                     ) : null
                   }
                 />
+                </div>
               ))}
             </div>
           </div>
