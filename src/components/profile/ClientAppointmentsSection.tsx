@@ -347,8 +347,8 @@ export default function ClientAppointmentsSection() {
                     </div>
 
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
+                    <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           <p
                             className={`truncate font-semibold text-[#3D2E6B] ${
                               a.status !== "upcoming" ? "opacity-70" : ""
@@ -361,6 +361,14 @@ export default function ClientAppointmentsSection() {
                           >
                             {a.status}
                           </span>
+                          {grants[a.id] && (
+                            <span
+                              title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
+                              className="inline-flex items-center gap-1 rounded-full bg-[#EEF6F1] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69]"
+                            >
+                              <ShieldCheck className="h-3 w-3" /> Passport shared
+                            </span>
+                          )}
                         </div>
                         <p className="mt-0.5 flex items-center gap-1.5 text-sm text-[#7E6BAF]">
                           <span>{a.specialty}</span>
