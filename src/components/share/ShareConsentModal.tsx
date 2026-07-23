@@ -281,6 +281,20 @@ export default function ShareConsentModal({
               selectedAttemptIds={selectedAttemptIds}
             />
           )}
+          {/* Provider-linked flow: merge review/consent into the selection step. */}
+          {providerContext && step === 1 && (
+            <div className="mt-2">
+              <Step3
+                providerContext={providerContext}
+                includedKeys={included}
+                agreed={agreed}
+                onAgreedChange={setAgreed}
+                summary={summary}
+                onRemoveIncluded={removeIncluded}
+                selectedAttemptIds={selectedAttemptIds}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-[#F4F0FB] bg-white px-5 py-4 md:px-7">
