@@ -17,7 +17,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 import GuestAccountPrompt from "@/components/GuestAccountPrompt";
-import AuthModal, { type AuthMode } from "@/components/AuthModal";
+
 import {
   bookingKeyFor,
   getPendingShare,

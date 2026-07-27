@@ -23,6 +23,7 @@ import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as EmailPreviewRouteImport } from './routes/email-preview'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
@@ -108,6 +109,11 @@ const CheckInRoute = CheckInRouteImport.update({
   path: '/check-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -182,6 +188,7 @@ const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/email-preview': typeof EmailPreviewRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/email-preview': typeof EmailPreviewRoute
@@ -243,6 +251,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
   '/email-preview': typeof EmailPreviewRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/check-in'
     | '/checkout'
     | '/email-preview'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/check-in'
     | '/checkout'
     | '/email-preview'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/check-in'
     | '/checkout'
     | '/email-preview'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
   EmailPreviewRoute: typeof EmailPreviewRoute
@@ -494,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -608,6 +628,7 @@ const ProfileRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
   EmailPreviewRoute: EmailPreviewRoute,
@@ -638,13 +659,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
