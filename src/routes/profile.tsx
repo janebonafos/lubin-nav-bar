@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, useEffect } from "react";
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Camera,
