@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 import GuestAccountPrompt from "@/components/GuestAccountPrompt";
+import AuthModal, { type AuthMode } from "@/components/AuthModal";
 import {
   bookingKeyFor,
   getPendingShare,
@@ -63,6 +64,27 @@ export const Route = createFileRoute("/payment-success")({
 
 function PaymentSuccessPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("signup");
+
+  const handleViewAppointments = () => {
+    const signedIn =
+      typeof window !== "undefined" &&
+      !!window.localStorage.getItem("lubin.userName");
+    if (signedIn) {
+      navigate({ to: "/profile" });
+      return;
+    }
+    setAuthMode("signin");
+    setAuthOpen(true);
+  };
+
+  const completeAuthAndGo = () => {
+    setAuthOpen(false);
+    navigate({ to: "/profile" });
+  };
+
   const provider =
     (search.providerId ? getProviderById(search.providerId) : undefined) ?? PROVIDERS[0];
   const providerServices = getServicesForProvider(provider);
