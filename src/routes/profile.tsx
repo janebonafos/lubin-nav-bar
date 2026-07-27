@@ -25,8 +25,10 @@ import {
   Wallet,
   ShieldCheck,
   Briefcase,
+  LogOut,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { useNavigate } from "@tanstack/react-router";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
 import { loadAttempts, loadInProgress } from "@/lib/patterns/storage";
@@ -109,6 +111,7 @@ function ProfilePage() {
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   // Initial hydration loader — gives time for localStorage reads & lazy widgets.
   useEffect(() => {
@@ -377,6 +380,17 @@ function ProfilePage() {
     setEditing(false);
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1800);
+  };
+
+  const handleSignOut = () => {
+    try {
+      window.localStorage.removeItem("lubin.signedIn");
+      window.localStorage.removeItem("lubin.userRole");
+      window.localStorage.removeItem("lubin.userName");
+      window.localStorage.removeItem("lubin.userAvatar");
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
+    navigate({ to: "/" });
   };
 
   const NAV: { key: Section; label: string; icon: React.ReactNode }[] =
@@ -669,6 +683,17 @@ function ProfilePage() {
                     Privacy Policy
                   </a>
                 </div>
+              </div>
+
+              <div className="mt-5 border-t border-[#EEE9F8] pt-4">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#3D2E6B]/80 transition hover:bg-red-50 hover:text-red-600"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
               </div>
             </section>
           </aside>
