@@ -30,7 +30,7 @@ import {
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
-import { buildSummary, mockSummary, INCLUDE_OPTIONS } from "@/lib/share/summary";
+import { buildSummary, mockSummary, INCLUDE_OPTIONS, type RangeKey } from "@/lib/share/summary";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
 
 const searchSchema = z.object({
@@ -90,10 +90,11 @@ function PaymentSuccessPage() {
   const appointmentId = `booking-${search.ref ?? "session"}`;
   const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
-  const [shareSummary] = useState(() => {
-    const real = buildSummary("30d", { checkins: [] });
+  const [shareRange, setShareRange] = useState<RangeKey>("30d");
+  const shareSummary = useMemo(() => {
+    const real = buildSummary(shareRange, { checkins: [] });
     return real.hasAnyData ? real : mockSummary();
-  });
+  }, [shareRange]);
 
   useEffect(() => {
     // Activate any pending pre-payment selection now that the booking is confirmed.
@@ -501,6 +502,7 @@ function PaymentSuccessPage() {
             <ShareConsentModal
               open={shareOpen}
               summary={shareSummary}
+              onRangeChange={setShareRange}
               providerContext={{
                 providerName: provider.name,
                 providerRole: `${provider.title.split(",")[0].trim()}${provider.verified ? " · Verified provider" : ""}`,
