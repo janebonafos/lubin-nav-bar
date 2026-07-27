@@ -8,7 +8,6 @@ import {
   ChevronDown,
   ChevronRight,
   Loader2,
-  ShieldOff,
 } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
@@ -343,9 +342,8 @@ export default function ShareConsentModal({
               type="button"
               onClick={onRevoke}
               disabled={submitting}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#E1DAF1] bg-white px-4 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:border-[#7E6BAF]/40 hover:bg-[#F7F4FC] disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center rounded-[12px] border border-[#E1DAF1] bg-white px-4 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:border-[#7E6BAF]/40 hover:bg-[#F7F4FC] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <ShieldOff className="h-4 w-4" />
               Revoke access
             </button>
           ) : step > 1 && !providerContext ? (
