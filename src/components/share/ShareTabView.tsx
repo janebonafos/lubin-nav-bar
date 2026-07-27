@@ -191,6 +191,7 @@ export default function ShareTabView({
                       <ShareConsentModal
                         open={true}
                         summary={summary}
+                        onRangeChange={setRange}
                         providerContext={{
                           providerName: a.providerName,
                           appointmentLabel: a.fullLabel,
