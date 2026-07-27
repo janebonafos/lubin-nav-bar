@@ -30,7 +30,7 @@ import {
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
-import { buildSummary, mockSummary, INCLUDE_OPTIONS, type RangeKey } from "@/lib/share/summary";
+import { buildSummary, mockSummary, INCLUDE_OPTIONS, type RangeKey, type SummaryData } from "@/lib/share/summary";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
 
 const searchSchema = z.object({
@@ -91,7 +91,7 @@ function PaymentSuccessPage() {
   const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareRange, setShareRange] = useState<RangeKey>("30d");
-  const shareSummary = useMemo(() => {
+  const shareSummary = useMemo<SummaryData>(() => {
     const real = buildSummary(shareRange, { checkins: [] });
     return real.hasAnyData ? real : mockSummary();
   }, [shareRange]);
