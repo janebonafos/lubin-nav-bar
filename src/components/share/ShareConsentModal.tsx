@@ -12,6 +12,8 @@ import {
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
+  RANGE_OPTIONS,
+  type RangeKey,
   type SummaryData,
 } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
@@ -58,6 +60,7 @@ export default function ShareConsentModal({
   onRevoke,
   confirmLabelOverride,
   submitting = false,
+  onRangeChange,
 }: {
   open: boolean;
   onConfirm: (result: ConsentResult) => void;
@@ -70,6 +73,7 @@ export default function ShareConsentModal({
   onRevoke?: () => void;
   confirmLabelOverride?: string;
   submitting?: boolean;
+  onRangeChange?: (range: RangeKey) => void;
 }) {
   // Provider-linked flow adds a "choice" step (0) before the existing flow.
   // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
@@ -330,6 +334,7 @@ export default function ShareConsentModal({
               selectedAttemptIds={selectedAttemptIds}
               mode={mode}
               dirty={dirty}
+              onRangeChange={onRangeChange}
             />
           )}
           {/* Provider-linked flow: merge review/consent into the selection step. */}
@@ -345,6 +350,7 @@ export default function ShareConsentModal({
                 selectedAttemptIds={selectedAttemptIds}
                 mode={mode}
                 dirty={dirty}
+                onRangeChange={onRangeChange}
               />
             </div>
           )}
@@ -962,6 +968,7 @@ function Step3({
   selectedAttemptIds,
   mode = "share",
   dirty = false,
+  onRangeChange,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
@@ -972,6 +979,7 @@ function Step3({
   selectedAttemptIds?: string[];
   mode?: "share" | "update";
   dirty?: boolean;
+  onRangeChange?: (range: RangeKey) => void;
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   const sharedAttempts = summary.attemptsInRange.filter((a) =>
@@ -1132,7 +1140,23 @@ function Step3({
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Date range</dt>
-            <dd className="text-right font-semibold">{summary.rangeLabel}</dd>
+            <dd className="text-right font-semibold">
+              {onRangeChange ? (
+                <select
+                  value={summary.range}
+                  onChange={(e) => onRangeChange(e.target.value as RangeKey)}
+                  className="rounded-lg border border-[#E4DAF4] bg-white px-2.5 py-1 text-sm font-semibold text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+                >
+                  {RANGE_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                summary.rangeLabel
+              )}
+            </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Assessments included</dt>
