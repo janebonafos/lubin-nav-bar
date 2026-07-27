@@ -328,6 +328,8 @@ export default function ShareConsentModal({
               summary={summary}
               onRemoveIncluded={removeIncluded}
               selectedAttemptIds={selectedAttemptIds}
+              mode={mode}
+              dirty={dirty}
             />
           )}
           {/* Provider-linked flow: merge review/consent into the selection step. */}
