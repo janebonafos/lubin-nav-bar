@@ -684,6 +684,17 @@ function ProfilePage() {
                   </a>
                 </div>
               </div>
+
+              <div className="mt-5 border-t border-[#EEE9F8] pt-4">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#3D2E6B]/80 transition hover:bg-red-50 hover:text-red-600"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </div>
             </section>
           </aside>
 
