@@ -570,14 +570,14 @@ function RevokeConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-[#ECE7F6] bg-white px-5 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
+            className="rounded-[12px] border border-[#ECE7F6] bg-white px-5 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
           >
             Keep sharing
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+            className="rounded-[12px] bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
           >
             Revoke access
           </button>
