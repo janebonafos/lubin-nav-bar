@@ -283,7 +283,8 @@ function ProfilePage() {
   const [passportData, setPassportData] = useState<{
     checkins: { id: string; mood: number; note: string; date: string }[];
     streak: number;
-  }>({ checkins: [], streak: 0 });
+    assessments: { id: string; name: string; date: string; score?: number }[];
+  }>({ checkins: [], streak: 0, assessments: [] });
   const [discoveryData, setDiscoveryData] = useState<{
     completed: number;
     inProgress: { name: string; slug: string; answered: number; total: number }[];
@@ -303,7 +304,9 @@ function ProfilePage() {
         streak += 1;
         cur.setDate(cur.getDate() - 1);
       }
-      setPassportData({ checkins: checkins.slice(0, 5), streak });
+      const rawAssessments = window.localStorage.getItem("lubinai_assessments");
+      const assessments = rawAssessments ? JSON.parse(rawAssessments) : [];
+      setPassportData({ checkins, streak, assessments });
     } catch { /* ignore */ }
     try {
       const attempts: Attempt[] = loadAttempts();
@@ -337,7 +340,7 @@ function ProfilePage() {
         streak += 1;
         cur.setDate(cur.getDate() - 1);
       }
-      setPassportData({ checkins: checkins.slice(0, 5), streak });
+      setPassportData((prev) => ({ ...prev, checkins, streak }));
     } catch { /* ignore */ }
   };
 
@@ -1121,7 +1124,7 @@ function ProfilePage() {
             {activeSection === "discovery" && (
               <Progress
                 checkins={passportData.checkins as never}
-                assessments={[] as never}
+                assessments={passportData.assessments as never}
                 streak={passportData.streak}
               />
             )}
