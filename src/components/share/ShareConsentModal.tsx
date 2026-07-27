@@ -12,6 +12,8 @@ import {
 import {
   INCLUDE_OPTIONS,
   RECIPIENT_OPTIONS,
+  RANGE_OPTIONS,
+  type RangeKey,
   type SummaryData,
 } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
@@ -58,6 +60,7 @@ export default function ShareConsentModal({
   onRevoke,
   confirmLabelOverride,
   submitting = false,
+  onRangeChange,
 }: {
   open: boolean;
   onConfirm: (result: ConsentResult) => void;
@@ -70,6 +73,7 @@ export default function ShareConsentModal({
   onRevoke?: () => void;
   confirmLabelOverride?: string;
   submitting?: boolean;
+  onRangeChange?: (range: RangeKey) => void;
 }) {
   // Provider-linked flow adds a "choice" step (0) before the existing flow.
   // 0 = choice, 1 = custom selection (choose what to share), 3 = review.
