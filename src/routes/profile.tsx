@@ -111,6 +111,7 @@ function ProfilePage() {
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   // Initial hydration loader — gives time for localStorage reads & lazy widgets.
   useEffect(() => {
