@@ -121,6 +121,14 @@ function ProfilePage() {
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
   const navigate = useNavigate();
+  const search = Route.useSearch();
+
+  // Allow deep-linking to a specific sidebar section (e.g. from payment-success).
+  useEffect(() => {
+    if (search.tab) {
+      setActiveSection(search.tab);
+    }
+  }, [search.tab]);
 
   // Initial hydration loader — gives time for localStorage reads & lazy widgets.
   useEffect(() => {
