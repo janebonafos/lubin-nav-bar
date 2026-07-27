@@ -2,7 +2,7 @@ import { loadAttempts } from "@/lib/patterns/storage";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
 import type { Attempt } from "@/lib/patterns/types";
 
-export type RangeKey = "latest" | "30d" | "90d";
+export type RangeKey = "latest" | "30d" | "90d" | "12m" | "all";
 
 export type MoodCheckin = {
   id: string;
@@ -50,7 +50,13 @@ function rangeWindow(range: RangeKey, checkins: MoodCheckin[]): {
     return { start: end - 30 * 86_400_000, end, label: "Last 30 days" };
   }
   if (range === "90d") {
-    return { start: end - 90 * 86_400_000, end, label: "Last 90 days" };
+    return { start: end - 90 * 86_400_000, end, label: "Last 3 months" };
+  }
+  if (range === "12m") {
+    return { start: end - 365 * 86_400_000, end, label: "Last 12 months" };
+  }
+  if (range === "all") {
+    return { start: 0, end, label: "Full history" };
   }
   // latest
   const latest = checkins[0];
@@ -229,9 +235,10 @@ export function buildSummary(
 }
 
 export const RANGE_OPTIONS: { id: RangeKey; label: string }[] = [
-  { id: "latest", label: "Latest check-in" },
   { id: "30d", label: "Last 30 days" },
-  { id: "90d", label: "Last 90 days" },
+  { id: "90d", label: "Last 3 months" },
+  { id: "12m", label: "Last 12 months" },
+  { id: "all", label: "Full history" },
 ];
 
 export const INCLUDE_OPTIONS: { key: string; label: string; description: string }[] = [
