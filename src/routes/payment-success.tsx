@@ -71,7 +71,8 @@ function PaymentSuccessPage() {
   const handleViewAppointments = () => {
     const signedIn =
       typeof window !== "undefined" &&
-      !!window.localStorage.getItem("lubin.userName");
+      (window.localStorage.getItem("lubin.signedIn") === "1" ||
+        !!window.localStorage.getItem("lubin.userName"));
     if (signedIn) {
       navigate({ to: "/profile" });
       return;
