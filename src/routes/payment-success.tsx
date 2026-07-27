@@ -488,18 +488,8 @@ function PaymentSuccessPage() {
         )}
       </main>
 
-      <AuthModal
-        open={authOpen}
-        mode={authMode}
-        onClose={() => setAuthOpen(false)}
-        onSwitchMode={(m) => setAuthMode(m)}
-        onContinueWithEmail={completeAuthAndGo}
-        onContinueWithGoogle={completeAuthAndGo}
-        onContinueWithLinkedIn={completeAuthAndGo}
-        onContinueWithFacebook={completeAuthAndGo}
-      />
-
       {shareOpen && provider && (
+
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShareOpen(false)}
