@@ -1124,7 +1124,7 @@ function ProfilePage() {
             {activeSection === "discovery" && (
               <Progress
                 checkins={passportData.checkins as never}
-                assessments={[] as never}
+                assessments={passportData.assessments as never}
                 streak={passportData.streak}
               />
             )}
