@@ -65,8 +65,6 @@ export const Route = createFileRoute("/payment-success")({
 function PaymentSuccessPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>("signup");
 
   const handleViewAppointments = () => {
     const signedIn =
@@ -77,14 +75,9 @@ function PaymentSuccessPage() {
       navigate({ to: "/profile" });
       return;
     }
-    setAuthMode("signin");
-    setAuthOpen(true);
+    navigate({ to: "/auth", search: { redirect: "/profile", mode: "signup" } });
   };
 
-  const completeAuthAndGo = () => {
-    setAuthOpen(false);
-    navigate({ to: "/profile" });
-  };
 
   const provider =
     (search.providerId ? getProviderById(search.providerId) : undefined) ?? PROVIDERS[0];
