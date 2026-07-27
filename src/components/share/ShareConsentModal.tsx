@@ -123,10 +123,12 @@ export default function ShareConsentModal({
       setChoice("custom");
       setIncluded(defaultSelection);
       setRecipient(providerContext ? "other-mhp" : null);
-      setAgreed(false);
+      // In update mode the user already consented once, so start checked.
+      // Any change will uncheck it and require re-consent.
+      setAgreed(mode === "update");
       setSelectedAttemptIds(defaultAttemptIds);
     }
-  }, [open, defaultSelection, providerContext, defaultAttemptIds]);
+  }, [open, defaultSelection, providerContext, defaultAttemptIds, mode]);
 
   // Dirty tracking (update mode): the "share update" button only appears
   // when the patient actually changed something vs the current grant.
