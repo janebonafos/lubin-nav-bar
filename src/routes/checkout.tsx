@@ -95,6 +95,7 @@ function CheckoutPage() {
   const [promo, setPromo] = useState<{ code: string; percent: number } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareRange, setShareRange] = useState<RangeKey>("30d");
   const [pending, setPending] = useState<PendingShare | null>(null);
   const [consent, setConsent] = useState(false);
   const [localCheckins, setLocalCheckins] = useState<
@@ -123,9 +124,9 @@ function CheckoutPage() {
   // Build a summary snapshot for the modal (uses local check-ins if available,
   // otherwise falls back to the mock so the user can preview categories).
   const shareSummary = useMemo(() => {
-    const real = buildSummary("30d", { checkins: localCheckins });
+    const real = buildSummary(shareRange, { checkins: localCheckins });
     return real.hasAnyData ? real : mockSummary();
-  }, [localCheckins]);
+  }, [localCheckins, shareRange]);
 
   if (!provider || !service) {
     return (
@@ -629,6 +630,7 @@ function CheckoutPage() {
             <ShareConsentModal
               open={shareModalOpen}
               summary={shareSummary}
+              onRangeChange={setShareRange}
               providerContext={{
                 providerName: provider.name,
                 providerRole: `${provider.title.split(",")[0].trim()}${provider.verified ? " · Verified provider" : ""}`,
