@@ -382,6 +382,17 @@ function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1800);
   };
 
+  const handleSignOut = () => {
+    try {
+      window.localStorage.removeItem("lubin.signedIn");
+      window.localStorage.removeItem("lubin.userRole");
+      window.localStorage.removeItem("lubin.userName");
+      window.localStorage.removeItem("lubin.userAvatar");
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
+    navigate({ to: "/" });
+  };
+
   const NAV: { key: Section; label: string; icon: React.ReactNode }[] =
     role === "provider"
       ? [
