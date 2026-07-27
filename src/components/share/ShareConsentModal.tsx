@@ -1186,13 +1186,13 @@ function Step3({
           shared automatically. You can update the shared information later.
         </p>
 
-        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => onAgreedChange(e.target.checked)}
-            className="sr-only"
-          />
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={agreed}
+          onClick={() => onAgreedChange(!agreed)}
+          className="mt-4 flex w-full cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-left text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]"
+        >
           <span
             className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border-2 transition ${
               agreed
@@ -1207,7 +1207,7 @@ function Step3({
             <strong>{providerContext.providerName}</strong> for this appointment.
             I understand that I can change or revoke access.
           </span>
-        </label>
+        </button>
 
         <p className="mt-3 text-xs text-[#5A4A8A]">
           You can revoke access from your Health Passport at any time.
