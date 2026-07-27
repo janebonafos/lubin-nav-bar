@@ -1136,7 +1136,23 @@ function Step3({
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Date range</dt>
-            <dd className="text-right font-semibold">{summary.rangeLabel}</dd>
+            <dd className="text-right font-semibold">
+              {onRangeChange ? (
+                <select
+                  value={summary.range}
+                  onChange={(e) => onRangeChange(e.target.value as RangeKey)}
+                  className="rounded-lg border border-[#E4DAF4] bg-white px-2.5 py-1 text-sm font-semibold text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]/20"
+                >
+                  {RANGE_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                summary.rangeLabel
+              )}
+            </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#6B6684]">Assessments included</dt>
