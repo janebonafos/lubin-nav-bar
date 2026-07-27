@@ -334,6 +334,7 @@ export default function ShareConsentModal({
               selectedAttemptIds={selectedAttemptIds}
               mode={mode}
               dirty={dirty}
+              onRangeChange={onRangeChange}
             />
           )}
           {/* Provider-linked flow: merge review/consent into the selection step. */}
@@ -349,6 +350,7 @@ export default function ShareConsentModal({
                 selectedAttemptIds={selectedAttemptIds}
                 mode={mode}
                 dirty={dirty}
+                onRangeChange={onRangeChange}
               />
             </div>
           )}
