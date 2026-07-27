@@ -1212,10 +1212,10 @@ function Step3({
               aria-readonly={readOnlyChecked}
               disabled={readOnlyChecked}
               onClick={() => !readOnlyChecked && onAgreedChange(!agreed)}
-              className={`mt-4 flex w-full items-start gap-3 rounded-2xl border-2 bg-[#FAF8FD] p-4 text-left text-sm text-[#3D2E6B] transition ${
+              className={`mt-4 flex w-full items-start gap-3 rounded-2xl p-4 text-left text-sm transition ${
                 readOnlyChecked
-                  ? "cursor-default border-[#7E6BAF]/40"
-                  : "cursor-pointer border-[#7E6BAF]/40 hover:border-[#7E6BAF]"
+                  ? "cursor-default border border-[#ECE7F6] bg-[#F7F4FC] text-[#5A4A8A]"
+                  : "cursor-pointer border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] text-[#3D2E6B] hover:border-[#7E6BAF]"
               }`}
             >
               <span
