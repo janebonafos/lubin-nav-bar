@@ -17,7 +17,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 import GuestAccountPrompt from "@/components/GuestAccountPrompt";
-import AuthModal, { type AuthMode } from "@/components/AuthModal";
+
 import {
   bookingKeyFor,
   getPendingShare,
@@ -65,8 +65,6 @@ export const Route = createFileRoute("/payment-success")({
 function PaymentSuccessPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>("signup");
 
   const handleViewAppointments = () => {
     const signedIn =
@@ -77,14 +75,9 @@ function PaymentSuccessPage() {
       navigate({ to: "/profile" });
       return;
     }
-    setAuthMode("signin");
-    setAuthOpen(true);
+    navigate({ to: "/auth", search: { redirect: "/profile", mode: "signup" } });
   };
 
-  const completeAuthAndGo = () => {
-    setAuthOpen(false);
-    navigate({ to: "/profile" });
-  };
 
   const provider =
     (search.providerId ? getProviderById(search.providerId) : undefined) ?? PROVIDERS[0];
@@ -495,18 +488,8 @@ function PaymentSuccessPage() {
         )}
       </main>
 
-      <AuthModal
-        open={authOpen}
-        mode={authMode}
-        onClose={() => setAuthOpen(false)}
-        onSwitchMode={(m) => setAuthMode(m)}
-        onContinueWithEmail={completeAuthAndGo}
-        onContinueWithGoogle={completeAuthAndGo}
-        onContinueWithLinkedIn={completeAuthAndGo}
-        onContinueWithFacebook={completeAuthAndGo}
-      />
-
       {shareOpen && provider && (
+
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShareOpen(false)}
