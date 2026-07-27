@@ -89,7 +89,7 @@ export default function BookedProviderShareCard({
               type="button"
               onClick={() => setExpanded(!expanded)}
               aria-expanded={expanded}
-              className="inline-flex items-center gap-1 rounded-xl border-2 border-[#7C69BA]/20 px-4 py-2 text-[13px] font-semibold text-[#7C69BA] transition-all hover:border-[#7C69BA] hover:bg-[#F7F4FC]"
+              className="inline-flex items-center gap-1 rounded-[12px] border-2 border-[#7C69BA]/20 px-4 py-2 text-[13px] font-semibold text-[#7C69BA] transition-all hover:border-[#7C69BA] hover:bg-[#F7F4FC]"
             >
               Manage
               <ChevronDown
@@ -104,7 +104,7 @@ export default function BookedProviderShareCard({
                 else onReviewAndShare();
               }}
               aria-expanded={isControlled ? expanded : undefined}
-              className="inline-flex items-center gap-1 rounded-xl bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
+              className="inline-flex items-center gap-1 rounded-[12px] bg-[#7C69BA] px-4 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#7C69BA]/20 transition-all hover:bg-[#4A3E7F] active:scale-95 sm:px-5"
             >
               {isControlled && expanded ? "Review and Share" : "Review and share"}
               {isControlled ? (
