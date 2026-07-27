@@ -343,6 +343,8 @@ export default function ShareConsentModal({
                 summary={summary}
                 onRemoveIncluded={removeIncluded}
                 selectedAttemptIds={selectedAttemptIds}
+                mode={mode}
+                dirty={dirty}
               />
             </div>
           )}
