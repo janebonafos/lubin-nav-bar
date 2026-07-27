@@ -968,6 +968,7 @@ function Step3({
   selectedAttemptIds,
   mode = "share",
   dirty = false,
+  onRangeChange,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
@@ -978,6 +979,7 @@ function Step3({
   selectedAttemptIds?: string[];
   mode?: "share" | "update";
   dirty?: boolean;
+  onRangeChange?: (range: RangeKey) => void;
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   const sharedAttempts = summary.attemptsInRange.filter((a) =>
