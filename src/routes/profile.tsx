@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, useEffect } from "react";
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Camera,
@@ -49,7 +50,15 @@ import {
   VerificationSection,
 } from "@/components/profile/ProviderSections";
 
+const profileSearchSchema = z.object({
+  tab: z.enum(["profile", "appointments", "passport", "discovery", "share", "chat"]).optional(),
+});
+
 export const Route = createFileRoute("/profile")({
+  validateSearch: (input: Record<string, unknown>) => {
+    const result = profileSearchSchema.safeParse(input);
+    return result.success ? result.data : {};
+  },
   head: () => ({
     meta: [
       { title: "My profile — Lubin" },
@@ -112,6 +121,14 @@ function ProfilePage() {
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
   const navigate = useNavigate();
+  const search = Route.useSearch();
+
+  // Allow deep-linking to a specific sidebar section (e.g. from payment-success).
+  useEffect(() => {
+    if (search.tab) {
+      setActiveSection(search.tab);
+    }
+  }, [search.tab]);
 
   // Initial hydration loader — gives time for localStorage reads & lazy widgets.
   useEffect(() => {

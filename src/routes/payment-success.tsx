@@ -72,10 +72,10 @@ function PaymentSuccessPage() {
       (window.localStorage.getItem("lubin.signedIn") === "1" ||
         !!window.localStorage.getItem("lubin.userName"));
     if (signedIn) {
-      navigate({ to: "/profile" });
+      navigate({ to: "/profile", search: { tab: "appointments" } });
       return;
     }
-    navigate({ to: "/auth", search: { redirect: "/profile", mode: "signup" } });
+    navigate({ to: "/auth", search: { redirect: "/profile?tab=appointments", mode: "signup" } });
   };
 
 
