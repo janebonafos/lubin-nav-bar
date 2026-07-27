@@ -960,6 +960,8 @@ function Step3({
   summary,
   onRemoveIncluded,
   selectedAttemptIds,
+  mode = "share",
+  dirty = false,
 }: {
   providerContext?: ProviderContext;
   includedKeys: string[];
@@ -968,6 +970,8 @@ function Step3({
   summary: SummaryData;
   onRemoveIncluded?: (key: string) => void;
   selectedAttemptIds?: string[];
+  mode?: "share" | "update";
+  dirty?: boolean;
 }) {
   const includedLabels = INCLUDE_OPTIONS.filter((o) => includedKeys.includes(o.key));
   const sharedAttempts = summary.attemptsInRange.filter((a) =>
