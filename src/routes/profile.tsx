@@ -689,7 +689,7 @@ function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#3D2E6B]/80 transition hover:bg-red-50 hover:text-red-600"
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#3D2E6B]/80 transition hover:bg-[#7E6BAF]/10 hover:text-[#7E6BAF]"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
