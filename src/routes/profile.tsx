@@ -340,7 +340,7 @@ function ProfilePage() {
         streak += 1;
         cur.setDate(cur.getDate() - 1);
       }
-      setPassportData({ checkins: checkins.slice(0, 5), streak });
+      setPassportData((prev) => ({ ...prev, checkins, streak }));
     } catch { /* ignore */ }
   };
 
