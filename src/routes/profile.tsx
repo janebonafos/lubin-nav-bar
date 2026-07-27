@@ -50,7 +50,15 @@ import {
   VerificationSection,
 } from "@/components/profile/ProviderSections";
 
+const profileSearchSchema = z.object({
+  tab: z.enum(["profile", "appointments", "passport", "discovery", "share", "chat"]).optional(),
+});
+
 export const Route = createFileRoute("/profile")({
+  validateSearch: (input: Record<string, unknown>) => {
+    const result = profileSearchSchema.safeParse(input);
+    return result.success ? result.data : {};
+  },
   head: () => ({
     meta: [
       { title: "My profile — Lubin" },
