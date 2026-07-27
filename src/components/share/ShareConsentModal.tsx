@@ -165,6 +165,14 @@ export default function ShareConsentModal({
     }
   }, [selectedAttemptIds, included, allAttemptIds]);
 
+  // In update mode, if the user edits anything, reset the consent checkbox
+  // so they must explicitly re-confirm before sharing the update.
+  useEffect(() => {
+    if (mode === "update" && dirty && agreed) {
+      setAgreed(false);
+    }
+  }, [mode, dirty, agreed]);
+
   if (!open) return null;
 
   const toggleIncluded = (key: string) => {
