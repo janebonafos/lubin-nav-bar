@@ -482,16 +482,28 @@ function PaymentSuccessPage() {
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to {provider.name.split(",")[0]}'s profile
               </Link>
-              <Link
-                to="/profile"
+              <button
+                type="button"
+                onClick={handleViewAppointments}
                 className="inline-flex w-full items-center justify-center gap-2 text-[12.5px] font-medium text-slate-500 hover:text-brand-purple"
               >
                 View my appointments <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              </button>
             </div>
           </div>
         )}
       </main>
+
+      <AuthModal
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+        onSwitchMode={(m) => setAuthMode(m)}
+        onContinueWithEmail={completeAuthAndGo}
+        onContinueWithGoogle={completeAuthAndGo}
+        onContinueWithLinkedIn={completeAuthAndGo}
+        onContinueWithFacebook={completeAuthAndGo}
+      />
 
       {shareOpen && provider && (
         <div
