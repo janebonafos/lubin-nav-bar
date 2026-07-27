@@ -1202,28 +1202,39 @@ function Step3({
           shared automatically. You can update the shared information later.
         </p>
 
-        <button
-          type="button"
-          role="checkbox"
-          aria-checked={agreed}
-          onClick={() => onAgreedChange(!agreed)}
-          className="mt-4 flex w-full cursor-pointer items-start gap-3 rounded-2xl border-2 border-[#7E6BAF]/40 bg-[#FAF8FD] p-4 text-left text-sm text-[#3D2E6B] transition hover:border-[#7E6BAF]"
-        >
-          <span
-            className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border-2 transition ${
-              agreed
-                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                : "border-[#D6CCEC] bg-white text-transparent"
-            }`}
-          >
-            <Check className="h-3 w-3" strokeWidth={3} />
-          </span>
-          <span className="leading-relaxed">
-            I have reviewed the information above and agree to share it with{" "}
-            <strong>{providerContext.providerName}</strong> for this appointment.
-            I understand that I can change or revoke access.
-          </span>
-        </button>
+        {(() => {
+          const readOnlyChecked = mode === "update" && !dirty;
+          return (
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={agreed}
+              aria-readonly={readOnlyChecked}
+              disabled={readOnlyChecked}
+              onClick={() => !readOnlyChecked && onAgreedChange(!agreed)}
+              className={`mt-4 flex w-full items-start gap-3 rounded-2xl border-2 bg-[#FAF8FD] p-4 text-left text-sm text-[#3D2E6B] transition ${
+                readOnlyChecked
+                  ? "cursor-default border-[#7E6BAF]/40"
+                  : "cursor-pointer border-[#7E6BAF]/40 hover:border-[#7E6BAF]"
+              }`}
+            >
+              <span
+                className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-md border-2 transition ${
+                  agreed
+                    ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                    : "border-[#D6CCEC] bg-white text-transparent"
+                }`}
+              >
+                <Check className="h-3 w-3" strokeWidth={3} />
+              </span>
+              <span className="leading-relaxed">
+                I have reviewed the information above and agree to share it with{" "}
+                <strong>{providerContext.providerName}</strong> for this appointment.
+                I understand that I can change or revoke access.
+              </span>
+            </button>
+          );
+        })()}
 
         <p className="mt-3 text-xs text-[#5A4A8A]">
           You can revoke access from your Health Passport at any time.
