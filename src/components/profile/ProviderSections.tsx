@@ -40,9 +40,7 @@ import {
   Info,
   ArrowLeftRight,
   Link2Off,
-  Sparkles,
   Paperclip,
-  Mic,
   Lock,
   Link2,
   BookOpen,
@@ -1846,9 +1844,6 @@ export function ApptNotesBlock({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
   const isCompleted = appt.status === "completed";
-  const consent = appt.recordingConsent;
-  const bothConsent = !!consent?.client && !!consent?.provider;
-  const [generating, setGenerating] = useState(false);
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
   const [docError, setDocError] = useState<string | null>(null);
@@ -1939,17 +1934,6 @@ export function ApptNotesBlock({
   const removeAttachment = (idx: number) => {
     const next = (appt.attachments ?? []).filter((_, i) => i !== idx);
     onChange({ attachments: next });
-  };
-
-  const generateSummary = () => {
-    setGenerating(true);
-    window.setTimeout(() => {
-      onChange({
-        aiSummary:
-          "Session focused on coping strategies and emotional regulation. Provider introduced a breathing exercise and a thought-reframing template. Action items captured below. Tone remained collaborative throughout.",
-      });
-      setGenerating(false);
-    }, 900);
   };
 
   return (
@@ -2237,55 +2221,6 @@ export function ApptNotesBlock({
         )}
       </div>
 
-      {/* AI summary — only when both parties consented to recording */}
-      {isCompleted && (
-        <div className="relative overflow-hidden rounded-[20px] border border-[#D7C9F2] bg-gradient-to-br from-[#F4EEFE] via-[#EBE0FB] to-[#E2D2F9] p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/40 blur-2xl" />
-          <div className="relative flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4796] to-[#3D2E6B] text-white shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" />
-              </span>
-              <p className="text-sm font-semibold text-[#3D2E6B]">Lubin AI session summary</p>
-            </div>
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                bothConsent
-                  ? "bg-white/80 text-[#3D2E6B]"
-                  : "bg-white/60 text-[#7E6BAF]"
-              }`}
-            >
-              <Mic className="h-3 w-3" />
-              {bothConsent ? "Both consented" : "Consent required"}
-            </span>
-          </div>
-
-          {!bothConsent ? (
-            <p className="relative mt-3 text-xs leading-relaxed text-[#5B4796]">
-              An AI summary is generated only when both you and the client agreed to record this session. Consent status:
-              <span className="ml-1 font-semibold">
-                Client {consent?.client ? "✓" : "—"} · You {consent?.provider ? "✓" : "—"}
-              </span>
-            </p>
-          ) : appt.aiSummary ? (
-            <p className="relative mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[#2C2050]">
-              {appt.aiSummary}
-            </p>
-          ) : (
-            <div className="relative mt-3 flex items-center justify-between gap-3">
-              <p className="text-xs text-[#5B4796]">Recording processed. Generate a summary you can save with the session.</p>
-              <button
-                onClick={generateSummary}
-                disabled={generating}
-                className="inline-flex items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:opacity-60"
-              >
-                {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                {generating ? "Generating…" : "Generate summary"}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
