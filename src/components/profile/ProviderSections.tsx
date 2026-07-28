@@ -2064,19 +2064,22 @@ export function ApptNotesBlock({
                 </div>
               ) : (
                 <>
-                  {fuSummarySource === "ai" && (
-                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                      {fuSummaryReviewed
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                    {fuSummarySource === "ai"
+                      ? fuSummaryReviewed
                         ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
-                        : "Started from the AI session draft · Not yet reviewed"}
-                    </p>
-                  )}
+                        : "Started from AI draft · Not yet reviewed"
+                      : fuSummarySource === "loaded"
+                        ? "Loaded from an existing follow-up"
+                        : "Written by provider"}
+                  </p>
                   <textarea
                     value={fuSummary}
                     onChange={(e) => {
                       setFuSummary(e.target.value);
                       setFuDirty(true);
                       if (fuSummarySource === "ai") setFuSummaryReviewed(true);
+                      if (fuSummarySource === "loaded") setFuSummarySource("scratch");
                     }}
                     rows={4}
                     placeholder="A short, client-friendly recap of what you explored together."
