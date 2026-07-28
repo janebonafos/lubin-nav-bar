@@ -8,7 +8,6 @@ import {
 } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
-import { AiSessionSummary } from "@/components/appointment/AiSessionSummary";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { isVerifiedPrescriber } from "@/lib/prescription/store";
 
