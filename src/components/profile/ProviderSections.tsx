@@ -1878,9 +1878,9 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
-  const [fuSummarySource, setFuSummarySource] = useState<"ai" | "scratch" | undefined>(
-    followUp.summarySource,
-  );
+  const [fuSummarySource, setFuSummarySource] = useState<
+    "ai" | "scratch" | "loaded" | undefined
+  >(followUp.summary ? followUp.summarySource ?? "loaded" : undefined);
   const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
@@ -1891,10 +1891,15 @@ export function ApptNotesBlock({
   const [resLinkedTo, setResLinkedTo] = useState("");
   const [resError, setResError] = useState<string | null>(null);
   const [attachLinkedTo, setAttachLinkedTo] = useState("");
+  const [showAttachForm, setShowAttachForm] = useState(false);
+  const [showResForm, setShowResForm] = useState(false);
 
   useEffect(() => {
-    setFuSummary(appt.followUp?.summary ?? "");
-    setFuSummarySource(appt.followUp?.summarySource);
+    const s = appt.followUp?.summary ?? "";
+    setFuSummary(s);
+    setFuSummarySource(
+      s ? appt.followUp?.summarySource ?? "loaded" : undefined,
+    );
     setFuSummaryReviewed(false);
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
@@ -1903,11 +1908,17 @@ export function ApptNotesBlock({
   }, [appt.id]);
 
   const saveFollowUp = () => {
+    const persistedSource: "ai" | "scratch" | "loaded" | undefined =
+      fuSummary.trim()
+        ? fuSummarySource === "loaded"
+          ? "loaded"
+          : fuSummarySource ?? "scratch"
+        : undefined;
     onChange({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
-        summarySource: fuSummary.trim() ? fuSummarySource : undefined,
+        summarySource: persistedSource,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
