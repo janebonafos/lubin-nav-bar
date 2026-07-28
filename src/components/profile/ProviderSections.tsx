@@ -2397,6 +2397,23 @@ export function ApptNotesBlock({
 
       {/* ============ Private Notes (provider only) ============ */}
       {showPrivate && (
+      <div className="rounded-[20px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-[#3D2E6B]">
+            AI session draft
+          </p>
+          <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+            Coming soon
+          </span>
+        </div>
+        <p className="mt-1 text-[12px] leading-snug text-[#7E6BAF]">
+          Lubin will soon draft a session summary you can review and edit. For
+          now, write your own notes below.
+        </p>
+      </div>
+      )}
+
+      {showPrivate && (
       <div className="rounded-[20px] border border-[#EEE6FA] bg-white p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
