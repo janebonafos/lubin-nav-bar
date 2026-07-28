@@ -1,16 +1,26 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Mic } from "lucide-react";
+import { Sparkles, Loader2, Mic, CheckCircle2 } from "lucide-react";
 
 export type AiSessionSummaryProps = {
   appointmentId: string;
   clientName?: string;
+  providerName?: string;
   aiSummary?: string;
+  aiSummaryReviewedAt?: number;
+  aiSummaryReviewedBy?: string;
   recordingConsent?: { client: boolean; provider: boolean };
-  onChange: (patch: { aiSummary?: string }) => void;
+  onChange: (patch: {
+    aiSummary?: string;
+    aiSummaryReviewedAt?: number;
+    aiSummaryReviewedBy?: string;
+  }) => void;
 };
 
 export function AiSessionSummary({
   aiSummary,
+  aiSummaryReviewedAt,
+  aiSummaryReviewedBy,
+  providerName,
   recordingConsent,
   onChange,
 }: AiSessionSummaryProps) {
@@ -19,6 +29,7 @@ export function AiSessionSummary({
   const clientConsent = !!recordingConsent?.client;
   const providerConsent = !!recordingConsent?.provider;
   const bothConsent = clientConsent && providerConsent;
+  const reviewed = !!aiSummaryReviewedAt;
 
   const generateSummary = () => {
     setGenerating(true);
@@ -26,10 +37,18 @@ export function AiSessionSummary({
       onChange({
         aiSummary:
           "Session focused on coping strategies and emotional regulation. Provider introduced a breathing exercise and a thought-reframing template. Action items captured below. Tone remained collaborative throughout.",
+        aiSummaryReviewedAt: undefined,
+        aiSummaryReviewedBy: undefined,
       });
       setGenerating(false);
     }, 900);
   };
+
+  const markReviewed = () =>
+    onChange({
+      aiSummaryReviewedAt: Date.now(),
+      aiSummaryReviewedBy: providerName?.trim() || undefined,
+    });
 
   return (
     <div className="relative overflow-hidden rounded-[20px] border border-[#D7C9F2] bg-gradient-to-br from-[#F4EEFE] via-[#EBE0FB] to-[#E2D2F9] p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
@@ -39,10 +58,16 @@ export function AiSessionSummary({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4796] to-[#3D2E6B] text-white shadow-sm">
-              <Sparkles className="h-3.5 w-3.5" />
+              {reviewed ? (
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
             </span>
             <p className="text-sm font-semibold text-[#3D2E6B]">
-              AI-generated draft · Not yet reviewed
+              {reviewed
+                ? `Reviewed${aiSummaryReviewedBy ? ` by ${aiSummaryReviewedBy}` : ""}`
+                : "AI-generated draft · Not yet reviewed"}
             </p>
           </div>
           <p className="mt-1 max-w-xl text-[11px] leading-relaxed text-[#5B4796]">
@@ -82,13 +107,30 @@ export function AiSessionSummary({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#2C2050]">
             {aiSummary}
           </p>
-          <button
-            type="button"
-            onClick={() => onChange({ aiSummary: undefined })}
-            className="mt-3 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-          >
-            Clear draft
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {!reviewed && (
+              <button
+                type="button"
+                onClick={markReviewed}
+                className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" /> Mark as reviewed
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  aiSummary: undefined,
+                  aiSummaryReviewedAt: undefined,
+                  aiSummaryReviewedBy: undefined,
+                })
+              }
+              className="text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+            >
+              Dismiss draft
+            </button>
+          </div>
         </div>
       ) : (
         <div className="relative mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">

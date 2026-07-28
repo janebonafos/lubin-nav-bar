@@ -1822,14 +1822,23 @@ export type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
   notes?: string;
-  attachments?: { name: string; size: string; title?: string; description?: string }[];
+  attachments?: {
+    name: string;
+    size: string;
+    title?: string;
+    description?: string;
+    linkedTo?: string;
+  }[];
   recordingConsent?: { client: boolean; provider: boolean };
   aiSummary?: string;
+  aiSummaryReviewedAt?: number;
+  aiSummaryReviewedBy?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   followUp?: {
     summary?: string;
+    summarySource?: "ai" | "scratch";
     homework?: string;
-    resources?: { label: string; url: string }[];
+    resources?: { label: string; url: string; description?: string; linkedTo?: string }[];
     nextFocus?: string;
   };
   publishedFollowUp?: {
@@ -1844,12 +1853,14 @@ export function ApptNotesBlock({
   variant = "all",
   clientName,
   providerName,
+  sessionDateLabel,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
   variant?: "all" | "private" | "followup";
   clientName?: string;
   providerName?: string;
+  sessionDateLabel?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
@@ -1867,15 +1878,24 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
+  const [fuSummarySource, setFuSummarySource] = useState<"ai" | "scratch" | undefined>(
+    followUp.summarySource,
+  );
+  const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
   const [fuDirty, setFuDirty] = useState(false);
   const [resLabel, setResLabel] = useState("");
   const [resUrl, setResUrl] = useState("");
+  const [resDescription, setResDescription] = useState("");
+  const [resLinkedTo, setResLinkedTo] = useState("");
   const [resError, setResError] = useState<string | null>(null);
+  const [attachLinkedTo, setAttachLinkedTo] = useState("");
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
+    setFuSummarySource(appt.followUp?.summarySource);
+    setFuSummaryReviewed(false);
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
@@ -1887,11 +1907,25 @@ export function ApptNotesBlock({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
+        summarySource: fuSummary.trim() ? fuSummarySource : undefined,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
     });
     setFuDirty(false);
+  };
+
+  const startFromAiDraft = () => {
+    setFuSummary(appt.aiSummary ?? "");
+    setFuSummarySource("ai");
+    setFuSummaryReviewed(false);
+    setFuDirty(true);
+  };
+  const startFromScratch = () => {
+    setFuSummary("");
+    setFuSummarySource("scratch");
+    setFuSummaryReviewed(false);
+    setFuDirty(true);
   };
 
   const addResource = () => {
@@ -1909,11 +1943,21 @@ export function ApptNotesBlock({
       onChange({
         followUp: {
           ...followUp,
-          resources: [...(followUp.resources ?? []), { label: resLabel.trim(), url: normalized }],
+          resources: [
+            ...(followUp.resources ?? []),
+            {
+              label: resLabel.trim(),
+              url: normalized,
+              description: resDescription.trim() || undefined,
+              linkedTo: resLinkedTo.trim() || undefined,
+            },
+          ],
         },
       });
       setResLabel("");
       setResUrl("");
+      setResDescription("");
+      setResLinkedTo("");
       setResError(null);
     } catch {
       setResError("That doesn't look like a valid link.");
@@ -1938,10 +1982,12 @@ export function ApptNotesBlock({
       size: f.size > 1024 * 1024 ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(f.size / 1024))} KB`,
       title: docTitle.trim(),
       description: docDescription.trim() || undefined,
+      linkedTo: attachLinkedTo.trim() || undefined,
     };
     onChange({ attachments: [...(appt.attachments ?? []), item] });
     setDocTitle("");
     setDocDescription("");
+    setAttachLinkedTo("");
     setDocError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -1977,32 +2023,97 @@ export function ApptNotesBlock({
           </div>
 
           <div className="space-y-4 p-4">
-            {/* Session Summary */}
+            {/* Session recap */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Session summary
-              </label>
-              <textarea
-                value={fuSummary}
-                onChange={(e) => { setFuSummary(e.target.value); setFuDirty(true); }}
-                rows={3}
-                placeholder="A short, client-friendly recap of what you explored together."
-                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              />
+              <p className="text-sm font-semibold text-[#3D2E6B]">
+                Create {clientLabel}&apos;s session recap
+              </p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
+                Write a short, client-friendly recap or start from the AI
+                session draft.
+              </p>
+              {!fuSummarySource && !fuSummary.trim() ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={startFromAiDraft}
+                    disabled={!appt.aiSummary}
+                    className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-40"
+                    title={appt.aiSummary ? undefined : "Generate the AI draft in Step 2 first."}
+                  >
+                    Start from AI draft
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startFromScratch}
+                    className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    Write from scratch
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {fuSummarySource === "ai" && (
+                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                      {fuSummaryReviewed
+                        ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
+                        : "Started from the AI session draft · Not yet reviewed"}
+                    </p>
+                  )}
+                  <textarea
+                    value={fuSummary}
+                    onChange={(e) => {
+                      setFuSummary(e.target.value);
+                      setFuDirty(true);
+                      if (fuSummarySource === "ai") setFuSummaryReviewed(true);
+                    }}
+                    rows={4}
+                    placeholder="A short, client-friendly recap of what you explored together."
+                    className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {fuSummarySource === "ai" && !fuSummaryReviewed && (
+                      <button
+                        type="button"
+                        onClick={() => setFuSummaryReviewed(true)}
+                        className="rounded-[8px] bg-[#3D2E6B] px-3 py-1 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                      >
+                        Mark as reviewed
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFuSummary("");
+                        setFuSummarySource(undefined);
+                        setFuSummaryReviewed(false);
+                        setFuDirty(true);
+                      }}
+                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      Start over
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Homework */}
+            {/* Agreed next steps */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Homework / action items
+                Agreed next steps
               </label>
               <textarea
                 value={fuHomework}
                 onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
                 rows={4}
-                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the attached worksheet\n• Track your mood for one week"}
+                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
                 className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
               />
+              <p className="mt-1 text-[11px] italic text-[#A89BD0]">
+                Write one step per line. You can link a resource or attachment
+                to a specific step below.
+              </p>
             </div>
 
             {/* Attachments */}
@@ -2035,6 +2146,11 @@ export function ApptNotesBlock({
                         <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
                           {f.name} · {f.size}
                         </p>
+                        {f.linkedTo && (
+                          <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                            For next step: {f.linkedTo}
+                          </p>
+                        )}
                     </div>
                     <button
                       onClick={() => removeAttachment(i)}
@@ -2062,6 +2178,12 @@ export function ApptNotesBlock({
                     onChange={(e) => setDocDescription(e.target.value)}
                     rows={2}
                     placeholder="Short description so your client knows what this is for (optional)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <input
+                    value={attachLinkedTo}
+                    onChange={(e) => setAttachLinkedTo(e.target.value)}
+                    placeholder="Link to an agreed next step (optional, e.g. Complete the boundary-setting worksheet)"
                     className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                   />
                   {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
@@ -2099,10 +2221,13 @@ export function ApptNotesBlock({
                 {(followUp.resources ?? []).map((r, i) => (
                   <li
                     key={i}
-                    className="flex items-center justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2"
+                    className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2"
                   >
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-[#3D2E6B]">{r.label}</p>
+                        {r.description && (
+                          <p className="mt-0.5 text-xs leading-relaxed text-[#5B4796]">{r.description}</p>
+                        )}
                         <a
                           href={r.url}
                           target="_blank"
@@ -2111,6 +2236,11 @@ export function ApptNotesBlock({
                         >
                           {r.url}
                         </a>
+                        {r.linkedTo && (
+                          <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                            For next step: {r.linkedTo}
+                          </p>
+                        )}
                     </div>
                     <button
                       onClick={() => removeResource(i)}
@@ -2123,28 +2253,43 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
-              <div className="mt-2 grid gap-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3 sm:grid-cols-[1fr_1fr_auto]">
-                <input
-                  value={resLabel}
-                  onChange={(e) => { setResLabel(e.target.value); if (resError) setResError(null); }}
-                  placeholder="Label (e.g. Breathing exercise video)"
+              <div className="mt-2 space-y-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    value={resLabel}
+                    onChange={(e) => { setResLabel(e.target.value); if (resError) setResError(null); }}
+                    placeholder="Title (e.g. Breathing exercise video)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <input
+                    value={resUrl}
+                    onChange={(e) => { setResUrl(e.target.value); if (resError) setResError(null); }}
+                    placeholder="https://…"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                </div>
+                <textarea
+                  value={resDescription}
+                  onChange={(e) => setResDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Short description of what this link is for (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
                 <input
-                  value={resUrl}
-                  onChange={(e) => { setResUrl(e.target.value); if (resError) setResError(null); }}
-                  placeholder="https://…"
+                  value={resLinkedTo}
+                  onChange={(e) => setResLinkedTo(e.target.value)}
+                  placeholder="Link to an agreed next step (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
+                {resError && (
+                  <p className="text-[11px] font-medium text-rose-600">{resError}</p>
+                )}
                 <button
                   onClick={addResource}
                   className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
                 >
                   <Plus className="h-3.5 w-3.5" /> Add link
                 </button>
-                {resError && (
-                  <p className="text-[11px] font-medium text-rose-600 sm:col-span-3">{resError}</p>
-                )}
               </div>
             </div>
 
@@ -2240,36 +2385,17 @@ export function ApptNotesBlock({
                 </button>
               </div>
               {publishPreview && (
-                <div className="mt-3 rounded-[10px] border border-[#EAE2F6] bg-white p-3 text-sm text-[#3D2E6B]">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                    {clientLabel} will receive
-                  </p>
-                  <div className="mt-2 space-y-3">
-                    <PreviewLine label="Session recap" value={fuSummary} />
-                    <PreviewLine label="Homework / action items" value={fuHomework} multiline />
-                    <PreviewLine label="Next session focus" value={fuNextFocus} />
-                    {(followUp.resources ?? []).length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Resources</p>
-                        <ul className="mt-1 space-y-0.5 text-[13px]">
-                          {(followUp.resources ?? []).map((r, i) => (
-                            <li key={i}>· {r.label}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {(appt.attachments ?? []).length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Attachments</p>
-                        <ul className="mt-1 space-y-0.5 text-[13px]">
-                          {(appt.attachments ?? []).map((a, i) => (
-                            <li key={i}>· {a.title || a.name}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <PublishPreviewCard
+                  clientLabel={clientLabel}
+                  providerName={providerName}
+                  publishedAt={appt.publishedFollowUp?.at}
+                  sessionDateLabel={sessionDateLabel}
+                  summary={fuSummary}
+                  homework={fuHomework}
+                  nextFocus={fuNextFocus}
+                  resources={followUp.resources ?? []}
+                  attachments={appt.attachments ?? []}
+                />
               )}
             </div>
           </div>
@@ -2351,6 +2477,174 @@ function PreviewLine({
       <p className={`mt-0.5 text-[13px] leading-relaxed text-[#3D2E6B] ${multiline ? "whitespace-pre-wrap" : ""}`}>
         {value}
       </p>
+    </div>
+  );
+}
+
+function inferFileType(name: string): string {
+  const ext = name.split(".").pop()?.toUpperCase();
+  if (!ext || ext === name.toUpperCase()) return "File";
+  return `${ext} file`;
+}
+
+function domainOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+function inferLinkType(url: string): string {
+  const d = domainOf(url).toLowerCase();
+  if (d.includes("youtube") || d.includes("youtu.be")) return "Video";
+  if (d.includes("spotify") || d.includes("podcast")) return "Podcast";
+  if (d.includes("drive.google") || d.includes("docs.google")) return "Google Drive";
+  if (d.includes("medium") || d.includes("substack")) return "Article";
+  return "Link";
+}
+
+function PublishPreviewCard({
+  clientLabel,
+  providerName,
+  publishedAt,
+  sessionDateLabel,
+  summary,
+  homework,
+  nextFocus,
+  resources,
+  attachments,
+}: {
+  clientLabel: string;
+  providerName?: string;
+  publishedAt?: number;
+  sessionDateLabel?: string;
+  summary: string;
+  homework: string;
+  nextFocus: string;
+  resources: { label: string; url: string; description?: string; linkedTo?: string }[];
+  attachments: { name: string; size: string; title?: string; description?: string; linkedTo?: string }[];
+}) {
+  const providedBy = providerName || "your provider";
+  return (
+    <div className="mt-3 overflow-hidden rounded-[14px] border border-[#EAE2F6] bg-white">
+      <div className="border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+          Preview as {clientLabel}
+        </p>
+        <p className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
+          Your session follow-up
+        </p>
+        <p className="mt-0.5 text-[12px] text-[#5B4796]">
+          Shared by {providedBy}
+          {sessionDateLabel ? ` after your session on ${sessionDateLabel}` : ""}.
+        </p>
+      </div>
+      <div className="space-y-4 p-4 text-sm text-[#3D2E6B]">
+        <PreviewLine label="Session recap" value={summary} multiline />
+        <PreviewLine label="Agreed next steps" value={homework} multiline />
+        <PreviewLine label="Next session focus" value={nextFocus} multiline />
+
+        {resources.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Recommended resources
+            </p>
+            <ul className="mt-1.5 space-y-2">
+              {resources.map((r, i) => (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-[#3D2E6B]">{r.label}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wider text-[#A89BD0]">
+                      {inferLinkType(r.url)} · {domainOf(r.url)}
+                    </p>
+                    {r.description && (
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{r.description}</p>
+                    )}
+                    {r.linkedTo && (
+                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                        For: {r.linkedTo}
+                      </p>
+                    )}
+                  </div>
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    Open
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {attachments.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Attachments
+            </p>
+            <ul className="mt-1.5 space-y-2">
+              {attachments.map((a, i) => (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-[#3D2E6B]">{a.title || a.name}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wider text-[#A89BD0]">
+                      {inferFileType(a.name)} · {a.size}
+                    </p>
+                    {a.description && (
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{a.description}</p>
+                    )}
+                    {a.linkedTo && (
+                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                        For: {a.linkedTo}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    Download
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
+          <p className="font-semibold text-[#3D2E6B]">
+            Reviewed and shared by {providedBy}
+          </p>
+          {publishedAt && (
+            <p className="mt-0.5">
+              Published{" "}
+              {new Date(publishedAt).toLocaleDateString(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              ·{" "}
+              {new Date(publishedAt).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
+          {!publishedAt && (
+            <p className="mt-0.5 italic">Not yet published.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

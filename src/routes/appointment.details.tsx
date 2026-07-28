@@ -263,10 +263,11 @@ function DetailsPage() {
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
-  const hasDocs = !!(
-    (appt?.notes && appt.notes.trim().length > 0) ||
-    appt?.aiSummary
-  );
+  const aiDraftAwaitingReview =
+    !!appt?.aiSummary && !appt?.aiSummaryReviewedAt;
+  const hasDocs =
+    (!!appt?.notes && appt.notes.trim().length > 0) ||
+    (!!appt?.aiSummary && !!appt?.aiSummaryReviewedAt);
   const isPublished = !!appt?.publishedFollowUp;
 
   // Parse appointment start time. Month/date/time come as strings like
@@ -326,9 +327,11 @@ function DetailsPage() {
         : "Confirmed";
   const documentationLabel = isCancelled
     ? "Not applicable"
-    : hasDocs
-      ? "In progress"
-      : "Not started";
+    : aiDraftAwaitingReview
+      ? "AI draft awaiting review"
+      : hasDocs
+        ? "Documentation saved"
+        : "Not started";
   const followupLabel = isCancelled
     ? "Not applicable"
     : isPublished
@@ -457,7 +460,10 @@ function DetailsPage() {
             <AiSessionSummary
               appointmentId={appt.id}
               clientName={appt.client}
+              providerName={providerDisplayName}
               aiSummary={appt.aiSummary}
+              aiSummaryReviewedAt={appt.aiSummaryReviewedAt}
+              aiSummaryReviewedBy={appt.aiSummaryReviewedBy}
               recordingConsent={appt.recordingConsent}
               onChange={(patch) => onChange(patch as Partial<ApptLite>)}
             />
@@ -489,6 +495,9 @@ function DetailsPage() {
               variant="followup"
               clientName={appt.client}
               providerName={providerDisplayName}
+              sessionDateLabel={
+                [appt.month, appt.date].filter(Boolean).join(" ") || undefined
+              }
             />
           </SectionCard>
         )}
@@ -499,10 +508,16 @@ function DetailsPage() {
             id="prescriptions"
             number={4}
             eyebrow="Prescriber tools"
-            title="Medication plan"
-            description="AI-drafted prescription with per-medication clinician approval. Nothing is sent until you finalise."
-            hint="Optional — only fill this in if you're prescribing today."
+            title="Prescription"
+            description="Separate signed clinical document. Not included in the client recap you publish above."
+            hint="Only visible to accounts with verified prescribing authority for the client's jurisdiction."
           >
+            <div className="mb-4 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[12px] leading-snug text-[#5A4A8A]">
+              A prescription is signed and issued as its own clinical document.
+              Review allergies and current medications, complete the structured
+              medication fields, preview, then sign and issue. It is not shared
+              through &ldquo;Publish client recap.&rdquo;
+            </div>
             <AiPrescription
               appointmentId={appt.id}
               clientName={appt.client}
