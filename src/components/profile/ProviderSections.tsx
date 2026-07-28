@@ -1853,12 +1853,14 @@ export function ApptNotesBlock({
   variant = "all",
   clientName,
   providerName,
+  sessionDateLabel,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
   variant?: "all" | "private" | "followup";
   clientName?: string;
   providerName?: string;
+  sessionDateLabel?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
