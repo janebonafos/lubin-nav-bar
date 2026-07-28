@@ -280,21 +280,13 @@ function DetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <FactTile label="Client" value={appt.client ?? "—"} />
               <FactTile
-                icon={<CircleUserRound className="h-4 w-4" />}
-                label="Client"
-                value={appt.client ?? "—"}
-              />
-              <FactTile
-                icon={<CalendarClock className="h-4 w-4" />}
                 label="When"
-                value={
-                  [appt.month, appt.date].filter(Boolean).join(" ") || "—"
-                }
+                value={[appt.month, appt.date].filter(Boolean).join(" ") || "—"}
                 sub={appt.time}
               />
               <FactTile
-                icon={<Clock3 className="h-4 w-4" />}
                 label="Format"
                 value={
                   [appt.duration, appt.type].filter(Boolean).join(" · ") || "—"
@@ -304,7 +296,6 @@ function DetailsPage() {
                   .join(" · ")}
               />
               <FactTile
-                icon={<Wallet className="h-4 w-4" />}
                 label="Payment"
                 value={appt.amount ?? "—"}
                 sub={appt.paymentStatus}
@@ -328,7 +319,6 @@ function DetailsPage() {
           eyebrow="Before the session"
           title="Client context & AI brief"
           description="A quick, AI-summarised view of what your client shared from their Health Passport."
-          icon={<Sparkles className="h-5 w-5" />}
           defaultOpen={!isCompleted}
           status={{ label: "AI-assisted", tone: "info" }}
         >
@@ -360,7 +350,6 @@ function DetailsPage() {
           eyebrow="During the session"
           title="Notes, follow-up & private observations"
           description="Capture what came up in the room, share resources, and keep private clinical notes."
-          icon={<NotebookPen className="h-5 w-5" />}
           defaultOpen={isCompleted && !hasNotes}
           status={
             hasNotes
@@ -380,7 +369,6 @@ function DetailsPage() {
             eyebrow="After the session"
             title="Care plan & patient-facing summary"
             description="Walk through each step, then publish a warm summary into your client's Health Passport."
-            icon={<HeartHandshake className="h-5 w-5" />}
             defaultOpen={false}
             status={
               isCompleted
@@ -403,7 +391,6 @@ function DetailsPage() {
             eyebrow="Prescriber tools"
             title="Medication plan"
             description="AI-drafted prescription with per-medication clinician approval. Nothing is sent until you finalise."
-            icon={<Pill className="h-5 w-5" />}
             status={{ label: "Approval required", tone: "pending" }}
           >
             <AiPrescription
@@ -422,7 +409,6 @@ function DetailsPage() {
             eyebrow="Admin"
             title="Payout status"
             description="Track when this session's earnings will be released."
-            icon={<Wallet className="h-5 w-5" />}
             status={
               (appt.payoutStatus ?? "pending_review") === "paid"
                 ? { label: "Paid", tone: "done" }
@@ -440,7 +426,7 @@ function DetailsPage() {
             onClick={() => window.close()}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
           >
-            <CheckCircle2 className="h-3.5 w-3.5" /> Close this tab
+            Close this tab
           </button>
         </div>
       </div>
@@ -449,27 +435,20 @@ function DetailsPage() {
 }
 
 function FactTile({
-  icon,
   label,
   value,
   sub,
 }: {
-  icon: ReactNode;
   label: string;
   value: string;
   sub?: string;
 }) {
   return (
     <div className="rounded-2xl border border-[#F1EAFB] bg-[#FBF9FF] px-3.5 py-3">
-      <div className="flex items-center gap-1.5 text-[#7E6BAF]">
-        <span className="grid h-6 w-6 place-items-center rounded-lg bg-white text-[#3D2E6B]">
-          {icon}
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider">
-          {label}
-        </span>
-      </div>
-      <p className="mt-1.5 truncate text-[13px] font-semibold text-[#2C2B4B]">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">
         {value}
       </p>
       {sub && (
