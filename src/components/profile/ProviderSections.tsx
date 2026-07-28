@@ -1936,17 +1936,6 @@ export function ApptNotesBlock({
     onChange({ attachments: next });
   };
 
-  const generateSummary = () => {
-    setGenerating(true);
-    window.setTimeout(() => {
-      onChange({
-        aiSummary:
-          "Session focused on coping strategies and emotional regulation. Provider introduced a breathing exercise and a thought-reframing template. Action items captured below. Tone remained collaborative throughout.",
-      });
-      setGenerating(false);
-    }, 900);
-  };
-
   return (
     <div className="space-y-6">
       {/* ============ Client Follow-up (visible to client) ============ */}
