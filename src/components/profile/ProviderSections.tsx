@@ -1836,7 +1836,7 @@ export type ApptLite = {
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   followUp?: {
     summary?: string;
-    summarySource?: "ai" | "scratch";
+    summarySource?: "ai" | "scratch" | "loaded";
     homework?: string;
     resources?: { label: string; url: string; description?: string; linkedTo?: string }[];
     nextFocus?: string;
@@ -1878,9 +1878,9 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
-  const [fuSummarySource, setFuSummarySource] = useState<"ai" | "scratch" | undefined>(
-    followUp.summarySource,
-  );
+  const [fuSummarySource, setFuSummarySource] = useState<
+    "ai" | "scratch" | "loaded" | undefined
+  >(followUp.summary ? followUp.summarySource ?? "loaded" : undefined);
   const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
@@ -1891,10 +1891,15 @@ export function ApptNotesBlock({
   const [resLinkedTo, setResLinkedTo] = useState("");
   const [resError, setResError] = useState<string | null>(null);
   const [attachLinkedTo, setAttachLinkedTo] = useState("");
+  const [showAttachForm, setShowAttachForm] = useState(false);
+  const [showResForm, setShowResForm] = useState(false);
 
   useEffect(() => {
-    setFuSummary(appt.followUp?.summary ?? "");
-    setFuSummarySource(appt.followUp?.summarySource);
+    const s = appt.followUp?.summary ?? "";
+    setFuSummary(s);
+    setFuSummarySource(
+      s ? appt.followUp?.summarySource ?? "loaded" : undefined,
+    );
     setFuSummaryReviewed(false);
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
@@ -1903,11 +1908,17 @@ export function ApptNotesBlock({
   }, [appt.id]);
 
   const saveFollowUp = () => {
+    const persistedSource: "ai" | "scratch" | "loaded" | undefined =
+      fuSummary.trim()
+        ? fuSummarySource === "loaded"
+          ? "loaded"
+          : fuSummarySource ?? "scratch"
+        : undefined;
     onChange({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
-        summarySource: fuSummary.trim() ? fuSummarySource : undefined,
+        summarySource: persistedSource,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
@@ -1959,6 +1970,7 @@ export function ApptNotesBlock({
       setResDescription("");
       setResLinkedTo("");
       setResError(null);
+      setShowResForm(false);
     } catch {
       setResError("That doesn't look like a valid link.");
     }
@@ -1990,12 +2002,20 @@ export function ApptNotesBlock({
     setAttachLinkedTo("");
     setDocError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setShowAttachForm(false);
   };
 
   const removeAttachment = (idx: number) => {
     const next = (appt.attachments ?? []).filter((_, i) => i !== idx);
     onChange({ attachments: next });
   };
+
+  // Parse the "Agreed next steps" textarea into individual step labels so
+  // attachments and resources can be linked to a specific one via a dropdown.
+  const nextStepOptions = fuHomework
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .filter(Boolean);
 
   return (
     <div className="space-y-6">
@@ -2053,19 +2073,22 @@ export function ApptNotesBlock({
                 </div>
               ) : (
                 <>
-                  {fuSummarySource === "ai" && (
-                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                      {fuSummaryReviewed
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                    {fuSummarySource === "ai"
+                      ? fuSummaryReviewed
                         ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
-                        : "Started from the AI session draft · Not yet reviewed"}
-                    </p>
-                  )}
+                        : "Started from AI draft · Not yet reviewed"
+                      : fuSummarySource === "loaded"
+                        ? "Loaded from an existing follow-up"
+                        : "Written by provider"}
+                  </p>
                   <textarea
                     value={fuSummary}
                     onChange={(e) => {
                       setFuSummary(e.target.value);
                       setFuDirty(true);
                       if (fuSummarySource === "ai") setFuSummaryReviewed(true);
+                      if (fuSummarySource === "loaded") setFuSummarySource("scratch");
                     }}
                     rows={4}
                     placeholder="A short, client-friendly recap of what you explored together."
@@ -2118,13 +2141,24 @@ export function ApptNotesBlock({
 
             {/* Attachments */}
             <div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
                   Attachments
                 </label>
-                <span className="text-[10px] text-[#A89BD0]">
-                  {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[#A89BD0]">
+                    {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
+                  </span>
+                  {!showAttachForm && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAttachForm(true)}
+                      className="inline-flex items-center gap-1 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                    >
+                      <Plus className="h-3 w-3" /> Add attachment
+                    </button>
+                  )}
+                </div>
               </div>
 
               <ul className="mt-1.5 space-y-2">
@@ -2163,6 +2197,7 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
+              {showAttachForm && (
               <div className="mt-2.5 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Share a new document</p>
                 <p className="mt-0.5 text-[11px] text-[#A89BD0]">PDF, DOCX, JPG, PNG, slides, care plans, meditation guides…</p>
@@ -2180,34 +2215,64 @@ export function ApptNotesBlock({
                     placeholder="Short description so your client knows what this is for (optional)"
                     className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                   />
-                  <input
+                  <select
                     value={attachLinkedTo}
                     onChange={(e) => setAttachLinkedTo(e.target.value)}
-                    placeholder="Link to an agreed next step (optional, e.g. Complete the boundary-setting worksheet)"
-                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                  />
+                    disabled={nextStepOptions.length === 0}
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#7E6BAF] disabled:opacity-60"
+                  >
+                    <option value="">
+                      {nextStepOptions.length === 0
+                        ? "Add an agreed next step above to link this file"
+                        : "Not linked to a next step"}
+                    </option>
+                    {nextStepOptions.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
                   {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
-                    <Upload className="h-3.5 w-3.5" />
-                    Choose file & upload
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple={false}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
-                      className="hidden"
-                      onChange={(e) => handleUpload(e.target.files)}
-                    />
-                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
+                      <Upload className="h-3.5 w-3.5" />
+                      Choose file & upload
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple={false}
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
+                        className="hidden"
+                        onChange={(e) => handleUpload(e.target.files)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setShowAttachForm(false); setDocTitle(""); setDocDescription(""); setAttachLinkedTo(""); setDocError(null); }}
+                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
+              )}
             </div>
 
             {/* Recommended resources */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Recommended resources
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  Recommended resources
+                </label>
+                {!showResForm && (
+                  <button
+                    type="button"
+                    onClick={() => setShowResForm(true)}
+                    className="inline-flex items-center gap-1 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    <Plus className="h-3 w-3" /> Add resource
+                  </button>
+                )}
+              </div>
               <p className="mt-0.5 text-[11px] text-[#A89BD0]">
                 External links: YouTube videos, articles, podcasts, books, apps, Google Drive files…
               </p>
@@ -2253,6 +2318,7 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
+              {showResForm && (
               <div className="mt-2 space-y-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
                 <div className="grid gap-2 sm:grid-cols-2">
                   <input
@@ -2275,22 +2341,41 @@ export function ApptNotesBlock({
                   placeholder="Short description of what this link is for (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
-                <input
+                <select
                   value={resLinkedTo}
                   onChange={(e) => setResLinkedTo(e.target.value)}
-                  placeholder="Link to an agreed next step (optional)"
-                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
+                  disabled={nextStepOptions.length === 0}
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#7E6BAF] disabled:opacity-60"
+                >
+                  <option value="">
+                    {nextStepOptions.length === 0
+                      ? "Add an agreed next step above to link this resource"
+                      : "Not linked to a next step"}
+                  </option>
+                  {nextStepOptions.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
                 {resError && (
                   <p className="text-[11px] font-medium text-rose-600">{resError}</p>
                 )}
-                <button
-                  onClick={addResource}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add link
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={addResource}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowResForm(false); setResLabel(""); setResUrl(""); setResDescription(""); setResLinkedTo(""); setResError(null); }}
+                    className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
+              )}
             </div>
 
             {/* Next session focus */}
@@ -2525,7 +2610,21 @@ function PublishPreviewCard({
   resources: { label: string; url: string; description?: string; linkedTo?: string }[];
   attachments: { name: string; size: string; title?: string; description?: string; linkedTo?: string }[];
 }) {
-  const providedBy = providerName || "your provider";
+  const providedBy = providerName?.trim() || "your provider";
+  const steps = homework
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .filter(Boolean);
+  const linkedRes = (label: string) =>
+    resources.filter((r) => r.linkedTo === label);
+  const linkedAtt = (label: string) =>
+    attachments.filter((a) => a.linkedTo === label);
+  const unlinkedRes = resources.filter(
+    (r) => !r.linkedTo || !steps.includes(r.linkedTo),
+  );
+  const unlinkedAtt = attachments.filter(
+    (a) => !a.linkedTo || !steps.includes(a.linkedTo),
+  );
   return (
     <div className="mt-3 overflow-hidden rounded-[14px] border border-[#EAE2F6] bg-white">
       <div className="border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
@@ -2536,22 +2635,72 @@ function PublishPreviewCard({
           Your session follow-up
         </p>
         <p className="mt-0.5 text-[12px] text-[#5B4796]">
-          Shared by {providedBy}
+          Prepared by {providedBy}
           {sessionDateLabel ? ` after your session on ${sessionDateLabel}` : ""}.
         </p>
+        {!publishedAt && (
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+            Prepared by {providedBy} · Not yet published
+          </p>
+        )}
       </div>
       <div className="space-y-4 p-4 text-sm text-[#3D2E6B]">
         <PreviewLine label="Session recap" value={summary} multiline />
-        <PreviewLine label="Agreed next steps" value={homework} multiline />
+
+        {steps.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Agreed next steps
+            </p>
+            <ol className="mt-1.5 space-y-3">
+              {steps.map((step, idx) => {
+                const rs = linkedRes(step);
+                const as = linkedAtt(step);
+                return (
+                  <li key={idx} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
+                    <p className="text-[13px] font-semibold text-[#3D2E6B]">
+                      {idx + 1}. {step}
+                    </p>
+                    {(rs.length > 0 || as.length > 0) && (
+                      <ul className="mt-2 space-y-2">
+                        {as.map((a, i) => (
+                          <li key={`a-${i}`} className="flex items-start justify-between gap-3 rounded-[8px] border border-[#EAE2F6] bg-white px-3 py-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[12px] font-semibold text-[#3D2E6B]">{a.title || a.name}</p>
+                              <p className="text-[10px] uppercase tracking-wider text-[#A89BD0]">{inferFileType(a.name)} · {a.size}</p>
+                              {a.description && <p className="mt-0.5 text-[11px] text-[#5B4796]">{a.description}</p>}
+                            </div>
+                            <button type="button" className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#2C2B4B]">Download</button>
+                          </li>
+                        ))}
+                        {rs.map((r, i) => (
+                          <li key={`r-${i}`} className="flex items-start justify-between gap-3 rounded-[8px] border border-[#EAE2F6] bg-white px-3 py-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[12px] font-semibold text-[#3D2E6B]">{r.label}</p>
+                              <p className="text-[10px] uppercase tracking-wider text-[#A89BD0]">{inferLinkType(r.url)} · {domainOf(r.url)}</p>
+                              {r.description && <p className="mt-0.5 text-[11px] text-[#5B4796]">{r.description}</p>}
+                            </div>
+                            <a href={r.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#2C2B4B]">Open</a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+
         <PreviewLine label="Next session focus" value={nextFocus} multiline />
 
-        {resources.length > 0 && (
+        {unlinkedRes.length > 0 && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
               Recommended resources
             </p>
             <ul className="mt-1.5 space-y-2">
-              {resources.map((r, i) => (
+              {unlinkedRes.map((r, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
@@ -2563,11 +2712,6 @@ function PublishPreviewCard({
                     </p>
                     {r.description && (
                       <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{r.description}</p>
-                    )}
-                    {r.linkedTo && (
-                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                        For: {r.linkedTo}
-                      </p>
                     )}
                   </div>
                   <a
@@ -2584,13 +2728,13 @@ function PublishPreviewCard({
           </div>
         )}
 
-        {attachments.length > 0 && (
+        {unlinkedAtt.length > 0 && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
               Attachments
             </p>
             <ul className="mt-1.5 space-y-2">
-              {attachments.map((a, i) => (
+              {unlinkedAtt.map((a, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
@@ -2602,11 +2746,6 @@ function PublishPreviewCard({
                     </p>
                     {a.description && (
                       <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{a.description}</p>
-                    )}
-                    {a.linkedTo && (
-                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                        For: {a.linkedTo}
-                      </p>
                     )}
                   </div>
                   <button
@@ -2622,26 +2761,24 @@ function PublishPreviewCard({
         )}
 
         <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
-          <p className="font-semibold text-[#3D2E6B]">
-            Reviewed and shared by {providedBy}
-          </p>
-          {publishedAt && (
-            <p className="mt-0.5">
-              Published{" "}
+          {publishedAt ? (
+            <p className="font-semibold text-[#3D2E6B]">
+              Reviewed and shared by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
                 month: "long",
                 day: "numeric",
                 year: "numeric",
               })}{" "}
-              ·{" "}
+              at{" "}
               {new Date(publishedAt).toLocaleTimeString(undefined, {
                 hour: "numeric",
                 minute: "2-digit",
-              })}
+              })}.
             </p>
-          )}
-          {!publishedAt && (
-            <p className="mt-0.5 italic">Not yet published.</p>
+          ) : (
+            <p className="font-semibold text-[#3D2E6B]">
+              Prepared by {providedBy} · Not yet published.
+            </p>
           )}
         </div>
       </div>
