@@ -44,13 +44,13 @@ import {
 
 type Step = "shared" | "assessments" | "notes" | "ai" | "meds" | "publish";
 
-const STEPS: { id: Step; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "shared", label: "Review shared Health Passport", icon: ShieldCheck },
-  { id: "assessments", label: "Review assessment results", icon: ClipboardList },
-  { id: "notes", label: "Add session notes", icon: FileText },
-  { id: "ai", label: "Generate AI-assisted summary", icon: Sparkles },
-  { id: "meds", label: "Review medication plan", icon: Pill },
-  { id: "publish", label: "Publish patient-facing summary", icon: Eye },
+const STEPS: { id: Step; label: string }[] = [
+  { id: "shared", label: "Review shared Health Passport" },
+  { id: "assessments", label: "Review assessment results" },
+  { id: "notes", label: "Add session notes" },
+  { id: "ai", label: "Generate AI-assisted summary" },
+  { id: "meds", label: "Review medication plan" },
+  { id: "publish", label: "Publish patient-facing summary" },
 ];
 
 export function ProviderVisitWorkspace({
@@ -114,7 +114,7 @@ export function ProviderVisitWorkspace({
             key={s.id}
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${
               completeMap[s.id]
-                ? "border-[#B5E4CD] bg-[#E6F8F1] text-[#2D8E69]"
+                ? "border-[#D6C7EE] bg-[#EFE8FB] text-[#3D2E6B]"
                 : "border-[#ECE7F6] bg-[#FAF8FD] text-[#6B6684]"
             }`}
           >
@@ -129,12 +129,12 @@ export function ProviderVisitWorkspace({
       </div>
 
       <div className="mt-5 space-y-3">
-        {STEPS.map((s) => (
+        {STEPS.map((s, i) => (
           <StepPanel
             key={s.id}
             open={open[s.id]}
             onToggle={() => setOpen((o) => ({ ...o, [s.id]: !o[s.id] }))}
-            icon={s.icon}
+            index={i + 1}
             title={s.label}
             done={completeMap[s.id]}
           >
@@ -197,14 +197,14 @@ export function ProviderVisitWorkspace({
 function StepPanel({
   open,
   onToggle,
-  icon: Icon,
+  index,
   title,
   done,
   children,
 }: {
   open: boolean;
   onToggle: () => void;
-  icon: React.ComponentType<{ className?: string }>;
+  index: number;
   title: string;
   done: boolean;
   children: React.ReactNode;
@@ -214,17 +214,16 @@ function StepPanel({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-[#F7F4FB]"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left"
       >
         <span
-          className={`flex h-8 w-8 flex-none items-center justify-center rounded-full ${
-            done ? "bg-[#E6F8F1] text-[#2D8E69]" : "bg-[#EEE8F8] text-[#7E6BAF]"
+          className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-[12px] font-semibold ${
+            done ? "bg-[#3D2E6B] text-white" : "bg-[#EFE8FB] text-[#3D2E6B]"
           }`}
         >
-          <Icon className="h-4 w-4" />
+          {done ? <Check className="h-3.5 w-3.5" /> : index}
         </span>
         <span className="flex-1 text-sm font-semibold text-[#3D2E6B]">{title}</span>
-        {done && <Check className="h-4 w-4 text-[#2D8E69]" />}
         {open ? (
           <ChevronDown className="h-4 w-4 text-[#7E6BAF]" />
         ) : (
@@ -367,7 +366,7 @@ function AssessmentGroupCard({
           : Minus;
     const tone =
       group.improving === true
-        ? "text-emerald-700 bg-emerald-50"
+        ? "text-[#3D2E6B] bg-[#EFE8FB]"
         : group.improving === false
           ? "text-[#5A3E8F] bg-[#F4ECFB]"
           : "text-[#6B6684] bg-[#F0EEF6]";

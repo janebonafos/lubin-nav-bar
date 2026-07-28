@@ -1329,7 +1329,7 @@ export function CalendarAvailabilitySection() {
           </p>
         )}
         {saved && errorCount === 0 && (
-          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-green-600">
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-[#3D2E6B]">
             <Check className="h-3.5 w-3.5" /> Availability saved.
           </p>
         )}
@@ -1958,14 +1958,9 @@ export function ApptNotesBlock({
       {isCompleted && (
         <div className="overflow-hidden rounded-[20px] border border-[#EEE6FA] bg-white shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
           <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#5B4796] shadow-sm">
-                <Eye className="h-3.5 w-3.5" />
-              </span>
-              <div>
-                <p className="text-sm font-bold text-[#3D2E6B]">Post-session follow-up</p>
-                <p className="text-[11px] text-[#7E6BAF]">Shared with your client after the session.</p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#3D2E6B]">Post-session follow-up</p>
+              <p className="text-[11px] text-[#7E6BAF]">Shared with your client after the session.</p>
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
               Visible to client
@@ -1975,8 +1970,8 @@ export function ApptNotesBlock({
           <div className="space-y-4 p-4">
             {/* Session Summary */}
             <div>
-              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                <FileText className="h-3 w-3" /> Session summary
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                Session summary
               </label>
               <textarea
                 value={fuSummary}
@@ -1989,8 +1984,8 @@ export function ApptNotesBlock({
 
             {/* Homework */}
             <div>
-              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                <Target className="h-3 w-3" /> Homework / action items
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                Homework / action items
               </label>
               <textarea
                 value={fuHomework}
@@ -2004,8 +1999,8 @@ export function ApptNotesBlock({
             {/* Attachments */}
             <div>
               <div className="flex items-center justify-between">
-                <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                  <Paperclip className="h-3 w-3" /> Attachments
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  Attachments
                 </label>
                 <span className="text-[10px] text-[#A89BD0]">
                   {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
@@ -2023,11 +2018,7 @@ export function ApptNotesBlock({
                     key={i}
                     className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
                   >
-                    <div className="flex min-w-0 items-start gap-2.5">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
-                        <FileText className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-[#3D2E6B]">{f.title || f.name}</p>
                         {f.description && (
                           <p className="mt-0.5 text-xs leading-relaxed text-[#5B4796]">{f.description}</p>
@@ -2035,7 +2026,6 @@ export function ApptNotesBlock({
                         <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
                           {f.name} · {f.size}
                         </p>
-                      </div>
                     </div>
                     <button
                       onClick={() => removeAttachment(i)}
@@ -2084,8 +2074,8 @@ export function ApptNotesBlock({
 
             {/* Recommended resources */}
             <div>
-              <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                <BookOpen className="h-3 w-3" /> Recommended resources
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                Recommended resources
               </label>
               <p className="mt-0.5 text-[11px] text-[#A89BD0]">
                 External links: YouTube videos, articles, podcasts, books, apps, Google Drive files…
@@ -2102,11 +2092,7 @@ export function ApptNotesBlock({
                     key={i}
                     className="flex items-center justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2"
                   >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-[#EFE8FB] text-[#5B4796]">
-                        <Link2 className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-[#3D2E6B]">{r.label}</p>
                         <a
                           href={r.url}
@@ -2116,7 +2102,6 @@ export function ApptNotesBlock({
                         >
                           {r.url}
                         </a>
-                      </div>
                     </div>
                     <button
                       onClick={() => removeResource(i)}
