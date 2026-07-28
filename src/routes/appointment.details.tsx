@@ -58,6 +58,8 @@ function SectionCard({
   description,
   defaultOpen = false,
   hint,
+  done = false,
+  reference = false,
   children,
 }: {
   id?: string;
@@ -67,13 +69,40 @@ function SectionCard({
   description?: string;
   defaultOpen?: boolean;
   hint?: string;
+  done?: boolean;
+  reference?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
+  const state: "done" | "active" | "todo" | "reference" = reference
+    ? "reference"
+    : done
+      ? "done"
+      : open
+        ? "active"
+        : "todo";
+
+  const shell =
+    state === "done"
+      ? "border-[#D8C7F0] bg-[#F4EEFC]"
+      : state === "active"
+        ? "border-[#6E4FD3] bg-white ring-2 ring-[#6E4FD3]/25"
+        : state === "reference"
+          ? "border-[#EAE2F6] bg-white"
+          : "border-[#EAE2F6] bg-white";
+
+  const badge =
+    state === "done"
+      ? "bg-[#6E4FD3] text-white"
+      : state === "active"
+        ? "bg-[#3D2E6B] text-white"
+        : "bg-[#EFE8FB] text-[#3D2E6B]";
+
   return (
     <section
       id={id}
-      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white"
+      className={`overflow-hidden rounded-[20px] border transition-all ${shell}`}
     >
       <button
         type="button"
@@ -81,8 +110,17 @@ function SectionCard({
         className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
       >
         {number != null && (
-          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
-            {number}
+          <span
+            className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold ${badge}`}
+            aria-label={
+              state === "done"
+                ? `Step ${number} complete`
+                : state === "active"
+                  ? `Step ${number} in progress`
+                  : `Step ${number}`
+            }
+          >
+            {state === "done" ? "✓" : number}
           </span>
         )}
         <span className="min-w-0 flex-1">
@@ -105,12 +143,38 @@ function SectionCard({
             </span>
           )}
         </span>
+        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] sm:inline-flex"
+          style={{
+            backgroundColor:
+              state === "done"
+                ? "#E7DAF8"
+                : state === "active"
+                  ? "#3D2E6B"
+                  : state === "reference"
+                    ? "#F1EAFB"
+                    : "#F5F0FB",
+            color:
+              state === "done"
+                ? "#3D2E6B"
+                : state === "active"
+                  ? "#FFFFFF"
+                  : "#7E6BAF",
+          }}
+        >
+          {state === "done"
+            ? "Done"
+            : state === "active"
+              ? "In progress"
+              : state === "reference"
+                ? "Reference"
+                : "To do"}
+        </span>
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="border-t border-[#F1EAFB] bg-[#FBF9FF] px-4 py-5 md:px-6">
+        <div className={`border-t px-4 py-5 md:px-6 ${state === "done" ? "border-[#E4D5F5] bg-white" : "border-[#F1EAFB] bg-[#FBF9FF]"}`}>
           {children}
         </div>
       )}
