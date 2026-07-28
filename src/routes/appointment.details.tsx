@@ -491,7 +491,7 @@ function DetailsPage() {
           <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
             <div className="flex items-start gap-3">
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
-                4
+                5
               </span>
               <div className="flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
