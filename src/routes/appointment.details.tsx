@@ -262,14 +262,6 @@ function DetailsPage() {
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
-  const aiDraftAwaitingReview =
-    !!appt?.aiSummary && !appt?.aiSummaryReviewedAt;
-  const hasNotesContent = !!appt?.notes && appt.notes.trim().length > 0;
-  const hasReviewedAiDraft =
-    !!appt?.aiSummary && !!appt?.aiSummaryReviewedAt;
-  // Step 2 is Done only when there is documentation AND no unresolved AI draft.
-  const hasDocs =
-    (hasNotesContent || hasReviewedAiDraft) && !aiDraftAwaitingReview;
   const isPublished = !!appt?.publishedFollowUp;
 
   // Parse appointment start time. Month/date/time come as strings like
