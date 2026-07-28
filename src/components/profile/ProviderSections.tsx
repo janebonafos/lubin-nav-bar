@@ -2383,36 +2383,17 @@ export function ApptNotesBlock({
                 </button>
               </div>
               {publishPreview && (
-                <div className="mt-3 rounded-[10px] border border-[#EAE2F6] bg-white p-3 text-sm text-[#3D2E6B]">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                    {clientLabel} will receive
-                  </p>
-                  <div className="mt-2 space-y-3">
-                    <PreviewLine label="Session recap" value={fuSummary} />
-                    <PreviewLine label="Homework / action items" value={fuHomework} multiline />
-                    <PreviewLine label="Next session focus" value={fuNextFocus} />
-                    {(followUp.resources ?? []).length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Resources</p>
-                        <ul className="mt-1 space-y-0.5 text-[13px]">
-                          {(followUp.resources ?? []).map((r, i) => (
-                            <li key={i}>· {r.label}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {(appt.attachments ?? []).length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Attachments</p>
-                        <ul className="mt-1 space-y-0.5 text-[13px]">
-                          {(appt.attachments ?? []).map((a, i) => (
-                            <li key={i}>· {a.title || a.name}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <PublishPreviewCard
+                  clientLabel={clientLabel}
+                  providerName={providerName}
+                  publishedAt={appt.publishedFollowUp?.at}
+                  sessionDateLabel={formatSessionDate(appt)}
+                  summary={fuSummary}
+                  homework={fuHomework}
+                  nextFocus={fuNextFocus}
+                  resources={followUp.resources ?? []}
+                  attachments={appt.attachments ?? []}
+                />
               )}
             </div>
           </div>
