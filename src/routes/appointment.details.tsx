@@ -411,17 +411,24 @@ function DetailsPage() {
         {/* Mark as completed */}
         {canMarkComplete && (
           <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-              Close out
-            </p>
-            <h2 className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
-              Mark this appointment as completed
-            </h2>
-            <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
-              Anything you added in the sections above will be shared with your
-              client. If you left sections blank, that just means you didn't
-              add extra information — the appointment can still be marked as
-              completed without any issues.
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
+                4
+              </span>
+              <div className="flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+                  Final step
+                </p>
+                <h2 className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
+                  Confirm this appointment is complete
+                </h2>
+              </div>
+            </div>
+            <p className="mt-3 text-[13px] leading-snug text-[#7E6BAF]">
+              When this appointment has finished, check the box below and click
+              the button. Any notes or summaries you published above will be sent
+              to your client. Leaving sections blank is fine — it just means you
+              did not add anything extra this time.
             </p>
             <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[13px] leading-snug text-[#3D2E6B]">
               <input
@@ -431,8 +438,9 @@ function DetailsPage() {
                 className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
               />
               <span>
-                I confirm the details above are accurate and this appointment
-                took place without any issues.
+                I confirm this appointment took place and the information above
+                is accurate. If I left sections blank, I did not add extra
+                information, and this appointment can still be marked as done.
               </span>
             </label>
             <button
@@ -441,7 +449,7 @@ function DetailsPage() {
               onClick={markCompleted}
               className="mt-4 w-full rounded-[12px] bg-[#3D2E6B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
             >
-              Mark appointment as completed
+              Yes, mark appointment as completed
             </button>
           </section>
         )}
