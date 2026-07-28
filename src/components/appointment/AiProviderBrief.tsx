@@ -28,6 +28,7 @@ type Props = {
   appointmentId: string;
   providerName?: string;
   appointmentLabel?: string;
+  clientName?: string;
   onViewSupporting?: () => void;
   onViewAssessments?: () => void;
   onViewTimeline?: () => void;
@@ -37,6 +38,7 @@ export function AiProviderBrief({
   appointmentId,
   providerName,
   appointmentLabel,
+  clientName,
   onViewSupporting,
   onViewAssessments,
   onViewTimeline,
@@ -163,6 +165,7 @@ export function AiProviderBrief({
 
   // No share yet — the brief cannot exist.
   if (!grant || grant.revoked || grant.includedKeys.length === 0) {
+    const who = clientName?.trim() || "The client";
     return (
       <section className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-6">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#A89BD0]">
@@ -172,8 +175,8 @@ export function AiProviderBrief({
           AI Provider Brief
         </h2>
         <p className="mt-1.5 text-sm text-[#6B6684]">
-          The patient has not shared their Health Passport for this appointment.
-          Nothing to summarise.
+          {who} did not share Health Passport information for this appointment,
+          so no provider brief is available.
         </p>
       </section>
     );
@@ -191,7 +194,7 @@ export function AiProviderBrief({
             AI Provider Brief
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm text-[#5A4A8A]">
-            Generated from information the patient chose to share. Review
+            Generated from information the client chose to share. Review
             supporting information before making clinical decisions.
           </p>
         </div>
