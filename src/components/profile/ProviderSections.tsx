@@ -2139,13 +2139,24 @@ export function ApptNotesBlock({
 
             {/* Attachments */}
             <div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
                   Attachments
                 </label>
-                <span className="text-[10px] text-[#A89BD0]">
-                  {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[#A89BD0]">
+                    {(appt.attachments ?? []).length} file{(appt.attachments ?? []).length === 1 ? "" : "s"}
+                  </span>
+                  {!showAttachForm && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAttachForm(true)}
+                      className="inline-flex items-center gap-1 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                    >
+                      <Plus className="h-3 w-3" /> Add attachment
+                    </button>
+                  )}
+                </div>
               </div>
 
               <ul className="mt-1.5 space-y-2">
@@ -2184,6 +2195,7 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
+              {showAttachForm && (
               <div className="mt-2.5 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Share a new document</p>
                 <p className="mt-0.5 text-[11px] text-[#A89BD0]">PDF, DOCX, JPG, PNG, slides, care plans, meditation guides…</p>
@@ -2201,34 +2213,64 @@ export function ApptNotesBlock({
                     placeholder="Short description so your client knows what this is for (optional)"
                     className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                   />
-                  <input
+                  <select
                     value={attachLinkedTo}
                     onChange={(e) => setAttachLinkedTo(e.target.value)}
-                    placeholder="Link to an agreed next step (optional, e.g. Complete the boundary-setting worksheet)"
-                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                  />
+                    disabled={nextStepOptions.length === 0}
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#7E6BAF] disabled:opacity-60"
+                  >
+                    <option value="">
+                      {nextStepOptions.length === 0
+                        ? "Add an agreed next step above to link this file"
+                        : "Not linked to a next step"}
+                    </option>
+                    {nextStepOptions.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
                   {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
-                    <Upload className="h-3.5 w-3.5" />
-                    Choose file & upload
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple={false}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
-                      className="hidden"
-                      onChange={(e) => handleUpload(e.target.files)}
-                    />
-                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]">
+                      <Upload className="h-3.5 w-3.5" />
+                      Choose file & upload
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple={false}
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx,.txt"
+                        className="hidden"
+                        onChange={(e) => handleUpload(e.target.files)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setShowAttachForm(false); setDocTitle(""); setDocDescription(""); setAttachLinkedTo(""); setDocError(null); }}
+                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
+              )}
             </div>
 
             {/* Recommended resources */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Recommended resources
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  Recommended resources
+                </label>
+                {!showResForm && (
+                  <button
+                    type="button"
+                    onClick={() => setShowResForm(true)}
+                    className="inline-flex items-center gap-1 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    <Plus className="h-3 w-3" /> Add resource
+                  </button>
+                )}
+              </div>
               <p className="mt-0.5 text-[11px] text-[#A89BD0]">
                 External links: YouTube videos, articles, podcasts, books, apps, Google Drive files…
               </p>
@@ -2274,6 +2316,7 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
+              {showResForm && (
               <div className="mt-2 space-y-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
                 <div className="grid gap-2 sm:grid-cols-2">
                   <input
@@ -2296,22 +2339,41 @@ export function ApptNotesBlock({
                   placeholder="Short description of what this link is for (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
-                <input
+                <select
                   value={resLinkedTo}
                   onChange={(e) => setResLinkedTo(e.target.value)}
-                  placeholder="Link to an agreed next step (optional)"
-                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
+                  disabled={nextStepOptions.length === 0}
+                  className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#7E6BAF] disabled:opacity-60"
+                >
+                  <option value="">
+                    {nextStepOptions.length === 0
+                      ? "Add an agreed next step above to link this resource"
+                      : "Not linked to a next step"}
+                  </option>
+                  {nextStepOptions.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
                 {resError && (
                   <p className="text-[11px] font-medium text-rose-600">{resError}</p>
                 )}
-                <button
-                  onClick={addResource}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add link
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={addResource}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowResForm(false); setResLabel(""); setResUrl(""); setResDescription(""); setResLinkedTo(""); setResError(null); }}
+                    className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
+              )}
             </div>
 
             {/* Next session focus */}
