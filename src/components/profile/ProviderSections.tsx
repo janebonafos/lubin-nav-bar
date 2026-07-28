@@ -1876,15 +1876,24 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
+  const [fuSummarySource, setFuSummarySource] = useState<"ai" | "scratch" | undefined>(
+    followUp.summarySource,
+  );
+  const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
   const [fuDirty, setFuDirty] = useState(false);
   const [resLabel, setResLabel] = useState("");
   const [resUrl, setResUrl] = useState("");
+  const [resDescription, setResDescription] = useState("");
+  const [resLinkedTo, setResLinkedTo] = useState("");
   const [resError, setResError] = useState<string | null>(null);
+  const [attachLinkedTo, setAttachLinkedTo] = useState("");
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
+    setFuSummarySource(appt.followUp?.summarySource);
+    setFuSummaryReviewed(false);
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
@@ -1896,11 +1905,25 @@ export function ApptNotesBlock({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
+        summarySource: fuSummary.trim() ? fuSummarySource : undefined,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
     });
     setFuDirty(false);
+  };
+
+  const startFromAiDraft = () => {
+    setFuSummary(appt.aiSummary ?? "");
+    setFuSummarySource("ai");
+    setFuSummaryReviewed(false);
+    setFuDirty(true);
+  };
+  const startFromScratch = () => {
+    setFuSummary("");
+    setFuSummarySource("scratch");
+    setFuSummaryReviewed(false);
+    setFuDirty(true);
   };
 
   const addResource = () => {
@@ -1918,11 +1941,21 @@ export function ApptNotesBlock({
       onChange({
         followUp: {
           ...followUp,
-          resources: [...(followUp.resources ?? []), { label: resLabel.trim(), url: normalized }],
+          resources: [
+            ...(followUp.resources ?? []),
+            {
+              label: resLabel.trim(),
+              url: normalized,
+              description: resDescription.trim() || undefined,
+              linkedTo: resLinkedTo.trim() || undefined,
+            },
+          ],
         },
       });
       setResLabel("");
       setResUrl("");
+      setResDescription("");
+      setResLinkedTo("");
       setResError(null);
     } catch {
       setResError("That doesn't look like a valid link.");
@@ -1947,10 +1980,12 @@ export function ApptNotesBlock({
       size: f.size > 1024 * 1024 ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(f.size / 1024))} KB`,
       title: docTitle.trim(),
       description: docDescription.trim() || undefined,
+      linkedTo: attachLinkedTo.trim() || undefined,
     };
     onChange({ attachments: [...(appt.attachments ?? []), item] });
     setDocTitle("");
     setDocDescription("");
+    setAttachLinkedTo("");
     setDocError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
