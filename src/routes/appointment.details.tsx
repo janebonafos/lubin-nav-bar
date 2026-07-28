@@ -325,22 +325,7 @@ function DetailsPage() {
     ? "Cancelled"
     : isCompleted
       ? "Completed"
-      : isPastStart
-        ? "In progress"
-        : "Confirmed";
-  const documentationLabel = isCancelled
-    ? "Not applicable"
-    : aiDraftAwaitingReview
-      ? "AI draft awaiting review"
-      : hasDocs
-        ? "Documentation saved"
-        : "Not started";
-  const followupLabel = isCancelled
-    ? "Not applicable"
-    : isPublished
-      ? "Published"
-      : "Not published";
-
+      : "Confirmed";
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
@@ -370,9 +355,11 @@ function DetailsPage() {
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-stretch gap-1.5 sm:items-end">
-                <StatusPill label="Session" value={sessionStatusLabel} tone={isCompleted ? "done" : isCancelled ? "muted" : "active"} />
-                <StatusPill label="Documentation" value={documentationLabel} tone={hasDocs ? "active" : "muted"} />
-                <StatusPill label="Client follow-up" value={followupLabel} tone={isPublished ? "done" : "muted"} />
+                <StatusPill
+                  label="Status"
+                  value={sessionStatusLabel}
+                  tone={isCompleted ? "done" : isCancelled ? "muted" : "active"}
+                />
               </div>
             </div>
 
