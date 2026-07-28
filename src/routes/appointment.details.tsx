@@ -325,9 +325,7 @@ function DetailsPage() {
     ? "Cancelled"
     : isCompleted
       ? "Completed"
-      : isPastStart
-        ? "In progress"
-        : "Confirmed";
+      : "Confirmed";
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
