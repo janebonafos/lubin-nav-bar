@@ -2389,7 +2389,7 @@ export function ApptNotesBlock({
                   clientLabel={clientLabel}
                   providerName={providerName}
                   publishedAt={appt.publishedFollowUp?.at}
-                  sessionDateLabel={formatSessionDate(appt)}
+                  sessionDateLabel={sessionDateLabel}
                   summary={fuSummary}
                   homework={fuHomework}
                   nextFocus={fuNextFocus}
