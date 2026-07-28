@@ -2010,75 +2010,22 @@ export function ApptNotesBlock({
                 Create {clientLabel}&apos;s session recap
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
-                Write a short, client-friendly recap or start from the AI
-                session draft.
+                Write a short, client-friendly recap of what you explored together.
               </p>
-              {!fuSummarySource && !fuSummary.trim() ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={startFromAiDraft}
-                    disabled={!appt.aiSummary}
-                    className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-40"
-                    title={appt.aiSummary ? undefined : "Generate the AI draft in Step 2 first."}
-                  >
-                    Start from AI draft
-                  </button>
-                  <button
-                    type="button"
-                    onClick={startFromScratch}
-                    className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
-                  >
-                    Write from scratch
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                    {fuSummarySource === "ai"
-                      ? fuSummaryReviewed
-                        ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
-                        : "Started from AI draft · Not yet reviewed"
-                      : fuSummarySource === "loaded"
-                        ? "Loaded from an existing follow-up"
-                        : "Written by provider"}
-                  </p>
-                  <textarea
-                    value={fuSummary}
-                    onChange={(e) => {
-                      setFuSummary(e.target.value);
-                      setFuDirty(true);
-                      if (fuSummarySource === "ai") setFuSummaryReviewed(true);
-                      if (fuSummarySource === "loaded") setFuSummarySource("scratch");
-                    }}
-                    rows={4}
-                    placeholder="A short, client-friendly recap of what you explored together."
-                    className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                  />
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {fuSummarySource === "ai" && !fuSummaryReviewed && (
-                      <button
-                        type="button"
-                        onClick={() => setFuSummaryReviewed(true)}
-                        className="rounded-[8px] bg-[#3D2E6B] px-3 py-1 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
-                      >
-                        Mark as reviewed
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFuSummary("");
-                        setFuSummarySource(undefined);
-                        setFuSummaryReviewed(false);
-                        setFuDirty(true);
-                      }}
-                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                    >
-                      Start over
-                    </button>
-                  </div>
-                </>
+              <textarea
+                value={fuSummary}
+                onChange={(e) => {
+                  setFuSummary(e.target.value);
+                  setFuDirty(true);
+                }}
+                rows={4}
+                placeholder="A short, client-friendly recap of what you explored together."
+                className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              />
+              {fuSummary.trim() && (
+                <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                  Written by provider
+                </p>
               )}
             </div>
 
