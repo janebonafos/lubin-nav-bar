@@ -265,9 +265,12 @@ function DetailsPage() {
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const aiDraftAwaitingReview =
     !!appt?.aiSummary && !appt?.aiSummaryReviewedAt;
+  const hasNotesContent = !!appt?.notes && appt.notes.trim().length > 0;
+  const hasReviewedAiDraft =
+    !!appt?.aiSummary && !!appt?.aiSummaryReviewedAt;
+  // Step 2 is Done only when there is documentation AND no unresolved AI draft.
   const hasDocs =
-    (!!appt?.notes && appt.notes.trim().length > 0) ||
-    (!!appt?.aiSummary && !!appt?.aiSummaryReviewedAt);
+    (hasNotesContent || hasReviewedAiDraft) && !aiDraftAwaitingReview;
   const isPublished = !!appt?.publishedFollowUp;
 
   // Parse appointment start time. Month/date/time come as strings like
@@ -450,6 +453,7 @@ function DetailsPage() {
           description="Optionally generate an AI draft from the recording, capture your clinical documentation and plan, and keep private notes."
           defaultOpen={showPostSession && !hasDocs}
           done={hasDocs}
+          inProgress={aiDraftAwaitingReview || (hasNotesContent && !hasReviewedAiDraft && !!appt.aiSummary)}
           hint={
             hasDocs
               ? undefined
