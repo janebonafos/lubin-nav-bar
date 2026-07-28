@@ -439,9 +439,11 @@ function DetailsPage() {
             description="Track when this session's earnings will be released."
             icon={<Wallet className="h-5 w-5" />}
             status={
-              (appt.payoutStatus ?? "pending_review") === "released"
-                ? { label: "Released", tone: "done" }
-                : { label: "In review", tone: "info" }
+              (appt.payoutStatus ?? "pending_review") === "paid"
+                ? { label: "Paid", tone: "done" }
+                : (appt.payoutStatus ?? "pending_review") === "approved"
+                  ? { label: "Approved", tone: "done" }
+                  : { label: "In review", tone: "info" }
             }
           >
             <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
