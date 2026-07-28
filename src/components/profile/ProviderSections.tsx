@@ -1970,6 +1970,7 @@ export function ApptNotesBlock({
       setResDescription("");
       setResLinkedTo("");
       setResError(null);
+      setShowResForm(false);
     } catch {
       setResError("That doesn't look like a valid link.");
     }
@@ -2001,6 +2002,7 @@ export function ApptNotesBlock({
     setAttachLinkedTo("");
     setDocError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setShowAttachForm(false);
   };
 
   const removeAttachment = (idx: number) => {
