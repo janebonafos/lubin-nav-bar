@@ -2610,7 +2610,21 @@ function PublishPreviewCard({
   resources: { label: string; url: string; description?: string; linkedTo?: string }[];
   attachments: { name: string; size: string; title?: string; description?: string; linkedTo?: string }[];
 }) {
-  const providedBy = providerName || "your provider";
+  const providedBy = providerName?.trim() || "your provider";
+  const steps = homework
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .filter(Boolean);
+  const linkedRes = (label: string) =>
+    resources.filter((r) => r.linkedTo === label);
+  const linkedAtt = (label: string) =>
+    attachments.filter((a) => a.linkedTo === label);
+  const unlinkedRes = resources.filter(
+    (r) => !r.linkedTo || !steps.includes(r.linkedTo),
+  );
+  const unlinkedAtt = attachments.filter(
+    (a) => !a.linkedTo || !steps.includes(a.linkedTo),
+  );
   return (
     <div className="mt-3 overflow-hidden rounded-[14px] border border-[#EAE2F6] bg-white">
       <div className="border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
@@ -2621,22 +2635,72 @@ function PublishPreviewCard({
           Your session follow-up
         </p>
         <p className="mt-0.5 text-[12px] text-[#5B4796]">
-          Shared by {providedBy}
+          Prepared by {providedBy}
           {sessionDateLabel ? ` after your session on ${sessionDateLabel}` : ""}.
         </p>
+        {!publishedAt && (
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+            Prepared by {providedBy} · Not yet published
+          </p>
+        )}
       </div>
       <div className="space-y-4 p-4 text-sm text-[#3D2E6B]">
         <PreviewLine label="Session recap" value={summary} multiline />
-        <PreviewLine label="Agreed next steps" value={homework} multiline />
+
+        {steps.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Agreed next steps
+            </p>
+            <ol className="mt-1.5 space-y-3">
+              {steps.map((step, idx) => {
+                const rs = linkedRes(step);
+                const as = linkedAtt(step);
+                return (
+                  <li key={idx} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
+                    <p className="text-[13px] font-semibold text-[#3D2E6B]">
+                      {idx + 1}. {step}
+                    </p>
+                    {(rs.length > 0 || as.length > 0) && (
+                      <ul className="mt-2 space-y-2">
+                        {as.map((a, i) => (
+                          <li key={`a-${i}`} className="flex items-start justify-between gap-3 rounded-[8px] border border-[#EAE2F6] bg-white px-3 py-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[12px] font-semibold text-[#3D2E6B]">{a.title || a.name}</p>
+                              <p className="text-[10px] uppercase tracking-wider text-[#A89BD0]">{inferFileType(a.name)} · {a.size}</p>
+                              {a.description && <p className="mt-0.5 text-[11px] text-[#5B4796]">{a.description}</p>}
+                            </div>
+                            <button type="button" className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#2C2B4B]">Download</button>
+                          </li>
+                        ))}
+                        {rs.map((r, i) => (
+                          <li key={`r-${i}`} className="flex items-start justify-between gap-3 rounded-[8px] border border-[#EAE2F6] bg-white px-3 py-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[12px] font-semibold text-[#3D2E6B]">{r.label}</p>
+                              <p className="text-[10px] uppercase tracking-wider text-[#A89BD0]">{inferLinkType(r.url)} · {domainOf(r.url)}</p>
+                              {r.description && <p className="mt-0.5 text-[11px] text-[#5B4796]">{r.description}</p>}
+                            </div>
+                            <a href={r.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#2C2B4B]">Open</a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+
         <PreviewLine label="Next session focus" value={nextFocus} multiline />
 
-        {resources.length > 0 && (
+        {unlinkedRes.length > 0 && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
               Recommended resources
             </p>
             <ul className="mt-1.5 space-y-2">
-              {resources.map((r, i) => (
+              {unlinkedRes.map((r, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
@@ -2648,11 +2712,6 @@ function PublishPreviewCard({
                     </p>
                     {r.description && (
                       <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{r.description}</p>
-                    )}
-                    {r.linkedTo && (
-                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                        For: {r.linkedTo}
-                      </p>
                     )}
                   </div>
                   <a
@@ -2669,13 +2728,13 @@ function PublishPreviewCard({
           </div>
         )}
 
-        {attachments.length > 0 && (
+        {unlinkedAtt.length > 0 && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
               Attachments
             </p>
             <ul className="mt-1.5 space-y-2">
-              {attachments.map((a, i) => (
+              {unlinkedAtt.map((a, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
@@ -2687,11 +2746,6 @@ function PublishPreviewCard({
                     </p>
                     {a.description && (
                       <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{a.description}</p>
-                    )}
-                    {a.linkedTo && (
-                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                        For: {a.linkedTo}
-                      </p>
                     )}
                   </div>
                   <button
@@ -2707,26 +2761,24 @@ function PublishPreviewCard({
         )}
 
         <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
-          <p className="font-semibold text-[#3D2E6B]">
-            Reviewed and shared by {providedBy}
-          </p>
-          {publishedAt && (
-            <p className="mt-0.5">
-              Published{" "}
+          {publishedAt ? (
+            <p className="font-semibold text-[#3D2E6B]">
+              Reviewed and shared by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
                 month: "long",
                 day: "numeric",
                 year: "numeric",
               })}{" "}
-              ·{" "}
+              at{" "}
               {new Date(publishedAt).toLocaleTimeString(undefined, {
                 hour: "numeric",
                 minute: "2-digit",
-              })}
+              })}.
             </p>
-          )}
-          {!publishedAt && (
-            <p className="mt-0.5 italic">Not yet published.</p>
+          ) : (
+            <p className="font-semibold text-[#3D2E6B]">
+              Prepared by {providedBy} · Not yet published.
+            </p>
           )}
         </div>
       </div>
