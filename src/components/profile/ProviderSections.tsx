@@ -1836,7 +1836,7 @@ export type ApptLite = {
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   followUp?: {
     summary?: string;
-    summarySource?: "ai" | "scratch";
+    summarySource?: "ai" | "scratch" | "loaded";
     homework?: string;
     resources?: { label: string; url: string; description?: string; linkedTo?: string }[];
     nextFocus?: string;
