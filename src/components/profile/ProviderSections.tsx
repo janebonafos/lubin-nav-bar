@@ -1868,10 +1868,6 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
-  const [fuSummarySource, setFuSummarySource] = useState<
-    "ai" | "scratch" | "loaded" | undefined
-  >(followUp.summary ? followUp.summarySource ?? "loaded" : undefined);
-  const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
   const [fuDirty, setFuDirty] = useState(false);
@@ -1885,12 +1881,7 @@ export function ApptNotesBlock({
   const [showResForm, setShowResForm] = useState(false);
 
   useEffect(() => {
-    const s = appt.followUp?.summary ?? "";
-    setFuSummary(s);
-    setFuSummarySource(
-      s ? appt.followUp?.summarySource ?? "loaded" : undefined,
-    );
-    setFuSummaryReviewed(false);
+    setFuSummary(appt.followUp?.summary ?? "");
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
@@ -1898,35 +1889,15 @@ export function ApptNotesBlock({
   }, [appt.id]);
 
   const saveFollowUp = () => {
-    const persistedSource: "ai" | "scratch" | "loaded" | undefined =
-      fuSummary.trim()
-        ? fuSummarySource === "loaded"
-          ? "loaded"
-          : fuSummarySource ?? "scratch"
-        : undefined;
     onChange({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
-        summarySource: persistedSource,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
     });
     setFuDirty(false);
-  };
-
-  const startFromAiDraft = () => {
-    setFuSummary(appt.aiSummary ?? "");
-    setFuSummarySource("ai");
-    setFuSummaryReviewed(false);
-    setFuDirty(true);
-  };
-  const startFromScratch = () => {
-    setFuSummary("");
-    setFuSummarySource("scratch");
-    setFuSummaryReviewed(false);
-    setFuDirty(true);
   };
 
   const addResource = () => {
