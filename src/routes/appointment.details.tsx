@@ -229,9 +229,9 @@ function DetailsPage() {
   }
 
   const statusStyle: Record<ApptLite["status"], string> = {
-    upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
-    completed: "bg-[#E6F8F1] text-[#2D8E69]",
-    cancelled: "bg-rose-100 text-rose-700",
+    upcoming: "bg-[#EFE8FB] text-[#3D2E6B]",
+    completed: "bg-[#3D2E6B] text-white",
+    cancelled: "border border-[#EAE2F6] text-[#7E6BAF]",
   };
 
   return (
