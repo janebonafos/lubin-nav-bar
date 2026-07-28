@@ -1,19 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import {
-  ArrowLeft,
-  CalendarClock,
-  ChevronDown,
-  Sparkles,
-  NotebookPen,
-  HeartHandshake,
-  Pill,
-  Wallet,
-  CircleUserRound,
-  Clock3,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
 import {
   ApptNotesBlock,
   ApptPayoutStatus,
@@ -68,7 +56,6 @@ function SectionCard({
   eyebrow,
   title,
   description,
-  icon,
   defaultOpen = false,
   status,
   children,
@@ -77,32 +64,30 @@ function SectionCard({
   eyebrow?: string;
   title: string;
   description?: string;
-  icon: ReactNode;
   defaultOpen?: boolean;
   status?: { label: string; tone: "done" | "pending" | "info" };
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // Brand-only tones. "done" = filled deep purple; "pending" = light lavender
+  // fill with brand purple text; "info" = subtle outline.
   const toneClass =
     status?.tone === "done"
-      ? "bg-[#E6F8F1] text-[#2D8E69]"
+      ? "bg-[#3D2E6B] text-white"
       : status?.tone === "pending"
-        ? "bg-[#FFF3E0] text-[#B76A00]"
-        : "bg-[#EFE8FB] text-[#3D2E6B]";
+        ? "bg-[#EFE8FB] text-[#3D2E6B]"
+        : "border border-[#EAE2F6] text-[#7E6BAF]";
 
   return (
     <section
       id={id}
-      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white shadow-[0_2px_18px_-14px_rgba(61,46,107,0.35)]"
+      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white"
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
+        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
       >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#EFE8FB] to-[#E0D9F7] text-[#3D2E6B]">
-          {icon}
-        </span>
         <span className="min-w-0 flex-1">
           {eyebrow && (
             <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
@@ -126,7 +111,7 @@ function SectionCard({
           )}
         </span>
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
