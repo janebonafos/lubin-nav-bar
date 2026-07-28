@@ -2021,32 +2021,97 @@ export function ApptNotesBlock({
           </div>
 
           <div className="space-y-4 p-4">
-            {/* Session Summary */}
+            {/* Session recap */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Session summary
-              </label>
-              <textarea
-                value={fuSummary}
-                onChange={(e) => { setFuSummary(e.target.value); setFuDirty(true); }}
-                rows={3}
-                placeholder="A short, client-friendly recap of what you explored together."
-                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              />
+              <p className="text-sm font-semibold text-[#3D2E6B]">
+                Create {clientLabel}&apos;s session recap
+              </p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
+                Write a short, client-friendly recap or start from the AI
+                session draft.
+              </p>
+              {!fuSummarySource && !fuSummary.trim() ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={startFromAiDraft}
+                    disabled={!appt.aiSummary}
+                    className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-40"
+                    title={appt.aiSummary ? undefined : "Generate the AI draft in Step 2 first."}
+                  >
+                    Start from AI draft
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startFromScratch}
+                    className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    Write from scratch
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {fuSummarySource === "ai" && (
+                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                      {fuSummaryReviewed
+                        ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
+                        : "Started from the AI session draft · Not yet reviewed"}
+                    </p>
+                  )}
+                  <textarea
+                    value={fuSummary}
+                    onChange={(e) => {
+                      setFuSummary(e.target.value);
+                      setFuDirty(true);
+                      if (fuSummarySource === "ai") setFuSummaryReviewed(true);
+                    }}
+                    rows={4}
+                    placeholder="A short, client-friendly recap of what you explored together."
+                    className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {fuSummarySource === "ai" && !fuSummaryReviewed && (
+                      <button
+                        type="button"
+                        onClick={() => setFuSummaryReviewed(true)}
+                        className="rounded-[8px] bg-[#3D2E6B] px-3 py-1 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                      >
+                        Mark as reviewed
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFuSummary("");
+                        setFuSummarySource(undefined);
+                        setFuSummaryReviewed(false);
+                        setFuDirty(true);
+                      }}
+                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                    >
+                      Start over
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Homework */}
+            {/* Agreed next steps */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                Homework / action items
+                Agreed next steps
               </label>
               <textarea
                 value={fuHomework}
                 onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
                 rows={4}
-                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the attached worksheet\n• Track your mood for one week"}
+                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
                 className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
               />
+              <p className="mt-1 text-[11px] italic text-[#A89BD0]">
+                Write one step per line. You can link a resource or attachment
+                to a specific step below.
+              </p>
             </div>
 
             {/* Attachments */}
