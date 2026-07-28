@@ -1844,9 +1844,6 @@ export function ApptNotesBlock({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
   const isCompleted = appt.status === "completed";
-  const consent = appt.recordingConsent;
-  const bothConsent = !!consent?.client && !!consent?.provider;
-  const [generating, setGenerating] = useState(false);
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
   const [docError, setDocError] = useState<string | null>(null);
