@@ -1,19 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import {
-  ArrowLeft,
-  CalendarClock,
-  ChevronDown,
-  Sparkles,
-  NotebookPen,
-  HeartHandshake,
-  Pill,
-  Wallet,
-  CircleUserRound,
-  Clock3,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
 import {
   ApptNotesBlock,
   ApptPayoutStatus,
@@ -68,7 +56,6 @@ function SectionCard({
   eyebrow,
   title,
   description,
-  icon,
   defaultOpen = false,
   status,
   children,
@@ -77,32 +64,30 @@ function SectionCard({
   eyebrow?: string;
   title: string;
   description?: string;
-  icon: ReactNode;
   defaultOpen?: boolean;
   status?: { label: string; tone: "done" | "pending" | "info" };
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // Brand-only tones. "done" = filled deep purple; "pending" = light lavender
+  // fill with brand purple text; "info" = subtle outline.
   const toneClass =
     status?.tone === "done"
-      ? "bg-[#E6F8F1] text-[#2D8E69]"
+      ? "bg-[#3D2E6B] text-white"
       : status?.tone === "pending"
-        ? "bg-[#FFF3E0] text-[#B76A00]"
-        : "bg-[#EFE8FB] text-[#3D2E6B]";
+        ? "bg-[#EFE8FB] text-[#3D2E6B]"
+        : "border border-[#EAE2F6] text-[#7E6BAF]";
 
   return (
     <section
       id={id}
-      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white shadow-[0_2px_18px_-14px_rgba(61,46,107,0.35)]"
+      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white"
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
+        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
       >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#EFE8FB] to-[#E0D9F7] text-[#3D2E6B]">
-          {icon}
-        </span>
         <span className="min-w-0 flex-1">
           {eyebrow && (
             <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
@@ -126,7 +111,7 @@ function SectionCard({
           )}
         </span>
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
@@ -244,9 +229,9 @@ function DetailsPage() {
   }
 
   const statusStyle: Record<ApptLite["status"], string> = {
-    upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
-    completed: "bg-[#E6F8F1] text-[#2D8E69]",
-    cancelled: "bg-rose-100 text-rose-700",
+    upcoming: "bg-[#EFE8FB] text-[#3D2E6B]",
+    completed: "bg-[#3D2E6B] text-white",
+    cancelled: "border border-[#EAE2F6] text-[#7E6BAF]",
   };
 
   return (
@@ -295,21 +280,13 @@ function DetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <FactTile label="Client" value={appt.client ?? "—"} />
               <FactTile
-                icon={<CircleUserRound className="h-4 w-4" />}
-                label="Client"
-                value={appt.client ?? "—"}
-              />
-              <FactTile
-                icon={<CalendarClock className="h-4 w-4" />}
                 label="When"
-                value={
-                  [appt.month, appt.date].filter(Boolean).join(" ") || "—"
-                }
+                value={[appt.month, appt.date].filter(Boolean).join(" ") || "—"}
                 sub={appt.time}
               />
               <FactTile
-                icon={<Clock3 className="h-4 w-4" />}
                 label="Format"
                 value={
                   [appt.duration, appt.type].filter(Boolean).join(" · ") || "—"
@@ -319,7 +296,6 @@ function DetailsPage() {
                   .join(" · ")}
               />
               <FactTile
-                icon={<Wallet className="h-4 w-4" />}
                 label="Payment"
                 value={appt.amount ?? "—"}
                 sub={appt.paymentStatus}
@@ -343,7 +319,6 @@ function DetailsPage() {
           eyebrow="Before the session"
           title="Client context & AI brief"
           description="A quick, AI-summarised view of what your client shared from their Health Passport."
-          icon={<Sparkles className="h-5 w-5" />}
           defaultOpen={!isCompleted}
           status={{ label: "AI-assisted", tone: "info" }}
         >
@@ -375,7 +350,6 @@ function DetailsPage() {
           eyebrow="During the session"
           title="Notes, follow-up & private observations"
           description="Capture what came up in the room, share resources, and keep private clinical notes."
-          icon={<NotebookPen className="h-5 w-5" />}
           defaultOpen={isCompleted && !hasNotes}
           status={
             hasNotes
@@ -395,7 +369,6 @@ function DetailsPage() {
             eyebrow="After the session"
             title="Care plan & patient-facing summary"
             description="Walk through each step, then publish a warm summary into your client's Health Passport."
-            icon={<HeartHandshake className="h-5 w-5" />}
             defaultOpen={false}
             status={
               isCompleted
@@ -418,7 +391,6 @@ function DetailsPage() {
             eyebrow="Prescriber tools"
             title="Medication plan"
             description="AI-drafted prescription with per-medication clinician approval. Nothing is sent until you finalise."
-            icon={<Pill className="h-5 w-5" />}
             status={{ label: "Approval required", tone: "pending" }}
           >
             <AiPrescription
@@ -437,7 +409,6 @@ function DetailsPage() {
             eyebrow="Admin"
             title="Payout status"
             description="Track when this session's earnings will be released."
-            icon={<Wallet className="h-5 w-5" />}
             status={
               (appt.payoutStatus ?? "pending_review") === "paid"
                 ? { label: "Paid", tone: "done" }
@@ -455,7 +426,7 @@ function DetailsPage() {
             onClick={() => window.close()}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
           >
-            <CheckCircle2 className="h-3.5 w-3.5" /> Close this tab
+            Close this tab
           </button>
         </div>
       </div>
@@ -464,27 +435,20 @@ function DetailsPage() {
 }
 
 function FactTile({
-  icon,
   label,
   value,
   sub,
 }: {
-  icon: ReactNode;
   label: string;
   value: string;
   sub?: string;
 }) {
   return (
     <div className="rounded-2xl border border-[#F1EAFB] bg-[#FBF9FF] px-3.5 py-3">
-      <div className="flex items-center gap-1.5 text-[#7E6BAF]">
-        <span className="grid h-6 w-6 place-items-center rounded-lg bg-white text-[#3D2E6B]">
-          {icon}
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider">
-          {label}
-        </span>
-      </div>
-      <p className="mt-1.5 truncate text-[13px] font-semibold text-[#2C2B4B]">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">
         {value}
       </p>
       {sub && (
