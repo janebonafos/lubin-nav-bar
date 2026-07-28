@@ -11,6 +11,8 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { ProviderVisitWorkspace } from "@/components/appointment/ProviderVisitWorkspace";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
+import { AiPrescription } from "@/components/appointment/AiPrescription";
+import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -48,6 +50,11 @@ function DetailsPage() {
   const { id, d } = Route.useSearch();
   const [appt, setAppt] = useState<StoredAppt | null>(null);
   const [missing, setMissing] = useState(false);
+  const [canPrescribe, setCanPrescribe] = useState(false);
+
+  useEffect(() => {
+    setCanPrescribe(isPrescriber(getProviderProfession()));
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -285,6 +292,17 @@ function DetailsPage() {
           <ProviderVisitWorkspace
             appointmentId={appt.id}
             providerName={appt.client}
+            appointmentLabel={[appt.month, appt.date, "·", appt.time]
+              .filter(Boolean)
+              .join(" ")}
+          />
+        )}
+
+        {canPrescribe && appt.status === "completed" && (
+          <AiPrescription
+            appointmentId={appt.id}
+            clientName={appt.client}
+            providerName={undefined}
             appointmentLabel={[appt.month, appt.date, "·", appt.time]
               .filter(Boolean)
               .join(" ")}
