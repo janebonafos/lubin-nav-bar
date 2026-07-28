@@ -1374,8 +1374,6 @@ export function AppointmentsSection() {
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
     promoCode?: string;
     attachments?: { name: string; size: string; title?: string; description?: string }[];
-    recordingConsent?: { client: boolean; provider: boolean };
-    aiSummary?: string;
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
     followUp?: {
       summary?: string;
@@ -1394,8 +1392,6 @@ export function AppointmentsSection() {
       notes: "Discussed boundary-setting at work. Homework: daily wins journal.",
       amount: "₱2,500", paymentStatus: "Paid",
       attachments: [{ name: "session-19-jun-worksheet.pdf", size: "212 KB", title: "Boundary-setting worksheet", description: "Printable worksheet from today's session — fill out before our next call." }],
-      recordingConsent: { client: true, provider: true },
-      aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
       payoutStatus: "approved",
       followUp: {
         summary: "We explored how after-hours messages and overflowing meetings have been wearing you down, and practiced a kinder script for saying no when something isn't urgent.",
@@ -1410,7 +1406,6 @@ export function AppointmentsSection() {
     {
       id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
       amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
-      recordingConsent: { client: false, provider: true },
       payoutStatus: "in_review",
     },
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
