@@ -1374,8 +1374,6 @@ export function AppointmentsSection() {
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
     promoCode?: string;
     attachments?: { name: string; size: string; title?: string; description?: string }[];
-    recordingConsent?: { client: boolean; provider: boolean };
-    aiSummary?: string;
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
     followUp?: {
       summary?: string;
@@ -1394,8 +1392,6 @@ export function AppointmentsSection() {
       notes: "Discussed boundary-setting at work. Homework: daily wins journal.",
       amount: "₱2,500", paymentStatus: "Paid",
       attachments: [{ name: "session-19-jun-worksheet.pdf", size: "212 KB", title: "Boundary-setting worksheet", description: "Printable worksheet from today's session — fill out before our next call." }],
-      recordingConsent: { client: true, provider: true },
-      aiSummary: "Client explored workplace boundary-setting and identified two recurring triggers (after-hours messages, meeting overflow). Agreed on a daily wins journal and a scripted decline for non-urgent requests. Mood improved from session start to close. Next: review journal entries and rehearse the script aloud.",
       payoutStatus: "approved",
       followUp: {
         summary: "We explored how after-hours messages and overflowing meetings have been wearing you down, and practiced a kinder script for saying no when something isn't urgent.",
@@ -1410,7 +1406,6 @@ export function AppointmentsSection() {
     {
       id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
       amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
-      recordingConsent: { client: false, provider: true },
       payoutStatus: "in_review",
     },
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
@@ -1829,14 +1824,9 @@ export type ApptLite = {
     description?: string;
     linkedTo?: string;
   }[];
-  recordingConsent?: { client: boolean; provider: boolean };
-  aiSummary?: string;
-  aiSummaryReviewedAt?: number;
-  aiSummaryReviewedBy?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   followUp?: {
     summary?: string;
-    summarySource?: "ai" | "scratch" | "loaded";
     homework?: string;
     resources?: { label: string; url: string; description?: string; linkedTo?: string }[];
     nextFocus?: string;
@@ -1878,10 +1868,6 @@ export function ApptNotesBlock({
   // Client follow-up local form state
   const followUp = appt.followUp ?? {};
   const [fuSummary, setFuSummary] = useState(followUp.summary ?? "");
-  const [fuSummarySource, setFuSummarySource] = useState<
-    "ai" | "scratch" | "loaded" | undefined
-  >(followUp.summary ? followUp.summarySource ?? "loaded" : undefined);
-  const [fuSummaryReviewed, setFuSummaryReviewed] = useState(false);
   const [fuHomework, setFuHomework] = useState(followUp.homework ?? "");
   const [fuNextFocus, setFuNextFocus] = useState(followUp.nextFocus ?? "");
   const [fuDirty, setFuDirty] = useState(false);
@@ -1895,12 +1881,7 @@ export function ApptNotesBlock({
   const [showResForm, setShowResForm] = useState(false);
 
   useEffect(() => {
-    const s = appt.followUp?.summary ?? "";
-    setFuSummary(s);
-    setFuSummarySource(
-      s ? appt.followUp?.summarySource ?? "loaded" : undefined,
-    );
-    setFuSummaryReviewed(false);
+    setFuSummary(appt.followUp?.summary ?? "");
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
@@ -1908,35 +1889,15 @@ export function ApptNotesBlock({
   }, [appt.id]);
 
   const saveFollowUp = () => {
-    const persistedSource: "ai" | "scratch" | "loaded" | undefined =
-      fuSummary.trim()
-        ? fuSummarySource === "loaded"
-          ? "loaded"
-          : fuSummarySource ?? "scratch"
-        : undefined;
     onChange({
       followUp: {
         ...followUp,
         summary: fuSummary.trim() || undefined,
-        summarySource: persistedSource,
         homework: fuHomework.trim() || undefined,
         nextFocus: fuNextFocus.trim() || undefined,
       },
     });
     setFuDirty(false);
-  };
-
-  const startFromAiDraft = () => {
-    setFuSummary(appt.aiSummary ?? "");
-    setFuSummarySource("ai");
-    setFuSummaryReviewed(false);
-    setFuDirty(true);
-  };
-  const startFromScratch = () => {
-    setFuSummary("");
-    setFuSummarySource("scratch");
-    setFuSummaryReviewed(false);
-    setFuDirty(true);
   };
 
   const addResource = () => {
@@ -2049,75 +2010,22 @@ export function ApptNotesBlock({
                 Create {clientLabel}&apos;s session recap
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
-                Write a short, client-friendly recap or start from the AI
-                session draft.
+                Write a short, client-friendly recap of what you explored together.
               </p>
-              {!fuSummarySource && !fuSummary.trim() ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={startFromAiDraft}
-                    disabled={!appt.aiSummary}
-                    className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-40"
-                    title={appt.aiSummary ? undefined : "Generate the AI draft in Step 2 first."}
-                  >
-                    Start from AI draft
-                  </button>
-                  <button
-                    type="button"
-                    onClick={startFromScratch}
-                    className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
-                  >
-                    Write from scratch
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
-                    {fuSummarySource === "ai"
-                      ? fuSummaryReviewed
-                        ? `Reviewed${providerName ? ` by ${providerName}` : ""}`
-                        : "Started from AI draft · Not yet reviewed"
-                      : fuSummarySource === "loaded"
-                        ? "Loaded from an existing follow-up"
-                        : "Written by provider"}
-                  </p>
-                  <textarea
-                    value={fuSummary}
-                    onChange={(e) => {
-                      setFuSummary(e.target.value);
-                      setFuDirty(true);
-                      if (fuSummarySource === "ai") setFuSummaryReviewed(true);
-                      if (fuSummarySource === "loaded") setFuSummarySource("scratch");
-                    }}
-                    rows={4}
-                    placeholder="A short, client-friendly recap of what you explored together."
-                    className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                  />
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {fuSummarySource === "ai" && !fuSummaryReviewed && (
-                      <button
-                        type="button"
-                        onClick={() => setFuSummaryReviewed(true)}
-                        className="rounded-[8px] bg-[#3D2E6B] px-3 py-1 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
-                      >
-                        Mark as reviewed
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFuSummary("");
-                        setFuSummarySource(undefined);
-                        setFuSummaryReviewed(false);
-                        setFuDirty(true);
-                      }}
-                      className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-                    >
-                      Start over
-                    </button>
-                  </div>
-                </>
+              <textarea
+                value={fuSummary}
+                onChange={(e) => {
+                  setFuSummary(e.target.value);
+                  setFuDirty(true);
+                }}
+                rows={4}
+                placeholder="A short, client-friendly recap of what you explored together."
+                className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+              />
+              {fuSummary.trim() && (
+                <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                  Written by provider
+                </p>
               )}
             </div>
 
