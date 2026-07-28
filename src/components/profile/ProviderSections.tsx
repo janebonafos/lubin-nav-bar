@@ -1329,7 +1329,7 @@ export function CalendarAvailabilitySection() {
           </p>
         )}
         {saved && errorCount === 0 && (
-          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-green-600">
+          <p className="mr-auto flex items-center gap-1.5 text-xs font-medium text-[#3D2E6B]">
             <Check className="h-3.5 w-3.5" /> Availability saved.
           </p>
         )}
