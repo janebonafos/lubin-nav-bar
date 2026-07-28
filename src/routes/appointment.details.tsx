@@ -263,10 +263,11 @@ function DetailsPage() {
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
-  const hasDocs = !!(
-    (appt?.notes && appt.notes.trim().length > 0) ||
-    appt?.aiSummary
-  );
+  const aiDraftAwaitingReview =
+    !!appt?.aiSummary && !appt?.aiSummaryReviewedAt;
+  const hasDocs =
+    (!!appt?.notes && appt.notes.trim().length > 0) ||
+    (!!appt?.aiSummary && !!appt?.aiSummaryReviewedAt);
   const isPublished = !!appt?.publishedFollowUp;
 
   // Parse appointment start time. Month/date/time come as strings like
@@ -326,9 +327,11 @@ function DetailsPage() {
         : "Confirmed";
   const documentationLabel = isCancelled
     ? "Not applicable"
-    : hasDocs
-      ? "In progress"
-      : "Not started";
+    : aiDraftAwaitingReview
+      ? "AI draft awaiting review"
+      : hasDocs
+        ? "Documentation saved"
+        : "Not started";
   const followupLabel = isCancelled
     ? "Not applicable"
     : isPublished
@@ -457,7 +460,10 @@ function DetailsPage() {
             <AiSessionSummary
               appointmentId={appt.id}
               clientName={appt.client}
+              providerName={providerDisplayName}
               aiSummary={appt.aiSummary}
+              aiSummaryReviewedAt={appt.aiSummaryReviewedAt}
+              aiSummaryReviewedBy={appt.aiSummaryReviewedBy}
               recordingConsent={appt.recordingConsent}
               onChange={(patch) => onChange(patch as Partial<ApptLite>)}
             />
@@ -489,6 +495,9 @@ function DetailsPage() {
               variant="followup"
               clientName={appt.client}
               providerName={providerDisplayName}
+              sessionDateLabel={
+                [appt.month, appt.date].filter(Boolean).join(" ") || undefined
+              }
             />
           </SectionCard>
         )}
