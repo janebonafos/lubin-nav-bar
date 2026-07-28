@@ -1,11 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarClock,
+  ChevronDown,
+  Sparkles,
+  NotebookPen,
+  HeartHandshake,
+  Pill,
+  Wallet,
+  CircleUserRound,
+  Clock3,
+  CheckCircle2,
+} from "lucide-react";
 import {
   ApptNotesBlock,
   ApptPayoutStatus,
-  DetailItem,
   type ApptLite,
 } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
@@ -40,11 +51,94 @@ export const Route = createFileRoute("/appointment/details")({
   component: DetailsPage,
   head: () => ({
     meta: [
-      { title: "Appointment details — Lubin" },
-      { name: "description", content: "Full details for a completed session." },
+      { title: "Session workspace — Lubin" },
+      {
+        name: "description",
+        content:
+          "Prepare, document and close out a therapy or psychiatry session in one calm workspace.",
+      },
     ],
   }),
 });
+
+/* ------------------------------ UI primitives ------------------------------ */
+
+function SectionCard({
+  id,
+  eyebrow,
+  title,
+  description,
+  icon,
+  defaultOpen = false,
+  status,
+  children,
+}: {
+  id?: string;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  icon: ReactNode;
+  defaultOpen?: boolean;
+  status?: { label: string; tone: "done" | "pending" | "info" };
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const toneClass =
+    status?.tone === "done"
+      ? "bg-[#E6F8F1] text-[#2D8E69]"
+      : status?.tone === "pending"
+        ? "bg-[#FFF3E0] text-[#B76A00]"
+        : "bg-[#EFE8FB] text-[#3D2E6B]";
+
+  return (
+    <section
+      id={id}
+      className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white shadow-[0_2px_18px_-14px_rgba(61,46,107,0.35)]"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
+      >
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#EFE8FB] to-[#E0D9F7] text-[#3D2E6B]">
+          {icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          {eyebrow && (
+            <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+              {eyebrow}
+            </span>
+          )}
+          <span className="mt-0.5 flex flex-wrap items-center gap-2">
+            <span className="text-[15px] font-semibold text-[#2C2B4B]">{title}</span>
+            {status && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${toneClass}`}
+              >
+                {status.label}
+              </span>
+            )}
+          </span>
+          {description && (
+            <span className="mt-1 block text-[13px] leading-snug text-[#7E6BAF]">
+              {description}
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="border-t border-[#F1EAFB] bg-[#FBF9FF] px-4 py-5 md:px-6">
+          {children}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* --------------------------------- Page ----------------------------------- */
 
 function DetailsPage() {
   const { id, d } = Route.useSearch();
@@ -103,17 +197,28 @@ function DetailsPage() {
     });
   };
 
+  const appointmentLabel = useMemo(
+    () =>
+      [appt?.month, appt?.date, appt?.time ? "·" : "", appt?.time]
+        .filter(Boolean)
+        .join(" "),
+    [appt?.month, appt?.date, appt?.time],
+  );
+
+  const isCompleted = appt?.status === "completed";
+  const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
+
   if (missing) {
     return (
       <div className="min-h-screen bg-[#FBF9FF]">
         <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-24 text-center">
           <CalendarClock className="h-8 w-8 text-[#A89BD0]" />
           <h1 className="mt-4 text-xl font-bold text-[#3D2E6B]">
-            Appointment not found
+            Session not found
           </h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            This session may have been cleared from this browser. Open it again from
-            your bookings list.
+            This session may have been cleared from this browser. Open it again
+            from your bookings list.
           </p>
           <Link
             to="/profile"
@@ -144,184 +249,247 @@ function DetailsPage() {
     cancelled: "bg-rose-100 text-rose-700",
   };
 
-  const paymentChip = appt.paymentStatus
-    ? appt.paymentStatus === "Paid"
-      ? "bg-[#EFE8FB] text-[#3D2E6B]"
-      : appt.paymentStatus === "Pending"
-      ? "bg-amber-100 text-amber-700"
-      : appt.paymentStatus === "Refunded"
-      ? "bg-[#E0D9F7] text-[#3D2E6B]"
-      : "bg-rose-100 text-rose-700"
-    : "";
-
   return (
-    <div className="min-h-screen w-full bg-[#FBF9FF] px-4 py-12">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 px-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
-              Appointment details
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold leading-tight text-[#3D2E6B]">
-              {appt.client ?? "Session"}
-            </h1>
-            <p className="mt-1 text-sm text-[#7E6BAF]">
-              Reference · #{appt.id.toString().toUpperCase()}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span
-              className={`rounded-full border border-[#EAE7F5] px-3 py-1 text-[11px] font-medium uppercase tracking-wider ${statusStyle[appt.status]}`}
-            >
-              {appt.status}
-            </span>
-            {appt.amount && (
-              <span className="rounded-full bg-[#3D2E6B] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white shadow-sm">
-                {appt.amount} payout
-              </span>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        {/* Back link */}
+        <Link
+          to="/profile"
+          className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF] hover:text-[#3D2E6B]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to sessions
+        </Link>
 
-        {/* Key facts card */}
-        <section className="rounded-2xl border border-[#EAE7F5] bg-white p-8 shadow-sm">
-          <div className="grid grid-cols-1 gap-x-12 gap-y-8 md:grid-cols-2">
-            {appt.client && (
-              <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                  Client
+        {/* Hero — session at a glance */}
+        <section className="relative overflow-hidden rounded-[24px] border border-[#EAE2F6] bg-white p-6 shadow-[0_10px_40px_-24px_rgba(61,46,107,0.35)] md:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#EFE8FB] blur-3xl" />
+          <div className="relative flex flex-col gap-6">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#A89BD0]">
+                  Session workspace
                 </p>
-                <p className="font-medium text-[#3D2E6B]">{appt.client}</p>
+                <h1 className="mt-1 truncate text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
+                  Session with {appt.client ?? "your client"}
+                </h1>
+                <p className="mt-1 text-[13px] text-[#7E6BAF]">
+                  Reference · #{appt.id.toString().toUpperCase()}
+                </p>
               </div>
-            )}
-            <div className="space-y-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                When
-              </p>
-              <p className="font-medium text-[#3D2E6B]">
-                {appt.month} {appt.date} · {appt.time}
-              </p>
-              {appt.timezone && (
-                <p className="text-[11px] text-[#7E6BAF]">{appt.timezone}</p>
-              )}
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${statusStyle[appt.status]}`}
+                >
+                  {appt.status === "completed"
+                    ? "Session complete"
+                    : appt.status === "upcoming"
+                      ? "Upcoming"
+                      : "Cancelled"}
+                </span>
+                {appt.amount && (
+                  <span className="rounded-full bg-[#3D2E6B] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    {appt.amount} payout
+                  </span>
+                )}
+              </div>
             </div>
-            {(appt.duration || appt.type) && (
-              <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                  Duration & Type
-                </p>
-                <p className="font-medium text-[#3D2E6B]">
-                  {[appt.duration, appt.type].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-            )}
-            {(appt.sessionFormat || appt.mode) && (
-              <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                  Format & Mode
-                </p>
-                <p className="font-medium text-[#3D2E6B]">
-                  {[appt.sessionFormat, appt.mode].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-            )}
-            {(appt.amount || appt.paymentStatus) && (
-              <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                  Payment
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {appt.amount && (
-                    <p className="font-medium text-[#3D2E6B]">{appt.amount}</p>
-                  )}
-                  {appt.paymentStatus && (
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${paymentChip}`}
-                    >
-                      {appt.paymentStatus}
-                    </span>
-                  )}
-                  {appt.promoCode && (
-                    <span className="rounded bg-[#F7F4FB] px-1.5 py-0.5 text-[11px] text-[#7E6BAF]">
-                      Promo · {appt.promoCode}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="space-y-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                Status
-              </p>
-              <p className="font-medium capitalize text-[#3D2E6B]">
-                {appt.status}
-              </p>
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <FactTile
+                icon={<CircleUserRound className="h-4 w-4" />}
+                label="Client"
+                value={appt.client ?? "—"}
+              />
+              <FactTile
+                icon={<CalendarClock className="h-4 w-4" />}
+                label="When"
+                value={
+                  [appt.month, appt.date].filter(Boolean).join(" ") || "—"
+                }
+                sub={appt.time}
+              />
+              <FactTile
+                icon={<Clock3 className="h-4 w-4" />}
+                label="Format"
+                value={
+                  [appt.duration, appt.type].filter(Boolean).join(" · ") || "—"
+                }
+                sub={[appt.sessionFormat, appt.mode]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+              <FactTile
+                icon={<Wallet className="h-4 w-4" />}
+                label="Payment"
+                value={appt.amount ?? "—"}
+                sub={appt.paymentStatus}
+              />
             </div>
           </div>
         </section>
 
-        {/* Pre-appointment AI brief for the provider */}
-        <AiProviderBrief
-          appointmentId={appt.id}
-          providerName={appt.client}
-          appointmentLabel={[appt.month, appt.date, "·", appt.time]
-            .filter(Boolean)
-            .join(" ")}
-          onViewSupporting={() => {
-            document
-              .getElementById("shared-passport-block")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          onViewAssessments={() => {
-            document
-              .getElementById("assessments-block")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          onViewTimeline={() => {
-            document
-              .getElementById("shared-timeline-block")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-        />
+        {/* Workflow guidance */}
+        {isCompleted && (
+          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
+            <span className="font-semibold text-[#3D2E6B]">Next steps · </span>
+            Review what your client shared, document the session, and close the
+            loop with a care plan. Each section below opens on tap.
+          </div>
+        )}
 
-        {/* Notes / follow-up / private / AI — each floats as its own card via internal styling */}
-        <ApptNotesBlock appt={appt} onChange={onChange} />
-
-        {(appt.status === "completed" || appt.status === "upcoming") && (
-          <ProviderVisitWorkspace
+        {/* Before the session */}
+        <SectionCard
+          id="before-session"
+          eyebrow="Before the session"
+          title="Client context & AI brief"
+          description="A quick, AI-summarised view of what your client shared from their Health Passport."
+          icon={<Sparkles className="h-5 w-5" />}
+          defaultOpen={!isCompleted}
+          status={{ label: "AI-assisted", tone: "info" }}
+        >
+          <AiProviderBrief
             appointmentId={appt.id}
             providerName={appt.client}
-            appointmentLabel={[appt.month, appt.date, "·", appt.time]
-              .filter(Boolean)
-              .join(" ")}
+            appointmentLabel={appointmentLabel}
+            onViewSupporting={() => {
+              document
+                .getElementById("shared-passport-block")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            onViewAssessments={() => {
+              document
+                .getElementById("assessments-block")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            onViewTimeline={() => {
+              document
+                .getElementById("shared-timeline-block")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
           />
+        </SectionCard>
+
+        {/* During the session */}
+        <SectionCard
+          id="session-notes"
+          eyebrow="During the session"
+          title="Notes, follow-up & private observations"
+          description="Capture what came up in the room, share resources, and keep private clinical notes."
+          icon={<NotebookPen className="h-5 w-5" />}
+          defaultOpen={isCompleted && !hasNotes}
+          status={
+            hasNotes
+              ? { label: "Notes added", tone: "done" }
+              : isCompleted
+                ? { label: "Needs notes", tone: "pending" }
+                : undefined
+          }
+        >
+          <ApptNotesBlock appt={appt} onChange={onChange} />
+        </SectionCard>
+
+        {/* After the session */}
+        {(isCompleted || appt.status === "upcoming") && (
+          <SectionCard
+            id="care-plan"
+            eyebrow="After the session"
+            title="Care plan & patient-facing summary"
+            description="Walk through each step, then publish a warm summary into your client's Health Passport."
+            icon={<HeartHandshake className="h-5 w-5" />}
+            defaultOpen={false}
+            status={
+              isCompleted
+                ? { label: "Ready to close out", tone: "pending" }
+                : undefined
+            }
+          >
+            <ProviderVisitWorkspace
+              appointmentId={appt.id}
+              providerName={appt.client}
+              appointmentLabel={appointmentLabel}
+            />
+          </SectionCard>
         )}
 
-        {canPrescribe && appt.status === "completed" && (
-          <AiPrescription
-            appointmentId={appt.id}
-            clientName={appt.client}
-            providerName={undefined}
-            appointmentLabel={[appt.month, appt.date, "·", appt.time]
-              .filter(Boolean)
-              .join(" ")}
-          />
+        {/* Prescriptions — only for prescribers */}
+        {canPrescribe && isCompleted && (
+          <SectionCard
+            id="prescriptions"
+            eyebrow="Prescriber tools"
+            title="Medication plan"
+            description="AI-drafted prescription with per-medication clinician approval. Nothing is sent until you finalise."
+            icon={<Pill className="h-5 w-5" />}
+            status={{ label: "Approval required", tone: "pending" }}
+          >
+            <AiPrescription
+              appointmentId={appt.id}
+              clientName={appt.client}
+              providerName={undefined}
+              appointmentLabel={appointmentLabel}
+            />
+          </SectionCard>
         )}
 
-        {appt.status === "completed" && (
-          <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
+        {/* Payout */}
+        {isCompleted && (
+          <SectionCard
+            id="payout"
+            eyebrow="Admin"
+            title="Payout status"
+            description="Track when this session's earnings will be released."
+            icon={<Wallet className="h-5 w-5" />}
+            status={
+              (appt.payoutStatus ?? "pending_review") === "paid"
+                ? { label: "Paid", tone: "done" }
+                : (appt.payoutStatus ?? "pending_review") === "approved"
+                  ? { label: "Approved", tone: "done" }
+                  : { label: "In review", tone: "info" }
+            }
+          >
+            <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
+          </SectionCard>
         )}
 
         <div className="pt-2 text-center">
           <button
             onClick={() => window.close()}
-            className="text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
           >
-            Close this tab
+            <CheckCircle2 className="h-3.5 w-3.5" /> Close this tab
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FactTile({
+  icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#F1EAFB] bg-[#FBF9FF] px-3.5 py-3">
+      <div className="flex items-center gap-1.5 text-[#7E6BAF]">
+        <span className="grid h-6 w-6 place-items-center rounded-lg bg-white text-[#3D2E6B]">
+          {icon}
+        </span>
+        <span className="text-[10px] font-bold uppercase tracking-wider">
+          {label}
+        </span>
+      </div>
+      <p className="mt-1.5 truncate text-[13px] font-semibold text-[#2C2B4B]">
+        {value}
+      </p>
+      {sub && (
+        <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>
+      )}
     </div>
   );
 }
