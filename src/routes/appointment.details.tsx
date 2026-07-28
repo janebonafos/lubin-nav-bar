@@ -9,6 +9,7 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { ProviderVisitWorkspace } from "@/components/appointment/ProviderVisitWorkspace";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
+import { AiSessionSummary } from "@/components/appointment/AiSessionSummary";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
 
