@@ -437,6 +437,17 @@ function DetailsPage() {
           <ApptNotesBlock appt={appt} onChange={onChange} />
         </SectionCard>
 
+        {/* AI session summary — visible once the session has passed */}
+        {showPostSession && (
+          <AiSessionSummary
+            appointmentId={appt.id}
+            clientName={appt.client}
+            aiSummary={appt.aiSummary}
+            recordingConsent={appt.recordingConsent}
+            onChange={(patch) => onChange(patch as Partial<ApptLite>)}
+          />
+        )}
+
         {/* After the session */}
         {showPostSession && (
           <SectionCard
