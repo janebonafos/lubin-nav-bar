@@ -453,7 +453,6 @@ function DetailsPage() {
           description="Optionally generate an AI draft from the recording, capture your clinical documentation and plan, and keep private notes."
           defaultOpen={showPostSession && !hasDocs}
           done={hasDocs}
-          inProgress={aiDraftAwaitingReview || (hasNotesContent && !hasReviewedAiDraft && !!appt.aiSummary)}
           hint={
             hasDocs
               ? undefined
