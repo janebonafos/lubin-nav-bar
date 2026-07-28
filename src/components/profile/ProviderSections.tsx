@@ -2008,6 +2008,13 @@ export function ApptNotesBlock({
     onChange({ attachments: next });
   };
 
+  // Parse the "Agreed next steps" textarea into individual step labels so
+  // attachments and resources can be linked to a specific one via a dropdown.
+  const nextStepOptions = fuHomework
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .filter(Boolean);
+
   return (
     <div className="space-y-6">
       {/* ============ Client Follow-up (visible to client) ============ */}
