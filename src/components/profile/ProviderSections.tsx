@@ -1822,14 +1822,23 @@ export type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
   notes?: string;
-  attachments?: { name: string; size: string; title?: string; description?: string }[];
+  attachments?: {
+    name: string;
+    size: string;
+    title?: string;
+    description?: string;
+    linkedTo?: string;
+  }[];
   recordingConsent?: { client: boolean; provider: boolean };
   aiSummary?: string;
+  aiSummaryReviewedAt?: number;
+  aiSummaryReviewedBy?: string;
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
   followUp?: {
     summary?: string;
+    summarySource?: "ai" | "scratch";
     homework?: string;
-    resources?: { label: string; url: string }[];
+    resources?: { label: string; url: string; description?: string; linkedTo?: string }[];
     nextFocus?: string;
   };
   publishedFollowUp?: {
