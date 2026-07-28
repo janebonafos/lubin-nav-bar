@@ -2243,28 +2243,43 @@ export function ApptNotesBlock({
                 ))}
               </ul>
 
-              <div className="mt-2 grid gap-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3 sm:grid-cols-[1fr_1fr_auto]">
-                <input
-                  value={resLabel}
-                  onChange={(e) => { setResLabel(e.target.value); if (resError) setResError(null); }}
-                  placeholder="Label (e.g. Breathing exercise video)"
+              <div className="mt-2 space-y-2 rounded-[12px] border border-dashed border-[#CDBFEC] bg-white p-3">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    value={resLabel}
+                    onChange={(e) => { setResLabel(e.target.value); if (resError) setResError(null); }}
+                    placeholder="Title (e.g. Breathing exercise video)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <input
+                    value={resUrl}
+                    onChange={(e) => { setResUrl(e.target.value); if (resError) setResError(null); }}
+                    placeholder="https://…"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                </div>
+                <textarea
+                  value={resDescription}
+                  onChange={(e) => setResDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Short description of what this link is for (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
                 <input
-                  value={resUrl}
-                  onChange={(e) => { setResUrl(e.target.value); if (resError) setResError(null); }}
-                  placeholder="https://…"
+                  value={resLinkedTo}
+                  onChange={(e) => setResLinkedTo(e.target.value)}
+                  placeholder="Link to an agreed next step (optional)"
                   className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                 />
+                {resError && (
+                  <p className="text-[11px] font-medium text-rose-600">{resError}</p>
+                )}
                 <button
                   onClick={addResource}
                   className="inline-flex items-center justify-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
                 >
                   <Plus className="h-3.5 w-3.5" /> Add link
                 </button>
-                {resError && (
-                  <p className="text-[11px] font-medium text-rose-600 sm:col-span-3">{resError}</p>
-                )}
               </div>
             </div>
 
