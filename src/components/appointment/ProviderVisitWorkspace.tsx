@@ -97,14 +97,14 @@ export function ProviderVisitWorkspace({
     <section className="rounded-2xl border border-[#ECE7F6] bg-white p-6 shadow-sm">
       <header className="flex flex-col gap-1">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#A89BD0]">
-          Post-appointment workspace
+          Care plan & patient summary
         </p>
         <h2 className="text-lg font-semibold text-[#3D2E6B]">
-          Wrap up this visit
+          Build what your client will see
         </h2>
         <p className="text-sm text-[#5A4A8A]">
-          Move through each step, then publish a warm patient-facing summary
-          into the client’s Health Passport.
+          Review what your client shared, add notes, and publish anything you
+          want them to read in their Health Passport. Each step is optional.
         </p>
       </header>
 
