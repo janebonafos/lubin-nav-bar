@@ -422,40 +422,28 @@ function DetailsPage() {
           />
         </SectionCard>
 
-        {/* During the session — one AI draft + clinical documentation + private notes */}
+        {/* During the session — clinical documentation + private notes */}
         <SectionCard
           id="session-notes"
           number={2}
           eyebrow="During the session"
-          title="AI recording draft, clinical documentation & private notes"
-          description="Optionally generate an AI draft from the recording, capture your clinical documentation and plan, and keep private notes."
-          defaultOpen={showPostSession && !hasDocs}
-          done={hasDocs}
+          title="Clinical documentation & private notes"
+          description="Capture your clinical documentation and plan, and keep private notes."
+          defaultOpen={showPostSession && !hasNotes}
+          done={hasNotes}
           hint={
-            hasDocs
+            hasNotes
               ? undefined
               : "Optional. Nothing in this section is shared with your client."
           }
         >
-          <div className="space-y-5">
-            <AiSessionSummary
-              appointmentId={appt.id}
-              clientName={appt.client}
-              providerName={providerDisplayName}
-              aiSummary={appt.aiSummary}
-              aiSummaryReviewedAt={appt.aiSummaryReviewedAt}
-              aiSummaryReviewedBy={appt.aiSummaryReviewedBy}
-              recordingConsent={appt.recordingConsent}
-              onChange={(patch) => onChange(patch as Partial<ApptLite>)}
-            />
-            <ApptNotesBlock
-              appt={appt}
-              onChange={onChange}
-              variant="private"
-              clientName={appt.client}
-              providerName={providerDisplayName}
-            />
-          </div>
+          <ApptNotesBlock
+            appt={appt}
+            onChange={onChange}
+            variant="private"
+            clientName={appt.client}
+            providerName={providerDisplayName}
+          />
         </SectionCard>
 
         {/* After the session */}
