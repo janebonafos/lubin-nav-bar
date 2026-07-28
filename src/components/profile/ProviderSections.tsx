@@ -2481,6 +2481,174 @@ function PreviewLine({
   );
 }
 
+function inferFileType(name: string): string {
+  const ext = name.split(".").pop()?.toUpperCase();
+  if (!ext || ext === name.toUpperCase()) return "File";
+  return `${ext} file`;
+}
+
+function domainOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+function inferLinkType(url: string): string {
+  const d = domainOf(url).toLowerCase();
+  if (d.includes("youtube") || d.includes("youtu.be")) return "Video";
+  if (d.includes("spotify") || d.includes("podcast")) return "Podcast";
+  if (d.includes("drive.google") || d.includes("docs.google")) return "Google Drive";
+  if (d.includes("medium") || d.includes("substack")) return "Article";
+  return "Link";
+}
+
+function PublishPreviewCard({
+  clientLabel,
+  providerName,
+  publishedAt,
+  sessionDateLabel,
+  summary,
+  homework,
+  nextFocus,
+  resources,
+  attachments,
+}: {
+  clientLabel: string;
+  providerName?: string;
+  publishedAt?: number;
+  sessionDateLabel?: string;
+  summary: string;
+  homework: string;
+  nextFocus: string;
+  resources: { label: string; url: string; description?: string; linkedTo?: string }[];
+  attachments: { name: string; size: string; title?: string; description?: string; linkedTo?: string }[];
+}) {
+  const providedBy = providerName || "your provider";
+  return (
+    <div className="mt-3 overflow-hidden rounded-[14px] border border-[#EAE2F6] bg-white">
+      <div className="border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+          Preview as {clientLabel}
+        </p>
+        <p className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
+          Your session follow-up
+        </p>
+        <p className="mt-0.5 text-[12px] text-[#5B4796]">
+          Shared by {providedBy}
+          {sessionDateLabel ? ` after your session on ${sessionDateLabel}` : ""}.
+        </p>
+      </div>
+      <div className="space-y-4 p-4 text-sm text-[#3D2E6B]">
+        <PreviewLine label="Session recap" value={summary} multiline />
+        <PreviewLine label="Agreed next steps" value={homework} multiline />
+        <PreviewLine label="Next session focus" value={nextFocus} multiline />
+
+        {resources.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Recommended resources
+            </p>
+            <ul className="mt-1.5 space-y-2">
+              {resources.map((r, i) => (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-[#3D2E6B]">{r.label}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wider text-[#A89BD0]">
+                      {inferLinkType(r.url)} · {domainOf(r.url)}
+                    </p>
+                    {r.description && (
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{r.description}</p>
+                    )}
+                    {r.linkedTo && (
+                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                        For: {r.linkedTo}
+                      </p>
+                    )}
+                  </div>
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    Open
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {attachments.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Attachments
+            </p>
+            <ul className="mt-1.5 space-y-2">
+              {attachments.map((a, i) => (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-[#3D2E6B]">{a.title || a.name}</p>
+                    <p className="mt-0.5 text-[11px] uppercase tracking-wider text-[#A89BD0]">
+                      {inferFileType(a.name)} · {a.size}
+                    </p>
+                    {a.description && (
+                      <p className="mt-1 text-[12px] leading-relaxed text-[#5B4796]">{a.description}</p>
+                    )}
+                    {a.linkedTo && (
+                      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                        For: {a.linkedTo}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    Download
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
+          <p className="font-semibold text-[#3D2E6B]">
+            Reviewed and shared by {providedBy}
+          </p>
+          {publishedAt && (
+            <p className="mt-0.5">
+              Published{" "}
+              {new Date(publishedAt).toLocaleDateString(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              ·{" "}
+              {new Date(publishedAt).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
+          {!publishedAt && (
+            <p className="mt-0.5 italic">Not yet published.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ApptPayoutStatus({
   status,
 }: {
