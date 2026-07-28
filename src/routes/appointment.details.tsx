@@ -508,10 +508,16 @@ function DetailsPage() {
             id="prescriptions"
             number={4}
             eyebrow="Prescriber tools"
-            title="Medication plan"
-            description="AI-drafted prescription with per-medication clinician approval. Nothing is sent until you finalise."
-            hint="Optional — only fill this in if you're prescribing today."
+            title="Prescription"
+            description="Separate signed clinical document. Not included in the client recap you publish above."
+            hint="Only visible to accounts with verified prescribing authority for the client's jurisdiction."
           >
+            <div className="mb-4 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[12px] leading-snug text-[#5A4A8A]">
+              A prescription is signed and issued as its own clinical document.
+              Review allergies and current medications, complete the structured
+              medication fields, preview, then sign and issue. It is not shared
+              through &ldquo;Publish client recap.&rdquo;
+            </div>
             <AiPrescription
               appointmentId={appt.id}
               clientName={appt.client}
