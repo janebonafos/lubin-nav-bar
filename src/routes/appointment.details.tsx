@@ -394,6 +394,7 @@ function DetailsPage() {
           description="A quick, AI-summarised view of what your client shared from their Health Passport."
           defaultOpen={!isCompleted}
           hint="Optional — use this to prepare before you meet."
+          reference
         >
           <AiProviderBrief
             appointmentId={appt.id}
@@ -425,6 +426,7 @@ function DetailsPage() {
           title="Notes, follow-up & private observations"
           description="Capture what came up in the room, share resources, and keep private clinical notes."
           defaultOpen={isCompleted && !hasNotes}
+          done={hasNotes}
           hint={
             hasNotes
               ? undefined
