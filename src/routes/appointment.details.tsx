@@ -78,7 +78,7 @@ function SectionCard({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-[#FBF8FF]"
+        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
       >
         {number != null && (
           <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
