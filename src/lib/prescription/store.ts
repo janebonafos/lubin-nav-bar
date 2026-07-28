@@ -118,9 +118,11 @@ export function isPrescriber(profession?: string | null): boolean {
 }
 
 /** True only when the provider is (a) in a prescribing profession AND
- *  (b) has verified prescribing credentials on file. The prescription /
- *  medication surface must stay hidden until BOTH are true. */
-export function isVerifiedPrescriber(): boolean {
+ *  (b) has verified prescribing credentials on file, AND (c) — when a
+ *  client jurisdiction is supplied — is licensed to prescribe there.
+ *  The prescription / medication surface must stay hidden until every
+ *  condition is true. Being labelled "provider" is never enough. */
+export function isVerifiedPrescriber(clientJurisdiction?: string): boolean {
   if (typeof window === "undefined") return false;
   try {
     const raw = window.localStorage.getItem("lubin.providerProfile.v1");
@@ -130,13 +132,20 @@ export function isVerifiedPrescriber(): boolean {
       credentialsVerified?: boolean;
       credentialsVerifiedAt?: number | string;
       prescribingCredentialsVerified?: boolean;
+      prescribingJurisdictions?: string[];
     };
     if (!isPrescriber(parsed.profession)) return false;
-    return !!(
+    const credsOk = !!(
       parsed.prescribingCredentialsVerified ||
       parsed.credentialsVerified ||
       parsed.credentialsVerifiedAt
     );
+    if (!credsOk) return false;
+    if (!clientJurisdiction) return true;
+    const jurisdictions = (parsed.prescribingJurisdictions ?? []).map((j) =>
+      j.toLowerCase(),
+    );
+    return jurisdictions.includes(clientJurisdiction.toLowerCase());
   } catch {
     return false;
   }
