@@ -7,11 +7,10 @@ import {
   type ApptLite,
 } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
-import { ProviderVisitWorkspace } from "@/components/appointment/ProviderVisitWorkspace";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiSessionSummary } from "@/components/appointment/AiSessionSummary";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
-import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
+import { isVerifiedPrescriber } from "@/lib/prescription/store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -191,9 +190,17 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    setCanPrescribe(isPrescriber(getProviderProfession()));
+    setCanPrescribe(isVerifiedPrescriber());
+    try {
+      const raw = window.localStorage.getItem("lubin.providerProfile.v1");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
+        setProviderDisplayName(parsed.displayName || parsed.name || undefined);
+      }
+    } catch { /* noop */ }
   }, []);
 
   useEffect(() => {
@@ -202,11 +209,8 @@ function DetailsPage() {
       return;
     }
     try {
-      const raw = window.localStorage.getItem(`lubin:appt-details:${id}`);
-      if (raw) {
-        setAppt(JSON.parse(raw) as StoredAppt);
-        return;
-      }
+      // Prefer the fresh URL payload so seed changes (like new attachments)
+      // don't get shadowed by a stale localStorage cache.
       if (d) {
         const decoded = decodeURIComponent(escape(atob(d)));
         const parsed = JSON.parse(decoded) as StoredAppt;
@@ -219,6 +223,11 @@ function DetailsPage() {
         } catch {
           /* noop */
         }
+        return;
+      }
+      const raw = window.localStorage.getItem(`lubin:appt-details:${id}`);
+      if (raw) {
+        setAppt(JSON.parse(raw) as StoredAppt);
         return;
       }
       setMissing(true);
@@ -254,6 +263,11 @@ function DetailsPage() {
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
+  const hasDocs = !!(
+    (appt?.notes && appt.notes.trim().length > 0) ||
+    appt?.aiSummary
+  );
+  const isPublished = !!appt?.publishedFollowUp;
 
   // Parse appointment start time. Month/date/time come as strings like
   // "Jun", "19", "2:00 PM". If parsing fails we fall back to "not past".
@@ -302,11 +316,24 @@ function DetailsPage() {
     );
   }
 
-  const statusStyle: Record<ApptLite["status"], string> = {
-    upcoming: "bg-[#EFE8FB] text-[#3D2E6B]",
-    completed: "bg-[#3D2E6B] text-white",
-    cancelled: "border border-[#EAE2F6] text-[#7E6BAF]",
-  };
+  const clientLabel = (appt.client ?? "your client").split(" ")[0];
+  const sessionStatusLabel = isCancelled
+    ? "Cancelled"
+    : isCompleted
+      ? "Completed"
+      : isPastStart
+        ? "In progress"
+        : "Confirmed";
+  const documentationLabel = isCancelled
+    ? "Not applicable"
+    : hasDocs
+      ? "In progress"
+      : "Not started";
+  const followupLabel = isCancelled
+    ? "Not applicable"
+    : isPublished
+      ? "Published"
+      : "Not published";
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
@@ -336,16 +363,10 @@ function DetailsPage() {
                   Reference · #{appt.id.toString().toUpperCase()}
                 </p>
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-2">
-                <span
-                  className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${statusStyle[appt.status]}`}
-                >
-                  {appt.status === "completed"
-                    ? "Session completed"
-                    : appt.status === "upcoming"
-                      ? "Appointment confirmed"
-                      : "Cancelled"}
-                </span>
+              <div className="flex shrink-0 flex-col items-stretch gap-1.5 sm:items-end">
+                <StatusPill label="Session" value={sessionStatusLabel} tone={isCompleted ? "done" : isCancelled ? "muted" : "active"} />
+                <StatusPill label="Documentation" value={documentationLabel} tone={hasDocs ? "active" : "muted"} />
+                <StatusPill label="Client follow-up" value={followupLabel} tone={isPublished ? "done" : "muted"} />
               </div>
             </div>
 
@@ -377,12 +398,9 @@ function DetailsPage() {
         {/* Workflow guidance */}
         {!isCancelled && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
-            <span className="font-semibold text-[#3D2E6B]">A note · </span>
-            Anything you write here will be published to your client's Health
-            Passport once you mark this appointment as completed, so please
-            double-check the details. Each section is optional — if you have
-            nothing to add, you can leave it blank or write "None". The
-            appointment is only tagged as done after you mark it as completed.
+            Complete your clinical notes and prepare an optional follow-up for {clientLabel}.
+            Only information you explicitly publish in the final step is shared with
+            your client. Private clinician notes are never shared.
           </div>
         )}
 
@@ -391,15 +409,16 @@ function DetailsPage() {
           id="before-session"
           number={1}
           eyebrow="Before the session"
-          title="Client context & AI brief"
-          description="A quick, AI-summarised view of what your client shared from their Health Passport."
+          title="Shared Health Passport & AI Provider Brief"
+          description="Review what your client chose to share, then optionally generate an AI Provider Brief."
           defaultOpen={!isCompleted}
-          hint="Optional — use this to prepare before you meet."
+          hint="Reference only. Nothing here is shared back to your client."
           reference
         >
           <AiProviderBrief
             appointmentId={appt.id}
-            providerName={appt.client}
+            providerName={providerDisplayName}
+            clientName={appt.client}
             appointmentLabel={appointmentLabel}
             onViewSupporting={() => {
               document
@@ -419,34 +438,38 @@ function DetailsPage() {
           />
         </SectionCard>
 
-        {/* During the session */}
+        {/* During the session — one AI draft + clinical documentation + private notes */}
         <SectionCard
           id="session-notes"
           number={2}
           eyebrow="During the session"
-          title="Notes, follow-up & private observations"
-          description="Capture what came up in the room, share resources, and keep private clinical notes."
-          defaultOpen={isCompleted && !hasNotes}
-          done={hasNotes}
+          title="AI recording draft, clinical documentation & private notes"
+          description="Optionally generate an AI draft from the recording, capture your clinical documentation and plan, and keep private notes."
+          defaultOpen={showPostSession && !hasDocs}
+          done={hasDocs}
           hint={
-            hasNotes
+            hasDocs
               ? undefined
-              : "Optional — leave blank or write \"None\" if there's nothing to add."
+              : "Optional. Nothing in this section is shared with your client."
           }
         >
-          <ApptNotesBlock appt={appt} onChange={onChange} />
+          <div className="space-y-5">
+            <AiSessionSummary
+              appointmentId={appt.id}
+              clientName={appt.client}
+              aiSummary={appt.aiSummary}
+              recordingConsent={appt.recordingConsent}
+              onChange={(patch) => onChange(patch as Partial<ApptLite>)}
+            />
+            <ApptNotesBlock
+              appt={appt}
+              onChange={onChange}
+              variant="private"
+              clientName={appt.client}
+              providerName={providerDisplayName}
+            />
+          </div>
         </SectionCard>
-
-        {/* AI session summary — visible once the session has passed */}
-        {showPostSession && (
-          <AiSessionSummary
-            appointmentId={appt.id}
-            clientName={appt.client}
-            aiSummary={appt.aiSummary}
-            recordingConsent={appt.recordingConsent}
-            onChange={(patch) => onChange(patch as Partial<ApptLite>)}
-          />
-        )}
 
         {/* After the session */}
         {showPostSession && (
@@ -454,15 +477,18 @@ function DetailsPage() {
             id="care-plan"
             number={3}
             eyebrow="After the session"
-            title="Care plan & patient-facing summary"
-            description="Walk through each step, then publish a warm summary into your client's Health Passport."
-            defaultOpen={false}
-            hint="Optional — anything you publish here goes to the client's Health Passport."
+            title={`Client recap & publish to ${clientLabel}'s Health Passport`}
+            description="Write the client-facing recap, action items, resources, and any attachments — then preview and publish."
+            defaultOpen={!isPublished}
+            done={isPublished}
+            hint="Nothing is shared until you press Publish."
           >
-            <ProviderVisitWorkspace
-              appointmentId={appt.id}
-              providerName={appt.client}
-              appointmentLabel={appointmentLabel}
+            <ApptNotesBlock
+              appt={appt}
+              onChange={onChange}
+              variant="followup"
+              clientName={appt.client}
+              providerName={providerDisplayName}
             />
           </SectionCard>
         )}
@@ -480,7 +506,7 @@ function DetailsPage() {
             <AiPrescription
               appointmentId={appt.id}
               clientName={appt.client}
-              providerName={undefined}
+              providerName={providerDisplayName}
               appointmentLabel={appointmentLabel}
             />
           </SectionCard>
@@ -535,8 +561,9 @@ function DetailsPage() {
         {isCompleted && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
-            This appointment has been marked as done and any published summary
-            is now visible to your client in their Health Passport.
+            {isPublished
+              ? `Your recap has been published to ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
+              : `This appointment has been marked as done. Nothing has been published to ${clientLabel}'s Health Passport yet — publish from Step 3 when you're ready.`}
           </div>
         )}
 
@@ -574,6 +601,32 @@ function FactTile({
         <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>
       )}
     </div>
+  );
+}
+
+function StatusPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "done" | "active" | "muted";
+}) {
+  const shell =
+    tone === "done"
+      ? "bg-[#3D2E6B] text-white"
+      : tone === "active"
+        ? "bg-[#EFE8FB] text-[#3D2E6B]"
+        : "border border-[#EAE2F6] bg-white text-[#7E6BAF]";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${shell}`}
+    >
+      <span className="opacity-70">{label}</span>
+      <span className="opacity-30">·</span>
+      <span>{value}</span>
+    </span>
   );
 }
 
