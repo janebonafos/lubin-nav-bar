@@ -2144,6 +2144,11 @@ export function ApptNotesBlock({
                         <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[#A89BD0]">
                           {f.name} · {f.size}
                         </p>
+                        {f.linkedTo && (
+                          <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-wider text-[#5B4796]">
+                            For next step: {f.linkedTo}
+                          </p>
+                        )}
                     </div>
                     <button
                       onClick={() => removeAttachment(i)}
@@ -2171,6 +2176,12 @@ export function ApptNotesBlock({
                     onChange={(e) => setDocDescription(e.target.value)}
                     rows={2}
                     placeholder="Short description so your client knows what this is for (optional)"
+                    className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                  />
+                  <input
+                    value={attachLinkedTo}
+                    onChange={(e) => setAttachLinkedTo(e.target.value)}
+                    placeholder="Link to an agreed next step (optional, e.g. Complete the boundary-setting worksheet)"
                     className="w-full rounded-[8px] border border-[#E5DCF5] bg-[#FBF9FF] px-3 py-2 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
                   />
                   {docError && <p className="text-[11px] font-medium text-rose-600">{docError}</p>}
