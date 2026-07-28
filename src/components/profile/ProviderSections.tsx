@@ -1832,18 +1832,33 @@ export type ApptLite = {
     resources?: { label: string; url: string }[];
     nextFocus?: string;
   };
+  publishedFollowUp?: {
+    at: number;
+    by?: string;
+  };
 };
 
 export function ApptNotesBlock({
   appt,
   onChange,
+  variant = "all",
+  clientName,
+  providerName,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
+  variant?: "all" | "private" | "followup";
+  clientName?: string;
+  providerName?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
   const isCompleted = appt.status === "completed";
+  const showFollowup = variant !== "private";
+  const showPrivate = variant !== "followup";
+  const isPublished = !!appt.publishedFollowUp;
+  const [publishPreview, setPublishPreview] = useState(false);
+  const clientLabel = (clientName || (appt as ApptLite & { client?: string }).client || "your client").split(" ")[0];
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
   const [docError, setDocError] = useState<string | null>(null);
@@ -1939,15 +1954,25 @@ export function ApptNotesBlock({
   return (
     <div className="space-y-6">
       {/* ============ Client Follow-up (visible to client) ============ */}
-      {isCompleted && (
+      {showFollowup && (
         <div className="overflow-hidden rounded-[20px] border border-[#EEE6FA] bg-white shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
           <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-[#3D2E6B]">Post-session follow-up</p>
-              <p className="text-[11px] text-[#7E6BAF]">Shared with your client after the session.</p>
+              <p className="text-sm font-bold text-[#3D2E6B]">
+                Client recap {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
+              </p>
+              <p className="text-[11px] text-[#7E6BAF]">
+                Nothing here is shared until you explicitly publish it below.
+              </p>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-              Visible to client
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                isPublished
+                  ? "bg-[#3D2E6B] text-white"
+                  : "bg-white/80 text-[#3D2E6B]"
+              }`}
+            >
+              {isPublished ? "Published" : "Draft · Not shared"}
             </span>
           </div>
 
@@ -2163,20 +2188,105 @@ export function ApptNotesBlock({
                 Save follow-up
               </button>
             </div>
+
+            {/* ================= Preview & Publish ================= */}
+            <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                    Final step
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
+                    Preview and publish to {clientLabel}'s Health Passport
+                  </p>
+                  <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
+                    Nothing above is shared with {clientLabel} until you click
+                    Publish. Private clinician notes are never included.
+                  </p>
+                </div>
+                {isPublished && appt.publishedFollowUp && (
+                  <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2.5 py-1 text-right text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+                    Published<br />
+                    {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                    {" · "}
+                    {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                    {appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPublishPreview((p) => !p)}
+                  className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] hover:bg-[#F4EEFC]"
+                >
+                  {publishPreview ? "Hide preview" : `Preview as ${clientLabel}`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      publishedFollowUp: {
+                        at: Date.now(),
+                        by: providerName?.trim() || undefined,
+                      },
+                    });
+                  }}
+                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                >
+                  {isPublished
+                    ? `Republish to ${clientLabel}'s Health Passport`
+                    : `Publish to ${clientLabel}'s Health Passport`}
+                </button>
+              </div>
+              {publishPreview && (
+                <div className="mt-3 rounded-[10px] border border-[#EAE2F6] bg-white p-3 text-sm text-[#3D2E6B]">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                    {clientLabel} will receive
+                  </p>
+                  <div className="mt-2 space-y-3">
+                    <PreviewLine label="Session recap" value={fuSummary} />
+                    <PreviewLine label="Homework / action items" value={fuHomework} multiline />
+                    <PreviewLine label="Next session focus" value={fuNextFocus} />
+                    {(followUp.resources ?? []).length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Resources</p>
+                        <ul className="mt-1 space-y-0.5 text-[13px]">
+                          {(followUp.resources ?? []).map((r, i) => (
+                            <li key={i}>· {r.label}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {(appt.attachments ?? []).length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Attachments</p>
+                        <ul className="mt-1 space-y-0.5 text-[13px]">
+                          {(appt.attachments ?? []).map((a, i) => (
+                            <li key={i}>· {a.title || a.name}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* ============ Private Notes (provider only) ============ */}
+      {showPrivate && (
       <div className="rounded-[20px] border border-[#EEE6FA] bg-white p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
             <Lock className="h-3 w-3 text-[#A89BD0]" />
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-              Private notes {isCompleted && <span className="text-[#A89BD0]/70">· provider only</span>}
+              Private clinician notes <span className="text-[#A89BD0]/70">· never shared</span>
             </p>
           </div>
-          {isCompleted && !editing && (
+          {!editing && (
             <button
               onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
               className="text-xs font-semibold text-[#5B4796] hover:text-[#3D2E6B]"
@@ -2185,11 +2295,10 @@ export function ApptNotesBlock({
             </button>
           )}
         </div>
-        {isCompleted && (
-          <p className="mt-1 text-[11px] italic text-[#A89BD0]">
-            Private notes are only visible to you and will never be shared with your client.
-          </p>
-        )}
+        <p className="mt-1 text-[11px] italic text-[#A89BD0]">
+          Only visible to you. Capture presenting concerns, observations, plan
+          items, and reflections. Never sent to {clientLabel}.
+        </p>
         {!editing ? (
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
             {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
@@ -2220,7 +2329,28 @@ export function ApptNotesBlock({
           </div>
         )}
       </div>
+      )}
 
+    </div>
+  );
+}
+
+function PreviewLine({
+  label,
+  value,
+  multiline = false,
+}: {
+  label: string;
+  value?: string;
+  multiline?: boolean;
+}) {
+  if (!value?.trim()) return null;
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className={`mt-0.5 text-[13px] leading-relaxed text-[#3D2E6B] ${multiline ? "whitespace-pre-wrap" : ""}`}>
+        {value}
+      </p>
     </div>
   );
 }

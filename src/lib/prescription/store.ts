@@ -116,3 +116,28 @@ export function isPrescriber(profession?: string | null): boolean {
   const p = profession.toLowerCase();
   return PRESCRIBER_PROFESSIONS.some((k) => p.includes(k));
 }
+
+/** True only when the provider is (a) in a prescribing profession AND
+ *  (b) has verified prescribing credentials on file. The prescription /
+ *  medication surface must stay hidden until BOTH are true. */
+export function isVerifiedPrescriber(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem("lubin.providerProfile.v1");
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as {
+      profession?: string;
+      credentialsVerified?: boolean;
+      credentialsVerifiedAt?: number | string;
+      prescribingCredentialsVerified?: boolean;
+    };
+    if (!isPrescriber(parsed.profession)) return false;
+    return !!(
+      parsed.prescribingCredentialsVerified ||
+      parsed.credentialsVerified ||
+      parsed.credentialsVerifiedAt
+    );
+  } catch {
+    return false;
+  }
+}
