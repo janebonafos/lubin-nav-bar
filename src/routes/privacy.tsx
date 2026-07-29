@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import Navbar from "@/components/Navbar";
+import { getConsent, setConsent, subscribeConsent, isDntDenied } from "@/lib/analytics/consent";
+import { track } from "@/lib/analytics/events";
 import {
   Database,
   Sparkles,
