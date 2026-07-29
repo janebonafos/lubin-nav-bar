@@ -44,7 +44,6 @@ export async function initAnalytics(): Promise<void> {
         serverZone: serverZone(),
         trackingOptions: {
           ipAddress: false,
-          dma: false,
           language: false,
           platform: true,
         },
