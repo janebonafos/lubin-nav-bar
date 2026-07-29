@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import Navbar from "@/components/Navbar";
+import { getConsent, setConsent, subscribeConsent, isDntDenied } from "@/lib/analytics/consent";
+import { track } from "@/lib/analytics/events";
 import {
   Database,
   Sparkles,
@@ -32,6 +34,67 @@ export const Route = createFileRoute("/privacy")({
   }),
   component: PrivacyPage,
 });
+
+function AnalyticsPreferences() {
+  const [state, setState] = useState<"granted" | "denied" | "unset">("unset");
+  const [dnt, setDnt] = useState(false);
+
+  useEffect(() => {
+    setState(getConsent());
+    setDnt(isDntDenied());
+    return subscribeConsent(() => setState(getConsent()));
+  }, []);
+
+  const grant = () => {
+    setConsent("granted");
+    track("consent_changed", { granted: true });
+  };
+  const deny = () => setConsent("denied");
+
+  const label =
+    dnt
+      ? "Blocked by your browser's Do Not Track / Global Privacy Control setting."
+      : state === "granted"
+        ? "Enabled — anonymous usage analytics only."
+        : state === "denied"
+          ? "Disabled — no analytics sent."
+          : "Not set — no analytics sent until you opt in.";
+
+  return (
+    <section className="rounded-2xl border border-[#E3DBF5]/60 bg-white p-6 shadow-sm shadow-[#3D2E6B]/5 sm:p-8">
+      <h2 className="text-lg font-semibold text-[#3D2E6B]">Analytics preferences</h2>
+      <p className="mt-2 text-sm leading-relaxed text-[#3D2E6B]/75">
+        We use privacy-preserving product analytics to understand which features
+        help. We never send your name, email, messages, mood entries, assessment
+        results, appointment details, or any clinical content. URLs are sanitized
+        before sending, and we use a pseudonymous device ID — no cookies, no IP
+        address, no session recording.
+      </p>
+      <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-4 text-sm text-[#3D2E6B]">
+        <div className="font-semibold">Current setting</div>
+        <div className="mt-1 text-[#3D2E6B]/80">{label}</div>
+      </div>
+      {!dnt && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            onClick={grant}
+            disabled={state === "granted"}
+            className="rounded-full bg-[#7E6BAF] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-[#A89BD0]/40 transition hover:bg-[#3D2E6B] disabled:opacity-50"
+          >
+            Allow analytics
+          </button>
+          <button
+            onClick={deny}
+            disabled={state === "denied"}
+            className="rounded-full border border-[#E3DBF5] px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC] disabled:opacity-50"
+          >
+            Turn off
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
 
 type Item = {
   id: string;
@@ -293,6 +356,8 @@ function PrivacyPage() {
                 </div>
               </section>
             ))}
+
+            <AnalyticsPreferences />
 
             <div className="rounded-2xl border border-[#E3DBF5]/60 bg-gradient-to-br from-[#F0EAFB] to-[#FBF9FF] p-7 text-center shadow-md shadow-[#3D2E6B]/5 sm:p-9">
               <p className="text-sm text-[#3D2E6B]/75">
