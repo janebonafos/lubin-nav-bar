@@ -296,6 +296,8 @@ function PrivacyPage() {
               </section>
             ))}
 
+            <AnalyticsPreferences />
+
             <div className="rounded-2xl border border-[#E3DBF5]/60 bg-gradient-to-br from-[#F0EAFB] to-[#FBF9FF] p-7 text-center shadow-md shadow-[#3D2E6B]/5 sm:p-9">
               <p className="text-sm text-[#3D2E6B]/75">
                 Your data, your call. Reach us anytime to review or remove it.
