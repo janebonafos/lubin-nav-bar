@@ -37,4 +37,29 @@ export default tseslint.config(
     },
   },
   eslintPluginPrettier,
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/lib/analytics/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@amplitude/analytics-browser",
+              message:
+                "Do not import Amplitude directly. Use `track` from `@/lib/analytics/events`.",
+            },
+          ],
+          patterns: [
+            {
+              group: ["@amplitude/*"],
+              message:
+                "Do not import Amplitude directly. Use `track` from `@/lib/analytics/events`.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
