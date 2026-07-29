@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import ChatWaitlistModal from "@/components/ChatWaitlistModal";
+import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 
 function NotFoundComponent() {
   return (
@@ -128,9 +130,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouteProgressBar />
+      <AnalyticsProvider />
       <Outlet />
       <Toaster />
       <ChatWaitlistModal />
+      <ConsentBanner />
     </QueryClientProvider>
   );
 }
