@@ -231,6 +231,7 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -250,6 +251,10 @@ function DetailsPage() {
       return;
     }
     try {
+      // Prototype only: the appointment payload arrives base64-encoded in the
+      // URL so the demo can open in a new tab. Production must load the
+      // appointment from authenticated data — never encode clinical or
+      // payment details in a link.
       // Prefer the fresh URL payload so seed changes (like new attachments)
       // don't get shadowed by a stale localStorage cache.
       if (d) {
@@ -313,9 +318,26 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
   const canMarkComplete = !isCompleted && !isCancelled && isPastStart;
 
-  const markCompleted = () => {
+  const recordedOutcome = appt?.outcome;
+  const rxAllowed =
+    canPrescribe &&
+    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+  const rxServiceOnly = serviceSupportsPrescription(
+    appt?.type,
+    appt?.prescriptionEligible,
+  );
+
+  const saveOutcome = () => {
     if (!appt) return;
-    onChange({ status: "completed" });
+    onChange({
+      outcome,
+      status:
+        outcome === "cancelled"
+          ? "cancelled"
+          : outcome === "rescheduled"
+            ? "upcoming"
+            : "completed",
+    });
   };
 
   if (missing) {
