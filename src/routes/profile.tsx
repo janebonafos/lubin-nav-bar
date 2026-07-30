@@ -156,7 +156,9 @@ function ProfilePage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const stored = window.localStorage.getItem("lubin.role");
+      const stored =
+        window.localStorage.getItem("lubin.userRole") ??
+        window.localStorage.getItem("lubin.role");
       if (stored === "provider" || stored === "client") setRole(stored);
     } catch { /* ignore */ }
   }, []);
@@ -164,6 +166,8 @@ function ProfilePage() {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem("lubin.role", role);
+      window.localStorage.setItem("lubin.userRole", role);
+      window.dispatchEvent(new Event("lubin:auth-change"));
     } catch { /* ignore */ }
     // When switching to provider mode, if a client-only tab is active, jump to profile.
     const providerSections: Section[] = [

@@ -513,7 +513,12 @@ export default function Navbar() {
                       role="menuitem"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        navigate({ to: "/profile", search: { tab: "appointments" } });
+                        try {
+                          window.localStorage.setItem("lubin.role", "provider");
+                          window.localStorage.setItem("lubin.userRole", "provider");
+                          window.dispatchEvent(new Event("lubin:auth-change"));
+                        } catch { /* ignore */ }
+                        navigate({ to: "/provider/appointments" });
                       }}
                       className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
                     >
@@ -613,8 +618,7 @@ export default function Navbar() {
                 {isProvider && (
                   <li>
                     <Link
-                      to="/profile"
-                      search={{ tab: "appointments" }}
+                      to="/provider/appointments"
                       onClick={() => setOpen(false)}
                       className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
                     >

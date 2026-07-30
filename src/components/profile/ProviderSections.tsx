@@ -1349,6 +1349,14 @@ export function CalendarAvailabilitySection() {
 /* ---------- Appointments ---------- */
 export const UPCOMING_APPOINTMENTS_COUNT = 3;
 
+const OUTCOME_LABELS: Record<NonNullable<ApptLite["outcome"]>, string> = {
+  completed: "Completed",
+  client_no_show: "Client no-show",
+  provider_no_show: "Provider no-show",
+  cancelled: "Cancelled",
+  rescheduled: "Rescheduled",
+};
+
 
 export function AppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
@@ -1717,18 +1725,33 @@ export function AppointmentsSection() {
                           publishAppointmentEvent({ type: "lock", id: a.id, action });
                           window.open(href, "_blank", "noopener,noreferrer");
                         };
-                        const markComplete = () => {
+                        const openWorkspace = () => {
                           if (isLocked) return;
-                          setAll((list) =>
-                            list.map((x) =>
-                              x.id === a.id
-                                ? {
-                                    ...x,
-                                    status: "completed" as const,
-                                    payoutStatus: "pending_review" as const,
-                                  }
-                                : x,
-                            ),
+                          try {
+                            window.localStorage.setItem("lubin.role", "provider");
+                            window.localStorage.setItem("lubin.userRole", "provider");
+                            window.localStorage.setItem(
+                              `lubin:appt-details:${a.id}`,
+                              JSON.stringify(a),
+                            );
+                            window.dispatchEvent(new Event("lubin:auth-change"));
+                          } catch {
+                            /* noop */
+                          }
+                          let payload = "";
+                          try {
+                            payload = btoa(
+                              unescape(encodeURIComponent(JSON.stringify(a))),
+                            );
+                          } catch {
+                            /* noop */
+                          }
+                          window.open(
+                            `/appointment/details?id=${encodeURIComponent(a.id)}${
+                              payload ? `&d=${payload}` : ""
+                            }`,
+                            "_blank",
+                            "noopener,noreferrer",
                           );
                         };
                         return (
@@ -1741,12 +1764,12 @@ export function AppointmentsSection() {
                                 Join session
                               </button>
                               <button
-                                onClick={markComplete}
+                                onClick={openWorkspace}
                                 disabled={isLocked}
                                 className="inline-flex items-center gap-2 rounded-[8px] border border-[#CDBFEC] bg-[#F4EEFE] px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#EBE2FB] disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <CheckCircle2 className="h-4 w-4" />
-                                Mark as completed
+                                Record outcome
                               </button>
                               <button
                                 onClick={() => open(rescheduleHref, "reschedule")}
