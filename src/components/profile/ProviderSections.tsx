@@ -1373,6 +1373,13 @@ export function AppointmentsSection() {
     amount: string;
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
     promoCode?: string;
+    prescriptionEligible?: boolean;
+    outcome?:
+      | "completed"
+      | "client_no_show"
+      | "provider_no_show"
+      | "cancelled"
+      | "rescheduled";
     attachments?: { name: string; size: string; title?: string; description?: string }[];
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
     followUp?: {
@@ -1407,6 +1414,18 @@ export function AppointmentsSection() {
       id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
       amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
       payoutStatus: "in_review",
+    },
+    {
+      id: "c3", client: "Daniel Ortiz", day: "MON", date: "17", month: "JUN", time: "3:30 PM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry follow-up (medication review)", sessionFormat: "Individual", mode: "Video", status: "completed",
+      notes: "Reviewed tolerability of current SSRI. Sleep improving, mild morning nausea.",
+      amount: "₱3,200", paymentStatus: "Paid",
+      prescriptionEligible: true,
+      payoutStatus: "pending_review",
+      outcome: "completed",
+      followUp: {
+        summary: "We reviewed how the current medication has been working over the last four weeks and agreed to continue at the same dose while we watch the morning nausea.",
+        nextFocus: "Recheck sleep, appetite and side effects at the next review.",
+      },
     },
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
@@ -1816,6 +1835,13 @@ export function DetailItem({ label, value }: { label: string; value: React.React
 export type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
+  outcome?:
+    | "completed"
+    | "client_no_show"
+    | "provider_no_show"
+    | "cancelled"
+    | "rescheduled";
+  prescriptionEligible?: boolean;
   notes?: string;
   attachments?: {
     name: string;

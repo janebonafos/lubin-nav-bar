@@ -9,7 +9,10 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
-import { isVerifiedPrescriber } from "@/lib/prescription/store";
+import {
+  isVerifiedPrescriber,
+  serviceSupportsPrescription,
+} from "@/lib/prescription/store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -31,6 +34,45 @@ type StoredAppt = ApptLite & {
   paymentStatus?: "Paid" | "Pending" | "Refunded" | "Failed";
   promoCode?: string;
 };
+
+type Outcome = NonNullable<ApptLite["outcome"]>;
+
+const OUTCOMES: {
+  value: Outcome;
+  label: string;
+  consequence: string;
+}[] = [
+  {
+    value: "completed",
+    label: "Completed",
+    consequence:
+      "The appointment is closed as delivered. Anything you published in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+  },
+  {
+    value: "client_no_show",
+    label: "Client no-show",
+    consequence:
+      "Recorded as a no-show by the client. Nothing is published to your client. The session fee is held for review against your no-show policy before any payout or refund is decided.",
+  },
+  {
+    value: "provider_no_show",
+    label: "Provider no-show",
+    consequence:
+      "Recorded as a no-show on your side. Nothing is published to your client, no payout is issued for this session, and your client is offered a refund or a free rebooking.",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+    consequence:
+      "The appointment is closed as cancelled. Nothing is published to your client and the payment is returned or refunded according to the cancellation window.",
+  },
+  {
+    value: "rescheduled",
+    label: "Rescheduled",
+    consequence:
+      "This slot is closed and the session carries over to the new date. No payout or refund is triggered — the payment stays attached to the rescheduled appointment.",
+  },
+];
 
 export const Route = createFileRoute("/appointment/details")({
   validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
@@ -189,6 +231,7 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -208,6 +251,10 @@ function DetailsPage() {
       return;
     }
     try {
+      // Prototype only: the appointment payload arrives base64-encoded in the
+      // URL so the demo can open in a new tab. Production must load the
+      // appointment from authenticated data — never encode clinical or
+      // payment details in a link.
       // Prefer the fresh URL payload so seed changes (like new attachments)
       // don't get shadowed by a stale localStorage cache.
       if (d) {
@@ -271,9 +318,26 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
   const canMarkComplete = !isCompleted && !isCancelled && isPastStart;
 
-  const markCompleted = () => {
+  const recordedOutcome = appt?.outcome;
+  const rxAllowed =
+    canPrescribe &&
+    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+  const rxServiceOnly = serviceSupportsPrescription(
+    appt?.type,
+    appt?.prescriptionEligible,
+  );
+
+  const saveOutcome = () => {
     if (!appt) return;
-    onChange({ status: "completed" });
+    onChange({
+      outcome,
+      status:
+        outcome === "cancelled"
+          ? "cancelled"
+          : outcome === "rescheduled"
+            ? "upcoming"
+            : "completed",
+    });
   };
 
   if (missing) {
@@ -312,11 +376,13 @@ function DetailsPage() {
   }
 
   const clientLabel = (appt.client ?? "your client").split(" ")[0];
-  const sessionStatusLabel = isCancelled
-    ? "Cancelled"
-    : isCompleted
-      ? "Completed"
-      : "Confirmed";
+  const sessionStatusLabel = recordedOutcome
+    ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
+    : isCancelled
+      ? "Cancelled"
+      : isCompleted
+        ? "Completed"
+        : "Confirmed";
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
@@ -471,21 +537,23 @@ function DetailsPage() {
           </SectionCard>
         )}
 
-        {/* Prescriptions — only for prescribers */}
-        {canPrescribe && showPostSession && (
+        {/* Prescriptions — verified prescriber AND a prescribing service type */}
+        {rxAllowed && showPostSession && (
           <SectionCard
             id="prescriptions"
             number={4}
             eyebrow="Prescriber tools"
             title="Prescription"
             description="Separate signed clinical document. Not included in the client recap you publish above."
-            hint="Only visible to accounts with verified prescribing authority for the client's jurisdiction."
+            hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
-            <div className="mb-4 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[12px] leading-snug text-[#5A4A8A]">
-              A prescription is signed and issued as its own clinical document.
-              Review allergies and current medications, complete the structured
-              medication fields, preview, then sign and issue. It is not shared
-              through &ldquo;Publish client recap.&rdquo;
+            <div className="mb-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
+              <span className="font-semibold">AI is assistive only.</span> It may
+              produce a draft, but nothing is issued until you review and edit
+              every medication, approve each one individually, and sign the
+              document yourself. You remain the prescriber of record. The
+              prescription is a separate signed clinical document and is never
+              shared through &ldquo;Publish client recap.&rdquo;
             </div>
             <AiPrescription
               appointmentId={appt.id}
@@ -496,8 +564,16 @@ function DetailsPage() {
           </SectionCard>
         )}
 
-        {/* Mark as completed */}
-        {canMarkComplete && (
+        {!rxAllowed && rxServiceOnly && showPostSession && (
+          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
+            This service supports medication review, but prescribing tools stay
+            hidden until your prescribing authority is verified for your
+            client&rsquo;s jurisdiction.
+          </div>
+        )}
+
+        {/* Record the outcome */}
+        {canMarkComplete && !recordedOutcome && (
           <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
             <div className="flex items-start gap-3">
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
@@ -508,16 +584,51 @@ function DetailsPage() {
                   Final step
                 </p>
                 <h2 className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
-                  Confirm this appointment is complete
+                  Record what happened with this appointment
                 </h2>
               </div>
             </div>
             <p className="mt-3 text-[13px] leading-snug text-[#7E6BAF]">
-              When this appointment has finished, check the box below and click
-              the button. Any notes or summaries you published above will be sent
-              to your client. Leaving sections blank is fine — it just means you
-              did not add anything extra this time.
+              Choose the outcome that matches reality. Each option has different
+              consequences for your client and for payment, shown below your
+              choice. Leaving earlier sections blank is fine.
             </p>
+
+            <div className="mt-4 grid gap-2">
+              {OUTCOMES.map((o) => (
+                <label
+                  key={o.value}
+                  className={`flex cursor-pointer items-start gap-2.5 rounded-[12px] border px-4 py-3 text-[13px] leading-snug transition-colors ${
+                    outcome === o.value
+                      ? "border-[#6E4FD3] bg-[#F4EEFC] text-[#3D2E6B]"
+                      : "border-[#EAE2F6] bg-white text-[#5A4A8A]"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="appointment-outcome"
+                    value={o.value}
+                    checked={outcome === o.value}
+                    onChange={() => {
+                      setOutcome(o.value);
+                      setConfirmComplete(false);
+                    }}
+                    className="mt-0.5 h-4 w-4 border-[#D6CCEC] text-[#6E4FD3] focus:ring-[#7E6BAF]"
+                  />
+                  <span className="font-semibold">{o.label}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
+              <span className="font-semibold uppercase tracking-[0.12em] text-[10px] text-[#7E6BAF]">
+                What happens next
+              </span>
+              <p className="mt-1.5">
+                {OUTCOMES.find((o) => o.value === outcome)?.consequence}
+              </p>
+            </div>
+
             <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[13px] leading-snug text-[#3D2E6B]">
               <input
                 type="checkbox"
@@ -526,23 +637,33 @@ function DetailsPage() {
                 className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
               />
               <span>
-                I confirm this appointment took place and the information above
-                is accurate. If I left sections blank, I did not add extra
-                information, and this appointment can still be marked as done.
+                I confirm this outcome is accurate and I understand the
+                consequences described above. If I left sections blank, I simply
+                did not add extra information this time.
               </span>
             </label>
             <button
               type="button"
               disabled={!confirmComplete}
-              onClick={markCompleted}
+              onClick={saveOutcome}
               className="mt-4 w-full rounded-[12px] bg-[#3D2E6B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
             >
-              Yes, mark appointment as completed
+              Save outcome:{" "}
+              {OUTCOMES.find((o) => o.value === outcome)?.label}
             </button>
           </section>
         )}
 
-        {isCompleted && (
+        {recordedOutcome && recordedOutcome !== "completed" && (
+          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
+            <span className="font-semibold text-[#3D2E6B]">
+              {OUTCOMES.find((o) => o.value === recordedOutcome)?.label} ·{" "}
+            </span>
+            {OUTCOMES.find((o) => o.value === recordedOutcome)?.consequence}
+          </div>
+        )}
+
+        {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
             {isPublished
