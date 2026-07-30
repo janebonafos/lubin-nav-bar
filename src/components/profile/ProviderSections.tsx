@@ -1349,14 +1349,6 @@ export function CalendarAvailabilitySection() {
 /* ---------- Appointments ---------- */
 export const UPCOMING_APPOINTMENTS_COUNT = 3;
 
-const OUTCOME_LABELS: Record<NonNullable<ApptLite["outcome"]>, string> = {
-  completed: "Completed",
-  client_no_show: "Client no-show",
-  provider_no_show: "Provider no-show",
-  cancelled: "Cancelled",
-  rescheduled: "Rescheduled",
-};
-
 
 export function AppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
