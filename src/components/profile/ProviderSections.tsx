@@ -1835,6 +1835,13 @@ export function DetailItem({ label, value }: { label: string; value: React.React
 export type ApptLite = {
   id: string;
   status: "upcoming" | "completed" | "cancelled";
+  outcome?:
+    | "completed"
+    | "client_no_show"
+    | "provider_no_show"
+    | "cancelled"
+    | "rescheduled";
+  prescriptionEligible?: boolean;
   notes?: string;
   attachments?: {
     name: string;
