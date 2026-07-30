@@ -117,6 +117,29 @@ export function isPrescriber(profession?: string | null): boolean {
   return PRESCRIBER_PROFESSIONS.some((k) => p.includes(k));
 }
 
+/** Service / appointment types that can carry a prescription or medication
+ *  review. Talk-therapy style sessions never expose the Rx surface, even for
+ *  a fully verified prescriber. */
+const RX_SERVICE_TYPES = [
+  "psychiatry",
+  "psychiatric",
+  "medication",
+  "med review",
+  "med check",
+  "prescription",
+  "follow-up (psychiatry)",
+];
+
+export function serviceSupportsPrescription(
+  serviceType?: string | null,
+  explicit?: boolean,
+): boolean {
+  if (typeof explicit === "boolean") return explicit;
+  if (!serviceType) return false;
+  const t = serviceType.toLowerCase();
+  return RX_SERVICE_TYPES.some((k) => t.includes(k));
+}
+
 /** True only when the provider is (a) in a prescribing profession AND
  *  (b) has verified prescribing credentials on file, AND (c) — when a
  *  client jurisdiction is supplied — is licensed to prescribe there.
