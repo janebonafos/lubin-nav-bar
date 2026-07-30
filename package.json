@@ -3,6 +3,10 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "overrides": {
+    "seroval": "^1.5.3",
+    "seroval-plugins": "^1.5.3"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
