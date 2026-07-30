@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
@@ -135,6 +136,11 @@ const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProviderAppointmentsRoute = ProviderAppointmentsRouteImport.update({
+  id: '/provider/appointments',
+  path: '/provider/appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProviderIdRoute = ProviderIdRouteImport.update({
   id: '/provider/$id',
   path: '/provider/$id',
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
+  '/provider/appointments': typeof ProviderAppointmentsRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
+  '/provider/appointments': typeof ProviderAppointmentsRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -284,6 +292,7 @@ export interface FileRoutesById {
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
+  '/provider/appointments': typeof ProviderAppointmentsRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -318,6 +327,7 @@ export interface FileRouteTypes {
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
+    | '/provider/appointments'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
+    | '/provider/appointments'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/appointment/reschedule'
     | '/profile/preview'
     | '/provider/$id'
+    | '/provider/appointments'
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -414,6 +426,7 @@ export interface RootRouteChildren {
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
   ProviderIdRoute: typeof ProviderIdRoute
+  ProviderAppointmentsRoute: typeof ProviderAppointmentsRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provider/appointments': {
+      id: '/provider/appointments'
+      path: '/provider/appointments'
+      fullPath: '/provider/appointments'
+      preLoaderRoute: typeof ProviderAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/provider/$id': {
       id: '/provider/$id'
       path: '/provider/$id'
@@ -672,6 +692,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
   ProviderIdRoute: ProviderIdRoute,
+  ProviderAppointmentsRoute: ProviderAppointmentsRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,

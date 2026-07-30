@@ -231,6 +231,7 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [reviewOutcome, setReviewOutcome] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
 
@@ -337,7 +338,10 @@ function DetailsPage() {
           : outcome === "rescheduled"
             ? "upcoming"
             : "completed",
+      payoutStatus: outcome === "completed" || outcome === "client_no_show" ? "pending_review" : appt.payoutStatus,
     });
+    setConfirmComplete(false);
+    setReviewOutcome(false);
   };
 
   if (missing) {
@@ -388,8 +392,7 @@ function DetailsPage() {
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
         {/* Back link */}
         <Link
-          to="/profile"
-          search={{ tab: "appointments" }}
+          to="/provider/appointments"
           className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF] hover:text-[#3D2E6B]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Appointments
@@ -612,6 +615,7 @@ function DetailsPage() {
                     onChange={() => {
                       setOutcome(o.value);
                       setConfirmComplete(false);
+                      setReviewOutcome(false);
                     }}
                     className="mt-0.5 h-4 w-4 border-[#D6CCEC] text-[#6E4FD3] focus:ring-[#7E6BAF]"
                   />
@@ -645,12 +649,41 @@ function DetailsPage() {
             <button
               type="button"
               disabled={!confirmComplete}
-              onClick={saveOutcome}
+              onClick={() => setReviewOutcome(true)}
               className="mt-4 w-full rounded-[12px] bg-[#3D2E6B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
             >
-              Save outcome:{" "}
+              Review before saving:{" "}
               {OUTCOMES.find((o) => o.value === outcome)?.label}
             </button>
+            {reviewOutcome && (
+              <div className="mt-4 rounded-[14px] border border-[#6E4FD3] bg-white px-4 py-4 shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                  Final confirmation
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[#3D2E6B]">
+                  Confirm outcome: {OUTCOMES.find((o) => o.value === outcome)?.label}
+                </p>
+                <p className="mt-1.5 text-[12px] leading-snug text-[#5A4A8A]">
+                  This will update the appointment status and apply the payment or payout review consequence shown above.
+                </p>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setReviewOutcome(false)}
+                    className="rounded-[10px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                  >
+                    Go back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveOutcome}
+                    className="rounded-[10px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2C2B4B]"
+                  >
+                    Confirm and save outcome
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
