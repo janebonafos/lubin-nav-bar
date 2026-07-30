@@ -9,7 +9,10 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
-import { isVerifiedPrescriber } from "@/lib/prescription/store";
+import {
+  isVerifiedPrescriber,
+  serviceSupportsPrescription,
+} from "@/lib/prescription/store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -31,6 +34,45 @@ type StoredAppt = ApptLite & {
   paymentStatus?: "Paid" | "Pending" | "Refunded" | "Failed";
   promoCode?: string;
 };
+
+type Outcome = NonNullable<ApptLite["outcome"]>;
+
+const OUTCOMES: {
+  value: Outcome;
+  label: string;
+  consequence: string;
+}[] = [
+  {
+    value: "completed",
+    label: "Completed",
+    consequence:
+      "The appointment is closed as delivered. Anything you published in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+  },
+  {
+    value: "client_no_show",
+    label: "Client no-show",
+    consequence:
+      "Recorded as a no-show by the client. Nothing is published to your client. The session fee is held for review against your no-show policy before any payout or refund is decided.",
+  },
+  {
+    value: "provider_no_show",
+    label: "Provider no-show",
+    consequence:
+      "Recorded as a no-show on your side. Nothing is published to your client, no payout is issued for this session, and your client is offered a refund or a free rebooking.",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+    consequence:
+      "The appointment is closed as cancelled. Nothing is published to your client and the payment is returned or refunded according to the cancellation window.",
+  },
+  {
+    value: "rescheduled",
+    label: "Rescheduled",
+    consequence:
+      "This slot is closed and the session carries over to the new date. No payout or refund is triggered — the payment stays attached to the rescheduled appointment.",
+  },
+];
 
 export const Route = createFileRoute("/appointment/details")({
   validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
