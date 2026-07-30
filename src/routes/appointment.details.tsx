@@ -376,11 +376,13 @@ function DetailsPage() {
   }
 
   const clientLabel = (appt.client ?? "your client").split(" ")[0];
-  const sessionStatusLabel = isCancelled
-    ? "Cancelled"
-    : isCompleted
-      ? "Completed"
-      : "Confirmed";
+  const sessionStatusLabel = recordedOutcome
+    ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
+    : isCancelled
+      ? "Cancelled"
+      : isCompleted
+        ? "Completed"
+        : "Confirmed";
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
