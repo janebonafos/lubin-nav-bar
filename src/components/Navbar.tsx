@@ -15,6 +15,7 @@ import {
   LogOut,
   Repeat,
 } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
 import { openChatWaitlist } from "@/components/ChatWaitlistModal";
@@ -506,6 +507,20 @@ export default function Navbar() {
                     <UserIcon className="h-4 w-4" />
                     {homeLabel}
                   </button>
+                  {isProvider && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate({ to: "/profile", search: { tab: "appointments" } });
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-brand-purple-dark transition-colors hover:bg-brand-purple/10 hover:text-brand-purple"
+                    >
+                      <CalendarDays className="h-4 w-4" />
+                      Appointments
+                    </button>
+                  )}
                   <button
                     type="button"
                     role="menuitem"
@@ -595,6 +610,18 @@ export default function Navbar() {
                     {homeLabel}
                   </Link>
                 </li>
+                {isProvider && (
+                  <li>
+                    <Link
+                      to="/profile"
+                      search={{ tab: "appointments" }}
+                      onClick={() => setOpen(false)}
+                      className="block text-[15px] font-medium text-brand-purple-dark/80 no-underline"
+                    >
+                      Appointments
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <button
                     type="button"
