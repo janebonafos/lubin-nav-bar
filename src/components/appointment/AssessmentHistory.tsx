@@ -70,7 +70,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
 
   return (
     <>
-      <div className="divide-y divide-[#EDEDED] border-y border-[#EDEDED]">
+      <div className="divide-y divide-[#EFEAF9] border-y border-[#EFEAF9]">
         {groups.map((g) => {
           const trend = trendWord(g);
           const span = spanLabel(g);
@@ -84,7 +84,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
             >
               <span className="min-w-0 flex-1">
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="truncate text-[14px] font-medium text-[#1A1A1A]">
+                  <span className="truncate text-[14px] font-semibold text-[#3D2E6B]">
                     {g.friendlyName} ({g.clinicalName})
                   </span>
                   {flagged && (
@@ -94,7 +94,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
                     </span>
                   )}
                 </span>
-                <span className="mt-1 block text-[12px] leading-relaxed text-[#8C8C8C]">
+                <span className="mt-1 block text-[12px] leading-relaxed text-[#7A73A0]">
                   {g.attempts.length} result{g.attempts.length === 1 ? "" : "s"}
                   {g.latest.status?.label
                     ? ` · Latest: ${g.latest.status.label}`
@@ -102,7 +102,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
                   {trend && span ? ` · ${trend} over ${span}` : ""}
                 </span>
               </span>
-              <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#1A1A1A] transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+              <span className="flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#7E6BAF] transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                 View trend
                 <ChevronRight className="h-4 w-4" />
               </span>
