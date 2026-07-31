@@ -35,11 +35,15 @@ function series(
     // Distribute the total across items so per-item review stays plausible.
     const answers: number[] = [];
     let left = score;
-    for (let q = 0; q < itemCount; q++) {
-      const share = Math.min(maxItem, Math.round(left / (itemCount - q)));
+    // For PHQ-9 keep the safety item (index 8) at 0 by default; a single
+    // attempt below is given an explicit safety response.
+    const spread = assessmentId === "phq-9" ? itemCount - 1 : itemCount;
+    for (let q = 0; q < spread; q++) {
+      const share = Math.min(maxItem, Math.round(left / (spread - q)));
       answers.push(share);
       left -= share;
     }
+    while (answers.length < itemCount) answers.push(0);
     out.push({
       id: `${prefix}-${i}`,
       assessmentId,
