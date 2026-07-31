@@ -138,10 +138,10 @@ export function AssessmentHistory({
                 {hasUnreviewedFlag && (
                   <button
                     type="button"
-                    onClick={() => markReviewed(flaggedIds)}
+                    onClick={() => setOpenId(g.assessmentId)}
                     className="inline-flex items-center gap-1 rounded-lg border border-[#E4DCF3] bg-[#FBF9FF] px-2.5 py-1 text-[11px] font-semibold text-[#6B5A9A] transition hover:bg-[#F4F0FB] active:scale-[0.98]"
                   >
-                    Mark as reviewed
+                    View response
                   </button>
                 )}
                 <span className="hidden items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition-opacity sm:flex sm:opacity-0 sm:group-hover:opacity-100">
