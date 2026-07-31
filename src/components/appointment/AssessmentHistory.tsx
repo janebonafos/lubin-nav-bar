@@ -187,7 +187,7 @@ function GroupDetail({
   group: AssessmentGroup;
   firstName: string;
   reviewedIds: Set<string>;
-  markReviewed: (attemptIds: string[]) => void;
+  markReviewed: (attemptIds: string | string[]) => void;
 }) {
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
