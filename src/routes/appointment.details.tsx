@@ -102,6 +102,7 @@ function SectionCard({
   hint,
   done = false,
   reference = false,
+  pillLabel,
   children,
 }: {
   id?: string;
@@ -113,6 +114,7 @@ function SectionCard({
   hint?: string;
   done?: boolean;
   reference?: boolean;
+  pillLabel?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
