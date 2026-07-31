@@ -1921,6 +1921,8 @@ export function ApptNotesBlock({
   const [attachLinkedTo, setAttachLinkedTo] = useState("");
   const [showAttachForm, setShowAttachForm] = useState(false);
   const [showResForm, setShowResForm] = useState(false);
+  const [showSupporting, setShowSupporting] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
@@ -1941,6 +1943,17 @@ export function ApptNotesBlock({
     });
     setFuDirty(false);
   };
+
+  // Auto-save the client-facing draft shortly after the provider stops typing.
+  useEffect(() => {
+    if (!fuDirty) return;
+    const t = setTimeout(() => {
+      saveFollowUp();
+      setDraftSavedAt(Date.now());
+    }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fuDirty, fuSummary, fuHomework, fuNextFocus]);
 
   const addResource = () => {
     if (!resLabel.trim() || !resUrl.trim()) {
@@ -2046,10 +2059,22 @@ export function ApptNotesBlock({
           </div>
 
           <div className="space-y-4 p-4">
+            <p className="rounded-[10px] border border-[#EEE6FA] bg-[#FBF9FF] px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+              Only include what will be helpful for {clientLabel}. Optional
+              sections can be left empty.
+            </p>
+
+            <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Prepare the follow-up
+            </p>
+
             {/* Session recap */}
             <div>
-              <p className="text-sm font-semibold text-[#3D2E6B]">
-                Create {clientLabel}&apos;s session recap
+              <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
+                Session recap
+                <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                  Required
+                </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
                 Write a short, client-friendly recap of what you explored together.
@@ -2073,8 +2098,11 @@ export function ApptNotesBlock({
 
             {/* Agreed next steps */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              <label className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
                 Agreed next steps
+                <span className="font-normal normal-case tracking-normal text-[#A89BD0]">
+                  Optional
+                </span>
               </label>
               <textarea
                 value={fuHomework}
@@ -2089,6 +2117,38 @@ export function ApptNotesBlock({
               </p>
             </div>
 
+            {/* Supporting information (collapsed by default) */}
+            <div className="rounded-[12px] border border-[#EEE6FA] bg-white">
+              <button
+                type="button"
+                onClick={() => setShowSupporting((v) => !v)}
+                className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-[#3D2E6B]">
+                    Add supporting information
+                  </span>
+                  {!showSupporting && (
+                    <span className="mt-0.5 block text-[11px] text-[#A89BD0]">
+                      {[
+                        `${(followUp.resources ?? []).length} resource${(followUp.resources ?? []).length === 1 ? "" : "s"}`,
+                        (appt.attachments ?? []).length === 0
+                          ? "No attachments"
+                          : `${(appt.attachments ?? []).length} attachment${(appt.attachments ?? []).length === 1 ? "" : "s"}`,
+                        fuNextFocus.trim()
+                          ? "Next-session focus added"
+                          : "No next-session focus",
+                      ].join(" · ")}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-[#A89BD0] transition-transform ${showSupporting ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {showSupporting && (
+              <div className="space-y-4 border-t border-[#F0EAFB] p-3">
             {/* Attachments */}
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2112,11 +2172,6 @@ export function ApptNotesBlock({
               </div>
 
               <ul className="mt-1.5 space-y-2">
-                {(appt.attachments ?? []).length === 0 && (
-                  <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
-                    No worksheets, handouts, or guides shared yet.
-                  </li>
-                )}
                 {(appt.attachments ?? []).map((f, i) => (
                   <li
                     key={i}
@@ -2342,32 +2397,20 @@ export function ApptNotesBlock({
                 className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
               />
             </div>
-
-            {/* Save bar */}
-            <div className="flex items-center justify-end gap-2 border-t border-[#F0EAFB] pt-3">
-              {fuDirty && (
-                <span className="mr-auto text-[11px] italic text-[#A89BD0]">Unsaved changes</span>
+              </div>
               )}
-              <button
-                onClick={() => {
-                  setFuSummary(appt.followUp?.summary ?? "");
-                  setFuHomework(appt.followUp?.homework ?? "");
-                  setFuNextFocus(appt.followUp?.nextFocus ?? "");
-                  setFuDirty(false);
-                }}
-                disabled={!fuDirty}
-                className="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B] disabled:opacity-40"
-              >
-                Discard
-              </button>
-              <button
-                onClick={saveFollowUp}
-                disabled={!fuDirty}
-                className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:opacity-40"
-              >
-                Save follow-up
-              </button>
             </div>
+
+            {/* Autosave status */}
+            <div className="flex items-center justify-end gap-2 border-t border-[#F0EAFB] pt-3">
+              <span className="text-[11px] font-medium text-[#A89BD0]">
+                {fuDirty ? "Saving…" : draftSavedAt ? "Draft saved" : "Draft saved automatically"}
+              </span>
+            </div>
+
+            <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Review and publish
+            </p>
 
             {/* ================= Preview & Publish ================= */}
             <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
@@ -2394,7 +2437,7 @@ export function ApptNotesBlock({
                   </span>
                 )}
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-3">
                 <button
                   type="button"
                   onClick={() => setPublishPreview((p) => !p)}
@@ -2402,6 +2445,34 @@ export function ApptNotesBlock({
                 >
                   {publishPreview ? "Hide preview" : `Preview as ${clientLabel}`}
                 </button>
+              </div>
+              {publishPreview && (
+                <PublishPreviewCard
+                  clientLabel={clientLabel}
+                  providerName={providerName}
+                  publishedAt={appt.publishedFollowUp?.at}
+                  sessionDateLabel={sessionDateLabel}
+                  summary={fuSummary}
+                  homework={fuHomework}
+                  nextFocus={fuNextFocus}
+                  resources={followUp.resources ?? []}
+                  attachments={appt.attachments ?? []}
+                />
+              )}
+              <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
+                <input
+                  type="checkbox"
+                  checked={publishConfirmed}
+                  onChange={(e) => setPublishConfirmed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+                />
+                <span>
+                  I reviewed this client-facing follow-up and confirm it is
+                  appropriate to share with {clientLabel}. Private clinical notes
+                  are not included.
+                </span>
+              </label>
+              <div className="mt-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -2420,32 +2491,6 @@ export function ApptNotesBlock({
                     : `Publish to ${clientLabel}'s Health Passport`}
                 </button>
               </div>
-              <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
-                <input
-                  type="checkbox"
-                  checked={publishConfirmed}
-                  onChange={(e) => setPublishConfirmed(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-                />
-                <span>
-                  I reviewed this client-facing follow-up and confirm it is
-                  appropriate to share with {clientLabel}. Private clinical notes
-                  are not included.
-                </span>
-              </label>
-              {publishPreview && (
-                <PublishPreviewCard
-                  clientLabel={clientLabel}
-                  providerName={providerName}
-                  publishedAt={appt.publishedFollowUp?.at}
-                  sessionDateLabel={sessionDateLabel}
-                  summary={fuSummary}
-                  homework={fuHomework}
-                  nextFocus={fuNextFocus}
-                  resources={followUp.resources ?? []}
-                  attachments={appt.attachments ?? []}
-                />
-              )}
             </div>
           </div>
         </div>

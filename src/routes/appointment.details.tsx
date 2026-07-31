@@ -107,6 +107,8 @@ function SectionCard({
   reference = false,
   pillLabel,
   checkBadge = false,
+  openOverride,
+  onToggle,
   children,
 }: {
   id?: string;
@@ -120,9 +122,13 @@ function SectionCard({
   reference?: boolean;
   pillLabel?: string;
   checkBadge?: boolean;
+  openOverride?: boolean;
+  onToggle?: () => void;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [localOpen, setLocalOpen] = useState(defaultOpen);
+  const controlled = openOverride !== undefined;
+  const open = controlled ? openOverride : localOpen;
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
   // A checked item (checkBadge) reads as complete, so it uses the same
   // "done" treatment as the During-the-session card.
@@ -158,7 +164,7 @@ function SectionCard({
     >
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => (controlled ? onToggle?.() : setLocalOpen((v) => !v))}
         className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
       >
         {number != null && (
@@ -336,6 +342,24 @@ function DetailsPage() {
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
 
+  // Only one main workflow step stays open at a time so the page stays short.
+  const [openStep, setOpenStep] = useState<string | null>(null);
+  const [stepInit, setStepInit] = useState(false);
+  useEffect(() => {
+    if (!appt || stepInit) return;
+    setOpenStep(
+      !isCompleted
+        ? "before-session"
+        : !hasNotes
+          ? "session-notes"
+          : !isPublished
+            ? "care-plan"
+            : null,
+    );
+    setStepInit(true);
+  }, [appt, stepInit, isCompleted, hasNotes, isPublished]);
+  const toggleStep = (key: string) => setOpenStep((cur) => (cur === key ? null : key));
+
   // Parse appointment start time. Month/date/time come as strings like
   // "Jun", "19", "2:00 PM". If parsing fails we fall back to "not past".
   const apptStart = useMemo(() => parseApptStart(appt), [appt]);
@@ -487,7 +511,8 @@ function DetailsPage() {
           number={1}
           title={`Information ${appt.client?.split(" ")[0] ?? "your client"} shared`}
           description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
-          defaultOpen={!isCompleted}
+          openOverride={openStep === "before-session"}
+          onToggle={() => toggleStep("before-session")}
           reference
           pillLabel={hasSharedContext ? undefined : "Not shared"}
           checkBadge={!hasSharedContext}
@@ -523,7 +548,8 @@ function DetailsPage() {
             eyebrow="During and after the session"
             title="Clinical documentation & private notes"
             description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
-            defaultOpen={!hasNotes}
+            openOverride={openStep === "session-notes"}
+            onToggle={() => toggleStep("session-notes")}
             done={hasNotes}
             checkBadge={hasNotes}
             hint={
@@ -549,8 +575,9 @@ function DetailsPage() {
             number={3}
             eyebrow={`Share with ${clientLabel}`}
             title="Client recap & Health Passport follow-up"
-            description="Prepare the client-facing recap, agreed next steps, resources, attachments, and next-session focus. Preview and publish only after reviewing it."
-            defaultOpen={!isPublished}
+            description="Prepare the client-facing recap and agreed next steps, then review and publish."
+            openOverride={openStep === "care-plan"}
+            onToggle={() => toggleStep("care-plan")}
             done={isPublished}
             hint="Nothing is shared until you press Publish."
           >

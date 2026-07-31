@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, ChevronDown, AlertTriangle, Check, X } from "lucide-react";
-import { useReviewedFlags } from "@/lib/provider-brief/reviewedFlagsStore";
+import { useReviewedFlags, type ReviewMeta } from "@/lib/provider-brief/reviewedFlagsStore";
 import {
   Sheet,
   SheetContent,
@@ -88,7 +88,19 @@ export function AssessmentHistory({
 }) {
   const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const [openId, setOpenId] = useState<string | null>(null);
-  const { reviewedIds, markReviewed } = useReviewedFlags(appointmentId);
+  const { reviewedIds, reviewMeta, markReviewed } = useReviewedFlags(appointmentId);
+  const [providerName, setProviderName] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("lubin.providerProfile.v1");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
+        setProviderName(parsed.displayName || parsed.name || undefined);
+      }
+    } catch {
+      /* noop */
+    }
+  }, []);
   const active = groups.find((g) => g.assessmentId === openId) ?? null;
   const firstName = clientName?.split(" ")[0] ?? "The client";
 
@@ -138,10 +150,10 @@ export function AssessmentHistory({
                 {hasUnreviewedFlag && (
                   <button
                     type="button"
-                    onClick={() => markReviewed(flaggedIds)}
+                    onClick={() => setOpenId(g.assessmentId)}
                     className="inline-flex items-center gap-1 rounded-lg border border-[#E4DCF3] bg-[#FBF9FF] px-2.5 py-1 text-[11px] font-semibold text-[#6B5A9A] transition hover:bg-[#F4F0FB] active:scale-[0.98]"
                   >
-                    Mark as reviewed
+                    View response
                   </button>
                 )}
                 <span className="hidden items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition-opacity sm:flex sm:opacity-0 sm:group-hover:opacity-100">
@@ -165,6 +177,8 @@ export function AssessmentHistory({
               firstName={firstName}
               reviewedIds={reviewedIds}
               markReviewed={markReviewed}
+              reviewMeta={reviewMeta}
+              providerName={providerName}
             />
           )}
         </SheetContent>
@@ -178,11 +192,15 @@ function GroupDetail({
   firstName,
   reviewedIds,
   markReviewed,
+  reviewMeta,
+  providerName,
 }: {
   group: AssessmentGroup;
   firstName: string;
   reviewedIds: Set<string>;
-  markReviewed: (attemptIds: string | string[]) => void;
+  markReviewed: (attemptIds: string | string[], by?: string) => void;
+  reviewMeta: Record<string, ReviewMeta>;
+  providerName?: string;
 }) {
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
@@ -230,7 +248,7 @@ function GroupDetail({
   const flaggedIds = new Set(flagged.map((a) => a.id));
   const unreviewedFlagIds = new Set([...flaggedIds].filter((id) => !reviewedIds.has(id)));
   const allFlaggedReviewed = flaggedIds.size > 0 && unreviewedFlagIds.size === 0;
-  const markAllReviewed = () => markReviewed([...flaggedIds]);
+  const markAllReviewed = () => markReviewed([...flaggedIds], providerName);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -268,6 +286,7 @@ function GroupDetail({
             }}
             reviewedIds={reviewedIds}
             onMarkAllReviewed={markAllReviewed}
+            reviewMeta={reviewMeta}
           />
         )}
 
@@ -411,7 +430,7 @@ function GroupDetail({
                 expanded={openFlagId === a.id}
                 onToggle={toggleFlag}
                 reviewedIds={reviewedIds}
-                markReviewed={markReviewed}
+                markReviewed={(id) => markReviewed(id, providerName)}
               />
             ))}
             {inRange.length === 0 && (
@@ -461,6 +480,7 @@ function SafetyAlert({
   onShowAllTime,
   reviewedIds,
   onMarkAllReviewed,
+  reviewMeta,
 }: {
   group: AssessmentGroup;
   flagged: AttemptWithStatus[];
@@ -471,6 +491,7 @@ function SafetyAlert({
   onShowAllTime?: () => void;
   reviewedIds: Set<string>;
   onMarkAllReviewed: () => void;
+  reviewMeta: Record<string, ReviewMeta>;
 }) {
   const first = flagged[0];
   if (!first) return null;
@@ -489,8 +510,23 @@ function SafetyAlert({
           </p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5A9A]">
             {firstName} selected “{plainLabel(s.response)}” on {fullDate(first.takenAt)}. You have
-            marked this response as reviewed.
+            acknowledged that you reviewed this response.
           </p>
+          {reviewMeta[first.id] && (
+            <p className="mt-1 text-[12px] text-[#8B85A6]">
+              Acknowledged by {reviewMeta[first.id].by ?? "provider"} ·{" "}
+              {new Date(reviewMeta[first.id].at).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              ·{" "}
+              {new Date(reviewMeta[first.id].at).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
             <button
               type="button"
@@ -569,16 +605,24 @@ function SafetyAlert({
               Show in All-time chart
             </button>
           )}
-          <button
-            type="button"
-            onClick={onMarkAllReviewed}
-            className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2 py-1 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
-          >
-            <Check className="h-3 w-3" />
-            Mark as reviewed
-          </button>
         </div>
-        {open && <FlagDetail group={group} attempt={first} className="mt-3" />}
+        {open && (
+          <>
+            <FlagDetail group={group} attempt={first} className="mt-3" />
+            <button
+              type="button"
+              onClick={onMarkAllReviewed}
+              className="mt-3 inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
+            >
+              <Check className="h-3 w-3" />
+              Acknowledge response reviewed
+            </button>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[#7A5416]">
+              This confirms that you viewed the response. It does not document a completed risk
+              assessment.
+            </p>
+          </>
+        )}
         {unreviewedCount > 1 && (
           <p className="mt-2 text-[12px] text-[#8A5E1A]">
             +{unreviewedCount - 1} earlier result
@@ -804,8 +848,14 @@ function AttemptRow({
               className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
             >
               <Check className="h-3 w-3" />
-              Mark as reviewed
+              Acknowledge response reviewed
             </button>
+          )}
+          {!reviewed && (
+            <p className="text-[12px] leading-relaxed text-[#8B85A6]">
+              This confirms that you viewed the response. It does not document a completed risk
+              assessment.
+            </p>
           )}
         </div>
       )}
