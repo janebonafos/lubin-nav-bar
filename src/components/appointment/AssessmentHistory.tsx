@@ -430,7 +430,7 @@ function GroupDetail({
                 expanded={openFlagId === a.id}
                 onToggle={toggleFlag}
                 reviewedIds={reviewedIds}
-                markReviewed={markReviewed}
+                markReviewed={(id) => markReviewed(id, providerName)}
               />
             ))}
             {inRange.length === 0 && (
