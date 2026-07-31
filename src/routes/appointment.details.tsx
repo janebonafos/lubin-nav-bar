@@ -515,36 +515,11 @@ function DetailsPage() {
           />
         </SectionCard>
 
-        {/* During the session — clinical documentation + private notes */}
-        <SectionCard
-          id="session-notes"
-          number={2}
-          eyebrow="During the session"
-          title="Clinical documentation & private notes"
-          description="Capture your clinical documentation and plan, and keep private notes."
-          defaultOpen={showPostSession && !hasNotes}
-          done={hasNotes}
-          checkBadge={hasNotes}
-          hint={
-            hasNotes
-              ? undefined
-              : "Optional. Nothing in this section is shared with your client."
-          }
-        >
-          <ApptNotesBlock
-            appt={appt}
-            onChange={onChange}
-            variant="private"
-            clientName={appt.client}
-            providerName={providerDisplayName}
-          />
-        </SectionCard>
-
         {/* After the session */}
         {showPostSession && (
           <SectionCard
             id="care-plan"
-            number={3}
+            number={2}
             eyebrow="After the session"
             title={`Client recap & publish to ${clientLabel}'s Health Passport`}
             description="Write the client-facing recap, action items, resources, and any attachments — then preview and publish."
@@ -569,7 +544,7 @@ function DetailsPage() {
         {rxAllowed && showPostSession && (
           <SectionCard
             id="prescriptions"
-            number={4}
+            number={3}
             eyebrow="Prescriber tools"
             title="Prescription"
             description="Separate signed clinical document. Not included in the client recap you publish above."
@@ -599,6 +574,34 @@ function DetailsPage() {
             client&rsquo;s jurisdiction.
           </div>
         )}
+
+        {/* Clinical documentation & private notes — placed last so providers can capture everything after the session */}
+        {showPostSession && (
+          <SectionCard
+            id="session-notes"
+            number={4}
+            eyebrow="During the session"
+            title="Clinical documentation & private notes"
+            description="Capture your clinical documentation and plan, and keep private notes."
+            defaultOpen={!hasNotes}
+            done={hasNotes}
+            checkBadge={hasNotes}
+            hint={
+              hasNotes
+                ? undefined
+                : "Optional. Nothing in this section is shared with your client."
+            }
+          >
+            <ApptNotesBlock
+              appt={appt}
+              onChange={onChange}
+              variant="private"
+              clientName={appt.client}
+              providerName={providerDisplayName}
+            />
+          </SectionCard>
+        )}
+
 
         {/* Record the outcome */}
         {canMarkComplete && !recordedOutcome && (
