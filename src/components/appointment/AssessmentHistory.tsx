@@ -37,6 +37,18 @@ function fullDate(ts: number) {
   });
 }
 
+function shortDate(ts: number) {
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Answer labels carry a leading emoji for the client UI; strip it here. */
+function plainLabel(s: string) {
+  return s.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+}
+
 /** PHQ-9 item 9 safety response on any attempt (not just the latest). */
 function safetyResponse(a: AttemptWithStatus) {
   if (a.assessmentId !== "phq-9") return null;
