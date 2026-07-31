@@ -9,6 +9,7 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
+import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
   isVerifiedPrescriber,
   serviceSupportsPrescription,
