@@ -165,20 +165,38 @@ export function AiProviderBrief({
 
   // No share yet — the brief cannot exist.
   if (!grant || grant.revoked || grant.includedKeys.length === 0) {
-    const who = clientName?.trim() || "The client";
+    const who = clientName?.trim() || "Your client";
     return (
-      <section className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#A89BD0]">
-          Before your session
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-[#3D2E6B]">
-          AI Provider Brief
-        </h2>
-        <p className="mt-1.5 text-sm text-[#6B6684]">
-          {who} did not share Health Passport information for this appointment,
-          so no provider brief is available.
-        </p>
-      </section>
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-[#3D2E6B]">
+              Shared Health Passport
+            </p>
+            <span className="rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
+              Not shared
+            </span>
+          </div>
+          <p className="mt-1.5 text-sm text-[#6B6684]">
+            {who} has not shared Health Passport information for this appointment.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-75">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-[#3D2E6B]">
+              AI Provider Brief
+            </p>
+            <span className="rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
+              Unavailable
+            </span>
+          </div>
+          <p className="mt-1.5 text-sm text-[#6B6684]">
+            A provider brief can only be generated after the client shares
+            Health Passport information.
+          </p>
+        </div>
+      </div>
     );
   }
 
