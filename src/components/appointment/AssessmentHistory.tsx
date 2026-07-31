@@ -51,11 +51,14 @@ function spanLabel(g: AssessmentGroup) {
   return `${days} days`;
 }
 
+/** Trend across the whole recorded history, not just the last two attempts. */
 function trendWord(g: AssessmentGroup) {
-  if (g.improving === true) return "Improving";
-  if (g.improving === false) return "Worsening";
-  if (g.direction === "stable") return "Stable";
-  return null;
+  const oldest = g.attempts[g.attempts.length - 1];
+  if (!oldest || g.attempts.length < 2) return null;
+  const change = g.latest.score - oldest.score;
+  if (Math.abs(change) < 2) return "Stable";
+  const better = g.lowerIsBetter ? change < 0 : change > 0;
+  return better ? "Improving" : "Worsening";
 }
 
 export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
@@ -146,6 +149,7 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
         : change > 0;
 
   const flagged = group.attempts.filter((a) => safetyResponse(a));
+  const flaggedShown = flagged.slice(0, 3);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -168,7 +172,7 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
               Safety-related response
             </p>
             <ul className="mt-2 space-y-1.5">
-              {flagged.map((a) => {
+              {flaggedShown.map((a) => {
                 const s = safetyResponse(a)!;
                 return (
                   <li
@@ -180,6 +184,13 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
                 );
               })}
             </ul>
+            {flagged.length > flaggedShown.length && (
+              <p className="mt-2 text-[12px] text-[#8A5E1A]">
+                +{flagged.length - flaggedShown.length} earlier attempt
+                {flagged.length - flaggedShown.length === 1 ? "" : "s"} with a
+                safety-related response.
+              </p>
+            )}
           </div>
         )}
 
