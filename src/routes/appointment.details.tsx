@@ -511,7 +511,8 @@ function DetailsPage() {
           number={1}
           title={`Information ${appt.client?.split(" ")[0] ?? "your client"} shared`}
           description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
-          defaultOpen={!isCompleted}
+          openOverride={openStep === "before-session"}
+          onToggle={() => toggleStep("before-session")}
           reference
           pillLabel={hasSharedContext ? undefined : "Not shared"}
           checkBadge={!hasSharedContext}
@@ -547,7 +548,8 @@ function DetailsPage() {
             eyebrow="During and after the session"
             title="Clinical documentation & private notes"
             description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
-            defaultOpen={!hasNotes}
+            openOverride={openStep === "session-notes"}
+            onToggle={() => toggleStep("session-notes")}
             done={hasNotes}
             checkBadge={hasNotes}
             hint={
@@ -573,8 +575,9 @@ function DetailsPage() {
             number={3}
             eyebrow={`Share with ${clientLabel}`}
             title="Client recap & Health Passport follow-up"
-            description="Prepare the client-facing recap, agreed next steps, resources, attachments, and next-session focus. Preview and publish only after reviewing it."
-            defaultOpen={!isPublished}
+            description="Prepare the client-facing recap and agreed next steps, then review and publish."
+            openOverride={openStep === "care-plan"}
+            onToggle={() => toggleStep("care-plan")}
             done={isPublished}
             hint="Nothing is shared until you press Publish."
           >
