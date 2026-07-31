@@ -191,6 +191,7 @@ function GroupDetail({
     [group.assessmentId, group.maxScore, group.lowerIsBetter],
   );
   const flagged = group.attempts.filter((a) => safetyResponse(a));
+  const inRangeIds = useMemo(() => new Set(inRange.map((a) => a.id)), [inRange]);
   const toggleFlag = (id: string) => {
     setOpenFlagId((prev) => (prev === id ? null : id));
     // Make sure the matching Result history row is reachable.
@@ -226,6 +227,12 @@ function GroupDetail({
             firstName={firstName}
             openFlagId={openFlagId}
             onToggle={toggleFlag}
+            outsidePeriod={range !== "all" && !flagged.some((a) => inRangeIds.has(a.id))}
+            onShowAllTime={() => {
+              setRange("all");
+              setVisible(10);
+              setShowAll(true);
+            }}
           />
         )}
 
@@ -395,7 +402,9 @@ function GroupDetail({
               onClick={() => setShowAll(true)}
               className="mt-3 rounded-xl border border-[#E4DCF3] bg-[#FBF9FF] px-3.5 py-2 text-[12.5px] font-medium text-[#6B5A9A] transition hover:border-[#CDBFEA] hover:bg-[#F4F0FB]"
             >
-              View all results ({inRange.length})
+              {range === "all"
+                ? `View all ${inRange.length} results`
+                : `View all ${inRange.length} results in this period`}
             </button>
           )}
           {showAll && visible < inRange.length && (
@@ -412,7 +421,7 @@ function GroupDetail({
         <HowCalculated group={group} latest={latest} firstName={firstName} />
 
         <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-          This is a screening result and is not a diagnosis.
+          This screening result supports clinical review and is not a diagnosis.
         </p>
       </div>
     </div>
@@ -425,12 +434,16 @@ function SafetyAlert({
   firstName,
   openFlagId,
   onToggle,
+  outsidePeriod = false,
+  onShowAllTime,
 }: {
   group: AssessmentGroup;
   flagged: AttemptWithStatus[];
   firstName: string;
   openFlagId: string | null;
   onToggle: (id: string) => void;
+  outsidePeriod?: boolean;
+  onShowAllTime?: () => void;
 }) {
   const first = flagged[0];
   if (!first) return null;
@@ -439,24 +452,52 @@ function SafetyAlert({
   return (
     <div className="min-w-0 space-y-2">
       <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] px-4 py-3">
-        <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
-          <AlertTriangle className="h-4 w-4 flex-none" />
-          Review needed: {group.clinicalName} question 9
-        </p>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
-          {firstName} selected “{plainLabel(s.response)}” on the{" "}
-          {group.friendlyName} completed {fullDate(first.takenAt)}.
-        </p>
-        <button
-          type="button"
-          onClick={() => onToggle(first.id)}
-          className="mt-2 flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
-        >
-          {open ? "Hide response" : "View response"}
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-          />
-        </button>
+        {outsidePeriod ? (
+          <>
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
+              <AlertTriangle className="h-4 w-4 flex-none" />
+              Earlier response to review · Outside selected period
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
+              {group.clinicalName} question 9 · {fullDate(first.takenAt)}
+            </p>
+            <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#7A5416]">
+              {firstName} selected “{plainLabel(s.response)}.”
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
+              <AlertTriangle className="h-4 w-4 flex-none" />
+              Review needed: {group.clinicalName} question 9
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
+              {firstName} selected “{plainLabel(s.response)}” on the{" "}
+              {group.friendlyName} completed {fullDate(first.takenAt)}.
+            </p>
+          </>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          <button
+            type="button"
+            onClick={() => onToggle(first.id)}
+            className="flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
+          >
+            {open ? "Hide response" : "View response"}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+            />
+          </button>
+          {outsidePeriod && onShowAllTime && (
+            <button
+              type="button"
+              onClick={onShowAllTime}
+              className="text-[12.5px] font-semibold text-[#8A5E1A] underline underline-offset-2"
+            >
+              Show in All-time history
+            </button>
+          )}
+        </div>
         {open && (
           <FlagDetail group={group} attempt={first} className="mt-3" />
         )}
@@ -469,12 +510,10 @@ function SafetyAlert({
         )}
       </div>
       <p className="text-[12px] leading-relaxed text-[#8B85A6]">
-        <span className="font-semibold text-[#5A4A8A]">
-          Why this was flagged:
-        </span>{" "}
-        Any response other than “Not at all” to question 9 is marked for provider
-        review. This flag comes directly from {firstName}’s assessment response
-        and is not generated by AI.
+        Flagged because {firstName} selected a response other than “Not at all”
+        for {group.clinicalName} question 9. This comes directly from{" "}
+        {firstName === "The client" ? "the client’s" : `${firstName}’s`}{" "}
+        assessment response, not from AI.
       </p>
     </div>
   );
@@ -582,9 +621,10 @@ function HowCalculated({
       {open && (
         <div className="mt-3 space-y-4">
           <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-            {group.clinicalName} contains {questionCount} response
-            {questionCount === 1 ? "" : "s"} scored from {perItemMin} to{" "}
-            {perItemMax}, giving a total score from 0 to {group.maxScore}. The
+            {group.clinicalName} contains {questionCount} question
+            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
+            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
+            {group.maxScore}. The
             total is interpreted using {group.clinicalName} severity ranges.{" "}
             {firstName}’s latest responses totaled {latest.score}, which falls
             within the {latest.status?.label ?? "recorded"} range.
@@ -618,8 +658,7 @@ function HowCalculated({
           )}
 
           <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-            Completed {fullDate(latest.takenAt)}. This screening score supports
-            clinical review and is not a diagnosis.
+            Completed {fullDate(latest.takenAt)}.
           </p>
 
           {allowResponses && (
@@ -755,6 +794,7 @@ function TrendChart({
   const active = activeIdx !== null ? pts[activeIdx] : null;
   const activeC = activeIdx !== null ? coords[activeIdx] : null;
   const bandFills = ["#F6F2FD", "#EFE8FB", "#E4D9F6", "#D8C9F1", "#CBB8EC"];
+  const hasVisibleFlag = pts.some((p) => flaggedIds?.has(p.id));
 
   return (
     <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
@@ -911,7 +951,7 @@ function TrendChart({
               {r.label} ({r.from === r.to ? r.from : `${r.from}–${r.to}`})
             </span>
           ))}
-          {flaggedIds && flaggedIds.size > 0 && (
+          {hasVisibleFlag && (
             <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#8A5E1A]">
               <span className="h-2.5 w-2.5 rounded-full bg-[#F2A33C]" />
               Review needed · Question 9
