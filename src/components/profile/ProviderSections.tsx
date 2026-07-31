@@ -2059,10 +2059,22 @@ export function ApptNotesBlock({
           </div>
 
           <div className="space-y-4 p-4">
+            <p className="rounded-[10px] border border-[#EEE6FA] bg-[#FBF9FF] px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+              Only include what will be helpful for {clientLabel}. Optional
+              sections can be left empty.
+            </p>
+
+            <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Prepare the follow-up
+            </p>
+
             {/* Session recap */}
             <div>
-              <p className="text-sm font-semibold text-[#3D2E6B]">
-                Create {clientLabel}&apos;s session recap
+              <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
+                Session recap
+                <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                  Required
+                </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
                 Write a short, client-friendly recap of what you explored together.
@@ -2086,8 +2098,11 @@ export function ApptNotesBlock({
 
             {/* Agreed next steps */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              <label className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
                 Agreed next steps
+                <span className="font-normal normal-case tracking-normal text-[#A89BD0]">
+                  Optional
+                </span>
               </label>
               <textarea
                 value={fuHomework}
