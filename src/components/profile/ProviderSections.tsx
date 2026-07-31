@@ -2172,11 +2172,6 @@ export function ApptNotesBlock({
               </div>
 
               <ul className="mt-1.5 space-y-2">
-                {(appt.attachments ?? []).length === 0 && (
-                  <li className="rounded-[10px] border border-dashed border-[#E5DCF5] bg-[#FBF9FF] px-3 py-3 text-center text-xs italic text-[#A89BD0]">
-                    No worksheets, handouts, or guides shared yet.
-                  </li>
-                )}
                 {(appt.attachments ?? []).map((f, i) => (
                   <li
                     key={i}
