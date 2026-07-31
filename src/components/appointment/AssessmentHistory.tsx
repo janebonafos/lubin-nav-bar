@@ -191,6 +191,7 @@ function GroupDetail({
     [group.assessmentId, group.maxScore, group.lowerIsBetter],
   );
   const flagged = group.attempts.filter((a) => safetyResponse(a));
+  const inRangeIds = useMemo(() => new Set(inRange.map((a) => a.id)), [inRange]);
   const toggleFlag = (id: string) => {
     setOpenFlagId((prev) => (prev === id ? null : id));
     // Make sure the matching Result history row is reachable.
@@ -226,6 +227,12 @@ function GroupDetail({
             firstName={firstName}
             openFlagId={openFlagId}
             onToggle={toggleFlag}
+            outsidePeriod={range !== "all" && !flagged.some((a) => inRangeIds.has(a.id))}
+            onShowAllTime={() => {
+              setRange("all");
+              setVisible(10);
+              setShowAll(true);
+            }}
           />
         )}
 
@@ -395,7 +402,9 @@ function GroupDetail({
               onClick={() => setShowAll(true)}
               className="mt-3 rounded-xl border border-[#E4DCF3] bg-[#FBF9FF] px-3.5 py-2 text-[12.5px] font-medium text-[#6B5A9A] transition hover:border-[#CDBFEA] hover:bg-[#F4F0FB]"
             >
-              View all results ({inRange.length})
+              {range === "all"
+                ? `View all ${inRange.length} results`
+                : `View all ${inRange.length} results in this period`}
             </button>
           )}
           {showAll && visible < inRange.length && (
@@ -412,7 +421,7 @@ function GroupDetail({
         <HowCalculated group={group} latest={latest} firstName={firstName} />
 
         <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-          This is a screening result and is not a diagnosis.
+          This screening result supports clinical review and is not a diagnosis.
         </p>
       </div>
     </div>
