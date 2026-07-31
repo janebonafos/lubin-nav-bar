@@ -794,6 +794,7 @@ function TrendChart({
   const active = activeIdx !== null ? pts[activeIdx] : null;
   const activeC = activeIdx !== null ? coords[activeIdx] : null;
   const bandFills = ["#F6F2FD", "#EFE8FB", "#E4D9F6", "#D8C9F1", "#CBB8EC"];
+  const hasVisibleFlag = pts.some((p) => flaggedIds?.has(p.id));
 
   return (
     <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
@@ -950,7 +951,7 @@ function TrendChart({
               {r.label} ({r.from === r.to ? r.from : `${r.from}–${r.to}`})
             </span>
           ))}
-          {flaggedIds && flaggedIds.size > 0 && (
+          {hasVisibleFlag && (
             <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#8A5E1A]">
               <span className="h-2.5 w-2.5 rounded-full bg-[#F2A33C]" />
               Review needed · Question 9
