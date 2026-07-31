@@ -205,13 +205,15 @@ function SectionCard({
                   : "#7E6BAF",
           }}
         >
-          {state === "done"
-            ? "Done"
-            : state === "active"
-              ? "In progress"
-              : state === "reference"
-                ? "Reference"
-                : "To do"}
+          {pillLabel
+            ? pillLabel
+            : state === "done"
+              ? "Done"
+              : state === "active"
+                ? "In progress"
+                : state === "reference"
+                  ? "Reference"
+                  : "To do"}
         </span>
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
