@@ -107,6 +107,8 @@ function SectionCard({
   reference = false,
   pillLabel,
   checkBadge = false,
+  openOverride,
+  onToggle,
   children,
 }: {
   id?: string;
@@ -120,9 +122,13 @@ function SectionCard({
   reference?: boolean;
   pillLabel?: string;
   checkBadge?: boolean;
+  openOverride?: boolean;
+  onToggle?: () => void;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [localOpen, setLocalOpen] = useState(defaultOpen);
+  const controlled = openOverride !== undefined;
+  const open = controlled ? openOverride : localOpen;
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
   // A checked item (checkBadge) reads as complete, so it uses the same
   // "done" treatment as the During-the-session card.
@@ -158,7 +164,7 @@ function SectionCard({
     >
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => (controlled ? onToggle?.() : setLocalOpen((v) => !v))}
         className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
       >
         {number != null && (
