@@ -342,6 +342,24 @@ function DetailsPage() {
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
 
+  // Only one main workflow step stays open at a time so the page stays short.
+  const [openStep, setOpenStep] = useState<string | null>(null);
+  const [stepInit, setStepInit] = useState(false);
+  useEffect(() => {
+    if (!appt || stepInit) return;
+    setOpenStep(
+      !isCompleted
+        ? "before-session"
+        : !hasNotes
+          ? "session-notes"
+          : !isPublished
+            ? "care-plan"
+            : null,
+    );
+    setStepInit(true);
+  }, [appt, stepInit, isCompleted, hasNotes, isPublished]);
+  const toggleStep = (key: string) => setOpenStep((cur) => (cur === key ? null : key));
+
   // Parse appointment start time. Month/date/time come as strings like
   // "Jun", "19", "2:00 PM". If parsing fails we fall back to "not past".
   const apptStart = useMemo(() => parseApptStart(appt), [appt]);
