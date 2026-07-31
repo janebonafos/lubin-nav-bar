@@ -521,6 +521,7 @@ function DetailsPage() {
           description="Capture your clinical documentation and plan, and keep private notes."
           defaultOpen={showPostSession && !hasNotes}
           done={hasNotes}
+          checkBadge={hasNotes}
           hint={
             hasNotes
               ? undefined
