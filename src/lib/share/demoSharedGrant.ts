@@ -61,7 +61,7 @@ function buildDemoSnapshot(): SummaryData {
     stressLabel: "Elevated",
     directionLabel: "Improving",
     insight:
-      "Mood has been low but is trending slightly lighter. Sleep and work pressure come up most often, and short walks or talking to a friend appear to help.",
+      "Recent check-ins suggest that mood has been mostly low but has eased slightly. Sleep and work pressure appear most often, while short walks and talking with a friend have been helpful.",
     themes: [
       { label: "Sleep", count: 6 },
       { label: "Work pressure", count: 5 },
