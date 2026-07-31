@@ -215,18 +215,18 @@ export function AiProviderBrief({
   const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="rounded-2xl border border-[#EAE2F6] bg-[#FCFBFE] px-5 pt-6 pb-8 shadow-[0_1px_2px_rgba(61,46,107,0.04)] sm:px-8 sm:pt-8">
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 pt-6 pb-8 shadow-[0_1px_2px_rgba(61,46,107,0.04)] sm:px-8 sm:pt-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-        <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#7A73A0]">
-          <span className="shrink-0 rounded-full border border-[#E1D9F1] bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#7E6BAF]">
+        <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#7E6BAF]">
+          <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#3D2E6B]">
             Provider only
           </span>
           <span>{snap.rangeLabel}</span>
-          <span className="text-[#C3BBDD]">·</span>
+          <span className="text-[#A89BD0]">·</span>
           <button
             type="button"
             onClick={() => setAboutOpen((v) => !v)}
-            className="underline decoration-[#DCD3EE] underline-offset-4 transition hover:text-[#3D2E6B]"
+            className="underline decoration-[#D8C7F0] underline-offset-4 transition hover:text-[#3D2E6B]"
           >
             About this overview
           </button>
@@ -235,7 +235,7 @@ export function AiProviderBrief({
           type="button"
           onClick={generate}
           disabled={busy}
-          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B] disabled:opacity-60"
+          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-[13px] font-semibold text-[#6E4FD3] transition hover:text-[#3D2E6B] disabled:opacity-60"
         >
           {busy && <Loader2 className="h-3 w-3 animate-spin" />}
           Refresh
@@ -243,7 +243,7 @@ export function AiProviderBrief({
       </div>
 
       {aboutOpen && (
-        <p className="mt-4 max-w-[620px] border-l-2 border-[#E1D9F1] pl-4 text-[12px] leading-relaxed text-[#7A73A0]">
+        <p className="mt-4 max-w-[620px] border-l-2 border-[#EAE2F6] pl-4 text-[13px] leading-relaxed text-[#7E6BAF]">
           Created from information {firstName} chose to share. Review before
           using it in your clinical assessment.
         </p>
@@ -266,7 +266,7 @@ export function AiProviderBrief({
       )}
 
       <div className="mt-6 max-w-[620px]">
-        <p className="font-serif-display text-[19px] leading-[1.6] text-[#2C2B4B]">
+        <p className="text-[15px] leading-relaxed text-[#2C2B4B]">
           {snap.insight}
         </p>
       </div>
@@ -297,10 +297,10 @@ export function AiProviderBrief({
 
       {snap.attemptsInRange.length > 0 && (
         <div className="mt-10 min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
             Assessment results
           </p>
-          <p className="mt-1 text-[12px] text-[#7A73A0]">
+          <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
             Select a result to view trend and history details.
           </p>
           <div className="mt-5">
@@ -333,10 +333,10 @@ export function AiProviderBrief({
 
 function PatternChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#E7E0F4] bg-[#F5F2FC] px-3.5 py-1.5 text-[13px] text-[#6B6390]">
+    <span className="inline-flex items-center rounded-full border border-[#EAE2F6] bg-[#F4EEFC] px-3.5 py-1.5 text-[13px] text-[#7E6BAF]">
       {label}
-      <span className="mx-1.5 text-[#B7ADD6]">/</span>
-      <span className="font-semibold text-[#3D2E6B]">{value}</span>
+      <span className="mx-1.5 text-[#A89BD0]">/</span>
+      <span className="font-semibold text-[#2C2B4B]">{value}</span>
     </span>
   );
 }
@@ -354,10 +354,10 @@ function HistoryRow({
     <button
       type="button"
       onClick={onClick}
-      className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] text-[#4A4468] transition hover:text-[#3D2E6B] ${divider ? "border-b border-[#EFEAF9]" : ""}`}
+      className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] font-medium text-[#2C2B4B] transition hover:text-[#6E4FD3] ${divider ? "border-b border-[#EAE2F6]" : ""}`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      <ChevronRight className="h-4 w-4 flex-none text-[#C3BBDD] transition group-hover:text-[#7E6BAF]" />
+      <ChevronRight className="h-4 w-4 flex-none text-[#A89BD0] transition group-hover:text-[#6E4FD3]" />
     </button>
   );
 }
