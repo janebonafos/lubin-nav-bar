@@ -103,6 +103,7 @@ function SectionCard({
   done = false,
   reference = false,
   pillLabel,
+  checkBadge = false,
   children,
 }: {
   id?: string;
@@ -115,6 +116,7 @@ function SectionCard({
   done?: boolean;
   reference?: boolean;
   pillLabel?: string;
+  checkBadge?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -164,7 +166,7 @@ function SectionCard({
                   : `Step ${number}`
             }
           >
-            {state === "done" ? "✓" : number}
+            {state === "done" || checkBadge ? "✓" : number}
           </span>
         )}
         <span className="min-w-0 flex-1">
@@ -479,6 +481,7 @@ function DetailsPage() {
           hint="Not shared with the client. For provider review only."
           reference
           pillLabel={hasSharedContext ? "Reference" : "Not shared"}
+          checkBadge={!hasSharedContext}
         >
           <AiProviderBrief
             appointmentId={appt.id}
