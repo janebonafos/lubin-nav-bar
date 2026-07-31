@@ -515,14 +515,41 @@ function DetailsPage() {
           />
         </SectionCard>
 
-        {/* After the session */}
+        {/* Step 2 — During and after the session (private documentation first) */}
+        {showPostSession && (
+          <SectionCard
+            id="session-notes"
+            number={2}
+            eyebrow="During and after the session"
+            title="Clinical documentation & private notes"
+            description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
+            defaultOpen={!hasNotes}
+            done={hasNotes}
+            checkBadge={hasNotes}
+            hint={
+              hasNotes
+                ? undefined
+                : "Optional. Nothing in this section is shared with your client."
+            }
+          >
+            <ApptNotesBlock
+              appt={appt}
+              onChange={onChange}
+              variant="private"
+              clientName={appt.client}
+              providerName={providerDisplayName}
+            />
+          </SectionCard>
+        )}
+
+        {/* Step 3 — Share with the client */}
         {showPostSession && (
           <SectionCard
             id="care-plan"
-            number={2}
-            eyebrow="After the session"
-            title={`Client recap & publish to ${clientLabel}'s Health Passport`}
-            description="Write the client-facing recap, action items, resources, and any attachments — then preview and publish."
+            number={3}
+            eyebrow={`Share with ${clientLabel}`}
+            title="Client recap & Health Passport follow-up"
+            description="Prepare the client-facing recap, agreed next steps, resources, attachments, and next-session focus. Preview and publish only after reviewing it."
             defaultOpen={!isPublished}
             done={isPublished}
             hint="Nothing is shared until you press Publish."
@@ -544,7 +571,6 @@ function DetailsPage() {
         {rxAllowed && showPostSession && (
           <SectionCard
             id="prescriptions"
-            number={3}
             eyebrow="Prescriber tools"
             title="Prescription"
             description="Separate signed clinical document. Not included in the client recap you publish above."
@@ -575,44 +601,13 @@ function DetailsPage() {
           </div>
         )}
 
-        {/* Clinical documentation & private notes — placed last so providers can capture everything after the session */}
-        {showPostSession && (
-          <SectionCard
-            id="session-notes"
-            number={4}
-            eyebrow="During the session"
-            title="Clinical documentation & private notes"
-            description="Capture your clinical documentation and plan, and keep private notes."
-            defaultOpen={!hasNotes}
-            done={hasNotes}
-            checkBadge={hasNotes}
-            hint={
-              hasNotes
-                ? undefined
-                : "Optional. Nothing in this section is shared with your client."
-            }
-          >
-            <ApptNotesBlock
-              appt={appt}
-              onChange={onChange}
-              variant="private"
-              clientName={appt.client}
-              providerName={providerDisplayName}
-            />
-          </SectionCard>
-        )}
-
-
         {/* Record the outcome */}
         {canMarkComplete && !recordedOutcome && (
           <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFE8FB] text-[13px] font-semibold text-[#3D2E6B]">
-                5
-              </span>
               <div className="flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-                  Final step
+                  Close out
                 </p>
                 <h2 className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
                   Record what happened with this appointment
@@ -729,7 +724,7 @@ function DetailsPage() {
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
             {isPublished
               ? `Your recap has been published to ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
-              : `This appointment has been marked as done. Nothing has been published to ${clientLabel}'s Health Passport yet — publish from Step 3 when you're ready.`}
+              : `This appointment has been marked as completed. Nothing has been published to ${clientLabel}'s Health Passport yet. Review and publish from Step 3 when ready.`}
           </div>
         )}
 

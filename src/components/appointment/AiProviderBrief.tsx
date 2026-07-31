@@ -203,7 +203,7 @@ export function AiProviderBrief({
           <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#3D2E6B]">
             Provider only
           </span>
-          <span>{snap.rangeLabel}</span>
+          <span>Check-in overview · {snap.rangeLabel}</span>
           <span className="text-[#A89BD0]">·</span>
           <button
             type="button"
@@ -272,7 +272,7 @@ export function AiProviderBrief({
       {snap.attemptsInRange.length > 0 && (
         <div className="mt-10 min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-            Assessment results
+            Shared assessment history
           </p>
           <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
             Select a result to view trend and history details.
