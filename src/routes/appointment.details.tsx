@@ -317,6 +317,9 @@ function DetailsPage() {
     [appt?.month, appt?.date, appt?.time],
   );
 
+  const [shareTick, setShareTick] = useState(0);
+  useEffect(() => subscribeProviderShares(() => setShareTick((t) => t + 1)), []);
+
   const hasSharedContext = useMemo(() => {
     if (!appt?.id) return false;
     const grant = getAnyProviderGrant(appt.id);
