@@ -312,6 +312,12 @@ function DetailsPage() {
     [appt?.month, appt?.date, appt?.time],
   );
 
+  const hasSharedContext = useMemo(() => {
+    if (!appt?.id) return false;
+    const grant = getAnyProviderGrant(appt.id);
+    return !!grant && !grant.revoked && grant.includedKeys.length > 0;
+  }, [appt?.id]);
+
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
