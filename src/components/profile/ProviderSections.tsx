@@ -2724,8 +2724,8 @@ function PublishPreviewCard({
           </div>
         )}
 
-        <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
-          {publishedAt ? (
+        {publishedAt && (
+          <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
             <p className="font-semibold text-[#3D2E6B]">
               Reviewed and shared by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
@@ -2739,12 +2739,8 @@ function PublishPreviewCard({
                 minute: "2-digit",
               })}.
             </p>
-          ) : (
-            <p className="font-semibold text-[#3D2E6B]">
-              Prepared by {providedBy} · Not yet published.
-            </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

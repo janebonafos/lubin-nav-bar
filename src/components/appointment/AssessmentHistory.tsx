@@ -566,7 +566,7 @@ function SafetyAlert({
               onClick={onShowAllTime}
               className="text-[12.5px] font-semibold text-[#8A5E1A] underline underline-offset-2"
             >
-              Show in All-time history
+              Show in All-time chart
             </button>
           )}
           <button
