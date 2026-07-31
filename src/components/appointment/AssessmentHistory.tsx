@@ -105,10 +105,7 @@ export function AssessmentHistory({
           const hasUnreviewedFlag = flaggedIds.some((id) => !reviewedIds.has(id));
           const allFlaggedReviewed = flaggedIds.length > 0 && !hasUnreviewedFlag;
           return (
-            <div
-              key={g.assessmentId}
-              className="group flex w-full items-start gap-3 py-5"
-            >
+            <div key={g.assessmentId} className="group flex w-full items-start gap-3 py-5">
               <button
                 type="button"
                 onClick={() => setOpenId(g.assessmentId)}
@@ -133,9 +130,7 @@ export function AssessmentHistory({
                 </span>
                 <span className="mt-1 block text-[13px] leading-relaxed text-[#7E6BAF]">
                   {g.attempts.length} result{g.attempts.length === 1 ? "" : "s"}
-                  {g.latest.status?.label
-                    ? ` · Latest: ${g.latest.status.label}`
-                    : ""}
+                  {g.latest.status?.label ? ` · Latest: ${g.latest.status.label}` : ""}
                   {trend && span ? ` · ${trend} over ${span}` : ""}
                 </span>
               </button>
@@ -207,8 +202,7 @@ function GroupDetail({
   const countFor = (days: number | null) =>
     days === null
       ? totalCount
-      : group.attempts.filter((a) => a.takenAt >= Date.now() - days * DAY)
-          .length;
+      : group.attempts.filter((a) => a.takenAt >= Date.now() - days * DAY).length;
   // A filter is only offered when it would leave enough results to be useful.
   const usableRanges = RANGES.filter((r) => countFor(r.days) >= 3);
   const showFilters = totalCount >= 3 && usableRanges.length >= 2;
@@ -221,8 +215,7 @@ function GroupDetail({
   const latest = inRange[0] ?? group.latest;
   const oldest = inRange[inRange.length - 1];
   const previous = inRange[1] ?? null;
-  const change =
-    inRange.length > 1 && oldest ? latest.score - oldest.score : null;
+  const change = inRange.length > 1 && oldest ? latest.score - oldest.score : null;
   const ranges = useMemo(
     () => getScoreRanges(group.assessmentId, group.maxScore, group.lowerIsBetter),
     [group.assessmentId, group.maxScore, group.lowerIsBetter],
@@ -235,9 +228,7 @@ function GroupDetail({
     setShowAll(true);
   };
   const flaggedIds = new Set(flagged.map((a) => a.id));
-  const unreviewedFlagIds = new Set(
-    [...flaggedIds].filter((id) => !reviewedIds.has(id)),
-  );
+  const unreviewedFlagIds = new Set([...flaggedIds].filter((id) => !reviewedIds.has(id)));
   const allFlaggedReviewed = flaggedIds.size > 0 && unreviewedFlagIds.size === 0;
   const markAllReviewed = () => markReviewed([...flaggedIds]);
 
@@ -250,8 +241,8 @@ function GroupDetail({
               {group.friendlyName} ({group.clinicalName})
             </SheetTitle>
             <SheetDescription className="text-[12.5px] text-[#8B85A6]">
-              {totalCount} result{totalCount === 1 ? "" : "s"} recorded · scored
-              out of {group.maxScore}
+              {totalCount} result{totalCount === 1 ? "" : "s"} recorded · scored out of{" "}
+              {group.maxScore}
             </SheetDescription>
           </div>
           <SheetClose className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E7E0F4] bg-white text-[#6B5A9A] transition hover:bg-[#F4F0FB]">
@@ -353,18 +344,12 @@ function GroupDetail({
                   : `${Math.abs(change ?? 0)} point${Math.abs(change ?? 0) === 1 ? "" : "s"} ${(change ?? 0) < 0 ? "lower" : "higher"}`}
                 <span className="text-[13px] font-normal text-[#7E6BAF]">
                   {" "}
-                  over{" "}
-                  {Math.max(
-                    1,
-                    Math.round((latest.takenAt - previous.takenAt) / DAY),
-                  )}{" "}
-                  days
+                  over {Math.max(1, Math.round((latest.takenAt - previous.takenAt) / DAY))} days
                 </span>
               </p>
             </div>
             <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-              Two results show a change, but more results are needed to identify
-              a pattern.
+              Two results show a change, but more results are needed to identify a pattern.
             </p>
           </div>
         )}
@@ -380,9 +365,7 @@ function GroupDetail({
               onFlagClick={toggleFlag}
             />
             <div className="min-w-0">
-              <p className="text-[13px] font-semibold text-[#3D2E6B]">
-                Score history
-              </p>
+              <p className="text-[13px] font-semibold text-[#3D2E6B]">Score history</p>
               <div className="mt-2">
                 <TrendChart
                   attempts={inRange}
@@ -416,29 +399,23 @@ function GroupDetail({
 
         {/* Result history */}
         <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-[#3D2E6B]">
-            Result history
-          </p>
+          <p className="text-[13px] font-semibold text-[#3D2E6B]">Result history</p>
           <div className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
-            {(showAll ? inRange.slice(0, visible) : inRange.slice(0, initialRows)).map(
-              (a) => (
-                <AttemptRow
-                  key={a.id}
-                  attempt={a}
-                  maxScore={group.maxScore}
-                  group={group}
-                  firstName={firstName}
-                  expanded={openFlagId === a.id}
-                  onToggle={toggleFlag}
-                  reviewedIds={reviewedIds}
-                  markReviewed={markReviewed}
-                />
-              ),
-            )}
+            {(showAll ? inRange.slice(0, visible) : inRange.slice(0, initialRows)).map((a) => (
+              <AttemptRow
+                key={a.id}
+                attempt={a}
+                maxScore={group.maxScore}
+                group={group}
+                firstName={firstName}
+                expanded={openFlagId === a.id}
+                onToggle={toggleFlag}
+                reviewedIds={reviewedIds}
+                markReviewed={markReviewed}
+              />
+            ))}
             {inRange.length === 0 && (
-              <p className="px-4 py-4 text-[12.5px] text-[#8B85A6]">
-                No results in this period.
-              </p>
+              <p className="px-4 py-4 text-[12.5px] text-[#8B85A6]">No results in this period.</p>
             )}
           </div>
 
@@ -511,8 +488,8 @@ function SafetyAlert({
             Reviewed: {group.clinicalName} question 9
           </p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5A9A]">
-            {firstName} selected “{plainLabel(s.response)}” on{" "}
-            {fullDate(first.takenAt)}. You have marked this response as reviewed.
+            {firstName} selected “{plainLabel(s.response)}” on {fullDate(first.takenAt)}. You have
+            marked this response as reviewed.
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
             <button
@@ -526,23 +503,19 @@ function SafetyAlert({
               />
             </button>
           </div>
-          {open && (
-            <FlagDetail group={group} attempt={first} className="mt-3" />
-          )}
+          {open && <FlagDetail group={group} attempt={first} className="mt-3" />}
           {flagged.length > 1 && (
             <p className="mt-2 text-[12px] text-[#6B5A9A]">
               +{flagged.length - 1} earlier result
-              {flagged.length - 1 === 1 ? "" : "s"} also reviewed — see Result
-              history.
+              {flagged.length - 1 === 1 ? "" : "s"} also reviewed — see Result history.
             </p>
           )}
         </div>
         <p className="text-[12px] leading-relaxed text-[#8B85A6]">
-          Flagged because {firstName} selected a response other than “Not at all”
-          for {group.clinicalName} question 9. This response has been reviewed and
-          comes directly from{" "}
-          {firstName === "The client" ? "the client’s" : `${firstName}’s`}{" "}
-          assessment response, not from AI.
+          Flagged because {firstName} selected a response other than “Not at all” for{" "}
+          {group.clinicalName} question 9. This response has been reviewed and comes directly from{" "}
+          {firstName === "The client" ? "the client’s" : `${firstName}’s`} assessment response, not
+          from AI.
         </p>
       </div>
     );
@@ -571,8 +544,8 @@ function SafetyAlert({
               Review needed: {group.clinicalName} question 9
             </p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
-              {firstName} selected “{plainLabel(s.response)}” on the{" "}
-              {group.friendlyName} completed {fullDate(first.takenAt)}.
+              {firstName} selected “{plainLabel(s.response)}” on the {group.friendlyName} completed{" "}
+              {fullDate(first.takenAt)}.
             </p>
           </>
         )}
@@ -605,22 +578,19 @@ function SafetyAlert({
             Mark as reviewed
           </button>
         </div>
-        {open && (
-          <FlagDetail group={group} attempt={first} className="mt-3" />
-        )}
+        {open && <FlagDetail group={group} attempt={first} className="mt-3" />}
         {unreviewedCount > 1 && (
           <p className="mt-2 text-[12px] text-[#8A5E1A]">
             +{unreviewedCount - 1} earlier result
-            {unreviewedCount - 1 === 1 ? "" : "s"} also marked for review — see
-            Result history.
+            {unreviewedCount - 1 === 1 ? "" : "s"} also marked for review — see Result history.
           </p>
         )}
       </div>
       <p className="text-[12px] leading-relaxed text-[#8B85A6]">
-        Flagged because {firstName} selected a response other than “Not at all”
-        for {group.clinicalName} question 9. This comes directly from{" "}
-        {firstName === "The client" ? "the client’s" : `${firstName}’s`}{" "}
-        assessment response, not from AI.
+        Flagged because {firstName} selected a response other than “Not at all” for{" "}
+        {group.clinicalName} question 9. This comes directly from{" "}
+        {firstName === "The client" ? "the client’s" : `${firstName}’s`} assessment response, not
+        from AI.
       </p>
     </div>
   );
@@ -646,9 +616,7 @@ function FlagDetail({
     ["Response", plainLabel(s.response)],
   ];
   return (
-    <div
-      className={`rounded-lg border border-[#EFDCBE] bg-white/70 p-3 ${className}`}
-    >
+    <div className={`rounded-lg border border-[#EFDCBE] bg-white/70 p-3 ${className}`}>
       <dl className="space-y-1.5">
         {rows.map(([k, v]) => (
           <div key={k} className="flex gap-2 text-[12.5px] leading-relaxed">
@@ -657,12 +625,10 @@ function FlagDetail({
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-[#7A5416]">
-        “{s.text}”
-      </p>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-[#7A5416]">“{s.text}”</p>
       <p className="mt-2 text-[12px] leading-relaxed text-[#8A5E1A]">
-        This response requires separate clinical review and should not be
-        interpreted from the total score or trend alone.
+        This response requires separate clinical review and should not be interpreted from the total
+        score or trend alone.
       </p>
     </div>
   );
@@ -687,19 +653,10 @@ function HowCalculated({
   );
   const questionCount = meta?.questions.length ?? 0;
   const perItemMax = meta
-    ? Math.max(
-        0,
-        ...meta.questions.map((q) =>
-          Math.max(...q.options.map((o) => o.value)),
-        ),
-      )
+    ? Math.max(0, ...meta.questions.map((q) => Math.max(...q.options.map((o) => o.value))))
     : 0;
   const perItemMin = meta
-    ? Math.min(
-        ...meta.questions.map((q) =>
-          Math.min(...q.options.map((o) => o.value)),
-        ),
-      )
+    ? Math.min(...meta.questions.map((q) => Math.min(...q.options.map((o) => o.value))))
     : 0;
 
   const responses = useMemo(() => {
@@ -729,34 +686,26 @@ function HowCalculated({
         <div className="mt-3 space-y-4">
           <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
             {group.clinicalName} contains {questionCount} question
-            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
-            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
-            {group.maxScore}. The
-            total is interpreted using {group.clinicalName} severity ranges.{" "}
-            {firstName}’s latest responses totaled {latest.score}, which falls
-            within the {latest.status?.label ?? "recorded"} range.
+            {questionCount === 1 ? "" : "s"}. Each response is scored from {perItemMin} to{" "}
+            {perItemMax}, giving a total score from 0 to {group.maxScore}. The total is interpreted
+            using {group.clinicalName} severity ranges. {firstName}’s latest responses totaled{" "}
+            {latest.score}, which falls within the {latest.status?.label ?? "recorded"} range.
           </p>
 
           {ranges.length > 0 && (
             <div className="min-w-0">
-              <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                Score ranges
-              </p>
+              <p className="text-[12px] font-semibold text-[#3D2E6B]">Score ranges</p>
               <ul className="mt-1.5 space-y-1">
                 {ranges.map((r) => {
-                  const isCurrent =
-                    latest.score >= r.from && latest.score <= r.to;
+                  const isCurrent = latest.score >= r.from && latest.score <= r.to;
                   return (
                     <li
                       key={`${r.from}-${r.label}`}
                       className={`text-[12.5px] leading-relaxed ${
-                        isCurrent
-                          ? "font-medium text-[#5A4A8A]"
-                          : "text-[#8B85A6]"
+                        isCurrent ? "font-medium text-[#5A4A8A]" : "text-[#8B85A6]"
                       }`}
                     >
-                      {r.from === r.to ? r.from : `${r.from}–${r.to}`}:{" "}
-                      {r.label}
+                      {r.from === r.to ? r.from : `${r.from}–${r.to}`}: {r.label}
                     </li>
                   );
                 })}
@@ -781,12 +730,8 @@ function HowCalculated({
                 <ul className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
                   {responses.map((r, i) => (
                     <li key={i} className="min-w-0 px-4 py-3">
-                      <p className="text-[12.5px] leading-relaxed text-[#2C2B4B]">
-                        {r.text}
-                      </p>
-                      <p className="mt-0.5 text-[12px] text-[#8B85A6]">
-                        {plainLabel(r.response)}
-                      </p>
+                      <p className="text-[12.5px] leading-relaxed text-[#2C2B4B]">{r.text}</p>
+                      <p className="mt-0.5 text-[12px] text-[#8B85A6]">{plainLabel(r.response)}</p>
                     </li>
                   ))}
                 </ul>
@@ -823,13 +768,9 @@ function AttemptRow({
     <div className="min-w-0 px-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13.5px] text-[#2C2B4B]">
-            {fullDate(attempt.takenAt)}
-          </p>
+          <p className="truncate text-[13.5px] text-[#2C2B4B]">{fullDate(attempt.takenAt)}</p>
           <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
-            <span className="truncate">
-              {attempt.status?.label ?? "Recorded"}
-            </span>
+            <span className="truncate">{attempt.status?.label ?? "Recorded"}</span>
             {s && !reviewed && (
               <button
                 type="button"
@@ -850,9 +791,7 @@ function AttemptRow({
         </div>
         <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
           {attempt.score}
-          <span className="text-[11.5px] font-normal text-[#A79FC0]">
-            /{maxScore}
-          </span>
+          <span className="text-[11.5px] font-normal text-[#A79FC0]">/{maxScore}</span>
         </span>
       </div>
       {s && expanded && (
@@ -958,13 +897,7 @@ function TrendChart({
               stroke="#EAE2F6"
               strokeWidth={1}
             />
-            <text
-              x={PAD_L - 6}
-              y={yFor(v) + 3}
-              textAnchor="end"
-              fontSize={8}
-              fill="#A79FC0"
-            >
+            <text x={PAD_L - 6} y={yFor(v) + 3} textAnchor="end" fontSize={8} fill="#A79FC0">
               {v}
             </text>
           </g>
@@ -1006,12 +939,7 @@ function TrendChart({
                 </text>
               </>
             ) : (
-              <circle
-                cx={c.x}
-                cy={c.y}
-                r={activeIdx === i ? 3.4 : 2.4}
-                fill="#5A4A8A"
-              />
+              <circle cx={c.x} cy={c.y} r={activeIdx === i ? 3.4 : 2.4} fill="#5A4A8A" />
             )}
             <circle
               cx={c.x}
@@ -1112,15 +1040,10 @@ function ResultBlock({
       <p className="mt-1 text-[19px] font-semibold text-[#2C2B4B]">
         {attempt.score} of {maxScore}
         {attempt.status?.label ? (
-          <span className="text-[14px] font-medium text-[#5A4A8A]">
-            {" "}
-            · {attempt.status.label}
-          </span>
+          <span className="text-[14px] font-medium text-[#5A4A8A]"> · {attempt.status.label}</span>
         ) : null}
       </p>
-      <p className="mt-1 text-[12.5px] text-[#8B85A6]">
-        {fullDate(attempt.takenAt)}
-      </p>
+      <p className="mt-1 text-[12.5px] text-[#8B85A6]">{fullDate(attempt.takenAt)}</p>
       {flagged && (
         <button
           type="button"

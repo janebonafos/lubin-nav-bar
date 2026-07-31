@@ -2,10 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, ChevronRight } from "lucide-react";
 import { AssessmentHistory } from "@/components/appointment/AssessmentHistory";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
-import {
-  seedDemoSharedGrant,
-  clearDemoSharedGrant,
-} from "@/lib/share/demoSharedGrant";
+import { seedDemoSharedGrant, clearDemoSharedGrant } from "@/lib/share/demoSharedGrant";
 import {
   loadBrief,
   saveBrief,
@@ -39,9 +36,7 @@ export function AiProviderBrief({
   onViewAssessments,
   onViewTimeline,
 }: Props) {
-  const [brief, setBrief] = useState<ProviderBrief | null>(() =>
-    loadBrief(appointmentId),
-  );
+  const [brief, setBrief] = useState<ProviderBrief | null>(() => loadBrief(appointmentId));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -73,9 +68,7 @@ export function AiProviderBrief({
       // Group by clinical tool so the model can talk about change over time
       // per instrument (e.g. PHQ-9 across 3 attempts) rather than treating
       // each attempt as an independent instrument.
-      const groups = includeAssessments
-        ? groupAttemptsByAssessment(snap.attemptsInRange)
-        : [];
+      const groups = includeAssessments ? groupAttemptsByAssessment(snap.attemptsInRange) : [];
       const assessmentPayload = groups.map((g) => ({
         name: g.friendlyName,
         clinicalName: g.clinicalName,
@@ -123,9 +116,7 @@ export function AiProviderBrief({
             latestCheckinDate: snap.checkinsInRange[0]?.date,
           },
           assessments: assessmentPayload,
-          conversationsSummary: includeConversations
-            ? snap.insight
-            : undefined,
+          conversationsSummary: includeConversations ? snap.insight : undefined,
           medications: [],
           patientGoals: [],
         }),
@@ -152,14 +143,7 @@ export function AiProviderBrief({
     } finally {
       setBusy(false);
     }
-  }, [
-    grant,
-    providerName,
-    appointmentLabel,
-    sharedAt,
-    appointmentId,
-    brief?.version,
-  ]);
+  }, [grant, providerName, appointmentLabel, sharedAt, appointmentId, brief?.version]);
 
   // No share yet — the brief cannot exist.
   if (!grant || grant.revoked || grant.includedKeys.length === 0) {
@@ -167,29 +151,27 @@ export function AiProviderBrief({
       <div className="space-y-3">
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold text-[#3D2E6B]">
-              Shared Health Passport
-            </p>
+            <p className="text-sm font-semibold text-[#3D2E6B]">Shared Health Passport</p>
             <span className="w-fit rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
               Not shared
             </span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#6B6684]">
-            The client hasn't shared their Health Passport for this appointment yet. Nothing is wrong — sharing is optional and client-controlled.
+            The client hasn't shared their Health Passport for this appointment yet. Nothing is
+            wrong — sharing is optional and client-controlled.
           </p>
         </div>
 
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-80">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold text-[#3D2E6B]">
-              AI Provider Brief
-            </p>
+            <p className="text-sm font-semibold text-[#3D2E6B]">AI Provider Brief</p>
             <span className="w-fit rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
               Unavailable
             </span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#6B6684]">
-            A brief can't be generated until Health Passport information is shared. No action is required from you.
+            A brief can't be generated until Health Passport information is shared. No action is
+            required from you.
           </p>
         </div>
 
@@ -244,28 +226,23 @@ export function AiProviderBrief({
 
       {aboutOpen && (
         <p className="mt-4 max-w-[620px] border-l-2 border-[#EAE2F6] pl-4 text-[13px] leading-relaxed text-[#7E6BAF]">
-          Created from information {firstName} chose to share. Review before
-          using it in your clinical assessment.
+          Created from information {firstName} chose to share. Review before using it in your
+          clinical assessment.
         </p>
       )}
 
       {stale && brief && (
         <p className="mt-4 rounded-md border border-[#EAE2F6] bg-[#F7F4FD] p-3 text-[12px] leading-relaxed text-[#5A4A8A]">
-          {firstName} shared updated information. Refresh the overview to see the
-          latest.
+          {firstName} shared updated information. Refresh the overview to see the latest.
         </p>
       )}
 
       {error && (
-        <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-[12px] text-rose-700">
-          {error}
-        </p>
+        <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-[12px] text-rose-700">{error}</p>
       )}
 
       <div className="mt-6 max-w-[620px]">
-        <p className="text-[15px] leading-relaxed text-[#2C2B4B]">
-          {snap.insight}
-        </p>
+        <p className="text-[15px] leading-relaxed text-[#2C2B4B]">{snap.insight}</p>
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2">
@@ -312,10 +289,7 @@ export function AiProviderBrief({
 
       <div className="mt-8 flex flex-col">
         <HistoryRow label="Check-in timeline" onClick={onViewTimeline} divider />
-        <HistoryRow
-          label="Information used for this overview"
-          onClick={onViewSupporting}
-        />
+        <HistoryRow label="Information used for this overview" onClick={onViewSupporting} />
       </div>
 
       <button
@@ -381,9 +355,7 @@ function BriefSection({
     <div className="py-2">
       <p className="text-[13px] font-semibold text-[#1A1A1A]">{label}</p>
       {empty ? (
-        <p className="mt-2 text-[12px] italic text-[#8C8C8C]">
-          Not enough information
-        </p>
+        <p className="mt-2 text-[12px] italic text-[#8C8C8C]">Not enough information</p>
       ) : (
         <ul className="mt-2 space-y-1.5">
           {bullets.map((b, i) => (
