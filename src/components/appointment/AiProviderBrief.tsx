@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, AlertTriangle, ChevronRight } from "lucide-react";
+import {
+  Loader2,
+  AlertTriangle,
+  ChevronRight,
+  Lock,
+  ClipboardList,
+  CalendarDays,
+  FileText,
+  RefreshCw,
+} from "lucide-react";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
   seedDemoSharedGrant,
@@ -213,26 +222,51 @@ export function AiProviderBrief({
   const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="rounded-2xl bg-white px-1 py-1">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-[17px] font-semibold text-[#2C2B4B]">
-            Shared health overview
-          </h2>
-          <p className="mt-1 text-[13px] text-[#8B85A6]">
-            Information {firstName} chose to share · {snap.rangeLabel}
+    <section className="rounded-2xl bg-white px-5 py-5 sm:px-8 sm:py-7">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-6">
+        <div className="min-w-0">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="min-w-0 text-[17px] font-semibold text-[#2C2B4B]">
+              Information {firstName} shared
+            </h2>
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#F4F0FB] px-2 py-0.5 text-[11px] font-medium text-[#7E6BAF]">
+              <Lock className="h-3 w-3" />
+              Provider only
+            </span>
+          </div>
+          <p className="mt-1.5 text-[13px] text-[#8B85A6]">
+            Shared for this appointment · {snap.rangeLabel}
+            <span className="mx-1.5 text-[#D8D2E6]">·</span>
+            <button
+              type="button"
+              onClick={() => setAboutOpen((v) => !v)}
+              className="text-[#7E6BAF] underline-offset-2 transition hover:underline"
+            >
+              About this overview
+            </button>
           </p>
         </div>
         <button
           type="button"
           onClick={generate}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#7E6BAF] underline-offset-4 transition hover:underline disabled:opacity-60"
+          className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-xl border border-[#E4DCF3] bg-[#FBF9FF] px-3.5 py-2 text-[13px] font-medium text-[#6B5A9A] transition hover:border-[#CDBFEA] hover:bg-[#F4F0FB] disabled:opacity-60"
         >
-          {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {brief ? "Refresh overview" : "Create overview"}
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
+          {brief ? "Refresh overview" : "Refresh overview"}
         </button>
       </div>
+
+      {aboutOpen && (
+        <p className="mt-4 max-w-[660px] rounded-xl bg-[#FAF9FD] px-4 py-3 text-[12px] leading-relaxed text-[#8B85A6]">
+          Created from information {firstName} chose to share. Review before
+          using it in your clinical assessment.
+        </p>
+      )}
 
       {stale && brief && (
         <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#FDF6EC] p-3 text-[12px] text-[#8A5E1A]">
@@ -250,18 +284,20 @@ export function AiProviderBrief({
         </p>
       )}
 
-      <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-[#2C2B4B]">
-        {snap.insight}
-      </p>
+      <div className="mt-6 max-w-[660px] rounded-[13px] border border-[#EDE7F8] bg-[#FBF9FF] p-5">
+        <p className="text-[15px] leading-[1.6] text-[#2C2B4B]">
+          {snap.insight}
+        </p>
+      </div>
 
-      <p className="mt-4 text-[13px] text-[#6B6684]">
-        <span className="text-[#7E6BAF]">Recent pattern:</span> Mood{" "}
-        {snap.moodLabel.toLowerCase()} · Stress {snap.stressLabel.toLowerCase()}{" "}
-        · {snap.directionLabel.toLowerCase()} overall
-      </p>
+      <div className="mt-6 flex flex-wrap gap-2">
+        <PatternChip label="Mood" value={snap.moodLabel} />
+        <PatternChip label="Stress" value={snap.stressLabel} />
+        <PatternChip label="Trend" value={snap.directionLabel} />
+      </div>
 
       {brief && (
-        <details className="mt-4">
+        <details className="mt-6">
           <summary className="cursor-pointer list-none text-[13px] font-medium text-[#7E6BAF] hover:underline">
             Show full overview
           </summary>
@@ -278,51 +314,64 @@ export function AiProviderBrief({
         </details>
       )}
 
-      <div className="mt-6 divide-y divide-[#F1EDF9] border-t border-[#F1EDF9]">
-        <HistoryRow label="Assessment results" onClick={onViewAssessments} />
-        <HistoryRow label="Check-in timeline" onClick={onViewTimeline} />
+      <div className="mt-6 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
         <HistoryRow
+          icon={<ClipboardList className="h-4 w-4 text-[#A99BD0]" />}
+          label="Assessment results"
+          onClick={onViewAssessments}
+        />
+        <HistoryRow
+          icon={<CalendarDays className="h-4 w-4 text-[#A99BD0]" />}
+          label="Check-in timeline"
+          onClick={onViewTimeline}
+        />
+        <HistoryRow
+          icon={<FileText className="h-4 w-4 text-[#A99BD0]" />}
           label="Information used for this overview"
           onClick={onViewSupporting}
         />
       </div>
 
-      <details className="mt-6">
-        <summary className="cursor-pointer list-none text-[12px] text-[#A79FC0] hover:text-[#7E6BAF]">
-          About this overview
-        </summary>
-        <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-[#8B85A6]">
-          Created from information {firstName} chose to share. Review before
-          using it in your clinical assessment.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            clearDemoSharedGrant(appointmentId);
-            setRefreshKey((k) => k + 1);
-          }}
-          className="mt-2 text-[12px] text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
-        >
-          Exit preview
-        </button>
-      </details>
+      <button
+        type="button"
+        onClick={() => {
+          clearDemoSharedGrant(appointmentId);
+          setRefreshKey((k) => k + 1);
+        }}
+        className="mt-6 text-[12px] text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
+      >
+        Exit preview
+      </button>
     </section>
+  );
+}
+
+function PatternChip({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F5FC] px-3 py-1.5 text-[12.5px] text-[#4A4266]">
+      <span className="text-[#8B85A6]">{label}</span>
+      <span className="text-[#D8D2E6]">·</span>
+      <span className="font-medium">{value}</span>
+    </span>
   );
 }
 
 function HistoryRow({
   label,
   onClick,
+  icon,
 }: {
   label: string;
   onClick?: () => void;
+  icon?: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 py-3 text-left transition hover:text-[#7E6BAF]"
+      className="flex h-[50px] w-full items-center gap-3 px-4 text-left transition hover:bg-[#FBF9FF]"
     >
+      {icon && <span className="flex-none">{icon}</span>}
       <span className="min-w-0 flex-1 truncate text-[14px] text-[#2C2B4B]">
         {label}
       </span>
