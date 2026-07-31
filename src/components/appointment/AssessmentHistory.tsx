@@ -138,6 +138,12 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
     [group.attempts, cutoff],
   );
 
+  const totalCount = group.attempts.length;
+  const singleOverall = totalCount < 2;
+  const singleInPeriod = !singleOverall && inRange.length < 2;
+  const showTrend = inRange.length >= 2;
+  const initialRows = totalCount > 10 ? 5 : 3;
+
   const latest = inRange[0] ?? group.latest;
   const oldest = inRange[inRange.length - 1];
   const change =
@@ -154,15 +160,22 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
 
   return (
     <div className="flex min-h-full flex-col">
-      <SheetHeader className="sticky top-0 z-10 space-y-1 border-b border-[#F1EDF9] bg-white px-5 py-4 text-left sm:px-7">
-        <SheetTitle className="pr-8 text-[16px] font-semibold text-[#2C2B4B]">
-          {group.friendlyName} ({group.clinicalName})
-        </SheetTitle>
-        <SheetDescription className="text-[12.5px] text-[#8B85A6]">
-          {group.attempts.length} result
-          {group.attempts.length === 1 ? "" : "s"} recorded · scored out of{" "}
-          {group.maxScore}
-        </SheetDescription>
+      <SheetHeader className="sticky top-0 z-10 border-b border-[#F1EDF9] bg-white px-5 py-4 text-left sm:px-7">
+        <div className="flex items-start gap-3">
+          <div className="min-w-0 flex-1 space-y-1">
+            <SheetTitle className="text-[16px] font-semibold text-[#2C2B4B]">
+              {group.friendlyName} ({group.clinicalName})
+            </SheetTitle>
+            <SheetDescription className="text-[12.5px] text-[#8B85A6]">
+              {totalCount} result{totalCount === 1 ? "" : "s"} recorded · scored
+              out of {group.maxScore}
+            </SheetDescription>
+          </div>
+          <SheetClose className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E7E0F4] bg-white text-[#6B5A9A] transition hover:bg-[#F4F0FB]">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </SheetClose>
+        </div>
       </SheetHeader>
 
       <div className="min-w-0 space-y-6 px-5 py-6 sm:px-7">
@@ -195,7 +208,8 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
           </div>
         )}
 
-        {/* Range filters */}
+        {/* Range filters — only useful once a trend can exist */}
+        {!singleOverall && (
         <div className="flex flex-wrap gap-1.5">
           {RANGES.map((r) => (
             <button
@@ -215,11 +229,32 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
             </button>
           ))}
         </div>
+        )}
 
-        {/* Trend chart */}
-        <TrendChart attempts={inRange} maxScore={group.maxScore} />
+        {/* Trend chart — only with 2+ results in the period */}
+        {showTrend && <TrendChart attempts={inRange} maxScore={group.maxScore} />}
 
-        {/* Latest + change */}
+        {/* Latest result */}
+        {singleOverall ? (
+          <div className="min-w-0">
+            <p className="text-[12px] text-[#8B85A6]">Latest result</p>
+            <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
+              {latest.score} of {group.maxScore}
+              {latest.status?.label ? (
+                <span className="text-[15px] font-medium text-[#5A4A8A]">
+                  {" "}
+                  · {latest.status.label}
+                </span>
+              ) : null}
+            </p>
+            <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+              Completed {fullDate(latest.takenAt)}
+            </p>
+            <p className="mt-4 text-[12.5px] leading-relaxed text-[#7E6BAF]">
+              A trend will appear after this assessment is completed again.
+            </p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
             <p className="text-[12px] text-[#8B85A6]">Latest score</p>
@@ -236,34 +271,51 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
               </p>
             )}
           </div>
+          {change !== null && (
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
             <p className="text-[12px] text-[#8B85A6]">
               Change over {RANGES.find((r) => r.key === range)?.label.toLowerCase()}
             </p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {change === null
-                ? "—"
-                : `${change > 0 ? "+" : ""}${change} point${Math.abs(change) === 1 ? "" : "s"}`}
+              {`${change > 0 ? "+" : ""}${change} point${Math.abs(change) === 1 ? "" : "s"}`}
             </p>
             <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-              {change === null
-                ? "Not enough results in this period"
-                : changeGood === null
-                  ? "No meaningful change"
-                  : changeGood
-                    ? "Moving in a better direction"
-                    : "Moving in a harder direction"}
+              {changeGood === null
+                ? "No meaningful change"
+                : changeGood
+                  ? "Moving in a better direction"
+                  : "Moving in a harder direction"}
             </p>
           </div>
+          )}
         </div>
+        )}
 
-        {/* Recent attempts */}
+        {singleInPeriod && (
+          <div className="min-w-0">
+            <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+              Only one result is available in this period.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setRange("all");
+                setVisible(10);
+              }}
+              className="mt-2 rounded-xl border border-[#E4DCF3] bg-[#FBF9FF] px-3.5 py-2 text-[12.5px] font-medium text-[#6B5A9A] transition hover:border-[#CDBFEA] hover:bg-[#F4F0FB]"
+            >
+              View all time
+            </button>
+          </div>
+        )}
+
+        {/* Result history */}
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-[#3D2E6B]">
-            {showAll ? "All results" : "Three most recent"}
+            Result history
           </p>
           <div className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
-            {(showAll ? inRange.slice(0, visible) : inRange.slice(0, 3)).map(
+            {(showAll ? inRange.slice(0, visible) : inRange.slice(0, initialRows)).map(
               (a) => (
                 <AttemptRow key={a.id} attempt={a} maxScore={group.maxScore} />
               ),
@@ -275,7 +327,7 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
             )}
           </div>
 
-          {!showAll && inRange.length > 3 && (
+          {!showAll && inRange.length > initialRows && (
             <button
               type="button"
               onClick={() => setShowAll(true)}
@@ -293,6 +345,15 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
               Load 10 more
             </button>
           )}
+        </div>
+
+        <div className="min-w-0 border-t border-[#F1EDF9] pt-5">
+          <p className="text-[13px] font-semibold text-[#3D2E6B]">
+            About this result
+          </p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-[#8B85A6]">
+            This is a screening result and is not a diagnosis.
+          </p>
         </div>
       </div>
     </div>
