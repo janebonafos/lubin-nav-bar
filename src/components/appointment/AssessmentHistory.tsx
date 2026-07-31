@@ -102,7 +102,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
                   {trend && span ? ` · ${trend} over ${span}` : ""}
                 </span>
               </span>
-              <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#1A1A1A] opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#1A1A1A] transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                 View trend
                 <ChevronRight className="h-4 w-4" />
               </span>
