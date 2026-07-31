@@ -155,6 +155,7 @@ function GroupDetail({
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
   const [visible, setVisible] = useState(10);
+  const [openFlagId, setOpenFlagId] = useState<string | null>(null);
 
   const cutoff = RANGES.find((r) => r.key === range)?.days ?? null;
   const inRange = useMemo(
@@ -176,7 +177,9 @@ function GroupDetail({
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
   const flagged = group.attempts.filter((a) => safetyResponse(a));
-  const flaggedShown = flagged.slice(0, 3);
+  const toggleFlag = (id: string) =>
+    setOpenFlagId((prev) => (prev === id ? null : id));
+  const flaggedIds = new Set(flagged.map((a) => a.id));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -201,36 +204,13 @@ function GroupDetail({
       <div className="min-w-0 space-y-6 px-5 py-6 sm:px-7">
         {flagged.length > 0 && (
           <SafetyAlert
-            flagged={flaggedShown}
-            hiddenCount={flagged.length - flaggedShown.length}
+            group={group}
+            flagged={flagged}
+            firstName={firstName}
+            openFlagId={openFlagId}
+            onToggle={toggleFlag}
           />
         )}
-
-        {/* Range filters — only useful once a trend can exist */}
-        {!singleOverall && (
-        <div className="flex flex-wrap gap-1.5">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => {
-                setRange(r.key);
-                setVisible(10);
-              }}
-              className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
-                range === r.key
-                  ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
-                  : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-        )}
-
-        {/* Trend chart — only with 2+ results in the period */}
-        {showTrend && <TrendChart attempts={inRange} maxScore={group.maxScore} />}
 
         {/* Latest result */}
         {singleOverall ? (
@@ -296,6 +276,38 @@ function GroupDetail({
         </div>
         )}
 
+        {/* Range filters + trend chart */}
+        {!singleOverall && (
+          <div className="flex flex-wrap gap-1.5">
+            {RANGES.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => {
+                  setRange(r.key);
+                  setVisible(10);
+                }}
+                className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
+                  range === r.key
+                    ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
+                    : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {showTrend && (
+          <TrendChart
+            attempts={inRange}
+            maxScore={group.maxScore}
+            flaggedIds={flaggedIds}
+            onFlagClick={toggleFlag}
+          />
+        )}
+
         {inRange.length === 2 && (
           <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
             Two results show a change, but more results are needed to establish a
@@ -329,7 +341,15 @@ function GroupDetail({
           <div className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
             {(showAll ? inRange.slice(0, visible) : inRange.slice(0, initialRows)).map(
               (a) => (
-                <AttemptRow key={a.id} attempt={a} maxScore={group.maxScore} />
+                <AttemptRow
+                  key={a.id}
+                  attempt={a}
+                  maxScore={group.maxScore}
+                  group={group}
+                  firstName={firstName}
+                  expanded={openFlagId === a.id}
+                  onToggle={toggleFlag}
+                />
               ),
             )}
             {inRange.length === 0 && (
