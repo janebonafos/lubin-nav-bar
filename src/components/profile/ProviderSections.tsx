@@ -2117,6 +2117,38 @@ export function ApptNotesBlock({
               </p>
             </div>
 
+            {/* Supporting information (collapsed by default) */}
+            <div className="rounded-[12px] border border-[#EEE6FA] bg-white">
+              <button
+                type="button"
+                onClick={() => setShowSupporting((v) => !v)}
+                className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-[#3D2E6B]">
+                    Add supporting information
+                  </span>
+                  {!showSupporting && (
+                    <span className="mt-0.5 block text-[11px] text-[#A89BD0]">
+                      {[
+                        `${(followUp.resources ?? []).length} resource${(followUp.resources ?? []).length === 1 ? "" : "s"}`,
+                        (appt.attachments ?? []).length === 0
+                          ? "No attachments"
+                          : `${(appt.attachments ?? []).length} attachment${(appt.attachments ?? []).length === 1 ? "" : "s"}`,
+                        fuNextFocus.trim()
+                          ? "Next-session focus added"
+                          : "No next-session focus",
+                      ].join(" · ")}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-[#A89BD0] transition-transform ${showSupporting ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {showSupporting && (
+              <div className="space-y-4 border-t border-[#F0EAFB] p-3">
             {/* Attachments */}
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
