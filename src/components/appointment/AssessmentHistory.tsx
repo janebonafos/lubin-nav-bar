@@ -112,7 +112,7 @@ export function AssessmentHistory({
                   {flagged && (
                     <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-tight text-[#C27800]">
                       <AlertTriangle className="h-3 w-3" />
-                      Safety response
+                    Review needed
                     </span>
                   )}
                 </span>
@@ -177,8 +177,11 @@ function GroupDetail({
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
   const flagged = group.attempts.filter((a) => safetyResponse(a));
-  const toggleFlag = (id: string) =>
+  const toggleFlag = (id: string) => {
     setOpenFlagId((prev) => (prev === id ? null : id));
+    // Make sure the matching Result history row is reachable.
+    setShowAll(true);
+  };
   const flaggedIds = new Set(flagged.map((a) => a.id));
 
   return (
