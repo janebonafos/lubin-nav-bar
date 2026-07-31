@@ -207,32 +207,10 @@ function GroupDetail({
 
       <div className="min-w-0 space-y-6 px-5 py-6 sm:px-7">
         {flagged.length > 0 && (
-          <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] p-4">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
-              <AlertTriangle className="h-4 w-4 flex-none" />
-              Safety-related response
-            </p>
-            <ul className="mt-2 space-y-1.5">
-              {flaggedShown.map((a) => {
-                const s = safetyResponse(a)!;
-                return (
-                  <li
-                    key={a.id}
-                    className="text-[12.5px] leading-relaxed text-[#7A5416]"
-                  >
-                    {fullDate(a.takenAt)} — “{s.text}”: {s.response}
-                  </li>
-                );
-              })}
-            </ul>
-            {flagged.length > flaggedShown.length && (
-              <p className="mt-2 text-[12px] text-[#8A5E1A]">
-                +{flagged.length - flaggedShown.length} earlier attempt
-                {flagged.length - flaggedShown.length === 1 ? "" : "s"} with a
-                safety-related response.
-              </p>
-            )}
-          </div>
+          <SafetyAlert
+            flagged={flaggedShown}
+            hiddenCount={flagged.length - flaggedShown.length}
+          />
         )}
 
         {/* Range filters — only useful once a trend can exist */}
