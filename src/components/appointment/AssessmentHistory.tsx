@@ -88,7 +88,19 @@ export function AssessmentHistory({
 }) {
   const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const [openId, setOpenId] = useState<string | null>(null);
-  const { reviewedIds, markReviewed } = useReviewedFlags(appointmentId);
+  const { reviewedIds, reviewMeta, markReviewed } = useReviewedFlags(appointmentId);
+  const [providerName, setProviderName] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("lubin.providerProfile.v1");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
+        setProviderName(parsed.displayName || parsed.name || undefined);
+      }
+    } catch {
+      /* noop */
+    }
+  }, []);
   const active = groups.find((g) => g.assessmentId === openId) ?? null;
   const firstName = clientName?.split(" ")[0] ?? "The client";
 
@@ -165,6 +177,8 @@ export function AssessmentHistory({
               firstName={firstName}
               reviewedIds={reviewedIds}
               markReviewed={markReviewed}
+              reviewMeta={reviewMeta}
+              providerName={providerName}
             />
           )}
         </SheetContent>
