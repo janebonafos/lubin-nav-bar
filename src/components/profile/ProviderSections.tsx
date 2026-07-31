@@ -1885,6 +1885,7 @@ export function ApptNotesBlock({
   clientName,
   providerName,
   sessionDateLabel,
+  onPublishConfirmed,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1892,6 +1893,7 @@ export function ApptNotesBlock({
   clientName?: string;
   providerName?: string;
   sessionDateLabel?: string;
+  onPublishConfirmed?: (confirmed: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
@@ -2073,7 +2075,7 @@ export function ApptNotesBlock({
               <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
                 Session recap
                 <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                  Required
+                  Required to publish
                 </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
@@ -2463,7 +2465,10 @@ export function ApptNotesBlock({
                 <input
                   type="checkbox"
                   checked={publishConfirmed}
-                  onChange={(e) => setPublishConfirmed(e.target.checked)}
+                  onChange={(e) => {
+                    setPublishConfirmed(e.target.checked);
+                    onPublishConfirmed?.(e.target.checked);
+                  }}
                   className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
                 />
                 <span>
