@@ -450,26 +450,3 @@ function SourceChip({ bullet }: { bullet: BriefBullet }) {
       {bullet.sourceLabel}
     </span>
   );
-}
-
-function ActionButton({
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] transition hover:border-[#7E6BAF] hover:bg-[#F7F4FB]"
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-      <ChevronRight className="h-3 w-3 opacity-60" />
-    </button>
-  );
-}
