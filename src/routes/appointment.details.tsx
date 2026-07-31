@@ -474,9 +474,9 @@ function DetailsPage() {
           number={1}
           eyebrow="Before the session"
           title="Information Shared by Client"
-          description="Health Passport sharing is the input. The AI Provider Brief is an optional summary generated from that shared information."
+          description="Health Passport information appears here only when the client chooses to share it for this appointment. The AI Provider Brief becomes available after Health Passport information is shared."
           defaultOpen={!isCompleted}
-          hint="Reference only. Nothing here is shared back to your client."
+          hint="Not shared with the client. For provider review only."
           reference
           pillLabel={hasSharedContext ? "Reference" : "Not shared"}
         >
