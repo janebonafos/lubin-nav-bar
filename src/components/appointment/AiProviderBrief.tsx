@@ -4,11 +4,11 @@ import {
   AlertTriangle,
   ChevronRight,
   Lock,
-  ClipboardList,
   CalendarDays,
   FileText,
   RefreshCw,
 } from "lucide-react";
+import { AssessmentHistory } from "@/components/appointment/AssessmentHistory";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
   seedDemoSharedGrant,
@@ -315,12 +315,21 @@ export function AiProviderBrief({
         </details>
       )}
 
+      {snap.attemptsInRange.length > 0 && (
+        <div className="mt-6 min-w-0">
+          <p className="text-[13px] font-semibold text-[#3D2E6B]">
+            Assessment results
+          </p>
+          <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+            Grouped by assessment. Open one to see its trend and full history.
+          </p>
+          <div className="mt-3">
+            <AssessmentHistory attempts={snap.attemptsInRange} />
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
-        <HistoryRow
-          icon={<ClipboardList className="h-4 w-4 text-[#A99BD0]" />}
-          label="Assessment results"
-          onClick={onViewAssessments}
-        />
         <HistoryRow
           icon={<CalendarDays className="h-4 w-4 text-[#A99BD0]" />}
           label="Check-in timeline"
