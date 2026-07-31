@@ -483,13 +483,12 @@ function DetailsPage() {
         <SectionCard
           id="before-session"
           number={1}
-          eyebrow="Before the session"
           title="Information Shared by Client"
-          description="Health Passport information appears here only when the client chooses to share it for this appointment. The AI Provider Brief becomes available after Health Passport information is shared."
+          description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
           defaultOpen={!isCompleted}
           hint="Not shared with the client. For provider review only."
           reference
-          pillLabel={hasSharedContext ? "Reference" : "Not shared"}
+          pillLabel={hasSharedContext ? " " : "Not shared"}
           checkBadge={!hasSharedContext}
         >
           <AiProviderBrief
