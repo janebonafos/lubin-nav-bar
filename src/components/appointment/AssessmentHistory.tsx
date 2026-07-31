@@ -367,6 +367,75 @@ function GroupDetail({
   );
 }
 
+function SafetyAlert({
+  flagged,
+  hiddenCount,
+}: {
+  flagged: AttemptWithStatus[];
+  hiddenCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const first = flagged[0];
+  if (!first) return null;
+  return (
+    <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] p-4">
+      <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
+        <AlertTriangle className="h-4 w-4 flex-none" />
+        Safety-related response recorded
+      </p>
+      <p className="mt-1 text-[12.5px] text-[#8A5E1A]">
+        {fullDate(first.takenAt)} · Review recommended
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="mt-3 flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
+      >
+        {open ? "Hide response" : "View response"}
+        <ChevronDown
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="mt-3 space-y-3">
+          {flagged.map((a) => {
+            const s = safetyResponse(a)!;
+            return (
+              <div
+                key={a.id}
+                className="rounded-lg border border-[#EFDCBE] bg-white/70 p-3"
+              >
+                <p className="text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
+                  Question 9 · {fullDate(a.takenAt)}
+                </p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
+                  “{s.text}”
+                </p>
+                <p className="mt-2 text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
+                  Response
+                </p>
+                <p className="mt-0.5 text-[12.5px] text-[#7A5416]">
+                  {plainLabel(s.response)}
+                </p>
+              </div>
+            );
+          })}
+          {hiddenCount > 0 && (
+            <p className="text-[12px] text-[#8A5E1A]">
+              +{hiddenCount} earlier attempt{hiddenCount === 1 ? "" : "s"} with a
+              safety-related response.
+            </p>
+          )}
+          <p className="text-[12.5px] leading-relaxed text-[#7A5416]">
+            This response requires separate clinical review and should not be
+            interpreted from the total score or trend alone.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HowCalculated({
   group,
   latest,
