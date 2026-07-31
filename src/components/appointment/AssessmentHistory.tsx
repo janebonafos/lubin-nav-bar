@@ -626,33 +626,51 @@ function HowCalculated({
 function AttemptRow({
   attempt,
   maxScore,
+  group,
+  expanded,
+  onToggle,
 }: {
   attempt: AttemptWithStatus;
   maxScore: number;
+  group: AssessmentGroup;
+  firstName: string;
+  expanded: boolean;
+  onToggle: (id: string) => void;
 }) {
   const s = safetyResponse(attempt);
   return (
-    <div className="flex min-w-0 items-center gap-3 px-4 py-3">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[13.5px] text-[#2C2B4B]">
-          {fullDate(attempt.takenAt)}
-        </p>
-        <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
-          <span className="truncate">{attempt.status?.label ?? "Recorded"}</span>
-          {s && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A]">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              Safety-related response
+    <div className="min-w-0 px-4 py-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13.5px] text-[#2C2B4B]">
+            {fullDate(attempt.takenAt)}
+          </p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
+            <span className="truncate">
+              {attempt.status?.label ?? "Recorded"}
             </span>
-          )}
-        </p>
-      </div>
-      <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
-        {attempt.score}
-        <span className="text-[11.5px] font-normal text-[#A79FC0]">
-          /{maxScore}
+            {s && (
+              <button
+                type="button"
+                onClick={() => onToggle(attempt.id)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A] transition hover:bg-[#F8EBD5]"
+              >
+                <AlertTriangle className="h-2.5 w-2.5" />
+                Review needed · Question 9
+              </button>
+            )}
+          </p>
+        </div>
+        <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
+          {attempt.score}
+          <span className="text-[11.5px] font-normal text-[#A79FC0]">
+            /{maxScore}
+          </span>
         </span>
-      </span>
+      </div>
+      {s && expanded && (
+        <FlagDetail group={group} attempt={attempt} className="mt-3" />
+      )}
     </div>
   );
 }
@@ -660,9 +678,13 @@ function AttemptRow({
 function TrendChart({
   attempts,
   maxScore,
+  flaggedIds,
+  onFlagClick,
 }: {
   attempts: AttemptWithStatus[];
   maxScore: number;
+  flaggedIds?: Set<string>;
+  onFlagClick?: (id: string) => void;
 }) {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const pts = [...attempts].sort((a, b) => a.takenAt - b.takenAt);
@@ -745,12 +767,35 @@ function TrendChart({
         />
         {coords.map((c, i) => (
           <g key={i}>
-            <circle
-              cx={c.x}
-              cy={c.y}
-              r={activeIdx === i ? 3.4 : 2.4}
-              fill="#5A4A8A"
-            />
+            {flaggedIds?.has(pts[i].id) ? (
+              <>
+                <circle
+                  cx={c.x}
+                  cy={c.y}
+                  r={activeIdx === i ? 5 : 4.2}
+                  fill="#F2A33C"
+                  stroke="#FFFFFF"
+                  strokeWidth={1.2}
+                />
+                <text
+                  x={c.x}
+                  y={c.y + 2.2}
+                  textAnchor="middle"
+                  fontSize={6}
+                  fontWeight="bold"
+                  fill="#7A5416"
+                >
+                  !
+                </text>
+              </>
+            ) : (
+              <circle
+                cx={c.x}
+                cy={c.y}
+                r={activeIdx === i ? 3.4 : 2.4}
+                fill="#5A4A8A"
+              />
+            )}
             <circle
               cx={c.x}
               cy={c.y}
@@ -759,7 +804,13 @@ function TrendChart({
               className="cursor-pointer"
               onMouseEnter={() => setActiveIdx(i)}
               onMouseLeave={() => setActiveIdx(null)}
-              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+              onClick={() => {
+                if (flaggedIds?.has(pts[i].id) && onFlagClick) {
+                  onFlagClick(pts[i].id);
+                  return;
+                }
+                setActiveIdx(activeIdx === i ? null : i);
+              }}
             />
           </g>
         ))}
