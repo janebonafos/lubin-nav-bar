@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Sparkles,
-  Loader2,
-  RefreshCw,
-  ClipboardList,
-  FileText,
-  History,
-  AlertTriangle,
-  ChevronRight,
-} from "lucide-react";
+import { Loader2, AlertTriangle, ChevronRight } from "lucide-react";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
   seedDemoSharedGrant,
@@ -219,66 +210,60 @@ export function AiProviderBrief({
   }
 
   const snap = grant.snapshot;
+  const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F1EDF9] px-5 py-4">
+    <section className="rounded-2xl bg-white px-1 py-1">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-[#3D2E6B]">
-            AI Provider Brief
+          <h2 className="text-[17px] font-semibold text-[#2C2B4B]">
+            Shared health overview
           </h2>
-          <p className="mt-0.5 text-xs text-[#8B85A6]">
-            Shared by client · {snap.rangeLabel}
+          <p className="mt-1 text-[13px] text-[#8B85A6]">
+            Information {firstName} chose to share · {snap.rangeLabel}
           </p>
         </div>
         <button
           type="button"
           onClick={generate}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#D6CCEC] px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] transition hover:bg-[#F7F4FB] disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#7E6BAF] underline-offset-4 transition hover:underline disabled:opacity-60"
         >
-          {busy ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : brief ? (
-            <RefreshCw className="h-3.5 w-3.5" />
-          ) : (
-            <Sparkles className="h-3.5 w-3.5" />
-          )}
-          {brief ? "Refresh" : "Generate"}
+          {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {brief ? "Refresh overview" : "Create overview"}
         </button>
       </div>
 
-      <div className="px-5 py-5">
       {stale && brief && (
-        <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#FDF6EC] p-3 text-[12px] text-[#8A5E1A]">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
           <span>
-            The patient shared updated information. Regenerate the brief to
-            reflect the latest snapshot.
+            {firstName} shared updated information. Refresh the overview to see
+            the latest.
           </span>
         </div>
       )}
 
       {error && (
-        <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+        <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-[12px] text-rose-700">
           {error}
         </p>
       )}
 
-      <p className="text-[15px] leading-relaxed text-[#3D2E6B]">
+      <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-[#2C2B4B]">
         {snap.insight}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-y border-[#F1EDF9] py-3">
-        <Signal label="Mood" value={snap.moodLabel} />
-        <Signal label="Stress" value={snap.stressLabel} />
-        <Signal label="Direction" value={snap.directionLabel} accent />
-      </div>
+      <p className="mt-4 text-[13px] text-[#6B6684]">
+        <span className="text-[#7E6BAF]">Recent pattern:</span> Mood{" "}
+        {snap.moodLabel.toLowerCase()} · Stress {snap.stressLabel.toLowerCase()}{" "}
+        · {snap.directionLabel.toLowerCase()} overall
+      </p>
 
       {brief && (
-        <details className="group mt-4">
-          <summary className="cursor-pointer list-none text-xs font-semibold text-[#7E6BAF] hover:underline">
-            Show full brief
+        <details className="mt-4">
+          <summary className="cursor-pointer list-none text-[13px] font-medium text-[#7E6BAF] hover:underline">
+            Show full overview
           </summary>
           <div className="mt-3 space-y-3">
             {BRIEF_SECTION_ORDER.map(({ key, label }, idx) => (
@@ -293,98 +278,53 @@ export function AiProviderBrief({
         </details>
       )}
 
-      <div className="mt-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8B85A6]">
-          Browse this client's history
+      <div className="mt-6 divide-y divide-[#F1EDF9] border-t border-[#F1EDF9]">
+        <HistoryRow label="Assessment results" onClick={onViewAssessments} />
+        <HistoryRow label="Check-in timeline" onClick={onViewTimeline} />
+        <HistoryRow
+          label="Information used for this overview"
+          onClick={onViewSupporting}
+        />
+      </div>
+
+      <details className="mt-6">
+        <summary className="cursor-pointer list-none text-[12px] text-[#A79FC0] hover:text-[#7E6BAF]">
+          About this overview
+        </summary>
+        <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-[#8B85A6]">
+          Created from information {firstName} chose to share. Review before
+          using it in your clinical assessment.
         </p>
-        <div className="mt-2 divide-y divide-[#F1EDF9] rounded-xl border border-[#F1EDF9]">
-          <HistoryRow
-            icon={ClipboardList}
-            label="Assessment results"
-            hint={`${snap.attemptsInRange.length} results with scores over time`}
-            onClick={onViewAssessments}
-          />
-          <HistoryRow
-            icon={History}
-            label="Check-in timeline"
-            hint={`${snap.checkinsInRange.length} daily check-ins in ${snap.rangeLabel.toLowerCase()}`}
-            onClick={onViewTimeline}
-          />
-          <HistoryRow
-            icon={FileText}
-            label="Supporting information"
-            hint="Themes, notes and everything the brief was based on"
-            onClick={onViewSupporting}
-          />
-        </div>
-      </div>
-
-      <p className="mt-4 text-[11px] leading-relaxed text-[#8B85A6]">
-        AI-generated summary of client-shared information. It may contain
-        errors, is not a clinical note, and does not replace your assessment.
-      </p>
-
-      <button
-        type="button"
-        onClick={() => {
-          clearDemoSharedGrant(appointmentId);
-          setRefreshKey((k) => k + 1);
-        }}
-        className="mt-3 text-[11px] font-semibold text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
-      >
-        Exit shared-view preview
-      </button>
-      </div>
+        <button
+          type="button"
+          onClick={() => {
+            clearDemoSharedGrant(appointmentId);
+            setRefreshKey((k) => k + 1);
+          }}
+          className="mt-2 text-[12px] text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
+        >
+          Exit preview
+        </button>
+      </details>
     </section>
   );
 }
 
-function Signal({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A79FC0]">
-        {label}
-      </p>
-      <p
-        className={`mt-0.5 text-sm font-semibold ${accent ? "text-[#7E6BAF]" : "text-[#3D2E6B]"}`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function HistoryRow({
-  icon: Icon,
   label,
-  hint,
   onClick,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
   label: string;
-  hint: string;
   onClick?: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FBF9FF]"
+      className="flex w-full items-center gap-3 py-3 text-left transition hover:text-[#7E6BAF]"
     >
-      <Icon className="h-4 w-4 flex-none text-[#7E6BAF]" />
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-[#3D2E6B]">
-          {label}
-        </span>
-        <span className="block truncate text-xs text-[#8B85A6]">{hint}</span>
+      <span className="min-w-0 flex-1 truncate text-[14px] text-[#2C2B4B]">
+        {label}
       </span>
       <ChevronRight className="h-4 w-4 flex-none text-[#C3BAD8]" />
     </button>
@@ -406,15 +346,8 @@ function BriefSection({
       bullets[0].sourceType === "system" &&
       /not enough/i.test(bullets[0].text));
   return (
-    <div className="rounded-2xl border border-[#ECE7F6] bg-white p-4">
-      <div className="flex items-center gap-2">
-        <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-[#EEE8F8] text-[10px] font-bold text-[#7E6BAF]">
-          {index}
-        </span>
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-          {label}
-        </p>
-      </div>
+    <div className="py-2">
+      <p className="text-[13px] font-semibold text-[#3D2E6B]">{label}</p>
       {empty ? (
         <p className="mt-2 text-[12px] italic text-[#8B85A6]">
           Not enough information
