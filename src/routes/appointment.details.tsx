@@ -195,7 +195,8 @@ function SectionCard({
             </span>
           )}
         </span>
-        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] sm:inline-flex"
+        {!(state === "reference" && !pillLabel) && (
+        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium sm:inline-flex"
           style={{
             backgroundColor:
               state === "done"
@@ -223,6 +224,7 @@ function SectionCard({
                   ? "Reference"
                   : "To do"}
         </span>
+        )}
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
