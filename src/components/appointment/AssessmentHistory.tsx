@@ -167,15 +167,29 @@ function GroupDetail({
   );
 
   const totalCount = group.attempts.length;
-  const singleOverall = totalCount < 2;
-  const singleInPeriod = !singleOverall && inRange.length < 2;
-  const showTrend = inRange.length >= 2;
-  const initialRows = totalCount > 10 ? 5 : 3;
+  const countFor = (days: number | null) =>
+    days === null
+      ? totalCount
+      : group.attempts.filter((a) => a.takenAt >= Date.now() - days * DAY)
+          .length;
+  // A filter is only offered when it would leave enough results to be useful.
+  const usableRanges = RANGES.filter((r) => countFor(r.days) >= 3);
+  const showFilters = totalCount >= 3 && usableRanges.length >= 2;
+
+  const shown = inRange.length;
+  const mode: 1 | 2 | 3 = shown < 2 ? 1 : shown === 2 ? 2 : 3;
+  const singleInPeriod = totalCount >= 2 && shown < 2;
+  const initialRows = 5;
 
   const latest = inRange[0] ?? group.latest;
   const oldest = inRange[inRange.length - 1];
+  const previous = inRange[1] ?? null;
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
+  const ranges = useMemo(
+    () => getScoreRanges(group.assessmentId, group.maxScore, group.lowerIsBetter),
+    [group.assessmentId, group.maxScore, group.lowerIsBetter],
+  );
   const flagged = group.attempts.filter((a) => safetyResponse(a));
   const toggleFlag = (id: string) => {
     setOpenFlagId((prev) => (prev === id ? null : id));
@@ -215,8 +229,32 @@ function GroupDetail({
           />
         )}
 
-        {/* Latest result */}
-        {singleOverall ? (
+        {/* Range filters — only when enough results make them useful */}
+        {showFilters && (
+          <div className="flex flex-wrap gap-1.5">
+            {usableRanges.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => {
+                  setRange(r.key);
+                  setVisible(10);
+                  setShowAll(false);
+                }}
+                className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
+                  range === r.key
+                    ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
+                    : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* 1 result — no graph */}
+        {mode === 1 && (
           <div className="min-w-0">
             <p className="text-[12px] text-[#8B85A6]">Latest result</p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
@@ -232,90 +270,79 @@ function GroupDetail({
               Completed {fullDate(latest.takenAt)}
             </p>
             <p className="mt-4 text-[12.5px] leading-relaxed text-[#7E6BAF]">
-              A trend will appear after this assessment is completed again.
+              Score history will appear after more assessments are completed.
             </p>
           </div>
-        ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
-            <p className="text-[12px] text-[#8B85A6]">Latest result</p>
-            <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {latest.score} of {group.maxScore}
-              {latest.status?.label ? (
-                <span className="text-[15px] font-medium text-[#5A4A8A]">
+        )}
+
+        {/* 2 results — simple comparison, no graph */}
+        {mode === 2 && previous && (
+          <div className="min-w-0 space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <ResultBlock
+                label="Previous result"
+                attempt={previous}
+                maxScore={group.maxScore}
+                flagged={flaggedIds.has(previous.id)}
+                onFlagClick={toggleFlag}
+              />
+              <ResultBlock
+                label="Latest result"
+                attempt={latest}
+                maxScore={group.maxScore}
+                flagged={flaggedIds.has(latest.id)}
+                onFlagClick={toggleFlag}
+              />
+            </div>
+            <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
+              <p className="text-[12px] text-[#8B85A6]">Change</p>
+              <p className="mt-1 text-[17px] font-semibold text-[#2C2B4B]">
+                {change === 0
+                  ? "No change"
+                  : `${Math.abs(change ?? 0)} point${Math.abs(change ?? 0) === 1 ? "" : "s"} ${(change ?? 0) < 0 ? "lower" : "higher"}`}
+                <span className="text-[13px] font-normal text-[#7E6BAF]">
                   {" "}
-                  · {latest.status.label}
+                  over{" "}
+                  {Math.max(
+                    1,
+                    Math.round((latest.takenAt - previous.takenAt) / DAY),
+                  )}{" "}
+                  days
                 </span>
-              ) : null}
-            </p>
-            <p className="mt-1 text-[12.5px] text-[#8B85A6]">
-              Completed {fullDate(latest.takenAt)}
-            </p>
-          </div>
-          {change !== null && (
-          <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
-            <p className="text-[12px] text-[#8B85A6]">
-              {oldest
-                ? `Change since ${shortDate(oldest.takenAt)}`
-                : `Change over ${RANGES.find((r) => r.key === range)?.label.toLowerCase()}`}
-            </p>
-            <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {change === 0
-                ? "No change"
-                : `${Math.abs(change)} point${Math.abs(change) === 1 ? "" : "s"} ${change < 0 ? "lower" : "higher"}`}
-            </p>
-            {oldest && (
-              <p className="mt-1 text-[12.5px] text-[#8B85A6]">
-                Latest score: {latest.score}, previously {oldest.score}
               </p>
-            )}
-            <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-              {change === 0
-                ? "Scores were the same on both assessments."
-                : `Symptoms scored ${change < 0 ? "lower" : "higher"} on the latest assessment.`}
+            </div>
+            <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+              Two results show a change, but more results are needed to identify
+              a pattern.
             </p>
           </div>
-          )}
-        </div>
         )}
 
-        {/* Range filters + trend chart */}
-        {!singleOverall && (
-          <div className="flex flex-wrap gap-1.5">
-            {RANGES.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                onClick={() => {
-                  setRange(r.key);
-                  setVisible(10);
-                }}
-                className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
-                  range === r.key
-                    ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
-                    : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
+        {/* 3+ results — score history graph */}
+        {mode === 3 && (
+          <div className="min-w-0 space-y-4">
+            <ResultBlock
+              label="Latest result"
+              attempt={latest}
+              maxScore={group.maxScore}
+              flagged={flaggedIds.has(latest.id)}
+              onFlagClick={toggleFlag}
+            />
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-[#3D2E6B]">
+                Score history
+              </p>
+              <div className="mt-2">
+                <TrendChart
+                  attempts={inRange}
+                  maxScore={group.maxScore}
+                  flaggedIds={flaggedIds}
+                  onFlagClick={toggleFlag}
+                  ranges={ranges}
+                />
+              </div>
+            </div>
           </div>
-        )}
-
-        {showTrend && (
-          <TrendChart
-            attempts={inRange}
-            maxScore={group.maxScore}
-            flaggedIds={flaggedIds}
-            onFlagClick={toggleFlag}
-          />
-        )}
-
-        {inRange.length === 2 && (
-          <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-            Two results show a change, but more results are needed to establish a
-            pattern.
-          </p>
         )}
 
         {singleInPeriod && (
