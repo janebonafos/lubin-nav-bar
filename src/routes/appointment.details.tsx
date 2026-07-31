@@ -195,7 +195,8 @@ function SectionCard({
             </span>
           )}
         </span>
-        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] sm:inline-flex"
+        {!(state === "reference" && !pillLabel) && (
+        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium sm:inline-flex"
           style={{
             backgroundColor:
               state === "done"
@@ -223,6 +224,7 @@ function SectionCard({
                   ? "Reference"
                   : "To do"}
         </span>
+        )}
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
@@ -483,13 +485,12 @@ function DetailsPage() {
         <SectionCard
           id="before-session"
           number={1}
-          eyebrow="Before the session"
           title="Information Shared by Client"
-          description="Health Passport information appears here only when the client chooses to share it for this appointment. The AI Provider Brief becomes available after Health Passport information is shared."
+          description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
           defaultOpen={!isCompleted}
           hint="Not shared with the client. For provider review only."
           reference
-          pillLabel={hasSharedContext ? "Reference" : "Not shared"}
+          pillLabel={hasSharedContext ? undefined : "Not shared"}
           checkBadge={!hasSharedContext}
         >
           <AiProviderBrief
