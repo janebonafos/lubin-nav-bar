@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Loader2,
-  AlertTriangle,
-  ChevronRight,
-  Lock,
-  CalendarDays,
-  FileText,
-  RefreshCw,
-} from "lucide-react";
+import { Loader2, AlertTriangle, ChevronRight } from "lucide-react";
 import { AssessmentHistory } from "@/components/appointment/AssessmentHistory";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
@@ -223,54 +215,47 @@ export function AiProviderBrief({
   const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="rounded-2xl bg-white px-5 py-5 sm:px-8 sm:py-7">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-6">
-        <div className="min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="min-w-0 text-[17px] font-semibold text-[#2C2B4B]">
-              Information {firstName} shared
-            </h2>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#F4F0FB] px-2 py-0.5 text-[11px] font-medium text-[#7E6BAF]">
-              <Lock className="h-3 w-3" />
-              Provider only
-            </span>
-          </div>
-          <p className="mt-1.5 text-[13px] text-[#8B85A6]">
-            Shared for this appointment · {snap.rangeLabel}
-            <span className="mx-1.5 text-[#D8D2E6]">·</span>
-            <button
-              type="button"
-              onClick={() => setAboutOpen((v) => !v)}
-              className="text-[#7E6BAF] underline-offset-2 transition hover:underline"
-            >
-              About this overview
-            </button>
-          </p>
+    <section className="rounded-xl border border-[#EBEBEB] bg-white px-5 pt-7 pb-8 shadow-sm sm:px-8 sm:pt-10">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
+          <h2 className="min-w-0 text-[20px] font-medium tracking-tight text-[#1A1A1A]">
+            Information {firstName} shared
+          </h2>
+          <span className="shrink-0 rounded-sm border border-[#EDEDED] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#8C8C8C]">
+            Provider only
+          </span>
         </div>
         <button
           type="button"
           onClick={generate}
           disabled={busy}
-          className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-xl border border-[#E4DCF3] bg-[#FBF9FF] px-3.5 py-2 text-[13px] font-medium text-[#6B5A9A] transition hover:border-[#CDBFEA] hover:bg-[#F4F0FB] disabled:opacity-60"
+          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-[12px] font-medium text-[#6B6B6B] transition hover:text-[#1A1A1A] disabled:opacity-60"
         >
-          {busy ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3.5 w-3.5" />
-          )}
-          {brief ? "Refresh overview" : "Refresh overview"}
+          {busy && <Loader2 className="h-3 w-3 animate-spin" />}
+          Refresh
         </button>
       </div>
+      <p className="mt-4 text-[13px] text-[#8C8C8C]">
+        {snap.rangeLabel}
+        <span className="mx-1.5">·</span>
+        <button
+          type="button"
+          onClick={() => setAboutOpen((v) => !v)}
+          className="underline decoration-[#EDEDED] underline-offset-4 transition hover:text-[#6B6B6B]"
+        >
+          About this overview
+        </button>
+      </p>
 
       {aboutOpen && (
-        <p className="mt-4 max-w-[660px] rounded-xl bg-[#FAF9FD] px-4 py-3 text-[12px] leading-relaxed text-[#8B85A6]">
+        <p className="mt-4 max-w-[620px] border-l border-[#EDEDED] pl-4 text-[12px] leading-relaxed text-[#8C8C8C]">
           Created from information {firstName} chose to share. Review before
           using it in your clinical assessment.
         </p>
       )}
 
       {stale && brief && (
-        <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#FDF6EC] p-3 text-[12px] text-[#8A5E1A]">
+        <div className="mt-4 flex items-start gap-2 rounded-md bg-[#FDF6EC] p-3 text-[12px] text-[#8A5E1A]">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
           <span>
             {firstName} shared updated information. Refresh the overview to see
@@ -285,21 +270,21 @@ export function AiProviderBrief({
         </p>
       )}
 
-      <div className="mt-6 max-w-[660px] rounded-[13px] border border-[#EDE7F8] bg-[#FBF9FF] p-5">
-        <p className="text-[15px] leading-[1.6] text-[#2C2B4B]">
+      <div className="mt-6 max-w-[620px]">
+        <p className="text-[15px] font-light leading-[1.7] text-[#333333]">
           {snap.insight}
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-8 flex flex-wrap gap-2">
         <PatternChip label="Mood" value={snap.moodLabel} />
         <PatternChip label="Stress" value={snap.stressLabel} />
         <PatternChip label="Trend" value={snap.directionLabel} />
       </div>
 
       {brief && (
-        <details className="mt-6">
-          <summary className="cursor-pointer list-none text-[13px] font-medium text-[#7E6BAF] hover:underline">
+        <details className="mt-8">
+          <summary className="cursor-pointer list-none text-[12px] font-medium text-[#6B6B6B] hover:text-[#1A1A1A]">
             Show full overview
           </summary>
           <div className="mt-3 space-y-3">
@@ -316,27 +301,22 @@ export function AiProviderBrief({
       )}
 
       {snap.attemptsInRange.length > 0 && (
-        <div className="mt-6 min-w-0">
-          <p className="text-[13px] font-semibold text-[#3D2E6B]">
+        <div className="mt-10 min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#1A1A1A]">
             Assessment results
           </p>
-          <p className="mt-1 text-[12.5px] text-[#8B85A6]">
-            Grouped by assessment. Open one to see its trend and full history.
+          <p className="mt-1 text-[12px] text-[#8C8C8C]">
+            Select a result to view trend and history details.
           </p>
-          <div className="mt-3">
+          <div className="mt-5">
             <AssessmentHistory attempts={snap.attemptsInRange} />
           </div>
         </div>
       )}
 
-      <div className="mt-6 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
+      <div className="mt-8 flex flex-col">
+        <HistoryRow label="Check-in timeline" onClick={onViewTimeline} divider />
         <HistoryRow
-          icon={<CalendarDays className="h-4 w-4 text-[#A99BD0]" />}
-          label="Check-in timeline"
-          onClick={onViewTimeline}
-        />
-        <HistoryRow
-          icon={<FileText className="h-4 w-4 text-[#A99BD0]" />}
           label="Information used for this overview"
           onClick={onViewSupporting}
         />
@@ -348,7 +328,7 @@ export function AiProviderBrief({
           clearDemoSharedGrant(appointmentId);
           setRefreshKey((k) => k + 1);
         }}
-        className="mt-6 text-[12px] text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
+        className="mt-8 text-[12px] text-[#8C8C8C] transition hover:text-[#1A1A1A]"
       >
         Exit preview
       </button>
@@ -358,10 +338,10 @@ export function AiProviderBrief({
 
 function PatternChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F5FC] px-3 py-1.5 text-[12.5px] text-[#4A4266]">
-      <span className="text-[#8B85A6]">{label}</span>
-      <span className="text-[#D8D2E6]">·</span>
-      <span className="font-medium">{value}</span>
+    <span className="inline-flex items-center rounded border border-[#EDEDED] bg-[#F9F9F9] px-3 py-1.5 text-[13px] text-[#4A4A4A]">
+      {label}
+      <span className="mx-1.5 text-[#8C8C8C]">/</span>
+      <span className="font-medium text-[#1A1A1A]">{value}</span>
     </span>
   );
 }
@@ -369,23 +349,20 @@ function PatternChip({ label, value }: { label: string; value: string }) {
 function HistoryRow({
   label,
   onClick,
-  icon,
+  divider,
 }: {
   label: string;
   onClick?: () => void;
-  icon?: React.ReactNode;
+  divider?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-[50px] w-full items-center gap-3 px-4 text-left transition hover:bg-[#FBF9FF]"
+      className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] text-[#4A4A4A] transition hover:text-[#1A1A1A] ${divider ? "border-b border-[#F5F5F5]" : ""}`}
     >
-      {icon && <span className="flex-none">{icon}</span>}
-      <span className="min-w-0 flex-1 truncate text-[14px] text-[#2C2B4B]">
-        {label}
-      </span>
-      <ChevronRight className="h-4 w-4 flex-none text-[#C3BAD8]" />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <ChevronRight className="h-4 w-4 flex-none text-[#D4D4D4] transition group-hover:text-[#8C8C8C]" />
     </button>
   );
 }
@@ -406,16 +383,16 @@ function BriefSection({
       /not enough/i.test(bullets[0].text));
   return (
     <div className="py-2">
-      <p className="text-[13px] font-semibold text-[#3D2E6B]">{label}</p>
+      <p className="text-[13px] font-semibold text-[#1A1A1A]">{label}</p>
       {empty ? (
-        <p className="mt-2 text-[12px] italic text-[#8B85A6]">
+        <p className="mt-2 text-[12px] italic text-[#8C8C8C]">
           Not enough information
         </p>
       ) : (
         <ul className="mt-2 space-y-1.5">
           {bullets.map((b, i) => (
-            <li key={i} className="text-[13px] leading-snug text-[#3D2E6B]">
-              <span className="mr-1 text-[#7E6BAF]">•</span>
+            <li key={i} className="text-[13px] leading-snug text-[#333333]">
+              <span className="mr-1 text-[#8C8C8C]">•</span>
               {b.text}
               <SourceChip bullet={b} />
             </li>
