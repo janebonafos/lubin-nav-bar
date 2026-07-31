@@ -175,13 +175,6 @@ function GroupDetail({
   const oldest = inRange[inRange.length - 1];
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
-  const changeGood =
-    change === null || change === 0
-      ? null
-      : group.lowerIsBetter
-        ? change < 0
-        : change > 0;
-
   const flagged = group.attempts.filter((a) => safetyResponse(a));
   const flaggedShown = flagged.slice(0, 3);
 
@@ -366,16 +359,11 @@ function GroupDetail({
           )}
         </div>
 
-        <div className="min-w-0 border-t border-[#F1EDF9] pt-5">
-          <p className="text-[13px] font-semibold text-[#3D2E6B]">
-            About this result
-          </p>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-[#8B85A6]">
-            This is a screening result and is not a diagnosis.
-          </p>
-        </div>
-
         <HowCalculated group={group} latest={latest} firstName={firstName} />
+
+        <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+          This is a screening result and is not a diagnosis.
+        </p>
       </div>
     </div>
   );
