@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { ChevronRight, AlertTriangle } from "lucide-react";
+import { ChevronRight, AlertTriangle, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetClose,
 } from "@/components/ui/sheet";
 import {
   groupAttemptsByAssessment,
@@ -114,7 +115,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
       <Sheet open={!!active} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent
           side="right"
-          className="w-full overflow-y-auto border-l-[#EFEAF8] bg-white p-0 sm:max-w-xl"
+          className="w-full overflow-y-auto border-l-[#EFEAF8] bg-white p-0 sm:w-[520px] sm:max-w-[560px] [&>button]:hidden"
         >
           {active && <GroupDetail group={active} />}
         </SheetContent>
