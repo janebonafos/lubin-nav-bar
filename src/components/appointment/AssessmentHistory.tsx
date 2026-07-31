@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronRight, AlertTriangle, X } from "lucide-react";
+import { ChevronRight, AlertTriangle } from "lucide-react";
 import {
   Sheet,
   SheetContent,
