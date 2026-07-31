@@ -165,7 +165,6 @@ export function AiProviderBrief({
 
   // No share yet — the brief cannot exist.
   if (!grant || grant.revoked || grant.includedKeys.length === 0) {
-    const who = clientName?.trim() || "Your client";
     return (
       <div className="space-y-3">
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5">
@@ -177,9 +176,6 @@ export function AiProviderBrief({
               Not shared
             </span>
           </div>
-          <p className="mt-1.5 text-sm text-[#6B6684]">
-            {who} has not shared Health Passport information for this appointment.
-          </p>
         </div>
 
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-75">
@@ -191,10 +187,6 @@ export function AiProviderBrief({
               Unavailable
             </span>
           </div>
-          <p className="mt-1.5 text-sm text-[#6B6684]">
-            A provider brief can only be generated after the client shares
-            Health Passport information.
-          </p>
         </div>
       </div>
     );
