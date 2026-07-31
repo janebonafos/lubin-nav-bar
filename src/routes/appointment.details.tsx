@@ -485,7 +485,7 @@ function DetailsPage() {
         <SectionCard
           id="before-session"
           number={1}
-          title="Information Shared by Client"
+          title={`Information ${appt.client?.split(" ")[0] ?? "your client"} shared`}
           description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
           defaultOpen={!isCompleted}
           reference
