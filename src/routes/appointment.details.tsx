@@ -318,7 +318,7 @@ function DetailsPage() {
     if (!appt?.id) return false;
     const grant = getAnyProviderGrant(appt.id);
     return !!grant && !grant.revoked && grant.includedKeys.length > 0;
-  }, [appt?.id]);
+  }, [appt?.id, shareTick]);
 
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
