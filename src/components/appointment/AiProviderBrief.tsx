@@ -250,13 +250,10 @@ export function AiProviderBrief({
       )}
 
       {stale && brief && (
-        <div className="mt-4 flex items-start gap-2 rounded-md bg-[#FDF6EC] p-3 text-[12px] text-[#8A5E1A]">
-          <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
-          <span>
-            {firstName} shared updated information. Refresh the overview to see
-            the latest.
-          </span>
-        </div>
+        <p className="mt-4 rounded-md border border-[#EAE2F6] bg-[#F7F4FD] p-3 text-[12px] leading-relaxed text-[#5A4A8A]">
+          {firstName} shared updated information. Refresh the overview to see the
+          latest.
+        </p>
       )}
 
       {error && (
