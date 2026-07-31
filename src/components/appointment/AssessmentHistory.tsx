@@ -621,9 +621,10 @@ function HowCalculated({
       {open && (
         <div className="mt-3 space-y-4">
           <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-            {group.clinicalName} contains {questionCount} response
-            {questionCount === 1 ? "" : "s"} scored from {perItemMin} to{" "}
-            {perItemMax}, giving a total score from 0 to {group.maxScore}. The
+            {group.clinicalName} contains {questionCount} question
+            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
+            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
+            {group.maxScore}. The
             total is interpreted using {group.clinicalName} severity ranges.{" "}
             {firstName}’s latest responses totaled {latest.score}, which falls
             within the {latest.status?.label ?? "recorded"} range.
@@ -657,8 +658,7 @@ function HowCalculated({
           )}
 
           <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
-            Completed {fullDate(latest.takenAt)}. This screening score supports
-            clinical review and is not a diagnosis.
+            Completed {fullDate(latest.takenAt)}.
           </p>
 
           {allowResponses && (
