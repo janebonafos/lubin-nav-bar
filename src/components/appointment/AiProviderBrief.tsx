@@ -215,40 +215,35 @@ export function AiProviderBrief({
   const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="rounded-xl border border-[#EBEBEB] bg-white px-5 pt-7 pb-8 shadow-sm sm:px-8 sm:pt-10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="min-w-0 text-[20px] font-medium tracking-tight text-[#1A1A1A]">
-            Information {firstName} shared
-          </h2>
-          <span className="shrink-0 rounded-sm border border-[#EDEDED] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#8C8C8C]">
+    <section className="rounded-2xl border border-[#EAE2F6] bg-[#FCFBFE] px-5 pt-6 pb-8 shadow-[0_1px_2px_rgba(61,46,107,0.04)] sm:px-8 sm:pt-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#7A73A0]">
+          <span className="shrink-0 rounded-full border border-[#E1D9F1] bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#7E6BAF]">
             Provider only
           </span>
-        </div>
+          <span>{snap.rangeLabel}</span>
+          <span className="text-[#C3BBDD]">·</span>
+          <button
+            type="button"
+            onClick={() => setAboutOpen((v) => !v)}
+            className="underline decoration-[#DCD3EE] underline-offset-4 transition hover:text-[#3D2E6B]"
+          >
+            About this overview
+          </button>
+        </p>
         <button
           type="button"
           onClick={generate}
           disabled={busy}
-          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-[12px] font-medium text-[#6B6B6B] transition hover:text-[#1A1A1A] disabled:opacity-60"
+          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B] disabled:opacity-60"
         >
           {busy && <Loader2 className="h-3 w-3 animate-spin" />}
           Refresh
         </button>
       </div>
-      <p className="mt-4 text-[13px] text-[#8C8C8C]">
-        {snap.rangeLabel}
-        <span className="mx-1.5">·</span>
-        <button
-          type="button"
-          onClick={() => setAboutOpen((v) => !v)}
-          className="underline decoration-[#EDEDED] underline-offset-4 transition hover:text-[#6B6B6B]"
-        >
-          About this overview
-        </button>
-      </p>
 
       {aboutOpen && (
-        <p className="mt-4 max-w-[620px] border-l border-[#EDEDED] pl-4 text-[12px] leading-relaxed text-[#8C8C8C]">
+        <p className="mt-4 max-w-[620px] border-l-2 border-[#E1D9F1] pl-4 text-[12px] leading-relaxed text-[#7A73A0]">
           Created from information {firstName} chose to share. Review before
           using it in your clinical assessment.
         </p>
@@ -271,7 +266,7 @@ export function AiProviderBrief({
       )}
 
       <div className="mt-6 max-w-[620px]">
-        <p className="text-[15px] font-light leading-[1.7] text-[#333333]">
+        <p className="font-serif-display text-[19px] leading-[1.6] text-[#2C2B4B]">
           {snap.insight}
         </p>
       </div>
@@ -302,10 +297,10 @@ export function AiProviderBrief({
 
       {snap.attemptsInRange.length > 0 && (
         <div className="mt-10 min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#1A1A1A]">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#3D2E6B]">
             Assessment results
           </p>
-          <p className="mt-1 text-[12px] text-[#8C8C8C]">
+          <p className="mt-1 text-[12px] text-[#7A73A0]">
             Select a result to view trend and history details.
           </p>
           <div className="mt-5">
@@ -328,7 +323,7 @@ export function AiProviderBrief({
           clearDemoSharedGrant(appointmentId);
           setRefreshKey((k) => k + 1);
         }}
-        className="mt-8 text-[12px] text-[#8C8C8C] transition hover:text-[#1A1A1A]"
+        className="mt-8 text-[12px] text-[#9A93B8] transition hover:text-[#3D2E6B]"
       >
         Exit preview
       </button>
@@ -338,10 +333,10 @@ export function AiProviderBrief({
 
 function PatternChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center rounded border border-[#EDEDED] bg-[#F9F9F9] px-3 py-1.5 text-[13px] text-[#4A4A4A]">
+    <span className="inline-flex items-center rounded-full border border-[#E7E0F4] bg-[#F5F2FC] px-3.5 py-1.5 text-[13px] text-[#6B6390]">
       {label}
-      <span className="mx-1.5 text-[#8C8C8C]">/</span>
-      <span className="font-medium text-[#1A1A1A]">{value}</span>
+      <span className="mx-1.5 text-[#B7ADD6]">/</span>
+      <span className="font-semibold text-[#3D2E6B]">{value}</span>
     </span>
   );
 }
@@ -359,10 +354,10 @@ function HistoryRow({
     <button
       type="button"
       onClick={onClick}
-      className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] text-[#4A4A4A] transition hover:text-[#1A1A1A] ${divider ? "border-b border-[#F5F5F5]" : ""}`}
+      className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] text-[#4A4468] transition hover:text-[#3D2E6B] ${divider ? "border-b border-[#EFEAF9]" : ""}`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      <ChevronRight className="h-4 w-4 flex-none text-[#D4D4D4] transition group-hover:text-[#8C8C8C]" />
+      <ChevronRight className="h-4 w-4 flex-none text-[#C3BBDD] transition group-hover:text-[#7E6BAF]" />
     </button>
   );
 }
