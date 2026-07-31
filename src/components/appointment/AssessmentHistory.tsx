@@ -88,7 +88,7 @@ export function AssessmentHistory({
 }) {
   const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const [openId, setOpenId] = useState<string | null>(null);
-  const { reviewedIds, markReviewed } = useReviewedFlags();
+  const { reviewedIds, markReviewed } = useReviewedFlags(appointmentId);
   const active = groups.find((g) => g.assessmentId === openId) ?? null;
   const firstName = clientName?.split(" ")[0] ?? "The client";
 
