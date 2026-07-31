@@ -9,7 +9,10 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
-import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
+import {
+  getAnyProviderGrant,
+  subscribeProviderShares,
+} from "@/lib/share/providerShareStore";
 import {
   isVerifiedPrescriber,
   serviceSupportsPrescription,
@@ -103,6 +106,7 @@ function SectionCard({
   done = false,
   reference = false,
   pillLabel,
+  checkBadge = false,
   children,
 }: {
   id?: string;
@@ -115,6 +119,7 @@ function SectionCard({
   done?: boolean;
   reference?: boolean;
   pillLabel?: string;
+  checkBadge?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -164,7 +169,7 @@ function SectionCard({
                   : `Step ${number}`
             }
           >
-            {state === "done" ? "✓" : number}
+            {state === "done" || checkBadge ? "✓" : number}
           </span>
         )}
         <span className="min-w-0 flex-1">
@@ -312,11 +317,14 @@ function DetailsPage() {
     [appt?.month, appt?.date, appt?.time],
   );
 
+  const [shareTick, setShareTick] = useState(0);
+  useEffect(() => subscribeProviderShares(() => setShareTick((t) => t + 1)), []);
+
   const hasSharedContext = useMemo(() => {
     if (!appt?.id) return false;
     const grant = getAnyProviderGrant(appt.id);
     return !!grant && !grant.revoked && grant.includedKeys.length > 0;
-  }, [appt?.id]);
+  }, [appt?.id, shareTick]);
 
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
@@ -479,6 +487,7 @@ function DetailsPage() {
           hint="Not shared with the client. For provider review only."
           reference
           pillLabel={hasSharedContext ? "Reference" : "Not shared"}
+          checkBadge={!hasSharedContext}
         >
           <AiProviderBrief
             appointmentId={appt.id}

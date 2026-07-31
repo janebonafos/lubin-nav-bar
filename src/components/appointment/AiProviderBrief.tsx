@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
+  seedDemoSharedGrant,
+  clearDemoSharedGrant,
+} from "@/lib/share/demoSharedGrant";
+import {
   loadBrief,
   saveBrief,
   subscribeBriefChanges,
@@ -48,6 +52,7 @@ export function AiProviderBrief({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     setBrief(loadBrief(appointmentId));
@@ -56,7 +61,7 @@ export function AiProviderBrief({
 
   const grant = useMemo(
     () => getAnyProviderGrant(appointmentId),
-    [appointmentId, brief?.generatedAt],
+    [appointmentId, brief?.generatedAt, refreshKey],
   );
 
   const sharedAt = grant?.updatedAt ?? grant?.createdAt ?? 0;
@@ -194,6 +199,21 @@ export function AiProviderBrief({
             A brief can't be generated until Health Passport information is shared. No action is required from you.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            seedDemoSharedGrant({
+              appointmentId,
+              providerName: providerName ?? "Your provider",
+              appointmentLabel: appointmentLabel ?? "",
+            });
+            setRefreshKey((k) => k + 1);
+          }}
+          className="w-full rounded-xl border border-dashed border-[#D6CCEC] bg-white px-3 py-2 text-[11px] font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-[#F7F4FB]"
+        >
+          Preview shared view (demo data)
+        </button>
       </div>
     );
   }
@@ -295,6 +315,17 @@ export function AiProviderBrief({
         clinical assessment. It summarises only the information the patient
         consented to share, and it is not a clinical note.
       </p>
+
+      <button
+        type="button"
+        onClick={() => {
+          clearDemoSharedGrant(appointmentId);
+          setRefreshKey((k) => k + 1);
+        }}
+        className="mt-3 w-full rounded-xl border border-dashed border-[#D6CCEC] bg-white/70 px-3 py-2 text-[11px] font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-white"
+      >
+        Exit shared-view preview (back to “Not shared”)
+      </button>
     </section>
   );
 }
