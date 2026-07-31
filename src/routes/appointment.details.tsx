@@ -124,13 +124,16 @@ function SectionCard({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
-  const state: "done" | "active" | "todo" | "reference" = reference
-    ? "reference"
-    : done
+  // A checked item (checkBadge) reads as complete, so it uses the same
+  // "done" treatment as the During-the-session card.
+  const state: "done" | "active" | "todo" | "reference" =
+    done || checkBadge
       ? "done"
-      : open
-        ? "active"
-        : "todo";
+      : reference
+        ? "reference"
+        : open
+          ? "active"
+          : "todo";
 
   const shell =
     state === "done"
