@@ -480,6 +480,7 @@ function SafetyAlert({
   onShowAllTime,
   reviewedIds,
   onMarkAllReviewed,
+  reviewMeta,
 }: {
   group: AssessmentGroup;
   flagged: AttemptWithStatus[];
@@ -490,6 +491,7 @@ function SafetyAlert({
   onShowAllTime?: () => void;
   reviewedIds: Set<string>;
   onMarkAllReviewed: () => void;
+  reviewMeta: Record<string, ReviewMeta>;
 }) {
   const first = flagged[0];
   if (!first) return null;
@@ -508,8 +510,23 @@ function SafetyAlert({
           </p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5A9A]">
             {firstName} selected “{plainLabel(s.response)}” on {fullDate(first.takenAt)}. You have
-            marked this response as reviewed.
+            acknowledged that you reviewed this response.
           </p>
+          {reviewMeta[first.id] && (
+            <p className="mt-1 text-[12px] text-[#8B85A6]">
+              Acknowledged by {reviewMeta[first.id].by ?? "provider"} ·{" "}
+              {new Date(reviewMeta[first.id].at).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              ·{" "}
+              {new Date(reviewMeta[first.id].at).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
             <button
               type="button"
@@ -588,16 +605,24 @@ function SafetyAlert({
               Show in All-time chart
             </button>
           )}
-          <button
-            type="button"
-            onClick={onMarkAllReviewed}
-            className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2 py-1 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
-          >
-            <Check className="h-3 w-3" />
-            Mark as reviewed
-          </button>
         </div>
-        {open && <FlagDetail group={group} attempt={first} className="mt-3" />}
+        {open && (
+          <>
+            <FlagDetail group={group} attempt={first} className="mt-3" />
+            <button
+              type="button"
+              onClick={onMarkAllReviewed}
+              className="mt-3 inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
+            >
+              <Check className="h-3 w-3" />
+              Acknowledge response reviewed
+            </button>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[#7A5416]">
+              This confirms that you viewed the response. It does not document a completed risk
+              assessment.
+            </p>
+          </>
+        )}
         {unreviewedCount > 1 && (
           <p className="mt-2 text-[12px] text-[#8A5E1A]">
             +{unreviewedCount - 1} earlier result
