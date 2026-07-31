@@ -262,38 +262,52 @@ function GroupDetail({
         ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
-            <p className="text-[12px] text-[#8B85A6]">Latest score</p>
+            <p className="text-[12px] text-[#8B85A6]">Latest result</p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {latest.score}
-              <span className="text-[13px] font-normal text-[#8B85A6]">
-                {" "}
-                / {group.maxScore}
-              </span>
+              {latest.score} of {group.maxScore}
+              {latest.status?.label ? (
+                <span className="text-[15px] font-medium text-[#5A4A8A]">
+                  {" "}
+                  · {latest.status.label}
+                </span>
+              ) : null}
             </p>
-            {latest.status?.label && (
-              <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-                {latest.status.label} · {fullDate(latest.takenAt)}
-              </p>
-            )}
+            <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+              Completed {fullDate(latest.takenAt)}
+            </p>
           </div>
           {change !== null && (
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
             <p className="text-[12px] text-[#8B85A6]">
-              Change over {RANGES.find((r) => r.key === range)?.label.toLowerCase()}
+              {oldest
+                ? `Change since ${shortDate(oldest.takenAt)}`
+                : `Change over ${RANGES.find((r) => r.key === range)?.label.toLowerCase()}`}
             </p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {`${change > 0 ? "+" : ""}${change} point${Math.abs(change) === 1 ? "" : "s"}`}
+              {change === 0
+                ? "No change"
+                : `${Math.abs(change)} point${Math.abs(change) === 1 ? "" : "s"} ${change < 0 ? "lower" : "higher"}`}
             </p>
+            {oldest && (
+              <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+                Latest score: {latest.score}, previously {oldest.score}
+              </p>
+            )}
             <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-              {changeGood === null
-                ? "No meaningful change"
-                : changeGood
-                  ? "Moving in a better direction"
-                  : "Moving in a harder direction"}
+              {change === 0
+                ? "Scores were the same on both assessments."
+                : `Symptoms scored ${change < 0 ? "lower" : "higher"} on the latest assessment.`}
             </p>
           </div>
           )}
         </div>
+        )}
+
+        {inRange.length === 2 && (
+          <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+            Two results show a change, but more results are needed to establish a
+            pattern.
+          </p>
         )}
 
         {singleInPeriod && (
