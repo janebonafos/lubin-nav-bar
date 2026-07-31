@@ -168,25 +168,31 @@ export function AiProviderBrief({
     return (
       <div className="space-y-3">
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-semibold text-[#3D2E6B]">
               Shared Health Passport
             </p>
-            <span className="rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
+            <span className="w-fit rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
               Not shared
             </span>
           </div>
+          <p className="mt-2 text-xs leading-relaxed text-[#6B6684]">
+            The client hasn't shared their Health Passport for this appointment yet. Nothing is wrong — sharing is optional and client-controlled.
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-75">
-          <div className="flex items-center justify-between gap-3">
+        <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-80">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-semibold text-[#3D2E6B]">
               AI Provider Brief
             </p>
-            <span className="rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
+            <span className="w-fit rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
               Unavailable
             </span>
           </div>
+          <p className="mt-2 text-xs leading-relaxed text-[#6B6684]">
+            A brief can't be generated until Health Passport information is shared. No action is required from you.
+          </p>
         </div>
       </div>
     );
