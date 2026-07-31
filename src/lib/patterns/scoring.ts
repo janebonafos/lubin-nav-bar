@@ -346,3 +346,30 @@ function computeIsCrisis(id: string, score: number, selfHarmFlag: boolean): bool
       return false;
   }
 }
+// ============================================================
+// Score range disclosure ("How this score was calculated")
+// ============================================================
+
+export type ScoreRange = { from: number; to: number; label: string };
+
+/**
+ * Derives the interpretation ranges for an assessment from its own status
+ * bands, so each tool shows its real scoring method rather than a shared
+ * scale. Walks every possible raw score and groups consecutive scores that
+ * resolve to the same band label.
+ */
+export function getScoreRanges(
+  assessmentId: string,
+  maxScore: number,
+  lowerIsBetter: boolean,
+): ScoreRange[] {
+  if (!Number.isFinite(maxScore) || maxScore <= 0) return [];
+  const out: ScoreRange[] = [];
+  for (let s = 0; s <= maxScore; s++) {
+    const label = statusForId(assessmentId, s, maxScore, lowerIsBetter).label;
+    const last = out[out.length - 1];
+    if (last && last.label === label) last.to = s;
+    else out.push({ from: s, to: s, label });
+  }
+  return out;
+}

@@ -304,7 +304,7 @@ export function AiProviderBrief({
             Select a result to view trend and history details.
           </p>
           <div className="mt-5">
-            <AssessmentHistory attempts={snap.attemptsInRange} />
+            <AssessmentHistory attempts={snap.attemptsInRange} clientName={clientName} />
           </div>
         </div>
       )}
