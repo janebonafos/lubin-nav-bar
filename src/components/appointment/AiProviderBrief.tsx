@@ -167,12 +167,6 @@ export function AiProviderBrief({
   if (!grant || grant.revoked || grant.includedKeys.length === 0) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-[#6B6684]">
-          Health Passport information appears here only when the client chooses
-          to share it for this appointment. The AI Provider Brief becomes
-          available after Health Passport information is shared.
-        </p>
-
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-[#3D2E6B]">
