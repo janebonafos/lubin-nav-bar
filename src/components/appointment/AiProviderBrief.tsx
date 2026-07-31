@@ -53,6 +53,7 @@ export function AiProviderBrief({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     setBrief(loadBrief(appointmentId));
