@@ -9,6 +9,7 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
+import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
   isVerifiedPrescriber,
   serviceSupportsPrescription,
@@ -101,6 +102,7 @@ function SectionCard({
   hint,
   done = false,
   reference = false,
+  pillLabel,
   children,
 }: {
   id?: string;
@@ -112,6 +114,7 @@ function SectionCard({
   hint?: string;
   done?: boolean;
   reference?: boolean;
+  pillLabel?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -202,13 +205,15 @@ function SectionCard({
                   : "#7E6BAF",
           }}
         >
-          {state === "done"
-            ? "Done"
-            : state === "active"
-              ? "In progress"
-              : state === "reference"
-                ? "Reference"
-                : "To do"}
+          {pillLabel
+            ? pillLabel
+            : state === "done"
+              ? "Done"
+              : state === "active"
+                ? "In progress"
+                : state === "reference"
+                  ? "Reference"
+                  : "To do"}
         </span>
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
@@ -306,6 +311,12 @@ function DetailsPage() {
         .join(" "),
     [appt?.month, appt?.date, appt?.time],
   );
+
+  const hasSharedContext = useMemo(() => {
+    if (!appt?.id) return false;
+    const grant = getAnyProviderGrant(appt.id);
+    return !!grant && !grant.revoked && grant.includedKeys.length > 0;
+  }, [appt?.id]);
 
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
@@ -462,11 +473,12 @@ function DetailsPage() {
           id="before-session"
           number={1}
           eyebrow="Before the session"
-          title="Client-Shared Context"
+          title="Information Shared by Client"
           description="Health Passport sharing is the input. The AI Provider Brief is an optional summary generated from that shared information."
           defaultOpen={!isCompleted}
           hint="Reference only. Nothing here is shared back to your client."
           reference
+          pillLabel={hasSharedContext ? "Reference" : "Not shared"}
         >
           <AiProviderBrief
             appointmentId={appt.id}
