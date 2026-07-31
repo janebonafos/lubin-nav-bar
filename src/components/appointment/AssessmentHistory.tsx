@@ -488,7 +488,7 @@ function HowCalculated({
         className="flex w-full items-center gap-2 text-left"
       >
         <span className="flex-1 text-[13px] font-semibold text-[#3D2E6B]">
-          How this score was calculated
+          How scores are calculated
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[#8B85A6] transition-transform ${open ? "rotate-180" : ""}`}
@@ -498,11 +498,12 @@ function HowCalculated({
       {open && (
         <div className="mt-3 space-y-4">
           <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-            {group.clinicalName} contains {questionCount} question
-            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
-            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
-            {group.maxScore}. {firstName}’s responses totaled {latest.score},
-            which falls within the {latest.status?.label ?? "recorded"} range.
+            {group.clinicalName} contains {questionCount} response
+            {questionCount === 1 ? "" : "s"} scored from {perItemMin} to{" "}
+            {perItemMax}, giving a total score from 0 to {group.maxScore}. The
+            total is interpreted using {group.clinicalName} severity ranges.{" "}
+            {firstName}’s latest responses totaled {latest.score}, which falls
+            within the {latest.status?.label ?? "recorded"} range.
           </p>
 
           {ranges.length > 0 && (
@@ -554,7 +555,7 @@ function HowCalculated({
                         {r.text}
                       </p>
                       <p className="mt-0.5 text-[12px] text-[#8B85A6]">
-                        {r.response}
+                        {plainLabel(r.response)}
                       </p>
                     </li>
                   ))}
@@ -582,9 +583,14 @@ function AttemptRow({
         <p className="truncate text-[13.5px] text-[#2C2B4B]">
           {fullDate(attempt.takenAt)}
         </p>
-        <p className="mt-0.5 truncate text-[12px] text-[#8B85A6]">
-          {attempt.status?.label ?? "Recorded"}
-          {s ? " · safety response flagged" : ""}
+        <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
+          <span className="truncate">{attempt.status?.label ?? "Recorded"}</span>
+          {s && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A]">
+              <AlertTriangle className="h-2.5 w-2.5" />
+              Safety-related response
+            </span>
+          )}
         </p>
       </div>
       <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
