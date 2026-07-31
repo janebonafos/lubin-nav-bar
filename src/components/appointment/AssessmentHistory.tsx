@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, ChevronDown, AlertTriangle, Check, X } from "lucide-react";
-import { useReviewedFlags } from "@/lib/provider-brief/reviewedFlagsStore";
+import { useReviewedFlags, type ReviewMeta } from "@/lib/provider-brief/reviewedFlagsStore";
 import {
   Sheet,
   SheetContent,
@@ -192,11 +192,15 @@ function GroupDetail({
   firstName,
   reviewedIds,
   markReviewed,
+  reviewMeta,
+  providerName,
 }: {
   group: AssessmentGroup;
   firstName: string;
   reviewedIds: Set<string>;
-  markReviewed: (attemptIds: string | string[]) => void;
+  markReviewed: (attemptIds: string | string[], by?: string) => void;
+  reviewMeta: Record<string, ReviewMeta>;
+  providerName?: string;
 }) {
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
