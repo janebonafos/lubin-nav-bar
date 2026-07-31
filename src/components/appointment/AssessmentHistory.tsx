@@ -610,9 +610,8 @@ function TrendChart({
   attempts: AttemptWithStatus[];
   maxScore: number;
 }) {
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const pts = [...attempts].sort((a, b) => a.takenAt - b.takenAt);
-  const W = 100;
-  const H = 40;
   if (pts.length < 2) {
     return (
       <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4 text-[12.5px] text-[#8B85A6]">
@@ -620,25 +619,65 @@ function TrendChart({
       </div>
     );
   }
+
+  // Pixel-space chart with a left gutter for the score scale.
+  const W = 320;
+  const H = 150;
+  const PAD_L = 30;
+  const PAD_R = 8;
+  const PAD_T = 12;
+  const PAD_B = 22;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+
+  const step = maxScore <= 10 ? 2 : maxScore <= 30 ? 5 : 10;
+  const ticks: number[] = [];
+  for (let v = 0; v <= maxScore; v += step) ticks.push(v);
+  if (ticks[ticks.length - 1] !== maxScore) ticks.push(maxScore);
+
   const minT = pts[0].takenAt;
   const maxT = pts[pts.length - 1].takenAt;
   const span = Math.max(1, maxT - minT);
-  const coords = pts.map((p) => ({
-    x: ((p.takenAt - minT) / span) * W,
-    y: H - (Math.min(p.score, maxScore) / maxScore) * H,
-  }));
-  const line = coords.map((c) => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(" ");
+  const xFor = (t: number) => PAD_L + ((t - minT) / span) * plotW;
+  const yFor = (s: number) =>
+    PAD_T + plotH - (Math.min(Math.max(s, 0), maxScore) / maxScore) * plotH;
+
+  const coords = pts.map((p) => ({ x: xFor(p.takenAt), y: yFor(p.score) }));
+  const line = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+  const active = activeIdx !== null ? pts[activeIdx] : null;
+  const activeC = activeIdx !== null ? coords[activeIdx] : null;
+
   return (
     <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        className="h-28 w-full"
+        className="w-full"
         role="img"
-        aria-label="Score trend over time"
+        aria-label="Score trend over time with score scale"
       >
+        {ticks.map((v) => (
+          <g key={v}>
+            <line
+              x1={PAD_L}
+              x2={W - PAD_R}
+              y1={yFor(v)}
+              y2={yFor(v)}
+              stroke="#EAE2F6"
+              strokeWidth={1}
+            />
+            <text
+              x={PAD_L - 6}
+              y={yFor(v) + 3}
+              textAnchor="end"
+              fontSize={8}
+              fill="#A79FC0"
+            >
+              {v}
+            </text>
+          </g>
+        ))}
         <polyline
-          points={`0,${H} ${line} ${W},${H}`}
+          points={`${PAD_L},${PAD_T + plotH} ${line} ${W - PAD_R},${PAD_T + plotH}`}
           fill="#EFE8FB"
           stroke="none"
           opacity={0.7}
@@ -647,13 +686,50 @@ function TrendChart({
           points={line}
           fill="none"
           stroke="#7E6BAF"
-          strokeWidth={1.2}
+          strokeWidth={1.6}
           strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
         />
         {coords.map((c, i) => (
-          <circle key={i} cx={c.x} cy={c.y} r={1.1} fill="#5A4A8A" />
+          <g key={i}>
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={activeIdx === i ? 3.4 : 2.4}
+              fill="#5A4A8A"
+            />
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={10}
+              fill="transparent"
+              className="cursor-pointer"
+              onMouseEnter={() => setActiveIdx(i)}
+              onMouseLeave={() => setActiveIdx(null)}
+              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+            />
+          </g>
         ))}
+        {active && activeC && (
+          <g pointerEvents="none">
+            <rect
+              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68)}
+              y={Math.max(activeC.y - 26, 0)}
+              width={68}
+              height={20}
+              rx={5}
+              fill="#3D2E6B"
+            />
+            <text
+              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68) + 34}
+              y={Math.max(activeC.y - 26, 0) + 13.5}
+              textAnchor="middle"
+              fontSize={8}
+              fill="#FFFFFF"
+            >
+              {active.score} · {shortDate(active.takenAt)}
+            </text>
+          </g>
+        )}
       </svg>
       <div className="mt-2 flex justify-between text-[11.5px] text-[#A79FC0]">
         <span>{fullDate(minT)}</span>
