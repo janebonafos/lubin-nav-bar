@@ -215,7 +215,7 @@ export function AiProviderBrief({
   const firstName = clientName?.split(" ")[0] ?? "the client";
 
   return (
-    <section className="rounded-2xl border border-[#EAE2F6] bg-[#FCFBFE] px-5 pt-6 pb-8 shadow-[0_1px_2px_rgba(61,46,107,0.04)] sm:px-8 sm:pt-8">
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 pt-6 pb-8 shadow-[0_1px_2px_rgba(61,46,107,0.04)] sm:px-8 sm:pt-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#7E6BAF]">
           <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#3D2E6B]">
