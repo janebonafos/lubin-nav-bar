@@ -710,11 +710,13 @@ function TrendChart({
   maxScore,
   flaggedIds,
   onFlagClick,
+  ranges = [],
 }: {
   attempts: AttemptWithStatus[];
   maxScore: number;
   flaggedIds?: Set<string>;
   onFlagClick?: (id: string) => void;
+  ranges?: { from: number; to: number; label: string }[];
 }) {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const pts = [...attempts].sort((a, b) => a.takenAt - b.takenAt);
@@ -752,6 +754,7 @@ function TrendChart({
   const line = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
   const active = activeIdx !== null ? pts[activeIdx] : null;
   const activeC = activeIdx !== null ? coords[activeIdx] : null;
+  const bandFills = ["#F6F2FD", "#EFE8FB", "#E4D9F6", "#D8C9F1", "#CBB8EC"];
 
   return (
     <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
@@ -759,8 +762,22 @@ function TrendChart({
         viewBox={`0 0 ${W} ${H}`}
         className="w-full"
         role="img"
-        aria-label="Score trend over time with score scale"
+        aria-label="Score history over time with severity ranges"
       >
+        {ranges.map((r, i) => {
+          const yTop = yFor(r.to);
+          const yBottom = yFor(Math.max(0, r.from - 0.5));
+          return (
+            <rect
+              key={`${r.label}-${r.from}`}
+              x={PAD_L}
+              y={yTop}
+              width={plotW}
+              height={Math.max(1, yBottom - yTop)}
+              fill={bandFills[i % bandFills.length]}
+            />
+          );
+        })}
         {ticks.map((v) => (
           <g key={v}>
             <line
@@ -847,21 +864,31 @@ function TrendChart({
         {active && activeC && (
           <g pointerEvents="none">
             <rect
-              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68)}
-              y={Math.max(activeC.y - 26, 0)}
-              width={68}
-              height={20}
+              x={Math.min(Math.max(activeC.x - 55, PAD_L), W - PAD_R - 110)}
+              y={Math.max(activeC.y - 34, 0)}
+              width={110}
+              height={28}
               rx={5}
               fill="#3D2E6B"
             />
             <text
-              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68) + 34}
-              y={Math.max(activeC.y - 26, 0) + 13.5}
+              x={Math.min(Math.max(activeC.x - 55, PAD_L), W - PAD_R - 110) + 55}
+              y={Math.max(activeC.y - 34, 0) + 11.5}
               textAnchor="middle"
               fontSize={8}
               fill="#FFFFFF"
             >
-              {active.score} · {shortDate(active.takenAt)}
+              {active.score} of {maxScore}
+              {active.status?.label ? ` · ${active.status.label}` : ""}
+            </text>
+            <text
+              x={Math.min(Math.max(activeC.x - 55, PAD_L), W - PAD_R - 110) + 55}
+              y={Math.max(activeC.y - 34, 0) + 22}
+              textAnchor="middle"
+              fontSize={7.5}
+              fill="#D9CDF5"
+            >
+              {fullDate(active.takenAt)}
             </text>
           </g>
         )}
@@ -870,6 +897,70 @@ function TrendChart({
         <span>{fullDate(minT)}</span>
         <span>{fullDate(maxT)}</span>
       </div>
+      {ranges.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 border-t border-[#EDE7F8] pt-3">
+          {ranges.map((r, i) => (
+            <span
+              key={`legend-${r.label}-${r.from}`}
+              className="inline-flex items-center gap-1.5 text-[11px] text-[#7E6BAF]"
+            >
+              <span
+                className="h-2.5 w-2.5 rounded-[3px]"
+                style={{ background: bandFills[i % bandFills.length] }}
+              />
+              {r.label} ({r.from === r.to ? r.from : `${r.from}–${r.to}`})
+            </span>
+          ))}
+          {flaggedIds && flaggedIds.size > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#8A5E1A]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#F2A33C]" />
+              Review needed · Question 9
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ResultBlock({
+  label,
+  attempt,
+  maxScore,
+  flagged,
+  onFlagClick,
+}: {
+  label: string;
+  attempt: AttemptWithStatus;
+  maxScore: number;
+  flagged?: boolean;
+  onFlagClick?: (id: string) => void;
+}) {
+  return (
+    <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
+      <p className="text-[12px] text-[#8B85A6]">{label}</p>
+      <p className="mt-1 text-[19px] font-semibold text-[#2C2B4B]">
+        {attempt.score} of {maxScore}
+        {attempt.status?.label ? (
+          <span className="text-[14px] font-medium text-[#5A4A8A]">
+            {" "}
+            · {attempt.status.label}
+          </span>
+        ) : null}
+      </p>
+      <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+        {fullDate(attempt.takenAt)}
+      </p>
+      {flagged && (
+        <button
+          type="button"
+          onClick={() => onFlagClick?.(attempt.id)}
+          className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#FDF6EC] px-2 py-0.5 text-[10.5px] font-semibold text-[#8A5E1A] transition hover:bg-[#F8EBD5]"
+        >
+          <AlertTriangle className="h-2.5 w-2.5" />
+          Review needed · Question 9
+        </button>
+      )}
     </div>
   );
 }
