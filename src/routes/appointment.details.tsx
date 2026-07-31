@@ -515,14 +515,41 @@ function DetailsPage() {
           />
         </SectionCard>
 
-        {/* After the session */}
+        {/* Step 2 — During and after the session (private documentation first) */}
+        {showPostSession && (
+          <SectionCard
+            id="session-notes"
+            number={2}
+            eyebrow="During and after the session"
+            title="Clinical documentation & private notes"
+            description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
+            defaultOpen={!hasNotes}
+            done={hasNotes}
+            checkBadge={hasNotes}
+            hint={
+              hasNotes
+                ? undefined
+                : "Optional. Nothing in this section is shared with your client."
+            }
+          >
+            <ApptNotesBlock
+              appt={appt}
+              onChange={onChange}
+              variant="private"
+              clientName={appt.client}
+              providerName={providerDisplayName}
+            />
+          </SectionCard>
+        )}
+
+        {/* Step 3 — Share with the client */}
         {showPostSession && (
           <SectionCard
             id="care-plan"
-            number={2}
-            eyebrow="After the session"
-            title={`Client recap & publish to ${clientLabel}'s Health Passport`}
-            description="Write the client-facing recap, action items, resources, and any attachments — then preview and publish."
+            number={3}
+            eyebrow={`Share with ${clientLabel}`}
+            title="Client recap & Health Passport follow-up"
+            description="Prepare the client-facing recap, agreed next steps, resources, attachments, and next-session focus. Preview and publish only after reviewing it."
             defaultOpen={!isPublished}
             done={isPublished}
             hint="Nothing is shared until you press Publish."
@@ -544,7 +571,6 @@ function DetailsPage() {
         {rxAllowed && showPostSession && (
           <SectionCard
             id="prescriptions"
-            number={3}
             eyebrow="Prescriber tools"
             title="Prescription"
             description="Separate signed clinical document. Not included in the client recap you publish above."
