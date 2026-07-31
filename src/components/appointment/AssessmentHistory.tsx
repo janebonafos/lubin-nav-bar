@@ -112,7 +112,7 @@ export function AssessmentHistory({
                   {flagged && (
                     <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-tight text-[#C27800]">
                       <AlertTriangle className="h-3 w-3" />
-                      Safety response
+                    Review needed
                     </span>
                   )}
                 </span>
@@ -155,6 +155,7 @@ function GroupDetail({
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
   const [visible, setVisible] = useState(10);
+  const [openFlagId, setOpenFlagId] = useState<string | null>(null);
 
   const cutoff = RANGES.find((r) => r.key === range)?.days ?? null;
   const inRange = useMemo(
@@ -176,7 +177,12 @@ function GroupDetail({
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
   const flagged = group.attempts.filter((a) => safetyResponse(a));
-  const flaggedShown = flagged.slice(0, 3);
+  const toggleFlag = (id: string) => {
+    setOpenFlagId((prev) => (prev === id ? null : id));
+    // Make sure the matching Result history row is reachable.
+    setShowAll(true);
+  };
+  const flaggedIds = new Set(flagged.map((a) => a.id));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -201,36 +207,13 @@ function GroupDetail({
       <div className="min-w-0 space-y-6 px-5 py-6 sm:px-7">
         {flagged.length > 0 && (
           <SafetyAlert
-            flagged={flaggedShown}
-            hiddenCount={flagged.length - flaggedShown.length}
+            group={group}
+            flagged={flagged}
+            firstName={firstName}
+            openFlagId={openFlagId}
+            onToggle={toggleFlag}
           />
         )}
-
-        {/* Range filters — only useful once a trend can exist */}
-        {!singleOverall && (
-        <div className="flex flex-wrap gap-1.5">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => {
-                setRange(r.key);
-                setVisible(10);
-              }}
-              className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
-                range === r.key
-                  ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
-                  : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-        )}
-
-        {/* Trend chart — only with 2+ results in the period */}
-        {showTrend && <TrendChart attempts={inRange} maxScore={group.maxScore} />}
 
         {/* Latest result */}
         {singleOverall ? (
@@ -296,6 +279,38 @@ function GroupDetail({
         </div>
         )}
 
+        {/* Range filters + trend chart */}
+        {!singleOverall && (
+          <div className="flex flex-wrap gap-1.5">
+            {RANGES.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => {
+                  setRange(r.key);
+                  setVisible(10);
+                }}
+                className={`rounded-full px-3 py-1.5 text-[12.5px] transition ${
+                  range === r.key
+                    ? "bg-[#EFE8FB] font-medium text-[#5A4A8A]"
+                    : "bg-[#F7F5FC] text-[#8B85A6] hover:bg-[#F1EDF9]"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {showTrend && (
+          <TrendChart
+            attempts={inRange}
+            maxScore={group.maxScore}
+            flaggedIds={flaggedIds}
+            onFlagClick={toggleFlag}
+          />
+        )}
+
         {inRange.length === 2 && (
           <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
             Two results show a change, but more results are needed to establish a
@@ -329,7 +344,15 @@ function GroupDetail({
           <div className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
             {(showAll ? inRange.slice(0, visible) : inRange.slice(0, initialRows)).map(
               (a) => (
-                <AttemptRow key={a.id} attempt={a} maxScore={group.maxScore} />
+                <AttemptRow
+                  key={a.id}
+                  attempt={a}
+                  maxScore={group.maxScore}
+                  group={group}
+                  firstName={firstName}
+                  expanded={openFlagId === a.id}
+                  onToggle={toggleFlag}
+                />
               ),
             )}
             {inRange.length === 0 && (
@@ -370,70 +393,104 @@ function GroupDetail({
 }
 
 function SafetyAlert({
+  group,
   flagged,
-  hiddenCount,
+  firstName,
+  openFlagId,
+  onToggle,
 }: {
+  group: AssessmentGroup;
   flagged: AttemptWithStatus[];
-  hiddenCount: number;
+  firstName: string;
+  openFlagId: string | null;
+  onToggle: (id: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const first = flagged[0];
   if (!first) return null;
+  const s = safetyResponse(first)!;
+  const open = openFlagId === first.id;
   return (
-    <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] p-4">
-      <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
-        <AlertTriangle className="h-4 w-4 flex-none" />
-        Safety-related response recorded
-      </p>
-      <p className="mt-1 text-[12.5px] text-[#8A5E1A]">
-        {fullDate(first.takenAt)} · Review recommended
-      </p>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="mt-3 flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
-      >
-        {open ? "Hide response" : "View response"}
-        <ChevronDown
-          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      {open && (
-        <div className="mt-3 space-y-3">
-          {flagged.map((a) => {
-            const s = safetyResponse(a)!;
-            return (
-              <div
-                key={a.id}
-                className="rounded-lg border border-[#EFDCBE] bg-white/70 p-3"
-              >
-                <p className="text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
-                  Question 9 · {fullDate(a.takenAt)}
-                </p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
-                  “{s.text}”
-                </p>
-                <p className="mt-2 text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
-                  Response
-                </p>
-                <p className="mt-0.5 text-[12.5px] text-[#7A5416]">
-                  {plainLabel(s.response)}
-                </p>
-              </div>
-            );
-          })}
-          {hiddenCount > 0 && (
-            <p className="text-[12px] text-[#8A5E1A]">
-              +{hiddenCount} earlier attempt{hiddenCount === 1 ? "" : "s"} with a
-              safety-related response.
-            </p>
-          )}
-          <p className="text-[12.5px] leading-relaxed text-[#7A5416]">
-            This response requires separate clinical review and should not be
-            interpreted from the total score or trend alone.
+    <div className="min-w-0 space-y-2">
+      <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] px-4 py-3">
+        <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
+          <AlertTriangle className="h-4 w-4 flex-none" />
+          Review needed: {group.clinicalName} question 9
+        </p>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
+          {firstName} selected “{plainLabel(s.response)}” on the{" "}
+          {group.friendlyName} completed {fullDate(first.takenAt)}.
+        </p>
+        <button
+          type="button"
+          onClick={() => onToggle(first.id)}
+          className="mt-2 flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
+        >
+          {open ? "Hide response" : "View response"}
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+        {open && (
+          <FlagDetail group={group} attempt={first} className="mt-3" />
+        )}
+        {flagged.length > 1 && (
+          <p className="mt-2 text-[12px] text-[#8A5E1A]">
+            +{flagged.length - 1} earlier result
+            {flagged.length - 1 === 1 ? "" : "s"} also marked for review — see
+            Result history.
           </p>
-        </div>
-      )}
+        )}
+      </div>
+      <p className="text-[12px] leading-relaxed text-[#8B85A6]">
+        <span className="font-semibold text-[#5A4A8A]">
+          Why this was flagged:
+        </span>{" "}
+        Any response other than “Not at all” to question 9 is marked for provider
+        review. This flag comes directly from {firstName}’s assessment response
+        and is not generated by AI.
+      </p>
+    </div>
+  );
+}
+
+function FlagDetail({
+  group,
+  attempt,
+  className = "",
+}: {
+  group: AssessmentGroup;
+  attempt: AttemptWithStatus;
+  className?: string;
+}) {
+  const s = safetyResponse(attempt);
+  if (!s) return null;
+  const meta = ASSESSMENTS.find((a) => a.id === group.assessmentId);
+  const total = meta?.questions.length ?? 9;
+  const rows: [string, string][] = [
+    ["Source", `${group.friendlyName} (${group.clinicalName})`],
+    ["Completed", fullDate(attempt.takenAt)],
+    ["Question", `9 of ${total}`],
+    ["Response", plainLabel(s.response)],
+  ];
+  return (
+    <div
+      className={`rounded-lg border border-[#EFDCBE] bg-white/70 p-3 ${className}`}
+    >
+      <dl className="space-y-1.5">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex gap-2 text-[12.5px] leading-relaxed">
+            <dt className="w-[74px] shrink-0 text-[#A0793A]">{k}</dt>
+            <dd className="min-w-0 font-medium text-[#7A5416]">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-[#7A5416]">
+        “{s.text}”
+      </p>
+      <p className="mt-2 text-[12px] leading-relaxed text-[#8A5E1A]">
+        This response requires separate clinical review and should not be
+        interpreted from the total score or trend alone.
+      </p>
     </div>
   );
 }
@@ -572,33 +629,51 @@ function HowCalculated({
 function AttemptRow({
   attempt,
   maxScore,
+  group,
+  expanded,
+  onToggle,
 }: {
   attempt: AttemptWithStatus;
   maxScore: number;
+  group: AssessmentGroup;
+  firstName: string;
+  expanded: boolean;
+  onToggle: (id: string) => void;
 }) {
   const s = safetyResponse(attempt);
   return (
-    <div className="flex min-w-0 items-center gap-3 px-4 py-3">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[13.5px] text-[#2C2B4B]">
-          {fullDate(attempt.takenAt)}
-        </p>
-        <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
-          <span className="truncate">{attempt.status?.label ?? "Recorded"}</span>
-          {s && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A]">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              Safety-related response
+    <div className="min-w-0 px-4 py-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13.5px] text-[#2C2B4B]">
+            {fullDate(attempt.takenAt)}
+          </p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
+            <span className="truncate">
+              {attempt.status?.label ?? "Recorded"}
             </span>
-          )}
-        </p>
-      </div>
-      <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
-        {attempt.score}
-        <span className="text-[11.5px] font-normal text-[#A79FC0]">
-          /{maxScore}
+            {s && (
+              <button
+                type="button"
+                onClick={() => onToggle(attempt.id)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A] transition hover:bg-[#F8EBD5]"
+              >
+                <AlertTriangle className="h-2.5 w-2.5" />
+                Review needed · Question 9
+              </button>
+            )}
+          </p>
+        </div>
+        <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
+          {attempt.score}
+          <span className="text-[11.5px] font-normal text-[#A79FC0]">
+            /{maxScore}
+          </span>
         </span>
-      </span>
+      </div>
+      {s && expanded && (
+        <FlagDetail group={group} attempt={attempt} className="mt-3" />
+      )}
     </div>
   );
 }
@@ -606,9 +681,13 @@ function AttemptRow({
 function TrendChart({
   attempts,
   maxScore,
+  flaggedIds,
+  onFlagClick,
 }: {
   attempts: AttemptWithStatus[];
   maxScore: number;
+  flaggedIds?: Set<string>;
+  onFlagClick?: (id: string) => void;
 }) {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const pts = [...attempts].sort((a, b) => a.takenAt - b.takenAt);
@@ -691,12 +770,35 @@ function TrendChart({
         />
         {coords.map((c, i) => (
           <g key={i}>
-            <circle
-              cx={c.x}
-              cy={c.y}
-              r={activeIdx === i ? 3.4 : 2.4}
-              fill="#5A4A8A"
-            />
+            {flaggedIds?.has(pts[i].id) ? (
+              <>
+                <circle
+                  cx={c.x}
+                  cy={c.y}
+                  r={activeIdx === i ? 5 : 4.2}
+                  fill="#F2A33C"
+                  stroke="#FFFFFF"
+                  strokeWidth={1.2}
+                />
+                <text
+                  x={c.x}
+                  y={c.y + 2.2}
+                  textAnchor="middle"
+                  fontSize={6}
+                  fontWeight="bold"
+                  fill="#7A5416"
+                >
+                  !
+                </text>
+              </>
+            ) : (
+              <circle
+                cx={c.x}
+                cy={c.y}
+                r={activeIdx === i ? 3.4 : 2.4}
+                fill="#5A4A8A"
+              />
+            )}
             <circle
               cx={c.x}
               cy={c.y}
@@ -705,7 +807,13 @@ function TrendChart({
               className="cursor-pointer"
               onMouseEnter={() => setActiveIdx(i)}
               onMouseLeave={() => setActiveIdx(null)}
-              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+              onClick={() => {
+                if (flaggedIds?.has(pts[i].id) && onFlagClick) {
+                  onFlagClick(pts[i].id);
+                  return;
+                }
+                setActiveIdx(activeIdx === i ? null : i);
+              }}
             />
           </g>
         ))}
