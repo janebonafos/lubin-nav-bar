@@ -462,8 +462,8 @@ function DetailsPage() {
           id="before-session"
           number={1}
           eyebrow="Before the session"
-          title="Shared Health Passport & AI Provider Brief"
-          description="Review what your client chose to share, then optionally generate an AI Provider Brief."
+          title="Client-Shared Context"
+          description="Health Passport sharing is the input. The AI Provider Brief is an optional summary generated from that shared information."
           defaultOpen={!isCompleted}
           hint="Reference only. Nothing here is shared back to your client."
           reference
