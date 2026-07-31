@@ -218,46 +218,37 @@ export function AiProviderBrief({
     );
   }
 
+  const snap = grant.snapshot;
+
   return (
-    <section className="rounded-2xl border border-[#E4DAF4] bg-gradient-to-br from-[#FBF7FF] to-[#F5EFFB] p-6 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F1EDF9] px-5 py-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
-            Before your session
-          </p>
-          <h2 className="mt-1 flex items-center gap-2 text-xl font-semibold text-[#3D2E6B]">
-            <Sparkles className="h-5 w-5 text-[#7E6BAF]" />
+          <h2 className="text-base font-semibold text-[#3D2E6B]">
             AI Provider Brief
           </h2>
-          <p className="mt-1.5 max-w-2xl text-sm text-[#5A4A8A]">
-            Generated from information the client chose to share. Review
-            supporting information before making clinical decisions.
+          <p className="mt-0.5 text-xs text-[#8B85A6]">
+            Shared by client · {snap.rangeLabel}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={generate}
-            disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#6A5A98] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : brief ? (
-              <RefreshCw className="h-4 w-4" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-            {brief ? "Regenerate" : "Generate brief"}
-          </button>
-          {brief && (
-            <p className="text-[11px] text-[#8B85A6]">
-              Generated {new Date(brief.generatedAt).toLocaleString()}
-            </p>
+        <button
+          type="button"
+          onClick={generate}
+          disabled={busy}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#D6CCEC] px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] transition hover:bg-[#F7F4FB] disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : brief ? (
+            <RefreshCw className="h-3.5 w-3.5" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
           )}
-        </div>
+          {brief ? "Refresh" : "Generate"}
+        </button>
       </div>
 
+      <div className="px-5 py-5">
       {stale && brief && (
         <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
@@ -274,46 +265,63 @@ export function AiProviderBrief({
         </p>
       )}
 
-      {!brief ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-[#D6CCEC] bg-white p-6 text-center text-sm text-[#6B6684]">
-          No brief generated yet. Tap <strong>Generate brief</strong> to create
-          one from the patient-consented information.
-        </div>
-      ) : (
-        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-          {BRIEF_SECTION_ORDER.map(({ key, label }, idx) => (
-            <BriefSection
-              key={key}
-              index={idx + 1}
-              label={label}
-              bullets={brief.sections[key] ?? []}
-            />
-          ))}
-        </div>
-      )}
+      <p className="text-[15px] leading-relaxed text-[#3D2E6B]">
+        {snap.insight}
+      </p>
 
-      <div className="mt-5 flex flex-wrap gap-2 border-t border-[#E4DAF4] pt-4">
-        <ActionButton
-          icon={FileText}
-          label="View supporting information"
-          onClick={onViewSupporting}
-        />
-        <ActionButton
-          icon={ClipboardList}
-          label="View assessment results"
-          onClick={onViewAssessments}
-        />
-        <ActionButton
-          icon={History}
-          label="View shared timeline"
-          onClick={onViewTimeline}
-        />
+      <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-y border-[#F1EDF9] py-3">
+        <Signal label="Mood" value={snap.moodLabel} />
+        <Signal label="Stress" value={snap.stressLabel} />
+        <Signal label="Direction" value={snap.directionLabel} accent />
       </div>
 
-      <p className="mt-4 rounded-xl bg-white/60 px-3 py-2 text-[11px] italic leading-relaxed text-[#5A4A8A]">
-        This AI-generated brief may contain errors and does not replace
-        clinical assessment. It summarises only the information the patient
-        consented to share, and it is not a clinical note.
+      {brief && (
+        <details className="group mt-4">
+          <summary className="cursor-pointer list-none text-xs font-semibold text-[#7E6BAF] hover:underline">
+            Show full brief
+          </summary>
+          <div className="mt-3 space-y-3">
+            {BRIEF_SECTION_ORDER.map(({ key, label }, idx) => (
+              <BriefSection
+                key={key}
+                index={idx + 1}
+                label={label}
+                bullets={brief.sections[key] ?? []}
+              />
+            ))}
+          </div>
+        </details>
+      )}
+
+      <div className="mt-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8B85A6]">
+          Browse this client's history
+        </p>
+        <div className="mt-2 divide-y divide-[#F1EDF9] rounded-xl border border-[#F1EDF9]">
+          <HistoryRow
+            icon={ClipboardList}
+            label="Assessment results"
+            hint={`${snap.attemptsInRange.length} results with scores over time`}
+            onClick={onViewAssessments}
+          />
+          <HistoryRow
+            icon={History}
+            label="Check-in timeline"
+            hint={`${snap.checkinsInRange.length} daily check-ins in ${snap.rangeLabel.toLowerCase()}`}
+            onClick={onViewTimeline}
+          />
+          <HistoryRow
+            icon={FileText}
+            label="Supporting information"
+            hint="Themes, notes and everything the brief was based on"
+            onClick={onViewSupporting}
+          />
+        </div>
+      </div>
+
+      <p className="mt-4 text-[11px] leading-relaxed text-[#8B85A6]">
+        AI-generated summary of client-shared information. It may contain
+        errors, is not a clinical note, and does not replace your assessment.
       </p>
 
       <button
@@ -322,11 +330,64 @@ export function AiProviderBrief({
           clearDemoSharedGrant(appointmentId);
           setRefreshKey((k) => k + 1);
         }}
-        className="mt-3 w-full rounded-xl border border-dashed border-[#D6CCEC] bg-white/70 px-3 py-2 text-[11px] font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-white"
+        className="mt-3 text-[11px] font-semibold text-[#A79FC0] underline-offset-2 transition hover:text-[#7E6BAF] hover:underline"
       >
-        Exit shared-view preview (back to “Not shared”)
+        Exit shared-view preview
       </button>
+      </div>
     </section>
+  );
+}
+
+function Signal({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A79FC0]">
+        {label}
+      </p>
+      <p
+        className={`mt-0.5 text-sm font-semibold ${accent ? "text-[#7E6BAF]" : "text-[#3D2E6B]"}`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function HistoryRow({
+  icon: Icon,
+  label,
+  hint,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  hint: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FBF9FF]"
+    >
+      <Icon className="h-4 w-4 flex-none text-[#7E6BAF]" />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-[#3D2E6B]">
+          {label}
+        </span>
+        <span className="block truncate text-xs text-[#8B85A6]">{hint}</span>
+      </span>
+      <ChevronRight className="h-4 w-4 flex-none text-[#C3BAD8]" />
+    </button>
   );
 }
 
@@ -388,27 +449,5 @@ function SourceChip({ bullet }: { bullet: BriefBullet }) {
     >
       {bullet.sourceLabel}
     </span>
-  );
-}
-
-function ActionButton({
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] transition hover:border-[#7E6BAF] hover:bg-[#F7F4FB]"
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-      <ChevronRight className="h-3 w-3 opacity-60" />
-    </button>
   );
 }
