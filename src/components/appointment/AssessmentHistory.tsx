@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronRight, ChevronDown, AlertTriangle, X } from "lucide-react";
+import { ChevronRight, ChevronDown, AlertTriangle, Check, X } from "lucide-react";
+import { useReviewedFlags } from "@/lib/provider-brief/reviewedFlagsStore";
 import {
   Sheet,
   SheetContent,
@@ -79,12 +80,15 @@ function trendWord(g: AssessmentGroup) {
 export function AssessmentHistory({
   attempts,
   clientName,
+  appointmentId,
 }: {
   attempts: Attempt[];
   clientName?: string;
+  appointmentId?: string;
 }) {
   const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const [openId, setOpenId] = useState<string | null>(null);
+  const { reviewedIds, markReviewed } = useReviewedFlags();
   const active = groups.find((g) => g.assessmentId === openId) ?? null;
   const firstName = clientName?.split(" ")[0] ?? "The client";
 
@@ -96,23 +100,34 @@ export function AssessmentHistory({
         {groups.map((g) => {
           const trend = trendWord(g);
           const span = spanLabel(g);
-          const flagged = g.attempts.some((a) => safetyResponse(a));
+          const flaggedAttempts = g.attempts.filter((a) => safetyResponse(a));
+          const flaggedIds = flaggedAttempts.map((a) => a.id);
+          const hasUnreviewedFlag = flaggedIds.some((id) => !reviewedIds.has(id));
+          const allFlaggedReviewed = flaggedIds.length > 0 && !hasUnreviewedFlag;
           return (
-            <button
+            <div
               key={g.assessmentId}
-              type="button"
-              onClick={() => setOpenId(g.assessmentId)}
-              className="group flex w-full items-center gap-3 py-5 text-left"
+              className="group flex w-full items-start gap-3 py-5"
             >
-              <span className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => setOpenId(g.assessmentId)}
+                className="min-w-0 flex-1 text-left"
+              >
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
                   <span className="truncate text-[14px] font-semibold text-[#2C2B4B]">
                     {g.friendlyName} ({g.clinicalName})
                   </span>
-                  {flagged && (
+                  {hasUnreviewedFlag && (
                     <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-tight text-[#C27800]">
                       <AlertTriangle className="h-3 w-3" />
-                    Review needed
+                      Review needed
+                    </span>
+                  )}
+                  {allFlaggedReviewed && (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#F4ECFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight text-[#5A4A8A]">
+                      <Check className="h-3 w-3" />
+                      Reviewed
                     </span>
                   )}
                 </span>
@@ -123,12 +138,23 @@ export function AssessmentHistory({
                     : ""}
                   {trend && span ? ` · ${trend} over ${span}` : ""}
                 </span>
-              </span>
-              <span className="flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                View trend
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            </button>
+              </button>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                {hasUnreviewedFlag && (
+                  <button
+                    type="button"
+                    onClick={() => markReviewed(flaggedIds)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#E4DCF3] bg-[#FBF9FF] px-2.5 py-1 text-[11px] font-semibold text-[#6B5A9A] transition hover:bg-[#F4F0FB] active:scale-[0.98]"
+                  >
+                    Mark as reviewed
+                  </button>
+                )}
+                <span className="hidden items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition-opacity sm:flex sm:opacity-0 sm:group-hover:opacity-100">
+                  View trend
+                  <ChevronRight className="h-4 w-4" />
+                </span>
+              </div>
+            </div>
           );
         })}
       </div>
@@ -138,7 +164,14 @@ export function AssessmentHistory({
           side="right"
           className="w-full overflow-y-auto border-l-[#EFEAF8] bg-white p-0 sm:w-[520px] sm:max-w-[560px] [&>button]:hidden"
         >
-          {active && <GroupDetail group={active} firstName={firstName} />}
+          {active && (
+            <GroupDetail
+              group={active}
+              firstName={firstName}
+              reviewedIds={reviewedIds}
+              markReviewed={markReviewed}
+            />
+          )}
         </SheetContent>
       </Sheet>
     </>
@@ -148,9 +181,13 @@ export function AssessmentHistory({
 function GroupDetail({
   group,
   firstName,
+  reviewedIds,
+  markReviewed,
 }: {
   group: AssessmentGroup;
   firstName: string;
+  reviewedIds: Set<string>;
+  markReviewed: (attemptIds: string[]) => void;
 }) {
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
@@ -198,6 +235,11 @@ function GroupDetail({
     setShowAll(true);
   };
   const flaggedIds = new Set(flagged.map((a) => a.id));
+  const unreviewedFlagIds = new Set(
+    [...flaggedIds].filter((id) => !reviewedIds.has(id)),
+  );
+  const allFlaggedReviewed = flaggedIds.size > 0 && unreviewedFlagIds.size === 0;
+  const markAllReviewed = () => markReviewed([...flaggedIds]);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -233,6 +275,8 @@ function GroupDetail({
               setVisible(10);
               setShowAll(true);
             }}
+            reviewedIds={reviewedIds}
+            onMarkAllReviewed={markAllReviewed}
           />
         )}
 
@@ -386,6 +430,8 @@ function GroupDetail({
                   firstName={firstName}
                   expanded={openFlagId === a.id}
                   onToggle={toggleFlag}
+                  reviewedIds={reviewedIds}
+                  markReviewed={markReviewed}
                 />
               ),
             )}
@@ -436,6 +482,8 @@ function SafetyAlert({
   onToggle,
   outsidePeriod = false,
   onShowAllTime,
+  reviewedIds,
+  onMarkAllReviewed,
 }: {
   group: AssessmentGroup;
   flagged: AttemptWithStatus[];
@@ -444,11 +492,62 @@ function SafetyAlert({
   onToggle: (id: string) => void;
   outsidePeriod?: boolean;
   onShowAllTime?: () => void;
+  reviewedIds: Set<string>;
+  onMarkAllReviewed: () => void;
 }) {
   const first = flagged[0];
   if (!first) return null;
   const s = safetyResponse(first)!;
   const open = openFlagId === first.id;
+  const allReviewed = flagged.every((a) => reviewedIds.has(a.id));
+  const unreviewedCount = flagged.filter((a) => !reviewedIds.has(a.id)).length;
+
+  if (allReviewed) {
+    return (
+      <div className="min-w-0 space-y-2">
+        <div className="rounded-xl border border-[#E4DCF3] bg-[#F7F4FD] px-4 py-3">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5A4A8A]">
+            <Check className="h-4 w-4 flex-none" />
+            Reviewed: {group.clinicalName} question 9
+          </p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5A9A]">
+            {firstName} selected “{plainLabel(s.response)}” on{" "}
+            {fullDate(first.takenAt)}. You have marked this response as reviewed.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <button
+              type="button"
+              onClick={() => onToggle(first.id)}
+              className="flex items-center gap-1 text-[12.5px] font-semibold text-[#5A4A8A]"
+            >
+              {open ? "Hide response" : "View response"}
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+              />
+            </button>
+          </div>
+          {open && (
+            <FlagDetail group={group} attempt={first} className="mt-3" />
+          )}
+          {flagged.length > 1 && (
+            <p className="mt-2 text-[12px] text-[#6B5A9A]">
+              +{flagged.length - 1} earlier result
+              {flagged.length - 1 === 1 ? "" : "s"} also reviewed — see Result
+              history.
+            </p>
+          )}
+        </div>
+        <p className="text-[12px] leading-relaxed text-[#8B85A6]">
+          Flagged because {firstName} selected a response other than “Not at all”
+          for {group.clinicalName} question 9. This response has been reviewed and
+          comes directly from{" "}
+          {firstName === "The client" ? "the client’s" : `${firstName}’s`}{" "}
+          assessment response, not from AI.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-w-0 space-y-2">
       <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] px-4 py-3">
@@ -497,14 +596,22 @@ function SafetyAlert({
               Show in All-time history
             </button>
           )}
+          <button
+            type="button"
+            onClick={onMarkAllReviewed}
+            className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2 py-1 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
+          >
+            <Check className="h-3 w-3" />
+            Mark as reviewed
+          </button>
         </div>
         {open && (
           <FlagDetail group={group} attempt={first} className="mt-3" />
         )}
-        {flagged.length > 1 && (
+        {unreviewedCount > 1 && (
           <p className="mt-2 text-[12px] text-[#8A5E1A]">
-            +{flagged.length - 1} earlier result
-            {flagged.length - 1 === 1 ? "" : "s"} also marked for review — see
+            +{unreviewedCount - 1} earlier result
+            {unreviewedCount - 1 === 1 ? "" : "s"} also marked for review — see
             Result history.
           </p>
         )}
@@ -698,6 +805,8 @@ function AttemptRow({
   group,
   expanded,
   onToggle,
+  reviewedIds,
+  markReviewed,
 }: {
   attempt: AttemptWithStatus;
   maxScore: number;
@@ -705,8 +814,11 @@ function AttemptRow({
   firstName: string;
   expanded: boolean;
   onToggle: (id: string) => void;
+  reviewedIds: Set<string>;
+  markReviewed: (id: string | string[]) => void;
 }) {
   const s = safetyResponse(attempt);
+  const reviewed = s ? reviewedIds.has(attempt.id) : false;
   return (
     <div className="min-w-0 px-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
@@ -718,7 +830,7 @@ function AttemptRow({
             <span className="truncate">
               {attempt.status?.label ?? "Recorded"}
             </span>
-            {s && (
+            {s && !reviewed && (
               <button
                 type="button"
                 onClick={() => onToggle(attempt.id)}
@@ -727,6 +839,12 @@ function AttemptRow({
                 <AlertTriangle className="h-2.5 w-2.5" />
                 Review needed · Question 9
               </button>
+            )}
+            {s && reviewed && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#F7F4FD] px-1.5 py-0.5 text-[10px] font-semibold text-[#5A4A8A]">
+                <Check className="h-2.5 w-2.5" />
+                Reviewed · Question 9
+              </span>
             )}
           </p>
         </div>
@@ -738,7 +856,19 @@ function AttemptRow({
         </span>
       </div>
       {s && expanded && (
-        <FlagDetail group={group} attempt={attempt} className="mt-3" />
+        <div className="mt-3 space-y-3">
+          <FlagDetail group={group} attempt={attempt} />
+          {!reviewed && (
+            <button
+              type="button"
+              onClick={() => markReviewed(attempt.id)}
+              className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
+            >
+              <Check className="h-3 w-3" />
+              Mark as reviewed
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
