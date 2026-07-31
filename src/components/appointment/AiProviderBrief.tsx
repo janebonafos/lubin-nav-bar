@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import {
+  seedDemoSharedGrant,
+  clearDemoSharedGrant,
+} from "@/lib/share/demoSharedGrant";
+import {
   loadBrief,
   saveBrief,
   subscribeBriefChanges,
@@ -48,6 +52,7 @@ export function AiProviderBrief({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     setBrief(loadBrief(appointmentId));
@@ -56,7 +61,7 @@ export function AiProviderBrief({
 
   const grant = useMemo(
     () => getAnyProviderGrant(appointmentId),
-    [appointmentId, brief?.generatedAt],
+    [appointmentId, brief?.generatedAt, refreshKey],
   );
 
   const sharedAt = grant?.updatedAt ?? grant?.createdAt ?? 0;
