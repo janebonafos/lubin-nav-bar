@@ -488,7 +488,6 @@ function DetailsPage() {
           title="Information Shared by Client"
           description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
           defaultOpen={!isCompleted}
-          hint="Not shared with the client. For provider review only."
           reference
           pillLabel={hasSharedContext ? undefined : "Not shared"}
           checkBadge={!hasSharedContext}
