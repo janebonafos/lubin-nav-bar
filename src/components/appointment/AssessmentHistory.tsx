@@ -848,8 +848,14 @@ function AttemptRow({
               className="inline-flex items-center gap-1 rounded-md bg-[#F4ECFB] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#5A4A8A] transition hover:bg-[#EBE3F7] active:scale-[0.98]"
             >
               <Check className="h-3 w-3" />
-              Mark as reviewed
+              Acknowledge response reviewed
             </button>
+          )}
+          {!reviewed && (
+            <p className="text-[12px] leading-relaxed text-[#8B85A6]">
+              This confirms that you viewed the response. It does not document a completed risk
+              assessment.
+            </p>
           )}
         </div>
       )}
