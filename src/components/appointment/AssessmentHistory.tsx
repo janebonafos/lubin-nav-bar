@@ -70,7 +70,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
 
   return (
     <>
-      <div className="divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
+      <div className="divide-y divide-[#EDEDED] border-y border-[#EDEDED]">
         {groups.map((g) => {
           const trend = trendWord(g);
           const span = spanLabel(g);
@@ -80,21 +80,21 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
               key={g.assessmentId}
               type="button"
               onClick={() => setOpenId(g.assessmentId)}
-              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-[#FBF9FF]"
+              className="group flex w-full items-center gap-3 py-5 text-left"
             >
               <span className="min-w-0 flex-1">
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="truncate text-[14px] font-medium text-[#2C2B4B]">
+                  <span className="truncate text-[14px] font-medium text-[#1A1A1A]">
                     {g.friendlyName} ({g.clinicalName})
                   </span>
                   {flagged && (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-2 py-0.5 text-[10.5px] font-semibold text-[#8A5E1A]">
+                    <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-bold uppercase tracking-tight text-[#C27800]">
                       <AlertTriangle className="h-3 w-3" />
                       Safety response
                     </span>
                   )}
                 </span>
-                <span className="mt-1 block text-[12.5px] leading-relaxed text-[#8B85A6]">
+                <span className="mt-1 block text-[12px] leading-relaxed text-[#8C8C8C]">
                   {g.attempts.length} result{g.attempts.length === 1 ? "" : "s"}
                   {g.latest.status?.label
                     ? ` · Latest: ${g.latest.status.label}`
@@ -102,7 +102,7 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
                   {trend && span ? ` · ${trend} over ${span}` : ""}
                 </span>
               </span>
-              <span className="flex shrink-0 items-center gap-1 text-[12.5px] font-medium text-[#7E6BAF]">
+              <span className="flex shrink-0 items-center gap-1 text-[12px] font-medium text-[#1A1A1A] transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                 View trend
                 <ChevronRight className="h-4 w-4" />
               </span>
