@@ -248,7 +248,7 @@ function GroupDetail({
   const flaggedIds = new Set(flagged.map((a) => a.id));
   const unreviewedFlagIds = new Set([...flaggedIds].filter((id) => !reviewedIds.has(id)));
   const allFlaggedReviewed = flaggedIds.size > 0 && unreviewedFlagIds.size === 0;
-  const markAllReviewed = () => markReviewed([...flaggedIds]);
+  const markAllReviewed = () => markReviewed([...flaggedIds], providerName);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -286,6 +286,7 @@ function GroupDetail({
             }}
             reviewedIds={reviewedIds}
             onMarkAllReviewed={markAllReviewed}
+            reviewMeta={reviewMeta}
           />
         )}
 
