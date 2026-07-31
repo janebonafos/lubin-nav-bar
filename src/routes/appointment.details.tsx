@@ -255,6 +255,7 @@ function DetailsPage() {
   const [reviewOutcome, setReviewOutcome] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
+  const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
 
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
@@ -341,6 +342,24 @@ function DetailsPage() {
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
+
+  const hasFollowUpContent = useMemo(() => {
+    const fu = appt?.followUp;
+    return !!(
+      (fu?.summary && fu.summary.trim().length > 0) ||
+      (fu?.homework && fu.homework.trim().length > 0) ||
+      (fu?.nextFocus && fu.nextFocus.trim().length > 0) ||
+      (fu?.resources && fu.resources.length > 0) ||
+      (appt?.attachments && appt.attachments.length > 0)
+    );
+  }, [appt?.followUp, appt?.attachments]);
+
+  const followUpStatus = useMemo(() => {
+    if (isPublished) return "Published";
+    if (followUpPublishConfirmed && hasFollowUpContent) return "Ready to review";
+    if (hasFollowUpContent) return "Draft";
+    return "Optional";
+  }, [isPublished, followUpPublishConfirmed, hasFollowUpContent]);
 
   // Only one main workflow step stays open at a time so the page stays short.
   const [openStep, setOpenStep] = useState<string | null>(null);
@@ -579,6 +598,7 @@ function DetailsPage() {
             openOverride={openStep === "care-plan"}
             onToggle={() => toggleStep("care-plan")}
             done={isPublished}
+            pillLabel={followUpStatus}
             hint="Nothing is shared until you press Publish."
           >
             <ApptNotesBlock
@@ -590,6 +610,7 @@ function DetailsPage() {
               sessionDateLabel={
                 [appt.month, appt.date].filter(Boolean).join(" ") || undefined
               }
+              onPublishConfirmed={setFollowUpPublishConfirmed}
             />
           </SectionCard>
         )}
