@@ -1921,6 +1921,8 @@ export function ApptNotesBlock({
   const [attachLinkedTo, setAttachLinkedTo] = useState("");
   const [showAttachForm, setShowAttachForm] = useState(false);
   const [showResForm, setShowResForm] = useState(false);
+  const [showSupporting, setShowSupporting] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
@@ -1941,6 +1943,17 @@ export function ApptNotesBlock({
     });
     setFuDirty(false);
   };
+
+  // Auto-save the client-facing draft shortly after the provider stops typing.
+  useEffect(() => {
+    if (!fuDirty) return;
+    const t = setTimeout(() => {
+      saveFollowUp();
+      setDraftSavedAt(Date.now());
+    }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fuDirty, fuSummary, fuHomework, fuNextFocus]);
 
   const addResource = () => {
     if (!resLabel.trim() || !resUrl.trim()) {
