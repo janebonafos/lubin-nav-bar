@@ -490,7 +490,7 @@ function DetailsPage() {
           defaultOpen={!isCompleted}
           hint="Not shared with the client. For provider review only."
           reference
-          pillLabel={hasSharedContext ? " " : "Not shared"}
+          pillLabel={hasSharedContext ? undefined : "Not shared"}
           checkBadge={!hasSharedContext}
         >
           <AiProviderBrief
