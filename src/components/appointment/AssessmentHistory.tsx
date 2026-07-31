@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronRight, AlertTriangle, X } from "lucide-react";
+import { ChevronRight, ChevronDown, AlertTriangle, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -15,6 +15,8 @@ import {
   type AttemptWithStatus,
 } from "@/lib/patterns/grouping";
 import type { Attempt } from "@/lib/patterns/types";
+import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { getScoreRanges } from "@/lib/patterns/scoring";
 
 const DAY = 86_400_000;
 
@@ -62,10 +64,17 @@ function trendWord(g: AssessmentGroup) {
   return better ? "Improving" : "Worsening";
 }
 
-export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
+export function AssessmentHistory({
+  attempts,
+  clientName,
+}: {
+  attempts: Attempt[];
+  clientName?: string;
+}) {
   const groups = useMemo(() => groupAttemptsByAssessment(attempts), [attempts]);
   const [openId, setOpenId] = useState<string | null>(null);
   const active = groups.find((g) => g.assessmentId === openId) ?? null;
+  const firstName = clientName?.split(" ")[0] ?? "The client";
 
   if (groups.length === 0) return null;
 
@@ -117,14 +126,20 @@ export function AssessmentHistory({ attempts }: { attempts: Attempt[] }) {
           side="right"
           className="w-full overflow-y-auto border-l-[#EFEAF8] bg-white p-0 sm:w-[520px] sm:max-w-[560px] [&>button]:hidden"
         >
-          {active && <GroupDetail group={active} />}
+          {active && <GroupDetail group={active} firstName={firstName} />}
         </SheetContent>
       </Sheet>
     </>
   );
 }
 
-function GroupDetail({ group }: { group: AssessmentGroup }) {
+function GroupDetail({
+  group,
+  firstName,
+}: {
+  group: AssessmentGroup;
+  firstName: string;
+}) {
   const [range, setRange] = useState<RangeKey>("90d");
   const [showAll, setShowAll] = useState(false);
   const [visible, setVisible] = useState(10);
@@ -355,7 +370,139 @@ function GroupDetail({ group }: { group: AssessmentGroup }) {
             This is a screening result and is not a diagnosis.
           </p>
         </div>
+
+        <HowCalculated group={group} latest={latest} firstName={firstName} />
       </div>
+    </div>
+  );
+}
+
+function HowCalculated({
+  group,
+  latest,
+  firstName,
+}: {
+  group: AssessmentGroup;
+  latest: AttemptWithStatus;
+  firstName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [showResponses, setShowResponses] = useState(false);
+
+  const meta = ASSESSMENTS.find((a) => a.id === group.assessmentId);
+  const ranges = useMemo(
+    () => getScoreRanges(group.assessmentId, group.maxScore, group.lowerIsBetter),
+    [group.assessmentId, group.maxScore, group.lowerIsBetter],
+  );
+  const questionCount = meta?.questions.length ?? 0;
+  const perItemMax = meta
+    ? Math.max(
+        0,
+        ...meta.questions.map((q) =>
+          Math.max(...q.options.map((o) => o.value)),
+        ),
+      )
+    : 0;
+  const perItemMin = meta
+    ? Math.min(
+        ...meta.questions.map((q) =>
+          Math.min(...q.options.map((o) => o.value)),
+        ),
+      )
+    : 0;
+
+  const responses = useMemo(() => {
+    if (!meta || !latest.answers) return [];
+    return meta.questions
+      .map((_, i) => labelForItem(latest, group.assessmentId, i))
+      .filter((r): r is NonNullable<typeof r> => !!r);
+  }, [meta, latest, group.assessmentId]);
+  const allowResponses = responses.length > 0;
+
+  return (
+    <div className="min-w-0 border-t border-[#F1EDF9] pt-5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-2 text-left"
+      >
+        <span className="flex-1 text-[13px] font-semibold text-[#3D2E6B]">
+          How this score was calculated
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#8B85A6] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-4">
+          <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+            {group.clinicalName} contains {questionCount} question
+            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
+            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
+            {group.maxScore}. {firstName}’s responses totaled {latest.score},
+            which falls within the {latest.status?.label ?? "recorded"} range.
+          </p>
+
+          {ranges.length > 0 && (
+            <div className="min-w-0">
+              <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                Score ranges
+              </p>
+              <ul className="mt-1.5 space-y-1">
+                {ranges.map((r) => {
+                  const isCurrent =
+                    latest.score >= r.from && latest.score <= r.to;
+                  return (
+                    <li
+                      key={`${r.from}-${r.label}`}
+                      className={`text-[12.5px] leading-relaxed ${
+                        isCurrent
+                          ? "font-medium text-[#5A4A8A]"
+                          : "text-[#8B85A6]"
+                      }`}
+                    >
+                      {r.from === r.to ? r.from : `${r.from}–${r.to}`}:{" "}
+                      {r.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+            Completed {fullDate(latest.takenAt)}. This screening score supports
+            clinical review and is not a diagnosis.
+          </p>
+
+          {allowResponses && (
+            <div className="min-w-0">
+              <button
+                type="button"
+                onClick={() => setShowResponses((v) => !v)}
+                className="text-[12.5px] font-semibold text-[#6E4FD3]"
+              >
+                {showResponses ? "Hide responses" : "View responses"}
+              </button>
+              {showResponses && (
+                <ul className="mt-2 divide-y divide-[#F4F0FB] overflow-hidden rounded-xl border border-[#EFEAF8]">
+                  {responses.map((r, i) => (
+                    <li key={i} className="min-w-0 px-4 py-3">
+                      <p className="text-[12.5px] leading-relaxed text-[#2C2B4B]">
+                        {r.text}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#8B85A6]">
+                        {r.response}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
