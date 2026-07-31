@@ -450,3 +450,4 @@ function SourceChip({ bullet }: { bullet: BriefBullet }) {
       {bullet.sourceLabel}
     </span>
   );
+}
