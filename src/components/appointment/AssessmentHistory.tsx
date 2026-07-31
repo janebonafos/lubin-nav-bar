@@ -37,6 +37,18 @@ function fullDate(ts: number) {
   });
 }
 
+function shortDate(ts: number) {
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Answer labels carry a leading emoji for the client UI; strip it here. */
+function plainLabel(s: string) {
+  return s.replace(/^[^\p{L}\p{N}]+/u, "").trim();
+}
+
 /** PHQ-9 item 9 safety response on any attempt (not just the latest). */
 function safetyResponse(a: AttemptWithStatus) {
   if (a.assessmentId !== "phq-9") return null;
@@ -163,13 +175,6 @@ function GroupDetail({
   const oldest = inRange[inRange.length - 1];
   const change =
     inRange.length > 1 && oldest ? latest.score - oldest.score : null;
-  const changeGood =
-    change === null || change === 0
-      ? null
-      : group.lowerIsBetter
-        ? change < 0
-        : change > 0;
-
   const flagged = group.attempts.filter((a) => safetyResponse(a));
   const flaggedShown = flagged.slice(0, 3);
 
@@ -195,32 +200,10 @@ function GroupDetail({
 
       <div className="min-w-0 space-y-6 px-5 py-6 sm:px-7">
         {flagged.length > 0 && (
-          <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] p-4">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
-              <AlertTriangle className="h-4 w-4 flex-none" />
-              Safety-related response
-            </p>
-            <ul className="mt-2 space-y-1.5">
-              {flaggedShown.map((a) => {
-                const s = safetyResponse(a)!;
-                return (
-                  <li
-                    key={a.id}
-                    className="text-[12.5px] leading-relaxed text-[#7A5416]"
-                  >
-                    {fullDate(a.takenAt)} — “{s.text}”: {s.response}
-                  </li>
-                );
-              })}
-            </ul>
-            {flagged.length > flaggedShown.length && (
-              <p className="mt-2 text-[12px] text-[#8A5E1A]">
-                +{flagged.length - flaggedShown.length} earlier attempt
-                {flagged.length - flaggedShown.length === 1 ? "" : "s"} with a
-                safety-related response.
-              </p>
-            )}
-          </div>
+          <SafetyAlert
+            flagged={flaggedShown}
+            hiddenCount={flagged.length - flaggedShown.length}
+          />
         )}
 
         {/* Range filters — only useful once a trend can exist */}
@@ -272,38 +255,52 @@ function GroupDetail({
         ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
-            <p className="text-[12px] text-[#8B85A6]">Latest score</p>
+            <p className="text-[12px] text-[#8B85A6]">Latest result</p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {latest.score}
-              <span className="text-[13px] font-normal text-[#8B85A6]">
-                {" "}
-                / {group.maxScore}
-              </span>
+              {latest.score} of {group.maxScore}
+              {latest.status?.label ? (
+                <span className="text-[15px] font-medium text-[#5A4A8A]">
+                  {" "}
+                  · {latest.status.label}
+                </span>
+              ) : null}
             </p>
-            {latest.status?.label && (
-              <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-                {latest.status.label} · {fullDate(latest.takenAt)}
-              </p>
-            )}
+            <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+              Completed {fullDate(latest.takenAt)}
+            </p>
           </div>
           {change !== null && (
           <div className="min-w-0 rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
             <p className="text-[12px] text-[#8B85A6]">
-              Change over {RANGES.find((r) => r.key === range)?.label.toLowerCase()}
+              {oldest
+                ? `Change since ${shortDate(oldest.takenAt)}`
+                : `Change over ${RANGES.find((r) => r.key === range)?.label.toLowerCase()}`}
             </p>
             <p className="mt-1 text-[20px] font-semibold text-[#2C2B4B]">
-              {`${change > 0 ? "+" : ""}${change} point${Math.abs(change) === 1 ? "" : "s"}`}
+              {change === 0
+                ? "No change"
+                : `${Math.abs(change)} point${Math.abs(change) === 1 ? "" : "s"} ${change < 0 ? "lower" : "higher"}`}
             </p>
+            {oldest && (
+              <p className="mt-1 text-[12.5px] text-[#8B85A6]">
+                Latest score: {latest.score}, previously {oldest.score}
+              </p>
+            )}
             <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
-              {changeGood === null
-                ? "No meaningful change"
-                : changeGood
-                  ? "Moving in a better direction"
-                  : "Moving in a harder direction"}
+              {change === 0
+                ? "Scores were the same on both assessments."
+                : `Symptoms scored ${change < 0 ? "lower" : "higher"} on the latest assessment.`}
             </p>
           </div>
           )}
         </div>
+        )}
+
+        {inRange.length === 2 && (
+          <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+            Two results show a change, but more results are needed to establish a
+            pattern.
+          </p>
         )}
 
         {singleInPeriod && (
@@ -362,17 +359,81 @@ function GroupDetail({
           )}
         </div>
 
-        <div className="min-w-0 border-t border-[#F1EDF9] pt-5">
-          <p className="text-[13px] font-semibold text-[#3D2E6B]">
-            About this result
-          </p>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-[#8B85A6]">
-            This is a screening result and is not a diagnosis.
+        <HowCalculated group={group} latest={latest} firstName={firstName} />
+
+        <p className="text-[12.5px] leading-relaxed text-[#8B85A6]">
+          This is a screening result and is not a diagnosis.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SafetyAlert({
+  flagged,
+  hiddenCount,
+}: {
+  flagged: AttemptWithStatus[];
+  hiddenCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const first = flagged[0];
+  if (!first) return null;
+  return (
+    <div className="rounded-xl border border-[#F0DEC2] bg-[#FDF6EC] p-4">
+      <p className="flex items-center gap-2 text-[13px] font-semibold text-[#8A5E1A]">
+        <AlertTriangle className="h-4 w-4 flex-none" />
+        Safety-related response recorded
+      </p>
+      <p className="mt-1 text-[12.5px] text-[#8A5E1A]">
+        {fullDate(first.takenAt)} · Review recommended
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="mt-3 flex items-center gap-1 text-[12.5px] font-semibold text-[#8A5E1A]"
+      >
+        {open ? "Hide response" : "View response"}
+        <ChevronDown
+          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="mt-3 space-y-3">
+          {flagged.map((a) => {
+            const s = safetyResponse(a)!;
+            return (
+              <div
+                key={a.id}
+                className="rounded-lg border border-[#EFDCBE] bg-white/70 p-3"
+              >
+                <p className="text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
+                  Question 9 · {fullDate(a.takenAt)}
+                </p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[#7A5416]">
+                  “{s.text}”
+                </p>
+                <p className="mt-2 text-[11.5px] font-semibold uppercase tracking-tight text-[#8A5E1A]">
+                  Response
+                </p>
+                <p className="mt-0.5 text-[12.5px] text-[#7A5416]">
+                  {plainLabel(s.response)}
+                </p>
+              </div>
+            );
+          })}
+          {hiddenCount > 0 && (
+            <p className="text-[12px] text-[#8A5E1A]">
+              +{hiddenCount} earlier attempt{hiddenCount === 1 ? "" : "s"} with a
+              safety-related response.
+            </p>
+          )}
+          <p className="text-[12.5px] leading-relaxed text-[#7A5416]">
+            This response requires separate clinical review and should not be
+            interpreted from the total score or trend alone.
           </p>
         </div>
-
-        <HowCalculated group={group} latest={latest} firstName={firstName} />
-      </div>
+      )}
     </div>
   );
 }
@@ -427,7 +488,7 @@ function HowCalculated({
         className="flex w-full items-center gap-2 text-left"
       >
         <span className="flex-1 text-[13px] font-semibold text-[#3D2E6B]">
-          How this score was calculated
+          How scores are calculated
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[#8B85A6] transition-transform ${open ? "rotate-180" : ""}`}
@@ -437,11 +498,12 @@ function HowCalculated({
       {open && (
         <div className="mt-3 space-y-4">
           <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-            {group.clinicalName} contains {questionCount} question
-            {questionCount === 1 ? "" : "s"}. Each response is scored from{" "}
-            {perItemMin} to {perItemMax}, giving a total score from 0 to{" "}
-            {group.maxScore}. {firstName}’s responses totaled {latest.score},
-            which falls within the {latest.status?.label ?? "recorded"} range.
+            {group.clinicalName} contains {questionCount} response
+            {questionCount === 1 ? "" : "s"} scored from {perItemMin} to{" "}
+            {perItemMax}, giving a total score from 0 to {group.maxScore}. The
+            total is interpreted using {group.clinicalName} severity ranges.{" "}
+            {firstName}’s latest responses totaled {latest.score}, which falls
+            within the {latest.status?.label ?? "recorded"} range.
           </p>
 
           {ranges.length > 0 && (
@@ -493,7 +555,7 @@ function HowCalculated({
                         {r.text}
                       </p>
                       <p className="mt-0.5 text-[12px] text-[#8B85A6]">
-                        {r.response}
+                        {plainLabel(r.response)}
                       </p>
                     </li>
                   ))}
@@ -521,9 +583,14 @@ function AttemptRow({
         <p className="truncate text-[13.5px] text-[#2C2B4B]">
           {fullDate(attempt.takenAt)}
         </p>
-        <p className="mt-0.5 truncate text-[12px] text-[#8B85A6]">
-          {attempt.status?.label ?? "Recorded"}
-          {s ? " · safety response flagged" : ""}
+        <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-[#8B85A6]">
+          <span className="truncate">{attempt.status?.label ?? "Recorded"}</span>
+          {s && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#FDF6EC] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A5E1A]">
+              <AlertTriangle className="h-2.5 w-2.5" />
+              Safety-related response
+            </span>
+          )}
         </p>
       </div>
       <span className="shrink-0 text-[13.5px] font-medium text-[#5A4A8A]">
@@ -543,9 +610,8 @@ function TrendChart({
   attempts: AttemptWithStatus[];
   maxScore: number;
 }) {
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const pts = [...attempts].sort((a, b) => a.takenAt - b.takenAt);
-  const W = 100;
-  const H = 40;
   if (pts.length < 2) {
     return (
       <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4 text-[12.5px] text-[#8B85A6]">
@@ -553,25 +619,65 @@ function TrendChart({
       </div>
     );
   }
+
+  // Pixel-space chart with a left gutter for the score scale.
+  const W = 320;
+  const H = 150;
+  const PAD_L = 30;
+  const PAD_R = 8;
+  const PAD_T = 12;
+  const PAD_B = 22;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+
+  const step = maxScore <= 10 ? 2 : maxScore <= 30 ? 5 : 10;
+  const ticks: number[] = [];
+  for (let v = 0; v <= maxScore; v += step) ticks.push(v);
+  if (ticks[ticks.length - 1] !== maxScore) ticks.push(maxScore);
+
   const minT = pts[0].takenAt;
   const maxT = pts[pts.length - 1].takenAt;
   const span = Math.max(1, maxT - minT);
-  const coords = pts.map((p) => ({
-    x: ((p.takenAt - minT) / span) * W,
-    y: H - (Math.min(p.score, maxScore) / maxScore) * H,
-  }));
-  const line = coords.map((c) => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(" ");
+  const xFor = (t: number) => PAD_L + ((t - minT) / span) * plotW;
+  const yFor = (s: number) =>
+    PAD_T + plotH - (Math.min(Math.max(s, 0), maxScore) / maxScore) * plotH;
+
+  const coords = pts.map((p) => ({ x: xFor(p.takenAt), y: yFor(p.score) }));
+  const line = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+  const active = activeIdx !== null ? pts[activeIdx] : null;
+  const activeC = activeIdx !== null ? coords[activeIdx] : null;
+
   return (
     <div className="rounded-xl border border-[#EDE7F8] bg-[#FBF9FF] p-4">
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        className="h-28 w-full"
+        className="w-full"
         role="img"
-        aria-label="Score trend over time"
+        aria-label="Score trend over time with score scale"
       >
+        {ticks.map((v) => (
+          <g key={v}>
+            <line
+              x1={PAD_L}
+              x2={W - PAD_R}
+              y1={yFor(v)}
+              y2={yFor(v)}
+              stroke="#EAE2F6"
+              strokeWidth={1}
+            />
+            <text
+              x={PAD_L - 6}
+              y={yFor(v) + 3}
+              textAnchor="end"
+              fontSize={8}
+              fill="#A79FC0"
+            >
+              {v}
+            </text>
+          </g>
+        ))}
         <polyline
-          points={`0,${H} ${line} ${W},${H}`}
+          points={`${PAD_L},${PAD_T + plotH} ${line} ${W - PAD_R},${PAD_T + plotH}`}
           fill="#EFE8FB"
           stroke="none"
           opacity={0.7}
@@ -580,13 +686,50 @@ function TrendChart({
           points={line}
           fill="none"
           stroke="#7E6BAF"
-          strokeWidth={1.2}
+          strokeWidth={1.6}
           strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
         />
         {coords.map((c, i) => (
-          <circle key={i} cx={c.x} cy={c.y} r={1.1} fill="#5A4A8A" />
+          <g key={i}>
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={activeIdx === i ? 3.4 : 2.4}
+              fill="#5A4A8A"
+            />
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={10}
+              fill="transparent"
+              className="cursor-pointer"
+              onMouseEnter={() => setActiveIdx(i)}
+              onMouseLeave={() => setActiveIdx(null)}
+              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+            />
+          </g>
         ))}
+        {active && activeC && (
+          <g pointerEvents="none">
+            <rect
+              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68)}
+              y={Math.max(activeC.y - 26, 0)}
+              width={68}
+              height={20}
+              rx={5}
+              fill="#3D2E6B"
+            />
+            <text
+              x={Math.min(Math.max(activeC.x - 34, PAD_L), W - PAD_R - 68) + 34}
+              y={Math.max(activeC.y - 26, 0) + 13.5}
+              textAnchor="middle"
+              fontSize={8}
+              fill="#FFFFFF"
+            >
+              {active.score} · {shortDate(active.takenAt)}
+            </text>
+          </g>
+        )}
       </svg>
       <div className="mt-2 flex justify-between text-[11.5px] text-[#A79FC0]">
         <span>{fullDate(minT)}</span>
