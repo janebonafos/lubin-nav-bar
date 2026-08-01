@@ -2768,7 +2768,7 @@ function PublishPreviewCard({
         {publishedAt && (
           <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
             <p className="font-semibold text-[#3D2E6B]">
-              Reviewed and marked as done by {providedBy} on{" "}
+              Reviewed and shared by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
                 month: "long",
                 day: "numeric",
