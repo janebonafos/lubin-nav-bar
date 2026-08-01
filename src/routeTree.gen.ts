@@ -35,6 +35,7 @@ import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
+import { Route as ApiMedicationReferenceRouteImport } from './routes/api/medication-reference'
 import { Route as ApiGenerateVisitSummaryRouteImport } from './routes/api/generate-visit-summary'
 import { Route as ApiGenerateProviderBriefRouteImport } from './routes/api/generate-provider-brief'
 import { Route as ApiGeneratePrescriptionRouteImport } from './routes/api/generate-prescription'
@@ -173,6 +174,11 @@ const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
   path: '/appointment/cancel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMedicationReferenceRoute = ApiMedicationReferenceRouteImport.update({
+  id: '/api/medication-reference',
+  path: '/api/medication-reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenerateVisitSummaryRoute = ApiGenerateVisitSummaryRouteImport.update({
   id: '/api/generate-visit-summary',
   path: '/api/generate-visit-summary',
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
+  '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
+  '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
+  '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
     | '/api/generate-visit-summary'
+    | '/api/medication-reference'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
     | '/api/generate-visit-summary'
+    | '/api/medication-reference'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
     | '/api/generate-visit-summary'
+    | '/api/medication-reference'
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
@@ -435,6 +447,7 @@ export interface RootRouteChildren {
   ApiGeneratePrescriptionRoute: typeof ApiGeneratePrescriptionRoute
   ApiGenerateProviderBriefRoute: typeof ApiGenerateProviderBriefRoute
   ApiGenerateVisitSummaryRoute: typeof ApiGenerateVisitSummaryRoute
+  ApiMedicationReferenceRoute: typeof ApiMedicationReferenceRoute
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
@@ -631,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppointmentCancelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/medication-reference': {
+      id: '/api/medication-reference'
+      path: '/api/medication-reference'
+      fullPath: '/api/medication-reference'
+      preLoaderRoute: typeof ApiMedicationReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/generate-visit-summary': {
       id: '/api/generate-visit-summary'
       path: '/api/generate-visit-summary'
@@ -709,6 +729,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGeneratePrescriptionRoute: ApiGeneratePrescriptionRoute,
   ApiGenerateProviderBriefRoute: ApiGenerateProviderBriefRoute,
   ApiGenerateVisitSummaryRoute: ApiGenerateVisitSummaryRoute,
+  ApiMedicationReferenceRoute: ApiMedicationReferenceRoute,
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
@@ -723,13 +744,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
