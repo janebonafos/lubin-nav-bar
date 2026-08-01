@@ -71,6 +71,8 @@ export function AiPrescription({
   const [error, setError] = useState<string | null>(null);
   const [refMedId, setRefMedId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState(false);
+  // Prescriptions are optional — the clinician opts in per appointment.
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     setRx(loadPrescription(appointmentId));
@@ -86,6 +88,8 @@ export function AiPrescription({
   const signed = !!rx.finalisedAt;
   const reviewed = !!rx.reviewedAt;
   const controlledMeds = rx.medications.filter((m) => m.controlled);
+  const active =
+    started || signed || rx.medications.length > 0 || !!rx.generatedAt;
 
   const generate = async () => {
     setBusy(true);
@@ -213,35 +217,47 @@ export function AiPrescription({
   // The AI draft is prepared automatically — the clinician validates it.
   const autoRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!started) return;
     if (autoRef.current === appointmentId) return;
     const existing = loadPrescription(appointmentId);
     autoRef.current = appointmentId;
     if (existing.generatedAt || existing.medications.length > 0) return;
     void generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appointmentId]);
+  }, [appointmentId, started]);
 
   const missingList = rx.missingInformation ?? [];
+
+  if (!active) {
+    return (
+      <section className="rounded-2xl border border-[#ECE7F6] bg-white px-4 py-4">
+        <p className="text-[13px] font-semibold text-[#3D2E6B]">
+          No prescription for this appointment
+        </p>
+        <p className="mt-1 text-[12px] leading-relaxed text-[#7E6BAF]">
+          Add one only if this consultation needs medication. Lubin can prepare a
+          draft from your notes for you to review and sign.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStarted(true)}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
+        >
+          <Plus className="h-4 w-4" /> Add prescription
+        </button>
+      </section>
+    );
+  }
 
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
-        <div className="flex items-start gap-2.5">
-          <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-[#EEE8F8] text-[#5A3E8F]">
-            <Pill className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-[#3D2E6B]">Prescription</h2>
-            <p className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-[#5A4A8A]">
-              <MapPin className="h-3.5 w-3.5 text-[#7E6BAF]" />
-              Prescribing jurisdiction: {JURISDICTION_LABEL[country]}
-            </p>
-            <p className="text-[11px] leading-snug text-[#8B85A6]">
-              Based on the client&rsquo;s jurisdiction and your verified
-              prescribing authority.
-            </p>
-          </div>
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold text-[#3D2E6B]">Prescription</h2>
+          <p className="mt-0.5 text-[12px] text-[#7E6BAF]">
+            Prescribing jurisdiction: {JURISDICTION_LABEL[country]}
+          </p>
         </div>
         {signed ? (
           <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
@@ -263,16 +279,10 @@ export function AiPrescription({
         )}
 
         {/* Draft status */}
-        {!signed && (
-          <div className="rounded-[12px] border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
-              <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" />
-              {DRAFT_STATUS_TITLE}
-            </p>
-            <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {DRAFT_STATUS_BODY}
-            </p>
-          </div>
+        {!signed && total > 0 && (
+          <p className="text-[12px] leading-relaxed text-[#7E6BAF]">
+            {DRAFT_STATUS_BODY}
+          </p>
         )}
 
         {/* Actions */}
@@ -316,11 +326,6 @@ export function AiPrescription({
             </span>
           )}
         </div>
-
-        <p className="text-[11px] leading-snug text-[#8B85A6]">
-          Availability, references, prescription requirements and
-          controlled-substance rules follow {JURISDICTION_LABEL[country]}.
-        </p>
 
         {error && (
           <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
