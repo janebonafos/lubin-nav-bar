@@ -251,10 +251,6 @@ function DetailsPage() {
   const [appt, setAppt] = useState<StoredAppt | null>(null);
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
-  const [confirmComplete, setConfirmComplete] = useState(false);
-  const [reviewOutcome, setReviewOutcome] = useState(false);
-  // No outcome is preselected — the provider must choose deliberately.
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
@@ -400,22 +396,6 @@ function DetailsPage() {
     appt?.type,
     appt?.prescriptionEligible,
   );
-
-  const saveOutcome = () => {
-    if (!appt || !outcome) return;
-    onChange({
-      outcome,
-      status:
-        outcome === "cancelled"
-          ? "cancelled"
-          : outcome === "rescheduled"
-            ? "upcoming"
-            : "completed",
-      payoutStatus: outcome === "completed" || outcome === "client_no_show" ? "pending_review" : appt.payoutStatus,
-    });
-    setConfirmComplete(false);
-    setReviewOutcome(false);
-  };
 
   if (missing) {
     return (
@@ -653,129 +633,6 @@ function DetailsPage() {
             This service supports medication review, but prescribing tools stay
             hidden until your prescribing authority is verified for your
             client&rsquo;s jurisdiction.
-          </div>
-        )}
-
-        {/* Record the outcome — only prescribers need to close out the appointment */}
-        {rxAllowed && canMarkComplete && !recordedOutcome && (
-          <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
-            <div className="flex items-start gap-3">
-              <div className="flex-1">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-                  Close out
-                </p>
-                <h2 className="mt-1 text-[15px] font-semibold text-[#2C2B4B]">
-                  Record what happened with this appointment
-                </h2>
-              </div>
-            </div>
-            <p className="mt-3 text-[13px] leading-snug text-[#7E6BAF]">
-              Choose the outcome that matches reality. Each option has different
-              consequences for your client and for payment, shown below your
-              choice. Leaving earlier sections blank is fine.
-            </p>
-
-            <div className="mt-4 grid gap-2">
-              {OUTCOMES.map((o) => (
-                <label
-                  key={o.value}
-                  className={`flex cursor-pointer items-start gap-2.5 rounded-[12px] border px-4 py-3 text-[13px] leading-snug transition-colors ${
-                    outcome === o.value
-                      ? "border-[#6E4FD3] bg-[#F4EEFC] text-[#3D2E6B]"
-                      : "border-[#EAE2F6] bg-white text-[#5A4A8A]"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="appointment-outcome"
-                    value={o.value}
-                    checked={outcome === o.value}
-                    onChange={() => {
-                      setOutcome(o.value);
-                      setConfirmComplete(false);
-                      setReviewOutcome(false);
-                    }}
-                    className="mt-0.5 h-4 w-4 border-[#D6CCEC] text-[#6E4FD3] focus:ring-[#7E6BAF]"
-                  />
-                  <span className="font-semibold">{o.label}</span>
-                </label>
-              ))}
-            </div>
-
-            {outcome && (
-            <div className="mt-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
-              <span className="font-semibold uppercase tracking-[0.12em] text-[10px] text-[#7E6BAF]">
-                What happens next
-              </span>
-              <p className="mt-1.5">
-                {OUTCOMES.find((o) => o.value === outcome)?.consequence}
-              </p>
-            </div>
-            )}
-
-            <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[13px] leading-snug text-[#3D2E6B]">
-              <input
-                type="checkbox"
-                checked={confirmComplete}
-                disabled={!outcome}
-                onChange={(e) => setConfirmComplete(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-              />
-              <span>
-                I confirm this outcome is accurate and I understand the
-                consequences described above. If I left sections blank, I simply
-                did not add extra information this time.
-              </span>
-            </label>
-            <button
-              type="button"
-              disabled={!confirmComplete || !outcome}
-              onClick={() => setReviewOutcome(true)}
-              className="mt-4 w-full rounded-[12px] bg-[#3D2E6B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
-            >
-              {outcome
-                ? `Review before saving: ${OUTCOMES.find((o) => o.value === outcome)?.label}`
-                : "Select an outcome to continue"}
-            </button>
-            {reviewOutcome && (
-              <div className="mt-4 rounded-[14px] border border-[#6E4FD3] bg-white px-4 py-4 shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-                  Final confirmation
-                </p>
-                <p className="mt-2 text-sm font-semibold text-[#3D2E6B]">
-                  Confirm outcome: {OUTCOMES.find((o) => o.value === outcome)?.label}
-                </p>
-                <p className="mt-1.5 text-[12px] leading-snug text-[#5A4A8A]">
-                  This will update the appointment status and apply the payment or payout review consequence shown above.
-                </p>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setReviewOutcome(false)}
-                    className="rounded-[10px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-                  >
-                    Go back
-                  </button>
-                  <button
-                    type="button"
-                    onClick={saveOutcome}
-                    className="rounded-[10px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2C2B4B]"
-                  >
-                    Confirm and save outcome
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-
-        {rxAllowed && recordedOutcome && recordedOutcome !== "completed" && (
-          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
-            <span className="font-semibold text-[#3D2E6B]">
-              {OUTCOMES.find((o) => o.value === recordedOutcome)?.label} ·{" "}
-            </span>
-            {OUTCOMES.find((o) => o.value === recordedOutcome)?.consequence}
           </div>
         )}
 
