@@ -2622,21 +2622,20 @@ export function ApptNotesBlock({
               )}
             </div>
 
-            {/* Mark as Completed action below the preview box */}
+            {/* Save draft action below the preview box (does not share) */}
             {(!isPublished || hasUnsharedChanges) && (
-              <div className="mt-4 flex items-center justify-end">
+              <div className="mt-4 flex items-center justify-end gap-3">
+                <p className="text-[11px] text-[#A89BD0]">
+                  Saving keeps your draft. Use “Mark as Completed” below to share it.
+                </p>
                 <button
                   type="button"
                   onClick={() => {
-                    onChange({
-                      publishedFollowUp: {
-                        at: Date.now(),
-                        by: providerName?.trim() || undefined,
-                      },
-                    });
+                    saveFollowUp();
+                    setDraftSavedAt(Date.now());
+                    setEditFields({});
                   }}
-                  disabled={!publishConfirmed}
-                  className="rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                  className="rounded-[8px] border border-[#D6CCEC] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
                 >
                   Save
                 </button>
