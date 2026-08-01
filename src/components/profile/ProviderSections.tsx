@@ -2667,11 +2667,12 @@ export function ApptNotesBlock({
               {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
             </p>
             <button
-              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
+              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
               className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
             >
               {appt.notes ? "Edit" : "Add notes"}
             </button>
+
           </div>
         ) : (
           <div className="mt-2 space-y-2">
