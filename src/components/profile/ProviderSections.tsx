@@ -1925,14 +1925,53 @@ export function ApptNotesBlock({
   const [showResForm, setShowResForm] = useState(false);
   const [showSupporting, setShowSupporting] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
+  // Fields the provider has explicitly reopened for editing after sharing.
+  const [editFields, setEditFields] = useState<Record<string, boolean>>({});
+  const [publishedSnapshot, setPublishedSnapshot] = useState<string | null>(null);
+
+  const currentSnapshot = JSON.stringify({
+    s: fuSummary.trim(),
+    h: fuHomework.trim(),
+    n: fuNextFocus.trim(),
+    r: followUp.resources ?? [],
+    a: (appt.attachments ?? []).map((f) => `${f.name}|${f.title ?? ""}|${f.linkedTo ?? ""}`),
+  });
+  // Only offer an update once something actually changed since the last share.
+  const hasUnsharedChanges = isPublished && publishedSnapshot !== null && publishedSnapshot !== currentSnapshot;
+
+  const openEdit = (key: string) => setEditFields((p) => ({ ...p, [key]: true }));
+  const isFieldLocked = (key: string, value: string) =>
+    isPublished && !editFields[key] && value.trim().length > 0;
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
+    setEditFields({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt.id]);
+
+  // Capture what was shared, so later edits can be detected.
+  useEffect(() => {
+    if (!isPublished) {
+      setPublishedSnapshot(null);
+      return;
+    }
+    setPublishedSnapshot(currentSnapshot);
+    setPublishConfirmed(false);
+    setEditFields({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt.id, isPublished, appt.publishedFollowUp?.at]);
+
+  // Any change after sharing invalidates the previous confirmation.
+  useEffect(() => {
+    if (hasUnsharedChanges) {
+      setPublishConfirmed(false);
+      onPublishConfirmed?.(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasUnsharedChanges]);
 
   const saveFollowUp = () => {
     onChange({
