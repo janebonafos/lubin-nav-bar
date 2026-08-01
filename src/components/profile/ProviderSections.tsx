@@ -1886,6 +1886,7 @@ export function ApptNotesBlock({
   providerName,
   sessionDateLabel,
   onPublishConfirmed,
+  onPrivateNotesSaved,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1894,7 +1895,9 @@ export function ApptNotesBlock({
   providerName?: string;
   sessionDateLabel?: string;
   onPublishConfirmed?: (confirmed: boolean) => void;
+  onPrivateNotesSaved?: (saved: boolean) => void;
 }) {
+
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
   const isCompleted = appt.status === "completed";
