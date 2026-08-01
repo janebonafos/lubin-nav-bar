@@ -50,7 +50,7 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The appointment is closed as delivered. Anything you marked as done in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+      "The appointment is closed as delivered. Anything you share in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
   },
   {
     value: "client_no_show",
@@ -519,7 +519,7 @@ function DetailsPage() {
         {!isCancelled && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
             Add your clinical notes and any follow-up information for {clientLabel}.
-            Only what you mark as done in Step 3 is shared with them. Private clinician notes
+            Only what you share in Step 3 is visible to them. Private clinician notes
             are never shared.
           </div>
         )}
@@ -594,12 +594,12 @@ function DetailsPage() {
             number={3}
             eyebrow={`Share with ${clientLabel}`}
             title="Session summary and next steps"
-            description={`Write a short summary and any next steps for ${clientLabel}. Review it, then mark it as done to share it to their Health Passport.`}
+            description={`Write a short summary and any next steps for ${clientLabel}. Review it, then share it to their Health Passport.`}
             openOverride={openStep === "care-plan"}
             onToggle={() => toggleStep("care-plan")}
             done={isPublished}
             pillLabel={followUpStatus}
-            hint="Nothing is shared until you press Mark as done."
+            hint="Nothing is shared until you confirm below."
           >
             <ApptNotesBlock
               appt={appt}
@@ -621,7 +621,7 @@ function DetailsPage() {
             id="prescriptions"
             eyebrow="Prescriber tools"
             title="Prescription"
-            description="Separate signed clinical document. Not included in the client recap you mark as done above."
+            description="Separate signed clinical document. Not included in the client recap above."
             hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
             <div className="mb-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
@@ -771,8 +771,8 @@ function DetailsPage() {
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
             {isPublished
-              ? `Your recap has been marked as done and shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
-              : `This appointment has been marked as completed. Nothing has been marked as done to share with ${clientLabel}'s Health Passport yet. Review and mark as done from Step 3 when ready.`}
+              ? `Your recap has been shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
+              : `This appointment is completed. Nothing has been shared with ${clientLabel}'s Health Passport yet. Go to Step 3 when you are ready to share it.`}
           </div>
         )}
 

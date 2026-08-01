@@ -2075,7 +2075,7 @@ export function ApptNotesBlock({
               <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
                 Session recap
                 <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                  Required to mark as done
+                  Required to share
                 </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
@@ -2410,11 +2410,7 @@ export function ApptNotesBlock({
               </span>
             </div>
 
-            <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Review and mark as done
-            </p>
-
-            {/* ================= Preview & Mark as done ================= */}
+            {/* ================= Preview & share ================= */}
             <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -2422,11 +2418,10 @@ export function ApptNotesBlock({
                     Final step
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
-                    Preview and mark as done
+                    Preview before sharing
                   </p>
                   <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-                    Nothing above is shared with {clientLabel} until you click
-                    Mark as done. Private clinician notes are never included.
+                    Only the information above is shared with {clientLabel}. Private notes stay here and are never included.
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
@@ -2472,9 +2467,7 @@ export function ApptNotesBlock({
                   className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
                 />
                 <span>
-                  I reviewed this client-facing follow-up and confirm it is
-                  appropriate to share with {clientLabel}. Private clinical notes
-                  are not included.
+                  I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
                 </span>
               </label>
               <div className="mt-3">
@@ -2491,7 +2484,7 @@ export function ApptNotesBlock({
                   disabled={!publishConfirmed}
                   className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
-                  {isPublished ? "Update · marked as done" : "Mark as done"}
+                  {isPublished ? "Update shared summary" : "Mark as done to share"}
                 </button>
               </div>
             </div>
@@ -2652,7 +2645,7 @@ function PublishPreviewCard({
         </p>
         {!publishedAt && (
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-            Not yet marked as done
+            Not yet shared
           </p>
         )}
       </div>
@@ -2775,7 +2768,7 @@ function PublishPreviewCard({
         {publishedAt && (
           <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
             <p className="font-semibold text-[#3D2E6B]">
-              Reviewed and marked as done by {providedBy} on{" "}
+              Reviewed and shared by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
                 month: "long",
                 day: "numeric",
