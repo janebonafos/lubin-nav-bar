@@ -651,6 +651,7 @@ function DetailsPage() {
               clientName={appt.client}
               providerName={providerDisplayName}
               appointmentLabel={appointmentLabel}
+              jurisdiction="PH"
             />
           </SectionCard>
         )}

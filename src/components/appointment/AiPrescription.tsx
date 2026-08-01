@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import {
   loadPrescription,
-  savePrescription,
   subscribePrescription,
   updatePrescription,
   genRxId,
