@@ -413,22 +413,8 @@ function DetailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, shareTick]);
 
-  // Only one main workflow step stays open at a time so the page stays short.
+  // Only one task stays open at a time; the page opens on the task list.
   const [openStep, setOpenStep] = useState<string | null>(null);
-  const [stepInit, setStepInit] = useState(false);
-  useEffect(() => {
-    if (!appt || stepInit) return;
-    setOpenStep(
-      !isCompleted
-        ? "before-session"
-        : !hasNotes
-          ? "session-notes"
-          : !isPublished
-            ? "care-plan"
-            : null,
-    );
-    setStepInit(true);
-  }, [appt, stepInit, isCompleted, hasNotes, isPublished]);
   const toggleStep = (key: string) => setOpenStep((cur) => (cur === key ? null : key));
 
   // Parse appointment start time. Month/date/time come as strings like
