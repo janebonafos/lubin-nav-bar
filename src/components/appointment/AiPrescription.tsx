@@ -132,6 +132,20 @@ export function AiPrescription({
   const unlock = () =>
     patch({ finalisedAt: undefined, finalisedBy: undefined });
 
+  // The AI draft is prepared automatically — the clinician validates it.
+  const autoRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (autoRef.current === appointmentId) return;
+    const existing = loadPrescription(appointmentId);
+    if (existing.generatedAt || existing.medications.length > 0) {
+      autoRef.current = appointmentId;
+      return;
+    }
+    autoRef.current = appointmentId;
+    void generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointmentId]);
+
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
