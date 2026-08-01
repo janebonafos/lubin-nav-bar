@@ -1942,6 +1942,19 @@ export function ApptNotesBlock({
   const openEdit = (key: string) => setEditFields((p) => ({ ...p, [key]: true }));
   const isFieldLocked = (key: string, value: string) =>
     isPublished && !editFields[key] && value.trim().length > 0;
+  const isReopened = (key: string) => !!editFields[key];
+  const fieldClass = (key: string) =>
+    `w-full rounded-[10px] border p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] ${
+      isReopened(key)
+        ? "border-[#7E6BAF] bg-white shadow-[0_0_0_3px_rgba(126,107,175,0.15)]"
+        : "border-[#E5DCF5] bg-[#FBF9FF] focus:border-[#7E6BAF]"
+    }`;
+  const closeEdit = (key: string) =>
+    setEditFields((p) => {
+      const next = { ...p };
+      delete next[key];
+      return next;
+    });
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
