@@ -518,9 +518,9 @@ function DetailsPage() {
         {/* Workflow guidance */}
         {!isCancelled && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
-            Complete your clinical notes and prepare an optional follow-up for {clientLabel}.
-            Only information you explicitly mark as done in the final step is shared with
-            your client. Private clinician notes are never shared.
+            Add your clinical notes and any follow-up information for {clientLabel}.
+            Only what you mark as done in Step 3 is shared with them. Private clinician notes
+            are never shared.
           </div>
         )}
 
