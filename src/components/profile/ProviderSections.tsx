@@ -2644,10 +2644,9 @@ export function ApptNotesBlock({
                 </button>
               </div>
             )}
-
-
           </div>
         </div>
+
       )}
 
       {/* ============ Private Notes (provider only) ============ */}
