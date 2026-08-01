@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Pill,
   Sparkles,
@@ -132,6 +132,20 @@ export function AiPrescription({
   const unlock = () =>
     patch({ finalisedAt: undefined, finalisedBy: undefined });
 
+  // The AI draft is prepared automatically — the clinician validates it.
+  const autoRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (autoRef.current === appointmentId) return;
+    const existing = loadPrescription(appointmentId);
+    if (existing.generatedAt || existing.medications.length > 0) {
+      autoRef.current = appointmentId;
+      return;
+    }
+    autoRef.current = appointmentId;
+    void generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointmentId]);
+
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
@@ -145,8 +159,9 @@ export function AiPrescription({
               Prescription draft
             </h2>
             <p className="text-[12px] leading-snug text-[#5A4A8A]">
-              Create a draft from this visit&rsquo;s notes or add medications
-              manually. You remain the prescribing clinician.
+              Drafted automatically from this visit&rsquo;s notes for your
+              review. Validate and approve every medication &mdash; you remain
+              the prescribing clinician.
             </p>
           </div>
         </div>
@@ -184,21 +199,6 @@ export function AiPrescription({
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={generate}
-            disabled={busy || finalised}
-            className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#5A3E8F] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : total > 0 ? (
-              <RefreshCw className="h-4 w-4" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-            {total > 0 ? "Regenerate draft" : "Generate AI draft"}
-          </button>
           {!finalised && (
             <button
               type="button"
@@ -206,6 +206,21 @@ export function AiPrescription({
               className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
             >
               <Plus className="h-4 w-4" /> Add manually
+            </button>
+          )}
+          {!finalised && (
+            <button
+              type="button"
+              onClick={generate}
+              disabled={busy}
+              className="inline-flex items-center gap-1 rounded-[12px] px-2.5 py-2 text-[12px] font-semibold text-[#7E6BAF] transition hover:bg-[#F7F4FB] hover:text-[#5A3E8F] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {busy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              {busy ? "Drafting…" : "Redraft with AI"}
             </button>
           )}
           {rx.generatedAt && (
@@ -238,14 +253,25 @@ export function AiPrescription({
         )}
 
         {/* Medications */}
-        {total === 0 ? (
+        {total === 0 && busy ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
+            <Loader2 className="h-4 w-4 flex-none animate-spin text-[#7E6BAF]" />
+            <p className="text-[13px] leading-snug text-[#3D2E6B]">
+              <span className="font-medium">Preparing AI draft…</span>
+              <span className="text-[#7E6BAF]">
+                {" "}
+                — you will review and approve each medication.
+              </span>
+            </p>
+          </div>
+        ) : total === 0 ? (
           <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
             <Pill className="h-4 w-4 flex-none text-[#A89BD0]" />
             <p className="text-[13px] leading-snug text-[#3D2E6B]">
-              <span className="font-medium">No prescription drafted yet</span>
+              <span className="font-medium">No medication suggested</span>
               <span className="text-[#7E6BAF]">
                 {" "}
-                — generate a draft or add a medication manually.
+                — add a medication manually or redraft with AI.
               </span>
             </p>
           </div>
