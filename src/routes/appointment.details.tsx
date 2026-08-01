@@ -788,7 +788,7 @@ function DetailsPage() {
         )}
 
 
-        {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
+        {rxAllowed && isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
           <div
             className={`rounded-2xl border px-5 py-4 text-[13px] ${
               isPublished
@@ -845,6 +845,7 @@ function DetailsPage() {
             )}
           </div>
         )}
+
 
         <div className="pt-2 text-center">
           <button
