@@ -31,6 +31,7 @@ import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.
 import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
+import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview.psychiatrist-session'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
@@ -151,6 +152,12 @@ const ProfilePreviewRoute = ProfilePreviewRouteImport.update({
   path: '/preview',
   getParentRoute: () => ProfileRoute,
 } as any)
+const PreviewPsychiatristSessionRoute =
+  PreviewPsychiatristSessionRouteImport.update({
+    id: '/preview/psychiatrist-session',
+    path: '/preview/psychiatrist-session',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
   id: '/appointment/reschedule',
   path: '/appointment/reschedule',
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
@@ -256,6 +264,7 @@ export interface FileRoutesByTo {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/preview/psychiatrist-session'
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
@@ -358,6 +369,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/preview/psychiatrist-session'
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
@@ -391,6 +403,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/preview/psychiatrist-session'
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
@@ -425,6 +438,7 @@ export interface RootRouteChildren {
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
+  PreviewPsychiatristSessionRoute: typeof PreviewPsychiatristSessionRoute
   ProviderIdRoute: typeof ProviderIdRoute
   ProviderAppointmentsRoute: typeof ProviderAppointmentsRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -589,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilePreviewRouteImport
       parentRoute: typeof ProfileRoute
     }
+    '/preview/psychiatrist-session': {
+      id: '/preview/psychiatrist-session'
+      path: '/preview/psychiatrist-session'
+      fullPath: '/preview/psychiatrist-session'
+      preLoaderRoute: typeof PreviewPsychiatristSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/appointment/reschedule': {
       id: '/appointment/reschedule'
       path: '/appointment/reschedule'
@@ -691,6 +712,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
+  PreviewPsychiatristSessionRoute: PreviewPsychiatristSessionRoute,
   ProviderIdRoute: ProviderIdRoute,
   ProviderAppointmentsRoute: ProviderAppointmentsRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
