@@ -2534,37 +2534,52 @@ export function ApptNotesBlock({
                   attachments={appt.attachments ?? []}
                 />
               )}
-              <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
-                <input
-                  type="checkbox"
-                  checked={publishConfirmed}
-                  onChange={(e) => {
-                    setPublishConfirmed(e.target.checked);
-                    onPublishConfirmed?.(e.target.checked);
-                  }}
-                  className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-                />
-                <span>
-                  I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
-                </span>
-              </label>
-              <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange({
-                      publishedFollowUp: {
-                        at: Date.now(),
-                        by: providerName?.trim() || undefined,
-                      },
-                    });
-                  }}
-                  disabled={!publishConfirmed}
-                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
-                >
-                  {isPublished ? "Update shared summary" : "Mark as done to share"}
-                </button>
-              </div>
+              {isPublished && !hasUnsharedChanges ? (
+                <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+                  {clientLabel} already has this summary. Use Edit above if you need to change
+                  something — you can share the update afterwards.
+                </p>
+              ) : (
+                <>
+                  {hasUnsharedChanges && (
+                    <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+                      You changed this summary after sharing it. Confirm below to share the update
+                      with {clientLabel}.
+                    </p>
+                  )}
+                  <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
+                    <input
+                      type="checkbox"
+                      checked={publishConfirmed}
+                      onChange={(e) => {
+                        setPublishConfirmed(e.target.checked);
+                        onPublishConfirmed?.(e.target.checked);
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+                    />
+                    <span>
+                      I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
+                    </span>
+                  </label>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange({
+                          publishedFollowUp: {
+                            at: Date.now(),
+                            by: providerName?.trim() || undefined,
+                          },
+                        });
+                      }}
+                      disabled={!publishConfirmed}
+                      className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                    >
+                      {hasUnsharedChanges ? "Share update" : "Mark as done to share"}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
