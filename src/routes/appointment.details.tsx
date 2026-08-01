@@ -50,7 +50,7 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The appointment is closed as delivered. Anything you marked as done in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+      "The appointment is closed as delivered. Anything you share in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
   },
   {
     value: "client_no_show",
