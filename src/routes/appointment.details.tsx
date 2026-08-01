@@ -778,7 +778,7 @@ function DetailsPage() {
         )}
 
 
-        {recordedOutcome && recordedOutcome !== "completed" && (
+        {rxAllowed && recordedOutcome && recordedOutcome !== "completed" && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">
               {OUTCOMES.find((o) => o.value === recordedOutcome)?.label} ·{" "}
@@ -786,6 +786,7 @@ function DetailsPage() {
             {OUTCOMES.find((o) => o.value === recordedOutcome)?.consequence}
           </div>
         )}
+
 
         {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
           <div
