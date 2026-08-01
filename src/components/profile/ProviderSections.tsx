@@ -2491,9 +2491,7 @@ export function ApptNotesBlock({
                   disabled={!publishConfirmed}
                   className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
-                  {isPublished
-                    ? `Republish to ${clientLabel}'s Health Passport`
-                    : `Publish to ${clientLabel}'s Health Passport`}
+                  {isPublished ? "Update · marked as done" : "Mark as done"}
                 </button>
               </div>
             </div>
