@@ -208,8 +208,11 @@ export function MedicationReferenceDrawer({
                 </div>
               )}
 
-              {/* A. General reference */}
-              <Section title="A · General medication reference">
+              {/* A. Official medication information */}
+              <Section
+                title="Official medication information"
+                subtitle="Summarised from the linked prescribing information"
+              >
                 <dl className="divide-y divide-[#F1ECF9]">
                   {GENERAL_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.general[key]} />
@@ -217,9 +220,9 @@ export function MedicationReferenceDrawer({
                 </dl>
               </Section>
 
-              {/* B. Patient-specific */}
+              {/* B. Patient-specific considerations */}
               <Section
-                title="B · Relevance to this patient"
+                title="Patient-specific considerations"
                 subtitle="Patient-specific review · Not a clinical determination"
                 note={PATIENT_REVIEW_CAVEAT}
               >
@@ -227,6 +230,19 @@ export function MedicationReferenceDrawer({
                   {PATIENT_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.patient[key]} />
                   ))}
+                </dl>
+              </Section>
+
+              {/* C. AI rationale — kept visually distinct from official info */}
+              <Section
+                title="Why the AI included this option"
+                subtitle="AI-generated explanation · not official prescribing information"
+              >
+                <dl className="divide-y divide-[#F1ECF9]">
+                  <Row
+                    label="Reason this option was included"
+                    value={ref.patient.aiRationale ?? med.rationale}
+                  />
                 </dl>
               </Section>
 
