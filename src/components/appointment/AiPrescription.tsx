@@ -69,6 +69,8 @@ export function AiPrescription({
   const [compareOpen, setCompareOpen] = useState(false);
   // Prescriptions are optional — the clinician opts in per appointment.
   const [started, setStarted] = useState(false);
+  // Only a deliberate "Prepare draft" asks the AI for a draft.
+  const [autoDraft, setAutoDraft] = useState(false);
 
   useEffect(() => {
     setRx(loadPrescription(appointmentId));
@@ -213,34 +215,76 @@ export function AiPrescription({
   // The AI draft is prepared automatically — the clinician validates it.
   const autoRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!started) return;
+    if (!autoDraft) return;
     if (autoRef.current === appointmentId) return;
     const existing = loadPrescription(appointmentId);
     autoRef.current = appointmentId;
     if (existing.generatedAt || existing.medications.length > 0) return;
     void generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appointmentId, started]);
+  }, [appointmentId, autoDraft]);
 
   const missingList = rx.missingInformation ?? [];
+
+  if (rx.skippedAt && !active) {
+    return (
+      <section className="rounded-2xl border border-[#ECE7F6] bg-white px-4 py-4">
+        <p className="text-[13px] font-semibold text-[#3D2E6B]">
+          No prescription needed for this appointment
+        </p>
+        <p className="mt-1 text-[12px] leading-relaxed text-[#7E6BAF]">
+          Recorded {new Date(rx.skippedAt).toLocaleString()}.
+        </p>
+        <button
+          type="button"
+          onClick={() => patch({ skippedAt: undefined })}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
+        >
+          Undo
+        </button>
+      </section>
+    );
+  }
 
   if (!active) {
     return (
       <section className="rounded-2xl border border-[#ECE7F6] bg-white px-4 py-4">
         <p className="text-[13px] font-semibold text-[#3D2E6B]">
-          No prescription for this appointment
+          Create a prescription
         </p>
         <p className="mt-1 text-[12px] leading-relaxed text-[#7E6BAF]">
-          Add one only if this consultation needs medication. Lubin can prepare a
-          draft from your notes for you to review and sign.
+          Prepare a draft from the recorded clinical information or add a
+          medication manually.
         </p>
-        <button
-          type="button"
-          onClick={() => setStarted(true)}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
-        >
-          <Plus className="h-4 w-4" /> Add prescription
-        </button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setAutoDraft(true);
+              setStarted(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+          >
+            Prepare draft
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStarted(true);
+              addMed();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
+          >
+            <Plus className="h-4 w-4" /> Add medication manually
+          </button>
+          <button
+            type="button"
+            onClick={() => patch({ skippedAt: Date.now() })}
+            className="inline-flex items-center gap-1.5 rounded-[12px] px-3 py-2 text-[13px] font-semibold text-[#7E6BAF] transition hover:bg-[#F7F4FB] hover:text-[#5A3E8F]"
+          >
+            No prescription needed
+          </button>
+        </div>
       </section>
     );
   }
