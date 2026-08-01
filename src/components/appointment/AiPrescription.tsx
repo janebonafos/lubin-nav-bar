@@ -389,8 +389,11 @@ export function AiPrescription({
           <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
             <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
               <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
-              A prescription draft could not be prepared because required
-              clinical information is missing.
+              Clinical information required
+            </p>
+            <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
+              Some patient information needed to prepare a prescription is
+              missing.
             </p>
             <ul className="mt-2 space-y-1 pl-6 text-[12px] leading-snug text-[#5A4A8A]">
               {(missingList.length > 0
@@ -408,14 +411,9 @@ export function AiPrescription({
                 onClick={onAddClinicalInfo}
                 className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
               >
-                <ClipboardList className="h-4 w-4" /> Add required clinical
-                information
+                <ClipboardList className="h-4 w-4" /> Add clinical information
               </button>
             )}
-            <p className="mt-2 text-[11px] leading-snug text-[#8B85A6]">
-              Private notes stay optional. The patient information needed to
-              prepare a prescription is listed above.
-            </p>
           </div>
         ) : (
           <ul className="space-y-3">
@@ -428,6 +426,7 @@ export function AiPrescription({
                 onChange={(p) => updateMed(m.id, p)}
                 onRemove={() => removeMed(m.id)}
                 onOpenReference={() => setRefMedId(m.id)}
+                onAddClinicalInfo={onAddClinicalInfo}
               />
             ))}
           </ul>
