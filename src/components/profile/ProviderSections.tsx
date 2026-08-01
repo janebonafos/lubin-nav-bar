@@ -2652,7 +2652,7 @@ function PublishPreviewCard({
         </p>
         {!publishedAt && (
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-            Not yet published
+            Not yet marked as done
           </p>
         )}
       </div>
