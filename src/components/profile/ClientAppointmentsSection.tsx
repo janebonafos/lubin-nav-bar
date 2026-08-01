@@ -42,6 +42,7 @@ type Appt = {
   promoCode?: string;
   providerNotes?: string;
   followUp?: string;
+  publishedFollowUp?: { at: number; by?: string };
 };
 
 const seed: Appt[] = [
@@ -221,6 +222,15 @@ export default function ClientAppointmentsSection() {
         });
         if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
         refreshTimer.current = window.setTimeout(() => setRefreshing(false), 700);
+      } else if (evt.type === "appt-updated") {
+        setRefreshing(true);
+        setAll((list) =>
+          list.map((a) =>
+            a.id === evt.id ? ({ ...a, ...(evt.patch as Partial<Appt>) }) : a,
+          ),
+        );
+        if (refreshTimer.current) window.clearTimeout(refreshTimer.current);
+        refreshTimer.current = window.setTimeout(() => setRefreshing(false), 600);
       }
     });
     return () => {
@@ -242,6 +252,15 @@ export default function ClientAppointmentsSection() {
     completed: "bg-[#E6F8F1] text-[#2D8E69]",
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
+
+  // A finished session only reads as "Completed" once the provider has marked
+  // it completed and shared the recap; before that it stays "Confirmed".
+  const statusLabel = (a: Appt) =>
+    a.status === "completed" && !a.publishedFollowUp ? "confirmed" : a.status;
+  const statusTone = (a: Appt) =>
+    a.status === "completed" && !a.publishedFollowUp
+      ? statusStyle.upcoming
+      : statusStyle[a.status];
 
   if (loading) {
     return (
@@ -357,9 +376,9 @@ export default function ClientAppointmentsSection() {
                             {a.provider}
                           </p>
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusStyle[a.status]}`}
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(a)}`}
                           >
-                            {a.status}
+                            {statusLabel(a)}
                           </span>
                           {grants[a.id] && (
                             <span
