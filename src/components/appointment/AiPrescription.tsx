@@ -159,8 +159,9 @@ export function AiPrescription({
               Prescription draft
             </h2>
             <p className="text-[12px] leading-snug text-[#5A4A8A]">
-              Create a draft from this visit&rsquo;s notes or add medications
-              manually. You remain the prescribing clinician.
+              Drafted automatically from this visit&rsquo;s notes for your
+              review. Validate and approve every medication &mdash; you remain
+              the prescribing clinician.
             </p>
           </div>
         </div>
