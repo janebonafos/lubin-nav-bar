@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Pill,
-  Sparkles,
   Loader2,
   Check,
   ShieldCheck,
@@ -11,7 +9,6 @@ import {
   RefreshCw,
   Printer,
   Lock,
-  MapPin,
   Info,
   BookOpen,
   Columns3,
@@ -40,7 +37,6 @@ import {
   DRAFT_BASIS_BODY,
   DRAFT_BASIS_TITLE,
   DRAFT_STATUS_BODY,
-  DRAFT_STATUS_TITLE,
   MED_VERIFICATION_STATEMENT,
 } from "@/lib/prescription/reference";
 import { DEMO_BANNER } from "@/lib/prescription/demo";
