@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarClock, Check, ChevronDown, Loader2 } from "lucide-react";
 import {
   ApptNotesBlock,
   type ApptLite,
@@ -258,6 +258,8 @@ function DetailsPage() {
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
   const [followUpSaved, setFollowUpSaved] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
 
 
   useEffect(() => {
