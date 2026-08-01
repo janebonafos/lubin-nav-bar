@@ -2046,7 +2046,7 @@ export function ApptNotesBlock({
                 Client recap {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
               </p>
               <p className="text-[11px] text-[#7E6BAF]">
-                Nothing here is shared until you explicitly publish it below.
+                Nothing here is shared until you explicitly mark it as done below.
               </p>
             </div>
             <span
@@ -2056,7 +2056,7 @@ export function ApptNotesBlock({
                   : "bg-white/80 text-[#3D2E6B]"
               }`}
             >
-              {isPublished ? "Published" : "Draft · Not shared"}
+              {isPublished ? "Done" : "Draft · Not shared"}
             </span>
           </div>
 
@@ -2075,7 +2075,7 @@ export function ApptNotesBlock({
               <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
                 Session recap
                 <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                  Required to publish
+                  Required to mark as done
                 </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
@@ -2411,10 +2411,10 @@ export function ApptNotesBlock({
             </div>
 
             <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Review and publish
+              Review and mark as done
             </p>
 
-            {/* ================= Preview & Publish ================= */}
+            {/* ================= Preview & Mark as done ================= */}
             <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -2422,16 +2422,16 @@ export function ApptNotesBlock({
                     Final step
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
-                    Preview and publish to {clientLabel}'s Health Passport
+                    Preview and mark as done
                   </p>
                   <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
                     Nothing above is shared with {clientLabel} until you click
-                    Publish. Private clinician notes are never included.
+                    Mark as done. Private clinician notes are never included.
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
                   <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2.5 py-1 text-right text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                    Published<br />
+                    Done<br />
                     {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                     {" · "}
                     {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
@@ -2491,9 +2491,7 @@ export function ApptNotesBlock({
                   disabled={!publishConfirmed}
                   className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
-                  {isPublished
-                    ? `Republish to ${clientLabel}'s Health Passport`
-                    : `Publish to ${clientLabel}'s Health Passport`}
+                  {isPublished ? "Update · marked as done" : "Mark as done"}
                 </button>
               </div>
             </div>
@@ -2654,7 +2652,7 @@ function PublishPreviewCard({
         </p>
         {!publishedAt && (
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-            Not yet published
+            Not yet marked as done
           </p>
         )}
       </div>
@@ -2777,7 +2775,7 @@ function PublishPreviewCard({
         {publishedAt && (
           <div className="border-t border-[#F0EAFB] pt-3 text-[11px] text-[#7E6BAF]">
             <p className="font-semibold text-[#3D2E6B]">
-              Reviewed and shared by {providedBy} on{" "}
+              Reviewed and marked as done by {providedBy} on{" "}
               {new Date(publishedAt).toLocaleDateString(undefined, {
                 month: "long",
                 day: "numeric",
