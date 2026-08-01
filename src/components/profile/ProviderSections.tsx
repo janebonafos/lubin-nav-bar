@@ -2653,23 +2653,23 @@ export function ApptNotesBlock({
               Private clinician notes <span className="text-[#A89BD0]/70">· never shared</span>
             </p>
           </div>
-          {!editing && (
-            <button
-              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
-              className="rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
-            >
-              {appt.notes ? "Edit" : "Add notes"}
-            </button>
-          )}
         </div>
         <p className="mt-1 text-[11px] italic text-[#A89BD0]">
           Only visible to you. Capture presenting concerns, observations, plan
           items, and reflections. Never sent to {clientLabel}.
         </p>
         {!editing ? (
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
-            {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
-          </p>
+          <div className="mt-2 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
+              {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
+            </p>
+            <button
+              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
+              className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+            >
+              {appt.notes ? "Edit" : "Add notes"}
+            </button>
+          </div>
         ) : (
           <div className="mt-2 space-y-2">
             <textarea
