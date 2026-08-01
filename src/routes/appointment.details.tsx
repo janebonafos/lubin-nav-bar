@@ -475,10 +475,21 @@ function DetailsPage() {
       ? (recordedOutcome
           ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
           : "Completed")
-      : "Confirmed";
+      : showPostSession
+        ? "Session ended · Follow-up in progress"
+        : "Confirmed";
+
+  const tasks: { key: string; label: string; status: string; optional?: boolean }[] = [
+    { key: "session-notes", label: "Private clinical documentation", status: docStatus, optional: true },
+    { key: "care-plan", label: `Summary for ${clientLabel}`, status: followUpStatus, optional: true },
+    ...(rxAllowed
+      ? [{ key: "prescriptions", label: "Prescription", status: rxStatus, optional: true }]
+      : []),
+  ];
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-6">
         {/* Back link */}
         <Link
           to="/provider/appointments"
@@ -487,263 +498,266 @@ function DetailsPage() {
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Appointments
         </Link>
 
-        {/* Hero — session at a glance */}
-        <section className="relative overflow-hidden rounded-[24px] border border-[#EAE2F6] bg-white p-6 shadow-[0_10px_40px_-24px_rgba(61,46,107,0.35)] md:p-8">
+        {/* Page header */}
+        <header className="relative overflow-hidden rounded-[24px] border border-[#EAE2F6] bg-white p-6 shadow-[0_10px_40px_-24px_rgba(61,46,107,0.35)] md:p-7">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#EFE8FB] blur-3xl" />
-          <div className="relative flex flex-col gap-6">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#A89BD0]">
-                  Session workspace
-                </p>
-                <h1 className="mt-1 truncate text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
-                  Session with {appt.client ?? "your client"}
-                </h1>
-                <p className="mt-1 text-[13px] text-[#7E6BAF]">
-                  Reference · #{appt.id.toString().toUpperCase()}
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-col items-stretch gap-1.5 sm:items-end">
-                <StatusPill
-                  label="Status"
-                  value={sessionStatusLabel}
-                  tone={isPublished ? "done" : isCancelled ? "muted" : "active"}
-                />
-              </div>
+          <div className="relative flex flex-col gap-5">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
+                After-session tasks
+              </h1>
+              <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[#7E6BAF]">
+                Complete your private documentation and choose what, if
+                anything, to share with {clientLabel}.
+              </p>
             </div>
-
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <FactTile label="Client" value={appt.client ?? "—"} />
               <FactTile
-                label="When"
+                label="Appointment"
                 value={[appt.month, appt.date].filter(Boolean).join(" ") || "—"}
                 sub={appt.time}
               />
               <FactTile
-                label="Format"
-                value={
-                  [appt.duration, appt.type].filter(Boolean).join(" · ") || "—"
-                }
-                sub={[appt.sessionFormat, appt.mode]
-                  .filter(Boolean)
-                  .join(" · ")}
+                label="Session type"
+                value={appt.type ?? "—"}
+                sub={[appt.duration, appt.mode].filter(Boolean).join(" · ")}
               />
-              <FactTile
-                label="Payment"
-                value={appt.amount ?? "—"}
-                sub={appt.paymentStatus}
-              />
+              <FactTile label="Status" value={sessionStatusLabel} />
             </div>
           </div>
-        </section>
+        </header>
 
-        {/* Workflow guidance */}
-        {!isCancelled && (
-          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
-            Add your clinical notes and any follow-up information for {clientLabel}.
-            Only what you share in Step 3 is visible to them. Private clinician notes
-            are never shared.
-          </div>
-        )}
-
-        {/* Before the session */}
-        <SectionCard
-          id="before-session"
-          number={1}
-          title={`Information ${appt.client?.split(" ")[0] ?? "your client"} shared`}
-          description={`Review the Health Passport information ${appt.client?.split(" ")[0] ?? "your client"} shared for this appointment.`}
-          openOverride={openStep === "before-session"}
-          onToggle={() => toggleStep("before-session")}
-          reference
-          pillLabel={hasSharedContext ? undefined : "Not shared"}
-          checkBadge
-        >
-          <AiProviderBrief
-            appointmentId={appt.id}
-            providerName={providerDisplayName}
-            clientName={appt.client}
-            appointmentLabel={appointmentLabel}
-            onViewSupporting={() => {
-              document
-                .getElementById("shared-passport-block")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-            onViewAssessments={() => {
-              document
-                .getElementById("assessments-block")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-            onViewTimeline={() => {
-              document
-                .getElementById("shared-timeline-block")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-          />
-        </SectionCard>
-
-        {/* Step 2 — During and after the session (private documentation first) */}
-        {showPostSession && (
-          <SectionCard
-            id="session-notes"
-            number={2}
-            eyebrow="During and after the session"
-            title="Clinical documentation & private notes"
-            description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
-            openOverride={openStep === "session-notes"}
-            onToggle={() => toggleStep("session-notes")}
-            done={privateNotesSaved && hasNotes}
-            checkBadge={privateNotesSaved && hasNotes}
-            hint={
-              privateNotesSaved && hasNotes
-                ? undefined
-                : "Optional. Nothing in this section is shared with your client."
-            }
-          >
-            <ApptNotesBlock
-              appt={appt}
-              onChange={onChange}
-              variant="private"
-              clientName={appt.client}
-              providerName={providerDisplayName}
-              onPrivateNotesSaved={setPrivateNotesSaved}
-            />
-          </SectionCard>
-
-        )}
-
-        {/* Step 3 — Share with the client */}
-        {showPostSession && (
-          <SectionCard
-            id="care-plan"
-            number={3}
-            eyebrow={`Share with ${clientLabel}`}
-            title="Session summary and next steps"
-            description={`Write a short summary and any next steps for ${clientLabel}. Review it, then share it to their Health Passport.`}
-            openOverride={openStep === "care-plan"}
-            onToggle={() => toggleStep("care-plan")}
-            done={isPublished || (followUpSaved && hasFollowUpContent)}
-            checkBadge={isPublished || (followUpSaved && hasFollowUpContent)}
-            pillLabel={followUpStatus}
-            hint="Nothing is shared until you confirm below."
-          >
-            <ApptNotesBlock
-              appt={appt}
-              onChange={onChange}
-              variant="followup"
-              clientName={appt.client}
-              providerName={providerDisplayName}
-              sessionDateLabel={
-                [appt.month, appt.date].filter(Boolean).join(" ") || undefined
-              }
-              onPublishConfirmed={setFollowUpPublishConfirmed}
-              onFollowUpSaved={(saved) => {
-                setFollowUpSaved(saved);
-                if (saved) setOpenStep(null);
-              }}
-            />
-          </SectionCard>
-        )}
-
-        {/* Prescriptions — verified prescriber AND a prescribing service type */}
-        {rxAllowed && showPostSession && (
-          <SectionCard
-            id="prescriptions"
-            number={4}
-            title="Prescription"
-            description="Optional. Add one only if this consultation needs medication. Not included in the client recap."
-            openOverride={openStep === "prescriptions"}
-            onToggle={() => toggleStep("prescriptions")}
-          >
-            <AiPrescription
-              appointmentId={appt.id}
-              clientName={appt.client}
-              providerName={providerDisplayName}
-              appointmentLabel={appointmentLabel}
-              jurisdiction="PH"
-            />
-          </SectionCard>
-        )}
-
-        {!rxAllowed && rxServiceOnly && showPostSession && (
-          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
-            This service supports medication review, but prescribing tools stay
-            hidden until your prescribing authority is verified for your
-            client&rsquo;s jurisdiction.
-          </div>
-        )}
-
-
-        {rxAllowed && isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
-          <div
-            className={`rounded-2xl border px-5 py-4 text-[13px] ${
-              isPublished
-                ? "border-[#BFE6D4] bg-[#F1FBF6] text-[#2D6E56]"
-                : "border-[#EAE2F6] bg-white/70 text-[#5A4A8A]"
-            }`}
-          >
-            {isPublished ? (
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2D8E69]">
-                  <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+          {/* Main working area */}
+          <div className="flex min-w-0 flex-col gap-4">
+            {/* Client-shared reference material — outside the numbered tasks */}
+            <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
+              <button
+                type="button"
+                onClick={() => setSharedRefOpen((v) => !v)}
+                className="flex w-full items-start gap-4 px-5 py-4 text-left"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold text-[#2C2B4B]">
+                    Health information {clientLabel} shared
+                  </span>
+                  <span className="mt-1 block text-[13px] leading-snug text-[#7E6BAF]">
+                    Recent check-ins, assessments and Health Passport
+                    information shared for this appointment.
+                  </span>
+                  <span className="mt-1.5 block text-[12px] font-medium text-[#5A4A8A]">
+                    {sharedSummaryLine ?? "Nothing shared for this appointment"}
+                  </span>
                 </span>
-                <div>
-                  <p className="font-semibold text-[#1F5A45]">
-                    {justCompleted
-                      ? "Marked as completed"
-                      : "This appointment is completed"}
-                  </p>
-                  <p className="mt-0.5">
-                    Your summary was shared with {clientLabel}'s Health Passport
-                    {appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on{" "}
-                    {new Date(appt.publishedFollowUp!.at).toLocaleString()}. The status now shows
-                    as completed in your appointments list and in {clientLabel}'s.
-                  </p>
+                <ChevronDown
+                  className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${sharedRefOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {!sharedRefOpen && (
+                <div className="border-t border-[#F1EAFB] px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setSharedRefOpen(true)}
+                    className="rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 py-1.5 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                  >
+                    Review shared information
+                  </button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span>Ready to share your summary with {clientLabel}'s Health Passport?</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (completing) return;
-                    setCompleting(true);
-                    window.setTimeout(() => {
-                      onChange({
-                        status: "completed",
-                        publishedFollowUp: {
-                          at: Date.now(),
-                          by: providerDisplayName?.trim() || undefined,
-                        },
-                      });
-                      setCompleting(false);
-                      setJustCompleted(true);
-                    }, 900);
+              )}
+              {sharedRefOpen && (
+                <div className="border-t border-[#F1EAFB] bg-[#FBF9FF] px-4 py-5 md:px-6">
+                  <AiProviderBrief
+                    appointmentId={appt.id}
+                    providerName={providerDisplayName}
+                    clientName={appt.client}
+                    appointmentLabel={appointmentLabel}
+                    onViewSupporting={() => {
+                      document
+                        .getElementById("shared-passport-block")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    onViewAssessments={() => {
+                      document
+                        .getElementById("assessments-block")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    onViewTimeline={() => {
+                      document
+                        .getElementById("shared-timeline-block")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  />
+                </div>
+              )}
+            </section>
+
+            {/* Task 1 — private clinical documentation */}
+            {showPostSession && (
+              <SectionCard
+                id="session-notes"
+                number={1}
+                eyebrow="After the session"
+                title="Private clinical documentation"
+                description={`Record your private clinical notes and treatment considerations. This information is never shared with ${clientLabel}.`}
+                openOverride={openStep === "session-notes"}
+                onToggle={() => toggleStep("session-notes")}
+                done={privateNotesSaved && hasNotes}
+                checkBadge={privateNotesSaved && hasNotes}
+                pillLabel={docStatus}
+                optional
+              >
+                <ApptNotesBlock
+                  appt={appt}
+                  onChange={onChange}
+                  variant="private"
+                  clientName={appt.client}
+                  providerName={providerDisplayName}
+                  onPrivateNotesSaved={(saved) => {
+                    setPrivateNotesSaved(saved);
+                    if (saved) setOpenStep(null);
                   }}
-                  disabled={!followUpPublishConfirmed || completing}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
-                >
-                  {completing && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {completing ? "Marking as completed…" : "Mark as Completed"}
-                </button>
+                />
+              </SectionCard>
+            )}
+
+            {/* Task 2 — summary for the client */}
+            {showPostSession && (
+              <SectionCard
+                id="care-plan"
+                number={2}
+                eyebrow="After the session"
+                title={`Summary for ${clientLabel}`}
+                description={`Share a client-friendly recap, agreed next steps or helpful resources. Nothing is shared until you review and confirm.`}
+                openOverride={openStep === "care-plan"}
+                onToggle={() => toggleStep("care-plan")}
+                done={isPublished}
+                checkBadge={isPublished}
+                pillLabel={followUpStatus}
+                optional
+              >
+                <ApptNotesBlock
+                  appt={appt}
+                  onChange={onChange}
+                  variant="followup"
+                  clientName={appt.client}
+                  providerName={providerDisplayName}
+                  sessionDateLabel={
+                    [appt.month, appt.date].filter(Boolean).join(" ") || undefined
+                  }
+                  onPublishConfirmed={setFollowUpPublishConfirmed}
+                  onFollowUpSaved={(saved) => {
+                    setFollowUpSaved(saved);
+                    if (saved) setOpenStep(null);
+                  }}
+                  onFollowUpShared={() => setOpenStep(null)}
+                />
+              </SectionCard>
+            )}
+
+            {/* Task 3 — prescription (verified prescribers only) */}
+            {rxAllowed && showPostSession && (
+              <SectionCard
+                id="prescriptions"
+                number={3}
+                eyebrow="Verified prescribers only"
+                title="Prescription"
+                description="Add one only if this consultation needs medication. Not included in the client summary."
+                openOverride={openStep === "prescriptions"}
+                onToggle={() => toggleStep("prescriptions")}
+                pillLabel={rxStatus}
+                optional
+              >
+                <AiPrescription
+                  appointmentId={appt.id}
+                  clientName={appt.client}
+                  providerName={providerDisplayName}
+                  appointmentLabel={appointmentLabel}
+                  jurisdiction="PH"
+                  onAddClinicalInfo={() => setOpenStep("session-notes")}
+                />
+              </SectionCard>
+            )}
+
+            {!rxAllowed && rxServiceOnly && showPostSession && (
+              <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
+                This service supports medication review, but prescribing tools
+                stay hidden until your prescribing authority is verified for your
+                client&rsquo;s jurisdiction.
               </div>
             )}
           </div>
-        )}
 
+          {/* Right rail — task progress and session details */}
+          <aside className="flex flex-col gap-4">
+            <div className="rounded-[20px] border border-[#EAE2F6] bg-white p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+                Task progress
+              </p>
+              <ul className="mt-3 space-y-2.5">
+                {tasks.map((t, i) => {
+                  const complete = ["Shared", "Signed and issued", "Skipped"].includes(t.status);
+                  return (
+                    <li key={t.key}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenStep(t.key)}
+                        className="flex w-full items-start gap-2.5 rounded-[12px] px-1.5 py-1.5 text-left transition hover:bg-[#FBF9FF]"
+                      >
+                        <span
+                          className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[11px] font-semibold ${
+                            complete
+                              ? "bg-[#6E4FD3] text-white"
+                              : "bg-[#EFE8FB] text-[#3D2E6B]"
+                          }`}
+                        >
+                          {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                            {t.label}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-[#7E6BAF]">
+                            {t.status}
+                            {t.optional ? " · Optional" : ""}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
 
-        <div className="pt-2 text-center">
-          <button
-            onClick={() => window.close()}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-          >
-            Close this tab
-          </button>
+            <div className="rounded-[20px] border border-[#EAE2F6] bg-white p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+                Session details
+              </p>
+              <dl className="mt-3 space-y-2.5 text-[12px]">
+                <RailRow label="Client" value={appt.client ?? "—"} />
+                <RailRow label="When" value={appointmentLabel || "—"} />
+                <RailRow label="Session type" value={appt.type ?? "—"} />
+                <RailRow label="Format" value={[appt.sessionFormat, appt.mode].filter(Boolean).join(" · ") || "—"} />
+                <RailRow label="Status" value={sessionStatusLabel} />
+                <RailRow label="Reference" value={`#${appt.id.toString().toUpperCase()}`} />
+              </dl>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
   );
 }
+
+function RailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <dt className="text-[#A89BD0]">{label}</dt>
+      <dd className="text-right font-semibold text-[#3D2E6B]">{value}</dd>
+    </div>
+  );
+}
+
 
 function FactTile({
   label,
