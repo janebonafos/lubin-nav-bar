@@ -2644,7 +2644,7 @@ export function ApptNotesBlock({
                   <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
                     {sharedUpdatedAt
                       ? `Update shared with ${clientLabel}. No further action needed.`
-                      : `${clientLabel} already has this summary. Use Edit above if you need to change something — you can update it right after, no need to mark this completed again.`}
+                      : `${clientLabel} already has this summary. Use Edit above if you need to change something, then update it.`}
                   </p>
                 )
               ) : (
@@ -2743,7 +2743,7 @@ export function ApptNotesBlock({
               onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
               className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
             >
-              {appt.notes ? "Edit" : "Add notes"}
+              {appt.notes ? "Edit" : "Add clinical notes"}
             </button>
 
           </div>
