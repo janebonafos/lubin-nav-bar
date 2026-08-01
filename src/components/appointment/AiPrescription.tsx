@@ -164,6 +164,26 @@ export function AiPrescription({
       <div className="space-y-3 px-4 py-4">
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white p-0.5">
+            <span className="pl-1.5 pr-0.5 text-[#7E6BAF]">
+              <Globe className="h-3.5 w-3.5" />
+            </span>
+            {(["US", "PH"] as RxCountry[]).map((c) => (
+              <button
+                key={c}
+                type="button"
+                disabled={finalised}
+                onClick={() => patch({ country: c })}
+                className={`rounded-[9px] px-2 py-1 text-[11px] font-bold uppercase tracking-wider transition disabled:cursor-not-allowed ${
+                  country === c
+                    ? "bg-[#EEE8F8] text-[#5A3E8F]"
+                    : "text-[#8B85A6] hover:bg-[#F7F4FB]"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={generate}
@@ -194,6 +214,13 @@ export function AiPrescription({
             </span>
           )}
         </div>
+
+        <p className="text-[11px] leading-snug text-[#8B85A6]">
+          Suggestions follow{" "}
+          {country === "PH"
+            ? "Philippine availability and generic-name requirements (S2 form flagged where needed)."
+            : "US availability and FDA-approved use (controlled-substance schedule flagged where needed)."}
+        </p>
 
         {error && (
           <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
