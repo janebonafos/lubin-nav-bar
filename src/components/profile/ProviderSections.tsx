@@ -2165,7 +2165,7 @@ export function ApptNotesBlock({
                         onClick={() => closeEdit("summary")}
                         className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
                       >
-                        Done editing
+                        Save
                       </button>
                     </div>
                   )}
@@ -2215,7 +2215,7 @@ export function ApptNotesBlock({
                         onClick={() => closeEdit("homework")}
                         className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
                       >
-                        Done editing
+                        Save
                       </button>
                     </div>
                   )}
@@ -2528,7 +2528,7 @@ export function ApptNotesBlock({
                         onClick={() => closeEdit("nextFocus")}
                         className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
                       >
-                        Done editing
+                        Save
                       </button>
                     </div>
                   )}
