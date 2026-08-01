@@ -667,6 +667,7 @@ function MedicationCard({
   onChange,
   onRemove,
   onOpenReference,
+  onAddClinicalInfo,
 }: {
   index: number;
   med: PrescriptionMedication;
@@ -674,8 +675,10 @@ function MedicationCard({
   onChange: (p: Partial<PrescriptionMedication>) => void;
   onRemove: () => void;
   onOpenReference: () => void;
+  onAddClinicalInfo?: () => void;
 }) {
   const [basisOpen, setBasisOpen] = useState(true);
+  const [checksOpen, setChecksOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const missing = useMemo(
     () =>
@@ -686,6 +689,9 @@ function MedicationCard({
     [hasName, med],
   );
   const manual = (med.origin ?? "ai") === "manual";
+  const incompleteChecks = CHECK_ROWS.filter(
+    (r) => med.checks?.[r.key]?.status !== "checked",
+  );
 
   return (
     <li
@@ -707,7 +713,7 @@ function MedicationCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-[#3D2E6B]">
-            {med.name || "Untitled medication"}
+            {med.name || "New medication"}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
             <OriginBadge med={med} />
@@ -820,22 +826,60 @@ function MedicationCard({
 
       {/* Patient-specific checks */}
       <div className="border-b border-[#ECE7F6]/70 px-4 py-3">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-          Patient-specific safety checks
-        </p>
-        <ul className="mt-1.5 space-y-1">
-          {CHECK_ROWS.map((r) => (
-            <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
-          ))}
-          <li className="flex items-start gap-1.5 text-[12px] leading-snug text-[#3D2E6B]">
-            <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
-            <span>
-              <span className="font-semibold">Missing information:</span>{" "}
-              {med.checks?.missingInformation ??
-                "Not established — the clinical record for this visit is incomplete."}
-            </span>
-          </li>
-        </ul>
+        {incompleteChecks.length > 0 ? (
+          <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3 py-2.5">
+            <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
+              <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
+              Clinical information required
+            </p>
+            <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
+              Some patient information needed to assess this medication is
+              missing.
+            </p>
+            <ul className="mt-2 space-y-0.5 pl-5 text-[12px] leading-snug text-[#5A4A8A]">
+              {(med.checks?.missingInformation
+                ? med.checks.missingInformation.split(/,\s*/)
+                : incompleteChecks.map((r) => r.label.replace(" checked", ""))
+              ).map((item) => (
+                <li key={item} className="list-disc">
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {onAddClinicalInfo && (
+              <button
+                type="button"
+                onClick={onAddClinicalInfo}
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+              >
+                <ClipboardList className="h-3.5 w-3.5" /> Add clinical
+                information
+              </button>
+            )}
+          </div>
+        ) : (
+          <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#2D6E56]">
+            <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
+            Patient-specific safety checks completed.
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => setChecksOpen((v) => !v)}
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#5A3E8F]"
+        >
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+          />
+          {checksOpen ? "Hide safety checks" : "View all safety checks"}
+        </button>
+        {checksOpen && (
+          <ul className="mt-1.5 space-y-1">
+            {CHECK_ROWS.map((r) => (
+              <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 px-4 py-4 md:grid-cols-2">
