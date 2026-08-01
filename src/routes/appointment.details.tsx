@@ -355,7 +355,7 @@ function DetailsPage() {
   }, [appt?.followUp, appt?.attachments]);
 
   const followUpStatus = useMemo(() => {
-    if (isPublished) return "Published";
+    if (isPublished) return "Done";
     if (followUpPublishConfirmed && hasFollowUpContent) return "Ready to review";
     if (hasFollowUpContent) return "Draft";
     return "Optional";
@@ -519,7 +519,7 @@ function DetailsPage() {
         {!isCancelled && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
             Complete your clinical notes and prepare an optional follow-up for {clientLabel}.
-            Only information you explicitly publish in the final step is shared with
+            Only information you explicitly mark as done in the final step is shared with
             your client. Private clinician notes are never shared.
           </div>
         )}
@@ -594,12 +594,12 @@ function DetailsPage() {
             number={3}
             eyebrow={`Share with ${clientLabel}`}
             title="Client recap & Health Passport follow-up"
-            description="Prepare the client-facing recap and agreed next steps, then review and publish."
+            description="Prepare the client-facing recap and agreed next steps, then review and mark as done."
             openOverride={openStep === "care-plan"}
             onToggle={() => toggleStep("care-plan")}
             done={isPublished}
             pillLabel={followUpStatus}
-            hint="Nothing is shared until you press Publish."
+            hint="Nothing is shared until you press Mark as done."
           >
             <ApptNotesBlock
               appt={appt}
@@ -621,7 +621,7 @@ function DetailsPage() {
             id="prescriptions"
             eyebrow="Prescriber tools"
             title="Prescription"
-            description="Separate signed clinical document. Not included in the client recap you publish above."
+            description="Separate signed clinical document. Not included in the client recap you mark as done above."
             hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
             <div className="mb-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
@@ -630,7 +630,7 @@ function DetailsPage() {
               every medication, approve each one individually, and sign the
               document yourself. You remain the prescriber of record. The
               prescription is a separate signed clinical document and is never
-              shared through &ldquo;Publish client recap.&rdquo;
+              shared through &ldquo;Mark client recap as done.&rdquo;
             </div>
             <AiPrescription
               appointmentId={appt.id}
@@ -771,8 +771,8 @@ function DetailsPage() {
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
             {isPublished
-              ? `Your recap has been published to ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
-              : `This appointment has been marked as completed. Nothing has been published to ${clientLabel}'s Health Passport yet. Review and publish from Step 3 when ready.`}
+              ? `Your recap has been marked as done and shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
+              : `This appointment has been marked as completed. Nothing has been marked as done to share with ${clientLabel}'s Health Passport yet. Review and mark as done from Step 3 when ready.`}
           </div>
         )}
 
