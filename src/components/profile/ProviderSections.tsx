@@ -2622,28 +2622,31 @@ export function ApptNotesBlock({
                       I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
                     </span>
                   </label>
-                  <div className="mt-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onChange({
-                          publishedFollowUp: {
-                            at: Date.now(),
-                            by: providerName?.trim() || undefined,
-                          },
-                        });
-                      }}
-                      disabled={!publishConfirmed}
-                      className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
-                    >
-                      {hasUnsharedChanges ? "Share update" : "Mark as done to share"}
-                    </button>
-                  </div>
                 </>
               )}
             </div>
+            {(!isPublished || hasUnsharedChanges) && (
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      publishedFollowUp: {
+                        at: Date.now(),
+                        by: providerName?.trim() || undefined,
+                      },
+                    });
+                  }}
+                  disabled={!publishConfirmed}
+                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                >
+                  Mark as Completed
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
       )}
 
       {/* ============ Private Notes (provider only) ============ */}
