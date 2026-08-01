@@ -488,6 +488,13 @@ export function AiPrescription({
         appointmentId={appointmentId}
         clientName={clientName}
         onCached={cacheReference}
+        onSelectOption={(medId) =>
+          patch({
+            medications: rx.medications.map((m) =>
+              m.id === medId ? { ...m, origin: "ai-option" } : m,
+            ),
+          })
+        }
       />
     </section>
   );
