@@ -771,8 +771,8 @@ function DetailsPage() {
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">Completed · </span>
             {isPublished
-              ? `Your recap has been marked as done and shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
-              : `This appointment has been marked as completed. Nothing has been marked as done to share with ${clientLabel}'s Health Passport yet. Review and mark as done from Step 3 when ready.`}
+              ? `Your recap has been shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
+              : `This appointment is completed. Nothing has been shared with ${clientLabel}'s Health Passport yet. Go to Step 3 when you are ready to share it.`}
           </div>
         )}
 
