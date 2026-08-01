@@ -599,7 +599,7 @@ function DetailsPage() {
             onToggle={() => toggleStep("care-plan")}
             done={isPublished}
             pillLabel={followUpStatus}
-            hint="Nothing is shared until you press Mark as done."
+            hint="Nothing is shared until you confirm below."
           >
             <ApptNotesBlock
               appt={appt}
