@@ -773,10 +773,31 @@ function DetailsPage() {
 
         {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
-            <span className="font-semibold text-[#3D2E6B]">Completed · </span>
-            {isPublished
-              ? `Your recap has been shared with ${clientLabel}'s Health Passport${appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on ${new Date(appt.publishedFollowUp!.at).toLocaleString()}.`
-              : `This appointment is completed. Nothing has been shared with ${clientLabel}'s Health Passport yet. Go to Step 3 when you are ready to share it.`}
+            {isPublished ? (
+              <>
+                <span className="font-semibold text-[#3D2E6B]">Completed · </span>
+                Your recap has been shared with {clientLabel}'s Health Passport{appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on {new Date(appt.publishedFollowUp!.at).toLocaleString()}.
+              </>
+            ) : (
+              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <span>Ready to share your summary with {clientLabel}'s Health Passport?</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      publishedFollowUp: {
+                        at: Date.now(),
+                        by: providerDisplayName?.trim() || undefined,
+                      },
+                    });
+                  }}
+                  disabled={!followUpPublishConfirmed}
+                  className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                >
+                  Mark as Completed
+                </button>
+              </div>
+            )}
           </div>
         )}
 
