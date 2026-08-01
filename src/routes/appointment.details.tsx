@@ -664,8 +664,8 @@ function DetailsPage() {
           </div>
         )}
 
-        {/* Record the outcome */}
-        {canMarkComplete && !recordedOutcome && (
+        {/* Record the outcome — only prescribers need to close out the appointment */}
+        {rxAllowed && canMarkComplete && !recordedOutcome && (
           <section className="rounded-[20px] border border-[#EAE2F6] bg-white p-5 md:p-6">
             <div className="flex items-start gap-3">
               <div className="flex-1">
@@ -777,7 +777,8 @@ function DetailsPage() {
           </section>
         )}
 
-        {recordedOutcome && recordedOutcome !== "completed" && (
+
+        {rxAllowed && recordedOutcome && recordedOutcome !== "completed" && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
             <span className="font-semibold text-[#3D2E6B]">
               {OUTCOMES.find((o) => o.value === recordedOutcome)?.label} ·{" "}
@@ -786,7 +787,8 @@ function DetailsPage() {
           </div>
         )}
 
-        {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
+
+        {rxAllowed && isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
           <div
             className={`rounded-2xl border px-5 py-4 text-[13px] ${
               isPublished
@@ -843,6 +845,7 @@ function DetailsPage() {
             )}
           </div>
         )}
+
 
         <div className="pt-2 text-center">
           <button
