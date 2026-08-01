@@ -2656,7 +2656,7 @@ export function ApptNotesBlock({
           {!editing && (
             <button
               onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
-              className="text-xs font-semibold text-[#5B4796] hover:text-[#3D2E6B]"
+              className="rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
             >
               {appt.notes ? "Edit" : "Add notes"}
             </button>
