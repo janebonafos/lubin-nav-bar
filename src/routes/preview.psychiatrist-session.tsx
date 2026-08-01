@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
+import { demoPrescription } from "@/lib/prescription/demo";
+import { savePrescription } from "@/lib/prescription/store";
 
 export const Route = createFileRoute("/preview/psychiatrist-session")({
   component: PreviewPsychiatristSession,
@@ -68,6 +70,9 @@ function PreviewPsychiatristSession() {
         paymentStatus: "Paid",
         prescriptionEligible: true,
       };
+
+      // Seed a clearly labelled demo AI-prepared draft to review.
+      savePrescription(demoPrescription(DEMO_ID));
 
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(appt))));
       navigate({
