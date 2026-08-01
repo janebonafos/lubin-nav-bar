@@ -1925,14 +1925,53 @@ export function ApptNotesBlock({
   const [showResForm, setShowResForm] = useState(false);
   const [showSupporting, setShowSupporting] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
+  // Fields the provider has explicitly reopened for editing after sharing.
+  const [editFields, setEditFields] = useState<Record<string, boolean>>({});
+  const [publishedSnapshot, setPublishedSnapshot] = useState<string | null>(null);
+
+  const currentSnapshot = JSON.stringify({
+    s: fuSummary.trim(),
+    h: fuHomework.trim(),
+    n: fuNextFocus.trim(),
+    r: followUp.resources ?? [],
+    a: (appt.attachments ?? []).map((f) => `${f.name}|${f.title ?? ""}|${f.linkedTo ?? ""}`),
+  });
+  // Only offer an update once something actually changed since the last share.
+  const hasUnsharedChanges = isPublished && publishedSnapshot !== null && publishedSnapshot !== currentSnapshot;
+
+  const openEdit = (key: string) => setEditFields((p) => ({ ...p, [key]: true }));
+  const isFieldLocked = (key: string, value: string) =>
+    isPublished && !editFields[key] && value.trim().length > 0;
 
   useEffect(() => {
     setFuSummary(appt.followUp?.summary ?? "");
     setFuHomework(appt.followUp?.homework ?? "");
     setFuNextFocus(appt.followUp?.nextFocus ?? "");
     setFuDirty(false);
+    setEditFields({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt.id]);
+
+  // Capture what was shared, so later edits can be detected.
+  useEffect(() => {
+    if (!isPublished) {
+      setPublishedSnapshot(null);
+      return;
+    }
+    setPublishedSnapshot(currentSnapshot);
+    setPublishConfirmed(false);
+    setEditFields({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt.id, isPublished, appt.publishedFollowUp?.at]);
+
+  // Any change after sharing invalidates the previous confirmation.
+  useEffect(() => {
+    if (hasUnsharedChanges) {
+      setPublishConfirmed(false);
+      onPublishConfirmed?.(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasUnsharedChanges]);
 
   const saveFollowUp = () => {
     onChange({
@@ -2081,16 +2120,29 @@ export function ApptNotesBlock({
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
                 Write a short, client-friendly recap of what you explored together.
               </p>
-              <textarea
-                value={fuSummary}
-                onChange={(e) => {
-                  setFuSummary(e.target.value);
-                  setFuDirty(true);
-                }}
-                rows={4}
-                placeholder="A short, client-friendly recap of what you explored together."
-                className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              />
+              {isFieldLocked("summary", fuSummary) ? (
+                <div className="mt-2 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">{fuSummary}</p>
+                  <button
+                    type="button"
+                    onClick={() => openEdit("summary")}
+                    className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <textarea
+                  value={fuSummary}
+                  onChange={(e) => {
+                    setFuSummary(e.target.value);
+                    setFuDirty(true);
+                  }}
+                  rows={4}
+                  placeholder="A short, client-friendly recap of what you explored together."
+                  className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+              )}
               {fuSummary.trim() && (
                 <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
                   Written by provider
@@ -2106,13 +2158,26 @@ export function ApptNotesBlock({
                   Optional
                 </span>
               </label>
-              <textarea
-                value={fuHomework}
-                onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
-                rows={4}
-                placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
-                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              />
+              {isFieldLocked("homework", fuHomework) ? (
+                <div className="mt-1.5 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">{fuHomework}</p>
+                  <button
+                    type="button"
+                    onClick={() => openEdit("homework")}
+                    className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <textarea
+                  value={fuHomework}
+                  onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
+                  rows={4}
+                  placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
+                  className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+              )}
               <p className="mt-1 text-[11px] italic text-[#A89BD0]">
                 Write one step per line. You can link a resource or attachment
                 to a specific step below.
@@ -2391,13 +2456,26 @@ export function ApptNotesBlock({
                 <CalendarClock className="h-3 w-3" /> Next session focus
                 <span className="font-normal normal-case tracking-normal text-[#A89BD0]">(optional)</span>
               </label>
-              <textarea
-                value={fuNextFocus}
-                onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
-                rows={2}
-                placeholder="What we'll explore together next time."
-                className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              />
+              {isFieldLocked("nextFocus", fuNextFocus) ? (
+                <div className="mt-1.5 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">{fuNextFocus}</p>
+                  <button
+                    type="button"
+                    onClick={() => openEdit("nextFocus")}
+                    className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <textarea
+                  value={fuNextFocus}
+                  onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
+                  rows={2}
+                  placeholder="What we'll explore together next time."
+                  className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                />
+              )}
             </div>
               </div>
               )}
@@ -2456,37 +2534,52 @@ export function ApptNotesBlock({
                   attachments={appt.attachments ?? []}
                 />
               )}
-              <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
-                <input
-                  type="checkbox"
-                  checked={publishConfirmed}
-                  onChange={(e) => {
-                    setPublishConfirmed(e.target.checked);
-                    onPublishConfirmed?.(e.target.checked);
-                  }}
-                  className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
-                />
-                <span>
-                  I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
-                </span>
-              </label>
-              <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange({
-                      publishedFollowUp: {
-                        at: Date.now(),
-                        by: providerName?.trim() || undefined,
-                      },
-                    });
-                  }}
-                  disabled={!publishConfirmed}
-                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
-                >
-                  {isPublished ? "Update shared summary" : "Mark as done to share"}
-                </button>
-              </div>
+              {isPublished && !hasUnsharedChanges ? (
+                <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+                  {clientLabel} already has this summary. Use Edit above if you need to change
+                  something — you can share the update afterwards.
+                </p>
+              ) : (
+                <>
+                  {hasUnsharedChanges && (
+                    <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+                      You changed this summary after sharing it. Confirm below to share the update
+                      with {clientLabel}.
+                    </p>
+                  )}
+                  <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
+                    <input
+                      type="checkbox"
+                      checked={publishConfirmed}
+                      onChange={(e) => {
+                        setPublishConfirmed(e.target.checked);
+                        onPublishConfirmed?.(e.target.checked);
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+                    />
+                    <span>
+                      I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
+                    </span>
+                  </label>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange({
+                          publishedFollowUp: {
+                            at: Date.now(),
+                            by: providerName?.trim() || undefined,
+                          },
+                        });
+                      }}
+                      disabled={!publishConfirmed}
+                      className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                    >
+                      {hasUnsharedChanges ? "Share update" : "Mark as done to share"}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
