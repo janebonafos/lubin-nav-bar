@@ -253,7 +253,8 @@ function DetailsPage() {
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
   const [reviewOutcome, setReviewOutcome] = useState(false);
-  const [outcome, setOutcome] = useState<Outcome>("completed");
+  // No outcome is preselected — the provider must choose deliberately.
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
