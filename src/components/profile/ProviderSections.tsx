@@ -2564,12 +2564,8 @@ export function ApptNotesBlock({
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
-                  <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2.5 py-1 text-right text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                    Done<br />
-                    {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-                    {" · "}
-                    {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                    {appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
+                  <span className="shrink-0 whitespace-nowrap rounded-full bg-[#EFE8FB] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+                    Done · {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
                   </span>
                 )}
               </div>
@@ -2625,6 +2621,28 @@ export function ApptNotesBlock({
                 </>
               )}
             </div>
+
+            {/* Mark as Completed action below the preview box */}
+            {(!isPublished || hasUnsharedChanges) && (
+              <div className="mt-4 flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      publishedFollowUp: {
+                        at: Date.now(),
+                        by: providerName?.trim() || undefined,
+                      },
+                    });
+                  }}
+                  disabled={!publishConfirmed}
+                  className="rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                >
+                  Mark as Completed
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
 
