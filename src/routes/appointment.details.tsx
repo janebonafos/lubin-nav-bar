@@ -519,7 +519,7 @@ function DetailsPage() {
         {!isCancelled && (
           <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-relaxed text-[#5A4A8A]">
             Add your clinical notes and any follow-up information for {clientLabel}.
-            Only what you mark as done in Step 3 is shared with them. Private clinician notes
+            Only what you share in Step 3 is visible to them. Private clinician notes
             are never shared.
           </div>
         )}
