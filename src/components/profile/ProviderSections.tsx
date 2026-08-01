@@ -1382,6 +1382,7 @@ export function AppointmentsSection() {
       | "rescheduled";
     attachments?: { name: string; size: string; title?: string; description?: string }[];
     payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+    publishedFollowUp?: { at: number; by?: string };
     followUp?: {
       summary?: string;
       homework?: string;
@@ -1504,6 +1505,14 @@ export function AppointmentsSection() {
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
 
+  // Sessions read as "Completed" only after the provider marks them completed.
+  const statusLabel = (a: Appt) =>
+    a.status === "completed" && !a.publishedFollowUp ? "confirmed" : a.status;
+  const statusTone = (a: Appt) =>
+    a.status === "completed" && !a.publishedFollowUp
+      ? statusStyle.upcoming
+      : statusStyle[a.status];
+
   if (loading) {
     return <AppointmentsSkeleton />;
   }
@@ -1595,8 +1604,8 @@ export function AppointmentsSection() {
                       <p className={`truncate font-semibold text-[#3D2E6B] ${a.status !== "upcoming" ? "opacity-70" : ""}`}>
                         {a.client}
                       </p>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusStyle[a.status]}`}>
-                        {a.status}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(a)}`}>
+                        {statusLabel(a)}
                       </span>
                     </div>
                     <p className="mt-0.5 flex items-center gap-1.5 text-sm text-[#7E6BAF]">
