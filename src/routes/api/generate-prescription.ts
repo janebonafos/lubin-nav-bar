@@ -21,6 +21,20 @@ type GenerateBody = {
     frequency?: string;
   }[];
   allergies?: string;
+  country?: "US" | "PH";
+};
+
+const COUNTRY_GUIDES: Record<"US" | "PH", string> = {
+  US: `Country context: UNITED STATES.
+- Suggest only medications available in the US and approved by the FDA for the relevant use (note clearly when a use is off-label but conventional).
+- Use US generic naming conventions (e.g. acetaminophen) and common US brand names where helpful.
+- Reflect US controlled-substance scheduling (DEA Schedule II-IV) in availabilityNote when relevant, and prefer non-controlled first-line agents.
+- Use US units and typical US dosing conventions.`,
+  PH: `Country context: PHILIPPINES.
+- Suggest only medications realistically available in the Philippines and registered with the FDA Philippines (note clearly when a use is off-label but conventional).
+- Use INN/generic names first as required by the Philippine Generics Act, and add locally familiar brand names in parentheses where helpful.
+- Note in availabilityNote when a medication is a Dangerous Drug requiring an S2 (yellow) prescription form under Philippine regulations, and prefer non-controlled first-line agents.
+- Prefer commonly stocked local formulations and flag when an agent is often unavailable or costly locally.`,
 };
 
 const SYSTEM_PROMPT = `You are a clinical decision-support assistant for licensed prescribers (psychiatrists and physicians). You draft a prescription for the clinician to REVIEW and APPROVE. You are NOT the prescriber.
@@ -28,6 +42,9 @@ const SYSTEM_PROMPT = `You are a clinical decision-support assistant for license
 Rules:
 - Only suggest medications that are conventional first- or second-line pharmacotherapy for the presenting concerns and assessment findings provided.
 - For every medication include a realistic starting dose, route, frequency, duration, indication, patient-facing instructions in plain language, and the most important safety warnings/side effects to counsel the patient on.
+- For every medication also include "rationale": 1-2 sentences stating exactly what in the supplied visit context (presenting concerns, observations, plan, assessment scores, current medications) led you to suggest it.
+- For every medication also include "availabilityNote": a short note on availability, generic/brand naming, and prescription-class requirements in the specified country.
+- Follow the country context strictly. Never suggest a medication that is not available in that country.
 - Never recommend controlled substances without an explicit indication in the input. Prefer non-controlled first-line agents.
 - If the input lacks the information you need for a safe suggestion, return an empty medications array and a clinicalNotes string explaining what is missing.
 - Do not diagnose. Base suggestions on the input only.
@@ -43,7 +60,9 @@ Rules:
       "duration": string,
       "indication": string,
       "instructions": string,
-      "warnings": string
+      "warnings": string,
+      "rationale": string,
+      "availabilityNote": string
     }
   ],
   "clinicalNotes": string
@@ -61,6 +80,10 @@ export const Route = createFileRoute("/api/generate-prescription")({
           }
 
           const lines: string[] = [];
+          const country = body.country === "PH" ? "PH" : "US";
+          lines.push(
+            `Prescribing country: ${country === "PH" ? "Philippines" : "United States"}`,
+          );
           if (body.patientContext) {
             const c = body.patientContext;
             lines.push(
@@ -102,7 +125,10 @@ export const Route = createFileRoute("/api/generate-prescription")({
                 model: "google/gemini-3.6-flash",
                 response_format: { type: "json_object" },
                 messages: [
-                  { role: "system", content: SYSTEM_PROMPT },
+                  {
+                    role: "system",
+                    content: `${SYSTEM_PROMPT}\n\n${COUNTRY_GUIDES[country]}`,
+                  },
                   {
                     role: "user",
                     content: `${lines.join("\n")}\n\nDraft the prescription JSON now.`,
@@ -152,10 +178,15 @@ export const Route = createFileRoute("/api/generate-prescription")({
             indication: m.indication ? String(m.indication) : undefined,
             instructions: String(m.instructions ?? "").trim(),
             warnings: m.warnings ? String(m.warnings) : undefined,
+            rationale: m.rationale ? String(m.rationale) : undefined,
+            availabilityNote: m.availabilityNote
+              ? String(m.availabilityNote)
+              : undefined,
           }));
           return Response.json({
             medications,
             clinicalNotes: parsed.clinicalNotes ?? "",
+            country,
           });
         } catch (e) {
           console.error(e);
