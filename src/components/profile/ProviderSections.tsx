@@ -2046,7 +2046,7 @@ export function ApptNotesBlock({
                 Client recap {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
               </p>
               <p className="text-[11px] text-[#7E6BAF]">
-                Nothing here is shared until you explicitly publish it below.
+                Nothing here is shared until you explicitly mark it as done below.
               </p>
             </div>
             <span
@@ -2056,7 +2056,7 @@ export function ApptNotesBlock({
                   : "bg-white/80 text-[#3D2E6B]"
               }`}
             >
-              {isPublished ? "Published" : "Draft · Not shared"}
+              {isPublished ? "Done" : "Draft · Not shared"}
             </span>
           </div>
 
