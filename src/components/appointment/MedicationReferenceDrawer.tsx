@@ -58,7 +58,6 @@ const GENERAL_ROWS: { key: keyof MedicationReference["general"]; label: string }
 ];
 
 const PATIENT_ROWS: { key: keyof MedicationReference["patient"]; label: string }[] = [
-  { key: "aiRationale", label: "Why AI suggested this medication" },
   { key: "targetSymptoms", label: "Target symptoms or diagnosis" },
   { key: "patientInfoConsidered", label: "Patient information considered" },
   { key: "allergiesReviewed", label: "Allergies reviewed" },
