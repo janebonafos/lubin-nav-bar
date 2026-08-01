@@ -256,6 +256,8 @@ function DetailsPage() {
   const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
+  const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
+
 
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
