@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Loader2, Columns3 } from "lucide-react";
+import { X, Loader2, Columns3, Check } from "lucide-react";
 import {
   type MedicationReference,
   type PrescriptionMedication,
@@ -52,6 +52,7 @@ export function CompareOptionsDrawer({
   appointmentId,
   clientName,
   onCached,
+  onSelectOption,
 }: {
   open: boolean;
   onClose: () => void;
@@ -60,6 +61,7 @@ export function CompareOptionsDrawer({
   appointmentId: string;
   clientName?: string;
   onCached?: (medId: string, ref: MedicationReference) => void;
+  onSelectOption?: (medId: string) => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [refs, setRefs] = useState<Record<string, MedicationReference>>({});
@@ -237,6 +239,18 @@ export function CompareOptionsDrawer({
                             </option>
                           ))}
                         </select>
+                        {onSelectOption && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectOption(m.id)}
+                            className="mt-1.5 inline-flex w-full items-center justify-center gap-1 rounded-lg border border-[#D6CCEC] bg-white px-2 py-1 text-[11px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+                          >
+                            <Check className="h-3 w-3" />
+                            {m.origin === "ai-option"
+                              ? "Selected from AI options"
+                              : "Mark as selected from AI options"}
+                          </button>
+                        )}
                       </th>
                     ))}
                   </tr>
