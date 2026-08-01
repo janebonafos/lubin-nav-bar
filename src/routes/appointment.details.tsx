@@ -537,7 +537,7 @@ function DetailsPage() {
           onToggle={() => toggleStep("before-session")}
           reference
           pillLabel={hasSharedContext ? undefined : "Not shared"}
-          checkBadge={!hasSharedContext}
+          checkBadge
         >
           <AiProviderBrief
             appointmentId={appt.id}
