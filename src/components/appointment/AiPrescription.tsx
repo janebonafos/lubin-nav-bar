@@ -252,14 +252,25 @@ export function AiPrescription({
         )}
 
         {/* Medications */}
-        {total === 0 ? (
+        {total === 0 && busy ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
+            <Loader2 className="h-4 w-4 flex-none animate-spin text-[#7E6BAF]" />
+            <p className="text-[13px] leading-snug text-[#3D2E6B]">
+              <span className="font-medium">Preparing AI draft…</span>
+              <span className="text-[#7E6BAF]">
+                {" "}
+                — you will review and approve each medication.
+              </span>
+            </p>
+          </div>
+        ) : total === 0 ? (
           <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
             <Pill className="h-4 w-4 flex-none text-[#A89BD0]" />
             <p className="text-[13px] leading-snug text-[#3D2E6B]">
-              <span className="font-medium">No prescription drafted yet</span>
+              <span className="font-medium">No medication suggested</span>
               <span className="text-[#7E6BAF]">
                 {" "}
-                — generate a draft or add a medication manually.
+                — add a medication manually or redraft with AI.
               </span>
             </p>
           </div>
