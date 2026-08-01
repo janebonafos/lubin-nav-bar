@@ -2411,10 +2411,10 @@ export function ApptNotesBlock({
             </div>
 
             <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Review and publish
+              Review and mark as done
             </p>
 
-            {/* ================= Preview & Publish ================= */}
+            {/* ================= Preview & Mark as done ================= */}
             <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -2422,16 +2422,16 @@ export function ApptNotesBlock({
                     Final step
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
-                    Preview and publish to {clientLabel}'s Health Passport
+                    Preview and mark as done
                   </p>
                   <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
                     Nothing above is shared with {clientLabel} until you click
-                    Publish. Private clinician notes are never included.
+                    Mark as done. Private clinician notes are never included.
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
                   <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2.5 py-1 text-right text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                    Published<br />
+                    Done<br />
                     {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                     {" · "}
                     {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
