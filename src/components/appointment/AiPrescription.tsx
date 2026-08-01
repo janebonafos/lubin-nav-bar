@@ -402,6 +402,32 @@ function MedicationCard({
       </div>
 
       <div className="grid grid-cols-1 gap-3 px-4 py-4 md:grid-cols-2">
+        {(med.rationale || med.availabilityNote) && (
+          <div className="space-y-1.5 rounded-xl border border-[#ECE7F6] bg-[#FCFAFE] p-3 md:col-span-2">
+            {med.rationale && (
+              <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                <Sparkles className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+                <span>
+                  <span className="font-semibold text-[#3D2E6B]">
+                    Why AI suggested this:
+                  </span>{" "}
+                  {med.rationale}
+                </span>
+              </p>
+            )}
+            {med.availabilityNote && (
+              <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+                <span>
+                  <span className="font-semibold text-[#3D2E6B]">
+                    Local availability:
+                  </span>{" "}
+                  {med.availabilityNote}
+                </span>
+              </p>
+            )}
+          </div>
+        )}
         <Field
           label="Medication name"
           value={med.name}
