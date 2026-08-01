@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarClock, Check, ChevronDown, Loader2 } from "lucide-react";
 import {
   ApptNotesBlock,
   type ApptLite,
@@ -258,6 +258,8 @@ function DetailsPage() {
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
   const [followUpSaved, setFollowUpSaved] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
 
 
   useEffect(() => {
@@ -778,29 +780,57 @@ function DetailsPage() {
         )}
 
         {isCompleted && recordedOutcome !== "client_no_show" && recordedOutcome !== "provider_no_show" && (
-          <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] text-[#5A4A8A]">
+          <div
+            className={`rounded-2xl border px-5 py-4 text-[13px] ${
+              isPublished
+                ? "border-[#BFE6D4] bg-[#F1FBF6] text-[#2D6E56]"
+                : "border-[#EAE2F6] bg-white/70 text-[#5A4A8A]"
+            }`}
+          >
             {isPublished ? (
-              <>
-                <span className="font-semibold text-[#3D2E6B]">Completed · </span>
-                Your recap has been shared with {clientLabel}'s Health Passport{appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on {new Date(appt.publishedFollowUp!.at).toLocaleString()}.
-              </>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2D8E69]">
+                  <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+                </span>
+                <div>
+                  <p className="font-semibold text-[#1F5A45]">
+                    {justCompleted
+                      ? "Marked as completed"
+                      : "This appointment is completed"}
+                  </p>
+                  <p className="mt-0.5">
+                    Your summary was shared with {clientLabel}'s Health Passport
+                    {appt.publishedFollowUp?.by ? ` by ${appt.publishedFollowUp.by}` : ""} on{" "}
+                    {new Date(appt.publishedFollowUp!.at).toLocaleString()}. The status now shows
+                    as completed in your appointments list and in {clientLabel}'s.
+                  </p>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <span>Ready to share your summary with {clientLabel}'s Health Passport?</span>
                 <button
                   type="button"
                   onClick={() => {
-                    onChange({
-                      publishedFollowUp: {
-                        at: Date.now(),
-                        by: providerDisplayName?.trim() || undefined,
-                      },
-                    });
+                    if (completing) return;
+                    setCompleting(true);
+                    window.setTimeout(() => {
+                      onChange({
+                        status: "completed",
+                        publishedFollowUp: {
+                          at: Date.now(),
+                          by: providerDisplayName?.trim() || undefined,
+                        },
+                      });
+                      setCompleting(false);
+                      setJustCompleted(true);
+                    }, 900);
                   }}
-                  disabled={!followUpPublishConfirmed}
-                  className="shrink-0 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                  disabled={!followUpPublishConfirmed || completing}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
-                  Mark as Completed
+                  {completing && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {completing ? "Marking as completed…" : "Mark as Completed"}
                 </button>
               </div>
             )}
