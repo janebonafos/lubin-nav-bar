@@ -2075,7 +2075,7 @@ export function ApptNotesBlock({
               <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
                 Session recap
                 <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                  Required to publish
+                  Required to mark as done
                 </span>
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[#7E6BAF]">
