@@ -251,10 +251,6 @@ function DetailsPage() {
   const [appt, setAppt] = useState<StoredAppt | null>(null);
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
-  const [confirmComplete, setConfirmComplete] = useState(false);
-  const [reviewOutcome, setReviewOutcome] = useState(false);
-  // No outcome is preselected — the provider must choose deliberately.
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
@@ -400,22 +396,6 @@ function DetailsPage() {
     appt?.type,
     appt?.prescriptionEligible,
   );
-
-  const saveOutcome = () => {
-    if (!appt || !outcome) return;
-    onChange({
-      outcome,
-      status:
-        outcome === "cancelled"
-          ? "cancelled"
-          : outcome === "rescheduled"
-            ? "upcoming"
-            : "completed",
-      payoutStatus: outcome === "completed" || outcome === "client_no_show" ? "pending_review" : appt.payoutStatus,
-    });
-    setConfirmComplete(false);
-    setReviewOutcome(false);
-  };
 
   if (missing) {
     return (
