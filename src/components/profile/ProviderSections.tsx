@@ -2564,12 +2564,8 @@ export function ApptNotesBlock({
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
-                  <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2.5 py-1 text-right text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                    Done<br />
-                    {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-                    {" · "}
-                    {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                    {appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
+                  <span className="shrink-0 whitespace-nowrap rounded-full bg-[#EFE8FB] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+                    Done · {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
                   </span>
                 )}
               </div>
