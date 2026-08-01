@@ -2067,7 +2067,7 @@ export function ApptNotesBlock({
             </p>
 
             <p className="border-b border-[#F0EAFB] pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Prepare the follow-up
+              What to include
             </p>
 
             {/* Session recap */}
