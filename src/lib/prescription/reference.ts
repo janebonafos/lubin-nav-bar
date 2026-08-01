@@ -54,3 +54,17 @@ export const PATIENT_REVIEW_CAVEAT =
 
 export const VERIFICATION_STATEMENT =
   "I reviewed the relevant prescribing information and patient-specific considerations for each medication included in this prescription.";
+
+/** Deliberate, per-medication verification statement. */
+export const MED_VERIFICATION_STATEMENT =
+  "I reviewed the medication, dose, route, frequency, duration, indication, patient instructions, prescribing information and patient-specific considerations. I confirm that this medication is clinically appropriate and accurate.";
+
+export const DRAFT_STATUS_TITLE = "AI-prepared draft — not yet a prescription";
+
+export const DRAFT_STATUS_BODY =
+  "This draft was prepared from the clinical information recorded for this visit. Review every field, check the supporting information and verify each medication. Nothing can be signed or issued until you complete the review.";
+
+export const DRAFT_BASIS_TITLE = "Why this draft was prepared";
+
+export const DRAFT_BASIS_BODY =
+  "Based on the clinical information recorded for this visit. Review the information below and confirm that it is complete and accurate before verifying the medication.";

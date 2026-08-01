@@ -11,23 +11,24 @@ import {
   RefreshCw,
   Printer,
   Lock,
-  Globe,
+  MapPin,
   Info,
   BookOpen,
   Columns3,
+  FileSignature,
+  ChevronDown,
+  ClipboardList,
 } from "lucide-react";
 import {
   loadPrescription,
-  savePrescription,
   subscribePrescription,
   updatePrescription,
   genRxId,
-  isVerificationCurrent,
-  verificationSignature,
   type Prescription,
   type PrescriptionMedication,
   type RxCountry,
   type MedicationReference,
+  type MedicationCheck,
 } from "@/lib/prescription/store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
 import {
@@ -35,18 +36,35 @@ import {
   OriginBadge,
 } from "./MedicationReferenceDrawer";
 import { CompareOptionsDrawer } from "./CompareOptionsDrawer";
-import { VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
+import {
+  DRAFT_BASIS_BODY,
+  DRAFT_BASIS_TITLE,
+  DRAFT_STATUS_BODY,
+  DRAFT_STATUS_TITLE,
+  MED_VERIFICATION_STATEMENT,
+} from "@/lib/prescription/reference";
+import { DEMO_BANNER } from "@/lib/prescription/demo";
+
+const JURISDICTION_LABEL: Record<RxCountry, string> = {
+  US: "United States",
+  PH: "Philippines",
+};
 
 export function AiPrescription({
   appointmentId,
   clientName,
   providerName,
-  appointmentLabel,
+  jurisdiction,
+  onAddClinicalInfo,
 }: {
   appointmentId: string;
   clientName?: string;
   providerName?: string;
   appointmentLabel?: string;
+  /** Locked from the client's jurisdiction and the provider's authority. */
+  jurisdiction?: RxCountry;
+  /** Takes the provider to the clinical documentation fields. */
+  onAddClinicalInfo?: () => void;
 }) {
   const [rx, setRx] = useState<Prescription>(() => loadPrescription(appointmentId));
   const [busy, setBusy] = useState(false);
@@ -60,12 +78,14 @@ export function AiPrescription({
   }, [appointmentId]);
 
   const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
-  const country: RxCountry = rx.country ?? "US";
+  const country: RxCountry = rx.country ?? jurisdiction ?? "PH";
 
-  const approvedCount = rx.medications.filter((m) => m.approved).length;
+  const verifiedCount = rx.medications.filter((m) => m.approved).length;
   const total = rx.medications.length;
-  const allApproved = total > 0 && approvedCount === total;
-  const finalised = !!rx.finalisedAt;
+  const allVerified = total > 0 && verifiedCount === total;
+  const signed = !!rx.finalisedAt;
+  const reviewed = !!rx.reviewedAt;
+  const controlledMeds = rx.medications.filter((m) => m.controlled);
 
   const generate = async () => {
     setBusy(true);
@@ -95,24 +115,34 @@ export function AiPrescription({
         error?: string;
       };
       if (!res.ok) {
-        setError(data.error ?? "Could not generate. Please try again.");
+        setError(data.error ?? "Could not prepare a draft. Please try again.");
         return;
       }
+      const ws2 = loadWorkspace(appointmentId);
+      const missingInformation = missingClinicalInfo(ws2);
       const meds: PrescriptionMedication[] = (data.medications ?? []).map((m) => ({
         ...m,
         id: genRxId(),
         origin: "ai",
         approved: false,
+        basis: {
+          generatedAt: Date.now(),
+          clinicalInformationUsed: clinicalInfoUsed(ws2),
+          whyIncluded: m.rationale,
+          patientConsiderations: m.indication,
+          missingInformation: missingInformation.join(", ") || undefined,
+        },
       }));
       patch({
         medications: meds,
         clinicalNotes: data.clinicalNotes,
         country: data.country ?? country,
+        missingInformation: meds.length === 0 ? missingInformation : undefined,
         generatedAt: Date.now(),
+        reviewedAt: undefined,
+        restrictedAcknowledgedAt: undefined,
         finalisedAt: undefined,
         finalisedBy: undefined,
-        verifiedSignature: undefined,
-        verifiedAt: undefined,
       });
     } catch (e) {
       console.error(e);
@@ -122,22 +152,21 @@ export function AiPrescription({
     }
   };
 
+  /** Any medication-field change resets that medication's verification and
+   *  any completed whole-prescription review. */
   const updateMed = (id: string, p: Partial<PrescriptionMedication>) => {
     const meds = rx.medications.map((m) => (m.id === id ? { ...m, ...p } : m));
-    // Any change to medication, dose, route, frequency or duration resets the
-    // prescribing-information verification.
-    const resets =
-      "name" in p || "dose" in p || "route" in p || "frequency" in p || "duration" in p;
+    const isVerificationToggle =
+      Object.keys(p).length === 1 && "approved" in p;
     patch({
       medications: meds,
-      ...(resets ? { verifiedSignature: undefined, verifiedAt: undefined } : {}),
+      ...(isVerificationToggle ? {} : { reviewedAt: undefined }),
     });
   };
   const removeMed = (id: string) =>
     patch({
       medications: rx.medications.filter((m) => m.id !== id),
-      verifiedSignature: undefined,
-      verifiedAt: undefined,
+      reviewedAt: undefined,
     });
   const addMed = () =>
     patch({
@@ -154,13 +183,8 @@ export function AiPrescription({
           approved: false,
         },
       ],
-      verifiedSignature: undefined,
-      verifiedAt: undefined,
+      reviewedAt: undefined,
     });
-  const finalise = () =>
-    patch({ finalisedAt: Date.now(), finalisedBy: providerName });
-  const unlock = () =>
-    patch({ finalisedAt: undefined, finalisedBy: undefined });
 
   const cacheReference = (medId: string, reference: MedicationReference) =>
     patch({
@@ -177,24 +201,13 @@ export function AiPrescription({
       ),
     });
 
-  const verified = isVerificationCurrent(rx);
-  const toggleVerification = () =>
-    patch(
-      verified
-        ? { verifiedSignature: undefined, verifiedAt: undefined }
-        : {
-            verifiedSignature: verificationSignature(rx.medications),
-            verifiedAt: Date.now(),
-          },
-    );
-  /** A medication whose official reference was unavailable must be verified
-   *  through another authoritative source before signing. */
   const unverifiedSources = rx.medications.filter(
-    (m) =>
-      m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
+    (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
-  const canFinalise =
-    allApproved && verified && unverifiedSources.length === 0;
+  const restrictedPending =
+    controlledMeds.length > 0 && !rx.restrictedAcknowledgedAt;
+  const canSign =
+    allVerified && reviewed && unverifiedSources.length === 0 && !restrictedPending;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
 
   // The AI draft is prepared automatically — the clinician validates it.
@@ -202,69 +215,69 @@ export function AiPrescription({
   useEffect(() => {
     if (autoRef.current === appointmentId) return;
     const existing = loadPrescription(appointmentId);
-    if (existing.generatedAt || existing.medications.length > 0) {
-      autoRef.current = appointmentId;
-      return;
-    }
     autoRef.current = appointmentId;
+    if (existing.generatedAt || existing.medications.length > 0) return;
     void generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointmentId]);
 
+  const missingList = rx.missingInformation ?? [];
+
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
-        <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
+        <div className="flex items-start gap-2.5">
           <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-[#EEE8F8] text-[#5A3E8F]">
             <Pill className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-[#3D2E6B]">
-              Prescription draft
-            </h2>
-            <p className="text-[12px] leading-snug text-[#5A4A8A]">
-              Drafted automatically from this visit&rsquo;s notes for your
-              review. Validate and approve every medication &mdash; you remain
-              the prescribing clinician.
+            <h2 className="text-sm font-semibold text-[#3D2E6B]">Prescription</h2>
+            <p className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-[#5A4A8A]">
+              <MapPin className="h-3.5 w-3.5 text-[#7E6BAF]" />
+              Prescribing jurisdiction: {JURISDICTION_LABEL[country]}
+            </p>
+            <p className="text-[11px] leading-snug text-[#8B85A6]">
+              Based on the client&rsquo;s jurisdiction and your verified
+              prescribing authority.
             </p>
           </div>
         </div>
-        {finalised ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
-            <ShieldCheck className="h-3.5 w-3.5" /> Finalised
+        {signed ? (
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
+            <ShieldCheck className="h-3.5 w-3.5" /> Signed and issued
           </span>
         ) : total > 0 ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2D7F3] bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-            {approvedCount}/{total} approved
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#E2D7F3] bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+            {verifiedCount}/{total} verified
           </span>
         ) : null}
       </div>
 
       <div className="space-y-3 px-4 py-4">
+        {rx.demo && (
+          <p className="flex items-start gap-1.5 rounded-[12px] border border-[#E2D7F3] bg-[#FAF7FE] px-3 py-2 text-[11px] font-semibold leading-snug text-[#5A3E8F]">
+            <Info className="mt-[1px] h-3.5 w-3.5 flex-none" />
+            {DEMO_BANNER}
+          </p>
+        )}
+
+        {/* Draft status */}
+        {!signed && (
+          <div className="rounded-[12px] border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
+              <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" />
+              {DRAFT_STATUS_TITLE}
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
+              {DRAFT_STATUS_BODY}
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white p-0.5">
-            <span className="pl-1.5 pr-0.5 text-[#7E6BAF]">
-              <Globe className="h-3.5 w-3.5" />
-            </span>
-            {(["US", "PH"] as RxCountry[]).map((c) => (
-              <button
-                key={c}
-                type="button"
-                disabled={finalised}
-                onClick={() => patch({ country: c })}
-                className={`rounded-[9px] px-2 py-1 text-[11px] font-bold uppercase tracking-wider transition disabled:cursor-not-allowed ${
-                  country === c
-                    ? "bg-[#EEE8F8] text-[#5A3E8F]"
-                    : "text-[#8B85A6] hover:bg-[#F7F4FB]"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-          {!finalised && (
+          {!signed && (
             <button
               type="button"
               onClick={addMed}
@@ -282,7 +295,7 @@ export function AiPrescription({
               <Columns3 className="h-4 w-4" /> Compare options
             </button>
           )}
-          {!finalised && (
+          {!signed && (
             <button
               type="button"
               onClick={generate}
@@ -294,21 +307,19 @@ export function AiPrescription({
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              {busy ? "Drafting…" : "Redraft with AI"}
+              {busy ? "Preparing…" : "Update draft from clinical information"}
             </button>
           )}
           {rx.generatedAt && (
             <span className="text-[11px] text-[#8B85A6]">
-              Drafted {new Date(rx.generatedAt).toLocaleString()}
+              Draft prepared {new Date(rx.generatedAt).toLocaleString()}
             </span>
           )}
         </div>
 
         <p className="text-[11px] leading-snug text-[#8B85A6]">
-          Suggestions follow{" "}
-          {country === "PH"
-            ? "Philippine availability and generic-name requirements (S2 form flagged where needed)."
-            : "US availability and FDA-approved use (controlled-substance schedule flagged where needed)."}
+          Availability, references, prescription requirements and
+          controlled-substance rules follow {JURISDICTION_LABEL[country]}.
         </p>
 
         {error && (
@@ -317,36 +328,48 @@ export function AiPrescription({
           </p>
         )}
 
-        {/* Inline caution */}
-        {!finalised && (
-          <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#7E6BAF]">
-            <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" />
-            Verify dose, frequency, interactions, contraindications, and
-            allergies before approval.
-          </p>
-        )}
-
         {/* Medications */}
         {total === 0 && busy ? (
           <div className="flex items-center gap-2.5 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
             <Loader2 className="h-4 w-4 flex-none animate-spin text-[#7E6BAF]" />
             <p className="text-[13px] leading-snug text-[#3D2E6B]">
-              <span className="font-medium">Preparing AI draft…</span>
+              <span className="font-medium">Preparing draft…</span>
               <span className="text-[#7E6BAF]">
                 {" "}
-                — you will review and approve each medication.
+                — you will review and verify each medication.
               </span>
             </p>
           </div>
         ) : total === 0 ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
-            <Pill className="h-4 w-4 flex-none text-[#A89BD0]" />
-            <p className="text-[13px] leading-snug text-[#3D2E6B]">
-              <span className="font-medium">No medication suggested</span>
-              <span className="text-[#7E6BAF]">
-                {" "}
-                — add a medication manually or redraft with AI.
-              </span>
+          <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
+            <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
+              <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
+              A prescription draft could not be prepared because required
+              clinical information is missing.
+            </p>
+            <ul className="mt-2 space-y-1 pl-6 text-[12px] leading-snug text-[#5A4A8A]">
+              {(missingList.length > 0
+                ? missingList
+                : ["Presenting concerns", "Session observations", "Clinician plan", "Current medications", "Known allergies"]
+              ).map((item) => (
+                <li key={item} className="list-disc">
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {onAddClinicalInfo && (
+              <button
+                type="button"
+                onClick={onAddClinicalInfo}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+              >
+                <ClipboardList className="h-4 w-4" /> Add required clinical
+                information
+              </button>
+            )}
+            <p className="mt-2 text-[11px] leading-snug text-[#8B85A6]">
+              Private notes stay optional. The patient information needed to
+              prepare a prescription is listed above.
             </p>
           </div>
         ) : (
@@ -356,7 +379,7 @@ export function AiPrescription({
                 key={m.id}
                 index={i}
                 med={m}
-                locked={finalised}
+                locked={signed}
                 onChange={(p) => updateMed(m.id, p)}
                 onRemove={() => removeMed(m.id)}
                 onOpenReference={() => setRefMedId(m.id)}
@@ -365,107 +388,151 @@ export function AiPrescription({
           </ul>
         )}
 
-        {rx.clinicalNotes && (
-          <div className="rounded-xl border border-[#ECE7F6] bg-[#FCFAFE] p-3">
+        {/* Review the complete prescription */}
+        {total > 0 && !signed && (
+          <div className="rounded-2xl border border-[#ECE7F6] bg-[#FCFAFE] p-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              AI clinical notes
+              Step A · Review the complete prescription
             </p>
-            <p className="mt-1 text-sm leading-relaxed text-[#5A4A8A]">
-              {rx.clinicalNotes}
+            <p className="mt-1 text-[13px] leading-relaxed text-[#5A4A8A]">
+              {reviewed
+                ? `Reviewed ${new Date(rx.reviewedAt!).toLocaleString()}. Any change to a medication reopens this review.`
+                : `Verify each medication individually, then review the prescription as a whole. ${verifiedCount} of ${total} verified.`}
             </p>
-          </div>
-        )}
-
-        {/* Finalise */}
-        {total > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#ECE7F6] bg-gradient-to-r from-[#FCFAFE] to-white p-4">
-            <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEE8F8] text-[#5A3E8F]">
-                <ShieldCheck className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-[#3D2E6B]">
-                  {finalised
-                    ? "Prescription finalised"
-                    : allApproved
-                      ? "Ready to finalise"
-                      : "Approve every medication to finalise"}
-                </p>
-                <p className="text-xs text-[#7E6BAF]">
-                  {finalised
-                    ? `Signed off ${new Date(rx.finalisedAt!).toLocaleString()}${rx.finalisedBy ? ` · ${rx.finalisedBy}` : ""}`
-                    : `${approvedCount} of ${total} approved`}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {finalised && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-                  >
-                    <Printer className="h-4 w-4" /> Print
-                  </button>
-                  <button
-                    type="button"
-                    onClick={unlock}
-                    className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-                  >
-                    <Lock className="h-4 w-4" /> Unlock to edit
-                  </button>
-                </>
-              )}
-              {!finalised && (
-                <button
-                  type="button"
-                  onClick={finalise}
-                  disabled={!canFinalise}
-                  className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Check className="h-4 w-4" /> Finalise prescription
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Prescribing-information verification */}
-        {total > 0 && (
-          <div className="rounded-2xl border border-[#E1D9F1] bg-[#FCFAFE] p-3.5">
-            <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#3D2E6B]">
-              <input
-                type="checkbox"
-                checked={verified}
-                disabled={finalised}
-                onChange={toggleVerification}
-                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF] disabled:opacity-50"
-              />
-              <span>
-                {VERIFICATION_STATEMENT}
-                {verified && rx.verifiedAt && (
-                  <span className="block text-[11px] text-[#7E6BAF]">
-                    Confirmed {new Date(rx.verifiedAt).toLocaleString()}
-                  </span>
-                )}
-              </span>
-            </label>
-            {!verified && !finalised && (
-              <p className="mt-1.5 pl-7 text-[11px] text-[#8B85A6]">
-                Any change to a medication, dose, route, frequency, or formulation
-                resets this confirmation.
-              </p>
-            )}
             {unverifiedSources.length > 0 && (
-              <p className="mt-1.5 flex items-start gap-1.5 pl-7 text-[11px] leading-snug text-[#5A3E8F]">
+              <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-[#5A3E8F]">
                 <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" />
                 Official prescribing information is unavailable for{" "}
-                {unverifiedSources.map((m) => m.name || "an item").join(", ")}. Open
-                the medication reference and confirm verification through another
-                authoritative source.
+                {unverifiedSources.map((m) => m.name || "an item").join(", ")}.
+                Open the medication reference and confirm verification through
+                another authoritative source.
               </p>
             )}
+            <button
+              type="button"
+              disabled={!allVerified || reviewed}
+              onClick={() => patch({ reviewedAt: Date.now() })}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {reviewed ? (
+                <>
+                  <Check className="h-4 w-4 text-[#2D8E69]" /> Prescription
+                  reviewed
+                </>
+              ) : (
+                <>
+                  <ClipboardList className="h-4 w-4" /> Review prescription
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Controlled substances — separate restricted workflow */}
+        {controlledMeds.length > 0 && !signed && (
+          <div className="rounded-2xl border border-[#D8C7F0] bg-white p-4">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#5A3E8F]">
+              <Lock className="h-3.5 w-3.5" /> Restricted workflow · controlled
+              substance
+            </p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+              {controlledMeds.map((m) => m.name || "This medication").join(", ")}{" "}
+              {controlledMeds.length > 1 ? "are" : "is"} a controlled substance
+              in {JURISDICTION_LABEL[country]}
+              {controlledMeds[0]?.controlledLabel
+                ? ` (${controlledMeds[0].controlledLabel})`
+                : ""}
+              . It cannot be issued with the standard confirmation below. It must
+              be issued on the official controlled-prescription form and signed
+              there.
+            </p>
+            <label className="mt-3 flex items-start gap-2.5 text-[12px] leading-relaxed text-[#3D2E6B]">
+              <input
+                type="checkbox"
+                checked={!!rx.restrictedAcknowledgedAt}
+                onChange={(e) =>
+                  patch({
+                    restrictedAcknowledgedAt: e.target.checked
+                      ? Date.now()
+                      : undefined,
+                  })
+                }
+                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
+              />
+              I will issue this medication on the official
+              controlled-prescription form. I understand the confirmation in
+              Lubin is a record only and is not the legal signature.
+            </label>
+          </div>
+        )}
+
+        {/* Sign and issue — deliberately separate from drafting and verification */}
+        {total > 0 && (
+          <div className="rounded-2xl border-2 border-[#D8C7F0] bg-white p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEE8F8] text-[#5A3E8F]">
+                  <FileSignature className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[#3D2E6B]">
+                    {signed
+                      ? "Prescription signed and issued"
+                      : "Step B · Sign and issue"}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-snug text-[#7E6BAF]">
+                    {signed
+                      ? `Signed ${new Date(rx.finalisedAt!).toLocaleString()}${rx.finalisedBy ? ` · ${rx.finalisedBy}` : ""}`
+                      : canSign
+                        ? "You remain the prescribing clinician. Signing issues this prescription."
+                        : "Available after every medication is verified and the prescription is reviewed."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {signed ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+                    >
+                      <Printer className="h-4 w-4" /> Print
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        patch({
+                          finalisedAt: undefined,
+                          finalisedBy: undefined,
+                          reviewedAt: undefined,
+                        })
+                      }
+                      className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+                    >
+                      <Lock className="h-4 w-4" /> Unlock to edit
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch({ finalisedAt: Date.now(), finalisedBy: providerName })
+                    }
+                    disabled={!canSign}
+                    className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
+                  >
+                    <FileSignature className="h-4 w-4" /> Sign and issue
+                    prescription
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="mt-3 text-[11px] leading-snug text-[#8B85A6]">
+              Medication references stay available after signing so you can see
+              what information was available when the decision was made. You
+              remain the prescribing clinician.
+            </p>
           </div>
         )}
       </div>
@@ -500,6 +567,55 @@ export function AiPrescription({
   );
 }
 
+function clinicalInfoUsed(ws: ReturnType<typeof loadWorkspace>): string {
+  const parts: string[] = [];
+  if (ws.notes.presenting) parts.push("presenting concerns");
+  if (ws.notes.observations) parts.push("session observations");
+  if (ws.notes.plan) parts.push("clinician plan");
+  if (ws.medications?.length) parts.push("current medication list");
+  return parts.length
+    ? `Recorded for this visit: ${parts.join(", ")}.`
+    : "No structured clinical information was recorded for this visit.";
+}
+
+function missingClinicalInfo(ws: ReturnType<typeof loadWorkspace>): string[] {
+  const missing: string[] = [];
+  if (!ws.notes.presenting) missing.push("Presenting concerns");
+  if (!ws.notes.observations) missing.push("Session observations");
+  if (!ws.notes.plan) missing.push("Clinician plan");
+  if (!ws.medications?.length) missing.push("Current medications");
+  return missing;
+}
+
+const CHECK_ROWS: {
+  key: keyof Omit<NonNullable<PrescriptionMedication["checks"]>, "missingInformation">;
+  label: string;
+}[] = [
+  { key: "allergies", label: "Allergies checked" },
+  { key: "currentMedications", label: "Current medications checked" },
+  { key: "interactions", label: "Interactions checked" },
+  { key: "contraindications", label: "Contraindications checked" },
+  { key: "conditions", label: "Relevant medical conditions checked" },
+];
+
+function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
+  const ok = check?.status === "checked";
+  return (
+    <li className="flex items-start gap-1.5 text-[12px] leading-snug">
+      {ok ? (
+        <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
+      ) : (
+        <AlertTriangle className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+      )}
+      <span className={ok ? "text-[#5A4A8A]" : "text-[#3D2E6B]"}>
+        <span className="font-semibold">{label}:</span>{" "}
+        {check?.detail ??
+          "Unable to complete — required clinical information is missing."}
+      </span>
+    </li>
+  );
+}
+
 function MedicationCard({
   index,
   med,
@@ -515,10 +631,18 @@ function MedicationCard({
   onRemove: () => void;
   onOpenReference: () => void;
 }) {
+  const [basisOpen, setBasisOpen] = useState(true);
+  const hasName = med.name.trim().length > 0;
   const missing = useMemo(
-    () => !med.name.trim() || !med.dose.trim() || !med.frequency.trim() || !med.instructions.trim(),
-    [med],
+    () =>
+      !hasName ||
+      !med.dose.trim() ||
+      !med.frequency.trim() ||
+      !med.instructions.trim(),
+    [hasName, med],
   );
+  const manual = (med.origin ?? "ai") === "manual";
+
   return (
     <li
       className={`overflow-hidden rounded-2xl border transition ${
@@ -527,7 +651,7 @@ function MedicationCard({
           : "border-[#ECE7F6] bg-white"
       }`}
     >
-      <div className="flex items-center gap-3 border-b border-[#ECE7F6]/70 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[#ECE7F6]/70 px-4 py-3">
         <span
           className={`flex h-8 w-8 flex-none items-center justify-center rounded-full text-[11px] font-bold ${
             med.approved
@@ -543,70 +667,134 @@ function MedicationCard({
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
             <OriginBadge med={med} />
-            <span className="truncate text-[11px] text-[#7E6BAF]">
-              {[med.dose, med.frequency].filter(Boolean).join(" · ") ||
-                "Fill in dose and frequency"}
-            </span>
+            {!med.approved && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5A3E8F]">
+                {manual
+                  ? "Added by clinician · Verification required"
+                  : "AI-prepared · Verification required"}
+              </span>
+            )}
+            {med.approved && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2D8E69]">
+                Verified by clinician
+              </span>
+            )}
+            {med.demo && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Demo data
+              </span>
+            )}
           </div>
         </div>
         <button
           type="button"
           onClick={onOpenReference}
-          className="inline-flex flex-none items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+          disabled={!hasName}
+          title={
+            hasName
+              ? undefined
+              : "Enter a medication name to open its reference"
+          }
+          className="inline-flex flex-none items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB] disabled:cursor-not-allowed disabled:opacity-45"
         >
           <BookOpen className="h-3.5 w-3.5" /> View medication reference
         </button>
         {!locked && (
-          <>
-            <label className="inline-flex cursor-pointer items-center gap-1.5 text-[12px] font-semibold text-[#3D2E6B]">
-              <input
-                type="checkbox"
-                checked={med.approved}
-                disabled={missing}
-                onChange={(e) => onChange({ approved: e.target.checked })}
-                className="h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF] disabled:opacity-40"
-              />
-              Approve
-            </label>
-            <button
-              type="button"
-              onClick={onRemove}
-              className="inline-flex items-center gap-1 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-[#7E6BAF] hover:bg-[#F7F4FB] hover:text-[#5A3E8F]"
-              aria-label="Remove medication"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="inline-flex items-center gap-1 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-[#7E6BAF] hover:bg-[#F7F4FB] hover:text-[#5A3E8F]"
+            aria-label="Remove medication"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
         )}
       </div>
 
+      {/* Draft basis */}
+      {(med.basis || med.rationale || med.availabilityNote) && (
+        <div className="border-b border-[#ECE7F6]/70 bg-[#FCFAFE] px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setBasisOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-2 text-left"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Draft basis
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 text-[#A89BD0] transition-transform ${basisOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {basisOpen && (
+            <div className="mt-2 space-y-2">
+              <div>
+                <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                  {DRAFT_BASIS_TITLE}
+                </p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  {DRAFT_BASIS_BODY}
+                </p>
+              </div>
+              <dl className="divide-y divide-[#F1ECF9] border-t border-[#F1ECF9]">
+                <BasisRow
+                  label="Clinical information used"
+                  value={med.basis?.clinicalInformationUsed}
+                />
+                <BasisRow
+                  label="Why this option was included"
+                  value={med.basis?.whyIncluded ?? med.rationale}
+                />
+                <BasisRow
+                  label="Patient-specific considerations"
+                  value={med.basis?.patientConsiderations ?? med.indication}
+                />
+                <BasisRow
+                  label="Missing or unverified information"
+                  value={med.basis?.missingInformation}
+                  fallback="None identified from the recorded clinical information."
+                />
+                <BasisRow
+                  label="Draft generated"
+                  value={
+                    med.basis?.generatedAt
+                      ? new Date(med.basis.generatedAt).toLocaleString()
+                      : undefined
+                  }
+                />
+                {med.availabilityNote && (
+                  <BasisRow
+                    label={`Availability in this jurisdiction`}
+                    value={med.availabilityNote}
+                  />
+                )}
+              </dl>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Patient-specific checks */}
+      <div className="border-b border-[#ECE7F6]/70 px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+          Patient-specific safety checks
+        </p>
+        <ul className="mt-1.5 space-y-1">
+          {CHECK_ROWS.map((r) => (
+            <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
+          ))}
+          <li className="flex items-start gap-1.5 text-[12px] leading-snug text-[#3D2E6B]">
+            <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
+            <span>
+              <span className="font-semibold">Missing information:</span>{" "}
+              {med.checks?.missingInformation ??
+                "Not established — the clinical record for this visit is incomplete."}
+            </span>
+          </li>
+        </ul>
+      </div>
+
       <div className="grid grid-cols-1 gap-3 px-4 py-4 md:grid-cols-2">
-        {(med.rationale || med.availabilityNote) && (
-          <div className="space-y-1.5 rounded-xl border border-[#ECE7F6] bg-[#FCFAFE] p-3 md:col-span-2">
-            {med.rationale && (
-              <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                <Sparkles className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
-                <span>
-                  <span className="font-semibold text-[#3D2E6B]">
-                    Why AI suggested this:
-                  </span>{" "}
-                  {med.rationale}
-                </span>
-              </p>
-            )}
-            {med.availabilityNote && (
-              <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
-                <span>
-                  <span className="font-semibold text-[#3D2E6B]">
-                    Local availability:
-                  </span>{" "}
-                  {med.availabilityNote}
-                </span>
-              </p>
-            )}
-          </div>
-        )}
         <Field
           label="Medication name"
           value={med.name}
@@ -660,7 +848,7 @@ function MedicationCard({
         </div>
         <div className="md:col-span-2">
           <FieldArea
-            label="Patient-facing instructions"
+            label="Patient instructions"
             value={med.instructions}
             onChange={(v) => onChange({ instructions: v, approved: false })}
             locked={locked}
@@ -679,13 +867,71 @@ function MedicationCard({
         </div>
       </div>
 
-      {!locked && missing && (
-        <div className="border-t border-[#ECE7F6] bg-[#FCFAFE] px-4 py-2 text-[11px] text-[#7E6BAF]">
-          Fill in name, dose, frequency, and patient instructions to enable
-          approval.
+      {/* Individual verification */}
+      {!locked && (
+        <div
+          className={`border-t px-4 py-3 ${
+            med.approved
+              ? "border-[#B5E4CD] bg-[#F1FBF6]"
+              : "border-[#ECE7F6] bg-[#FCFAFE]"
+          }`}
+        >
+          <label className="flex items-start gap-2.5 text-[12px] leading-relaxed text-[#3D2E6B]">
+            <input
+              type="checkbox"
+              checked={med.approved}
+              disabled={missing}
+              onChange={(e) =>
+                onChange({
+                  approved: e.target.checked,
+                  verifiedAt: e.target.checked ? Date.now() : undefined,
+                })
+              }
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF] disabled:opacity-40"
+            />
+            <span>
+              <span className="font-semibold">Verify medication</span> —{" "}
+              {MED_VERIFICATION_STATEMENT}
+              {med.approved && med.verifiedAt && (
+                <span className="block text-[11px] text-[#2D8E69]">
+                  Verified {new Date(med.verifiedAt).toLocaleString()}
+                </span>
+              )}
+            </span>
+          </label>
+          <p className="mt-1.5 pl-7 text-[11px] leading-snug text-[#8B85A6]">
+            {missing
+              ? "Fill in name, dose, frequency and patient instructions before verifying."
+              : "Changing any field on this medication resets this verification."}
+          </p>
         </div>
       )}
     </li>
+  );
+}
+
+function BasisRow({
+  label,
+  value,
+  fallback,
+}: {
+  label: string;
+  value?: string;
+  fallback?: string;
+}) {
+  return (
+    <div className="py-1.5">
+      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+        {label}
+      </dt>
+      <dd className="mt-0.5 text-[12px] leading-relaxed text-[#3D2E6B]">
+        {value?.trim() ? (
+          value
+        ) : (
+          <span className="text-[#A89BD0]">{fallback ?? "Not recorded"}</span>
+        )}
+      </dd>
+    </div>
   );
 }
 

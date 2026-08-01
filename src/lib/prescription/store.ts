@@ -4,6 +4,33 @@
 
 export type MedicationOrigin = "ai" | "ai-option" | "manual";
 
+/** Result of a patient-specific safety check. "unavailable" must never be
+ *  presented as a clean result — the UI states what is missing instead. */
+export type CheckStatus = "checked" | "unavailable";
+
+export type MedicationCheck = {
+  status: CheckStatus;
+  detail: string;
+};
+
+export type MedicationChecks = {
+  allergies?: MedicationCheck;
+  currentMedications?: MedicationCheck;
+  interactions?: MedicationCheck;
+  contraindications?: MedicationCheck;
+  conditions?: MedicationCheck;
+  missingInformation?: string;
+};
+
+/** Why the AI prepared this line item — never labelled "AI clinical notes". */
+export type DraftBasis = {
+  clinicalInformationUsed?: string;
+  whyIncluded?: string;
+  patientConsiderations?: string;
+  missingInformation?: string;
+  generatedAt?: number;
+};
+
 export type MedicationSource = {
   title: string;
   url?: string;
@@ -72,6 +99,18 @@ export type PrescriptionMedication = {
   availabilityNote?: string; // country-specific availability / regulatory note
   origin?: MedicationOrigin; // provenance of this line item
   reference?: MedicationReference; // cached medication reference
+  /** Structured basis for the AI-prepared draft. */
+  basis?: DraftBasis;
+  /** Patient-specific safety checks surfaced on the card. */
+  checks?: MedicationChecks;
+  /** True when this medication is a controlled / dangerous drug and needs the
+   *  restricted issuing workflow instead of the standard signature. */
+  controlled?: boolean;
+  controlledLabel?: string;
+  /** Sample clinical content for demonstration purposes only. */
+  demo?: boolean;
+  /** When this medication was individually verified by the clinician. */
+  verifiedAt?: number;
   /** Set when the clinician confirmed the medication through another
    *  authoritative source because official information was unavailable. */
   externallyVerifiedAt?: number;
@@ -86,6 +125,14 @@ export type Prescription = {
   clinicalNotes?: string;
   country?: RxCountry;
   generatedAt?: number;
+  /** Set when the clinician completed the whole-prescription review step. */
+  reviewedAt?: number;
+  /** Controlled-substance issuing acknowledged on the official form. */
+  restrictedAcknowledgedAt?: number;
+  /** Clinical information the AI needs before a draft can be prepared. */
+  missingInformation?: string[];
+  /** Sample prescription used for demonstration purposes only. */
+  demo?: boolean;
   finalisedAt?: number;
   finalisedBy?: string;
   /** Signature of the clinically significant fields at the moment the
