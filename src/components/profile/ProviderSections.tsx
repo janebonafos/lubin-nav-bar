@@ -1897,6 +1897,7 @@ export function ApptNotesBlock({
   onPublishConfirmed,
   onPrivateNotesSaved,
   onFollowUpSaved,
+  onFollowUpShared,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1907,6 +1908,7 @@ export function ApptNotesBlock({
   onPublishConfirmed?: (confirmed: boolean) => void;
   onPrivateNotesSaved?: (saved: boolean) => void;
   onFollowUpSaved?: (saved: boolean) => void;
+  onFollowUpShared?: () => void;
 }) {
 
   const [editing, setEditing] = useState(false);
@@ -2642,7 +2644,7 @@ export function ApptNotesBlock({
                   <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
                     {sharedUpdatedAt
                       ? `Update shared with ${clientLabel}. No further action needed.`
-                      : `${clientLabel} already has this summary. Use Edit above if you need to change something — you can update it right after, no need to mark this completed again.`}
+                      : `${clientLabel} already has this summary. Use Edit above if you need to change something, then update it.`}
                   </p>
                 )
               ) : (
@@ -2665,11 +2667,12 @@ export function ApptNotesBlock({
               )}
             </div>
 
-            {/* Save draft action below the preview box (does not share) */}
+            {/* Draft and share actions below the preview box */}
             {!isPublished && (
-              <div className="mt-4 flex items-center justify-end gap-3">
-                <p className="text-[11px] text-[#A89BD0]">
-                  Saving keeps your draft. Use “Mark as Completed” below to share it.
+              <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
+                <p className="text-[11px] text-[#A89BD0] sm:mr-auto">
+                  Saving keeps a private draft. Nothing reaches {clientLabel}
+                  {" "}until you share it.
                 </p>
                 <button
                   type="button"
@@ -2681,7 +2684,31 @@ export function ApptNotesBlock({
                   }}
                   className="rounded-[8px] border border-[#D6CCEC] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
                 >
-                  Save
+                  Save draft
+                </button>
+                <button
+                  type="button"
+                  disabled={!publishConfirmed || updatingShared}
+                  onClick={() => {
+                    if (updatingShared) return;
+                    setUpdatingShared(true);
+                    saveFollowUp();
+                    window.setTimeout(() => {
+                      onChange({
+                        publishedFollowUp: {
+                          at: Date.now(),
+                          by: providerName?.trim() || undefined,
+                        },
+                      });
+                      setEditFields({});
+                      setUpdatingShared(false);
+                      onFollowUpShared?.();
+                    }, 700);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2F2354] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
+                >
+                  {updatingShared && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {updatingShared ? "Sharing…" : `Review and share with ${clientLabel}`}
                 </button>
               </div>
             )}
@@ -2716,7 +2743,7 @@ export function ApptNotesBlock({
               onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
               className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
             >
-              {appt.notes ? "Edit" : "Add notes"}
+              {appt.notes ? "Edit" : "Add clinical notes"}
             </button>
 
           </div>

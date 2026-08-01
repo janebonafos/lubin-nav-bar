@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, ChevronRight } from "lucide-react";
 import { AssessmentHistory } from "@/components/appointment/AssessmentHistory";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
-import { seedDemoSharedGrant, clearDemoSharedGrant } from "@/lib/share/demoSharedGrant";
+import { seedDemoSharedGrant } from "@/lib/share/demoSharedGrant";
 import {
   loadBrief,
   saveBrief,
@@ -292,16 +292,6 @@ export function AiProviderBrief({
         <HistoryRow label="Information used for this overview" onClick={onViewSupporting} />
       </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          clearDemoSharedGrant(appointmentId);
-          setRefreshKey((k) => k + 1);
-        }}
-        className="mt-8 text-[12px] text-[#9A93B8] transition hover:text-[#3D2E6B]"
-      >
-        Exit preview
-      </button>
     </section>
   );
 }
