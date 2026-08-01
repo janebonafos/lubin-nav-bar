@@ -126,43 +126,35 @@ export function AiPrescription({
     patch({ finalisedAt: undefined, finalisedBy: undefined });
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
-      <div className="relative bg-gradient-to-br from-[#F4ECFB] via-white to-[#EEE8F8] px-6 py-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-3">
-            <span className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-[#7E6BAF] to-[#5A3E8F] text-white shadow-sm">
-              <Pill className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                Prescriber tools
-              </p>
-              <h2 className="mt-0.5 text-lg font-semibold text-[#3D2E6B]">
-                AI-drafted prescription
-              </h2>
-              <p className="mt-1 max-w-lg text-sm leading-relaxed text-[#5A4A8A]">
-                Lubin AI drafts a starting point from this visit's notes and
-                assessments. Review every field and approve each medication
-                before finalising — you are the prescribing clinician.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {finalised ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
-                <ShieldCheck className="h-3.5 w-3.5" /> Finalised
-              </span>
-            ) : total > 0 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF] shadow-sm">
-                {approvedCount}/{total} approved
-              </span>
-            ) : null}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-[#EEE8F8] text-[#5A3E8F]">
+            <Pill className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-[#3D2E6B]">
+              Prescription draft
+            </h2>
+            <p className="text-[12px] leading-snug text-[#5A4A8A]">
+              Create a draft from this visit&rsquo;s notes or add medications
+              manually. You remain the prescribing clinician.
+            </p>
           </div>
         </div>
+        {finalised ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
+            <ShieldCheck className="h-3.5 w-3.5" /> Finalised
+          </span>
+        ) : total > 0 ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2D7F3] bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+            {approvedCount}/{total} approved
+          </span>
+        ) : null}
       </div>
 
-      <div className="space-y-4 px-6 py-5">
+      <div className="space-y-3 px-4 py-4">
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -202,26 +194,25 @@ export function AiPrescription({
           </p>
         )}
 
-        {/* Safety strip */}
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-2.5 text-[12px] leading-relaxed text-amber-900">
-          <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
-          <p>
-            AI suggestions are decision support only. Verify every dose,
-            frequency, interaction, contraindication, and patient allergy before
-            approving. Adjust the wording so the client can understand it.
+        {/* Inline caution */}
+        {!finalised && (
+          <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#7E6BAF]">
+            <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" />
+            Verify dose, frequency, interactions, contraindications, and
+            allergies before approval.
           </p>
-        </div>
+        )}
 
         {/* Medications */}
         {total === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#E1D9F1] bg-[#FCFAFE] p-6 text-center">
-            <Pill className="mx-auto h-6 w-6 text-[#A89BD0]" />
-            <p className="mt-2 text-sm font-medium text-[#3D2E6B]">
-              No prescription drafted yet
-            </p>
-            <p className="mt-1 text-xs text-[#7E6BAF]">
-              Generate an AI draft from the session notes, or add a medication
-              manually.
+          <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
+            <Pill className="h-4 w-4 flex-none text-[#A89BD0]" />
+            <p className="text-[13px] leading-snug text-[#3D2E6B]">
+              <span className="font-medium">No prescription drafted yet</span>
+              <span className="text-[#7E6BAF]">
+                {" "}
+                — generate a draft or add a medication manually.
+              </span>
             </p>
           </div>
         ) : (
