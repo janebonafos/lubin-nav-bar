@@ -198,21 +198,6 @@ export function AiPrescription({
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={generate}
-            disabled={busy || finalised}
-            className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#7E6BAF] to-[#5A3E8F] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : total > 0 ? (
-              <RefreshCw className="h-4 w-4" />
-            ) : (
-              <Sparkles className="h-4 w-4" />
-            )}
-            {total > 0 ? "Regenerate draft" : "Generate AI draft"}
-          </button>
           {!finalised && (
             <button
               type="button"
@@ -220,6 +205,21 @@ export function AiPrescription({
               className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
             >
               <Plus className="h-4 w-4" /> Add manually
+            </button>
+          )}
+          {!finalised && (
+            <button
+              type="button"
+              onClick={generate}
+              disabled={busy}
+              className="inline-flex items-center gap-1 rounded-[12px] px-2.5 py-2 text-[12px] font-semibold text-[#7E6BAF] transition hover:bg-[#F7F4FB] hover:text-[#5A3E8F] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {busy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              {busy ? "Drafting…" : "Redraft with AI"}
             </button>
           )}
           {rx.generatedAt && (
