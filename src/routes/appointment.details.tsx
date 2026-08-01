@@ -50,25 +50,25 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The appointment is closed as delivered. Anything you published in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+      "The appointment is closed as delivered. Anything you marked as done in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
   },
   {
     value: "client_no_show",
     label: "Client no-show",
     consequence:
-      "Recorded as a no-show by the client. Nothing is published to your client. The session fee is held for review against your no-show policy before any payout or refund is decided.",
+      "Recorded as a no-show by the client. Nothing is shared with your client. The session fee is held for review against your no-show policy before any payout or refund is decided.",
   },
   {
     value: "provider_no_show",
     label: "Provider no-show",
     consequence:
-      "Recorded as a no-show on your side. Nothing is published to your client, no payout is issued for this session, and your client is offered a refund or a free rebooking.",
+      "Recorded as a no-show on your side. Nothing is shared with your client, no payout is issued for this session, and your client is offered a refund or a free rebooking.",
   },
   {
     value: "cancelled",
     label: "Cancelled",
     consequence:
-      "The appointment is closed as cancelled. Nothing is published to your client and the payment is returned or refunded according to the cancellation window.",
+      "The appointment is closed as cancelled. Nothing is shared with your client and the payment is returned or refunded according to the cancellation window.",
   },
   {
     value: "rescheduled",
