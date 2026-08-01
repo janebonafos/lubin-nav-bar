@@ -13,6 +13,8 @@ import {
   Lock,
   Globe,
   Info,
+  BookOpen,
+  Columns3,
 } from "lucide-react";
 import {
   loadPrescription,
@@ -20,11 +22,20 @@ import {
   subscribePrescription,
   updatePrescription,
   genRxId,
+  isVerificationCurrent,
+  verificationSignature,
   type Prescription,
   type PrescriptionMedication,
   type RxCountry,
+  type MedicationReference,
 } from "@/lib/prescription/store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
+import {
+  MedicationReferenceDrawer,
+  OriginBadge,
+} from "./MedicationReferenceDrawer";
+import { CompareOptionsDrawer } from "./CompareOptionsDrawer";
+import { VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 
 export function AiPrescription({
   appointmentId,
@@ -40,6 +51,8 @@ export function AiPrescription({
   const [rx, setRx] = useState<Prescription>(() => loadPrescription(appointmentId));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refMedId, setRefMedId] = useState<string | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
     setRx(loadPrescription(appointmentId));
@@ -88,6 +101,7 @@ export function AiPrescription({
       const meds: PrescriptionMedication[] = (data.medications ?? []).map((m) => ({
         ...m,
         id: genRxId(),
+        origin: "ai",
         approved: false,
       }));
       patch({
@@ -97,6 +111,8 @@ export function AiPrescription({
         generatedAt: Date.now(),
         finalisedAt: undefined,
         finalisedBy: undefined,
+        verifiedSignature: undefined,
+        verifiedAt: undefined,
       });
     } catch (e) {
       console.error(e);
@@ -106,12 +122,23 @@ export function AiPrescription({
     }
   };
 
-  const updateMed = (id: string, p: Partial<PrescriptionMedication>) =>
+  const updateMed = (id: string, p: Partial<PrescriptionMedication>) => {
+    const meds = rx.medications.map((m) => (m.id === id ? { ...m, ...p } : m));
+    // Any change to medication, dose, route, frequency or duration resets the
+    // prescribing-information verification.
+    const resets =
+      "name" in p || "dose" in p || "route" in p || "frequency" in p || "duration" in p;
     patch({
-      medications: rx.medications.map((m) => (m.id === id ? { ...m, ...p } : m)),
+      medications: meds,
+      ...(resets ? { verifiedSignature: undefined, verifiedAt: undefined } : {}),
     });
+  };
   const removeMed = (id: string) =>
-    patch({ medications: rx.medications.filter((m) => m.id !== id) });
+    patch({
+      medications: rx.medications.filter((m) => m.id !== id),
+      verifiedSignature: undefined,
+      verifiedAt: undefined,
+    });
   const addMed = () =>
     patch({
       medications: [
@@ -123,14 +150,52 @@ export function AiPrescription({
           route: "Oral",
           frequency: "",
           instructions: "",
+          origin: "manual",
           approved: false,
         },
       ],
+      verifiedSignature: undefined,
+      verifiedAt: undefined,
     });
   const finalise = () =>
     patch({ finalisedAt: Date.now(), finalisedBy: providerName });
   const unlock = () =>
     patch({ finalisedAt: undefined, finalisedBy: undefined });
+
+  const cacheReference = (medId: string, reference: MedicationReference) =>
+    patch({
+      medications: rx.medications.map((m) =>
+        m.id === medId ? { ...m, reference } : m,
+      ),
+    });
+  const markExternallyVerified = (medId: string) =>
+    patch({
+      medications: rx.medications.map((m) =>
+        m.id === medId
+          ? { ...m, externallyVerifiedAt: m.externallyVerifiedAt ? undefined : Date.now() }
+          : m,
+      ),
+    });
+
+  const verified = isVerificationCurrent(rx);
+  const toggleVerification = () =>
+    patch(
+      verified
+        ? { verifiedSignature: undefined, verifiedAt: undefined }
+        : {
+            verifiedSignature: verificationSignature(rx.medications),
+            verifiedAt: Date.now(),
+          },
+    );
+  /** A medication whose official reference was unavailable must be verified
+   *  through another authoritative source before signing. */
+  const unverifiedSources = rx.medications.filter(
+    (m) =>
+      m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
+  );
+  const canFinalise =
+    allApproved && verified && unverifiedSources.length === 0;
+  const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
 
   // The AI draft is prepared automatically — the clinician validates it.
   const autoRef = useRef<string | null>(null);
@@ -206,6 +271,15 @@ export function AiPrescription({
               className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
             >
               <Plus className="h-4 w-4" /> Add manually
+            </button>
+          )}
+          {total > 1 && (
+            <button
+              type="button"
+              onClick={() => setCompareOpen(true)}
+              className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+            >
+              <Columns3 className="h-4 w-4" /> Compare options
             </button>
           )}
           {!finalised && (
@@ -285,6 +359,7 @@ export function AiPrescription({
                 locked={finalised}
                 onChange={(p) => updateMed(m.id, p)}
                 onRemove={() => removeMed(m.id)}
+                onOpenReference={() => setRefMedId(m.id)}
               />
             ))}
           </ul>
@@ -346,7 +421,7 @@ export function AiPrescription({
                 <button
                   type="button"
                   onClick={finalise}
-                  disabled={!allApproved}
+                  disabled={!canFinalise}
                   className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Check className="h-4 w-4" /> Finalise prescription
@@ -355,7 +430,72 @@ export function AiPrescription({
             </div>
           </div>
         )}
+
+        {/* Prescribing-information verification */}
+        {total > 0 && (
+          <div className="rounded-2xl border border-[#E1D9F1] bg-[#FCFAFE] p-3.5">
+            <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+              <input
+                type="checkbox"
+                checked={verified}
+                disabled={finalised}
+                onChange={toggleVerification}
+                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF] disabled:opacity-50"
+              />
+              <span>
+                {VERIFICATION_STATEMENT}
+                {verified && rx.verifiedAt && (
+                  <span className="block text-[11px] text-[#7E6BAF]">
+                    Confirmed {new Date(rx.verifiedAt).toLocaleString()}
+                  </span>
+                )}
+              </span>
+            </label>
+            {!verified && !finalised && (
+              <p className="mt-1.5 pl-7 text-[11px] text-[#8B85A6]">
+                Any change to a medication, dose, route, frequency, or formulation
+                resets this confirmation.
+              </p>
+            )}
+            {unverifiedSources.length > 0 && (
+              <p className="mt-1.5 flex items-start gap-1.5 pl-7 text-[11px] leading-snug text-[#5A3E8F]">
+                <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" />
+                Official prescribing information is unavailable for{" "}
+                {unverifiedSources.map((m) => m.name || "an item").join(", ")}. Open
+                the medication reference and confirm verification through another
+                authoritative source.
+              </p>
+            )}
+          </div>
+        )}
       </div>
+
+      <MedicationReferenceDrawer
+        open={!!refMed}
+        onClose={() => setRefMedId(null)}
+        med={refMed}
+        country={country}
+        appointmentId={appointmentId}
+        clientName={clientName}
+        onCached={(reference) => refMed && cacheReference(refMed.id, reference)}
+        onExternallyVerified={() => refMed && markExternallyVerified(refMed.id)}
+      />
+      <CompareOptionsDrawer
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        medications={rx.medications}
+        country={country}
+        appointmentId={appointmentId}
+        clientName={clientName}
+        onCached={cacheReference}
+        onSelectOption={(medId) =>
+          patch({
+            medications: rx.medications.map((m) =>
+              m.id === medId ? { ...m, origin: "ai-option" } : m,
+            ),
+          })
+        }
+      />
     </section>
   );
 }
@@ -366,12 +506,14 @@ function MedicationCard({
   locked,
   onChange,
   onRemove,
+  onOpenReference,
 }: {
   index: number;
   med: PrescriptionMedication;
   locked: boolean;
   onChange: (p: Partial<PrescriptionMedication>) => void;
   onRemove: () => void;
+  onOpenReference: () => void;
 }) {
   const missing = useMemo(
     () => !med.name.trim() || !med.dose.trim() || !med.frequency.trim() || !med.instructions.trim(),
@@ -399,10 +541,21 @@ function MedicationCard({
           <p className="truncate text-sm font-semibold text-[#3D2E6B]">
             {med.name || "Untitled medication"}
           </p>
-          <p className="truncate text-[11px] text-[#7E6BAF]">
-            {[med.dose, med.frequency].filter(Boolean).join(" · ") || "Fill in dose and frequency"}
-          </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+            <OriginBadge med={med} />
+            <span className="truncate text-[11px] text-[#7E6BAF]">
+              {[med.dose, med.frequency].filter(Boolean).join(" · ") ||
+                "Fill in dose and frequency"}
+            </span>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={onOpenReference}
+          className="inline-flex flex-none items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+        >
+          <BookOpen className="h-3.5 w-3.5" /> View medication reference
+        </button>
         {!locked && (
           <>
             <label className="inline-flex cursor-pointer items-center gap-1.5 text-[12px] font-semibold text-[#3D2E6B]">

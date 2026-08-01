@@ -2,6 +2,61 @@
 // keyed by appointmentId. Every medication must be individually approved
 // by the clinician before the prescription can be finalised.
 
+export type MedicationOrigin = "ai" | "ai-option" | "manual";
+
+export type MedicationSource = {
+  title: string;
+  url?: string;
+  revisedAt?: string; // publication / revision date as reported by the source
+  jurisdiction?: string;
+};
+
+export type MedicationReferenceGeneral = {
+  genericName?: string;
+  brandNames?: string;
+  medicationClass?: string;
+  approvedIndications?: string;
+  mechanism?: string;
+  strengthsForms?: string;
+  referenceDosing?: string;
+  administration?: string;
+  commonAdverseEffects?: string;
+  seriousAdverseEffects?: string;
+  boxedWarning?: string;
+  contraindications?: string;
+  interactions?: string;
+  monitoring?: string;
+  renalHepatic?: string;
+  pregnancyLactation?: string;
+  discontinuation?: string;
+  controlledSubstance?: string;
+  availability?: string;
+};
+
+export type MedicationReferencePatient = {
+  aiRationale?: string;
+  targetSymptoms?: string;
+  patientInfoConsidered?: string;
+  allergiesReviewed?: string;
+  currentMedicationsReviewed?: string;
+  potentialInteractions?: string;
+  relevantConditions?: string;
+  previousTrials?: string;
+  labMonitoring?: string;
+  missingInformation?: string;
+};
+
+export type MedicationReference = {
+  medicationName: string;
+  country: RxCountry;
+  general: MedicationReferenceGeneral;
+  patient: MedicationReferencePatient;
+  sources: MedicationSource[];
+  /** False when authoritative prescribing information could not be retrieved. */
+  sourcesAvailable: boolean;
+  checkedAt: number;
+};
+
 export type PrescriptionMedication = {
   id: string;
   name: string;
@@ -15,6 +70,11 @@ export type PrescriptionMedication = {
   warnings?: string; // side effects / red flags
   rationale?: string; // why AI suggested this, from the visit context
   availabilityNote?: string; // country-specific availability / regulatory note
+  origin?: MedicationOrigin; // provenance of this line item
+  reference?: MedicationReference; // cached medication reference
+  /** Set when the clinician confirmed the medication through another
+   *  authoritative source because official information was unavailable. */
+  externallyVerifiedAt?: number;
   approved: boolean;
 };
 
@@ -28,7 +88,33 @@ export type Prescription = {
   generatedAt?: number;
   finalisedAt?: number;
   finalisedBy?: string;
+  /** Signature of the clinically significant fields at the moment the
+   *  prescribing-information review was confirmed. Any change resets it. */
+  verifiedSignature?: string;
+  verifiedAt?: number;
   updatedAt: number;
+};
+
+/** Fields whose change must reset the prescribing-information verification. */
+export function verificationSignature(meds: PrescriptionMedication[]): string {
+  return meds
+    .map((m) =>
+      [m.name, m.dose, m.route ?? "", m.frequency, m.duration ?? ""]
+        .map((v) => v.trim().toLowerCase())
+        .join("|"),
+    )
+    .join("~");
+}
+
+export function isVerificationCurrent(rx: Prescription): boolean {
+  if (!rx.verifiedSignature) return false;
+  return rx.verifiedSignature === verificationSignature(rx.medications);
+}
+
+export const ORIGIN_LABELS: Record<MedicationOrigin, string> = {
+  ai: "AI suggested",
+  "ai-option": "Clinician selected from AI options",
+  manual: "Added manually by clinician",
 };
 
 const KEY_PREFIX = "lubin.prescription.v1:";
