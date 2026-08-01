@@ -2043,10 +2043,10 @@ export function ApptNotesBlock({
           <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
             <div className="min-w-0">
               <p className="text-sm font-bold text-[#3D2E6B]">
-                Client recap {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
+                Session summary {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
               </p>
               <p className="text-[11px] text-[#7E6BAF]">
-                Nothing here is shared until you explicitly mark it as done below.
+                Nothing here is shared until you mark it as done below.
               </p>
             </div>
             <span
