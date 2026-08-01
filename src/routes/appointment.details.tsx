@@ -402,7 +402,7 @@ function DetailsPage() {
   );
 
   const saveOutcome = () => {
-    if (!appt) return;
+    if (!appt || !outcome) return;
     onChange({
       outcome,
       status:
