@@ -11,6 +11,8 @@ import {
   RefreshCw,
   Printer,
   Lock,
+  Globe,
+  Info,
 } from "lucide-react";
 import {
   loadPrescription,
@@ -20,6 +22,7 @@ import {
   genRxId,
   type Prescription,
   type PrescriptionMedication,
+  type RxCountry,
 } from "@/lib/prescription/store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
 
@@ -44,6 +47,7 @@ export function AiPrescription({
   }, [appointmentId]);
 
   const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
+  const country: RxCountry = rx.country ?? "US";
 
   const approvedCount = rx.medications.filter((m) => m.approved).length;
   const total = rx.medications.length;
@@ -60,6 +64,7 @@ export function AiPrescription({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientContext: { firstName: clientName },
+          country,
           presenting: ws.notes.presenting,
           observations: ws.notes.observations,
           plan: ws.notes.plan,
@@ -73,6 +78,7 @@ export function AiPrescription({
       const data = (await res.json()) as {
         medications?: Omit<PrescriptionMedication, "id" | "approved">[];
         clinicalNotes?: string;
+        country?: RxCountry;
         error?: string;
       };
       if (!res.ok) {
@@ -87,6 +93,7 @@ export function AiPrescription({
       patch({
         medications: meds,
         clinicalNotes: data.clinicalNotes,
+        country: data.country ?? country,
         generatedAt: Date.now(),
         finalisedAt: undefined,
         finalisedBy: undefined,
