@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, ChevronRight } from "lucide-react";
 import { AssessmentHistory } from "@/components/appointment/AssessmentHistory";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
-import { seedDemoSharedGrant, clearDemoSharedGrant } from "@/lib/share/demoSharedGrant";
+import { seedDemoSharedGrant } from "@/lib/share/demoSharedGrant";
 import {
   loadBrief,
   saveBrief,
