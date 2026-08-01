@@ -639,14 +639,12 @@ function DetailsPage() {
             onToggle={() => toggleStep("prescriptions")}
             hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
-            <div className="mb-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
-              <span className="font-semibold">AI is assistive only.</span> It may
-              produce a draft, but nothing is issued until you review and edit
-              every medication, approve each one individually, and sign the
-              document yourself. You remain the prescriber of record. The
-              prescription is a separate signed clinical document and is never
-              shared through &ldquo;Mark client recap as done.&rdquo;
-            </div>
+            <p className="mb-3 rounded-[12px] border border-[#E2D7F3] bg-[#F7F4FD] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#3D2E6B]">
+              AI may help draft a prescription, but nothing is issued until you
+              review each medication, approve it individually, and sign the
+              prescription yourself. Prescriptions are separate clinical
+              documents and are never sent through the client recap.
+            </p>
             <AiPrescription
               appointmentId={appt.id}
               clientName={appt.client}
