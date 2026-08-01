@@ -1942,6 +1942,8 @@ export function ApptNotesBlock({
   // Fields the provider has explicitly reopened for editing after sharing.
   const [editFields, setEditFields] = useState<Record<string, boolean>>({});
   const [publishedSnapshot, setPublishedSnapshot] = useState<string | null>(null);
+  const [updatingShared, setUpdatingShared] = useState(false);
+  const [sharedUpdatedAt, setSharedUpdatedAt] = useState<number | null>(null);
 
   const currentSnapshot = JSON.stringify({
     s: fuSummary.trim(),
@@ -2602,19 +2604,49 @@ export function ApptNotesBlock({
                   attachments={appt.attachments ?? []}
                 />
               )}
-              {isPublished && !hasUnsharedChanges ? (
-                <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
-                  {clientLabel} already has this summary. Use Edit above if you need to change
-                  something — you can share the update afterwards.
-                </p>
+              {isPublished ? (
+                hasUnsharedChanges ? (
+                  <div className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5">
+                    <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                      You changed this summary after sharing it. {clientLabel} keeps seeing the
+                      previous version until you update it.
+                    </p>
+                    <div className="mt-2.5 flex justify-end">
+                      <button
+                        type="button"
+                        disabled={updatingShared}
+                        onClick={() => {
+                          if (updatingShared) return;
+                          setUpdatingShared(true);
+                          saveFollowUp();
+                          window.setTimeout(() => {
+                            onChange({
+                              publishedFollowUp: {
+                                at: Date.now(),
+                                by: providerName?.trim() || appt.publishedFollowUp?.by,
+                              },
+                            });
+                            setEditFields({});
+                            setUpdatingShared(false);
+                            setSharedUpdatedAt(Date.now());
+                          }, 700);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2F2354] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
+                      >
+                        {updatingShared && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {updatingShared ? "Updating…" : "Update summary"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+                    {sharedUpdatedAt
+                      ? `Update shared with ${clientLabel}. No further action needed.`
+                      : `${clientLabel} already has this summary. Use Edit above if you need to change something — you can update it right after, no need to mark this completed again.`}
+                  </p>
+                )
               ) : (
                 <>
-                  {hasUnsharedChanges && (
-                    <p className="mt-3 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
-                      You changed this summary after sharing it. Confirm below to share the update
-                      with {clientLabel}.
-                    </p>
-                  )}
                   <label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-[#E5DCF5] bg-white px-3 py-2.5 text-[12px] leading-snug text-[#3D2E6B]">
                     <input
                       type="checkbox"
@@ -2634,7 +2666,7 @@ export function ApptNotesBlock({
             </div>
 
             {/* Save draft action below the preview box (does not share) */}
-            {(!isPublished || hasUnsharedChanges) && (
+            {!isPublished && (
               <div className="mt-4 flex items-center justify-end gap-3">
                 <p className="text-[11px] text-[#A89BD0]">
                   Saving keeps your draft. Use “Mark as Completed” below to share it.
