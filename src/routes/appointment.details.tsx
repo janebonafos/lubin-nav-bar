@@ -621,7 +621,7 @@ function DetailsPage() {
             id="prescriptions"
             eyebrow="Prescriber tools"
             title="Prescription"
-            description="Separate signed clinical document. Not included in the client recap you mark as done above."
+            description="Separate signed clinical document. Not included in the client recap above."
             hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
             <div className="mb-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
