@@ -257,6 +257,7 @@ function DetailsPage() {
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
+  const [followUpSaved, setFollowUpSaved] = useState(false);
 
 
   useEffect(() => {
@@ -601,7 +602,8 @@ function DetailsPage() {
             description={`Write a short summary and any next steps for ${clientLabel}. Review it, then share it to their Health Passport.`}
             openOverride={openStep === "care-plan"}
             onToggle={() => toggleStep("care-plan")}
-            done={isPublished}
+            done={isPublished || (followUpSaved && hasFollowUpContent)}
+            checkBadge={isPublished || (followUpSaved && hasFollowUpContent)}
             pillLabel={followUpStatus}
             hint="Nothing is shared until you confirm below."
           >
@@ -615,6 +617,10 @@ function DetailsPage() {
                 [appt.month, appt.date].filter(Boolean).join(" ") || undefined
               }
               onPublishConfirmed={setFollowUpPublishConfirmed}
+              onFollowUpSaved={(saved) => {
+                setFollowUpSaved(saved);
+                if (saved) setOpenStep(null);
+              }}
             />
           </SectionCard>
         )}
