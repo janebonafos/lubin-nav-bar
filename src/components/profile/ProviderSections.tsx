@@ -2145,16 +2145,31 @@ export function ApptNotesBlock({
                   </button>
                 </div>
               ) : (
-                <textarea
-                  value={fuSummary}
-                  onChange={(e) => {
-                    setFuSummary(e.target.value);
-                    setFuDirty(true);
-                  }}
-                  rows={4}
-                  placeholder="A short, client-friendly recap of what you explored together."
-                  className="mt-2 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
+                <div className="mt-2">
+                  <textarea
+                    value={fuSummary}
+                    autoFocus={isReopened("summary")}
+                    onChange={(e) => {
+                      setFuSummary(e.target.value);
+                      setFuDirty(true);
+                    }}
+                    rows={4}
+                    placeholder="A short, client-friendly recap of what you explored together."
+                    className={fieldClass("summary")}
+                  />
+                  {isReopened("summary") && (
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#5B4796]">Editing</span>
+                      <button
+                        type="button"
+                        onClick={() => closeEdit("summary")}
+                        className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
+                      >
+                        Done editing
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
               {fuSummary.trim() && (
                 <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#5B4796]">
@@ -2183,13 +2198,28 @@ export function ApptNotesBlock({
                   </button>
                 </div>
               ) : (
-                <textarea
-                  value={fuHomework}
-                  onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
-                  rows={4}
-                  placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
-                  className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
+                <div className="mt-1.5">
+                  <textarea
+                    value={fuHomework}
+                    autoFocus={isReopened("homework")}
+                    onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
+                    rows={4}
+                    placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
+                    className={fieldClass("homework")}
+                  />
+                  {isReopened("homework") && (
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#5B4796]">Editing</span>
+                      <button
+                        type="button"
+                        onClick={() => closeEdit("homework")}
+                        className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
+                      >
+                        Done editing
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
               <p className="mt-1 text-[11px] italic text-[#A89BD0]">
                 Write one step per line. You can link a resource or attachment
@@ -2481,13 +2511,28 @@ export function ApptNotesBlock({
                   </button>
                 </div>
               ) : (
-                <textarea
-                  value={fuNextFocus}
-                  onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
-                  rows={2}
-                  placeholder="What we'll explore together next time."
-                  className="mt-1.5 w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm leading-relaxed text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-                />
+                <div className="mt-1.5">
+                  <textarea
+                    value={fuNextFocus}
+                    autoFocus={isReopened("nextFocus")}
+                    onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
+                    rows={2}
+                    placeholder="What we'll explore together next time."
+                    className={fieldClass("nextFocus")}
+                  />
+                  {isReopened("nextFocus") && (
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#5B4796]">Editing</span>
+                      <button
+                        type="button"
+                        onClick={() => closeEdit("nextFocus")}
+                        className="rounded-[8px] bg-[#3D2E6B] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#2F2354]"
+                      >
+                        Done editing
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
               </div>
