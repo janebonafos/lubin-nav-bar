@@ -633,19 +633,11 @@ function DetailsPage() {
           <SectionCard
             id="prescriptions"
             number={4}
-            eyebrow="Prescriber tools"
             title="Prescription"
-            description="Separate signed clinical document. Not included in the client recap above."
+            description="Optional. Add one only if this consultation needs medication. Not included in the client recap."
             openOverride={openStep === "prescriptions"}
             onToggle={() => toggleStep("prescriptions")}
-            hint="Shown because you have verified prescribing authority for the client's jurisdiction and this service supports medication review."
           >
-            <p className="mb-3 rounded-[12px] border border-[#E2D7F3] bg-[#F7F4FD] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#3D2E6B]">
-              AI may help draft a prescription, but nothing is issued until you
-              review each medication, approve it individually, and sign the
-              prescription yourself. Prescriptions are separate clinical
-              documents and are never sent through the client recap.
-            </p>
             <AiPrescription
               appointmentId={appt.id}
               clientName={appt.client}
