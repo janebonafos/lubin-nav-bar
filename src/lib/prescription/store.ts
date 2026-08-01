@@ -129,6 +129,8 @@ export type Prescription = {
   reviewedAt?: number;
   /** Controlled-substance issuing acknowledged on the official form. */
   restrictedAcknowledgedAt?: number;
+  /** Set when the clinician recorded that no prescription is needed. */
+  skippedAt?: number;
   /** Clinical information the AI needs before a draft can be prepared. */
   missingInformation?: string[];
   /** Sample prescription used for demonstration purposes only. */
