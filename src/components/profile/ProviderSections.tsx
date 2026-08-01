@@ -1887,6 +1887,7 @@ export function ApptNotesBlock({
   sessionDateLabel,
   onPublishConfirmed,
   onPrivateNotesSaved,
+  onFollowUpSaved,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1896,6 +1897,7 @@ export function ApptNotesBlock({
   sessionDateLabel?: string;
   onPublishConfirmed?: (confirmed: boolean) => void;
   onPrivateNotesSaved?: (saved: boolean) => void;
+  onFollowUpSaved?: (saved: boolean) => void;
 }) {
 
   const [editing, setEditing] = useState(false);
@@ -2634,6 +2636,7 @@ export function ApptNotesBlock({
                     saveFollowUp();
                     setDraftSavedAt(Date.now());
                     setEditFields({});
+                    onFollowUpSaved?.(true);
                   }}
                   className="rounded-[8px] border border-[#D6CCEC] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
                 >
