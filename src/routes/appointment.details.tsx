@@ -110,6 +110,7 @@ function SectionCard({
   done = false,
   reference = false,
   pillLabel,
+  optional = false,
   checkBadge = false,
   openOverride,
   onToggle,
@@ -125,6 +126,7 @@ function SectionCard({
   done?: boolean;
   reference?: boolean;
   pillLabel?: string;
+  optional?: boolean;
   checkBadge?: boolean;
   openOverride?: boolean;
   onToggle?: () => void;
@@ -206,7 +208,13 @@ function SectionCard({
           )}
         </span>
         {!(state === "reference" && !pillLabel) && (
-        <span className="mt-0.5 hidden shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium sm:inline-flex"
+        <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
+        {optional && (
+          <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
+            Optional
+          </span>
+        )}
+        <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
           style={{
             backgroundColor:
               state === "done"
@@ -227,12 +235,13 @@ function SectionCard({
           {pillLabel
             ? pillLabel
             : state === "done"
-              ? "Done"
+              ? "Shared"
               : state === "active"
                 ? "In progress"
                 : state === "reference"
                   ? "Reference"
-                  : "To do"}
+                  : "Not started"}
+        </span>
         </span>
         )}
         <ChevronDown
