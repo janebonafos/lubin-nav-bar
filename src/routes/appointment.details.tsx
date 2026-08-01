@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, Check, ChevronDown, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarClock, Check, ChevronDown } from "lucide-react";
 import {
   ApptNotesBlock,
   type ApptLite,
@@ -268,8 +268,6 @@ function DetailsPage() {
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
   const [followUpSaved, setFollowUpSaved] = useState(false);
-  const [completing, setCompleting] = useState(false);
-  const [justCompleted, setJustCompleted] = useState(false);
   const [sharedRefOpen, setSharedRefOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
@@ -350,12 +348,6 @@ function DetailsPage() {
   const [shareTick, setShareTick] = useState(0);
   useEffect(() => subscribeProviderShares(() => setShareTick((t) => t + 1)), []);
 
-  const hasSharedContext = useMemo(() => {
-    if (!appt?.id) return false;
-    const grant = getAnyProviderGrant(appt.id);
-    return !!grant && !grant.revoked && grant.includedKeys.length > 0;
-  }, [appt?.id, shareTick]);
-
   const isCompleted = appt?.status === "completed";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
@@ -422,7 +414,6 @@ function DetailsPage() {
   const apptStart = useMemo(() => parseApptStart(appt), [appt]);
   const isPastStart = !!apptStart && apptStart.getTime() <= Date.now();
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
-  const canMarkComplete = !isCompleted && !isCancelled && isPastStart;
 
   const recordedOutcome = appt?.outcome;
   const rxAllowed =
@@ -780,32 +771,6 @@ function FactTile({
         <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>
       )}
     </div>
-  );
-}
-
-function StatusPill({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "done" | "active" | "muted";
-}) {
-  const shell =
-    tone === "done"
-      ? "bg-[#3D2E6B] text-white"
-      : tone === "active"
-        ? "bg-[#EFE8FB] text-[#3D2E6B]"
-        : "border border-[#EAE2F6] bg-white text-[#7E6BAF]";
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${shell}`}
-    >
-      <span className="opacity-70">{label}</span>
-      <span className="opacity-30">·</span>
-      <span>{value}</span>
-    </span>
   );
 }
 
