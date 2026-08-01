@@ -709,6 +709,7 @@ function DetailsPage() {
               ))}
             </div>
 
+            {outcome && (
             <div className="mt-4 rounded-[12px] border border-[#D8C7F0] bg-[#F4EEFC] px-4 py-3 text-[12px] leading-snug text-[#3D2E6B]">
               <span className="font-semibold uppercase tracking-[0.12em] text-[10px] text-[#7E6BAF]">
                 What happens next
@@ -717,11 +718,13 @@ function DetailsPage() {
                 {OUTCOMES.find((o) => o.value === outcome)?.consequence}
               </p>
             </div>
+            )}
 
             <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[12px] border border-[#EAE2F6] bg-[#FBF9FF] px-4 py-3 text-[13px] leading-snug text-[#3D2E6B]">
               <input
                 type="checkbox"
                 checked={confirmComplete}
+                disabled={!outcome}
                 onChange={(e) => setConfirmComplete(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
               />
@@ -733,12 +736,13 @@ function DetailsPage() {
             </label>
             <button
               type="button"
-              disabled={!confirmComplete}
+              disabled={!confirmComplete || !outcome}
               onClick={() => setReviewOutcome(true)}
               className="mt-4 w-full rounded-[12px] bg-[#3D2E6B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4]"
             >
-              Review before saving:{" "}
-              {OUTCOMES.find((o) => o.value === outcome)?.label}
+              {outcome
+                ? `Review before saving: ${OUTCOMES.find((o) => o.value === outcome)?.label}`
+                : "Select an outcome to continue"}
             </button>
             {reviewOutcome && (
               <div className="mt-4 rounded-[14px] border border-[#6E4FD3] bg-white px-4 py-4 shadow-sm">
