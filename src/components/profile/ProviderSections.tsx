@@ -2638,7 +2638,7 @@ export function ApptNotesBlock({
                   disabled={!publishConfirmed}
                   className="rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
-                  Mark as Completed
+                  Save
                 </button>
               </div>
             )}
