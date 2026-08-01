@@ -13,13 +13,18 @@ export type PrescriptionMedication = {
   indication?: string; // why it's being prescribed
   instructions: string; // patient-facing guidance
   warnings?: string; // side effects / red flags
+  rationale?: string; // why AI suggested this, from the visit context
+  availabilityNote?: string; // country-specific availability / regulatory note
   approved: boolean;
 };
+
+export type RxCountry = "US" | "PH";
 
 export type Prescription = {
   appointmentId: string;
   medications: PrescriptionMedication[];
   clinicalNotes?: string;
+  country?: RxCountry;
   generatedAt?: number;
   finalisedAt?: number;
   finalisedBy?: string;
