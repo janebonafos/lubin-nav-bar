@@ -270,6 +270,9 @@ function DetailsPage() {
   const [followUpSaved, setFollowUpSaved] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [sharedRefOpen, setSharedRefOpen] = useState(false);
+  const [rxTick, setRxTick] = useState(0);
+  useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
 
   useEffect(() => {
@@ -370,11 +373,45 @@ function DetailsPage() {
   }, [appt?.followUp, appt?.attachments]);
 
   const followUpStatus = useMemo(() => {
-    if (isPublished) return "Done";
-    if (followUpPublishConfirmed && hasFollowUpContent) return "Ready to review";
-    if (hasFollowUpContent) return "Draft";
-    return "Optional";
+    if (isPublished) return "Shared";
+    if (followUpPublishConfirmed && hasFollowUpContent) return "Ready to share";
+    if (hasFollowUpContent) return "Draft saved";
+    return "Not started";
   }, [isPublished, followUpPublishConfirmed, hasFollowUpContent]);
+
+  const docStatus = hasNotes ? "Draft saved" : "Not started";
+
+  const rxStatus = useMemo(() => {
+    if (!appt?.id) return "Not started";
+    const rx = loadPrescription(appt.id);
+    if (rx.finalisedAt) return "Signed and issued";
+    if (rx.skippedAt && rx.medications.length === 0) return "Skipped";
+    if (rx.medications.length > 0 && rx.medications.every((m) => m.approved))
+      return "Verified";
+    if (rx.medications.length > 0 || rx.generatedAt) return "Draft saved";
+    return "Not started";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt?.id, rxTick]);
+
+  const sharedSummaryLine = useMemo(() => {
+    if (!appt?.id) return null;
+    const grant = getAnyProviderGrant(appt.id);
+    if (!grant || grant.revoked) return null;
+    const attempts = grant.snapshot?.attemptsInRange ?? [];
+    const safety = attempts.some(
+      (a) =>
+        a.assessmentId?.toLowerCase().includes("phq") &&
+        (a.answers?.[8] ?? 0) > 0,
+    );
+    return [
+      grant.snapshot?.rangeLabel ?? grant.dateRangeLabel ?? "Recent activity",
+      `${attempts.length} assessment${attempts.length === 1 ? "" : "s"}`,
+      safety ? "Safety response requires review" : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt?.id, shareTick]);
 
   // Only one main workflow step stays open at a time so the page stays short.
   const [openStep, setOpenStep] = useState<string | null>(null);
