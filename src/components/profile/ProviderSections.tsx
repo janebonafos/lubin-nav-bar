@@ -2625,7 +2625,7 @@ export function ApptNotesBlock({
                 </>
               )}
             </div>
-            {!isPublished && (
+            {(!isPublished || hasUnsharedChanges) && (
               <div className="mt-3">
                 <button
                   type="button"
@@ -2644,6 +2644,7 @@ export function ApptNotesBlock({
                 </button>
               </div>
             )}
+
 
           </div>
         </div>
