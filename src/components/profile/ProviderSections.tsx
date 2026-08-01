@@ -1897,6 +1897,7 @@ export function ApptNotesBlock({
   onPublishConfirmed,
   onPrivateNotesSaved,
   onFollowUpSaved,
+  onFollowUpShared,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1907,6 +1908,7 @@ export function ApptNotesBlock({
   onPublishConfirmed?: (confirmed: boolean) => void;
   onPrivateNotesSaved?: (saved: boolean) => void;
   onFollowUpSaved?: (saved: boolean) => void;
+  onFollowUpShared?: () => void;
 }) {
 
   const [editing, setEditing] = useState(false);
