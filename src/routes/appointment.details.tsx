@@ -256,6 +256,8 @@ function DetailsPage() {
   const [outcome, setOutcome] = useState<Outcome>("completed");
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
+  const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
+
 
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
@@ -569,10 +571,10 @@ function DetailsPage() {
             description={`Complete your private clinical documentation and plan. These notes are never shared with ${clientLabel}.`}
             openOverride={openStep === "session-notes"}
             onToggle={() => toggleStep("session-notes")}
-            done={hasNotes}
-            checkBadge={hasNotes}
+            done={privateNotesSaved && hasNotes}
+            checkBadge={privateNotesSaved && hasNotes}
             hint={
-              hasNotes
+              privateNotesSaved && hasNotes
                 ? undefined
                 : "Optional. Nothing in this section is shared with your client."
             }
@@ -583,8 +585,10 @@ function DetailsPage() {
               variant="private"
               clientName={appt.client}
               providerName={providerDisplayName}
+              onPrivateNotesSaved={setPrivateNotesSaved}
             />
           </SectionCard>
+
         )}
 
         {/* Step 3 — Share with the client */}

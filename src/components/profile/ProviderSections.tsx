@@ -1886,6 +1886,7 @@ export function ApptNotesBlock({
   providerName,
   sessionDateLabel,
   onPublishConfirmed,
+  onPrivateNotesSaved,
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1894,7 +1895,9 @@ export function ApptNotesBlock({
   providerName?: string;
   sessionDateLabel?: string;
   onPublishConfirmed?: (confirmed: boolean) => void;
+  onPrivateNotesSaved?: (saved: boolean) => void;
 }) {
+
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(appt.notes ?? "");
   const isCompleted = appt.status === "completed";
@@ -2664,11 +2667,12 @@ export function ApptNotesBlock({
               {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
             </p>
             <button
-              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); }}
+              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
               className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
             >
               {appt.notes ? "Edit" : "Add notes"}
             </button>
+
           </div>
         ) : (
           <div className="mt-2 space-y-2">
@@ -2687,11 +2691,12 @@ export function ApptNotesBlock({
                 Cancel
               </button>
               <button
-                onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); }}
+                onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); onPrivateNotesSaved?.(true); }}
                 className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
               >
                 Save notes
               </button>
+
             </div>
           </div>
         )}
