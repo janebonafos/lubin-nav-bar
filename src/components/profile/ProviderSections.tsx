@@ -2375,7 +2375,7 @@ export function ApptNotesBlock({
               {showSupporting && (
               <div className="space-y-4 border-t border-[#F0EAFB] p-3">
                 <p className="text-xs leading-relaxed text-[#7E6BAF]">
-                  Share files or web links Anna can use between sessions, and add a short note about what to focus on next time. Everything here is optional.
+                  Share files, web links, or a short note Anna can use between sessions or on her own. Everything here is optional.
                 </p>
             {/* Files to share */}
             <div>
@@ -2611,10 +2611,10 @@ export function ApptNotesBlock({
               )}
             </div>
 
-            {/* Next session focus */}
+            {/* Take-home notes */}
             <div>
               <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                <CalendarClock className="h-3 w-3" /> Next session focus
+                <CalendarClock className="h-3 w-3" /> Take-home notes
                 <span className="font-normal normal-case tracking-normal text-[#A89BD0]">(optional)</span>
               </label>
               {isFieldLocked("nextFocus", fuNextFocus) ? (
@@ -2635,7 +2635,7 @@ export function ApptNotesBlock({
                     autoFocus={isReopened("nextFocus")}
                     onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
                     rows={2}
-                    placeholder="What we'll explore together next time."
+                    placeholder="What Anna can practice or review between sessions."
                     className={fieldClass("nextFocus")}
                   />
                   {isReopened("nextFocus") && (
@@ -3026,7 +3026,7 @@ function PublishPreviewCard({
           </div>
         )}
 
-        <PreviewLine label="Next session focus" value={nextFocus} multiline />
+        <PreviewLine label="Take-home notes" value={nextFocus} multiline />
 
         {unlinkedRes.length > 0 && (
           <div>
