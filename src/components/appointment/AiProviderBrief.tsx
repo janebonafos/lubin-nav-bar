@@ -41,6 +41,8 @@ export function AiProviderBrief({
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
 
   useEffect(() => {
     setBrief(loadBrief(appointmentId));
@@ -288,8 +290,79 @@ export function AiProviderBrief({
       )}
 
       <div className="mt-8 flex flex-col">
-        <HistoryRow label="Check-in timeline" onClick={onViewTimeline} divider />
-        <HistoryRow label="Information used for this overview" onClick={onViewSupporting} />
+        <HistoryRow
+          label="Check-in timeline"
+          open={timelineOpen}
+          onClick={() => {
+            setTimelineOpen((v) => !v);
+            onViewTimeline?.();
+          }}
+          divider
+        />
+        {timelineOpen && (
+          <div className="border-b border-[#EAE2F6] pb-4">
+            {snap.checkinsInRange.length === 0 ? (
+              <p className="text-[13px] text-[#7E6BAF]">
+                No check-ins were shared for this period.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {snap.checkinsInRange.slice(0, 12).map((c) => (
+                  <li key={c.id} className="flex gap-3">
+                    <span className="mt-0.5 w-24 shrink-0 text-[12px] font-semibold text-[#5A4A8A]">
+                      {formatDay(c.date)}
+                    </span>
+                    <span className="min-w-0 flex-1 text-[13px] leading-snug text-[#2C2B4B]">
+                      Mood {c.mood}/5
+                      {c.note ? (
+                        <span className="block text-[#7E6BAF]">“{c.note}”</span>
+                      ) : null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {snap.checkinsInRange.length > 12 && (
+              <p className="mt-3 text-[12px] text-[#A89BD0]">
+                Showing the 12 most recent of {snap.checkinsInRange.length} check-ins.
+              </p>
+            )}
+          </div>
+        )}
+        <HistoryRow
+          label="Information used for this overview"
+          open={sourcesOpen}
+          onClick={() => {
+            setSourcesOpen((v) => !v);
+            onViewSupporting?.();
+          }}
+        />
+        {sourcesOpen && (
+          <div className="pt-1">
+            <ul className="space-y-2 text-[13px] leading-snug text-[#2C2B4B]">
+              <li>
+                <span className="font-semibold">Period:</span> {snap.rangeLabel}
+                {snap.dateSpan ? ` · ${snap.dateSpan}` : ""}
+              </li>
+              <li>
+                <span className="font-semibold">Check-ins:</span>{" "}
+                {snap.checkinsInRange.length} shared
+              </li>
+              <li>
+                <span className="font-semibold">Assessment results:</span>{" "}
+                {snap.attemptsInRange.length} shared
+              </li>
+              <li>
+                <span className="font-semibold">Shared by {firstName}:</span>{" "}
+                {grant.includedKeys.join(", ") || "nothing"}
+              </li>
+            </ul>
+            <p className="mt-3 text-[12px] leading-relaxed text-[#7E6BAF]">
+              This overview only uses the information above. It is a summary, not a
+              diagnosis — review it before using it clinically.
+            </p>
+          </div>
+        )}
       </div>
 
     </section>
@@ -310,21 +383,32 @@ function HistoryRow({
   label,
   onClick,
   divider,
+  open,
 }: {
   label: string;
   onClick?: () => void;
   divider?: boolean;
+  open?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-expanded={open ?? undefined}
       className={`group flex w-full items-center justify-between gap-3 py-3.5 text-left text-[14px] font-medium text-[#2C2B4B] transition hover:text-[#6E4FD3] ${divider ? "border-b border-[#EAE2F6]" : ""}`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      <ChevronRight className="h-4 w-4 flex-none text-[#A89BD0] transition group-hover:text-[#6E4FD3]" />
+      <ChevronRight
+        className={`h-4 w-4 flex-none text-[#A89BD0] transition group-hover:text-[#6E4FD3] ${open ? "rotate-90" : ""}`}
+      />
     </button>
   );
+}
+
+function formatDay(date: string) {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return date;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 function BriefSection({
