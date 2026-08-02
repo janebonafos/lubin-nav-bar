@@ -493,13 +493,18 @@ function DetailsPage() {
         <header className="relative overflow-hidden rounded-[24px] border border-[#EAE2F6] bg-white p-6 shadow-[0_10px_40px_-24px_rgba(61,46,107,0.35)] md:p-7">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#EFE8FB] blur-3xl" />
           <div className="relative flex flex-col gap-5">
-            <div className="min-w-0">
-              <h1 className="text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
-                After-session tasks
-              </h1>
-              <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[#7E6BAF]">
-                Complete your private documentation and choose what, if
-                anything, to share with {clientLabel}.
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+              <div className="min-w-0">
+                <h1 className="text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
+                  After-session tasks
+                </h1>
+                <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[#7E6BAF]">
+                  Complete your private documentation and choose what, if
+                  anything, to share with {clientLabel}.
+                </p>
+              </div>
+              <p className="shrink-0 text-[11px] font-medium text-[#A89BD0] md:text-right">
+                Ref: #{appt.id.toString().toUpperCase()}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
