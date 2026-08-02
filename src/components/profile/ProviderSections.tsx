@@ -2104,7 +2104,7 @@ export function ApptNotesBlock({
   // attachments and resources can be linked to a specific one via a dropdown.
   const nextStepOptions = fuHomework
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .map((l) => stripMarks(l))
     .filter(Boolean);
 
   const homeworkRef = useRef<HTMLTextAreaElement | null>(null);
@@ -2210,7 +2210,13 @@ export function ApptNotesBlock({
               </label>
               {isFieldLocked("homework", fuHomework) ? (
                 <div className="mt-1.5 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">{fuHomework}</p>
+                  <div className="space-y-1 text-sm leading-relaxed text-[#3D2E6B]">
+                    {fuHomework.split(/\r?\n/).map((line, i) => (
+                      <p key={i}>
+                        <InlineRich text={line} />
+                      </p>
+                    ))}
+                  </div>
                   <button
                     type="button"
                     onClick={() => openEdit("homework")}
