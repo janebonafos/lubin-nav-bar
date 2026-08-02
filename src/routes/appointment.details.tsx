@@ -624,8 +624,8 @@ function DetailsPage() {
                 id="care-plan"
                 number={2}
                 eyebrow="After the session"
-                title={`Summary for ${clientLabel}`}
-                description={`Share a client-friendly recap, agreed next steps or helpful resources. Nothing is shared until you review and confirm.`}
+                title={`Shared summary for ${clientLabel}`}
+                description={`Add a session recap, next steps, or resources. ${clientLabel} sees this in their Health Passport once you send it.`}
                 openOverride={openStep === "care-plan"}
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished}
