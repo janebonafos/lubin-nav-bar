@@ -2349,7 +2349,7 @@ export function ApptNotesBlock({
               >
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-[#3D2E6B]">
-                    Add files, links, or next-session focus
+                    Add files, links, or take-home notes
                   </span>
                   {!showSupporting && (
                     <span className="mt-0.5 block text-[11px] text-[#A89BD0]">
@@ -2361,8 +2361,8 @@ export function ApptNotesBlock({
                           ? "No links"
                           : `${(followUp.resources ?? []).length} link${(followUp.resources ?? []).length === 1 ? "" : "s"}`,
                         fuNextFocus.trim()
-                          ? "Next session focus added"
-                          : "No next session focus",
+                          ? "Take-home notes added"
+                          : "No take-home notes",
                       ].join(" · ")}
                     </span>
                   )}
