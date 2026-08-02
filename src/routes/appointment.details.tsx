@@ -725,19 +725,6 @@ function DetailsPage() {
               </ul>
             </div>
 
-            <div className="rounded-[20px] border border-[#EAE2F6] bg-white p-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-                Session details
-              </p>
-              <dl className="mt-3 space-y-2.5 text-[12px]">
-                <RailRow label="Client" value={appt.client ?? "—"} />
-                <RailRow label="When" value={appointmentLabel || "—"} />
-                <RailRow label="Session type" value={appt.type ?? "—"} />
-                <RailRow label="Format" value={[appt.sessionFormat, appt.mode].filter(Boolean).join(" · ") || "—"} />
-                <RailRow label="Status" value={sessionStatusLabel} />
-                <RailRow label="Reference" value={`#${appt.id.toString().toUpperCase()}`} />
-              </dl>
-            </div>
           </aside>
         </div>
       </div>
