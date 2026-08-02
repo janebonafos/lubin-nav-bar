@@ -732,14 +732,6 @@ function DetailsPage() {
   );
 }
 
-function RailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <dt className="text-[#A89BD0]">{label}</dt>
-      <dd className="text-right font-semibold text-[#3D2E6B]">{value}</dd>
-    </div>
-  );
-}
 
 
 function FactTile({
