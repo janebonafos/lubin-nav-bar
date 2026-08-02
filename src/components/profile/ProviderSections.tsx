@@ -2221,29 +2221,60 @@ export function ApptNotesBlock({
                 </div>
               ) : (
                 <div className="mt-1.5">
-                  <div className="mb-1.5 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const cur = fuHomework;
-                        const needsBreak = cur.trim().length > 0 && !cur.endsWith("\n");
-                        setFuHomework(`${cur}${needsBreak ? "\n" : ""}• `);
-                        setFuDirty(true);
-                        requestAnimationFrame(() => {
+                  <div className="mb-1.5 inline-flex items-center gap-0.5 rounded-[8px] border border-[#E5DCF5] bg-white p-0.5">
+                    {(
+                      [
+                        { key: "bold", label: "Bold", Icon: Bold },
+                        { key: "bullet", label: "Bulleted list", Icon: List },
+                        { key: "number", label: "Numbered list", Icon: ListOrdered },
+                      ] as const
+                    ).map(({ key, label, Icon }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        title={label}
+                        aria-label={label}
+                        onClick={() => {
                           const el = homeworkRef.current;
-                          if (el) {
-                            el.focus();
-                            el.selectionStart = el.selectionEnd = el.value.length;
+                          const value = fuHomework;
+                          const start = el?.selectionStart ?? value.length;
+                          const end = el?.selectionEnd ?? start;
+                          let next = value;
+                          let caret = end;
+                          if (key === "bold") {
+                            const sel = value.slice(start, end) || "bold text";
+                            next = `${value.slice(0, start)}**${sel}**${value.slice(end)}`;
+                            caret = start + sel.length + 4;
+                          } else {
+                            const lineStart = value.lastIndexOf("\n", start - 1) + 1;
+                            const lineEndIdx = value.indexOf("\n", end);
+                            const lineEnd = lineEndIdx === -1 ? value.length : lineEndIdx;
+                            const block = value.slice(lineStart, lineEnd);
+                            const lines = block.length ? block.split("\n") : [""];
+                            const marked = lines
+                              .map((line, i) => {
+                                const bare = line.replace(/^\s*(?:•\s+|\d+\.\s+)/, "");
+                                return key === "bullet" ? `• ${bare}` : `${i + 1}. ${bare}`;
+                              })
+                              .join("\n");
+                            next = value.slice(0, lineStart) + marked + value.slice(lineEnd);
+                            caret = lineStart + marked.length;
                           }
-                        });
-                      }}
-                      className="rounded-[8px] border border-[#D6CCEC] bg-white px-2 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
-                    >
-                      • Add bullet
-                    </button>
-                    <span className="text-[11px] text-[#A89BD0]">
-                      Press Enter to start a new bullet
-                    </span>
+                          setFuHomework(next);
+                          setFuDirty(true);
+                          requestAnimationFrame(() => {
+                            const node = homeworkRef.current;
+                            if (node) {
+                              node.focus();
+                              node.selectionStart = node.selectionEnd = caret;
+                            }
+                          });
+                        }}
+                        className="rounded-[6px] p-1.5 text-[#5B4796] hover:bg-[#F4EEFC]"
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </button>
+                    ))}
                   </div>
                   <textarea
                     ref={homeworkRef}
@@ -2257,8 +2288,11 @@ export function ApptNotesBlock({
                       const end = el.selectionEnd ?? start;
                       const before = el.value.slice(0, start);
                       const currentLine = before.split(/\r?\n/).pop() ?? "";
-                      // Pressing Enter on an empty bullet clears it instead of adding another.
-                      if (/^\s*•\s*$/.test(currentLine)) {
+                      const bulletMatch = /^\s*•\s+/.exec(currentLine);
+                      const numberMatch = /^\s*(\d+)\.\s+/.exec(currentLine);
+                      if (!bulletMatch && !numberMatch) return;
+                      // Pressing Enter on an empty list item clears it instead of adding another.
+                      if (/^\s*(?:•|\d+\.)\s*$/.test(currentLine)) {
                         e.preventDefault();
                         const next =
                           before.slice(0, before.length - currentLine.length) +
@@ -2268,7 +2302,9 @@ export function ApptNotesBlock({
                         return;
                       }
                       e.preventDefault();
-                      const insert = "\n• ";
+                      const insert = numberMatch
+                        ? `\n${Number(numberMatch[1]) + 1}. `
+                        : "\n• ";
                       const next = before + insert + el.value.slice(end);
                       setFuHomework(next);
                       setFuDirty(true);
@@ -2279,11 +2315,6 @@ export function ApptNotesBlock({
                           node.selectionStart = node.selectionEnd = pos;
                         }
                       });
-                    }}
-                    onFocus={() => {
-                      if (!fuHomework) {
-                        setFuHomework("• ");
-                      }
                     }}
                     rows={4}
                     placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
