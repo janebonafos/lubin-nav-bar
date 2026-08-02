@@ -659,7 +659,7 @@ function DetailsPage() {
                 number={3}
                 eyebrow="Verified prescribers only"
                 title="Prescription"
-                description="Add one only if this consultation needs medication. Not included in the client summary."
+                description="Optional. Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 pillLabel={rxStatus}
