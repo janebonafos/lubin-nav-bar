@@ -156,10 +156,14 @@ export function AssessmentHistory({
                     View response
                   </button>
                 )}
-                <span className="hidden items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition-opacity sm:flex sm:opacity-0 sm:group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => setOpenId(g.assessmentId)}
+                  className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#6E4FD3] transition hover:text-[#3D2E6B] active:scale-[0.98]"
+                >
                   View trend
                   <ChevronRight className="h-4 w-4" />
-                </span>
+                </button>
               </div>
             </div>
           );
