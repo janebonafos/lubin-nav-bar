@@ -595,8 +595,8 @@ function DetailsPage() {
                 id="session-notes"
                 number={1}
                 eyebrow="After the session"
-                title="Private clinical documentation"
-                description={`Record your private clinical notes and treatment considerations. This information is never shared with ${clientLabel}.`}
+                title="Private clinical notes"
+                description={`For your records only. Not shared with ${clientLabel}.`}
                 openOverride={openStep === "session-notes"}
                 onToggle={() => toggleStep("session-notes")}
                 done={privateNotesSaved && hasNotes}
