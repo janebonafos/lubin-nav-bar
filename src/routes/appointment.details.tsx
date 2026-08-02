@@ -496,11 +496,12 @@ function DetailsPage() {
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
               <div className="min-w-0">
                 <h1 className="text-2xl font-semibold leading-tight text-[#2C2B4B] sm:text-[26px]">
-                  After-session tasks
+                  Complete your session notes
                 </h1>
                 <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[#7E6BAF]">
-                  Complete your private documentation and choose what, if
-                  anything, to share with {clientLabel}.
+                  Record your private clinical notes and, if you want, add a
+                  client-friendly summary for {clientLabel}. Nothing is shared
+                  until you review and confirm.
                 </p>
               </div>
               <p className="shrink-0 text-[11px] font-medium text-[#A89BD0] md:text-right">
