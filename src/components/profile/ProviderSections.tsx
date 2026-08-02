@@ -2953,7 +2953,7 @@ function PublishPreviewCard({
   const providedBy = providerName?.trim() || "your provider";
   const steps = homework
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .map((l) => stripMarks(l))
     .filter(Boolean);
   const linkedRes = (label: string) =>
     resources.filter((r) => r.linkedTo === label);
@@ -2999,7 +2999,7 @@ function PublishPreviewCard({
                 return (
                   <li key={idx} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
                     <p className="text-[13px] font-semibold text-[#3D2E6B]">
-                      {idx + 1}. {step}
+                      {idx + 1}. <InlineRich text={step} />
                     </p>
                     {(rs.length > 0 || as.length > 0) && (
                       <ul className="mt-2 space-y-2">
