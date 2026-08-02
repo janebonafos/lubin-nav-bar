@@ -2105,6 +2105,8 @@ export function ApptNotesBlock({
     .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
     .filter(Boolean);
 
+  const homeworkRef = useRef<HTMLTextAreaElement | null>(null);
+
   return (
     <div className="space-y-6">
       {/* ============ Client Follow-up (visible to client) ============ */}
