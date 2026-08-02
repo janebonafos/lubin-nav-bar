@@ -2341,11 +2341,14 @@ export function ApptNotesBlock({
 
               {showSupporting && (
               <div className="space-y-4 border-t border-[#F0EAFB] p-3">
-            {/* Attachments */}
+                <p className="text-xs leading-relaxed text-[#7E6BAF]">
+                  Share files or web links Anna can use between sessions, and add a short note about what to focus on next time. Everything here is optional.
+                </p>
+            {/* Files to share */}
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                  Attachments
+                  Files to share
                 </label>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[#A89BD0]">
@@ -2357,7 +2360,7 @@ export function ApptNotesBlock({
                       onClick={() => setShowAttachForm(true)}
                       className="inline-flex items-center gap-1 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
                     >
-                      <Plus className="h-3 w-3" /> Add attachment
+                      <Plus className="h-3 w-3" /> Add file
                     </button>
                   )}
                 </div>
