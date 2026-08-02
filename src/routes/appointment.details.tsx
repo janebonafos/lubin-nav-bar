@@ -656,7 +656,6 @@ function DetailsPage() {
             {rxAllowed && showPostSession && (
               <SectionCard
                 id="prescriptions"
-                number={3}
                 eyebrow="Verified prescribers only"
                 title="Prescription"
                 description="Optional. Add medication only if clinically indicated for this session. Not included in the client summary."
