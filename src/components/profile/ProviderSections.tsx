@@ -56,6 +56,32 @@ import {
 
 /* ---------- shared shells ---------- */
 
+/** Strips list markers and bold markers so a line can be used as a plain label. */
+function stripMarks(line: string) {
+  return line
+    .replace(/^[\s•\-\d.\)]+/, "")
+    .replace(/\*\*/g, "")
+    .trim();
+}
+
+/** Renders **bold** segments as real bold text instead of raw asterisks. */
+function InlineRich({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^\*\*[^*]+\*\*$/.test(part) ? (
+          <strong key={i} className="font-bold">
+            {part.slice(2, -2)}
+          </strong>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 function Row({
   label,
   value,
