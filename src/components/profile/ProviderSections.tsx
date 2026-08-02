@@ -2316,18 +2316,20 @@ export function ApptNotesBlock({
               >
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-[#3D2E6B]">
-                    Add supporting information
+                    Add files, links, or next-session focus
                   </span>
                   {!showSupporting && (
                     <span className="mt-0.5 block text-[11px] text-[#A89BD0]">
                       {[
-                        `${(followUp.resources ?? []).length} resource${(followUp.resources ?? []).length === 1 ? "" : "s"}`,
                         (appt.attachments ?? []).length === 0
-                          ? "No attachments"
-                          : `${(appt.attachments ?? []).length} attachment${(appt.attachments ?? []).length === 1 ? "" : "s"}`,
+                          ? "No files"
+                          : `${(appt.attachments ?? []).length} file${(appt.attachments ?? []).length === 1 ? "" : "s"}`,
+                        (followUp.resources ?? []).length === 0
+                          ? "No links"
+                          : `${(followUp.resources ?? []).length} link${(followUp.resources ?? []).length === 1 ? "" : "s"}`,
                         fuNextFocus.trim()
-                          ? "Next-session focus added"
-                          : "No next-session focus",
+                          ? "Next session focus added"
+                          : "No next session focus",
                       ].join(" · ")}
                     </span>
                   )}
