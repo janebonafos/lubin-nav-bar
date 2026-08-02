@@ -31,6 +31,8 @@ import {
   ChevronDown,
   LayoutGrid,
   List,
+  ListOrdered,
+  Bold,
   AlertTriangle,
   Loader2,
   Building2,
