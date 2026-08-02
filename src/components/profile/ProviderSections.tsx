@@ -56,6 +56,32 @@ import {
 
 /* ---------- shared shells ---------- */
 
+/** Strips list markers and bold markers so a line can be used as a plain label. */
+function stripMarks(line: string) {
+  return line
+    .replace(/^[\s•\-\d.\)]+/, "")
+    .replace(/\*\*/g, "")
+    .trim();
+}
+
+/** Renders **bold** segments as real bold text instead of raw asterisks. */
+function InlineRich({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^\*\*[^*]+\*\*$/.test(part) ? (
+          <strong key={i} className="font-bold">
+            {part.slice(2, -2)}
+          </strong>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 function Row({
   label,
   value,
@@ -2104,7 +2130,7 @@ export function ApptNotesBlock({
   // attachments and resources can be linked to a specific one via a dropdown.
   const nextStepOptions = fuHomework
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .map((l) => stripMarks(l))
     .filter(Boolean);
 
   const homeworkRef = useRef<HTMLTextAreaElement | null>(null);
@@ -2210,7 +2236,13 @@ export function ApptNotesBlock({
               </label>
               {isFieldLocked("homework", fuHomework) ? (
                 <div className="mt-1.5 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">{fuHomework}</p>
+                  <div className="space-y-1 text-sm leading-relaxed text-[#3D2E6B]">
+                    {fuHomework.split(/\r?\n/).map((line, i) => (
+                      <p key={i}>
+                        <InlineRich text={line} />
+                      </p>
+                    ))}
+                  </div>
                   <button
                     type="button"
                     onClick={() => openEdit("homework")}
@@ -2338,6 +2370,13 @@ export function ApptNotesBlock({
                 Write one step per line. You can link a resource or attachment
                 to a specific step below.
               </p>
+              {fuHomework.includes("**") && (
+                <p className="mt-1 text-[11px] text-[#7E6BAF]">
+                  The <span className="font-mono">**</span> marks won’t appear to{" "}
+                  {clientLabel} — that text shows as{" "}
+                  <strong className="font-bold">bold</strong>.
+                </p>
+              )}
             </div>
 
             {/* Supporting information (collapsed by default) */}
@@ -2947,7 +2986,7 @@ function PublishPreviewCard({
   const providedBy = providerName?.trim() || "your provider";
   const steps = homework
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[\s•\-\*\d.\)]+/, "").trim())
+    .map((l) => stripMarks(l))
     .filter(Boolean);
   const linkedRes = (label: string) =>
     resources.filter((r) => r.linkedTo === label);
@@ -2993,7 +3032,7 @@ function PublishPreviewCard({
                 return (
                   <li key={idx} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
                     <p className="text-[13px] font-semibold text-[#3D2E6B]">
-                      {idx + 1}. {step}
+                      {idx + 1}. <InlineRich text={step} />
                     </p>
                     {(rs.length > 0 || as.length > 0) && (
                       <ul className="mt-2 space-y-2">
