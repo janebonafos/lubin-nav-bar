@@ -2217,10 +2217,70 @@ export function ApptNotesBlock({
                 </div>
               ) : (
                 <div className="mt-1.5">
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cur = fuHomework;
+                        const needsBreak = cur.trim().length > 0 && !cur.endsWith("\n");
+                        setFuHomework(`${cur}${needsBreak ? "\n" : ""}• `);
+                        setFuDirty(true);
+                        requestAnimationFrame(() => {
+                          const el = homeworkRef.current;
+                          if (el) {
+                            el.focus();
+                            el.selectionStart = el.selectionEnd = el.value.length;
+                          }
+                        });
+                      }}
+                      className="rounded-[8px] border border-[#D6CCEC] bg-white px-2 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+                    >
+                      • Add bullet
+                    </button>
+                    <span className="text-[11px] text-[#A89BD0]">
+                      Press Enter to start a new bullet
+                    </span>
+                  </div>
                   <textarea
+                    ref={homeworkRef}
                     value={fuHomework}
                     autoFocus={isReopened("homework")}
                     onChange={(e) => { setFuHomework(e.target.value); setFuDirty(true); }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" || e.shiftKey) return;
+                      const el = e.currentTarget;
+                      const start = el.selectionStart ?? 0;
+                      const end = el.selectionEnd ?? start;
+                      const before = el.value.slice(0, start);
+                      const currentLine = before.split(/\r?\n/).pop() ?? "";
+                      // Pressing Enter on an empty bullet clears it instead of adding another.
+                      if (/^\s*•\s*$/.test(currentLine)) {
+                        e.preventDefault();
+                        const next =
+                          before.slice(0, before.length - currentLine.length) +
+                          el.value.slice(end);
+                        setFuHomework(next);
+                        setFuDirty(true);
+                        return;
+                      }
+                      e.preventDefault();
+                      const insert = "\n• ";
+                      const next = before + insert + el.value.slice(end);
+                      setFuHomework(next);
+                      setFuDirty(true);
+                      requestAnimationFrame(() => {
+                        const node = homeworkRef.current;
+                        if (node) {
+                          const pos = start + insert.length;
+                          node.selectionStart = node.selectionEnd = pos;
+                        }
+                      });
+                    }}
+                    onFocus={() => {
+                      if (!fuHomework) {
+                        setFuHomework("• ");
+                      }
+                    }}
                     rows={4}
                     placeholder={"• Practice breathing for 10 minutes daily\n• Complete the boundary-setting worksheet\n• Track your mood for one week"}
                     className={fieldClass("homework")}
