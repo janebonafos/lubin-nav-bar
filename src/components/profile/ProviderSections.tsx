@@ -2131,7 +2131,7 @@ export function ApptNotesBlock({
           </div>
 
           <div className="space-y-4 p-4">
-            <p className="rounded-[10px] border border-[#EEE6FA] bg-[#FBF9FF] px-3 py-2.5 text-[12px] leading-snug text-[#5A4A8A]">
+            <p className="text-[12px] leading-snug text-[#7E6BAF]">
               Only include what will be helpful for {clientLabel}. Optional
               sections can be left empty.
             </p>
