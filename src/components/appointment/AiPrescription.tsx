@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Trash2,
   Plus,
-  RefreshCw,
   Printer,
   Lock,
   Info,
