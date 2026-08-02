@@ -2370,6 +2370,13 @@ export function ApptNotesBlock({
                 Write one step per line. You can link a resource or attachment
                 to a specific step below.
               </p>
+              {fuHomework.includes("**") && (
+                <p className="mt-1 text-[11px] text-[#7E6BAF]">
+                  The <span className="font-mono">**</span> marks won’t appear to{" "}
+                  {clientLabel} — that text shows as{" "}
+                  <strong className="font-bold">bold</strong>.
+                </p>
+              )}
             </div>
 
             {/* Supporting information (collapsed by default) */}
