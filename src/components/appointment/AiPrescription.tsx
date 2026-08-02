@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Trash2,
   Plus,
-  RefreshCw,
   Printer,
   Lock,
   Info,
@@ -294,8 +293,7 @@ export function AiPrescription({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-[#3D2E6B]">Prescription</h2>
-          <p className="mt-0.5 text-[12px] text-[#7E6BAF]">
+          <p className="text-[12px] text-[#7E6BAF]">
             Prescribing jurisdiction: {JURISDICTION_LABEL[country]}
           </p>
         </div>
@@ -345,20 +343,10 @@ export function AiPrescription({
               <Columns3 className="h-4 w-4" /> Compare options
             </button>
           )}
-          {!signed && (
-            <button
-              type="button"
-              onClick={generate}
-              disabled={busy}
-              className="inline-flex items-center gap-1 rounded-[12px] px-2.5 py-2 text-[12px] font-semibold text-[#7E6BAF] transition hover:bg-[#F7F4FB] hover:text-[#5A3E8F] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {busy ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-              {busy ? "Preparing…" : "Update draft from clinical information"}
-            </button>
+          {!signed && busy && (
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#7E6BAF]">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Preparing…
+            </span>
           )}
           {rx.generatedAt && (
             <span className="text-[11px] text-[#8B85A6]">
@@ -716,7 +704,7 @@ function MedicationCard({
             {med.name || "New medication"}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            <OriginBadge med={med} />
+            {!manual && <OriginBadge med={med} />}
             {!med.approved && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5A3E8F]">
                 {manual
@@ -826,7 +814,13 @@ function MedicationCard({
 
       {/* Patient-specific checks */}
       <div className="border-b border-[#ECE7F6]/70 px-4 py-3">
-        {incompleteChecks.length > 0 ? (
+        {manual ? (
+          <p className="text-[12px] leading-snug text-[#5A4A8A]">
+            You added this medication, so the safety checks are yours to
+            confirm — allergies, current medications, interactions,
+            contraindications and relevant conditions — before you verify it.
+          </p>
+        ) : incompleteChecks.length > 0 ? (
           <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3 py-2.5">
             <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
               <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
