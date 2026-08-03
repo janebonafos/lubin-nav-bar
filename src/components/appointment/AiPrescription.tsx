@@ -547,9 +547,6 @@ export function AiPrescription({
           )}
         </div>
       </div>
-    </section>
-  );
-
 
       <MedicationReferenceDrawer
         open={!!refMed}
@@ -579,6 +576,7 @@ export function AiPrescription({
       />
     </section>
   );
+
 }
 
 function clinicalInfoUsed(ws: ReturnType<typeof loadWorkspace>): string {
