@@ -939,6 +939,11 @@ function MedicationEditor({
   );
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
+  /** Patient information changed after the last safety review ran. */
+  const staleReview =
+    !!med.safetyReviewedAt &&
+    !!patientInfo?.updatedAt &&
+    patientInfo.updatedAt > med.safetyReviewedAt;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
   const catalogue = findCatalogue(med.name);
