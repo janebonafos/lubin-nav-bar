@@ -730,13 +730,6 @@ function ErrorNote({ text }: { text: string }) {
   );
 }
 
-function checkSummary(med: PrescriptionMedication) {
-  const rows = CHECK_ROWS.map((r) => med.checks?.[r.key]);
-  const completed = rows.filter((c) => c?.status === "checked").length;
-  const missing = CHECK_ROWS.length - completed;
-  return { completed, missing };
-}
-
 function MedicationSummaryCard({
   med,
   onReview,
@@ -749,7 +742,7 @@ function MedicationSummaryCard({
   onRemove: () => void;
 }) {
   const hasName = med.name.trim().length > 0;
-  const { completed, missing } = checkSummary(med);
+  const summary = safetySummary(med);
   const line = [med.route, med.frequency, med.duration].filter((v) => v && v.trim()).join(" · ");
   return (
     <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
