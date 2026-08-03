@@ -11,10 +11,10 @@ import {
   Info,
   BookOpen,
   Columns3,
-  FileSignature,
   ChevronDown,
   ClipboardList,
 } from "lucide-react";
+import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
   loadPrescription,
   subscribePrescription,
@@ -309,9 +309,9 @@ export function AiPrescription({
             <button
               type="button"
               onClick={addMed}
-              className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
             >
-              <Plus className="h-4 w-4" /> Add Medication
+              <Plus className="h-4 w-4" /> Add medication
             </button>
           )}
         </div>
@@ -319,16 +319,16 @@ export function AiPrescription({
 
       {/* Soft informational banner */}
       {missingList.length > 0 && total === 0 && (
-        <div className="flex items-center gap-3 border-b border-[#E2D7F3] bg-[#F4EEFC] px-5 py-3">
-          <Info className="h-5 w-5 flex-none text-[#6E4FD3]" />
-          <p className="text-[13px] font-medium text-[#5A3E8F]">
+        <div className="flex items-center gap-3 border-b border-[#EFE9F9] bg-[#FAF7FE] px-5 py-3">
+          <Info className="h-4 w-4 flex-none text-[#8B7BC0]" />
+          <p className="text-[13px] font-medium text-[#5A4A8A]">
             Clinical information required before finalizing the prescription order.
           </p>
           {onAddClinicalInfo && (
             <button
               type="button"
               onClick={onAddClinicalInfo}
-              className="ml-auto whitespace-nowrap rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+              className="ml-auto inline-flex h-8 items-center whitespace-nowrap rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F4EEFC]"
             >
               Add information
             </button>
@@ -376,7 +376,12 @@ export function AiPrescription({
         {total === 0 && !busy && (
           <div className="rounded-xl border-2 border-dashed border-[#E2D7F3] p-12 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF7FE]">
-              <ClipboardList className="h-6 w-6 text-[#A89BD0]" />
+              <img
+                src={rxIcon.url}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 opacity-40"
+              />
             </div>
             <h3 className="text-sm font-medium text-[#2C2B4B]">
               No medications added yet
@@ -511,7 +516,7 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 text-[13px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
               >
                 <Printer className="h-4 w-4" /> Print
               </button>
@@ -524,7 +529,7 @@ export function AiPrescription({
                     reviewedAt: undefined,
                   })
                 }
-                className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 text-[13px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
               >
                 <Lock className="h-4 w-4" /> Unlock
               </button>
@@ -536,9 +541,9 @@ export function AiPrescription({
                 patch({ finalisedAt: Date.now(), finalisedBy: providerName })
               }
               disabled={!canSign}
-              className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center rounded-[12px] bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <FileSignature className="h-4 w-4" /> Sign and issue
+              Sign and issue
             </button>
           )}
         </div>
