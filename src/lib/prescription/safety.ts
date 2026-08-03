@@ -58,6 +58,52 @@ export const CHECK_ROWS: {
 
 export type InfoKey = "allergies" | "currentMedications" | "conditions" | "pregnancy" | "labs";
 
+export type CheckKey = keyof Omit<MedicationChecks, "missingInformation">;
+
+/* ------------------- required vs advisory information ------------------- */
+
+export type InfoRequirement = "required" | "recommended" | "optional";
+
+export const INFO_REQUIREMENT_LABEL: Record<InfoRequirement, string> = {
+  required: "Required before verification",
+  recommended: "Review recommended",
+  optional: "Optional for this medication",
+};
+
+/** Why each item is being requested, so nothing looks like a blanket rule. */
+export const INFO_RELEVANCE: Record<InfoKey, string> = {
+  allergies:
+    "Needed to rule out a documented reaction to this medication or its class before prescribing.",
+  currentMedications:
+    "Interaction checking cannot be completed without the current medication list.",
+  conditions:
+    "Used to check contraindications and conditions that change the dose or the monitoring plan.",
+  pregnancy: "Affects whether this medication can be used and at what dose.",
+  labs: "Only relevant when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
+};
+
+/** Requirement level for one item against this specific medication. */
+export function infoRequirement(med: PrescriptionMedication, key: InfoKey): InfoRequirement {
+  switch (key) {
+    case "allergies":
+    case "currentMedications":
+    case "conditions":
+      return "required";
+    case "pregnancy":
+      return med.requiresPregnancyStatus ? "required" : "recommended";
+    case "labs":
+      return med.requiresLabs ? "required" : "optional";
+  }
+}
+
+export const ALL_INFO_KEYS: InfoKey[] = [
+  "allergies",
+  "currentMedications",
+  "conditions",
+  "pregnancy",
+  "labs",
+];
+
 /** Categories captured as structured, searchable entries. */
 export const STRUCTURED_KEYS = ["allergies", "currentMedications", "conditions"] as const;
 export type StructuredKey = (typeof STRUCTURED_KEYS)[number];
@@ -380,4 +426,180 @@ export function safetyReviewReady(
     med.name.trim().length > 0 &&
     missingInfoKeys(med, rx.patientInfo, visitMedications).length === 0
   );
+}
+
+/* --------------------- outstanding information (all levels) --------------------- */
+
+export type OutstandingInfo = { key: InfoKey; requirement: InfoRequirement };
+
+/** Every relevant item that has not been recorded yet, labelled by requirement. */
+export function outstandingInfo(
+  med: PrescriptionMedication,
+  info?: PatientSafetyInfo,
+  visitMedications?: { name: string }[],
+): OutstandingInfo[] {
+  return ALL_INFO_KEYS.filter((k) => {
+    if (k === "currentMedications" && visitMedications?.length) return false;
+    if (isStructuredKey(k)) return !structuredRecorded(info, k);
+    return !has(info?.[k]);
+  }).map((key) => ({ key, requirement: infoRequirement(med, key) }));
+}
+
+/* ------------------------- review acknowledgements ------------------------- */
+
+/** Check rows whose finding the provider must explicitly acknowledge. */
+export function flaggedCheckKeys(med: PrescriptionMedication): CheckKey[] {
+  return CHECK_ROWS.map((r) => r.key).filter((k) => {
+    const s = checkState(med.checks?.[k]);
+    return s === "review-needed" || s === "blocking";
+  });
+}
+
+export function checkReviewedAt(med: PrescriptionMedication, key: CheckKey): number | undefined {
+  return med.checkReviews?.[key];
+}
+
+export function unreviewedCheckKeys(med: PrescriptionMedication): CheckKey[] {
+  return flaggedCheckKeys(med).filter((k) => !checkReviewedAt(med, k));
+}
+
+/* --------------------------- review freshness ----------------------------- */
+
+/** Clinically significant fields — a change here invalidates the safety review. */
+export function medSafetySignature(m: PrescriptionMedication): string {
+  return [m.name, m.strength ?? "", m.dose, m.route ?? "", m.frequency, m.duration ?? ""]
+    .map((v) => v.trim().toLowerCase())
+    .join("|");
+}
+
+/** True when the recorded review no longer matches the medication or the
+ *  patient information it was based on. */
+export function reviewStale(med: PrescriptionMedication, info?: PatientSafetyInfo): boolean {
+  if (!med.safetyReviewedAt) return false;
+  if (info?.updatedAt && info.updatedAt > med.safetyReviewedAt) return true;
+  if (med.safetySignature && med.safetySignature !== medSafetySignature(med)) return true;
+  return false;
+}
+
+/* ------------------------------ safety status ----------------------------- */
+
+export type SafetyStatus = {
+  title: string;
+  detail: string;
+  tone: CheckTone;
+};
+
+/** One prominent status line. Unresolved items always win over completed ones. */
+export function safetyStatus(med: PrescriptionMedication, info?: PatientSafetyInfo): SafetyStatus {
+  const s = safetySummary(med);
+  if (!s.ran) {
+    return {
+      title: "Safety review not run",
+      detail: "Run the patient-specific safety review for this medication.",
+      tone: "neutral",
+    };
+  }
+  if (reviewStale(med, info)) {
+    return {
+      title: "Safety information changed",
+      detail:
+        "The medication or patient information changed after the last review. Run the review again.",
+      tone: "amber",
+    };
+  }
+  const unreviewed = unreviewedCheckKeys(med).length;
+  if (s.blocking > 0) {
+    return {
+      title: "Safety review incomplete",
+      detail: `${s.blocking} blocking issue${s.blocking === 1 ? "" : "s"} must be resolved before this medication can be verified.`,
+      tone: "red",
+    };
+  }
+  if (s.needsInfo > 0 || unreviewed > 0) {
+    const parts: string[] = [];
+    if (s.needsInfo > 0)
+      parts.push(`${s.needsInfo} check${s.needsInfo === 1 ? "" : "s"} could not be completed`);
+    if (unreviewed > 0)
+      parts.push(
+        `${unreviewed} item${unreviewed === 1 ? "" : "s"} require${unreviewed === 1 ? "s" : ""} your review`,
+      );
+    return {
+      title: "Safety review incomplete",
+      detail: `${parts.join(" and ")}.`,
+      tone: "amber",
+    };
+  }
+  return {
+    title: "Safety review complete · Provider review required",
+    detail: `${s.complete} check${s.complete === 1 ? "" : "s"} could be completed with the information recorded. This is not a determination that the medication is safe or appropriate.`,
+    tone: "green",
+  };
+}
+
+/* --------------------------- verification blockers ------------------------ */
+
+export type BlockerKind = "fields" | "acknowledgement" | "info" | "blocking" | "review" | "stale";
+
+export type Blocker = { kind: BlockerKind; label: string };
+
+/** Everything standing between this medication and verification. */
+export function verificationBlockers(args: {
+  med: PrescriptionMedication;
+  info?: PatientSafetyInfo;
+  visitMedications?: { name: string }[];
+  fieldsComplete: boolean;
+  acknowledged: boolean;
+}): Blocker[] {
+  const { med, info, visitMedications, fieldsComplete, acknowledged } = args;
+  const out: Blocker[] = [];
+  if (!fieldsComplete)
+    out.push({
+      kind: "fields",
+      label: "Add medication, dose, frequency and patient instructions.",
+    });
+  for (const k of missingInfoKeys(med, info, visitMedications)) {
+    out.push({ kind: "info", label: `Record ${infoLabel(k).toLowerCase()}.` });
+  }
+  const s = safetySummary(med);
+  if (!s.ran) out.push({ kind: "review", label: "Run the patient-specific safety review." });
+  else if (reviewStale(med, info))
+    out.push({ kind: "stale", label: "Run the safety review again with the updated information." });
+  if (s.blocking > 0)
+    out.push({
+      kind: "blocking",
+      label: `Resolve ${s.blocking} blocking safety issue${s.blocking === 1 ? "" : "s"}.`,
+    });
+  for (const k of unreviewedCheckKeys(med)) {
+    const row = CHECK_ROWS.find((r) => r.key === k);
+    out.push({ kind: "review", label: `Mark ${(row?.label ?? k).toLowerCase()} as reviewed.` });
+  }
+  if (!acknowledged)
+    out.push({ kind: "acknowledgement", label: "Tick the verification acknowledgement." });
+  return out;
+}
+
+/** "Complete 2 required items and review 1 safety item before verifying." */
+export function blockerSentence(blockers: Blocker[]): string {
+  if (blockers.length === 0) return "";
+  const reviewCount = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+  const requiredCount = blockers.length - reviewCount;
+  const parts: string[] = [];
+  if (requiredCount > 0)
+    parts.push(`Complete ${requiredCount} required item${requiredCount === 1 ? "" : "s"}`);
+  if (reviewCount > 0)
+    parts.push(
+      `${parts.length ? "review" : "Review"} ${reviewCount} safety item${reviewCount === 1 ? "" : "s"}`,
+    );
+  return `${parts.join(" and ")} before verifying.`;
+}
+
+export function formatCheckedAt(ts?: number): string {
+  if (!ts) return "";
+  return new Date(ts).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

@@ -30,13 +30,23 @@ import {
   CHECK_ROWS,
   CHECK_STATE_LABEL,
   CHECK_STATE_TONE,
-  INFO_FIELDS,
+  INFO_RELEVANCE,
+  INFO_REQUIREMENT_LABEL,
+  blockerSentence,
   checkState,
+  formatCheckedAt,
   infoLabel,
-  missingInfoKeys,
+  outstandingInfo,
+  reviewStale,
   requiredInfoKeys,
   runSafetyReview,
+  safetyStatus,
   safetySummary,
+  medSafetySignature,
+  unreviewedCheckKeys,
+  verificationBlockers,
+  type Blocker,
+  type CheckKey,
   type InfoKey,
 } from "@/lib/prescription/safety";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
@@ -138,9 +148,12 @@ export function AiPrescription({
         : "No prescription prepared"
       : allVerified
         ? "Verified — ready for final review"
-        : hasAiDraft
-          ? "AI-prepared draft · Verification required"
-          : "Clinician-added medication · Verification required";
+        : "Review required before prescribing";
+  const draftSourceLabel = hasAiDraft
+    ? "AI-prepared draft"
+    : total > 0
+      ? "Clinician-added medication"
+      : null;
 
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
@@ -333,16 +346,56 @@ export function AiPrescription({
     const checks = runSafetyReview(target, rx.patientInfo, visitMeds);
     patch({
       medications: rx.medications.map((m) =>
-        m.id === medId ? { ...m, checks, safetyReviewedAt: Date.now() } : m,
+        m.id === medId
+          ? {
+              ...m,
+              checks,
+              safetyReviewedAt: Date.now(),
+              safetySignature: medSafetySignature(m),
+              // A fresh review invalidates earlier per-finding acknowledgements.
+              checkReviews: {},
+              approved: false,
+              verifiedAt: undefined,
+              acknowledgedAt: undefined,
+            }
+          : m,
       ),
     });
   };
 
+  const markCheckReviewed = (medId: string, key: CheckKey) =>
+    patch({
+      medications: rx.medications.map((m) =>
+        m.id === medId
+          ? {
+              ...m,
+              checkReviews: {
+                ...(m.checkReviews ?? {}),
+                [key]: m.checkReviews?.[key] ? undefined : Date.now(),
+              },
+            }
+          : m,
+      ),
+    });
+
   const header = (
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
-        <h2 className="text-[17px] font-semibold text-[#2C2B4B]">Prescription</h2>
-        <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">{statusLabel}</p>
+        <h2 className="text-[17px] font-semibold text-[#2C2B4B]">
+          Prescription <span className="font-normal text-[#6F6889]">· Optional</span>
+        </h2>
+        <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">
+          {statusLabel}
+          {draftSourceLabel && !signed && !allVerified ? (
+            <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
+          ) : null}
+        </p>
+        {total > 0 && !signed && !allVerified && (
+          <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
+            Review and verify this draft before issuing it, or discard it if no prescription is
+            needed.
+          </p>
+        )}
         <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
           Jurisdiction{" "}
           <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> — set
@@ -570,9 +623,7 @@ export function AiPrescription({
         </div>
 
         <StickyBar>
-          <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {countLabel}
-          </span>
+          <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">{countLabel}</span>
           <button
             type="button"
             onClick={saveDraft}
@@ -597,6 +648,14 @@ export function AiPrescription({
   // ---------- Single medication review ----------
   if (reviewMed) {
     const complete = medComplete(reviewMed);
+    const blockers = verificationBlockers({
+      med: reviewMed,
+      info: rx.patientInfo,
+      visitMedications: visitMeds,
+      fieldsComplete: !!complete,
+      acknowledged: !!reviewMed.acknowledgedAt,
+    });
+    const blocked = blockers.length > 0;
     return (
       <section className="text-[#2C2B4B]">
         {header}
@@ -616,11 +675,18 @@ export function AiPrescription({
           onChange={(p) => updateMed(reviewMed.id, p)}
           onPatientInfo={setPatientInfo}
           onRunReview={() => runReview(reviewMed.id)}
+          onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
+          blockers={blockers}
           onOpenReference={() => setRefMedId(reviewMed.id)}
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
             {countLabel}
+            {blocked && !reviewMed.approved ? (
+              <span className="mt-0.5 block text-[12px] font-semibold text-[#8A6A20]">
+                {blockerSentence(blockers)}
+              </span>
+            ) : null}
           </span>
           <button
             type="button"
@@ -631,7 +697,8 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            disabled={!complete || reviewMed.approved}
+            disabled={blocked || reviewMed.approved}
+            title={blocked ? blockerSentence(blockers) : undefined}
             onClick={() => {
               updateMed(reviewMed.id, {
                 approved: true,
@@ -713,18 +780,7 @@ export function AiPrescription({
           >
             Review complete prescription
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              const next = rx.medications.find((m) => !m.approved);
-              if (next) setReviewMedId(next.id);
-            }}
-            className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-          >
-            Review medication
-          </button>
-        )}
+        ) : null}
       </StickyBar>
       <ReferenceDrawerHost />
     </section>
@@ -887,9 +943,9 @@ function MedicationSummaryCard({
           <button
             type="button"
             onClick={onReview}
-            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
           >
-            Review medication
+            {med.approved ? "Open medication" : "Review medication"}
           </button>
           <ReferenceButton hasName={hasName} onClick={onOpenReference} />
           <button
@@ -933,6 +989,8 @@ function MedicationEditor({
   onChange,
   onPatientInfo,
   onRunReview,
+  onMarkCheckReviewed,
+  blockers,
   onOpenReference,
 }: {
   med: PrescriptionMedication;
@@ -942,26 +1000,27 @@ function MedicationEditor({
   onChange: (p: Partial<PrescriptionMedication>) => void;
   onPatientInfo: (p: Partial<PatientSafetyInfo>) => void;
   onRunReview: () => void;
+  onMarkCheckReviewed: (key: CheckKey) => void;
+  blockers: Blocker[];
   onOpenReference: () => void;
 }) {
-  const [checksOpen, setChecksOpen] = useState(false);
+  // Flagged findings need an explicit acknowledgement, so open the list for them.
+  const [checksOpen, setChecksOpen] = useState(() => unreviewedCheckKeys(med).length > 0);
   const [legalOpen, setLegalOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
-  const missingKeys = useMemo(
-    () => missingInfoKeys(med, patientInfo, visitMeds),
+  const outstanding = useMemo(
+    () => outstandingInfo(med, patientInfo, visitMeds),
     [med, patientInfo, visitMeds],
   );
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
-  /** Patient information changed after the last safety review ran. */
-  const staleReview =
-    !!med.safetyReviewedAt &&
-    !!patientInfo?.updatedAt &&
-    patientInfo.updatedAt > med.safetyReviewedAt;
+  /** Medication or patient information changed after the last review ran. */
+  const staleReview = reviewStale(med, patientInfo);
+  const status = safetyStatus(med, patientInfo);
   const edit = (p: Partial<PrescriptionMedication>) =>
-    onChange({ ...p, approved: false, verifiedAt: undefined });
+    onChange({ ...p, approved: false, verifiedAt: undefined, acknowledgedAt: undefined });
   const catalogue = findCatalogue(med.name);
   const selectMedication = (name: string) => {
     const entry = findCatalogue(name);
@@ -1072,13 +1131,9 @@ function MedicationEditor({
           <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
             <input
               type="checkbox"
-              checked={med.approved}
-              disabled={!complete || !reviewRan}
+              checked={!!med.acknowledgedAt}
               onChange={(e) =>
-                onChange({
-                  approved: e.target.checked,
-                  verifiedAt: e.target.checked ? Date.now() : undefined,
-                })
+                onChange({ acknowledgedAt: e.target.checked ? Date.now() : undefined })
               }
               className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-40"
             />
@@ -1104,15 +1159,33 @@ function MedicationEditor({
               {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
             </p>
           )}
-          {!complete ? (
-            <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
-              Add medication, dose, frequency and patient instructions before verifying.
+          {blockers.length > 0 && !med.approved && (
+            <div className="mt-2.5 rounded-[10px] border border-[#F0D9A8] bg-[#FDF8EE] px-3 py-2.5">
+              <p className="text-[12.5px] font-semibold text-[#8A6A20]">
+                {blockerSentence(blockers)}
+              </p>
+              <ul className="mt-1.5 space-y-1">
+                {blockers.map((b, i) => (
+                  <li
+                    key={`${b.kind}-${i}`}
+                    className="flex items-start gap-1.5 text-[12px] leading-snug text-[#8A6A20]"
+                  >
+                    <span className="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-[#C08A2A]" />
+                    {b.label}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1.5 text-[11.5px] text-[#8A6A20]">
+                <strong>Verify medication</strong> stays unavailable until each item above is
+                resolved.
+              </p>
+            </div>
+          )}
+          {med.approved && med.verifiedAt && (
+            <p className="mt-1.5 pl-7 text-[12px] font-semibold text-[#1F7A57]">
+              Verified {formatCheckedAt(med.verifiedAt)}
             </p>
-          ) : !reviewRan ? (
-            <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
-              Run the patient-specific safety review before verifying this medication.
-            </p>
-          ) : null}
+          )}
         </div>
       </div>
 
@@ -1144,16 +1217,33 @@ function MedicationEditor({
           </Panel>
         ) : (
           <>
-            {missingKeys.length > 0 && (
+            {outstanding.length > 0 && (
               <Panel title="Information needed">
-                <ul className="space-y-1 text-[12.5px] text-[#3D2E6B]">
-                  {missingKeys.map((k) => (
-                    <li key={k} className="flex items-start gap-1.5">
-                      <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-[#C08A2A]" />
-                      {infoLabel(k)}
+                <ul className="space-y-2.5">
+                  {outstanding.map(({ key, requirement }) => (
+                    <li key={key} className="text-[12.5px] leading-snug">
+                      <p className="flex flex-wrap items-center gap-x-1.5">
+                        <span className="font-semibold text-[#2C2B4B]">{infoLabel(key)}</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                            requirement === "required"
+                              ? TONE_BG.amber
+                              : requirement === "recommended"
+                                ? TONE_BG.neutral
+                                : TONE_BG.neutral
+                          }`}
+                        >
+                          {INFO_REQUIREMENT_LABEL[requirement]}
+                        </span>
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#5A4A8A]">{INFO_RELEVANCE[key]}</p>
                     </li>
                   ))}
                 </ul>
+                <p className="mt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  Only items marked <strong>Required before verification</strong> block verification
+                  of this medication.
+                </p>
                 <button
                   type="button"
                   onClick={() => setInfoOpen((v) => !v)}
@@ -1163,7 +1253,7 @@ function MedicationEditor({
                 </button>
                 {infoOpen && (
                   <PatientInfoForm
-                    keys={missingKeys}
+                    keys={outstanding.map((o) => o.key)}
                     info={patientInfo}
                     onChange={onPatientInfo}
                     onSave={() => setInfoOpen(false)}
@@ -1173,7 +1263,28 @@ function MedicationEditor({
             )}
 
             <Panel title="Patient-specific safety review">
-              <div className="flex flex-wrap items-center gap-2">
+              <div
+                className={`rounded-[10px] px-3 py-2.5 ${
+                  status.tone === "red"
+                    ? "bg-[#FBEDED]"
+                    : status.tone === "amber"
+                      ? "bg-[#FDF8EE]"
+                      : status.tone === "green"
+                        ? "bg-[#EFF8F4]"
+                        : "bg-[#F7F5FB]"
+                }`}
+              >
+                <p className={`text-[13px] font-semibold ${TONE_TEXT[status.tone]}`}>
+                  {status.title}
+                </p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#3D2E6B]">{status.detail}</p>
+                {reviewRan && med.safetyReviewedAt && (
+                  <p className="mt-1 text-[11.5px] text-[#6F6889]">
+                    Last checked {formatCheckedAt(med.safetyReviewedAt)}
+                  </p>
+                )}
+              </div>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <SummaryPills summary={summary} />
                 {reviewRan && (
                   <button
@@ -1188,23 +1299,32 @@ function MedicationEditor({
                   </button>
                 )}
               </div>
-              {reviewRan && staleReview && (
-                <p className="mt-2.5 rounded-[10px] border border-[#E4E1EC] bg-[#FAF9FD] px-3 py-2 text-[12px] font-medium leading-snug text-[#5A4A8A]">
-                  Safety review needs updating — patient information changed after the last review.
-                </p>
-              )}
               <button
                 type="button"
                 onClick={onRunReview}
-                className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                className={`mt-2.5 inline-flex h-8 items-center rounded-[10px] px-3 text-[12.5px] font-semibold transition ${
+                  !reviewRan || staleReview
+                    ? "bg-[#6E4FD3] text-white hover:bg-[#5A3EB8]"
+                    : "border border-[#D9D5E3] bg-white text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                }`}
               >
-                {!reviewRan ? "Run safety review" : staleReview ? "Run again" : "Run safety review again"}
+                {!reviewRan
+                  ? "Run safety review"
+                  : staleReview
+                    ? "Safety information changed · Run review again"
+                    : "Run safety review again"}
               </button>
               {checksOpen && reviewRan && (
                 <>
                   <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
                     {CHECK_ROWS.map((r) => (
-                      <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
+                      <CheckRow
+                        key={r.key}
+                        label={r.label}
+                        check={med.checks?.[r.key]}
+                        reviewedAt={med.checkReviews?.[r.key]}
+                        onMarkReviewed={() => onMarkCheckReviewed(r.key)}
+                      />
                     ))}
                   </ul>
                   {med.warnings && (
@@ -1409,24 +1529,65 @@ function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }
   );
 }
 
-function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
+function CheckRow({
+  label,
+  check,
+  reviewedAt,
+  onMarkReviewed,
+}: {
+  label: string;
+  check?: MedicationCheck;
+  reviewedAt?: number;
+  onMarkReviewed?: () => void;
+}) {
   const state = checkState(check);
   const tone = CHECK_STATE_TONE[state];
+  const needsAck = state === "review-needed" || state === "blocking";
   return (
     <li className="text-[12.5px] leading-snug">
       <p className="flex flex-wrap items-center gap-x-1.5">
         <span className="font-semibold text-[#2C2B4B]">{label}</span>
         <span className="text-[#CFC9DC]">—</span>
         <span className={`font-semibold ${TONE_TEXT[tone]}`}>{CHECK_STATE_LABEL[state]}</span>
+        {needsAck && reviewedAt && (
+          <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
+            <Check className="h-3.5 w-3.5" /> Reviewed
+          </span>
+        )}
       </p>
       {check?.detail && <p className="mt-0.5 text-[#3D2E6B]">{check.detail}</p>}
       {(check?.informationUsed || check?.checkedAt) && (
         <p className="mt-0.5 text-[11.5px] text-[#6F6889]">
           {check?.informationUsed}
           {check?.checkedAt
-            ? `${check.informationUsed ? " " : ""}Checked ${new Date(check.checkedAt).toLocaleString()}.`
+            ? `${check.informationUsed ? " " : ""}Last checked ${formatCheckedAt(check.checkedAt)}.`
             : ""}
         </p>
+      )}
+      {needsAck && onMarkReviewed && (
+        <div className="mt-1.5 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
+          <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
+            By marking this as reviewed you confirm that you read this finding
+            {check?.detail ? ` — “${check.detail}” — ` : " "}
+            and have taken it into account for this patient.
+          </p>
+          <button
+            type="button"
+            onClick={onMarkReviewed}
+            className={`mt-1.5 inline-flex h-7 items-center rounded-[8px] px-2.5 text-[11.5px] font-semibold transition ${
+              reviewedAt
+                ? "border border-[#D9D5E3] bg-white text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                : "bg-[#6E4FD3] text-white hover:bg-[#5A3EB8]"
+            }`}
+          >
+            {reviewedAt ? "Undo review" : "Mark as reviewed"}
+          </button>
+          {reviewedAt && (
+            <p className="mt-1 text-[11px] text-[#6F6889]">
+              Reviewed {formatCheckedAt(reviewedAt)}
+            </p>
+          )}
+        </div>
       )}
     </li>
   );

@@ -174,6 +174,13 @@ export type PrescriptionMedication = {
   checks?: MedicationChecks;
   /** When the patient-specific safety review last ran for this medication. */
   safetyReviewedAt?: number;
+  /** Signature of the clinically significant fields at the moment the safety
+   *  review ran. A mismatch means the review is out of date. */
+  safetySignature?: string;
+  /** Per-check explicit provider acknowledgement, keyed by check name. */
+  checkReviews?: Partial<Record<string, number>>;
+  /** When the provider ticked the verification acknowledgement. */
+  acknowledgedAt?: number;
   /** Pregnancy / breastfeeding status is relevant for this medication. */
   requiresPregnancyStatus?: boolean;
   /** Laboratory or organ-function information is required before prescribing. */

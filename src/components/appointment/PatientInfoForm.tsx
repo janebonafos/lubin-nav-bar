@@ -242,14 +242,25 @@ export function PatientInfoForm({
               </>
             )}
             {state === "none-known" && (
-              <p className="mt-1.5 text-[12px] text-[#5A4A8A]">
-                Recorded as none known — reviewed with {"the client"} and documented for this visit.
+              <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                <strong>None known</strong> — You confirmed that the patient currently reports{" "}
+                {key === "currentMedications"
+                  ? "no medications"
+                  : key === "allergies"
+                    ? "no allergies"
+                    : "no relevant medical conditions"}
+                . This is a positive finding and the safety review can use it.
               </p>
             )}
             {state === "not-documented" && (
-              <p className="mt-1.5 text-[12px] text-[#8A6A20]">
-                Not documented. The safety review cannot evaluate this category until it is
-                recorded.
+              <p className="mt-1.5 text-[12px] leading-relaxed text-[#8A6A20]">
+                <strong>Not documented</strong> — This information has not been confirmed.{" "}
+                {key === "currentMedications"
+                  ? "Interaction checking remains incomplete."
+                  : key === "allergies"
+                    ? "Allergy checking remains incomplete."
+                    : "Contraindication checking remains incomplete."}{" "}
+                Not documented never means none.
               </p>
             )}
           </div>

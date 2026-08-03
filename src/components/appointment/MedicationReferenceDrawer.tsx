@@ -22,15 +22,28 @@ import {
   fetchMedicationReference,
 } from "@/lib/prescription/reference";
 
+/** Official starting point when the summary itself could not be produced. */
+function officialSourceUrl(country: RxCountry, name: string) {
+  const q = encodeURIComponent(name.trim() || "medication");
+  return country === "PH"
+    ? `https://verification.fda.gov.ph/all_registereddruglist.php?keyword=${q}`
+    : `https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${q}`;
+}
+
+function sourceOrganisation(s: { title: string; url?: string }) {
+  try {
+    if (!s.url) return "Not stated";
+    return new URL(s.url).hostname.replace(/^www\./, "");
+  } catch {
+    return "Not stated";
+  }
+}
+
 export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   const origin = med.origin ?? "ai";
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-      {origin === "manual" ? (
-        <FileText className="h-3 w-3" />
-      ) : (
-        <Sparkles className="h-3 w-3" />
-      )}
+      {origin === "manual" ? <FileText className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
       {ORIGIN_LABELS[origin]}
     </span>
   );
@@ -96,6 +109,7 @@ export function MedicationReferenceDrawer({
     if (!med) return;
     if (!force && med.reference && med.reference.country === country) {
       setRef(med.reference);
+      setError(null);
       return;
     }
     setBusy(true);
@@ -119,6 +133,7 @@ export function MedicationReferenceDrawer({
   useEffect(() => {
     if (!open || !med) return;
     setRef(null);
+    setError(null);
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, med?.id, country]);
@@ -179,9 +194,33 @@ export function MedicationReferenceDrawer({
               Loading medication reference…
             </div>
           )}
-          {error && (
-            <div className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {error}
+          {!busy && error && !ref && (
+            <div className="rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-3.5 py-3">
+              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#9B4A4A]">
+                <AlertTriangle className="h-4 w-4" /> Medication reference could not be loaded.
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-[#7A4B4B]">{error}</p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void load(true)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-3 text-[12.5px] font-semibold text-white hover:bg-[#5A3EB8]"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Try again
+                </button>
+                <a
+                  href={officialSourceUrl(country, med.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                >
+                  Open official source <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-[#7A4B4B]">
+                Jurisdiction: {country === "PH" ? "Philippines" : "United States"}. No AI summary is
+                shown when the reference cannot be retrieved.
+              </p>
             </div>
           )}
 
@@ -265,14 +304,21 @@ export function MedicationReferenceDrawer({
                           <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
                         </a>
                         <p className="mt-1 text-[11px] text-[#8B85A6]">
-                          {s.revisedAt
-                            ? `Published / revised ${s.revisedAt}`
-                            : "Publication date not stated"}
-                          {" · "}
-                          Lubin last checked {new Date(ref.checkedAt).toLocaleDateString()}
-                          {" · "}
-                          Jurisdiction: {s.jurisdiction}
+                          Source organisation: {sourceOrganisation(s)}
                         </p>
+                        <p className="text-[11px] text-[#8B85A6]">
+                          Jurisdiction:{" "}
+                          {s.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
+                        </p>
+                        <p className="text-[11px] text-[#8B85A6]">
+                          Last updated: {s.revisedAt ? s.revisedAt : "not stated by the source"} ·
+                          Lubin last checked {new Date(ref.checkedAt).toLocaleDateString()}
+                        </p>
+                        {s.url && (
+                          <p className="truncate text-[11px] text-[#8B85A6]">
+                            Direct link: {s.url}
+                          </p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -283,8 +329,8 @@ export function MedicationReferenceDrawer({
                       Official medication reference unavailable
                     </p>
                     <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
-                      Verify this medication through another authoritative source before
-                      signing the prescription.
+                      Verify this medication through another authoritative source before signing the
+                      prescription.
                     </p>
                     <label className="flex items-start gap-2 text-[12px] font-medium text-[#3D2E6B]">
                       <input
@@ -306,8 +352,8 @@ export function MedicationReferenceDrawer({
                 )}
                 <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-[#8B85A6]">
                   <ShieldCheck className="mt-[1px] h-3.5 w-3.5 flex-none" />
-                  The sections above are an AI-generated summary. The linked documents are
-                  the official prescribing information and take precedence.
+                  The sections above are an AI-generated summary. The linked documents are the
+                  official prescribing information and take precedence.
                 </p>
               </Section>
 
@@ -340,15 +386,9 @@ function Section({
 }) {
   return (
     <section className="rounded-2xl border border-[#ECE7F6] bg-white p-3.5">
-      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#5A3E8F]">
-        {title}
-      </h3>
-      {subtitle && (
-        <p className="mt-0.5 text-[12px] font-semibold text-[#3D2E6B]">{subtitle}</p>
-      )}
-      {note && (
-        <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{note}</p>
-      )}
+      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#5A3E8F]">{title}</h3>
+      {subtitle && <p className="mt-0.5 text-[12px] font-semibold text-[#3D2E6B]">{subtitle}</p>}
+      {note && <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{note}</p>}
       <div className="mt-2.5">{children}</div>
     </section>
   );
@@ -357,9 +397,7 @@ function Section({
 function Row({ label, value }: { label: string; value?: string }) {
   return (
     <div className="py-2">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </dt>
+      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">{label}</dt>
       <dd className="mt-0.5 text-[13px] leading-relaxed text-[#3D2E6B]">
         {value?.trim() ? value : <span className="text-[#A89BD0]">Not stated</span>}
       </dd>
