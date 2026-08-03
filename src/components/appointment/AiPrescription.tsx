@@ -1038,6 +1038,13 @@ function MedicationEditor({
   /** Medication or patient information changed after the last review ran. */
   const staleReview = reviewStale(med, patientInfo);
   const status = safetyStatus(med, patientInfo);
+  const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
+  const requiredCount =
+    outstanding.filter((o) => o.requirement === "required").length +
+    (!reviewRan || staleReview ? 1 : 0) +
+    (complete ? 0 : 1);
+  const reviewsRemaining =
+    unreviewedKeys.length + (sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0);
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined, acknowledgedAt: undefined });
   const catalogue = findCatalogue(med.name);
