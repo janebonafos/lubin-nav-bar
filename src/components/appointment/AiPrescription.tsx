@@ -42,6 +42,8 @@ import {
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
+import { PatientInfoForm } from "./PatientInfoForm";
+import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -87,8 +89,11 @@ export function AiPrescription({
   const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
   const country: RxCountry = rx.country ?? jurisdiction ?? "PH";
 
-  const total = rx.medications.length;
-  const verifiedCount = rx.medications.filter((m) => m.approved).length;
+  // A blank placeholder is never counted as a medication.
+  const namedMeds = rx.medications.filter((m) => m.name.trim().length > 0);
+  const blankMed = rx.medications.find((m) => !m.name.trim());
+  const total = namedMeds.length;
+  const verifiedCount = namedMeds.filter((m) => m.approved).length;
   const allVerified = total > 0 && verifiedCount === total;
   const signed = !!rx.finalisedAt;
   const controlledMeds = rx.medications.filter((m) => m.controlled);
@@ -97,6 +102,18 @@ export function AiPrescription({
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
   const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
+  const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
+  const statusLabel = signed
+    ? "Prescription signed and issued"
+    : total === 0
+      ? blankMed
+        ? "Medication details incomplete"
+        : "No prescription prepared"
+      : allVerified
+        ? "Verified — ready for final review"
+        : hasAiDraft
+          ? "AI-prepared draft · Verification required"
+          : "Clinician-added medication · Verification required";
 
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
@@ -298,13 +315,15 @@ export function AiPrescription({
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
         <h2 className="text-[17px] font-semibold text-[#2C2B4B]">Prescription</h2>
-        <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
+        <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">{statusLabel}</p>
+        <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
           Jurisdiction{" "}
-          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> ·
-          matched to {clientName || "the client"} and your verified prescribing authority
+          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> — set
+          from {clientName || "the client"}&rsquo;s recorded location and your verified prescribing
+          authority. Not selectable here.
         </p>
       </div>
-      <StageBar stage={stage} hideSign={total > 0 && !allVerified && !signed} />
+      <StageBar stage={stage} draftReady={total > 0} />
     </div>
   );
 
