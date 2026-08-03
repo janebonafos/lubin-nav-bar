@@ -151,7 +151,7 @@ export function MedicationReferenceDrawer({
               Medication reference · {country === "PH" ? "Philippines" : "United States"}
             </p>
             <h2 className="truncate text-base font-semibold text-[#3D2E6B]">
-              {med.name || "Untitled medication"}
+              {med.name || "Medication draft"}
             </h2>
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
               <OriginBadge med={med} />
