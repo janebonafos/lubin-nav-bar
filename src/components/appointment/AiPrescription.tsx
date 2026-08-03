@@ -27,18 +27,14 @@ import {
   type MedicationCheck,
 } from "@/lib/prescription/store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
-import {
-  MedicationReferenceDrawer,
-  OriginBadge,
-} from "./MedicationReferenceDrawer";
+import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { CompareOptionsDrawer } from "./CompareOptionsDrawer";
 import {
-  DRAFT_BASIS_BODY,
-  DRAFT_BASIS_TITLE,
   DRAFT_STATUS_BODY,
   MED_VERIFICATION_STATEMENT,
 } from "@/lib/prescription/reference";
 import { DEMO_BANNER } from "@/lib/prescription/demo";
+
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
