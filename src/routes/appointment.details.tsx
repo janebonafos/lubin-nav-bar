@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
 import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
@@ -430,24 +430,6 @@ function DetailsPage() {
         ? "Session ended · Follow-up in progress"
         : "Confirmed";
 
-  const tasks: { key: string; label: string; status: string; optional?: boolean }[] = [
-    {
-      key: "session-notes",
-      label: "Private clinical documentation",
-      status: docStatus,
-      optional: true,
-    },
-    {
-      key: "care-plan",
-      label: `Summary for ${clientLabel}`,
-      status: followUpStatus,
-      optional: true,
-    },
-    ...(rxAllowed
-      ? [{ key: "prescriptions", label: "Prescription", status: rxStatus, optional: true }]
-      : []),
-  ];
-
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
       <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-6">
@@ -494,7 +476,7 @@ function DetailsPage() {
           </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="grid gap-6">
           {/* Main working area */}
           <div className="flex min-w-0 flex-col gap-4">
             {/* Client-shared reference material — outside the numbered tasks */}
@@ -650,45 +632,6 @@ function DetailsPage() {
             )}
           </div>
 
-          {/* Right rail — task progress and session details */}
-          <aside className="flex flex-col gap-4">
-            <div className="rounded-[20px] border border-[#EAE2F6] bg-white p-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
-                Task progress
-              </p>
-              <ul className="mt-3 space-y-2.5">
-                {tasks.map((t, i) => {
-                  const complete = ["Shared", "Signed and issued", "Skipped"].includes(t.status);
-                  return (
-                    <li key={t.key}>
-                      <button
-                        type="button"
-                        onClick={() => setOpenStep(t.key)}
-                        className="flex w-full items-start gap-2.5 rounded-[12px] px-1.5 py-1.5 text-left transition hover:bg-[#FBF9FF]"
-                      >
-                        <span
-                          className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[11px] font-semibold ${
-                            complete ? "bg-[#6E4FD3] text-white" : "bg-[#EFE8FB] text-[#3D2E6B]"
-                          }`}
-                        >
-                          {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
-                            {t.label}
-                          </span>
-                          <span className="mt-0.5 block text-[11px] text-[#7E6BAF]">
-                            {t.status}
-                            {t.optional ? " · Optional" : ""}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </aside>
         </div>
       </div>
     </div>
