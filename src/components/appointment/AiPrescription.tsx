@@ -1051,10 +1051,12 @@ function MedicationEditor({
               className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-40"
             />
             <span>
-              <span className="font-semibold">Verify medication</span>
+              <span className="font-semibold">
+                I confirm that I reviewed this medication and its patient-specific safety
+                information.
+              </span>
               <span className="mt-0.5 block text-[12.5px] text-[#5A4A8A]">
-                I reviewed the prescription details, safety information and patient-specific
-                considerations.
+                Tick to acknowledge, then select <strong>Verify medication</strong> below.
               </span>
             </span>
           </label>
@@ -1087,17 +1089,10 @@ function MedicationEditor({
         {!hasName ? (
           <Panel title="Safety review not available">
             <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              Select a medication and complete the required patient information before running the
-              safety review.
+              Choose a medication in the form on the left and complete the required patient
+              information before running the safety review.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => document.getElementById("rx-medication-name")?.focus()}
-                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-              >
-                Select medication
-              </button>
               <button
                 type="button"
                 onClick={() => setInfoOpen(true)}
@@ -1107,11 +1102,11 @@ function MedicationEditor({
               </button>
             </div>
             {infoOpen && (
-              <InfoForm
+              <PatientInfoForm
                 keys={requiredKeys(med)}
                 info={patientInfo}
                 onChange={onPatientInfo}
-                onDone={() => setInfoOpen(false)}
+                onSave={() => setInfoOpen(false)}
               />
             )}
           </Panel>
@@ -1135,11 +1130,11 @@ function MedicationEditor({
                   {infoOpen ? "Hide fields" : "Add missing information"}
                 </button>
                 {infoOpen && (
-                  <InfoForm
+                  <PatientInfoForm
                     keys={missingKeys}
                     info={patientInfo}
                     onChange={onPatientInfo}
-                    onDone={() => setInfoOpen(false)}
+                    onSave={() => setInfoOpen(false)}
                   />
                 )}
               </Panel>
