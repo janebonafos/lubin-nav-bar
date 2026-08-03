@@ -1369,50 +1369,6 @@ function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }
   );
 }
 
-function InfoForm({
-  keys,
-  info,
-  onChange,
-  onDone,
-}: {
-  keys: InfoKey[];
-  info?: PatientSafetyInfo;
-  onChange: (p: Partial<PatientSafetyInfo>) => void;
-  onDone: () => void;
-}) {
-  const fields = INFO_FIELDS.filter((f) => keys.includes(f.key));
-  return (
-    <div className="mt-3 space-y-3 border-t border-[#EDEBF3] pt-3">
-      {fields.map((f) =>
-        f.multiline ? (
-          <FieldArea
-            key={f.key}
-            label={f.label}
-            value={info?.[f.key] ?? ""}
-            placeholder={f.placeholder}
-            onChange={(v) => onChange({ [f.key]: v })}
-          />
-        ) : (
-          <Field
-            key={f.key}
-            label={f.label}
-            value={info?.[f.key] ?? ""}
-            placeholder={f.placeholder}
-            onChange={(v) => onChange({ [f.key]: v })}
-          />
-        ),
-      )}
-      <button
-        type="button"
-        onClick={onDone}
-        className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-      >
-        Done
-      </button>
-    </div>
-  );
-}
-
 function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
   const state = checkState(check);
   const tone = CHECK_STATE_TONE[state];
