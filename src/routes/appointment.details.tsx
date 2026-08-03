@@ -347,7 +347,7 @@ function DetailsPage() {
     if (rx.finalisedAt) return "Signed and issued";
     if (rx.skippedAt && named.length === 0) return "Skipped";
     if (named.length > 0 && named.every((m) => m.approved)) return "Verified";
-    if (named.length > 0) return "Draft prepared";
+    if (named.length > 0) return "Verification required";
     if (rx.medications.length > 0) return "Details incomplete";
     return "Not started";
     // eslint-disable-next-line react-hooks/exhaustive-deps

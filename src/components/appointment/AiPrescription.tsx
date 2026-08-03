@@ -82,7 +82,23 @@ export function AiPrescription({
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
-    setRx(loadPrescription(appointmentId));
+    const loaded = loadPrescription(appointmentId);
+    // Drop any blank placeholder left behind by an abandoned manual entry so
+    // the section opens in the true "No prescription prepared" state instead
+    // of an empty draft.
+    const cleaned = loaded.medications.filter(
+      (m) =>
+        m.name.trim() ||
+        m.dose.trim() ||
+        m.frequency.trim() ||
+        m.instructions.trim() ||
+        (m.strength ?? "").trim(),
+    );
+    if (cleaned.length !== loaded.medications.length) {
+      setRx(updatePrescription(appointmentId, { medications: cleaned }));
+    } else {
+      setRx(loaded);
+    }
     return subscribePrescription(() => setRx(loadPrescription(appointmentId)));
   }, [appointmentId]);
 
@@ -104,6 +120,15 @@ export function AiPrescription({
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
   const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
+  const medWord = total === 1 ? "medication" : "medications";
+  const countLabel =
+    total === 0
+      ? "No medication added"
+      : allVerified
+        ? `${verifiedCount} of ${total} ${medWord} verified`
+        : verifiedCount > 0
+          ? `${verifiedCount} of ${total} ${medWord} verified`
+          : `${total} ${medWord} · Verification required`;
   const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
   const statusLabel = signed
     ? "Prescription signed and issued"
@@ -546,7 +571,7 @@ export function AiPrescription({
 
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {verifiedCount} of {total} medications verified
+            {countLabel}
           </span>
           <button
             type="button"
@@ -595,7 +620,7 @@ export function AiPrescription({
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {verifiedCount} of {total} medications verified
+            {countLabel}
           </span>
           <button
             type="button"
@@ -668,7 +693,7 @@ export function AiPrescription({
 
       <StickyBar>
         <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-          {verifiedCount} of {total} medications verified
+          {countLabel}
           {savedAt ? " · Draft saved" : ""}
         </span>
         {!allVerified && (
@@ -930,6 +955,11 @@ function MedicationEditor({
   );
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
+  /** Patient information changed after the last safety review ran. */
+  const staleReview =
+    !!med.safetyReviewedAt &&
+    !!patientInfo?.updatedAt &&
+    patientInfo.updatedAt > med.safetyReviewedAt;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
   const catalogue = findCatalogue(med.name);
@@ -1158,12 +1188,17 @@ function MedicationEditor({
                   </button>
                 )}
               </div>
+              {reviewRan && staleReview && (
+                <p className="mt-2.5 rounded-[10px] border border-[#E4E1EC] bg-[#FAF9FD] px-3 py-2 text-[12px] font-medium leading-snug text-[#5A4A8A]">
+                  Safety review needs updating — patient information changed after the last review.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={onRunReview}
                 className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
               >
-                {reviewRan ? "Run safety review again" : "Run safety review"}
+                {!reviewRan ? "Run safety review" : staleReview ? "Run again" : "Run safety review again"}
               </button>
               {checksOpen && reviewRan && (
                 <>
@@ -1422,7 +1457,12 @@ function FinalReviewBody({
           <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
           <Row
             label="Safety review"
-            value={`${rx.medications.filter((m) => m.approved).length} of ${rx.medications.length} medications verified`}
+            value={(() => {
+              const named = rx.medications.filter((m) => m.name.trim().length > 0);
+              if (named.length === 0) return "No medication added";
+              const word = named.length === 1 ? "medication" : "medications";
+              return `${named.filter((m) => m.approved).length} of ${named.length} ${word} verified`;
+            })()}
           />
         </dl>
       </section>
