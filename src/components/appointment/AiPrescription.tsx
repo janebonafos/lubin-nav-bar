@@ -83,16 +83,11 @@ export function AiPrescription({
   const [reviewMedId, setReviewMedId] = useState<string | null>(null);
   const [finalReview, setFinalReview] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const mounted = useRef(false);
 
   useEffect(() => {
     setRx(loadPrescription(appointmentId));
     return subscribePrescription(() => setRx(loadPrescription(appointmentId)));
   }, [appointmentId]);
-
-  useEffect(() => {
-    mounted.current = true;
-  }, []);
 
   const patch = (p: Partial<Prescription>) =>
     setRx(updatePrescription(appointmentId, p));
