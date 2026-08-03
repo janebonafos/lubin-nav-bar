@@ -791,21 +791,47 @@ function MedicationSummaryCard({
   const hasName = med.name.trim().length > 0;
   const summary = safetySummary(med);
   const line = [med.route, med.frequency, med.duration].filter((v) => v && v.trim()).join(" · ");
+  if (!hasName) {
+    return (
+      <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
+        <div className="flex flex-wrap items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-[#2C2B4B]">Medication details incomplete</p>
+            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
+              Select a medication to add it to this prescription.
+            </p>
+          </div>
+          <div className="flex flex-none items-center gap-2">
+            <button
+              type="button"
+              onClick={onReview}
+              className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            >
+              Continue adding details
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label="Discard incomplete medication"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] text-[#7E7794] transition hover:bg-[#F7F5FB] hover:text-[#3D2E6B]"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </li>
+    );
+  }
   return (
     <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-[#2C2B4B]">
-            {hasName ? med.name : "Medication draft"}
-            {hasName && (med.strength || med.dose) ? (
+            {med.name}
+            {med.strength || med.dose ? (
               <span className="font-normal text-[#3D2E6B]"> {med.strength || med.dose}</span>
             ) : null}
           </p>
-          {!hasName && (
-            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
-              Add a medication name and strength to continue.
-            </p>
-          )}
           {line && <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">{line}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span className="text-[11.5px] text-[#6F6889]">
@@ -828,7 +854,7 @@ function MedicationSummaryCard({
               </>
             )}
           </div>
-          {hasName && <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>}
+          <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
