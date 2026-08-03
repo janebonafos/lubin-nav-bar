@@ -695,13 +695,13 @@ export function AiPrescription({
 
 /* ------------------------------ pieces ------------------------------ */
 
-function StageBar({ stage, hideSign }: { stage: Stage; hideSign?: boolean }) {
+function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
     <ol className="flex items-center gap-1.5">
       {STAGES.map((label, i) => {
-        if (i === 2 && hideSign) return null;
         const active = i === stage;
-        const done = i < stage;
+        // "Draft" is only complete once the draft actually contains a medication.
+        const done = i < stage && (i !== 0 || !!draftReady);
         return (
           <li key={label} className="flex items-center gap-1.5">
             {i > 0 && <span className="h-px w-4 bg-[#DEDAE8]" />}
