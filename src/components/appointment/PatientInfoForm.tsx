@@ -279,18 +279,129 @@ export function PatientInfoForm({
         );
       })}
 
-      {freeText.map((f) => (
-        <label key={f.key} className="block">
-          <span className="mb-1 block text-[12.5px] font-semibold text-[#2C2B4B]">{f.label}</span>
+      {showBipolar && (
+        <div>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Bipolar or mania history</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {(["present", "none-known", "not-documented"] as HistoryState[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => onChange({ bipolarHistory: s })}
+                className={`inline-flex h-7 items-center rounded-full px-3 text-[11.5px] font-semibold transition ${
+                  (info?.bipolarHistory ?? "not-documented") === s
+                    ? "bg-[#6E4FD3] text-white"
+                    : "border border-[#DEDAE8] bg-white text-[#5A4A8A] hover:bg-[#F7F5FB]"
+                }`}
+              >
+                {HISTORY_STATE_LABEL[s]}
+              </button>
+            ))}
+          </div>
+          {info?.bipolarHistory === "present" && (
+            <input
+              value={info?.bipolarDetail ?? ""}
+              placeholder="Brief detail (episode, year, treatment)"
+              onChange={(e) => onChange({ bipolarDetail: e.target.value })}
+              className={`mt-2 ${inputClass}`}
+            />
+          )}
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {relevanceFor?.("bipolarHistory") ??
+              "Screening result recorded by the prescribing clinician."}
+          </p>
+        </div>
+      )}
+
+      {showAge && (
+        <div>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Age or date of birth</p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            <label className="text-[12px] text-[#5A4A8A]">
+              <span className="mb-1 block">Date of birth</span>
+              <input
+                type="date"
+                value={info?.dob ?? ""}
+                onChange={(e) => onChange({ dob: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="text-[12px] text-[#5A4A8A]">
+              <span className="mb-1 block">or age in years</span>
+              <input
+                type="number"
+                min={0}
+                max={120}
+                value={info?.ageYears ?? ""}
+                onChange={(e) =>
+                  onChange({
+                    ageYears: e.target.value === "" ? undefined : Number(e.target.value),
+                  })
+                }
+                className={inputClass}
+              />
+            </label>
+          </div>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {patientAge(info) !== null
+              ? `Recorded age ${patientAge(info)}. Age-dependent warnings can now be evaluated.`
+              : (relevanceFor?.("age") ??
+                "Age-dependent warnings stay hidden until the age or date of birth is recorded.")}
+          </p>
+        </div>
+      )}
+
+      {showPregnancy && (
+        <div>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+            Pregnancy and breastfeeding status
+          </p>
+          <select
+            value={info?.pregnancyStatus ?? "not-documented"}
+            onChange={(e) => onChange({ pregnancyStatus: e.target.value as PregnancyStatus })}
+            className={`mt-1.5 ${inputClass}`}
+          >
+            {(
+              [
+                "pregnant",
+                "breastfeeding",
+                "trying",
+                "not-pregnant",
+                "not-applicable",
+                "not-documented",
+              ] as PregnancyStatus[]
+            ).map((s) => (
+              <option key={s} value={s}>
+                {PREGNANCY_STATUS_LABEL[s]}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#8A6A20]">
+            {(info?.pregnancyStatus ?? "not-documented") === "not-documented"
+              ? "“Not documented” leaves the pregnancy and breastfeeding check incomplete. It never means “not pregnant”."
+              : (relevanceFor?.("pregnancy") ?? "Recorded status is used by the safety review.")}
+          </p>
+        </div>
+      )}
+
+      {showLabs && (
+        <label className="block">
+          <span className="mb-1 block text-[12.5px] font-semibold text-[#2C2B4B]">
+            {labsField.label}
+          </span>
           <textarea
             rows={2}
-            value={(info?.[f.key] as string | undefined) ?? ""}
-            placeholder={f.placeholder}
-            onChange={(e) => onChange({ [f.key]: e.target.value } as Partial<PatientSafetyInfo>)}
+            value={info?.labs ?? ""}
+            placeholder={labsField.placeholder}
+            onChange={(e) => onChange({ labs: e.target.value })}
             className={inputClass}
           />
+          <span className="mt-1.5 block text-[12px] leading-relaxed text-[#5A4A8A]">
+            {relevanceFor?.("labs") ??
+              "Recorded only when this medication or this patient needs monitoring."}
+          </span>
         </label>
-      ))}
+      )}
 
       <div>
         <button
