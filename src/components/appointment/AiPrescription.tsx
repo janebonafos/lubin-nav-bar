@@ -1301,36 +1301,54 @@ function MedicationEditor({
                 )}
                 {outstanding.length > 0 && (
                   <ul className="space-y-2">
-                    {outstanding.map(({ key, requirement }) => (
-                      <li
-                        key={key}
-                        className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
-                          requirement === "required"
-                            ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
-                            : "border-[#E9E6F1]"
-                        }`}
-                      >
-                        <span className="min-w-0">
-                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
-                            {infoLabel(key)}
-                          </span>
-                          <span
-                            className={`block text-[11px] font-medium ${
-                              requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
-                            }`}
-                          >
-                            {INFO_REQUIREMENT_LABEL[requirement]}
-                          </span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setInfoOpen(true)}
-                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
+                    {outstanding.map(({ key, requirement }) => {
+                      const open = openInfoKey === key;
+                      return (
+                        <li
+                          key={key}
+                          className={`rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
+                            requirement === "required"
+                              ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
+                              : "border-[#E9E6F1]"
+                          }`}
                         >
-                          Add information
-                        </button>
-                      </li>
-                    ))}
+                          <button
+                            type="button"
+                            aria-expanded={open}
+                            onClick={() => setOpenInfoKey(open ? null : key)}
+                            className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
+                          >
+                            <span className="min-w-0">
+                              <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                                {infoLabel(key)}
+                              </span>
+                              <span
+                                className={`block text-[11px] font-medium ${
+                                  requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
+                                }`}
+                              >
+                                {INFO_REQUIREMENT_LABEL[requirement]}
+                              </span>
+                            </span>
+                            <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                              {open ? "Close" : "Add information"}
+                              <ChevronDown
+                                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+                              />
+                            </span>
+                          </button>
+                          {open && (
+                            <PatientInfoForm
+                              keys={[key]}
+                              info={patientInfo}
+                              onChange={onPatientInfo}
+                              onSave={() => setOpenInfoKey(null)}
+                              relevanceFor={(k) => infoRelevance(med, k)}
+                            />
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 {unreviewedKeys.length > 0 && (
