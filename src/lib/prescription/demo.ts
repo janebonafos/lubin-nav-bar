@@ -10,13 +10,13 @@ export function demoPrescription(appointmentId: string): Prescription {
   const generatedAt = Date.now() - 4 * 60 * 1000;
   const med: PrescriptionMedication = {
     id: genRxId(),
-    name: "Sertraline (Zoloft) — demo",
-    genericName: "Sertraline hydrochloride",
+    name: "Sertraline",
+    genericName: "Sertraline hydrochloride (demo data)",
     dose: "50 mg",
     route: "Oral",
     frequency: "Once daily in the morning",
     duration: "4 weeks, then review",
-    strength: "50 mg film-coated tablet (demo)",
+    strength: "50 mg film-coated tablet",
     quantity: "30 tablets (30-day supply) — demo",
     refills: "No refills — review before continuing (demo)",
     indication: "Moderate depressive symptoms with anxiety (demo indication)",
