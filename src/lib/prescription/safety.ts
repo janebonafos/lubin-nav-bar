@@ -531,11 +531,10 @@ export function outstandingInfo(
   info?: PatientSafetyInfo,
   visitMedications?: { name: string }[],
 ): OutstandingInfo[] {
-  return ALL_INFO_KEYS.filter((k) => {
-    if (k === "currentMedications" && visitMedications?.length) return false;
-    if (isStructuredKey(k)) return !structuredRecorded(info, k);
-    return !has(info?.[k]);
-  }).map((key) => ({ key, requirement: infoRequirement(med, key) }));
+  return ALL_INFO_KEYS.filter((k) => !infoRecorded(k, info, visitMedications)).map((key) => ({
+    key,
+    requirement: infoRequirement(med, key),
+  }));
 }
 
 /* ------------------------- review acknowledgements ------------------------- */
