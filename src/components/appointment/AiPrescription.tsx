@@ -60,7 +60,6 @@ export function AiPrescription({
   clientName,
   providerName,
   jurisdiction,
-  onAddClinicalInfo,
 }: {
   appointmentId: string;
   clientName?: string;
@@ -68,7 +67,7 @@ export function AiPrescription({
   appointmentLabel?: string;
   /** Locked from the client's jurisdiction and the provider's authority. */
   jurisdiction?: RxCountry;
-  /** Takes the provider to the clinical documentation fields. */
+  /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
   const [rx, setRx] = useState<Prescription>(() => loadPrescription(appointmentId));
