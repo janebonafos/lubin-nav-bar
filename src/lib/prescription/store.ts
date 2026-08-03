@@ -132,6 +132,12 @@ export type PrescriptionMedication = {
   basis?: DraftBasis;
   /** Patient-specific safety checks surfaced on the card. */
   checks?: MedicationChecks;
+  /** When the patient-specific safety review last ran for this medication. */
+  safetyReviewedAt?: number;
+  /** Pregnancy / breastfeeding status is relevant for this medication. */
+  requiresPregnancyStatus?: boolean;
+  /** Laboratory or organ-function information is required before prescribing. */
+  requiresLabs?: boolean;
   /** True when this medication is a controlled / dangerous drug and needs the
    *  restricted issuing workflow instead of the standard signature. */
   controlled?: boolean;
