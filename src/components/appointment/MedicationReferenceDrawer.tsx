@@ -12,10 +12,15 @@ import {
 } from "lucide-react";
 import {
   ORIGIN_LABELS,
+  SOURCE_KIND_LABEL,
   type MedicationReference,
+  type MedicationSource,
+  type PatientSafetyInfo,
   type PrescriptionMedication,
   type RxCountry,
+  type SourceKind,
 } from "@/lib/prescription/store";
+import type { SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 import {
   AI_SUMMARY_CAVEAT,
   PATIENT_REVIEW_CAVEAT,
@@ -30,7 +35,8 @@ function officialSourceUrl(country: RxCountry, name: string) {
     : `https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${q}`;
 }
 
-function sourceOrganisation(s: { title: string; url?: string }) {
+function sourceOrganisation(s: MedicationSource) {
+  if (s.organisation?.trim()) return s.organisation.trim();
   try {
     if (!s.url) return "Not stated";
     return new URL(s.url).hostname.replace(/^www\./, "");
@@ -38,6 +44,8 @@ function sourceOrganisation(s: { title: string; url?: string }) {
     return "Not stated";
   }
 }
+
+const SOURCE_ORDER: SourceKind[] = ["label", "formulary", "secondary", "ai"];
 
 export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   const origin = med.origin ?? "ai";
@@ -49,7 +57,16 @@ export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   );
 }
 
-const GENERAL_ROWS: { key: keyof MedicationReference["general"]; label: string }[] = [
+/** Shown first: what could stop this prescription. */
+const KEY_SAFETY_ROWS: { key: keyof MedicationReference["general"]; label: string }[] = [
+  { key: "interactions", label: "Important drug interactions" },
+  { key: "contraindications", label: "Contraindications" },
+  { key: "seriousAdverseEffects", label: "Serious adverse effects" },
+  { key: "pregnancyLactation", label: "Pregnancy and breastfeeding (label wording)" },
+];
+
+/** Summary of the approved product label. */
+const LABEL_ROWS: { key: keyof MedicationReference["general"]; label: string }[] = [
   { key: "genericName", label: "Generic name" },
   { key: "brandNames", label: "Brand names" },
   { key: "medicationClass", label: "Medication class" },
@@ -59,12 +76,8 @@ const GENERAL_ROWS: { key: keyof MedicationReference["general"]; label: string }
   { key: "referenceDosing", label: "Reference dosing information" },
   { key: "administration", label: "Administration guidance" },
   { key: "commonAdverseEffects", label: "Common adverse effects" },
-  { key: "seriousAdverseEffects", label: "Serious adverse effects" },
-  { key: "contraindications", label: "Contraindications" },
-  { key: "interactions", label: "Important drug interactions" },
   { key: "monitoring", label: "Monitoring recommendations" },
   { key: "renalHepatic", label: "Renal and hepatic considerations" },
-  { key: "pregnancyLactation", label: "Pregnancy and breastfeeding" },
   { key: "discontinuation", label: "Discontinuation or tapering" },
   { key: "controlledSubstance", label: "Controlled-substance classification" },
   { key: "availability", label: "Availability in this jurisdiction" },
@@ -91,6 +104,8 @@ export function MedicationReferenceDrawer({
   clientName,
   onCached,
   onExternallyVerified,
+  patientInfo,
+  sharedSafety,
 }: {
   open: boolean;
   onClose: () => void;
@@ -100,6 +115,8 @@ export function MedicationReferenceDrawer({
   clientName?: string;
   onCached?: (ref: MedicationReference) => void;
   onExternallyVerified?: () => void;
+  patientInfo?: PatientSafetyInfo;
+  sharedSafety?: SharedSafetyResponse | null;
 }) {
   const [ref, setRef] = useState<MedicationReference | null>(null);
   const [busy, setBusy] = useState(false);
@@ -120,6 +137,7 @@ export function MedicationReferenceDrawer({
         med,
         country,
         clientName,
+        patientInfo,
       });
       setRef(data);
       onCached?.(data);
@@ -144,6 +162,13 @@ export function MedicationReferenceDrawer({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  const sortedSources = [...(ref?.sources ?? [])].sort(
+    (x, y) =>
+      SOURCE_ORDER.indexOf(x.kind ?? "secondary") - SOURCE_ORDER.indexOf(y.kind ?? "secondary"),
+  );
+  const otherSources = sortedSources.filter((s) => (s.kind ?? "secondary") !== "label");
+  const missingPatientInfo = ref ? missingFromReference(ref) : [];
 
   if (!open || !med) return null;
 
@@ -247,24 +272,56 @@ export function MedicationReferenceDrawer({
                 </div>
               )}
 
-              {/* A. Official medication information */}
+              {/* 1. Key safety information */}
               <Section
-                title="Official medication information"
-                subtitle="Summarised from the linked prescribing information"
+                title="Key safety information"
+                subtitle="Reviewed first · interactions, contraindications and missing patient information"
               >
+                {missingPatientInfo.length > 0 && (
+                  <div className="mb-2.5 rounded-xl border border-[#E2D7F3] bg-[#FAF7FE] px-3 py-2.5">
+                    <p className="text-[12px] font-semibold text-[#5A3E8F]">
+                      Patient information still required
+                    </p>
+                    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[12px] leading-relaxed text-[#3D2E6B]">
+                      {missingPatientInfo.map((m) => (
+                        <li key={m}>{m}</li>
+                      ))}
+                    </ul>
+                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#7E6BAF]">
+                      These items are shown as “Information required”, never as “no issue”.
+                    </p>
+                  </div>
+                )}
                 <dl className="divide-y divide-[#F1ECF9]">
-                  {GENERAL_ROWS.map(({ key, label }) => (
+                  {KEY_SAFETY_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.general[key]} />
                   ))}
                 </dl>
               </Section>
 
-              {/* B. Patient-specific considerations */}
+              {/* 2. Patient-specific review */}
               <Section
-                title="Patient-specific considerations"
-                subtitle="Patient-specific review · Not a clinical determination"
+                title="Patient-specific review"
+                subtitle="Based on the information recorded for this patient · Not a clinical determination"
                 note={PATIENT_REVIEW_CAVEAT}
               >
+                {sharedSafety && (
+                  <div className="mb-2.5 rounded-xl border border-[#E7D9B8] bg-[#FDF8EE] px-3 py-2.5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A6A20]">
+                      Shared assessment safety response — review required
+                    </p>
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#3D2E6B]">
+                      {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
+                      {new Date(sharedSafety.takenAt).toLocaleDateString()}
+                    </p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                      {sharedSafety.itemText}
+                    </p>
+                    <p className="mt-0.5 text-[13px] font-semibold text-[#3D2E6B]">
+                      Response: “{sharedSafety.response}”
+                    </p>
+                  </div>
+                )}
                 <dl className="divide-y divide-[#F1ECF9]">
                   {PATIENT_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.patient[key]} />
@@ -272,54 +329,56 @@ export function MedicationReferenceDrawer({
                 </dl>
               </Section>
 
-              {/* C. AI rationale — kept visually distinct from official info */}
+              {/* 3. Official product label */}
               <Section
-                title="Why the AI included this option"
-                subtitle="AI-generated explanation · not official prescribing information"
+                title="Official product label"
+                subtitle="Summarised from the approved product information linked below"
+              >
+                <dl className="divide-y divide-[#F1ECF9]">
+                  {LABEL_ROWS.map(({ key, label }) => (
+                    <Row key={key} label={label} value={ref.general[key]} />
+                  ))}
+                </dl>
+              </Section>
+
+              {/* 4. Additional drug references */}
+              <Section
+                title="Additional drug references"
+                subtitle="Formularies and secondary references · not the approved product label"
+              >
+                {otherSources.length > 0 ? (
+                  <ul className="space-y-2">
+                    {otherSources.map((s, i) => (
+                      <SourceItem key={`${s.url}-${i}`} source={s} country={country} ref_={ref} />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                    No formulary or secondary reference was identified for this medication in this
+                    jurisdiction.
+                  </p>
+                )}
+              </Section>
+
+              {/* 5. AI explanation */}
+              <Section
+                title="AI explanation"
+                subtitle="Why this option was shown · not official prescribing information"
               >
                 <dl className="divide-y divide-[#F1ECF9]">
                   <Row
-                    label="Reason this option was included"
+                    label="Reason this option was shown"
                     value={ref.patient.aiRationale ?? med.rationale}
                   />
                 </dl>
               </Section>
 
-              {/* Sources */}
-              <Section title="Official prescribing information">
+              {/* 6. Sources */}
+              <Section title="Sources" subtitle="Every source name and link is clickable">
                 {ref.sourcesAvailable ? (
                   <ul className="space-y-2">
-                    {ref.sources.map((s, i) => (
-                      <li
-                        key={`${s.url}-${i}`}
-                        className="rounded-xl border border-[#ECE7F6] bg-white p-3"
-                      >
-                        <a
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-start gap-1.5 text-[13px] font-semibold text-[#5A3E8F] underline decoration-[#D6CCEC] hover:decoration-[#5A3E8F]"
-                        >
-                          {s.title}
-                          <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
-                        </a>
-                        <p className="mt-1 text-[11px] text-[#8B85A6]">
-                          Source organisation: {sourceOrganisation(s)}
-                        </p>
-                        <p className="text-[11px] text-[#8B85A6]">
-                          Jurisdiction:{" "}
-                          {s.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
-                        </p>
-                        <p className="text-[11px] text-[#8B85A6]">
-                          Last updated: {s.revisedAt ? s.revisedAt : "not stated by the source"} ·
-                          Lubin last checked {new Date(ref.checkedAt).toLocaleDateString()}
-                        </p>
-                        {s.url && (
-                          <p className="truncate text-[11px] text-[#8B85A6]">
-                            Direct link: {s.url}
-                          </p>
-                        )}
-                      </li>
+                    {sortedSources.map((s, i) => (
+                      <SourceItem key={`${s.url}-${i}`} source={s} country={country} ref_={ref} />
                     ))}
                   </ul>
                 ) : (
@@ -352,8 +411,9 @@ export function MedicationReferenceDrawer({
                 )}
                 <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-[#8B85A6]">
                   <ShieldCheck className="mt-[1px] h-3.5 w-3.5 flex-none" />
-                  The sections above are an AI-generated summary. The linked documents are the
-                  official prescribing information and take precedence.
+                  The sections above are an AI-generated summary. A document is only called an
+                  official approved product label when it links to the regulator- or
+                  manufacturer-approved label for this medication and jurisdiction.
                 </p>
               </Section>
 
@@ -402,5 +462,73 @@ function Row({ label, value }: { label: string; value?: string }) {
         {value?.trim() ? value : <span className="text-[#A89BD0]">Not stated</span>}
       </dd>
     </div>
+  );
+}
+
+/** Items the reference itself reports as unavailable, surfaced as required. */
+function missingFromReference(ref: MedicationReference): string[] {
+  const out: string[] = [];
+  const flag = (label: string, value?: string) => {
+    const v = (value ?? "").toLowerCase();
+    if (
+      !v.trim() ||
+      v.includes("not supplied") ||
+      v.includes("no information") ||
+      v.includes("information required")
+    )
+      out.push(label);
+  };
+  flag("Allergy history", ref.patient.allergiesReviewed);
+  flag("Current medications", ref.patient.currentMedicationsReviewed);
+  flag("Relevant medical conditions", ref.patient.relevantConditions);
+  flag("Laboratory or organ-function information", ref.patient.labMonitoring);
+  return out;
+}
+
+function SourceItem({
+  source,
+  country,
+  ref_,
+}: {
+  source: MedicationSource;
+  country: RxCountry;
+  ref_: MedicationReference;
+}) {
+  const kind: SourceKind = source.kind ?? "secondary";
+  return (
+    <li className="rounded-xl border border-[#ECE7F6] bg-white p-3">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+        {SOURCE_KIND_LABEL[kind]}
+      </p>
+      <a
+        href={source.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-0.5 inline-flex items-start gap-1.5 text-[13px] font-semibold text-[#5A3E8F] underline decoration-[#D6CCEC] hover:decoration-[#5A3E8F]"
+      >
+        {source.title}
+        <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
+      </a>
+      <p className="mt-1 text-[11px] text-[#8B85A6]">
+        Source organisation: {sourceOrganisation(source)}
+      </p>
+      <p className="text-[11px] text-[#8B85A6]">
+        Jurisdiction: {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
+      </p>
+      <p className="text-[11px] text-[#8B85A6]">
+        Last updated: {source.revisedAt ? source.revisedAt : "not stated by the source"} · Lubin
+        last checked {new Date(ref_.checkedAt).toLocaleDateString()}
+      </p>
+      {source.url && (
+        <a
+          href={source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block truncate text-[11px] text-[#6E4FD3] underline"
+        >
+          {source.url}
+        </a>
+      )}
+    </li>
   );
 }

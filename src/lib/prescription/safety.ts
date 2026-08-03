@@ -3,12 +3,15 @@
 import type {
   MedicationCheck,
   MedicationChecks,
+  HistoryState,
   InfoDocState,
   PatientInfoEntry,
   PatientSafetyInfo,
+  PregnancyStatus,
   Prescription,
   PrescriptionMedication,
 } from "./store";
+import { PREGNANCY_STATUS_LABEL } from "./store";
 
 export type CheckState = "not-run" | "info-required" | "no-issue" | "review-needed" | "blocking";
 
@@ -51,12 +54,23 @@ export const CHECK_ROWS: {
   { key: "interactions", label: "Medication interactions" },
   { key: "contraindications", label: "Contraindications" },
   { key: "conditions", label: "Relevant conditions" },
+  { key: "bipolarHistory", label: "Bipolar or mania history" },
+  { key: "pregnancy", label: "Pregnancy and breastfeeding" },
+  { key: "age", label: "Age-dependent warnings" },
+  { key: "organFunction", label: "Laboratory and organ function" },
   { key: "monitoring", label: "Monitoring requirements" },
 ];
 
 /* -------------------------- patient information -------------------------- */
 
-export type InfoKey = "allergies" | "currentMedications" | "conditions" | "pregnancy" | "labs";
+export type InfoKey =
+  | "allergies"
+  | "currentMedications"
+  | "conditions"
+  | "bipolarHistory"
+  | "age"
+  | "pregnancy"
+  | "labs";
 
 export type CheckKey = keyof Omit<MedicationChecks, "missingInformation">;
 
@@ -78,9 +92,32 @@ export const INFO_RELEVANCE: Record<InfoKey, string> = {
     "Interaction checking cannot be completed without the current medication list.",
   conditions:
     "Used to check contraindications and conditions that change the dose or the monitoring plan.",
+  bipolarHistory:
+    "An antidepressant started without a bipolar or mania history check can precipitate a manic episode.",
+  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the patient's age or date of birth.",
   pregnancy: "Affects whether this medication can be used and at what dose.",
-  labs: "Only relevant when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
+  labs: "Requested only when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
 };
+
+/** Medication- and patient-specific reason, so nothing looks universal. */
+export function infoRelevance(med: PrescriptionMedication, key: InfoKey): string {
+  if (key === "labs") {
+    if (med.requiresLabs) {
+      return (
+        med.labsReason ??
+        `Required for ${med.name || "this medication"} because its prescribing information calls for baseline or ongoing laboratory or organ-function monitoring at this dose.`
+      );
+    }
+    return "Recommended, not required: no laboratory or organ-function result is needed by this medication's prescribing information for this patient. Record any result you already have.";
+  }
+  if (key === "pregnancy" && !med.requiresPregnancyStatus) {
+    return "Recommended, not required for this medication. Record the structured status so the check can be completed.";
+  }
+  if (key === "bipolarHistory" && !med.requiresBipolarScreen) {
+    return "Recommended, not required for this medication. Record the screening result so the check can be completed.";
+  }
+  return INFO_RELEVANCE[key];
+}
 
 /** Requirement level for one item against this specific medication. */
 export function infoRequirement(med: PrescriptionMedication, key: InfoKey): InfoRequirement {
@@ -88,11 +125,14 @@ export function infoRequirement(med: PrescriptionMedication, key: InfoKey): Info
     case "allergies":
     case "currentMedications":
     case "conditions":
+    case "age":
       return "required";
+    case "bipolarHistory":
+      return med.requiresBipolarScreen ? "required" : "recommended";
     case "pregnancy":
       return med.requiresPregnancyStatus ? "required" : "recommended";
     case "labs":
-      return med.requiresLabs ? "required" : "optional";
+      return med.requiresLabs ? "required" : "recommended";
   }
 }
 
@@ -100,6 +140,8 @@ export const ALL_INFO_KEYS: InfoKey[] = [
   "allergies",
   "currentMedications",
   "conditions",
+  "bipolarHistory",
+  "age",
   "pregnancy",
   "labs",
 ];
@@ -191,9 +233,19 @@ export const INFO_FIELDS: {
     multiline: true,
   },
   {
+    key: "bipolarHistory",
+    label: "Bipolar or mania history",
+    placeholder: "Screening result",
+  },
+  {
+    key: "age",
+    label: "Age or date of birth",
+    placeholder: "Date of birth or age in years",
+  },
+  {
     key: "pregnancy",
-    label: "Pregnancy or breastfeeding status",
-    placeholder: "Pregnant, breastfeeding, neither, or not applicable",
+    label: "Pregnancy and breastfeeding status",
+    placeholder: "Select a status",
   },
   {
     key: "labs",
@@ -203,16 +255,61 @@ export const INFO_FIELDS: {
   },
 ];
 
-/** Information this medication genuinely needs, in order. */
+/** Information this medication genuinely needs before verification, in order. */
 export function requiredInfoKeys(med: PrescriptionMedication): InfoKey[] {
-  const keys: InfoKey[] = ["allergies", "currentMedications", "conditions"];
-  if (med.requiresPregnancyStatus) keys.push("pregnancy");
-  if (med.requiresLabs) keys.push("labs");
-  return keys;
+  return ALL_INFO_KEYS.filter((k) => infoRequirement(med, k) === "required");
 }
 
 function has(v?: string) {
   return !!v && v.trim().length > 0;
+}
+
+/** Age in years derived from either the recorded age or the date of birth. */
+export function patientAge(info?: PatientSafetyInfo): number | null {
+  if (typeof info?.ageYears === "number" && info.ageYears > 0) return Math.floor(info.ageYears);
+  if (info?.dob) {
+    const d = new Date(info.dob);
+    if (!Number.isNaN(d.getTime())) {
+      const now = new Date();
+      let age = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
+      if (age >= 0 && age < 130) return age;
+    }
+  }
+  return null;
+}
+
+export function pregnancyStatus(info?: PatientSafetyInfo): PregnancyStatus {
+  return info?.pregnancyStatus ?? "not-documented";
+}
+
+export function bipolarHistoryState(info?: PatientSafetyInfo): HistoryState {
+  return info?.bipolarHistory ?? "not-documented";
+}
+
+/** Single source of truth: is this information actually on the record?
+ *  "Not documented" and blank never count as recorded. */
+export function infoRecorded(
+  key: InfoKey,
+  info?: PatientSafetyInfo,
+  visitMedications?: { name: string }[],
+): boolean {
+  switch (key) {
+    case "allergies":
+    case "conditions":
+      return structuredRecorded(info, key);
+    case "currentMedications":
+      return structuredRecorded(info, "currentMedications") || !!visitMedications?.length;
+    case "bipolarHistory":
+      return bipolarHistoryState(info) !== "not-documented";
+    case "age":
+      return patientAge(info) !== null;
+    case "pregnancy":
+      return pregnancyStatus(info) !== "not-documented";
+    case "labs":
+      return has(info?.labs);
+  }
 }
 
 /** Only the items genuinely missing for this patient and this medication. */
@@ -221,11 +318,7 @@ export function missingInfoKeys(
   info?: PatientSafetyInfo,
   visitMedications?: { name: string }[],
 ): InfoKey[] {
-  return requiredInfoKeys(med).filter((k) => {
-    if (k === "currentMedications" && visitMedications?.length) return false;
-    if (isStructuredKey(k)) return !structuredRecorded(info, k);
-    return !has(info?.[k]);
-  });
+  return requiredInfoKeys(med).filter((k) => !infoRecorded(k, info, visitMedications));
 }
 
 export function infoLabel(key: InfoKey): string {
@@ -367,18 +460,97 @@ export function runSafetyReview(
   }
 
   // Monitoring
-  if (med.requiresLabs && missing.includes("labs")) {
-    checks.monitoring = needs("labs", "Laboratory or organ-function information is required.");
-  } else if (med.requiresPregnancyStatus && missing.includes("pregnancy")) {
-    checks.monitoring = needs("pregnancy", "Pregnancy or breastfeeding status is required.");
+  // Bipolar / mania history
+  if (!infoRecorded("bipolarHistory", info)) {
+    checks.bipolarHistory = needs(
+      "bipolarHistory",
+      med.requiresBipolarScreen
+        ? "Bipolar or mania history has not been documented. This check cannot be completed."
+        : "Bipolar or mania history has not been documented, so this check is incomplete. It does not block verification for this medication.",
+    );
   } else {
-    checks.monitoring = {
-      status: "review-needed",
-      detail: "Confirm the follow-up and monitoring plan before prescribing.",
-      informationUsed: "Prescribing information for this medication and the recorded plan.",
+    const state = bipolarHistoryState(info);
+    checks.bipolarHistory = {
+      status: state === "present" ? "review-needed" : "no-issue",
+      detail:
+        state === "present"
+          ? `Documented bipolar or mania history${info?.bipolarDetail ? ` — ${info.bipolarDetail}` : ""}. Review the risk of precipitating mania before prescribing.`
+          : "Documented as none known by the prescribing clinician.",
+      informationUsed: "Recorded bipolar or mania screening result.",
       checkedAt: now,
     };
   }
+
+  // Pregnancy and breastfeeding
+  if (!infoRecorded("pregnancy", info)) {
+    checks.pregnancy = needs(
+      "pregnancy",
+      med.requiresPregnancyStatus
+        ? "Pregnancy and breastfeeding status has not been documented. This check cannot be completed."
+        : "Pregnancy and breastfeeding status has not been documented, so this check is incomplete. It does not block verification for this medication.",
+    );
+  } else {
+    const st = pregnancyStatus(info);
+    const flagged = st === "pregnant" || st === "breastfeeding" || st === "trying";
+    checks.pregnancy = {
+      status: flagged ? "review-needed" : "no-issue",
+      detail: flagged
+        ? `Recorded status: ${PREGNANCY_STATUS_LABEL[st]}. Use the pregnancy and lactation wording from this product's approved information before prescribing.`
+        : `Recorded status: ${PREGNANCY_STATUS_LABEL[st]}.`,
+      informationUsed: "Recorded pregnancy and breastfeeding status.",
+      checkedAt: now,
+    };
+  }
+
+  // Age-dependent warnings — never evaluated without an age or date of birth
+  const age = patientAge(info);
+  if (age === null) {
+    checks.age = needs(
+      "age",
+      "Age-dependent warnings cannot be shown or evaluated until the patient's age or date of birth is recorded.",
+    );
+  } else {
+    const young = age < 25;
+    const older = age >= 65;
+    checks.age = {
+      status: young || older ? "review-needed" : "no-issue",
+      detail: young
+        ? `Recorded age ${age}. Review the early-treatment warning about increased suicidal thoughts in patients under 25.`
+        : older
+          ? `Recorded age ${age}. Review dose caution, hyponatraemia and fall risk in older patients.`
+          : `Recorded age ${age}. No age-dependent warning applies to this medication at this age.`,
+      informationUsed: "Recorded age or date of birth and the prescribing information.",
+      checkedAt: now,
+    };
+  }
+
+  // Laboratory and organ function
+  if (!infoRecorded("labs", info)) {
+    checks.organFunction = needs(
+      "labs",
+      med.requiresLabs
+        ? (med.labsReason ??
+            "Laboratory or organ-function information is required by this medication's prescribing information.")
+        : "No laboratory or organ-function result has been recorded. Recommended, not required for this medication.",
+    );
+  } else {
+    const hits = contains(info?.labs ?? "", ["abnormal", "elevated", "impair", "low", "high"]);
+    checks.organFunction = {
+      status: hits.length ? "review-needed" : "no-issue",
+      detail: hits.length
+        ? "Recorded results include values to review before prescribing."
+        : "Recorded laboratory or organ-function information shows nothing that changes this prescription.",
+      informationUsed: "Recorded laboratory or organ-function information.",
+      checkedAt: now,
+    };
+  }
+
+  checks.monitoring = {
+    status: "review-needed",
+    detail: "Confirm the follow-up and monitoring plan before prescribing.",
+    informationUsed: "Prescribing information for this medication and the recorded plan.",
+    checkedAt: now,
+  };
 
   return checks;
 }
@@ -438,11 +610,10 @@ export function outstandingInfo(
   info?: PatientSafetyInfo,
   visitMedications?: { name: string }[],
 ): OutstandingInfo[] {
-  return ALL_INFO_KEYS.filter((k) => {
-    if (k === "currentMedications" && visitMedications?.length) return false;
-    if (isStructuredKey(k)) return !structuredRecorded(info, k);
-    return !has(info?.[k]);
-  }).map((key) => ({ key, requirement: infoRequirement(med, key) }));
+  return ALL_INFO_KEYS.filter((k) => !infoRecorded(k, info, visitMedications)).map((key) => ({
+    key,
+    requirement: infoRequirement(med, key),
+  }));
 }
 
 /* ------------------------- review acknowledgements ------------------------- */
@@ -549,8 +720,10 @@ export function verificationBlockers(args: {
   visitMedications?: { name: string }[];
   fieldsComplete: boolean;
   acknowledged: boolean;
+  /** Shared assessment safety response awaiting provider acknowledgement. */
+  sharedSafetyPending?: boolean;
 }): Blocker[] {
-  const { med, info, visitMedications, fieldsComplete, acknowledged } = args;
+  const { med, info, visitMedications, fieldsComplete, acknowledged, sharedSafetyPending } = args;
   const out: Blocker[] = [];
   if (!fieldsComplete)
     out.push({
@@ -573,6 +746,11 @@ export function verificationBlockers(args: {
     const row = CHECK_ROWS.find((r) => r.key === k);
     out.push({ kind: "review", label: `Mark ${(row?.label ?? k).toLowerCase()} as reviewed.` });
   }
+  if (sharedSafetyPending)
+    out.push({
+      kind: "review",
+      label: "Acknowledge the shared assessment safety response.",
+    });
   if (!acknowledged)
     out.push({ kind: "acknowledgement", label: "Tick the verification acknowledgement." });
   return out;

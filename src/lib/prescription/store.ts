@@ -33,6 +33,10 @@ export type MedicationChecks = {
   interactions?: MedicationCheck;
   contraindications?: MedicationCheck;
   conditions?: MedicationCheck;
+  bipolarHistory?: MedicationCheck;
+  pregnancy?: MedicationCheck;
+  age?: MedicationCheck;
+  organFunction?: MedicationCheck;
   monitoring?: MedicationCheck;
   missingInformation?: string;
 };
@@ -51,6 +55,33 @@ export const INFO_SOURCE_LABEL: Record<InfoSource, string> = {
 export type InfoDocState = "documented" | "none-known" | "not-documented";
 
 export type PatientInfoStatus = "active" | "past" | "suspected" | "resolved";
+
+/** Structured pregnancy / lactation status. "Not documented" is never "no". */
+export type PregnancyStatus =
+  | "pregnant"
+  | "breastfeeding"
+  | "trying"
+  | "not-pregnant"
+  | "not-applicable"
+  | "not-documented";
+
+export const PREGNANCY_STATUS_LABEL: Record<PregnancyStatus, string> = {
+  pregnant: "Pregnant",
+  breastfeeding: "Breastfeeding",
+  trying: "Trying to conceive",
+  "not-pregnant": "Not pregnant",
+  "not-applicable": "Not applicable",
+  "not-documented": "Not documented",
+};
+
+/** Bipolar / mania history is a distinct screening question, not a free-text note. */
+export type HistoryState = "present" | "none-known" | "not-documented";
+
+export const HISTORY_STATE_LABEL: Record<HistoryState, string> = {
+  present: "History present",
+  "none-known": "None known",
+  "not-documented": "Not documented",
+};
 
 export const INFO_STATUS_LABEL: Record<PatientInfoStatus, string> = {
   active: "Active",
@@ -85,6 +116,14 @@ export type PatientSafetyInfo = {
   allergyState?: InfoDocState;
   medicationState?: InfoDocState;
   conditionState?: InfoDocState;
+  /** Structured pregnancy / lactation status. */
+  pregnancyStatus?: PregnancyStatus;
+  /** Date of birth (ISO yyyy-mm-dd) and/or age in years. */
+  dob?: string;
+  ageYears?: number;
+  /** Bipolar or mania history screening result. */
+  bipolarHistory?: HistoryState;
+  bipolarDetail?: string;
   updatedAt?: number;
 };
 
@@ -97,11 +136,25 @@ export type DraftBasis = {
   generatedAt?: number;
 };
 
+/** How authoritative a linked document is. Never call everything "official". */
+export type SourceKind = "label" | "formulary" | "secondary" | "ai";
+
+export const SOURCE_KIND_LABEL: Record<SourceKind, string> = {
+  label: "Official approved product label",
+  formulary: "Government formulary or reference",
+  secondary: "Secondary drug reference",
+  ai: "AI-generated explanation",
+};
+
 export type MedicationSource = {
   title: string;
   url?: string;
   revisedAt?: string; // publication / revision date as reported by the source
   jurisdiction?: string;
+  /** Category of the document. Defaults to "secondary" when unknown. */
+  kind?: SourceKind;
+  /** Publisher / organisation as reported by the source. */
+  organisation?: string;
 };
 
 export type MedicationReferenceGeneral = {
@@ -185,6 +238,14 @@ export type PrescriptionMedication = {
   requiresPregnancyStatus?: boolean;
   /** Laboratory or organ-function information is required before prescribing. */
   requiresLabs?: boolean;
+  /** Why laboratory or organ-function information is required for this
+   *  medication and patient. Required whenever requiresLabs is true. */
+  labsReason?: string;
+  /** Bipolar / mania screening is required before this medication (e.g. an
+   *  antidepressant started as monotherapy). */
+  requiresBipolarScreen?: boolean;
+  /** Provider acknowledgement of the shared assessment safety response. */
+  sharedSafetyAcknowledgedAt?: number;
   /** True when this medication is a controlled / dangerous drug and needs the
    *  restricted issuing workflow instead of the standard signature. */
   controlled?: boolean;

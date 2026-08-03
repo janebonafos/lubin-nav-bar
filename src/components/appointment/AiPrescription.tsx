@@ -30,7 +30,8 @@ import {
   CHECK_ROWS,
   CHECK_STATE_LABEL,
   CHECK_STATE_TONE,
-  INFO_RELEVANCE,
+  infoRelevance,
+  missingInfoKeys,
   INFO_REQUIREMENT_LABEL,
   blockerSentence,
   checkState,
@@ -54,6 +55,7 @@ import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
+import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -327,15 +329,29 @@ export function AiPrescription({
       ),
     });
 
-  const canSign =
-    allVerified && !!rx.legalAcknowledgedAt && unverifiedSources.length === 0 && !restrictedPending;
-
   const saveDraft = () => {
     patch({});
     setSavedAt(Date.now());
   };
 
   const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
+
+  /** Shared assessment safety response, carried into the clinical review. */
+  const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
+
+  const canSign =
+    allVerified &&
+    !!rx.legalAcknowledgedAt &&
+    unverifiedSources.length === 0 &&
+    !restrictedPending &&
+    // Required information must still be complete and every review acknowledged.
+    rx.medications.every(
+      (m) =>
+        missingInfoKeys(m, rx.patientInfo, visitMeds).length === 0 &&
+        unreviewedCheckKeys(m).length === 0 &&
+        !reviewStale(m, rx.patientInfo) &&
+        (!sharedSafety || !!m.sharedSafetyAcknowledgedAt),
+    );
 
   const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
     patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
@@ -654,6 +670,7 @@ export function AiPrescription({
       visitMedications: visitMeds,
       fieldsComplete: !!complete,
       acknowledged: !!reviewMed.acknowledgedAt,
+      sharedSafetyPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
     });
     const blocked = blockers.length > 0;
     return (
@@ -678,6 +695,7 @@ export function AiPrescription({
           onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
           blockers={blockers}
           onOpenReference={() => setRefMedId(reviewMed.id)}
+          sharedSafety={sharedSafety}
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
@@ -795,6 +813,8 @@ export function AiPrescription({
         country={country}
         appointmentId={appointmentId}
         clientName={clientName}
+        patientInfo={rx.patientInfo}
+        sharedSafety={sharedSafety}
         onCached={(reference) => refMed && cacheReference(refMed.id, reference)}
         onExternallyVerified={() => refMed && markExternallyVerified(refMed.id)}
       />
@@ -992,6 +1012,7 @@ function MedicationEditor({
   onMarkCheckReviewed,
   blockers,
   onOpenReference,
+  sharedSafety,
 }: {
   med: PrescriptionMedication;
   country: RxCountry;
@@ -1003,6 +1024,7 @@ function MedicationEditor({
   onMarkCheckReviewed: (key: CheckKey) => void;
   blockers: Blocker[];
   onOpenReference: () => void;
+  sharedSafety?: SharedSafetyResponse | null;
 }) {
   // Flagged findings need an explicit acknowledgement, so open the list for them.
   const [checksOpen, setChecksOpen] = useState(() => unreviewedCheckKeys(med).length > 0);
@@ -1212,6 +1234,7 @@ function MedicationEditor({
                 info={patientInfo}
                 onChange={onPatientInfo}
                 onSave={() => setInfoOpen(false)}
+                relevanceFor={(k) => infoRelevance(med, k)}
               />
             )}
           </Panel>
@@ -1236,7 +1259,9 @@ function MedicationEditor({
                           {INFO_REQUIREMENT_LABEL[requirement]}
                         </span>
                       </p>
-                      <p className="mt-0.5 text-[12px] text-[#5A4A8A]">{INFO_RELEVANCE[key]}</p>
+                      <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                        {infoRelevance(med, key)}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -1257,7 +1282,54 @@ function MedicationEditor({
                     info={patientInfo}
                     onChange={onPatientInfo}
                     onSave={() => setInfoOpen(false)}
+                    relevanceFor={(k) => infoRelevance(med, k)}
                   />
+                )}
+              </Panel>
+            )}
+
+            {sharedSafety && (
+              <Panel title="Shared assessment safety response — review required">
+                <div className="rounded-[10px] bg-[#FDF8EE] px-3 py-2.5">
+                  <p className="text-[12px] font-semibold text-[#8A6A20]">
+                    {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
+                    {new Date(sharedSafety.takenAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                    {sharedSafety.itemText}
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
+                    Client&rsquo;s response: “{sharedSafety.response}”
+                  </p>
+                </div>
+                <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  This is the response the client shared, not an interpretation. It is reviewed on
+                  its own and never inferred from the total score.
+                </p>
+                <label className="mt-2.5 flex items-start gap-2 text-[12.5px] leading-relaxed text-[#2C2B4B]">
+                  <input
+                    type="checkbox"
+                    checked={!!med.sharedSafetyAcknowledgedAt}
+                    onChange={(e) =>
+                      onChange({
+                        sharedSafetyAcknowledgedAt: e.target.checked ? Date.now() : undefined,
+                      })
+                    }
+                    className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+                  />
+                  <span>
+                    I reviewed this shared safety-related response and took it into account for this
+                    medication.
+                  </span>
+                </label>
+                {med.sharedSafetyAcknowledgedAt && (
+                  <p className="mt-1 text-[11.5px] text-[#2D8E69]">
+                    Acknowledged {formatCheckedAt(med.sharedSafetyAcknowledgedAt)}
+                  </p>
                 )}
               </Panel>
             )}
@@ -1336,13 +1408,18 @@ function MedicationEditor({
               )}
             </Panel>
 
-            <Panel title="Why this medication was included">
+            <Panel title="Why this option was shown">
               <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                This option was generated from the information documented for this visit. Review the
+                supporting information, alternatives, and patient-specific risks before deciding
+                whether it is appropriate.
+              </p>
+              <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
                 {med.basis?.whyIncluded ??
                   med.rationale ??
                   (med.origin === "manual"
                     ? "Added by the prescribing clinician."
-                    : "No rationale was recorded for this medication.")}
+                    : "No supporting explanation was recorded for this option.")}
               </p>
               {med.basis?.clinicalInformationUsed && (
                 <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
