@@ -87,7 +87,9 @@ export function AiPrescription({
   }, [appointmentId]);
 
   const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
-  const country: RxCountry = rx.country ?? jurisdiction ?? "PH";
+  // Locked: the client's jurisdiction and the provider's verified authority win
+  // over anything stored on the draft. Never a selectable display value.
+  const country: RxCountry = jurisdiction ?? rx.country ?? "PH";
 
   // A blank placeholder is never counted as a medication.
   const namedMeds = rx.medications.filter((m) => m.name.trim().length > 0);
@@ -391,8 +393,8 @@ export function AiPrescription({
     );
   }
 
-  // ---------- Empty ----------
-  if (total === 0) {
+  // ---------- Empty / incomplete ----------
+  if (total === 0 && !reviewMed) {
     return (
       <section className="text-[#2C2B4B]">
         {header}
@@ -403,6 +405,32 @@ export function AiPrescription({
             <p className="text-[13px] text-[#3D2E6B]">
               Preparing draft from the recorded clinical information…
             </p>
+          </div>
+        ) : blankMed ? (
+          <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
+            <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
+              Medication details incomplete
+            </h3>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              No medication has been selected yet, so this does not count as a medication or a
+              prepared draft.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setReviewMedId(blankMed.id)}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+              >
+                Continue adding details
+              </button>
+              <button
+                type="button"
+                onClick={() => removeMed(blankMed.id)}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                Discard
+              </button>
+            </div>
           </div>
         ) : (
           <div className="rounded-xl border border-[#E4E1EC] bg-white px-5 py-8 text-center">
