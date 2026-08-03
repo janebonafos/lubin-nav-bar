@@ -380,7 +380,7 @@ function DetailsPage() {
     if (rx.skippedAt && rx.medications.length === 0) return "Skipped";
     if (rx.medications.length > 0 && rx.medications.every((m) => m.approved))
       return "Verified";
-    if (rx.medications.length > 0 || rx.generatedAt) return "Draft saved";
+    if (rx.medications.length > 0 || rx.generatedAt) return "Draft prepared";
     return "Not started";
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, rxTick]);
@@ -658,7 +658,7 @@ function DetailsPage() {
                 id="prescriptions"
                 eyebrow="Verified prescribers only"
                 title="Prescription"
-                description="Optional. Add medication only if clinically indicated for this session. Not included in the client summary."
+                description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 pillLabel={rxStatus}
