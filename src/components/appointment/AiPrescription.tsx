@@ -858,7 +858,13 @@ function MedicationEditor({
       <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Medication" value={med.name} onChange={(v) => edit({ name: v })} required />
+          <Field
+            id="rx-medication-name"
+            label="Medication"
+            value={med.name}
+            onChange={(v) => edit({ name: v })}
+            required
+          />
           <Field
             label="Strength and formulation"
             value={med.strength ?? ""}
