@@ -56,16 +56,13 @@ export function demoPrescription(appointmentId: string): Prescription {
       },
       contraindications: {
         status: "checked",
-        detail:
-          "No recorded MAOI use, pimozide use or known contraindication (demo).",
+        detail: "No recorded MAOI use, pimozide use or known contraindication (demo).",
       },
       conditions: {
         status: "checked",
-        detail:
-          "No recorded bipolar disorder, seizure disorder or bleeding disorder (demo).",
+        detail: "No recorded bipolar disorder, seizure disorder or bleeding disorder (demo).",
       },
-      missingInformation:
-        "Current medications and recent laboratory results.",
+      missingInformation: "Current medications and recent laboratory results.",
     },
   };
 

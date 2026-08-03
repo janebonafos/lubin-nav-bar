@@ -38,10 +38,7 @@ const STAGES = ["Draft", "Clinical review", "Sign and issue"] as const;
 type Stage = 0 | 1 | 2;
 
 const CHECK_ROWS: {
-  key: keyof Omit<
-    NonNullable<PrescriptionMedication["checks"]>,
-    "missingInformation"
-  >;
+  key: keyof Omit<NonNullable<PrescriptionMedication["checks"]>, "missingInformation">;
   label: string;
 }[] = [
   { key: "allergies", label: "Allergies" },
@@ -52,9 +49,7 @@ const CHECK_ROWS: {
 ];
 
 function medComplete(m: PrescriptionMedication) {
-  return (
-    m.name.trim() && m.dose.trim() && m.frequency.trim() && m.instructions.trim()
-  );
+  return m.name.trim() && m.dose.trim() && m.frequency.trim() && m.instructions.trim();
 }
 
 export function AiPrescription({
@@ -73,9 +68,7 @@ export function AiPrescription({
   /** Takes the provider to the clinical documentation fields. */
   onAddClinicalInfo?: () => void;
 }) {
-  const [rx, setRx] = useState<Prescription>(() =>
-    loadPrescription(appointmentId),
-  );
+  const [rx, setRx] = useState<Prescription>(() => loadPrescription(appointmentId));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -89,8 +82,7 @@ export function AiPrescription({
     return subscribePrescription(() => setRx(loadPrescription(appointmentId)));
   }, [appointmentId]);
 
-  const patch = (p: Partial<Prescription>) =>
-    setRx(updatePrescription(appointmentId, p));
+  const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
   const country: RxCountry = rx.country ?? jurisdiction ?? "PH";
 
   const total = rx.medications.length;
@@ -98,15 +90,13 @@ export function AiPrescription({
   const allVerified = total > 0 && verifiedCount === total;
   const signed = !!rx.finalisedAt;
   const controlledMeds = rx.medications.filter((m) => m.controlled);
-  const restrictedPending =
-    controlledMeds.length > 0 && !rx.restrictedAcknowledgedAt;
+  const restrictedPending = controlledMeds.length > 0 && !rx.restrictedAcknowledgedAt;
   const unverifiedSources = rx.medications.filter(
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
   const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
 
-  const reviewMed =
-    rx.medications.find((m) => m.id === reviewMedId) ?? null;
+  const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
 
   const generate = async (opts?: { demoFallback?: boolean }) => {
@@ -204,9 +194,7 @@ export function AiPrescription({
     const isVerificationToggle = Object.keys(p).length <= 2 && "approved" in p;
     patch({
       medications: meds,
-      ...(isVerificationToggle
-        ? {}
-        : { reviewedAt: undefined, legalAcknowledgedAt: undefined }),
+      ...(isVerificationToggle ? {} : { reviewedAt: undefined, legalAcknowledgedAt: undefined }),
     });
   };
   const removeMed = (id: string) => {
@@ -267,9 +255,7 @@ export function AiPrescription({
 
   const cacheReference = (medId: string, reference: MedicationReference) =>
     patch({
-      medications: rx.medications.map((m) =>
-        m.id === medId ? { ...m, reference } : m,
-      ),
+      medications: rx.medications.map((m) => (m.id === medId ? { ...m, reference } : m)),
     });
   const markExternallyVerified = (medId: string) =>
     patch({
@@ -277,19 +263,14 @@ export function AiPrescription({
         m.id === medId
           ? {
               ...m,
-              externallyVerifiedAt: m.externallyVerifiedAt
-                ? undefined
-                : Date.now(),
+              externallyVerifiedAt: m.externallyVerifiedAt ? undefined : Date.now(),
             }
           : m,
       ),
     });
 
   const canSign =
-    allVerified &&
-    !!rx.legalAcknowledgedAt &&
-    unverifiedSources.length === 0 &&
-    !restrictedPending;
+    allVerified && !!rx.legalAcknowledgedAt && unverifiedSources.length === 0 && !restrictedPending;
 
   const saveDraft = () => {
     patch({});
@@ -299,16 +280,11 @@ export function AiPrescription({
   const header = (
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
-        <h2 className="text-[17px] font-semibold text-[#2C2B4B]">
-          Prescription
-        </h2>
+        <h2 className="text-[17px] font-semibold text-[#2C2B4B]">Prescription</h2>
         <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
           Jurisdiction{" "}
-          <span className="font-semibold text-[#3D2E6B]">
-            {JURISDICTION_LABEL[country]}
-          </span>{" "}
-          · matched to {clientName || "the client"} and your verified
-          prescribing authority
+          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> ·
+          matched to {clientName || "the client"} and your verified prescribing authority
         </p>
       </div>
       <StageBar stage={stage} hideSign={total > 0 && !allVerified && !signed} />
@@ -321,9 +297,7 @@ export function AiPrescription({
       <section className="text-[#2C2B4B]">
         {header}
         <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
-          <p className="text-[13.5px] font-semibold">
-            No prescription needed for this appointment
-          </p>
+          <p className="text-[13.5px] font-semibold">No prescription needed for this appointment</p>
           <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
             Recorded {new Date(rx.skippedAt).toLocaleString()}.
           </p>
@@ -397,19 +371,12 @@ export function AiPrescription({
         ) : (
           <div className="rounded-xl border border-[#E4E1EC] bg-white px-5 py-8 text-center">
             <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F2FB]">
-              <img
-                src={rxIcon.url}
-                alt=""
-                aria-hidden="true"
-                className="h-5 w-5 opacity-50"
-              />
+              <img src={rxIcon.url} alt="" aria-hidden="true" className="h-5 w-5 opacity-50" />
             </div>
-            <h3 className="text-[14px] font-semibold text-[#2C2B4B]">
-              No prescription prepared
-            </h3>
+            <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              Prepare a draft from this visit&rsquo;s clinical information, add a
-              medication yourself, or record that no prescription is needed.
+              Prepare a draft from this visit&rsquo;s clinical information, add a medication
+              yourself, or record that no prescription is needed.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <button
@@ -465,17 +432,15 @@ export function AiPrescription({
           <p className="mt-3 flex items-start gap-1.5 rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#8A6A20]">
             <AlertTriangle className="mt-[2px] h-3.5 w-3.5 flex-none" />
             Official prescribing information is unavailable for{" "}
-            {unverifiedSources.map((m) => m.name || "an item").join(", ")}. Open
-            the medication reference and confirm through another authoritative
-            source.
+            {unverifiedSources.map((m) => m.name || "an item").join(", ")}. Open the medication
+            reference and confirm through another authoritative source.
           </p>
         )}
 
         {controlledMeds.length > 0 && (
           <div className="mt-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3">
             <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[#9B4A4A]">
-              <Lock className="h-3.5 w-3.5" /> Controlled substance — restricted
-              issuing workflow
+              <Lock className="h-3.5 w-3.5" /> Controlled substance — restricted issuing workflow
             </p>
             <label className="mt-2 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#5C3B3B]">
               <input
@@ -483,16 +448,13 @@ export function AiPrescription({
                 checked={!!rx.restrictedAcknowledgedAt}
                 onChange={(e) =>
                   patch({
-                    restrictedAcknowledgedAt: e.target.checked
-                      ? Date.now()
-                      : undefined,
+                    restrictedAcknowledgedAt: e.target.checked ? Date.now() : undefined,
                   })
                 }
                 className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
               />
-              I will issue this medication on the official
-              controlled-prescription form. The confirmation in Lubin is a record
-              only and is not the legal signature.
+              I will issue this medication on the official controlled-prescription form. The
+              confirmation in Lubin is a record only and is not the legal signature.
             </label>
           </div>
         )}
@@ -511,10 +473,9 @@ export function AiPrescription({
               className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
             />
             <span>
-              <span className="font-semibold">Required acknowledgement</span> — I
-              am the prescribing clinician, I am authorised to prescribe in{" "}
-              {JURISDICTION_LABEL[country]}, and I take clinical responsibility
-              for every medication and direction in this prescription.
+              <span className="font-semibold">Required acknowledgement</span> — I am the prescribing
+              clinician, I am authorised to prescribe in {JURISDICTION_LABEL[country]}, and I take
+              clinical responsibility for every medication and direction in this prescription.
             </span>
           </label>
         </div>
@@ -533,9 +494,7 @@ export function AiPrescription({
           <button
             type="button"
             disabled={!canSign}
-            onClick={() =>
-              patch({ finalisedAt: Date.now(), finalisedBy: providerName })
-            }
+            onClick={() => patch({ finalisedAt: Date.now(), finalisedBy: providerName })}
             className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
           >
             Sign and issue prescription
@@ -771,27 +730,19 @@ function MedicationSummaryCard({
 }) {
   const hasName = med.name.trim().length > 0;
   const { completed, missing } = checkSummary(med);
-  const line = [med.route, med.frequency, med.duration]
-    .filter((v) => v && v.trim())
-    .join(" · ");
+  const line = [med.route, med.frequency, med.duration].filter((v) => v && v.trim()).join(" · ");
   return (
     <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-[#2C2B4B]">
             {hasName ? med.name : "Untitled medication"}
-            {med.dose ? (
-              <span className="font-normal text-[#3D2E6B]"> {med.dose}</span>
-            ) : null}
+            {med.dose ? <span className="font-normal text-[#3D2E6B]"> {med.dose}</span> : null}
           </p>
-          {line && (
-            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">{line}</p>
-          )}
+          {line && <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">{line}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span className="text-[11.5px] text-[#6F6889]">
-              {med.origin === "manual"
-                ? "Added by clinician"
-                : "AI-prepared"}
+              {med.origin === "manual" ? "Added by clinician" : "AI-prepared"}
             </span>
             <span className="text-[#CFC9DC]">·</span>
             {med.approved ? (
@@ -806,9 +757,7 @@ function MedicationSummaryCard({
             {med.demo && (
               <>
                 <span className="text-[#CFC9DC]">·</span>
-                <span className="text-[11.5px] font-semibold text-[#6E4FD3]">
-                  Demo data
-                </span>
+                <span className="text-[11.5px] font-semibold text-[#6E4FD3]">Demo data</span>
               </>
             )}
           </div>
@@ -842,13 +791,7 @@ function MedicationSummaryCard({
   );
 }
 
-function ReferenceButton({
-  hasName,
-  onClick,
-}: {
-  hasName: boolean;
-  onClick: () => void;
-}) {
+function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () => void }) {
   if (!hasName) {
     return (
       <span className="text-[12px] text-[#7E7794]">
@@ -892,28 +835,16 @@ function MedicationEditor({
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       {/* Left — the prescription itself */}
       <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
-          Medication and directions
-        </h3>
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field
-            label="Medication"
-            value={med.name}
-            onChange={(v) => edit({ name: v })}
-            required
-          />
+          <Field label="Medication" value={med.name} onChange={(v) => edit({ name: v })} required />
           <Field
             label="Strength and formulation"
             value={med.strength ?? ""}
             onChange={(v) => edit({ strength: v })}
             placeholder="50 mg film-coated tablet"
           />
-          <Field
-            label="Dose"
-            value={med.dose}
-            onChange={(v) => edit({ dose: v })}
-            required
-          />
+          <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
           <Field
             label="Route"
             value={med.route ?? ""}
@@ -981,8 +912,8 @@ function MedicationEditor({
             <span>
               <span className="font-semibold">Verify medication</span>
               <span className="mt-0.5 block text-[12.5px] text-[#5A4A8A]">
-                I reviewed the prescription details, safety information and
-                patient-specific considerations.
+                I reviewed the prescription details, safety information and patient-specific
+                considerations.
               </span>
             </span>
           </label>
@@ -995,14 +926,12 @@ function MedicationEditor({
           </button>
           {legalOpen && (
             <p className="mt-1.5 pl-7 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {MED_VERIFICATION_STATEMENT} Any change to this medication resets
-              the verification.
+              {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
             </p>
           )}
           {!complete && (
             <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
-              Add medication, dose, frequency and patient instructions before
-              verifying.
+              Add medication, dose, frequency and patient instructions before verifying.
             </p>
           )}
         </div>
@@ -1032,8 +961,7 @@ function MedicationEditor({
             </span>
             {missing > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBF2DF] px-2.5 py-1 text-[11.5px] font-semibold text-[#8A6A20]">
-                <AlertTriangle className="h-3.5 w-3.5" /> {missing} require
-                information
+                <AlertTriangle className="h-3.5 w-3.5" /> {missing} require information
               </span>
             )}
             <button
@@ -1050,11 +978,7 @@ function MedicationEditor({
           {checksOpen && (
             <ul className="mt-2.5 space-y-1.5 border-t border-[#EDEBF3] pt-2.5">
               {CHECK_ROWS.map((r) => (
-                <CheckRow
-                  key={r.key}
-                  label={r.label}
-                  check={med.checks?.[r.key]}
-                />
+                <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
               ))}
             </ul>
           )}
@@ -1064,8 +988,7 @@ function MedicationEditor({
           {med.checks?.missingInformation || med.basis?.missingInformation ? (
             <>
               <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                {med.checks?.missingInformation ??
-                  med.basis?.missingInformation}
+                {med.checks?.missingInformation ?? med.basis?.missingInformation}
               </p>
               {onAddClinicalInfo && (
                 <button
@@ -1078,9 +1001,7 @@ function MedicationEditor({
               )}
             </>
           ) : (
-            <p className="text-[12.5px] text-[#5A4A8A]">
-              Nothing outstanding for this medication.
-            </p>
+            <p className="text-[12.5px] text-[#5A4A8A]">Nothing outstanding for this medication.</p>
           )}
         </Panel>
 
@@ -1094,17 +1015,14 @@ function MedicationEditor({
               "No contraindication review is recorded for this medication."}
           </p>
           {med.warnings && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {med.warnings}
-            </p>
+            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">{med.warnings}</p>
           )}
         </Panel>
 
         <Panel title="Medication reference">
           <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
-            Official prescribing information for {JURISDICTION_LABEL[country]},
-            patient-specific considerations and the AI explanation, kept
-            separate.
+            Official prescribing information for {JURISDICTION_LABEL[country]}, patient-specific
+            considerations and the AI explanation, kept separate.
           </p>
           <div className="mt-2">
             <ReferenceButton hasName={hasName} onClick={onOpenReference} />
@@ -1115,13 +1033,7 @@ function MedicationEditor({
   );
 }
 
-function Panel({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
       <h3 className="mb-2 text-[13px] font-semibold text-[#2C2B4B]">{title}</h3>
@@ -1141,8 +1053,7 @@ function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) 
       )}
       <span className="text-[#3D2E6B]">
         <span className="font-semibold">{label}:</span>{" "}
-        {check?.detail ??
-          "Unable to complete — required clinical information is missing."}
+        {check?.detail ?? "Unable to complete — required clinical information is missing."}
       </span>
     </li>
   );
@@ -1166,9 +1077,7 @@ function FinalReviewBody({
   return (
     <div className="space-y-3">
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
-          Complete prescription
-        </h3>
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Complete prescription</h3>
         <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
           <Row label="Patient" value={clientName || "—"} />
           <Row label="Prescriber" value={providerName || "—"} />
@@ -1181,15 +1090,10 @@ function FinalReviewBody({
       </section>
 
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
-          Medications and directions
-        </h3>
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medications and directions</h3>
         <ul className="mt-3 space-y-3">
           {rx.medications.map((m) => (
-            <li
-              key={m.id}
-              className="border-t border-[#EDEBF3] pt-3 first:border-t-0 first:pt-0"
-            >
+            <li key={m.id} className="border-t border-[#EDEBF3] pt-3 first:border-t-0 first:pt-0">
               <p className="text-[13.5px] font-semibold text-[#2C2B4B]">
                 {m.name || "Untitled medication"} {m.dose}
               </p>

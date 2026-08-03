@@ -312,9 +312,7 @@ export function isVerifiedPrescriber(clientJurisdiction?: string): boolean {
     );
     if (!credsOk) return false;
     if (!clientJurisdiction) return true;
-    const jurisdictions = (parsed.prescribingJurisdictions ?? []).map((j) =>
-      j.toLowerCase(),
-    );
+    const jurisdictions = (parsed.prescribingJurisdictions ?? []).map((j) => j.toLowerCase());
     return jurisdictions.includes(clientJurisdiction.toLowerCase());
   } catch {
     return false;
