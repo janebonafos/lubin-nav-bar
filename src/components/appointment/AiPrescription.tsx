@@ -930,6 +930,23 @@ function MedicationEditor({
   const reviewRan = summary.ran;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
+  const catalogue = findCatalogue(med.name);
+  const selectMedication = (name: string) => {
+    const entry = findCatalogue(name);
+    edit({
+      name,
+      genericName: entry?.genericName,
+      strength: entry && med.strength && entry.forms.includes(med.strength) ? med.strength : "",
+      route: entry?.routes.length === 1 ? entry.routes[0] : (med.route ?? ""),
+      requiresLabs: entry?.requiresLabs ?? med.requiresLabs,
+      requiresPregnancyStatus: entry?.requiresPregnancyStatus ?? med.requiresPregnancyStatus,
+      controlled: entry?.controlled ?? med.controlled,
+      // A new medication invalidates the previous reference and safety review.
+      reference: undefined,
+      checks: undefined,
+      safetyReviewedAt: undefined,
+    });
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
@@ -937,50 +954,68 @@ function MedicationEditor({
       <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field
-            id="rx-medication-name"
-            label="Medication"
-            value={med.name}
-            onChange={(v) => edit({ name: v })}
-            required
-          />
-          <Field
-            label="Strength and formulation"
-            value={med.strength ?? ""}
-            onChange={(v) => edit({ strength: v })}
-            placeholder="50 mg film-coated tablet"
-          />
+          <div className="sm:col-span-2">
+            <MedicationSelector
+              value={med.name}
+              genericName={med.genericName}
+              onSelect={selectMedication}
+            />
+          </div>
+          {catalogue ? (
+            <SelectField
+              label="Strength and formulation"
+              value={med.strength ?? ""}
+              options={catalogue.forms}
+              onChange={(v) => edit({ strength: v })}
+            />
+          ) : (
+            <Field
+              label="Strength and formulation"
+              value={med.strength ?? ""}
+              onChange={(v) => edit({ strength: v })}
+              placeholder="Strength and formulation as dispensed"
+            />
+          )}
           <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
-          <Field
-            label="Route"
-            value={med.route ?? ""}
-            onChange={(v) => edit({ route: v })}
-            placeholder="Oral"
-          />
+          {catalogue ? (
+            <SelectField
+              label="Route"
+              value={med.route ?? ""}
+              options={catalogue.routes}
+              onChange={(v) => edit({ route: v })}
+            />
+          ) : (
+            <Field
+              label="Route"
+              value={med.route ?? ""}
+              onChange={(v) => edit({ route: v })}
+              placeholder="Route of administration"
+            />
+          )}
           <Field
             label="Frequency"
             value={med.frequency}
             onChange={(v) => edit({ frequency: v })}
             required
-            placeholder="Once daily in the morning"
+            placeholder="How often it is taken"
           />
           <Field
             label="Duration"
             value={med.duration ?? ""}
             onChange={(v) => edit({ duration: v })}
-            placeholder="4 weeks"
+            placeholder="How long to continue"
           />
           <Field
             label="Quantity"
             value={med.quantity ?? ""}
             onChange={(v) => edit({ quantity: v })}
-            placeholder="30 tablets"
+            placeholder="Total amount to dispense"
           />
           <Field
             label="Refills"
             value={med.refills ?? ""}
             onChange={(v) => edit({ refills: v })}
-            placeholder="No refills"
+            placeholder="Number of refills, or none"
           />
           <div className="sm:col-span-2">
             <Field
