@@ -11,10 +11,10 @@ import {
   Info,
   BookOpen,
   Columns3,
-  FileSignature,
   ChevronDown,
   ClipboardList,
 } from "lucide-react";
+import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
   loadPrescription,
   subscribePrescription,
