@@ -1274,7 +1274,7 @@ function FinalReviewBody({
                 {m.name || "Medication draft"} {m.strength || m.dose}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#3D2E6B]">
-                {[m.strength, m.route, m.frequency, m.duration]
+                {[m.route, m.frequency, m.duration]
                   .filter((v) => v && v.trim())
                   .join(" · ")}
               </p>
