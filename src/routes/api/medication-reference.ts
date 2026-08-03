@@ -152,34 +152,33 @@ export const Route = createFileRoute("/api/medication-reference")({
           if (body.includedAssessments?.length) {
             lines.push("Assessment results:");
             for (const a of body.includedAssessments) {
-              lines.push(`- ${a.name}: ${a.score ?? "—"}${a.statusLabel ? `, ${a.statusLabel}` : ""}`);
+              lines.push(
+                `- ${a.name}: ${a.score ?? "—"}${a.statusLabel ? `, ${a.statusLabel}` : ""}`,
+              );
             }
           }
 
-          const upstream = await fetch(
-            "https://ai.gateway.lovable.dev/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                model: "google/gemini-3.6-flash",
-                response_format: { type: "json_object" },
-                messages: [
-                  {
-                    role: "system",
-                    content: `${SYSTEM_PROMPT}\n\n${SOURCE_GUIDES[country]}`,
-                  },
-                  {
-                    role: "user",
-                    content: `${lines.join("\n")}\n\nProduce the medication reference JSON now.`,
-                  },
-                ],
-              }),
+          const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
             },
-          );
+            body: JSON.stringify({
+              model: "google/gemini-3.6-flash",
+              response_format: { type: "json_object" },
+              messages: [
+                {
+                  role: "system",
+                  content: `${SYSTEM_PROMPT}\n\n${SOURCE_GUIDES[country]}`,
+                },
+                {
+                  role: "user",
+                  content: `${lines.join("\n")}\n\nProduce the medication reference JSON now.`,
+                },
+              ],
+            }),
+          });
           if (!upstream.ok) {
             if (upstream.status === 429)
               return Response.json(
@@ -203,10 +202,7 @@ export const Route = createFileRoute("/api/medication-reference")({
           try {
             parsed = JSON.parse(data.choices?.[0]?.message?.content ?? "");
           } catch {
-            return Response.json(
-              { error: "Could not parse AI response." },
-              { status: 500 },
-            );
+            return Response.json({ error: "Could not parse AI response." }, { status: 500 });
           }
           const g = parsed.general ?? {};
           const p = parsed.patient ?? {};
@@ -218,9 +214,7 @@ export const Route = createFileRoute("/api/medication-reference")({
               jurisdiction:
                 str(s.jurisdiction) || (country === "PH" ? "Philippines" : "United States"),
               organisation: str(s.organisation),
-              kind: (["label", "formulary", "secondary"] as const).includes(
-                str(s.kind) as "label",
-              )
+              kind: (["label", "formulary", "secondary"] as const).includes(str(s.kind) as "label")
                 ? (str(s.kind) as "label" | "formulary" | "secondary")
                 : "secondary",
             }))

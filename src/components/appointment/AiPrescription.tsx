@@ -55,10 +55,7 @@ import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
-import {
-  sharedSafetyResponse,
-  type SharedSafetyResponse,
-} from "@/lib/prescription/sharedSafety";
+import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",

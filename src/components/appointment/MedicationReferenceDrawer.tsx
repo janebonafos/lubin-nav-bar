@@ -470,7 +470,12 @@ function missingFromReference(ref: MedicationReference): string[] {
   const out: string[] = [];
   const flag = (label: string, value?: string) => {
     const v = (value ?? "").toLowerCase();
-    if (!v.trim() || v.includes("not supplied") || v.includes("no information") || v.includes("information required"))
+    if (
+      !v.trim() ||
+      v.includes("not supplied") ||
+      v.includes("no information") ||
+      v.includes("information required")
+    )
       out.push(label);
   };
   flag("Allergy history", ref.patient.allergiesReviewed);
@@ -511,8 +516,8 @@ function SourceItem({
         Jurisdiction: {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
       </p>
       <p className="text-[11px] text-[#8B85A6]">
-        Last updated: {source.revisedAt ? source.revisedAt : "not stated by the source"} · Lubin last
-        checked {new Date(ref_.checkedAt).toLocaleDateString()}
+        Last updated: {source.revisedAt ? source.revisedAt : "not stated by the source"} · Lubin
+        last checked {new Date(ref_.checkedAt).toLocaleDateString()}
       </p>
       {source.url && (
         <a

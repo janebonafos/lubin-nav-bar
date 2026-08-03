@@ -49,35 +49,35 @@ export function demoPrescription(appointmentId: string): Prescription {
   };
 
   const patientInfo: PatientSafetyInfo = {
-      allergyState: "none-known",
-      allergyEntries: [],
-      conditionState: "documented",
-      conditionEntries: [
-        {
-          id: genRxId(),
-          name: "Generalised anxiety (demo)",
-          detail: "Ongoing, managed with therapy",
-          status: "active",
-          source: "passport",
-          updatedAt: generatedAt,
-        },
-        {
-          id: genRxId(),
-          name: "Bipolar disorder (demo)",
-          detail: "Screened and not present",
-          status: "resolved",
-          source: "provider",
-          updatedAt: generatedAt,
-        },
-      ],
-      medicationState: "not-documented",
-      medicationEntries: [],
-      pregnancyStatus: "not-documented",
-      bipolarHistory: "none-known",
-      bipolarDetail: "Screened at this visit; no manic or hypomanic episode reported (demo)",
-      dob: "1991-04-12",
-      updatedAt: generatedAt,
-    };
+    allergyState: "none-known",
+    allergyEntries: [],
+    conditionState: "documented",
+    conditionEntries: [
+      {
+        id: genRxId(),
+        name: "Generalised anxiety (demo)",
+        detail: "Ongoing, managed with therapy",
+        status: "active",
+        source: "passport",
+        updatedAt: generatedAt,
+      },
+      {
+        id: genRxId(),
+        name: "Bipolar disorder (demo)",
+        detail: "Screened and not present",
+        status: "resolved",
+        source: "provider",
+        updatedAt: generatedAt,
+      },
+    ],
+    medicationState: "not-documented",
+    medicationEntries: [],
+    pregnancyStatus: "not-documented",
+    bipolarHistory: "none-known",
+    bipolarDetail: "Screened at this visit; no manic or hypomanic episode reported (demo)",
+    dob: "1991-04-12",
+    updatedAt: generatedAt,
+  };
   // Single source of truth: the checks are derived from the recorded patient
   // information, so nothing can report "no issue" while information is missing.
   med.checks = runSafetyReview(med, patientInfo);
