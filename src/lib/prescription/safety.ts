@@ -3,6 +3,8 @@
 import type {
   MedicationCheck,
   MedicationChecks,
+  InfoDocState,
+  PatientInfoEntry,
   PatientSafetyInfo,
   Prescription,
   PrescriptionMedication,
@@ -52,7 +54,67 @@ export const CHECK_ROWS: { key: keyof Omit<MedicationChecks, "missingInformation
 
 /* -------------------------- patient information -------------------------- */
 
-export type InfoKey = keyof Omit<PatientSafetyInfo, "updatedAt">;
+export type InfoKey = "allergies" | "currentMedications" | "conditions" | "pregnancy" | "labs";
+
+/** Categories captured as structured, searchable entries. */
+export const STRUCTURED_KEYS = ["allergies", "currentMedications", "conditions"] as const;
+export type StructuredKey = (typeof STRUCTURED_KEYS)[number];
+
+const ENTRY_FIELD: Record<StructuredKey, "allergyEntries" | "medicationEntries" | "conditionEntries"> =
+  {
+    allergies: "allergyEntries",
+    currentMedications: "medicationEntries",
+    conditions: "conditionEntries",
+  };
+
+const STATE_FIELD: Record<StructuredKey, "allergyState" | "medicationState" | "conditionState"> = {
+  allergies: "allergyState",
+  currentMedications: "medicationState",
+  conditions: "conditionState",
+};
+
+export function isStructuredKey(key: InfoKey): key is StructuredKey {
+  return (STRUCTURED_KEYS as readonly string[]).includes(key);
+}
+
+export function entryField(key: StructuredKey) {
+  return ENTRY_FIELD[key];
+}
+
+export function stateField(key: StructuredKey) {
+  return STATE_FIELD[key];
+}
+
+export function entriesFor(info: PatientSafetyInfo | undefined, key: StructuredKey): PatientInfoEntry[] {
+  return info?.[ENTRY_FIELD[key]] ?? [];
+}
+
+export function docStateFor(
+  info: PatientSafetyInfo | undefined,
+  key: StructuredKey,
+): InfoDocState {
+  const explicit = info?.[STATE_FIELD[key]];
+  if (explicit) return explicit;
+  return entriesFor(info, key).length > 0 ? "documented" : "not-documented";
+}
+
+/** Text used by the deterministic review for a structured category. */
+function structuredText(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
+  const entries = entriesFor(info, key)
+    .map((e) => [e.name, e.detail].filter(Boolean).join(" "))
+    .join(", ");
+  const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
+  return [entries, legacy ?? ""].filter((v) => v && v.trim()).join(", ");
+}
+
+/** A structured category counts as recorded when it has entries or an
+ *  explicit "none known" statement. "Not documented" is not enough. */
+function structuredRecorded(info: PatientSafetyInfo | undefined, key: StructuredKey): boolean {
+  if (entriesFor(info, key).length > 0) return true;
+  if (info?.[STATE_FIELD[key]] === "none-known") return true;
+  const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
+  return !!legacy && legacy.trim().length > 0;
+}
 
 export const INFO_FIELDS: {
   key: InfoKey;
@@ -111,6 +173,7 @@ export function missingInfoKeys(
 ): InfoKey[] {
   return requiredInfoKeys(med).filter((k) => {
     if (k === "currentMedications" && visitMedications?.length) return false;
+    if (isStructuredKey(k)) return !structuredRecorded(info, k);
     return !has(info?.[k]);
   });
 }
@@ -153,11 +216,14 @@ export function runSafetyReview(
 ): MedicationChecks {
   const now = Date.now();
   const missing = missingInfoKeys(med, info, visitMedications);
-  const medsText = [info?.currentMedications ?? "", ...(visitMedications ?? []).map((m) => m.name)]
+  const medsText = [
+    structuredText(info, "currentMedications"),
+    ...(visitMedications ?? []).map((m) => m.name),
+  ]
     .join(", ")
     .trim();
-  const allergyText = info?.allergies ?? "";
-  const conditionText = info?.conditions ?? "";
+  const allergyText = structuredText(info, "allergies");
+  const conditionText = structuredText(info, "conditions");
   const name = med.name.toLowerCase().replace(/\(.*?\)/g, "").trim();
 
   const needs = (k: InfoKey, detail: string): MedicationCheck => ({
