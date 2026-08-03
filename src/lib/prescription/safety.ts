@@ -720,8 +720,10 @@ export function verificationBlockers(args: {
   visitMedications?: { name: string }[];
   fieldsComplete: boolean;
   acknowledged: boolean;
+  /** Shared assessment safety response awaiting provider acknowledgement. */
+  sharedSafetyPending?: boolean;
 }): Blocker[] {
-  const { med, info, visitMedications, fieldsComplete, acknowledged } = args;
+  const { med, info, visitMedications, fieldsComplete, acknowledged, sharedSafetyPending } = args;
   const out: Blocker[] = [];
   if (!fieldsComplete)
     out.push({
@@ -744,6 +746,11 @@ export function verificationBlockers(args: {
     const row = CHECK_ROWS.find((r) => r.key === k);
     out.push({ kind: "review", label: `Mark ${(row?.label ?? k).toLowerCase()} as reviewed.` });
   }
+  if (sharedSafetyPending)
+    out.push({
+      kind: "review",
+      label: "Acknowledge the shared assessment safety response.",
+    });
   if (!acknowledged)
     out.push({ kind: "acknowledgement", label: "Tick the verification acknowledgement." });
   return out;
