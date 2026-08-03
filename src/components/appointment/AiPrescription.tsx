@@ -555,7 +555,7 @@ export function AiPrescription({
 
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {verifiedCount} of {total} medications verified
+            {countLabel}
           </span>
           <button
             type="button"
@@ -604,7 +604,7 @@ export function AiPrescription({
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {verifiedCount} of {total} medications verified
+            {countLabel}
           </span>
           <button
             type="button"
@@ -677,7 +677,7 @@ export function AiPrescription({
 
       <StickyBar>
         <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-          {verifiedCount} of {total} medications verified
+          {countLabel}
           {savedAt ? " · Draft saved" : ""}
         </span>
         {!allVerified && (
