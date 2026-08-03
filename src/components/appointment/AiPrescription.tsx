@@ -278,6 +278,22 @@ export function AiPrescription({
     setSavedAt(Date.now());
   };
 
+  const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
+
+  const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
+    patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
+
+  const runReview = (medId: string) => {
+    const target = rx.medications.find((m) => m.id === medId);
+    if (!target) return;
+    const checks = runSafetyReview(target, rx.patientInfo, visitMeds);
+    patch({
+      medications: rx.medications.map((m) =>
+        m.id === medId ? { ...m, checks, safetyReviewedAt: Date.now() } : m,
+      ),
+    });
+  };
+
   const header = (
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
