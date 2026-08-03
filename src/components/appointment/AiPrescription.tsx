@@ -1431,7 +1431,12 @@ function FinalReviewBody({
           <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
           <Row
             label="Safety review"
-            value={`${rx.medications.filter((m) => m.approved).length} of ${rx.medications.length} medications verified`}
+            value={(() => {
+              const named = rx.medications.filter((m) => m.name.trim().length > 0);
+              if (named.length === 0) return "No medication added";
+              const word = named.length === 1 ? "medication" : "medications";
+              return `${named.filter((m) => m.approved).length} of ${named.length} ${word} verified`;
+            })()}
           />
         </dl>
       </section>
