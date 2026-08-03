@@ -671,6 +671,7 @@ export function AiPrescription({
       visitMedications: visitMeds,
       fieldsComplete: !!complete,
       acknowledged: !!reviewMed.acknowledgedAt,
+      sharedSafetyPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
     });
     const blocked = blockers.length > 0;
     return (
@@ -695,6 +696,7 @@ export function AiPrescription({
           onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
           blockers={blockers}
           onOpenReference={() => setRefMedId(reviewMed.id)}
+          sharedSafety={sharedSafety}
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
