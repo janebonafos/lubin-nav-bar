@@ -1071,8 +1071,9 @@ function MedicationEditor({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
-        {/* 1 — Medication details */}
-        <section className="lg:col-span-7">
+        {/* 1 — Medication details, with every expanded panel kept in this column */}
+        <div className="space-y-5 lg:col-span-7">
+        <section>
           <SectionHeading>Medication details</SectionHeading>
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
             <div className="md:col-span-6">
@@ -1172,8 +1173,72 @@ function MedicationEditor({
           </div>
         </section>
 
+        {/* Expanded panels stay in the left column so the layout stays balanced */}
+        {infoOpen && (
+          <PatientInfoForm
+            keys={outstanding.length > 0 ? outstanding.map((o) => o.key) : requiredKeys(med)}
+            info={patientInfo}
+            onChange={onPatientInfo}
+            onSave={() => setInfoOpen(false)}
+            relevanceFor={(k) => infoRelevance(med, k)}
+          />
+        )}
+
+        {whyOpen && (
+          <div className="rounded-xl bg-[#FAF9FD] px-4 py-3">
+            <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              This option was generated from the information documented for this visit. Review the
+              supporting information, alternatives, and patient-specific risks before deciding
+              whether it is appropriate.
+            </p>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              {med.basis?.whyIncluded ??
+                med.rationale ??
+                (med.origin === "manual"
+                  ? "Added by the prescribing clinician."
+                  : "No supporting explanation was recorded for this option.")}
+            </p>
+            {med.basis?.clinicalInformationUsed && (
+              <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                {med.basis.clinicalInformationUsed}
+              </p>
+            )}
+          </div>
+        )}
+
+        {checksOpen && reviewRan && (
+          <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
+            <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+              Full safety review{" "}
+              <span className="font-normal text-[#6F6889]">
+                · {summary.text}
+                {med.safetyReviewedAt
+                  ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
+                  : ""}
+              </span>
+            </p>
+            <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+              {CHECK_ROWS.map((r) => (
+                <CheckRow
+                  key={r.key}
+                  label={r.label}
+                  check={med.checks?.[r.key]}
+                  reviewedAt={med.checkReviews?.[r.key]}
+                  onMarkReviewed={() => onMarkCheckReviewed(r.key)}
+                />
+              ))}
+            </ul>
+            {med.warnings && (
+              <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                {med.warnings}
+              </p>
+            )}
+          </div>
+        )}
+        </div>
+
         {/* Right rail — safety checkpoint and final review stay in view */}
-        <div className="space-y-6 lg:col-span-5 lg:border-l lg:border-[#EDEBF3] lg:pl-8">
+        <div className="space-y-6 lg:sticky lg:top-24 lg:col-span-5 lg:border-l lg:border-[#EDEBF3] lg:pl-8">
           {/* 2 — Patient information & safety */}
           <section>
             <SectionHeading>Patient information &amp; safety</SectionHeading>
