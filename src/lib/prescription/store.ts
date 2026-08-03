@@ -92,6 +92,9 @@ export type PrescriptionMedication = {
   route?: string; // e.g. "Oral"
   frequency: string; // e.g. "Once daily at bedtime"
   duration?: string; // e.g. "4 weeks"
+  strength?: string; // strength and formulation, e.g. "50 mg film-coated tablet"
+  quantity?: string; // e.g. "30 tablets"
+  refills?: string; // e.g. "1 refill"
   indication?: string; // why it's being prescribed
   instructions: string; // patient-facing guidance
   warnings?: string; // side effects / red flags
@@ -124,6 +127,10 @@ export type Prescription = {
   medications: PrescriptionMedication[];
   clinicalNotes?: string;
   country?: RxCountry;
+  /** Pharmacy or delivery destination recorded on the final review screen. */
+  destination?: string;
+  /** Final legal acknowledgement recorded on the final review screen. */
+  legalAcknowledgedAt?: number;
   generatedAt?: number;
   /** Set when the clinician completed the whole-prescription review step. */
   reviewedAt?: number;
