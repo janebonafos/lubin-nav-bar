@@ -247,15 +247,19 @@ export function AiPrescription({
 
   if (!active) {
     return (
-      <section className="rounded-2xl border border-[#ECE7F6] bg-white px-4 py-4">
-        <p className="text-[13px] font-semibold text-[#3D2E6B]">
-          Create a prescription
-        </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-[#7E6BAF]">
-          Prepare a draft from the recorded clinical information or add a
-          medication manually.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
+      <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
+        <div className="flex items-center justify-between border-b border-[#ECE7F6] px-5 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[#2C2B4B]">Prescriptions</h2>
+            <p className="mt-0.5 text-[13px] text-[#7E6BAF]">
+              Optional. Add medication only if clinically indicated.
+            </p>
+          </div>
+          <span className="inline-flex items-center rounded-full border border-[#E2D7F3] bg-[#F4EEFC] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+            Optional
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2 p-5">
           <button
             type="button"
             onClick={() => {
@@ -274,7 +278,7 @@ export function AiPrescription({
             }}
             className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
           >
-            <Plus className="h-4 w-4" /> Add medication manually
+            <Plus className="h-4 w-4" /> Add manually
           </button>
           <button
             type="button"
@@ -287,6 +291,7 @@ export function AiPrescription({
       </section>
     );
   }
+
 
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
