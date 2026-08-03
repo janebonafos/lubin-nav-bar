@@ -12,10 +12,15 @@ import {
 } from "lucide-react";
 import {
   ORIGIN_LABELS,
+  SOURCE_KIND_LABEL,
   type MedicationReference,
+  type MedicationSource,
+  type PatientSafetyInfo,
   type PrescriptionMedication,
   type RxCountry,
+  type SourceKind,
 } from "@/lib/prescription/store";
+import type { SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 import {
   AI_SUMMARY_CAVEAT,
   PATIENT_REVIEW_CAVEAT,
@@ -30,7 +35,8 @@ function officialSourceUrl(country: RxCountry, name: string) {
     : `https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${q}`;
 }
 
-function sourceOrganisation(s: { title: string; url?: string }) {
+function sourceOrganisation(s: MedicationSource) {
+  if (s.organisation?.trim()) return s.organisation.trim();
   try {
     if (!s.url) return "Not stated";
     return new URL(s.url).hostname.replace(/^www\./, "");
@@ -38,6 +44,8 @@ function sourceOrganisation(s: { title: string; url?: string }) {
     return "Not stated";
   }
 }
+
+const SOURCE_ORDER: SourceKind[] = ["label", "formulary", "secondary", "ai"];
 
 export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   const origin = med.origin ?? "ai";
@@ -91,6 +99,8 @@ export function MedicationReferenceDrawer({
   clientName,
   onCached,
   onExternallyVerified,
+  patientInfo,
+  sharedSafety,
 }: {
   open: boolean;
   onClose: () => void;
@@ -100,6 +110,8 @@ export function MedicationReferenceDrawer({
   clientName?: string;
   onCached?: (ref: MedicationReference) => void;
   onExternallyVerified?: () => void;
+  patientInfo?: PatientSafetyInfo;
+  sharedSafety?: SharedSafetyResponse | null;
 }) {
   const [ref, setRef] = useState<MedicationReference | null>(null);
   const [busy, setBusy] = useState(false);
@@ -120,6 +132,7 @@ export function MedicationReferenceDrawer({
         med,
         country,
         clientName,
+        patientInfo,
       });
       setRef(data);
       onCached?.(data);
