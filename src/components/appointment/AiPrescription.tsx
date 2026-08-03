@@ -330,6 +330,16 @@ export function AiPrescription({
       ),
     });
 
+  const saveDraft = () => {
+    patch({});
+    setSavedAt(Date.now());
+  };
+
+  const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
+
+  /** Shared assessment safety response, carried into the clinical review. */
+  const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
+
   const canSign =
     allVerified &&
     !!rx.legalAcknowledgedAt &&
@@ -343,16 +353,6 @@ export function AiPrescription({
         !reviewStale(m, rx.patientInfo) &&
         (!sharedSafety || !!m.sharedSafetyAcknowledgedAt),
     );
-
-  const saveDraft = () => {
-    patch({});
-    setSavedAt(Date.now());
-  };
-
-  const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
-
-  /** Shared assessment safety response, carried into the clinical review. */
-  const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
 
   const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
     patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
