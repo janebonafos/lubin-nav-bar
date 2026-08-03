@@ -1334,12 +1334,14 @@ function missingClinicalInfo(ws: ReturnType<typeof loadWorkspace>): string[] {
 }
 
 function Field({
+  id,
   label,
   value,
   onChange,
   placeholder,
   required,
 }: {
+  id?: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -1348,11 +1350,12 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-[12px] font-medium text-[#5A4A8A]">
+      <label htmlFor={id} className="text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
       </label>
       <input
+        id={id}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
