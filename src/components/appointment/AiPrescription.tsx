@@ -816,6 +816,8 @@ export function AiPrescription({
         country={country}
         appointmentId={appointmentId}
         clientName={clientName}
+        patientInfo={rx.patientInfo}
+        sharedSafety={sharedSafety}
         onCached={(reference) => refMed && cacheReference(refMed.id, reference)}
         onExternallyVerified={() => refMed && markExternallyVerified(refMed.id)}
       />
