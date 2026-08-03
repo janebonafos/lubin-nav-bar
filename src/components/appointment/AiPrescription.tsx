@@ -1103,19 +1103,121 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
-  const ok = check?.status === "checked";
-  return (
-    <li className="flex items-start gap-1.5 text-[12.5px] leading-snug">
-      {ok ? (
-        <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#1F7A57]" />
-      ) : (
-        <AlertTriangle className="mt-[2px] h-3.5 w-3.5 flex-none text-[#C08A2A]" />
-      )}
-      <span className="text-[#3D2E6B]">
-        <span className="font-semibold">{label}:</span>{" "}
-        {check?.detail ?? "Unable to complete — required clinical information is missing."}
+const TONE_TEXT = {
+  neutral: "text-[#6F6889]",
+  amber: "text-[#8A6A20]",
+  green: "text-[#1F7A57]",
+  red: "text-[#9B4A4A]",
+} as const;
+
+const TONE_BG = {
+  neutral: "bg-[#F2F0F7] text-[#5A4A8A]",
+  amber: "bg-[#FBF2DF] text-[#8A6A20]",
+  green: "bg-[#E7F6EF] text-[#1F7A57]",
+  red: "bg-[#FBEDED] text-[#9B4A4A]",
+} as const;
+
+function requiredKeys(med: PrescriptionMedication): InfoKey[] {
+  return requiredInfoKeys(med);
+}
+
+function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }) {
+  if (!summary.ran) {
+    return (
+      <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.neutral}`}>
+        Safety review not run
       </span>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {summary.complete > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.green}`}>
+          {summary.complete} check{summary.complete === 1 ? "" : "s"} complete
+        </span>
+      )}
+      {summary.review > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
+          {summary.review} requires review
+        </span>
+      )}
+      {summary.needsInfo > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
+          {summary.needsInfo} needs information
+        </span>
+      )}
+      {summary.blocking > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.red}`}>
+          {summary.blocking} blocking issue{summary.blocking === 1 ? "" : "s"}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function InfoForm({
+  keys,
+  info,
+  onChange,
+  onDone,
+}: {
+  keys: InfoKey[];
+  info?: PatientSafetyInfo;
+  onChange: (p: Partial<PatientSafetyInfo>) => void;
+  onDone: () => void;
+}) {
+  const fields = INFO_FIELDS.filter((f) => keys.includes(f.key));
+  return (
+    <div className="mt-3 space-y-3 border-t border-[#EDEBF3] pt-3">
+      {fields.map((f) =>
+        f.multiline ? (
+          <FieldArea
+            key={f.key}
+            label={f.label}
+            value={info?.[f.key] ?? ""}
+            placeholder={f.placeholder}
+            onChange={(v) => onChange({ [f.key]: v })}
+          />
+        ) : (
+          <Field
+            key={f.key}
+            label={f.label}
+            value={info?.[f.key] ?? ""}
+            placeholder={f.placeholder}
+            onChange={(v) => onChange({ [f.key]: v })}
+          />
+        ),
+      )}
+      <button
+        type="button"
+        onClick={onDone}
+        className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+      >
+        Done
+      </button>
+    </div>
+  );
+}
+
+function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
+  const state = checkState(check);
+  const tone = CHECK_STATE_TONE[state];
+  return (
+    <li className="text-[12.5px] leading-snug">
+      <p className="flex flex-wrap items-center gap-x-1.5">
+        <span className="font-semibold text-[#2C2B4B]">{label}</span>
+        <span className="text-[#CFC9DC]">—</span>
+        <span className={`font-semibold ${TONE_TEXT[tone]}`}>{CHECK_STATE_LABEL[state]}</span>
+      </p>
+      {check?.detail && <p className="mt-0.5 text-[#3D2E6B]">{check.detail}</p>}
+      {(check?.informationUsed || check?.checkedAt) && (
+        <p className="mt-0.5 text-[11.5px] text-[#6F6889]">
+          {check?.informationUsed}
+          {check?.checkedAt
+            ? `${check.informationUsed ? " " : ""}Checked ${new Date(check.checkedAt).toLocaleString()}.`
+            : ""}
+        </p>
+      )}
     </li>
   );
 }
