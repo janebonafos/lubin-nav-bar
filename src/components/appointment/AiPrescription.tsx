@@ -1070,8 +1070,9 @@ function MedicationEditor({
 
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
       {/* 1 — Medication details */}
-      <section>
+      <section className="lg:col-span-7">
         <SectionHeading>Medication details</SectionHeading>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
           <div className="md:col-span-6">
@@ -1171,6 +1172,8 @@ function MedicationEditor({
         </div>
       </section>
 
+      {/* Right rail — safety checkpoint and final review stay in view */}
+      <div className="space-y-6 lg:col-span-5 lg:border-l lg:border-[#EDEBF3] lg:pl-8">
       {/* 2 — Patient information & safety */}
       <section>
         <SectionHeading>Patient information &amp; safety</SectionHeading>
