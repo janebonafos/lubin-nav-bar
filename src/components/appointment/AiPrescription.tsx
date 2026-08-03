@@ -645,7 +645,6 @@ function MedicationCard({
   onOpenReference: () => void;
   onAddClinicalInfo?: () => void;
 }) {
-  const [basisOpen, setBasisOpen] = useState(true);
   const [checksOpen, setChecksOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const missing = useMemo(
@@ -684,17 +683,14 @@ function MedicationCard({
             {med.name || "New medication"}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            {!manual && <OriginBadge med={med} />}
             {!med.approved && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5A3E8F]">
-                {manual
-                  ? "Added by clinician · Verification required"
-                  : "AI-prepared · Verification required"}
+                Verification required
               </span>
             )}
             {med.approved && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2D8E69]">
-                Verified by clinician
+                Verified
               </span>
             )}
             {med.demo && (
@@ -715,7 +711,7 @@ function MedicationCard({
           }
           className="inline-flex flex-none items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB] disabled:cursor-not-allowed disabled:opacity-45"
         >
-          <BookOpen className="h-3.5 w-3.5" /> View medication reference
+          <BookOpen className="h-3.5 w-3.5" /> Reference
         </button>
         {!locked && (
           <button
@@ -729,132 +725,56 @@ function MedicationCard({
         )}
       </div>
 
-      {/* Draft basis */}
-      {(med.basis || med.rationale || med.availabilityNote) && (
-        <div className="border-b border-[#ECE7F6]/70 bg-[#FCFAFE] px-4 py-3">
-          <button
-            type="button"
-            onClick={() => setBasisOpen((v) => !v)}
-            className="flex w-full items-center justify-between gap-2 text-left"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Draft basis
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 text-[#A89BD0] transition-transform ${basisOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          {basisOpen && (
-            <div className="mt-2 space-y-2">
-              <div>
-                <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                  {DRAFT_BASIS_TITLE}
-                </p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {DRAFT_BASIS_BODY}
-                </p>
-              </div>
-              <dl className="divide-y divide-[#F1ECF9] border-t border-[#F1ECF9]">
-                <BasisRow
-                  label="Clinical information used"
-                  value={med.basis?.clinicalInformationUsed}
-                />
-                <BasisRow
-                  label="Why this option was included"
-                  value={med.basis?.whyIncluded ?? med.rationale}
-                />
-                <BasisRow
-                  label="Patient-specific considerations"
-                  value={med.basis?.patientConsiderations ?? med.indication}
-                />
-                <BasisRow
-                  label="Missing or unverified information"
-                  value={med.basis?.missingInformation}
-                  fallback="None identified from the recorded clinical information."
-                />
-                <BasisRow
-                  label="Draft generated"
-                  value={
-                    med.basis?.generatedAt
-                      ? new Date(med.basis.generatedAt).toLocaleString()
-                      : undefined
-                  }
-                />
-                {med.availabilityNote && (
-                  <BasisRow
-                    label={`Availability in this jurisdiction`}
-                    value={med.availabilityNote}
-                  />
-                )}
-              </dl>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Patient-specific checks */}
-      <div className="border-b border-[#ECE7F6]/70 px-4 py-3">
-        {manual ? (
-          <p className="text-[12px] leading-snug text-[#5A4A8A]">
-            You added this medication, so the safety checks are yours to
-            confirm — allergies, current medications, interactions,
-            contraindications and relevant conditions — before you verify it.
-          </p>
-        ) : incompleteChecks.length > 0 ? (
-          <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3 py-2.5">
-            <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
-              <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
-              Clinical information required
-            </p>
-            <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-              Some patient information needed to assess this medication is
-              missing.
-            </p>
-            <ul className="mt-2 space-y-0.5 pl-5 text-[12px] leading-snug text-[#5A4A8A]">
-              {(med.checks?.missingInformation
-                ? med.checks.missingInformation.split(/,\s*/)
-                : incompleteChecks.map((r) => r.label.replace(" checked", ""))
-              ).map((item) => (
-                <li key={item} className="list-disc">
-                  {item}
-                </li>
-              ))}
-            </ul>
-            {onAddClinicalInfo && (
-              <button
-                type="button"
-                onClick={onAddClinicalInfo}
-                className="mt-2.5 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2B4B]"
-              >
-                <ClipboardList className="h-3.5 w-3.5" /> Add clinical
-                information
-              </button>
+      {/* Compact patient-specific checks */}
+      <div className="border-b border-[#ECE7F6]/70 bg-[#FCFAFE] px-4 py-2.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1">
+            {manual ? (
+              <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                Please confirm safety checks before verifying.
+              </p>
+            ) : incompleteChecks.length > 0 ? (
+              <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                Some clinical information is missing for this medication.
+              </p>
+            ) : (
+              <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#2D6E56]">
+                <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
+                Patient-specific safety checks completed.
+              </p>
             )}
           </div>
-        ) : (
-          <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#2D6E56]">
-            <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
-            Patient-specific safety checks completed.
-          </p>
-        )}
-        <button
-          type="button"
-          onClick={() => setChecksOpen((v) => !v)}
-          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#5A3E8F]"
-        >
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
-          />
-          {checksOpen ? "Hide safety checks" : "View all safety checks"}
-        </button>
+          <button
+            type="button"
+            onClick={() => setChecksOpen((v) => !v)}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#5A3E8F]"
+          >
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+            />
+            {checksOpen ? "Hide" : "View checks"}
+          </button>
+        </div>
         {checksOpen && (
-          <ul className="mt-1.5 space-y-1">
+          <ul className="mt-2 space-y-1 border-t border-[#F1ECF9] pt-2">
             {CHECK_ROWS.map((r) => (
               <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
             ))}
+            {incompleteChecks.length > 0 && onAddClinicalInfo && (
+              <li className="pt-1">
+                <button
+                  type="button"
+                  onClick={onAddClinicalInfo}
+                  className="text-[11px] font-semibold text-[#6E4FD3] hover:text-[#5A3E8F]"
+                >
+                  Add missing clinical information
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </div>
+
 
       <div className="grid grid-cols-1 gap-3 px-4 py-4 md:grid-cols-2">
         <Field
