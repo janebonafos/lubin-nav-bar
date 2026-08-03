@@ -104,6 +104,15 @@ export function AiPrescription({
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
   const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
+  const medWord = total === 1 ? "medication" : "medications";
+  const countLabel =
+    total === 0
+      ? "No medication added"
+      : allVerified
+        ? `${verifiedCount} of ${total} ${medWord} verified`
+        : verifiedCount > 0
+          ? `${verifiedCount} of ${total} ${medWord} verified`
+          : `${total} ${medWord} · Verification required`;
   const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
   const statusLabel = signed
     ? "Prescription signed and issued"
