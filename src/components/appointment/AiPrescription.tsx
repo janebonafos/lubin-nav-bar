@@ -696,12 +696,15 @@ export function AiPrescription({
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {countLabel}
-            {blocked && !reviewMed.approved ? (
-              <span className="mt-0.5 block text-[12px] font-semibold text-[#8A6A20]">
-                {blockerSentence(blockers)}
-              </span>
-            ) : null}
+            {blocked && !reviewMed.approved
+              ? (() => {
+                  const reviews = blockers.filter(
+                    (b) => b.kind === "review" || b.kind === "stale",
+                  ).length;
+                  const required = blockers.length - reviews;
+                  return `${required} required item${required === 1 ? "" : "s"} · ${reviews} review${reviews === 1 ? "" : "s"} remaining`;
+                })()
+              : countLabel}
           </span>
           <button
             type="button"
