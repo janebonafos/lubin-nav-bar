@@ -670,46 +670,74 @@ export function AiPrescription({
       sharedSafetyPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
     });
     const blocked = blockers.length > 0;
+    const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+    const requiredLeft = blockers.length - reviews;
+    const readiness = reviewMed.approved
+      ? 100
+      : Math.round((1 - Math.min(blockers.length, 6) / 6) * 100);
     return (
       <section className="text-[#2C2B4B]">
         {header}
-        <button
-          type="button"
-          onClick={() => setReviewMedId(null)}
-          className="mb-3 inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#5A4A8A] hover:text-[#3D2E6B]"
-        >
-          <ChevronLeft className="h-4 w-4" /> All medications
-        </button>
-        {reviewMed.demo && <DemoNote />}
-        <MedicationEditor
-          med={reviewMed}
-          country={country}
-          patientInfo={rx.patientInfo}
-          visitMeds={visitMeds}
-          onChange={(p) => updateMed(reviewMed.id, p)}
-          onPatientInfo={setPatientInfo}
-          onRunReview={() => runReview(reviewMed.id)}
-          onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
-          blockers={blockers}
-          onOpenReference={() => setRefMedId(reviewMed.id)}
-          sharedSafety={sharedSafety}
-        />
-        <StickyBar>
-          <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {blocked && !reviewMed.approved
-              ? (() => {
-                  const reviews = blockers.filter(
-                    (b) => b.kind === "review" || b.kind === "stale",
-                  ).length;
-                  const required = blockers.length - reviews;
-                  return `${required} required item${required === 1 ? "" : "s"} · ${reviews} review${reviews === 1 ? "" : "s"} remaining`;
-                })()
-              : countLabel}
-          </span>
+        <div className="overflow-hidden rounded-2xl border border-[#E7E2F5] bg-white shadow-sm shadow-[#6E4FD3]/5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[#F1EDFA] px-5 py-3.5 md:px-7">
+            <button
+              type="button"
+              onClick={() => setReviewMedId(null)}
+              className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+            >
+              <ChevronLeft className="h-4 w-4" /> All medications
+            </button>
+            {reviewMed.demo && (
+              <span className="ml-auto text-[11.5px] italic text-[#8C86A0]">
+                Demo data — sample clinical content for demonstration
+              </span>
+            )}
+          </div>
+          <MedicationEditor
+            med={reviewMed}
+            country={country}
+            patientInfo={rx.patientInfo}
+            visitMeds={visitMeds}
+            onChange={(p) => updateMed(reviewMed.id, p)}
+            onPatientInfo={setPatientInfo}
+            onRunReview={() => runReview(reviewMed.id)}
+            onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
+            blockers={blockers}
+            onOpenReference={() => setRefMedId(reviewMed.id)}
+            sharedSafety={sharedSafety}
+          />
+        </div>
+        <StickyBar tone="dark">
+          <div className="mr-auto flex flex-wrap items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-[13px] font-semibold text-white">
+                {blocked && !reviewMed.approved
+                  ? `${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`
+                  : countLabel}
+              </span>
+              {blocked && !reviewMed.approved && (
+                <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#A9A2C4]">
+                  {reviews} review{reviews === 1 ? "" : "s"} remaining
+                </span>
+              )}
+            </div>
+            <span className="hidden h-8 w-px bg-white/15 sm:block" />
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/15">
+                <div
+                  className="h-full rounded-full bg-[#9C7DF0] transition-all"
+                  style={{ width: `${readiness}%` }}
+                />
+              </div>
+              <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#A9A2C4]">
+                {readiness}% ready
+              </span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={saveDraft}
-            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+            className="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-[12.5px] font-semibold text-[#D9D4EC] transition hover:bg-white/10 hover:text-white"
           >
             Save draft
           </button>
@@ -724,7 +752,7 @@ export function AiPrescription({
               });
               setReviewMedId(null);
             }}
-            className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
             {reviewMed.approved ? "Verified" : "Verify medication"}
           </button>
@@ -826,21 +854,20 @@ export function AiPrescription({
 
 function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
-    <ol className="flex items-center gap-1.5">
+    <ol className="flex flex-wrap items-center gap-0.5 rounded-full bg-[#F4F1FC] p-1">
       {STAGES.map((label, i) => {
         const active = i === stage;
         // "Draft" is only complete once the draft actually contains a medication.
         const done = i < stage && (i !== 0 || !!draftReady);
         return (
-          <li key={label} className="flex items-center gap-1.5">
-            {i > 0 && <span className="h-px w-4 bg-[#DEDAE8]" />}
+          <li key={label} className="flex items-center">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold transition ${
                 active
-                  ? "bg-[#6E4FD3] text-white"
+                  ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
                   : done
-                    ? "bg-[#F1EDFA] text-[#5A3EB8]"
-                    : "text-[#8C86A0]"
+                      ? "text-[#5A3EB8]"
+                      : "text-[#9A93B1]"
               }`}
             >
               {done && <Check className="h-3 w-3" />}
@@ -853,9 +880,15 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
   );
 }
 
-function StickyBar({ children }: { children: React.ReactNode }) {
+function StickyBar({ children, tone = "light" }: { children: React.ReactNode; tone?: "light" | "dark" }) {
   return (
-    <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#E4E1EC] bg-white/95 px-4 py-3 backdrop-blur">
+    <div
+      className={`sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-3 rounded-2xl px-5 py-4 backdrop-blur ${
+        tone === "dark"
+          ? "border border-[#2C2B4B] bg-[#2C2B4B]/95 shadow-lg shadow-[#2C2B4B]/20"
+          : "border border-[#E4E1EC] bg-white/95"
+      }`}
+    >
       {children}
     </div>
   );
@@ -1069,10 +1102,10 @@ function MedicationEditor({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
+    <div>
+      <div className="grid grid-cols-1 items-stretch lg:grid-cols-12">
         {/* 1 — Medication details, with every expanded panel kept in this column */}
-        <div className="space-y-5 lg:col-span-7">
+        <div className="space-y-6 px-5 py-6 md:px-7 lg:col-span-7 lg:border-r lg:border-[#F1EDFA]">
         <section>
           <SectionHeading>Medication details</SectionHeading>
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
@@ -1238,7 +1271,7 @@ function MedicationEditor({
         </div>
 
         {/* Right rail — safety checkpoint and final review stay in view */}
-        <div className="space-y-6 lg:sticky lg:top-24 lg:col-span-5 lg:border-l lg:border-[#EDEBF3] lg:pl-8">
+        <div className="space-y-6 border-t border-[#F1EDFA] bg-[#FAF9FD] px-5 py-6 md:px-7 lg:col-span-5 lg:border-t-0">
           {/* 2 — Patient information & safety */}
           <section>
             <SectionHeading>Patient information &amp; safety</SectionHeading>
@@ -1248,11 +1281,11 @@ function MedicationEditor({
                 prescription needs.
               </p>
             ) : (
-              <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-white">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3">
-                  <p className="text-[13px] font-semibold text-[#2C2B4B]">
+              <div className="mt-3 space-y-2.5">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
                     {requiredCount} required item{requiredCount === 1 ? "" : "s"} ·{" "}
-                    {reviewsRemaining} item{reviewsRemaining === 1 ? "" : "s"} to review
+                    {reviewsRemaining} to review
                   </p>
                   {requiredCount === 0 && reviewsRemaining === 0 && (
                     <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1F7A57]">
@@ -1261,7 +1294,7 @@ function MedicationEditor({
                   )}
                 </div>
                 {(!reviewRan || staleReview) && (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-[#EDEBF3] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3 shadow-sm">
                     <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
                       {!reviewRan
                         ? "The patient-specific safety review has not run yet."
@@ -1277,26 +1310,32 @@ function MedicationEditor({
                   </div>
                 )}
                 {outstanding.length > 0 && (
-                  <ul className="border-t border-[#EDEBF3]">
+                  <ul className="space-y-2">
                     {outstanding.map(({ key, requirement }) => (
                       <li
                         key={key}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                        className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
+                          requirement === "required"
+                            ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
+                            : "border-[#E9E6F1]"
+                        }`}
                       >
-                        <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                          {infoLabel(key)}
-                        </span>
-                        <span
-                          className={`text-[11.5px] font-semibold ${
-                            requirement === "required" ? "text-[#8A6A20]" : "text-[#6F6889]"
-                          }`}
-                        >
-                          — {INFO_REQUIREMENT_LABEL[requirement]}
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                            {infoLabel(key)}
+                          </span>
+                          <span
+                            className={`block text-[11px] font-medium ${
+                              requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
+                            }`}
+                          >
+                            {INFO_REQUIREMENT_LABEL[requirement]}
+                          </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => setInfoOpen(true)}
-                          className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
                         >
                           Add information
                         </button>
@@ -1305,22 +1344,24 @@ function MedicationEditor({
                   </ul>
                 )}
                 {unreviewedKeys.length > 0 && (
-                  <ul className="border-t border-[#EDEBF3]">
+                  <ul className="space-y-2">
                     {unreviewedKeys.map((k) => (
                       <li
                         key={k}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                        className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#DCD2F5] bg-white px-4 py-3 shadow-sm transition hover:border-[#B9A5EE]"
                       >
-                        <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                          {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
-                        </span>
-                        <span className="text-[11.5px] font-semibold text-[#8A6A20]">
-                          — Review required
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                            {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
+                          </span>
+                          <span className="block text-[11px] font-medium text-[#8A6A20]">
+                            Review required
+                          </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => setChecksOpen(true)}
-                          className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
                         >
                           Review
                         </button>
@@ -1329,14 +1370,16 @@ function MedicationEditor({
                   </ul>
                 )}
                 {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#EDEBF3] px-4 py-2.5">
-                    <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                      Shared {sharedSafety.clinicalName} safety response
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#F0D9A8] bg-white px-4 py-3 shadow-sm">
+                    <span className="min-w-0">
+                      <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                        Shared {sharedSafety.clinicalName} safety response
+                      </span>
+                      <span className="block text-[11px] font-medium text-[#8A6A20]">
+                        Review required
+                      </span>
                     </span>
-                    <span className="text-[11.5px] font-semibold text-[#8A6A20]">
-                      — Review required
-                    </span>
-                    <span className="ml-auto text-[12px] text-[#6F6889]">
+                    <span className="ml-auto text-[11.5px] text-[#8C86A0]">
                       See final review below
                     </span>
                   </div>
@@ -1417,7 +1460,7 @@ function MedicationEditor({
               </div>
             )}
 
-            <div className="mt-3">
+            <div className="mt-3 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3.5 shadow-sm">
               <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
                 <input
                   type="checkbox"
