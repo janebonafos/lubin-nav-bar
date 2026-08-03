@@ -222,7 +222,6 @@ export function AiPrescription({
           id,
           name: "",
           dose: "",
-          route: "Oral",
           frequency: "",
           instructions: "",
           origin: "manual",
