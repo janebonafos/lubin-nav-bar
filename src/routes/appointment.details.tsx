@@ -342,10 +342,13 @@ function DetailsPage() {
   const rxStatus = useMemo(() => {
     if (!appt?.id) return "Not started";
     const rx = loadPrescription(appt.id);
+    // A blank placeholder never counts as a medication or a prepared draft.
+    const named = rx.medications.filter((m) => m.name.trim().length > 0);
     if (rx.finalisedAt) return "Signed and issued";
-    if (rx.skippedAt && rx.medications.length === 0) return "Skipped";
-    if (rx.medications.length > 0 && rx.medications.every((m) => m.approved)) return "Verified";
-    if (rx.medications.length > 0 || rx.generatedAt) return "Draft prepared";
+    if (rx.skippedAt && named.length === 0) return "Skipped";
+    if (named.length > 0 && named.every((m) => m.approved)) return "Verified";
+    if (named.length > 0) return "Draft prepared";
+    if (rx.medications.length > 0) return "Details incomplete";
     return "Not started";
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, rxTick]);

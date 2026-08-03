@@ -42,6 +42,8 @@ import {
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
+import { PatientInfoForm } from "./PatientInfoForm";
+import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -85,10 +87,15 @@ export function AiPrescription({
   }, [appointmentId]);
 
   const patch = (p: Partial<Prescription>) => setRx(updatePrescription(appointmentId, p));
-  const country: RxCountry = rx.country ?? jurisdiction ?? "PH";
+  // Locked: the client's jurisdiction and the provider's verified authority win
+  // over anything stored on the draft. Never a selectable display value.
+  const country: RxCountry = jurisdiction ?? rx.country ?? "PH";
 
-  const total = rx.medications.length;
-  const verifiedCount = rx.medications.filter((m) => m.approved).length;
+  // A blank placeholder is never counted as a medication.
+  const namedMeds = rx.medications.filter((m) => m.name.trim().length > 0);
+  const blankMed = rx.medications.find((m) => !m.name.trim());
+  const total = namedMeds.length;
+  const verifiedCount = namedMeds.filter((m) => m.approved).length;
   const allVerified = total > 0 && verifiedCount === total;
   const signed = !!rx.finalisedAt;
   const controlledMeds = rx.medications.filter((m) => m.controlled);
@@ -97,6 +104,18 @@ export function AiPrescription({
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
   const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
+  const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
+  const statusLabel = signed
+    ? "Prescription signed and issued"
+    : total === 0
+      ? blankMed
+        ? "Medication details incomplete"
+        : "No prescription prepared"
+      : allVerified
+        ? "Verified — ready for final review"
+        : hasAiDraft
+          ? "AI-prepared draft · Verification required"
+          : "Clinician-added medication · Verification required";
 
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
@@ -298,13 +317,15 @@ export function AiPrescription({
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
         <h2 className="text-[17px] font-semibold text-[#2C2B4B]">Prescription</h2>
-        <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
+        <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">{statusLabel}</p>
+        <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
           Jurisdiction{" "}
-          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> ·
-          matched to {clientName || "the client"} and your verified prescribing authority
+          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> — set
+          from {clientName || "the client"}&rsquo;s recorded location and your verified prescribing
+          authority. Not selectable here.
         </p>
       </div>
-      <StageBar stage={stage} hideSign={total > 0 && !allVerified && !signed} />
+      <StageBar stage={stage} draftReady={total > 0} />
     </div>
   );
 
@@ -372,8 +393,8 @@ export function AiPrescription({
     );
   }
 
-  // ---------- Empty ----------
-  if (total === 0) {
+  // ---------- Empty / incomplete ----------
+  if (total === 0 && !reviewMed) {
     return (
       <section className="text-[#2C2B4B]">
         {header}
@@ -384,6 +405,32 @@ export function AiPrescription({
             <p className="text-[13px] text-[#3D2E6B]">
               Preparing draft from the recorded clinical information…
             </p>
+          </div>
+        ) : blankMed ? (
+          <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
+            <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
+              Medication details incomplete
+            </h3>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              No medication has been selected yet, so this does not count as a medication or a
+              prepared draft.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setReviewMedId(blankMed.id)}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+              >
+                Continue adding details
+              </button>
+              <button
+                type="button"
+                onClick={() => removeMed(blankMed.id)}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                Discard
+              </button>
+            </div>
           </div>
         ) : (
           <div className="rounded-xl border border-[#E4E1EC] bg-white px-5 py-8 text-center">
@@ -676,13 +723,13 @@ export function AiPrescription({
 
 /* ------------------------------ pieces ------------------------------ */
 
-function StageBar({ stage, hideSign }: { stage: Stage; hideSign?: boolean }) {
+function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
     <ol className="flex items-center gap-1.5">
       {STAGES.map((label, i) => {
-        if (i === 2 && hideSign) return null;
         const active = i === stage;
-        const done = i < stage;
+        // "Draft" is only complete once the draft actually contains a medication.
+        const done = i < stage && (i !== 0 || !!draftReady);
         return (
           <li key={label} className="flex items-center gap-1.5">
             {i > 0 && <span className="h-px w-4 bg-[#DEDAE8]" />}
@@ -744,21 +791,49 @@ function MedicationSummaryCard({
   const hasName = med.name.trim().length > 0;
   const summary = safetySummary(med);
   const line = [med.route, med.frequency, med.duration].filter((v) => v && v.trim()).join(" · ");
+  if (!hasName) {
+    return (
+      <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
+        <div className="flex flex-wrap items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-[#2C2B4B]">
+              Medication details incomplete
+            </p>
+            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
+              Select a medication to add it to this prescription.
+            </p>
+          </div>
+          <div className="flex flex-none items-center gap-2">
+            <button
+              type="button"
+              onClick={onReview}
+              className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            >
+              Continue adding details
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label="Discard incomplete medication"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] text-[#7E7794] transition hover:bg-[#F7F5FB] hover:text-[#3D2E6B]"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </li>
+    );
+  }
   return (
     <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-[#2C2B4B]">
-            {hasName ? med.name : "Medication draft"}
-            {hasName && (med.strength || med.dose) ? (
+            {med.name}
+            {med.strength || med.dose ? (
               <span className="font-normal text-[#3D2E6B]"> {med.strength || med.dose}</span>
             ) : null}
           </p>
-          {!hasName && (
-            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
-              Add a medication name and strength to continue.
-            </p>
-          )}
           {line && <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">{line}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span className="text-[11.5px] text-[#6F6889]">
@@ -781,7 +856,7 @@ function MedicationSummaryCard({
               </>
             )}
           </div>
-          {hasName && <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>}
+          <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
@@ -857,6 +932,23 @@ function MedicationEditor({
   const reviewRan = summary.ran;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
+  const catalogue = findCatalogue(med.name);
+  const selectMedication = (name: string) => {
+    const entry = findCatalogue(name);
+    edit({
+      name,
+      genericName: entry?.genericName,
+      strength: entry && med.strength && entry.forms.includes(med.strength) ? med.strength : "",
+      route: entry?.routes.length === 1 ? entry.routes[0] : (med.route ?? ""),
+      requiresLabs: entry?.requiresLabs ?? med.requiresLabs,
+      requiresPregnancyStatus: entry?.requiresPregnancyStatus ?? med.requiresPregnancyStatus,
+      controlled: entry?.controlled ?? med.controlled,
+      // A new medication invalidates the previous reference and safety review.
+      reference: undefined,
+      checks: undefined,
+      safetyReviewedAt: undefined,
+    });
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
@@ -864,50 +956,68 @@ function MedicationEditor({
       <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field
-            id="rx-medication-name"
-            label="Medication"
-            value={med.name}
-            onChange={(v) => edit({ name: v })}
-            required
-          />
-          <Field
-            label="Strength and formulation"
-            value={med.strength ?? ""}
-            onChange={(v) => edit({ strength: v })}
-            placeholder="50 mg film-coated tablet"
-          />
+          <div className="sm:col-span-2">
+            <MedicationSelector
+              value={med.name}
+              genericName={med.genericName}
+              onSelect={selectMedication}
+            />
+          </div>
+          {catalogue ? (
+            <SelectField
+              label="Strength and formulation"
+              value={med.strength ?? ""}
+              options={catalogue.forms}
+              onChange={(v) => edit({ strength: v })}
+            />
+          ) : (
+            <Field
+              label="Strength and formulation"
+              value={med.strength ?? ""}
+              onChange={(v) => edit({ strength: v })}
+              placeholder="Strength and formulation as dispensed"
+            />
+          )}
           <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
-          <Field
-            label="Route"
-            value={med.route ?? ""}
-            onChange={(v) => edit({ route: v })}
-            placeholder="Oral"
-          />
+          {catalogue ? (
+            <SelectField
+              label="Route"
+              value={med.route ?? ""}
+              options={catalogue.routes}
+              onChange={(v) => edit({ route: v })}
+            />
+          ) : (
+            <Field
+              label="Route"
+              value={med.route ?? ""}
+              onChange={(v) => edit({ route: v })}
+              placeholder="Route of administration"
+            />
+          )}
           <Field
             label="Frequency"
             value={med.frequency}
             onChange={(v) => edit({ frequency: v })}
             required
-            placeholder="Once daily in the morning"
+            placeholder="How often it is taken"
           />
           <Field
             label="Duration"
             value={med.duration ?? ""}
             onChange={(v) => edit({ duration: v })}
-            placeholder="4 weeks"
+            placeholder="How long to continue"
           />
           <Field
             label="Quantity"
             value={med.quantity ?? ""}
             onChange={(v) => edit({ quantity: v })}
-            placeholder="30 tablets"
+            placeholder="Total amount to dispense"
           />
           <Field
             label="Refills"
             value={med.refills ?? ""}
             onChange={(v) => edit({ refills: v })}
-            placeholder="No refills"
+            placeholder="Number of refills, or none"
           />
           <div className="sm:col-span-2">
             <Field
@@ -943,10 +1053,12 @@ function MedicationEditor({
               className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-40"
             />
             <span>
-              <span className="font-semibold">Verify medication</span>
+              <span className="font-semibold">
+                I confirm that I reviewed this medication and its patient-specific safety
+                information.
+              </span>
               <span className="mt-0.5 block text-[12.5px] text-[#5A4A8A]">
-                I reviewed the prescription details, safety information and patient-specific
-                considerations.
+                Tick to acknowledge, then select <strong>Verify medication</strong> below.
               </span>
             </span>
           </label>
@@ -979,17 +1091,10 @@ function MedicationEditor({
         {!hasName ? (
           <Panel title="Safety review not available">
             <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              Select a medication and complete the required patient information before running the
-              safety review.
+              Choose a medication in the form on the left and complete the required patient
+              information before running the safety review.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => document.getElementById("rx-medication-name")?.focus()}
-                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-              >
-                Select medication
-              </button>
               <button
                 type="button"
                 onClick={() => setInfoOpen(true)}
@@ -999,11 +1104,11 @@ function MedicationEditor({
               </button>
             </div>
             {infoOpen && (
-              <InfoForm
+              <PatientInfoForm
                 keys={requiredKeys(med)}
                 info={patientInfo}
                 onChange={onPatientInfo}
-                onDone={() => setInfoOpen(false)}
+                onSave={() => setInfoOpen(false)}
               />
             )}
           </Panel>
@@ -1027,11 +1132,11 @@ function MedicationEditor({
                   {infoOpen ? "Hide fields" : "Add missing information"}
                 </button>
                 {infoOpen && (
-                  <InfoForm
+                  <PatientInfoForm
                     keys={missingKeys}
                     info={patientInfo}
                     onChange={onPatientInfo}
-                    onDone={() => setInfoOpen(false)}
+                    onSave={() => setInfoOpen(false)}
                   />
                 )}
               </Panel>
@@ -1116,6 +1221,107 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+/** One searchable medication selector — the single place a medication is chosen. */
+function MedicationSelector({
+  value,
+  genericName,
+  onSelect,
+}: {
+  value: string;
+  genericName?: string;
+  onSelect: (name: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const results = useMemo(() => searchCatalogue(query), [query]);
+  const selected = findCatalogue(value);
+  return (
+    <div className="relative">
+      <label
+        className="mb-1 block text-[12px] font-medium text-[#5A4A8A]"
+        htmlFor="rx-medication-name"
+      >
+        Medication <span className="text-[#9B4A4A]">*</span>
+      </label>
+      <input
+        id="rx-medication-name"
+        value={query}
+        autoComplete="off"
+        placeholder="Search a medication by brand or generic name"
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setOpen(true);
+          onSelect(e.target.value);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 150)}
+        className="w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] placeholder:text-[#9C96AF] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+      />
+      {open && results.length > 0 && (
+        <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-[#DEDAE8] bg-white shadow-lg">
+          {results.map((r) => (
+            <li key={r.name}>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setQuery(r.name);
+                  onSelect(r.name);
+                  setOpen(false);
+                }}
+                className="block w-full px-3 py-2 text-left text-[12.5px] text-[#2C2B4B] hover:bg-[#F7F5FB]"
+              >
+                <span className="font-semibold">{r.name}</span>{" "}
+                <span className="text-[#6F6889]">
+                  {r.genericName}
+                  {r.medicationClass ? ` · ${r.medicationClass}` : ""}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-1 text-[11.5px] text-[#6F6889]">
+        {selected
+          ? `${selected.genericName}${selected.medicationClass ? ` · ${selected.medicationClass}` : ""} — strengths, routes, reference and safety requirements updated.`
+          : genericName
+            ? genericName
+            : "Selecting a medication updates the available strengths, routes, reference and safety-review requirements."}
+      </p>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[12px] font-medium text-[#5A4A8A]">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+      >
+        <option value="">Select…</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 const TONE_TEXT = {
   neutral: "text-[#6F6889]",
   amber: "text-[#8A6A20]",
@@ -1164,50 +1370,6 @@ function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }
           {summary.blocking} blocking issue{summary.blocking === 1 ? "" : "s"}
         </span>
       )}
-    </div>
-  );
-}
-
-function InfoForm({
-  keys,
-  info,
-  onChange,
-  onDone,
-}: {
-  keys: InfoKey[];
-  info?: PatientSafetyInfo;
-  onChange: (p: Partial<PatientSafetyInfo>) => void;
-  onDone: () => void;
-}) {
-  const fields = INFO_FIELDS.filter((f) => keys.includes(f.key));
-  return (
-    <div className="mt-3 space-y-3 border-t border-[#EDEBF3] pt-3">
-      {fields.map((f) =>
-        f.multiline ? (
-          <FieldArea
-            key={f.key}
-            label={f.label}
-            value={info?.[f.key] ?? ""}
-            placeholder={f.placeholder}
-            onChange={(v) => onChange({ [f.key]: v })}
-          />
-        ) : (
-          <Field
-            key={f.key}
-            label={f.label}
-            value={info?.[f.key] ?? ""}
-            placeholder={f.placeholder}
-            onChange={(v) => onChange({ [f.key]: v })}
-          />
-        ),
-      )}
-      <button
-        type="button"
-        onClick={onDone}
-        className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-      >
-        Done
-      </button>
     </div>
   );
 }
@@ -1274,9 +1436,7 @@ function FinalReviewBody({
                 {m.name || "Medication draft"} {m.strength || m.dose}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#3D2E6B]">
-                {[m.route, m.frequency, m.duration]
-                  .filter((v) => v && v.trim())
-                  .join(" · ")}
+                {[m.route, m.frequency, m.duration].filter((v) => v && v.trim()).join(" · ")}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
                 Quantity: {m.quantity || "—"} · Refills: {m.refills || "—"}

@@ -37,14 +37,54 @@ export type MedicationChecks = {
   missingInformation?: string;
 };
 
+/** Where a piece of patient information came from. */
+export type InfoSource = "passport" | "provider" | "review";
+
+export const INFO_SOURCE_LABEL: Record<InfoSource, string> = {
+  passport: "From the Health Passport",
+  provider: "From provider documentation",
+  review: "Added during this review",
+};
+
+/** Documentation state of a whole information category. "None known" and
+ *  "not documented" are deliberately distinct. */
+export type InfoDocState = "documented" | "none-known" | "not-documented";
+
+export type PatientInfoStatus = "active" | "past" | "suspected" | "resolved";
+
+export const INFO_STATUS_LABEL: Record<PatientInfoStatus, string> = {
+  active: "Active",
+  past: "Past",
+  suspected: "Suspected",
+  resolved: "Resolved",
+};
+
+/** One structured patient-information item. */
+export type PatientInfoEntry = {
+  id: string;
+  name: string;
+  detail?: string;
+  status?: PatientInfoStatus;
+  source?: InfoSource;
+  updatedAt?: number;
+};
+
 /** Patient information the safety review needs. Captured directly in the
- *  prescription section so the provider never leaves for an unspecified page. */
+ *  prescription section so the provider never leaves for an unspecified page.
+ *  Allergies, current medications and conditions are structured entries; the
+ *  free-text fields remain for narrative details only. */
 export type PatientSafetyInfo = {
   allergies?: string;
   currentMedications?: string;
   conditions?: string;
   pregnancy?: string;
   labs?: string;
+  allergyEntries?: PatientInfoEntry[];
+  medicationEntries?: PatientInfoEntry[];
+  conditionEntries?: PatientInfoEntry[];
+  allergyState?: InfoDocState;
+  medicationState?: InfoDocState;
+  conditionState?: InfoDocState;
   updatedAt?: number;
 };
 
