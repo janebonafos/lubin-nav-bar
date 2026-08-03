@@ -27,18 +27,14 @@ import {
   type MedicationCheck,
 } from "@/lib/prescription/store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
-import {
-  MedicationReferenceDrawer,
-  OriginBadge,
-} from "./MedicationReferenceDrawer";
+import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { CompareOptionsDrawer } from "./CompareOptionsDrawer";
 import {
-  DRAFT_BASIS_BODY,
-  DRAFT_BASIS_TITLE,
   DRAFT_STATUS_BODY,
   MED_VERIFICATION_STATEMENT,
 } from "@/lib/prescription/reference";
 import { DEMO_BANNER } from "@/lib/prescription/demo";
+
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -247,15 +243,19 @@ export function AiPrescription({
 
   if (!active) {
     return (
-      <section className="rounded-2xl border border-[#ECE7F6] bg-white px-4 py-4">
-        <p className="text-[13px] font-semibold text-[#3D2E6B]">
-          Create a prescription
-        </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-[#7E6BAF]">
-          Prepare a draft from the recorded clinical information or add a
-          medication manually.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
+      <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
+        <div className="flex items-center justify-between border-b border-[#ECE7F6] px-5 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[#2C2B4B]">Prescriptions</h2>
+            <p className="mt-0.5 text-[13px] text-[#7E6BAF]">
+              Optional. Add medication only if clinically indicated.
+            </p>
+          </div>
+          <span className="inline-flex items-center rounded-full border border-[#E2D7F3] bg-[#F4EEFC] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+            Optional
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2 p-5">
           <button
             type="button"
             onClick={() => {
@@ -274,7 +274,7 @@ export function AiPrescription({
             }}
             className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3.5 py-2 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
           >
-            <Plus className="h-4 w-4" /> Add medication manually
+            <Plus className="h-4 w-4" /> Add manually
           </button>
           <button
             type="button"
@@ -288,27 +288,55 @@ export function AiPrescription({
     );
   }
 
+
   return (
     <section className="overflow-hidden rounded-2xl border border-[#ECE7F6] bg-white">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
-        <div className="min-w-0">
-          <p className="text-[12px] text-[#7E6BAF]">
-            Prescribing jurisdiction: {JURISDICTION_LABEL[country]}
-          </p>
+      <div className="flex items-center justify-between border-b border-[#ECE7F6] bg-white px-5 py-4">
+        <div>
+          <h2 className="text-lg font-semibold text-[#2C2B4B]">Prescriptions</h2>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-[#7E6BAF]">
+              Jurisdiction:
+            </span>
+            <span className="inline-flex items-center rounded-md border border-[#E2D7F3] bg-[#F4EEFC] px-2 py-0.5 text-[11px] font-medium text-[#3D2E6B]">
+              {JURISDICTION_LABEL[country]}
+            </span>
+          </div>
         </div>
-        {signed ? (
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#2D8E69]">
-            <ShieldCheck className="h-3.5 w-3.5" /> Signed and issued
-          </span>
-        ) : total > 0 ? (
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#E2D7F3] bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-            {verifiedCount}/{total} verified
-          </span>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {!signed && (
+            <button
+              type="button"
+              onClick={addMed}
+              className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+            >
+              <Plus className="h-4 w-4" /> Add Medication
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-3 px-4 py-4">
+      {/* Soft informational banner */}
+      {missingList.length > 0 && total === 0 && (
+        <div className="flex items-center gap-3 border-b border-[#E2D7F3] bg-[#F4EEFC] px-5 py-3">
+          <Info className="h-5 w-5 flex-none text-[#6E4FD3]" />
+          <p className="text-[13px] font-medium text-[#5A3E8F]">
+            Clinical information required before finalizing the prescription order.
+          </p>
+          {onAddClinicalInfo && (
+            <button
+              type="button"
+              onClick={onAddClinicalInfo}
+              className="ml-auto whitespace-nowrap rounded-[10px] bg-[#3D2E6B] px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2B4B]"
+            >
+              Add information
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-4 p-5">
         {rx.demo && (
           <p className="flex items-start gap-1.5 rounded-[12px] border border-[#E2D7F3] bg-[#FAF7FE] px-3 py-2 text-[11px] font-semibold leading-snug text-[#5A3E8F]">
             <Info className="mt-[1px] h-3.5 w-3.5 flex-none" />
@@ -316,53 +344,22 @@ export function AiPrescription({
           </p>
         )}
 
-        {/* Draft status */}
+        {/* Draft status helper */}
         {!signed && total > 0 && (
           <p className="text-[12px] leading-relaxed text-[#7E6BAF]">
             {DRAFT_STATUS_BODY}
           </p>
         )}
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          {!signed && (
-            <button
-              type="button"
-              onClick={addMed}
-              className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-            >
-              <Plus className="h-4 w-4" /> Add manually
-            </button>
-          )}
-          {total > 1 && (
-            <button
-              type="button"
-              onClick={() => setCompareOpen(true)}
-              className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-2 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-            >
-              <Columns3 className="h-4 w-4" /> Compare options
-            </button>
-          )}
-          {!signed && busy && (
-            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#7E6BAF]">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Preparing…
-            </span>
-          )}
-          {rx.generatedAt && (
-            <span className="text-[11px] text-[#8B85A6]">
-              Draft prepared {new Date(rx.generatedAt).toLocaleString()}
-            </span>
-          )}
-        </div>
-
+        {/* Error */}
         {error && (
           <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
             {error}
           </p>
         )}
 
-        {/* Medications */}
-        {total === 0 && busy ? (
+        {/* Busy state */}
+        {total === 0 && busy && (
           <div className="flex items-center gap-2.5 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
             <Loader2 className="h-4 w-4 flex-none animate-spin text-[#7E6BAF]" />
             <p className="text-[13px] leading-snug text-[#3D2E6B]">
@@ -373,37 +370,25 @@ export function AiPrescription({
               </span>
             </p>
           </div>
-        ) : total === 0 ? (
-          <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3">
-            <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
-              <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
-              Clinical information required
+        )}
+
+        {/* Empty state */}
+        {total === 0 && !busy && (
+          <div className="rounded-xl border-2 border-dashed border-[#E2D7F3] p-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF7FE]">
+              <ClipboardList className="h-6 w-6 text-[#A89BD0]" />
+            </div>
+            <h3 className="text-sm font-medium text-[#2C2B4B]">
+              No medications added yet
+            </h3>
+            <p className="mt-1 text-sm text-[#7E6BAF]">
+              Click the button above to manually add or search for a prescription.
             </p>
-            <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-              Some patient information needed to prepare a prescription is
-              missing.
-            </p>
-            <ul className="mt-2 space-y-1 pl-6 text-[12px] leading-snug text-[#5A4A8A]">
-              {(missingList.length > 0
-                ? missingList
-                : ["Presenting concerns", "Session observations", "Clinician plan", "Current medications", "Known allergies"]
-              ).map((item) => (
-                <li key={item} className="list-disc">
-                  {item}
-                </li>
-              ))}
-            </ul>
-            {onAddClinicalInfo && (
-              <button
-                type="button"
-                onClick={onAddClinicalInfo}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-[#2C2B4B]"
-              >
-                <ClipboardList className="h-4 w-4" /> Add clinical information
-              </button>
-            )}
           </div>
-        ) : (
+        )}
+
+        {/* Medication list */}
+        {total > 0 && (
           <ul className="space-y-3">
             {rx.medications.map((m, i) => (
               <MedicationCard
@@ -424,7 +409,7 @@ export function AiPrescription({
         {total > 0 && !signed && (
           <div className="rounded-2xl border border-[#ECE7F6] bg-[#FCFAFE] p-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Step A · Review the complete prescription
+              Review the prescription
             </p>
             <p className="mt-1 text-[13px] leading-relaxed text-[#5A4A8A]">
               {reviewed
@@ -497,76 +482,66 @@ export function AiPrescription({
             </label>
           </div>
         )}
+      </div>
 
-        {/* Sign and issue — deliberately separate from drafting and verification */}
-        {total > 0 && (
-          <div className="rounded-2xl border-2 border-[#D8C7F0] bg-white p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#EEE8F8] text-[#5A3E8F]">
-                  <FileSignature className="h-4 w-4" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-[#3D2E6B]">
-                    {signed
-                      ? "Prescription signed and issued"
-                      : "Step B · Sign and issue"}
-                  </p>
-                  <p className="mt-0.5 text-xs leading-snug text-[#7E6BAF]">
-                    {signed
-                      ? `Signed ${new Date(rx.finalisedAt!).toLocaleString()}${rx.finalisedBy ? ` · ${rx.finalisedBy}` : ""}`
-                      : canSign
-                        ? "You remain the prescribing clinician. Signing issues this prescription."
-                        : "Available after every medication is verified and the prescription is reviewed."}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {signed ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-                    >
-                      <Printer className="h-4 w-4" /> Print
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        patch({
-                          finalisedAt: undefined,
-                          finalisedBy: undefined,
-                          reviewedAt: undefined,
-                        })
-                      }
-                      className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
-                    >
-                      <Lock className="h-4 w-4" /> Unlock to edit
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      patch({ finalisedAt: Date.now(), finalisedBy: providerName })
-                    }
-                    disabled={!canSign}
-                    className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
-                  >
-                    <FileSignature className="h-4 w-4" /> Sign and issue
-                    prescription
-                  </button>
-                )}
-              </div>
-            </div>
-            <p className="mt-3 text-[11px] leading-snug text-[#8B85A6]">
-              Medication references stay available after signing so you can see
-              what information was available when the decision was made. You
-              remain the prescribing clinician.
-            </p>
+      {/* Footer */}
+      <div className="flex items-center justify-between border-t border-[#ECE7F6] bg-[#FAF7FE] px-5 py-4">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-tight text-[#A89BD0]">
+              Status
+            </span>
+            <span className="text-sm font-medium text-[#3D2E6B]">
+              {signed ? "Signed and issued" : "Drafting"}
+            </span>
           </div>
-        )}
+          <div className="h-8 w-[1px] bg-[#E2D7F3]"></div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-tight text-[#A89BD0]">
+              Provider
+            </span>
+            <span className="text-sm font-medium text-[#3D2E6B]">
+              {providerName || "—"}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {signed ? (
+            <>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+              >
+                <Printer className="h-4 w-4" /> Print
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  patch({
+                    finalisedAt: undefined,
+                    finalisedBy: undefined,
+                    reviewedAt: undefined,
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-sm font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB]"
+              >
+                <Lock className="h-4 w-4" /> Unlock
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                patch({ finalisedAt: Date.now(), finalisedBy: providerName })
+              }
+              disabled={!canSign}
+              className="inline-flex items-center gap-1.5 rounded-[12px] bg-gradient-to-r from-[#3D2E6B] to-[#2C2B4B] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-50"
+            >
+              <FileSignature className="h-4 w-4" /> Sign and issue
+            </button>
+          )}
+        </div>
       </div>
 
       <MedicationReferenceDrawer
@@ -597,6 +572,7 @@ export function AiPrescription({
       />
     </section>
   );
+
 }
 
 function clinicalInfoUsed(ws: ReturnType<typeof loadWorkspace>): string {
@@ -665,7 +641,6 @@ function MedicationCard({
   onOpenReference: () => void;
   onAddClinicalInfo?: () => void;
 }) {
-  const [basisOpen, setBasisOpen] = useState(true);
   const [checksOpen, setChecksOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const missing = useMemo(
@@ -704,17 +679,14 @@ function MedicationCard({
             {med.name || "New medication"}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            {!manual && <OriginBadge med={med} />}
             {!med.approved && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5A3E8F]">
-                {manual
-                  ? "Added by clinician · Verification required"
-                  : "AI-prepared · Verification required"}
+                Verification required
               </span>
             )}
             {med.approved && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#B5E4CD] bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2D8E69]">
-                Verified by clinician
+                Verified
               </span>
             )}
             {med.demo && (
@@ -735,7 +707,7 @@ function MedicationCard({
           }
           className="inline-flex flex-none items-center gap-1 rounded-[10px] border border-[#D6CCEC] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB] disabled:cursor-not-allowed disabled:opacity-45"
         >
-          <BookOpen className="h-3.5 w-3.5" /> View medication reference
+          <BookOpen className="h-3.5 w-3.5" /> Reference
         </button>
         {!locked && (
           <button
@@ -749,132 +721,56 @@ function MedicationCard({
         )}
       </div>
 
-      {/* Draft basis */}
-      {(med.basis || med.rationale || med.availabilityNote) && (
-        <div className="border-b border-[#ECE7F6]/70 bg-[#FCFAFE] px-4 py-3">
-          <button
-            type="button"
-            onClick={() => setBasisOpen((v) => !v)}
-            className="flex w-full items-center justify-between gap-2 text-left"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-              Draft basis
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 text-[#A89BD0] transition-transform ${basisOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          {basisOpen && (
-            <div className="mt-2 space-y-2">
-              <div>
-                <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                  {DRAFT_BASIS_TITLE}
-                </p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {DRAFT_BASIS_BODY}
-                </p>
-              </div>
-              <dl className="divide-y divide-[#F1ECF9] border-t border-[#F1ECF9]">
-                <BasisRow
-                  label="Clinical information used"
-                  value={med.basis?.clinicalInformationUsed}
-                />
-                <BasisRow
-                  label="Why this option was included"
-                  value={med.basis?.whyIncluded ?? med.rationale}
-                />
-                <BasisRow
-                  label="Patient-specific considerations"
-                  value={med.basis?.patientConsiderations ?? med.indication}
-                />
-                <BasisRow
-                  label="Missing or unverified information"
-                  value={med.basis?.missingInformation}
-                  fallback="None identified from the recorded clinical information."
-                />
-                <BasisRow
-                  label="Draft generated"
-                  value={
-                    med.basis?.generatedAt
-                      ? new Date(med.basis.generatedAt).toLocaleString()
-                      : undefined
-                  }
-                />
-                {med.availabilityNote && (
-                  <BasisRow
-                    label={`Availability in this jurisdiction`}
-                    value={med.availabilityNote}
-                  />
-                )}
-              </dl>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Patient-specific checks */}
-      <div className="border-b border-[#ECE7F6]/70 px-4 py-3">
-        {manual ? (
-          <p className="text-[12px] leading-snug text-[#5A4A8A]">
-            You added this medication, so the safety checks are yours to
-            confirm — allergies, current medications, interactions,
-            contraindications and relevant conditions — before you verify it.
-          </p>
-        ) : incompleteChecks.length > 0 ? (
-          <div className="rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3 py-2.5">
-            <p className="flex items-start gap-1.5 text-[13px] font-semibold leading-snug text-[#3D2E6B]">
-              <AlertTriangle className="mt-[2px] h-4 w-4 flex-none text-[#7E6BAF]" />
-              Clinical information required
-            </p>
-            <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-              Some patient information needed to assess this medication is
-              missing.
-            </p>
-            <ul className="mt-2 space-y-0.5 pl-5 text-[12px] leading-snug text-[#5A4A8A]">
-              {(med.checks?.missingInformation
-                ? med.checks.missingInformation.split(/,\s*/)
-                : incompleteChecks.map((r) => r.label.replace(" checked", ""))
-              ).map((item) => (
-                <li key={item} className="list-disc">
-                  {item}
-                </li>
-              ))}
-            </ul>
-            {onAddClinicalInfo && (
-              <button
-                type="button"
-                onClick={onAddClinicalInfo}
-                className="mt-2.5 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2B4B]"
-              >
-                <ClipboardList className="h-3.5 w-3.5" /> Add clinical
-                information
-              </button>
+      {/* Compact patient-specific checks */}
+      <div className="border-b border-[#ECE7F6]/70 bg-[#FCFAFE] px-4 py-2.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1">
+            {manual ? (
+              <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                Please confirm safety checks before verifying.
+              </p>
+            ) : incompleteChecks.length > 0 ? (
+              <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                Some clinical information is missing for this medication.
+              </p>
+            ) : (
+              <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#2D6E56]">
+                <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
+                Patient-specific safety checks completed.
+              </p>
             )}
           </div>
-        ) : (
-          <p className="flex items-start gap-1.5 text-[12px] leading-snug text-[#2D6E56]">
-            <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#2D8E69]" />
-            Patient-specific safety checks completed.
-          </p>
-        )}
-        <button
-          type="button"
-          onClick={() => setChecksOpen((v) => !v)}
-          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#5A3E8F]"
-        >
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
-          />
-          {checksOpen ? "Hide safety checks" : "View all safety checks"}
-        </button>
+          <button
+            type="button"
+            onClick={() => setChecksOpen((v) => !v)}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7E6BAF] hover:text-[#5A3E8F]"
+          >
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+            />
+            {checksOpen ? "Hide" : "View checks"}
+          </button>
+        </div>
         {checksOpen && (
-          <ul className="mt-1.5 space-y-1">
+          <ul className="mt-2 space-y-1 border-t border-[#F1ECF9] pt-2">
             {CHECK_ROWS.map((r) => (
               <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
             ))}
+            {incompleteChecks.length > 0 && onAddClinicalInfo && (
+              <li className="pt-1">
+                <button
+                  type="button"
+                  onClick={onAddClinicalInfo}
+                  className="text-[11px] font-semibold text-[#6E4FD3] hover:text-[#5A3E8F]"
+                >
+                  Add missing clinical information
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </div>
+
 
       <div className="grid grid-cols-1 gap-3 px-4 py-4 md:grid-cols-2">
         <Field
@@ -992,30 +888,6 @@ function MedicationCard({
   );
 }
 
-function BasisRow({
-  label,
-  value,
-  fallback,
-}: {
-  label: string;
-  value?: string;
-  fallback?: string;
-}) {
-  return (
-    <div className="py-1.5">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </dt>
-      <dd className="mt-0.5 text-[12px] leading-relaxed text-[#3D2E6B]">
-        {value?.trim() ? (
-          value
-        ) : (
-          <span className="text-[#A89BD0]">{fallback ?? "Not recorded"}</span>
-        )}
-      </dd>
-    </div>
-  );
-}
 
 function Field({
   label,
