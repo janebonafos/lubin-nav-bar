@@ -1460,7 +1460,7 @@ function MedicationEditor({
               </div>
             )}
 
-            <div className="mt-3">
+            <div className="mt-3 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3.5 shadow-sm">
               <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
                 <input
                   type="checkbox"
