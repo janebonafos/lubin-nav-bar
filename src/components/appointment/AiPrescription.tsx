@@ -826,21 +826,20 @@ export function AiPrescription({
 
 function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
-    <ol className="flex items-center gap-1.5">
+    <ol className="flex flex-wrap items-center gap-0.5 rounded-full bg-[#F4F1FC] p-1">
       {STAGES.map((label, i) => {
         const active = i === stage;
         // "Draft" is only complete once the draft actually contains a medication.
         const done = i < stage && (i !== 0 || !!draftReady);
         return (
-          <li key={label} className="flex items-center gap-1.5">
-            {i > 0 && <span className="h-px w-4 bg-[#DEDAE8]" />}
+          <li key={label} className="flex items-center">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold transition ${
                 active
-                  ? "bg-[#6E4FD3] text-white"
+                  ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
                   : done
-                    ? "bg-[#F1EDFA] text-[#5A3EB8]"
-                    : "text-[#8C86A0]"
+                      ? "text-[#5A3EB8]"
+                      : "text-[#9A93B1]"
               }`}
             >
               {done && <Check className="h-3 w-3" />}
@@ -853,9 +852,15 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
   );
 }
 
-function StickyBar({ children }: { children: React.ReactNode }) {
+function StickyBar({ children, tone = "light" }: { children: React.ReactNode; tone?: "light" | "dark" }) {
   return (
-    <div className="sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#E4E1EC] bg-white/95 px-4 py-3 backdrop-blur">
+    <div
+      className={`sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-3 rounded-2xl px-5 py-4 backdrop-blur ${
+        tone === "dark"
+          ? "border border-[#2C2B4B] bg-[#2C2B4B]/95 shadow-lg shadow-[#2C2B4B]/20"
+          : "border border-[#E4E1EC] bg-white/95"
+      }`}
+    >
       {children}
     </div>
   );
