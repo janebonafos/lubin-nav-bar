@@ -963,85 +963,122 @@ function MedicationEditor({
 
       {/* Right — supporting information */}
       <div className="space-y-3">
-        <Panel title="Why this medication was included">
-          <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.basis?.whyIncluded ??
-              med.rationale ??
-              (med.origin === "manual"
-                ? "Added by the prescribing clinician."
-                : "No rationale was recorded for this medication.")}
-          </p>
-          {med.basis?.clinicalInformationUsed && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {med.basis.clinicalInformationUsed}
+        {!hasName ? (
+          <Panel title="Safety review not available">
+            <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              Select a medication and complete the required patient information before running the
+              safety review.
             </p>
-          )}
-        </Panel>
-
-        <Panel title="Patient-specific safety checks">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E7F6EF] px-2.5 py-1 text-[11.5px] font-semibold text-[#1F7A57]">
-              <Check className="h-3.5 w-3.5" /> {completed} checks completed
-            </span>
-            {missing > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBF2DF] px-2.5 py-1 text-[11.5px] font-semibold text-[#8A6A20]">
-                <AlertTriangle className="h-3.5 w-3.5" /> {missing} require information
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => setChecksOpen((v) => !v)}
-              className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
-            >
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => document.getElementById("rx-medication-name")?.focus()}
+                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Select medication
+              </button>
+              <button
+                type="button"
+                onClick={() => setInfoOpen(true)}
+                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Add patient information
+              </button>
+            </div>
+            {infoOpen && (
+              <InfoForm
+                keys={requiredKeys(med)}
+                info={patientInfo}
+                onChange={onPatientInfo}
+                onDone={() => setInfoOpen(false)}
               />
-              {checksOpen ? "Hide details" : "Show details"}
-            </button>
-          </div>
-          {checksOpen && (
-            <ul className="mt-2.5 space-y-1.5 border-t border-[#EDEBF3] pt-2.5">
-              {CHECK_ROWS.map((r) => (
-                <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="Missing clinical information">
-          {med.checks?.missingInformation || med.basis?.missingInformation ? (
-            <>
-              <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                {med.checks?.missingInformation ?? med.basis?.missingInformation}
-              </p>
-              {onAddClinicalInfo && (
+            )}
+          </Panel>
+        ) : (
+          <>
+            {missingKeys.length > 0 && (
+              <Panel title="Information needed">
+                <ul className="space-y-1 text-[12.5px] text-[#3D2E6B]">
+                  {missingKeys.map((k) => (
+                    <li key={k} className="flex items-start gap-1.5">
+                      <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-[#C08A2A]" />
+                      {infoLabel(k)}
+                    </li>
+                  ))}
+                </ul>
                 <button
                   type="button"
-                  onClick={onAddClinicalInfo}
-                  className="mt-2 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                  onClick={() => setInfoOpen((v) => !v)}
+                  className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
                 >
-                  Add clinical information
+                  {infoOpen ? "Hide fields" : "Add missing information"}
                 </button>
-              )}
-            </>
-          ) : (
-            <p className="text-[12.5px] text-[#5A4A8A]">Nothing outstanding for this medication.</p>
-          )}
-        </Panel>
+                {infoOpen && (
+                  <InfoForm
+                    keys={missingKeys}
+                    info={patientInfo}
+                    onChange={onPatientInfo}
+                    onDone={() => setInfoOpen(false)}
+                  />
+                )}
+              </Panel>
+            )}
 
-        <Panel title="Interactions and contraindications">
-          <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.checks?.interactions?.detail ??
-              "No interaction review is recorded for this medication."}
-          </p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.checks?.contraindications?.detail ??
-              "No contraindication review is recorded for this medication."}
-          </p>
-          {med.warnings && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">{med.warnings}</p>
-          )}
-        </Panel>
+            <Panel title="Patient-specific safety review">
+              <div className="flex flex-wrap items-center gap-2">
+                <SummaryPills summary={summary} />
+                {reviewRan && (
+                  <button
+                    type="button"
+                    onClick={() => setChecksOpen((v) => !v)}
+                    className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                  >
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+                    />
+                    {checksOpen ? "Hide safety review" : "View safety review"}
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={onRunReview}
+                className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                {reviewRan ? "Run safety review again" : "Run safety review"}
+              </button>
+              {checksOpen && reviewRan && (
+                <>
+                  <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+                    {CHECK_ROWS.map((r) => (
+                      <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
+                    ))}
+                  </ul>
+                  {med.warnings && (
+                    <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                      {med.warnings}
+                    </p>
+                  )}
+                </>
+              )}
+            </Panel>
+
+            <Panel title="Why this medication was included">
+              <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                {med.basis?.whyIncluded ??
+                  med.rationale ??
+                  (med.origin === "manual"
+                    ? "Added by the prescribing clinician."
+                    : "No rationale was recorded for this medication.")}
+              </p>
+              {med.basis?.clinicalInformationUsed && (
+                <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  {med.basis.clinicalInformationUsed}
+                </p>
+              )}
+            </Panel>
+          </>
+        )}
 
         <Panel title="Medication reference">
           <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
