@@ -4,13 +4,27 @@
 
 export type MedicationOrigin = "ai" | "ai-option" | "manual";
 
-/** Result of a patient-specific safety check. "unavailable" must never be
- *  presented as a clean result — the UI states what is missing instead. */
-export type CheckStatus = "checked" | "unavailable";
+/** State of a patient-specific safety check. A check is never described as
+ *  "checked" unless it actually ran — the UI states the real state instead.
+ *  "checked" / "unavailable" are legacy values kept for stored drafts. */
+export type CheckStatus =
+  | "not-run"
+  | "info-required"
+  | "no-issue"
+  | "review-needed"
+  | "blocking"
+  /** @deprecated legacy */
+  | "checked"
+  /** @deprecated legacy */
+  | "unavailable";
 
 export type MedicationCheck = {
   status: CheckStatus;
   detail: string;
+  /** What information this result was based on. */
+  informationUsed?: string;
+  /** When this check last ran. */
+  checkedAt?: number;
 };
 
 export type MedicationChecks = {
@@ -19,7 +33,19 @@ export type MedicationChecks = {
   interactions?: MedicationCheck;
   contraindications?: MedicationCheck;
   conditions?: MedicationCheck;
+  monitoring?: MedicationCheck;
   missingInformation?: string;
+};
+
+/** Patient information the safety review needs. Captured directly in the
+ *  prescription section so the provider never leaves for an unspecified page. */
+export type PatientSafetyInfo = {
+  allergies?: string;
+  currentMedications?: string;
+  conditions?: string;
+  pregnancy?: string;
+  labs?: string;
+  updatedAt?: number;
 };
 
 /** Why the AI prepared this line item — never labelled "AI clinical notes". */
@@ -106,6 +132,12 @@ export type PrescriptionMedication = {
   basis?: DraftBasis;
   /** Patient-specific safety checks surfaced on the card. */
   checks?: MedicationChecks;
+  /** When the patient-specific safety review last ran for this medication. */
+  safetyReviewedAt?: number;
+  /** Pregnancy / breastfeeding status is relevant for this medication. */
+  requiresPregnancyStatus?: boolean;
+  /** Laboratory or organ-function information is required before prescribing. */
+  requiresLabs?: boolean;
   /** True when this medication is a controlled / dangerous drug and needs the
    *  restricted issuing workflow instead of the standard signature. */
   controlled?: boolean;
@@ -129,6 +161,8 @@ export type Prescription = {
   country?: RxCountry;
   /** Pharmacy or delivery destination recorded on the final review screen. */
   destination?: string;
+  /** Patient information captured for the safety review. */
+  patientInfo?: PatientSafetyInfo;
   /** Final legal acknowledgement recorded on the final review screen. */
   legalAcknowledgedAt?: number;
   generatedAt?: number;

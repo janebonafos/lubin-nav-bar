@@ -23,8 +23,22 @@ import {
   type RxCountry,
   type MedicationReference,
   type MedicationCheck,
+  type PatientSafetyInfo,
 } from "@/lib/prescription/store";
-import { loadWorkspace } from "@/lib/visit-workspace/store";
+import { loadWorkspace, type MedicationEntry } from "@/lib/visit-workspace/store";
+import {
+  CHECK_ROWS,
+  CHECK_STATE_LABEL,
+  CHECK_STATE_TONE,
+  INFO_FIELDS,
+  checkState,
+  infoLabel,
+  missingInfoKeys,
+  requiredInfoKeys,
+  runSafetyReview,
+  safetySummary,
+  type InfoKey,
+} from "@/lib/prescription/safety";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
@@ -37,17 +51,6 @@ const JURISDICTION_LABEL: Record<RxCountry, string> = {
 const STAGES = ["Draft", "Clinical review", "Sign and issue"] as const;
 type Stage = 0 | 1 | 2;
 
-const CHECK_ROWS: {
-  key: keyof Omit<NonNullable<PrescriptionMedication["checks"]>, "missingInformation">;
-  label: string;
-}[] = [
-  { key: "allergies", label: "Allergies" },
-  { key: "currentMedications", label: "Current medications" },
-  { key: "interactions", label: "Interactions" },
-  { key: "contraindications", label: "Contraindications" },
-  { key: "conditions", label: "Relevant medical conditions" },
-];
-
 function medComplete(m: PrescriptionMedication) {
   return m.name.trim() && m.dose.trim() && m.frequency.trim() && m.instructions.trim();
 }
@@ -57,7 +60,6 @@ export function AiPrescription({
   clientName,
   providerName,
   jurisdiction,
-  onAddClinicalInfo,
 }: {
   appointmentId: string;
   clientName?: string;
@@ -65,7 +67,7 @@ export function AiPrescription({
   appointmentLabel?: string;
   /** Locked from the client's jurisdiction and the provider's authority. */
   jurisdiction?: RxCountry;
-  /** Takes the provider to the clinical documentation fields. */
+  /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
   const [rx, setRx] = useState<Prescription>(() => loadPrescription(appointmentId));
@@ -220,7 +222,6 @@ export function AiPrescription({
           id,
           name: "",
           dose: "",
-          route: "Oral",
           frequency: "",
           instructions: "",
           origin: "manual",
@@ -275,6 +276,22 @@ export function AiPrescription({
   const saveDraft = () => {
     patch({});
     setSavedAt(Date.now());
+  };
+
+  const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
+
+  const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
+    patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
+
+  const runReview = (medId: string) => {
+    const target = rx.medications.find((m) => m.id === medId);
+    if (!target) return;
+    const checks = runSafetyReview(target, rx.patientInfo, visitMeds);
+    patch({
+      medications: rx.medications.map((m) =>
+        m.id === medId ? { ...m, checks, safetyReviewedAt: Date.now() } : m,
+      ),
+    });
   };
 
   const header = (
@@ -522,9 +539,12 @@ export function AiPrescription({
         <MedicationEditor
           med={reviewMed}
           country={country}
+          patientInfo={rx.patientInfo}
+          visitMeds={visitMeds}
           onChange={(p) => updateMed(reviewMed.id, p)}
+          onPatientInfo={setPatientInfo}
+          onRunReview={() => runReview(reviewMed.id)}
           onOpenReference={() => setRefMedId(reviewMed.id)}
-          onAddClinicalInfo={onAddClinicalInfo}
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
@@ -710,13 +730,6 @@ function ErrorNote({ text }: { text: string }) {
   );
 }
 
-function checkSummary(med: PrescriptionMedication) {
-  const rows = CHECK_ROWS.map((r) => med.checks?.[r.key]);
-  const completed = rows.filter((c) => c?.status === "checked").length;
-  const missing = CHECK_ROWS.length - completed;
-  return { completed, missing };
-}
-
 function MedicationSummaryCard({
   med,
   onReview,
@@ -729,7 +742,7 @@ function MedicationSummaryCard({
   onRemove: () => void;
 }) {
   const hasName = med.name.trim().length > 0;
-  const { completed, missing } = checkSummary(med);
+  const summary = safetySummary(med);
   const line = [med.route, med.frequency, med.duration].filter((v) => v && v.trim()).join(" · ");
   return (
     <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
@@ -761,12 +774,7 @@ function MedicationSummaryCard({
               </>
             )}
           </div>
-          {hasName && (
-            <p className="mt-1.5 text-[11.5px] text-[#6F6889]">
-              {completed} checks completed
-              {missing > 0 ? ` · ${missing} require information` : ""}
-            </p>
-          )}
+          {hasName && <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>}
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
@@ -813,21 +821,33 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
 function MedicationEditor({
   med,
   country,
+  patientInfo,
+  visitMeds,
   onChange,
+  onPatientInfo,
+  onRunReview,
   onOpenReference,
-  onAddClinicalInfo,
 }: {
   med: PrescriptionMedication;
   country: RxCountry;
+  patientInfo?: PatientSafetyInfo;
+  visitMeds?: MedicationEntry[];
   onChange: (p: Partial<PrescriptionMedication>) => void;
+  onPatientInfo: (p: Partial<PatientSafetyInfo>) => void;
+  onRunReview: () => void;
   onOpenReference: () => void;
-  onAddClinicalInfo?: () => void;
 }) {
   const [checksOpen, setChecksOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
-  const { completed, missing } = checkSummary(med);
+  const missingKeys = useMemo(
+    () => missingInfoKeys(med, patientInfo, visitMeds),
+    [med, patientInfo, visitMeds],
+  );
+  const summary = safetySummary(med);
+  const reviewRan = summary.ran;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
 
@@ -837,7 +857,13 @@ function MedicationEditor({
       <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Medication" value={med.name} onChange={(v) => edit({ name: v })} required />
+          <Field
+            id="rx-medication-name"
+            label="Medication"
+            value={med.name}
+            onChange={(v) => edit({ name: v })}
+            required
+          />
           <Field
             label="Strength and formulation"
             value={med.strength ?? ""}
@@ -900,7 +926,7 @@ function MedicationEditor({
             <input
               type="checkbox"
               checked={med.approved}
-              disabled={!complete}
+              disabled={!complete || !reviewRan}
               onChange={(e) =>
                 onChange({
                   approved: e.target.checked,
@@ -929,95 +955,136 @@ function MedicationEditor({
               {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
             </p>
           )}
-          {!complete && (
+          {!complete ? (
             <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
               Add medication, dose, frequency and patient instructions before verifying.
             </p>
-          )}
+          ) : !reviewRan ? (
+            <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
+              Run the patient-specific safety review before verifying this medication.
+            </p>
+          ) : null}
         </div>
       </div>
 
       {/* Right — supporting information */}
       <div className="space-y-3">
-        <Panel title="Why this medication was included">
-          <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.basis?.whyIncluded ??
-              med.rationale ??
-              (med.origin === "manual"
-                ? "Added by the prescribing clinician."
-                : "No rationale was recorded for this medication.")}
-          </p>
-          {med.basis?.clinicalInformationUsed && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {med.basis.clinicalInformationUsed}
+        {!hasName ? (
+          <Panel title="Safety review not available">
+            <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              Select a medication and complete the required patient information before running the
+              safety review.
             </p>
-          )}
-        </Panel>
-
-        <Panel title="Patient-specific safety checks">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E7F6EF] px-2.5 py-1 text-[11.5px] font-semibold text-[#1F7A57]">
-              <Check className="h-3.5 w-3.5" /> {completed} checks completed
-            </span>
-            {missing > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FBF2DF] px-2.5 py-1 text-[11.5px] font-semibold text-[#8A6A20]">
-                <AlertTriangle className="h-3.5 w-3.5" /> {missing} require information
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => setChecksOpen((v) => !v)}
-              className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
-            >
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => document.getElementById("rx-medication-name")?.focus()}
+                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Select medication
+              </button>
+              <button
+                type="button"
+                onClick={() => setInfoOpen(true)}
+                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Add patient information
+              </button>
+            </div>
+            {infoOpen && (
+              <InfoForm
+                keys={requiredKeys(med)}
+                info={patientInfo}
+                onChange={onPatientInfo}
+                onDone={() => setInfoOpen(false)}
               />
-              {checksOpen ? "Hide details" : "Show details"}
-            </button>
-          </div>
-          {checksOpen && (
-            <ul className="mt-2.5 space-y-1.5 border-t border-[#EDEBF3] pt-2.5">
-              {CHECK_ROWS.map((r) => (
-                <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="Missing clinical information">
-          {med.checks?.missingInformation || med.basis?.missingInformation ? (
-            <>
-              <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                {med.checks?.missingInformation ?? med.basis?.missingInformation}
-              </p>
-              {onAddClinicalInfo && (
+            )}
+          </Panel>
+        ) : (
+          <>
+            {missingKeys.length > 0 && (
+              <Panel title="Information needed">
+                <ul className="space-y-1 text-[12.5px] text-[#3D2E6B]">
+                  {missingKeys.map((k) => (
+                    <li key={k} className="flex items-start gap-1.5">
+                      <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-[#C08A2A]" />
+                      {infoLabel(k)}
+                    </li>
+                  ))}
+                </ul>
                 <button
                   type="button"
-                  onClick={onAddClinicalInfo}
-                  className="mt-2 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                  onClick={() => setInfoOpen((v) => !v)}
+                  className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
                 >
-                  Add clinical information
+                  {infoOpen ? "Hide fields" : "Add missing information"}
                 </button>
-              )}
-            </>
-          ) : (
-            <p className="text-[12.5px] text-[#5A4A8A]">Nothing outstanding for this medication.</p>
-          )}
-        </Panel>
+                {infoOpen && (
+                  <InfoForm
+                    keys={missingKeys}
+                    info={patientInfo}
+                    onChange={onPatientInfo}
+                    onDone={() => setInfoOpen(false)}
+                  />
+                )}
+              </Panel>
+            )}
 
-        <Panel title="Interactions and contraindications">
-          <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.checks?.interactions?.detail ??
-              "No interaction review is recorded for this medication."}
-          </p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.checks?.contraindications?.detail ??
-              "No contraindication review is recorded for this medication."}
-          </p>
-          {med.warnings && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">{med.warnings}</p>
-          )}
-        </Panel>
+            <Panel title="Patient-specific safety review">
+              <div className="flex flex-wrap items-center gap-2">
+                <SummaryPills summary={summary} />
+                {reviewRan && (
+                  <button
+                    type="button"
+                    onClick={() => setChecksOpen((v) => !v)}
+                    className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                  >
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+                    />
+                    {checksOpen ? "Hide safety review" : "View safety review"}
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={onRunReview}
+                className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                {reviewRan ? "Run safety review again" : "Run safety review"}
+              </button>
+              {checksOpen && reviewRan && (
+                <>
+                  <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+                    {CHECK_ROWS.map((r) => (
+                      <CheckRow key={r.key} label={r.label} check={med.checks?.[r.key]} />
+                    ))}
+                  </ul>
+                  {med.warnings && (
+                    <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                      {med.warnings}
+                    </p>
+                  )}
+                </>
+              )}
+            </Panel>
+
+            <Panel title="Why this medication was included">
+              <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                {med.basis?.whyIncluded ??
+                  med.rationale ??
+                  (med.origin === "manual"
+                    ? "Added by the prescribing clinician."
+                    : "No rationale was recorded for this medication.")}
+              </p>
+              {med.basis?.clinicalInformationUsed && (
+                <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  {med.basis.clinicalInformationUsed}
+                </p>
+              )}
+            </Panel>
+          </>
+        )}
 
         <Panel title="Medication reference">
           <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -1042,19 +1109,121 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
-  const ok = check?.status === "checked";
-  return (
-    <li className="flex items-start gap-1.5 text-[12.5px] leading-snug">
-      {ok ? (
-        <Check className="mt-[2px] h-3.5 w-3.5 flex-none text-[#1F7A57]" />
-      ) : (
-        <AlertTriangle className="mt-[2px] h-3.5 w-3.5 flex-none text-[#C08A2A]" />
-      )}
-      <span className="text-[#3D2E6B]">
-        <span className="font-semibold">{label}:</span>{" "}
-        {check?.detail ?? "Unable to complete — required clinical information is missing."}
+const TONE_TEXT = {
+  neutral: "text-[#6F6889]",
+  amber: "text-[#8A6A20]",
+  green: "text-[#1F7A57]",
+  red: "text-[#9B4A4A]",
+} as const;
+
+const TONE_BG = {
+  neutral: "bg-[#F2F0F7] text-[#5A4A8A]",
+  amber: "bg-[#FBF2DF] text-[#8A6A20]",
+  green: "bg-[#E7F6EF] text-[#1F7A57]",
+  red: "bg-[#FBEDED] text-[#9B4A4A]",
+} as const;
+
+function requiredKeys(med: PrescriptionMedication): InfoKey[] {
+  return requiredInfoKeys(med);
+}
+
+function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }) {
+  if (!summary.ran) {
+    return (
+      <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.neutral}`}>
+        Safety review not run
       </span>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {summary.complete > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.green}`}>
+          {summary.complete} check{summary.complete === 1 ? "" : "s"} complete
+        </span>
+      )}
+      {summary.review > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
+          {summary.review} requires review
+        </span>
+      )}
+      {summary.needsInfo > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
+          {summary.needsInfo} needs information
+        </span>
+      )}
+      {summary.blocking > 0 && (
+        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.red}`}>
+          {summary.blocking} blocking issue{summary.blocking === 1 ? "" : "s"}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function InfoForm({
+  keys,
+  info,
+  onChange,
+  onDone,
+}: {
+  keys: InfoKey[];
+  info?: PatientSafetyInfo;
+  onChange: (p: Partial<PatientSafetyInfo>) => void;
+  onDone: () => void;
+}) {
+  const fields = INFO_FIELDS.filter((f) => keys.includes(f.key));
+  return (
+    <div className="mt-3 space-y-3 border-t border-[#EDEBF3] pt-3">
+      {fields.map((f) =>
+        f.multiline ? (
+          <FieldArea
+            key={f.key}
+            label={f.label}
+            value={info?.[f.key] ?? ""}
+            placeholder={f.placeholder}
+            onChange={(v) => onChange({ [f.key]: v })}
+          />
+        ) : (
+          <Field
+            key={f.key}
+            label={f.label}
+            value={info?.[f.key] ?? ""}
+            placeholder={f.placeholder}
+            onChange={(v) => onChange({ [f.key]: v })}
+          />
+        ),
+      )}
+      <button
+        type="button"
+        onClick={onDone}
+        className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+      >
+        Done
+      </button>
+    </div>
+  );
+}
+
+function CheckRow({ label, check }: { label: string; check?: MedicationCheck }) {
+  const state = checkState(check);
+  const tone = CHECK_STATE_TONE[state];
+  return (
+    <li className="text-[12.5px] leading-snug">
+      <p className="flex flex-wrap items-center gap-x-1.5">
+        <span className="font-semibold text-[#2C2B4B]">{label}</span>
+        <span className="text-[#CFC9DC]">—</span>
+        <span className={`font-semibold ${TONE_TEXT[tone]}`}>{CHECK_STATE_LABEL[state]}</span>
+      </p>
+      {check?.detail && <p className="mt-0.5 text-[#3D2E6B]">{check.detail}</p>}
+      {(check?.informationUsed || check?.checkedAt) && (
+        <p className="mt-0.5 text-[11.5px] text-[#6F6889]">
+          {check?.informationUsed}
+          {check?.checkedAt
+            ? `${check.informationUsed ? " " : ""}Checked ${new Date(check.checkedAt).toLocaleString()}.`
+            : ""}
+        </p>
+      )}
     </li>
   );
 }
@@ -1164,12 +1333,14 @@ function missingClinicalInfo(ws: ReturnType<typeof loadWorkspace>): string[] {
 }
 
 function Field({
+  id,
   label,
   value,
   onChange,
   placeholder,
   required,
 }: {
+  id?: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -1178,11 +1349,12 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-[12px] font-medium text-[#5A4A8A]">
+      <label htmlFor={id} className="text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
       </label>
       <input
+        id={id}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
