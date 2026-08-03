@@ -1322,15 +1322,6 @@ function SelectField({
   );
 }
 
-function PanelUnused({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-      <h3 className="mb-2 text-[13px] font-semibold text-[#2C2B4B]">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
 const TONE_TEXT = {
   neutral: "text-[#6F6889]",
   amber: "text-[#8A6A20]",
