@@ -82,7 +82,23 @@ export function AiPrescription({
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
-    setRx(loadPrescription(appointmentId));
+    const loaded = loadPrescription(appointmentId);
+    // Drop any blank placeholder left behind by an abandoned manual entry so
+    // the section opens in the true "No prescription prepared" state instead
+    // of an empty draft.
+    const cleaned = loaded.medications.filter(
+      (m) =>
+        m.name.trim() ||
+        m.dose.trim() ||
+        m.frequency.trim() ||
+        m.instructions.trim() ||
+        (m.strength ?? "").trim(),
+    );
+    if (cleaned.length !== loaded.medications.length) {
+      setRx(updatePrescription(appointmentId, { medications: cleaned }));
+    } else {
+      setRx(loaded);
+    }
     return subscribePrescription(() => setRx(loadPrescription(appointmentId)));
   }, [appointmentId]);
 
