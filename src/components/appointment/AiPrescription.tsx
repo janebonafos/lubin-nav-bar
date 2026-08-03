@@ -1457,68 +1457,6 @@ function MedicationEditor({
         </div>
       </div>
 
-      {/* Expanded panels use the full width so nothing is cramped in the rail */}
-      {infoOpen && (
-        <PatientInfoForm
-          keys={outstanding.length > 0 ? outstanding.map((o) => o.key) : requiredKeys(med)}
-          info={patientInfo}
-          onChange={onPatientInfo}
-          onSave={() => setInfoOpen(false)}
-          relevanceFor={(k) => infoRelevance(med, k)}
-        />
-      )}
-
-      {whyOpen && (
-        <div className="rounded-xl bg-[#FAF9FD] px-4 py-3">
-          <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            This option was generated from the information documented for this visit. Review the
-            supporting information, alternatives, and patient-specific risks before deciding whether
-            it is appropriate.
-          </p>
-          <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-            {med.basis?.whyIncluded ??
-              med.rationale ??
-              (med.origin === "manual"
-                ? "Added by the prescribing clinician."
-                : "No supporting explanation was recorded for this option.")}
-          </p>
-          {med.basis?.clinicalInformationUsed && (
-            <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {med.basis.clinicalInformationUsed}
-            </p>
-          )}
-        </div>
-      )}
-
-      {checksOpen && reviewRan && (
-        <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
-          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-            Full safety review{" "}
-            <span className="font-normal text-[#6F6889]">
-              · {summary.text}
-              {med.safetyReviewedAt
-                ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
-                : ""}
-            </span>
-          </p>
-          <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5 md:grid md:grid-cols-2 md:gap-x-6 md:space-y-0">
-            {CHECK_ROWS.map((r) => (
-              <CheckRow
-                key={r.key}
-                label={r.label}
-                check={med.checks?.[r.key]}
-                reviewedAt={med.checkReviews?.[r.key]}
-                onMarkReviewed={() => onMarkCheckReviewed(r.key)}
-              />
-            ))}
-          </ul>
-          {med.warnings && (
-            <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-              {med.warnings}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }
