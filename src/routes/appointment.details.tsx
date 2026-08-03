@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
 import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
@@ -429,24 +429,6 @@ function DetailsPage() {
       : showPostSession
         ? "Session ended · Follow-up in progress"
         : "Confirmed";
-
-  const tasks: { key: string; label: string; status: string; optional?: boolean }[] = [
-    {
-      key: "session-notes",
-      label: "Private clinical documentation",
-      status: docStatus,
-      optional: true,
-    },
-    {
-      key: "care-plan",
-      label: `Summary for ${clientLabel}`,
-      status: followUpStatus,
-      optional: true,
-    },
-    ...(rxAllowed
-      ? [{ key: "prescriptions", label: "Prescription", status: rxStatus, optional: true }]
-      : []),
-  ];
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#F5EFFB] via-[#FBF9FF] to-[#FBF9FF] px-4 py-10">
