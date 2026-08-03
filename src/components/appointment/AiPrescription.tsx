@@ -1277,16 +1277,6 @@ function MedicationEditor({
           </div>
         )}
 
-        {infoOpen && (
-          <PatientInfoForm
-            keys={outstanding.length > 0 ? outstanding.map((o) => o.key) : requiredKeys(med)}
-            info={patientInfo}
-            onChange={onPatientInfo}
-            onSave={() => setInfoOpen(false)}
-            relevanceFor={(k) => infoRelevance(med, k)}
-          />
-        )}
-
         {/* Supporting information — never competing with required actions */}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] font-semibold text-[#6E4FD3]">
           <button
@@ -1318,57 +1308,6 @@ function MedicationEditor({
           )}
         </div>
 
-        {whyOpen && (
-          <div className="mt-2 rounded-xl bg-[#FAF9FD] px-4 py-3">
-            <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-              This option was generated from the information documented for this visit. Review the
-              supporting information, alternatives, and patient-specific risks before deciding
-              whether it is appropriate.
-            </p>
-            <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-              {med.basis?.whyIncluded ??
-                med.rationale ??
-                (med.origin === "manual"
-                  ? "Added by the prescribing clinician."
-                  : "No supporting explanation was recorded for this option.")}
-            </p>
-            {med.basis?.clinicalInformationUsed && (
-              <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                {med.basis.clinicalInformationUsed}
-              </p>
-            )}
-          </div>
-        )}
-
-        {checksOpen && reviewRan && (
-          <div className="mt-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
-            <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-              Full safety review{" "}
-              <span className="font-normal text-[#6F6889]">
-                · {summary.text}
-                {med.safetyReviewedAt
-                  ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
-                  : ""}
-              </span>
-            </p>
-            <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
-              {CHECK_ROWS.map((r) => (
-                <CheckRow
-                  key={r.key}
-                  label={r.label}
-                  check={med.checks?.[r.key]}
-                  reviewedAt={med.checkReviews?.[r.key]}
-                  onMarkReviewed={() => onMarkCheckReviewed(r.key)}
-                />
-              ))}
-            </ul>
-            {med.warnings && (
-              <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                {med.warnings}
-              </p>
-            )}
-          </div>
-        )}
       </section>
 
       {/* 3 — Final review */}
