@@ -1224,6 +1224,113 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+/** One searchable medication selector — the single place a medication is chosen. */
+function MedicationSelector({
+  value,
+  genericName,
+  onSelect,
+}: {
+  value: string;
+  genericName?: string;
+  onSelect: (name: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const results = useMemo(() => searchCatalogue(query), [query]);
+  const selected = findCatalogue(value);
+  return (
+    <div className="relative">
+      <label className="mb-1 block text-[12px] font-medium text-[#5A4A8A]" htmlFor="rx-medication-name">
+        Medication <span className="text-[#9B4A4A]">*</span>
+      </label>
+      <input
+        id="rx-medication-name"
+        value={query}
+        autoComplete="off"
+        placeholder="Search a medication by brand or generic name"
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setOpen(true);
+          onSelect(e.target.value);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 150)}
+        className="w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] placeholder:text-[#9C96AF] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+      />
+      {open && results.length > 0 && (
+        <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-[#DEDAE8] bg-white shadow-lg">
+          {results.map((r) => (
+            <li key={r.name}>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setQuery(r.name);
+                  onSelect(r.name);
+                  setOpen(false);
+                }}
+                className="block w-full px-3 py-2 text-left text-[12.5px] text-[#2C2B4B] hover:bg-[#F7F5FB]"
+              >
+                <span className="font-semibold">{r.name}</span>{" "}
+                <span className="text-[#6F6889]">
+                  {r.genericName}
+                  {r.medicationClass ? ` · ${r.medicationClass}` : ""}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-1 text-[11.5px] text-[#6F6889]">
+        {selected
+          ? `${selected.genericName}${selected.medicationClass ? ` · ${selected.medicationClass}` : ""} — strengths, routes, reference and safety requirements updated.`
+          : genericName
+            ? genericName
+            : "Selecting a medication updates the available strengths, routes, reference and safety-review requirements."}
+      </p>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[12px] font-medium text-[#5A4A8A]">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+      >
+        <option value="">Select…</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function PanelUnused({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
+      <h3 className="mb-2 text-[13px] font-semibold text-[#2C2B4B]">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
 const TONE_TEXT = {
   neutral: "text-[#6F6889]",
   amber: "text-[#8A6A20]",
