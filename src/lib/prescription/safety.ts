@@ -42,15 +42,17 @@ export function checkState(check?: MedicationCheck): CheckState {
   }
 }
 
-export const CHECK_ROWS: { key: keyof Omit<MedicationChecks, "missingInformation">; label: string }[] =
-  [
-    { key: "allergies", label: "Allergies" },
-    { key: "currentMedications", label: "Current medications" },
-    { key: "interactions", label: "Medication interactions" },
-    { key: "contraindications", label: "Contraindications" },
-    { key: "conditions", label: "Relevant conditions" },
-    { key: "monitoring", label: "Monitoring requirements" },
-  ];
+export const CHECK_ROWS: {
+  key: keyof Omit<MedicationChecks, "missingInformation">;
+  label: string;
+}[] = [
+  { key: "allergies", label: "Allergies" },
+  { key: "currentMedications", label: "Current medications" },
+  { key: "interactions", label: "Medication interactions" },
+  { key: "contraindications", label: "Contraindications" },
+  { key: "conditions", label: "Relevant conditions" },
+  { key: "monitoring", label: "Monitoring requirements" },
+];
 
 /* -------------------------- patient information -------------------------- */
 
@@ -60,12 +62,14 @@ export type InfoKey = "allergies" | "currentMedications" | "conditions" | "pregn
 export const STRUCTURED_KEYS = ["allergies", "currentMedications", "conditions"] as const;
 export type StructuredKey = (typeof STRUCTURED_KEYS)[number];
 
-const ENTRY_FIELD: Record<StructuredKey, "allergyEntries" | "medicationEntries" | "conditionEntries"> =
-  {
-    allergies: "allergyEntries",
-    currentMedications: "medicationEntries",
-    conditions: "conditionEntries",
-  };
+const ENTRY_FIELD: Record<
+  StructuredKey,
+  "allergyEntries" | "medicationEntries" | "conditionEntries"
+> = {
+  allergies: "allergyEntries",
+  currentMedications: "medicationEntries",
+  conditions: "conditionEntries",
+};
 
 const STATE_FIELD: Record<StructuredKey, "allergyState" | "medicationState" | "conditionState"> = {
   allergies: "allergyState",
@@ -85,14 +89,14 @@ export function stateField(key: StructuredKey) {
   return STATE_FIELD[key];
 }
 
-export function entriesFor(info: PatientSafetyInfo | undefined, key: StructuredKey): PatientInfoEntry[] {
+export function entriesFor(
+  info: PatientSafetyInfo | undefined,
+  key: StructuredKey,
+): PatientInfoEntry[] {
   return info?.[ENTRY_FIELD[key]] ?? [];
 }
 
-export function docStateFor(
-  info: PatientSafetyInfo | undefined,
-  key: StructuredKey,
-): InfoDocState {
+export function docStateFor(info: PatientSafetyInfo | undefined, key: StructuredKey): InfoDocState {
   const explicit = info?.[STATE_FIELD[key]];
   if (explicit) return explicit;
   return entriesFor(info, key).length > 0 ? "documented" : "not-documented";
@@ -224,7 +228,10 @@ export function runSafetyReview(
     .trim();
   const allergyText = structuredText(info, "allergies");
   const conditionText = structuredText(info, "conditions");
-  const name = med.name.toLowerCase().replace(/\(.*?\)/g, "").trim();
+  const name = med.name
+    .toLowerCase()
+    .replace(/\(.*?\)/g, "")
+    .trim();
 
   const needs = (k: InfoKey, detail: string): MedicationCheck => ({
     status: "info-required",
@@ -255,7 +262,9 @@ export function runSafetyReview(
     ? needs("currentMedications", "The current medication list has not been recorded.")
     : {
         status: "no-issue",
-        detail: medsText ? "Current medication list is complete." : "No current medications recorded.",
+        detail: medsText
+          ? "Current medication list is complete."
+          : "No current medications recorded.",
         informationUsed: "Recorded medication list for this visit.",
         checkedAt: now,
       };

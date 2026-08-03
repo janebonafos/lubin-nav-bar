@@ -796,7 +796,9 @@ function MedicationSummaryCard({
       <li className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
         <div className="flex flex-wrap items-start gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold text-[#2C2B4B]">Medication details incomplete</p>
+            <p className="text-[14px] font-semibold text-[#2C2B4B]">
+              Medication details incomplete
+            </p>
             <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
               Select a medication to add it to this prescription.
             </p>
@@ -1235,7 +1237,10 @@ function MedicationSelector({
   const selected = findCatalogue(value);
   return (
     <div className="relative">
-      <label className="mb-1 block text-[12px] font-medium text-[#5A4A8A]" htmlFor="rx-medication-name">
+      <label
+        className="mb-1 block text-[12px] font-medium text-[#5A4A8A]"
+        htmlFor="rx-medication-name"
+      >
         Medication <span className="text-[#9B4A4A]">*</span>
       </label>
       <input
@@ -1431,9 +1436,7 @@ function FinalReviewBody({
                 {m.name || "Medication draft"} {m.strength || m.dose}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#3D2E6B]">
-                {[m.route, m.frequency, m.duration]
-                  .filter((v) => v && v.trim())
-                  .join(" · ")}
+                {[m.route, m.frequency, m.duration].filter((v) => v && v.trim()).join(" · ")}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
                 Quantity: {m.quantity || "—"} · Refills: {m.refills || "—"}

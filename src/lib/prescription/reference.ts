@@ -1,8 +1,4 @@
-import type {
-  MedicationReference,
-  PrescriptionMedication,
-  RxCountry,
-} from "./store";
+import type { MedicationReference, PrescriptionMedication, RxCountry } from "./store";
 import { loadWorkspace } from "@/lib/visit-workspace/store";
 
 /** Fetch an AI medication-reference summary plus authoritative sources. */

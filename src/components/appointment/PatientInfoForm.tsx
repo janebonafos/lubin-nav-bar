@@ -83,7 +83,10 @@ export function PatientInfoForm({
   const freeText = INFO_FIELDS.filter((f) => keys.includes(f.key) && !isStructuredKey(f.key));
 
   const setEntries = (key: StructuredKey, entries: PatientInfoEntry[]) =>
-    onChange({ [entryField(key)]: entries, [stateField(key)]: "documented" } as Partial<PatientSafetyInfo>);
+    onChange({
+      [entryField(key)]: entries,
+      [stateField(key)]: "documented",
+    } as Partial<PatientSafetyInfo>);
 
   const setState = (key: StructuredKey, state: InfoDocState) =>
     onChange({
@@ -125,7 +128,10 @@ export function PatientInfoForm({
                 </datalist>
                 <ul className="mt-2 space-y-2">
                   {entries.map((entry, i) => (
-                    <li key={entry.id} className="rounded-lg border border-[#EDEBF3] bg-[#FCFBFE] p-2.5">
+                    <li
+                      key={entry.id}
+                      className="rounded-lg border border-[#EDEBF3] bg-[#FCFBFE] p-2.5"
+                    >
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <input
                           list={`rx-suggest-${key}`}
@@ -201,7 +207,12 @@ export function PatientInfoForm({
                         <button
                           type="button"
                           aria-label="Remove item"
-                          onClick={() => setEntries(key, entries.filter((e) => e.id !== entry.id))}
+                          onClick={() =>
+                            setEntries(
+                              key,
+                              entries.filter((e) => e.id !== entry.id),
+                            )
+                          }
                           className="inline-flex h-7 w-7 items-center justify-center rounded-[8px] text-[#7E7794] transition hover:bg-[#F1EEF8] hover:text-[#3D2E6B]"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -237,7 +248,8 @@ export function PatientInfoForm({
             )}
             {state === "not-documented" && (
               <p className="mt-1.5 text-[12px] text-[#8A6A20]">
-                Not documented. The safety review cannot evaluate this category until it is recorded.
+                Not documented. The safety review cannot evaluate this category until it is
+                recorded.
               </p>
             )}
           </div>
@@ -269,8 +281,8 @@ export function PatientInfoForm({
           Save patient information
         </button>
         <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-          This information is saved to the client&rsquo;s private clinical record and is not included
-          in the client summary.
+          This information is saved to the client&rsquo;s private clinical record and is not
+          included in the client summary.
           {saved ? ` Saved ${new Date(saved).toLocaleTimeString()}.` : ""}
         </p>
       </div>
