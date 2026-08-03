@@ -1011,6 +1011,7 @@ function MedicationEditor({
   onMarkCheckReviewed,
   blockers,
   onOpenReference,
+  sharedSafety,
 }: {
   med: PrescriptionMedication;
   country: RxCountry;
@@ -1022,6 +1023,7 @@ function MedicationEditor({
   onMarkCheckReviewed: (key: CheckKey) => void;
   blockers: Blocker[];
   onOpenReference: () => void;
+  sharedSafety?: SharedSafetyResponse | null;
 }) {
   // Flagged findings need an explicit acknowledgement, so open the list for them.
   const [checksOpen, setChecksOpen] = useState(() => unreviewedCheckKeys(med).length > 0);
