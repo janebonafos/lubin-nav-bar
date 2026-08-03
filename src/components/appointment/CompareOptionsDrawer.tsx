@@ -183,7 +183,7 @@ export function CompareOptionsDrawer({
                       : "border-[#D6CCEC] bg-white text-[#7E6BAF] hover:bg-[#F7F4FB]"
                   }`}
                 >
-                  {m.name || "Untitled"}
+                  {m.name || "Medication draft"}
                 </button>
               );
             })}
@@ -221,7 +221,7 @@ export function CompareOptionsDrawer({
                         className="border-b border-[#ECE7F6] px-3 pb-2 align-top"
                       >
                         <p className="text-[13px] font-semibold text-[#3D2E6B]">
-                          {m.name || "Untitled"}
+                          {m.name || "Medication draft"}
                         </p>
                         <div className="mt-1">
                           <OriginBadge med={m} />
