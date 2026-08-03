@@ -460,18 +460,97 @@ export function runSafetyReview(
   }
 
   // Monitoring
-  if (med.requiresLabs && missing.includes("labs")) {
-    checks.monitoring = needs("labs", "Laboratory or organ-function information is required.");
-  } else if (med.requiresPregnancyStatus && missing.includes("pregnancy")) {
-    checks.monitoring = needs("pregnancy", "Pregnancy or breastfeeding status is required.");
+  // Bipolar / mania history
+  if (!infoRecorded("bipolarHistory", info)) {
+    checks.bipolarHistory = needs(
+      "bipolarHistory",
+      med.requiresBipolarScreen
+        ? "Bipolar or mania history has not been documented. This check cannot be completed."
+        : "Bipolar or mania history has not been documented, so this check is incomplete. It does not block verification for this medication.",
+    );
   } else {
-    checks.monitoring = {
-      status: "review-needed",
-      detail: "Confirm the follow-up and monitoring plan before prescribing.",
-      informationUsed: "Prescribing information for this medication and the recorded plan.",
+    const state = bipolarHistoryState(info);
+    checks.bipolarHistory = {
+      status: state === "present" ? "review-needed" : "no-issue",
+      detail:
+        state === "present"
+          ? `Documented bipolar or mania history${info?.bipolarDetail ? ` — ${info.bipolarDetail}` : ""}. Review the risk of precipitating mania before prescribing.`
+          : "Documented as none known by the prescribing clinician.",
+      informationUsed: "Recorded bipolar or mania screening result.",
       checkedAt: now,
     };
   }
+
+  // Pregnancy and breastfeeding
+  if (!infoRecorded("pregnancy", info)) {
+    checks.pregnancy = needs(
+      "pregnancy",
+      med.requiresPregnancyStatus
+        ? "Pregnancy and breastfeeding status has not been documented. This check cannot be completed."
+        : "Pregnancy and breastfeeding status has not been documented, so this check is incomplete. It does not block verification for this medication.",
+    );
+  } else {
+    const st = pregnancyStatus(info);
+    const flagged = st === "pregnant" || st === "breastfeeding" || st === "trying";
+    checks.pregnancy = {
+      status: flagged ? "review-needed" : "no-issue",
+      detail: flagged
+        ? `Recorded status: ${PREGNANCY_STATUS_LABEL[st]}. Use the pregnancy and lactation wording from this product's approved information before prescribing.`
+        : `Recorded status: ${PREGNANCY_STATUS_LABEL[st]}.`,
+      informationUsed: "Recorded pregnancy and breastfeeding status.",
+      checkedAt: now,
+    };
+  }
+
+  // Age-dependent warnings — never evaluated without an age or date of birth
+  const age = patientAge(info);
+  if (age === null) {
+    checks.age = needs(
+      "age",
+      "Age-dependent warnings cannot be shown or evaluated until the patient's age or date of birth is recorded.",
+    );
+  } else {
+    const young = age < 25;
+    const older = age >= 65;
+    checks.age = {
+      status: young || older ? "review-needed" : "no-issue",
+      detail: young
+        ? `Recorded age ${age}. Review the early-treatment warning about increased suicidal thoughts in patients under 25.`
+        : older
+          ? `Recorded age ${age}. Review dose caution, hyponatraemia and fall risk in older patients.`
+          : `Recorded age ${age}. No age-dependent warning applies to this medication at this age.`,
+      informationUsed: "Recorded age or date of birth and the prescribing information.",
+      checkedAt: now,
+    };
+  }
+
+  // Laboratory and organ function
+  if (!infoRecorded("labs", info)) {
+    checks.organFunction = needs(
+      "labs",
+      med.requiresLabs
+        ? (med.labsReason ??
+            "Laboratory or organ-function information is required by this medication's prescribing information.")
+        : "No laboratory or organ-function result has been recorded. Recommended, not required for this medication.",
+    );
+  } else {
+    const hits = contains(info?.labs ?? "", ["abnormal", "elevated", "impair", "low", "high"]);
+    checks.organFunction = {
+      status: hits.length ? "review-needed" : "no-issue",
+      detail: hits.length
+        ? "Recorded results include values to review before prescribing."
+        : "Recorded laboratory or organ-function information shows nothing that changes this prescription.",
+      informationUsed: "Recorded laboratory or organ-function information.",
+      checkedAt: now,
+    };
+  }
+
+  checks.monitoring = {
+    status: "review-needed",
+    detail: "Confirm the follow-up and monitoring plan before prescribing.",
+    informationUsed: "Prescribing information for this medication and the recorded plan.",
+    checkedAt: now,
+  };
 
   return checks;
 }
