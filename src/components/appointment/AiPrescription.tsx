@@ -539,9 +539,12 @@ export function AiPrescription({
         <MedicationEditor
           med={reviewMed}
           country={country}
+          patientInfo={rx.patientInfo}
+          visitMeds={visitMeds}
           onChange={(p) => updateMed(reviewMed.id, p)}
+          onPatientInfo={setPatientInfo}
+          onRunReview={() => runReview(reviewMed.id)}
           onOpenReference={() => setRefMedId(reviewMed.id)}
-          onAddClinicalInfo={onAddClinicalInfo}
         />
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
