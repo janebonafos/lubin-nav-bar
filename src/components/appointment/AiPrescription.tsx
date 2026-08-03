@@ -1023,10 +1023,10 @@ function MedicationEditor({
   onOpenReference: () => void;
   sharedSafety?: SharedSafetyResponse | null;
 }) {
-  // Flagged findings need an explicit acknowledgement, so open the list for them.
-  const [checksOpen, setChecksOpen] = useState(() => unreviewedCheckKeys(med).length > 0);
+  const [checksOpen, setChecksOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [whyOpen, setWhyOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
   const outstanding = useMemo(
@@ -1059,18 +1059,19 @@ function MedicationEditor({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-      {/* Left — the prescription itself */}
-      <div className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medication and directions</h3>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+    <div className="space-y-6">
+      {/* 1 — Medication details */}
+      <section>
+        <SectionHeading>Medication details</SectionHeading>
+        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
+          <div className="md:col-span-6">
             <MedicationSelector
               value={med.name}
               genericName={med.genericName}
               onSelect={selectMedication}
             />
           </div>
+          <div className="md:col-span-3">
           {catalogue ? (
             <SelectField
               label="Strength and formulation"
@@ -1086,7 +1087,11 @@ function MedicationEditor({
               placeholder="Strength and formulation as dispensed"
             />
           )}
-          <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
+          </div>
+          <div className="md:col-span-3">
+            <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
+          </div>
+          <div className="md:col-span-2">
           {catalogue ? (
             <SelectField
               label="Route"
@@ -1102,32 +1107,41 @@ function MedicationEditor({
               placeholder="Route of administration"
             />
           )}
-          <Field
-            label="Frequency"
-            value={med.frequency}
-            onChange={(v) => edit({ frequency: v })}
-            required
-            placeholder="How often it is taken"
-          />
-          <Field
-            label="Duration"
-            value={med.duration ?? ""}
-            onChange={(v) => edit({ duration: v })}
-            placeholder="How long to continue"
-          />
-          <Field
-            label="Quantity"
-            value={med.quantity ?? ""}
-            onChange={(v) => edit({ quantity: v })}
-            placeholder="Total amount to dispense"
-          />
-          <Field
-            label="Refills"
-            value={med.refills ?? ""}
-            onChange={(v) => edit({ refills: v })}
-            placeholder="Number of refills, or none"
-          />
-          <div className="sm:col-span-2">
+          </div>
+          <div className="md:col-span-2">
+            <Field
+              label="Frequency"
+              value={med.frequency}
+              onChange={(v) => edit({ frequency: v })}
+              required
+              placeholder="How often it is taken"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Field
+              label="Duration"
+              value={med.duration ?? ""}
+              onChange={(v) => edit({ duration: v })}
+              placeholder="How long to continue"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Field
+              label="Quantity"
+              value={med.quantity ?? ""}
+              onChange={(v) => edit({ quantity: v })}
+              placeholder="Total amount to dispense"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Field
+              label="Refills"
+              value={med.refills ?? ""}
+              onChange={(v) => edit({ refills: v })}
+              placeholder="Number of refills, or none"
+            />
+          </div>
+          <div className="md:col-span-6">
             <Field
               label="Indication"
               value={med.indication ?? ""}
@@ -1135,7 +1149,7 @@ function MedicationEditor({
               placeholder="Why this is being prescribed"
             />
           </div>
-          <div className="sm:col-span-2">
+          <div className="md:col-span-6">
             <FieldArea
               label="Patient instructions"
               value={med.instructions}
@@ -1145,8 +1159,241 @@ function MedicationEditor({
             />
           </div>
         </div>
+      </section>
 
-        <div className="mt-4 border-t border-[#EDEBF3] pt-3.5">
+      {/* 2 — Patient information & safety */}
+      <section>
+        <SectionHeading>Patient information &amp; safety</SectionHeading>
+        {!hasName ? (
+          <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            Choose a medication above to see the patient information and safety items this
+            prescription needs.
+          </p>
+        ) : (
+          <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-white">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3">
+              <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                {requiredCount} required item{requiredCount === 1 ? "" : "s"} ·{" "}
+                {reviewsRemaining} item{reviewsRemaining === 1 ? "" : "s"} to review
+              </p>
+              {requiredCount === 0 && reviewsRemaining === 0 && (
+                <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1F7A57]">
+                  <Check className="h-3.5 w-3.5" /> Nothing outstanding
+                </span>
+              )}
+            </div>
+            {(!reviewRan || staleReview) && (
+              <div className="flex flex-wrap items-center gap-2 border-t border-[#EDEBF3] px-4 py-3">
+                <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
+                  {!reviewRan
+                    ? "The patient-specific safety review has not run yet."
+                    : "Safety information changed since the last review."}
+                </p>
+                <button
+                  type="button"
+                  onClick={onRunReview}
+                  className="inline-flex h-8 items-center rounded-[10px] bg-[#6E4FD3] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                >
+                  {reviewRan ? "Run review again" : "Run safety review"}
+                </button>
+              </div>
+            )}
+            {outstanding.length > 0 && (
+              <ul className="border-t border-[#EDEBF3]">
+                {outstanding.map(({ key, requirement }) => (
+                  <li
+                    key={key}
+                    className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                  >
+                    <span className="text-[12.5px] font-medium text-[#2C2B4B]">
+                      {infoLabel(key)}
+                    </span>
+                    <span
+                      className={`text-[11.5px] font-semibold ${
+                        requirement === "required" ? "text-[#8A6A20]" : "text-[#6F6889]"
+                      }`}
+                    >
+                      — {INFO_REQUIREMENT_LABEL[requirement]}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setInfoOpen(true)}
+                      className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                    >
+                      Add information
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {unreviewedKeys.length > 0 && (
+              <ul className="border-t border-[#EDEBF3]">
+                {unreviewedKeys.map((k) => (
+                  <li
+                    key={k}
+                    className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                  >
+                    <span className="text-[12.5px] font-medium text-[#2C2B4B]">
+                      {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
+                    </span>
+                    <span className="text-[11.5px] font-semibold text-[#8A6A20]">
+                      — Review required
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setChecksOpen(true)}
+                      className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                    >
+                      Review
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#EDEBF3] px-4 py-2.5">
+                <span className="text-[12.5px] font-medium text-[#2C2B4B]">
+                  Shared {sharedSafety.clinicalName} safety response
+                </span>
+                <span className="text-[11.5px] font-semibold text-[#8A6A20]">
+                  — Review required
+                </span>
+                <span className="ml-auto text-[12px] text-[#6F6889]">See final review below</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {infoOpen && (
+          <PatientInfoForm
+            keys={outstanding.length > 0 ? outstanding.map((o) => o.key) : requiredKeys(med)}
+            info={patientInfo}
+            onChange={onPatientInfo}
+            onSave={() => setInfoOpen(false)}
+            relevanceFor={(k) => infoRelevance(med, k)}
+          />
+        )}
+
+        {/* Supporting information — never competing with required actions */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] font-semibold text-[#6E4FD3]">
+          <button type="button" onClick={() => setWhyOpen((v) => !v)} className="hover:text-[#5A3EB8]">
+            Why this option was shown
+          </button>
+          {hasName && (
+            <button type="button" onClick={onOpenReference} className="hover:text-[#5A3EB8]">
+              View medication reference
+            </button>
+          )}
+          {reviewRan && (
+            <button
+              type="button"
+              onClick={() => setChecksOpen((v) => !v)}
+              className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
+              />
+              {checksOpen ? "Hide full safety review" : "View full safety review"}
+            </button>
+          )}
+          {reviewRan && !checksOpen && (
+            <span className={`font-normal ${TONE_TEXT[status.tone]}`}>{summary.text}</span>
+          )}
+        </div>
+
+        {whyOpen && (
+          <div className="mt-2 rounded-xl bg-[#FAF9FD] px-4 py-3">
+            <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              This option was generated from the information documented for this visit. Review the
+              supporting information, alternatives, and patient-specific risks before deciding
+              whether it is appropriate.
+            </p>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              {med.basis?.whyIncluded ??
+                med.rationale ??
+                (med.origin === "manual"
+                  ? "Added by the prescribing clinician."
+                  : "No supporting explanation was recorded for this option.")}
+            </p>
+            {med.basis?.clinicalInformationUsed && (
+              <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                {med.basis.clinicalInformationUsed}
+              </p>
+            )}
+          </div>
+        )}
+
+        {checksOpen && reviewRan && (
+          <div className="mt-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
+            <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+              Full safety review{" "}
+              <span className="font-normal text-[#6F6889]">
+                · {summary.text}
+                {med.safetyReviewedAt ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}` : ""}
+              </span>
+            </p>
+            <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+              {CHECK_ROWS.map((r) => (
+                <CheckRow
+                  key={r.key}
+                  label={r.label}
+                  check={med.checks?.[r.key]}
+                  reviewedAt={med.checkReviews?.[r.key]}
+                  onMarkReviewed={() => onMarkCheckReviewed(r.key)}
+                />
+              ))}
+            </ul>
+            {med.warnings && (
+              <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                {med.warnings}
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* 3 — Final review */}
+      <section>
+        <SectionHeading>Final review</SectionHeading>
+        {sharedSafety && (
+          <div className="mt-3 rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-4 py-3">
+            <p className="text-[12px] font-semibold text-[#8A6A20]">
+              Shared assessment safety response — review required
+            </p>
+            <p className="mt-1 text-[11.5px] text-[#8A6A20]">
+              {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
+              {new Date(sharedSafety.takenAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              {sharedSafety.itemText}
+            </p>
+            <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
+              Client&rsquo;s response: “{sharedSafety.response}”
+            </p>
+            <label className="mt-2.5 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
+              <input
+                type="checkbox"
+                checked={!!med.sharedSafetyAcknowledgedAt}
+                onChange={(e) =>
+                  onChange({
+                    sharedSafetyAcknowledgedAt: e.target.checked ? Date.now() : undefined,
+                  })
+                }
+                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+              />
+              <span>
+                Review and acknowledge — I reviewed this shared safety-related response and took it
+                into account for this medication.
+              </span>
+            </label>
+          </div>
+        )}
+
+        <div className="mt-3">
           <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
             <input
               type="checkbox"
@@ -1160,9 +1407,6 @@ function MedicationEditor({
               <span className="font-semibold">
                 I confirm that I reviewed this medication and its patient-specific safety
                 information.
-              </span>
-              <span className="mt-0.5 block text-[12.5px] text-[#5A4A8A]">
-                Tick to acknowledge, then select <strong>Verify medication</strong> below.
               </span>
             </span>
           </label>
@@ -1178,275 +1422,22 @@ function MedicationEditor({
               {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
             </p>
           )}
-          {blockers.length > 0 && !med.approved && (
-            <div className="mt-2.5 rounded-[10px] border border-[#F0D9A8] bg-[#FDF8EE] px-3 py-2.5">
-              <p className="text-[12.5px] font-semibold text-[#8A6A20]">
-                {blockerSentence(blockers)}
-              </p>
-              <ul className="mt-1.5 space-y-1">
-                {blockers.map((b, i) => (
-                  <li
-                    key={`${b.kind}-${i}`}
-                    className="flex items-start gap-1.5 text-[12px] leading-snug text-[#8A6A20]"
-                  >
-                    <span className="mt-[6px] h-1.5 w-1.5 flex-none rounded-full bg-[#C08A2A]" />
-                    {b.label}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-1.5 text-[11.5px] text-[#8A6A20]">
-                <strong>Verify medication</strong> stays unavailable until each item above is
-                resolved.
-              </p>
-            </div>
-          )}
           {med.approved && med.verifiedAt && (
             <p className="mt-1.5 pl-7 text-[12px] font-semibold text-[#1F7A57]">
               Verified {formatCheckedAt(med.verifiedAt)}
             </p>
           )}
         </div>
-      </div>
-
-      {/* Right — supporting information */}
-      <div className="space-y-3">
-        {!hasName ? (
-          <Panel title="Safety review not available">
-            <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              Choose a medication in the form on the left and complete the required patient
-              information before running the safety review.
-            </p>
-            <div className="mt-2.5 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setInfoOpen(true)}
-                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-              >
-                Add patient information
-              </button>
-            </div>
-            {infoOpen && (
-              <PatientInfoForm
-                keys={requiredKeys(med)}
-                info={patientInfo}
-                onChange={onPatientInfo}
-                onSave={() => setInfoOpen(false)}
-                relevanceFor={(k) => infoRelevance(med, k)}
-              />
-            )}
-          </Panel>
-        ) : (
-          <>
-            {outstanding.length > 0 && (
-              <Panel title="Information needed">
-                <ul className="space-y-2.5">
-                  {outstanding.map(({ key, requirement }) => (
-                    <li key={key} className="text-[12.5px] leading-snug">
-                      <p className="flex flex-wrap items-center gap-x-1.5">
-                        <span className="font-semibold text-[#2C2B4B]">{infoLabel(key)}</span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            requirement === "required"
-                              ? TONE_BG.amber
-                              : requirement === "recommended"
-                                ? TONE_BG.neutral
-                                : TONE_BG.neutral
-                          }`}
-                        >
-                          {INFO_REQUIREMENT_LABEL[requirement]}
-                        </span>
-                      </p>
-                      <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                        {infoRelevance(med, key)}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  Only items marked <strong>Required before verification</strong> block verification
-                  of this medication.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setInfoOpen((v) => !v)}
-                  className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-                >
-                  {infoOpen ? "Hide fields" : "Add missing information"}
-                </button>
-                {infoOpen && (
-                  <PatientInfoForm
-                    keys={outstanding.map((o) => o.key)}
-                    info={patientInfo}
-                    onChange={onPatientInfo}
-                    onSave={() => setInfoOpen(false)}
-                    relevanceFor={(k) => infoRelevance(med, k)}
-                  />
-                )}
-              </Panel>
-            )}
-
-            {sharedSafety && (
-              <Panel title="Shared assessment safety response — review required">
-                <div className="rounded-[10px] bg-[#FDF8EE] px-3 py-2.5">
-                  <p className="text-[12px] font-semibold text-[#8A6A20]">
-                    {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
-                    {new Date(sharedSafety.takenAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                    {sharedSafety.itemText}
-                  </p>
-                  <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
-                    Client&rsquo;s response: “{sharedSafety.response}”
-                  </p>
-                </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  This is the response the client shared, not an interpretation. It is reviewed on
-                  its own and never inferred from the total score.
-                </p>
-                <label className="mt-2.5 flex items-start gap-2 text-[12.5px] leading-relaxed text-[#2C2B4B]">
-                  <input
-                    type="checkbox"
-                    checked={!!med.sharedSafetyAcknowledgedAt}
-                    onChange={(e) =>
-                      onChange({
-                        sharedSafetyAcknowledgedAt: e.target.checked ? Date.now() : undefined,
-                      })
-                    }
-                    className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-                  />
-                  <span>
-                    I reviewed this shared safety-related response and took it into account for this
-                    medication.
-                  </span>
-                </label>
-                {med.sharedSafetyAcknowledgedAt && (
-                  <p className="mt-1 text-[11.5px] text-[#2D8E69]">
-                    Acknowledged {formatCheckedAt(med.sharedSafetyAcknowledgedAt)}
-                  </p>
-                )}
-              </Panel>
-            )}
-
-            <Panel title="Patient-specific safety review">
-              <div
-                className={`rounded-[10px] px-3 py-2.5 ${
-                  status.tone === "red"
-                    ? "bg-[#FBEDED]"
-                    : status.tone === "amber"
-                      ? "bg-[#FDF8EE]"
-                      : status.tone === "green"
-                        ? "bg-[#EFF8F4]"
-                        : "bg-[#F7F5FB]"
-                }`}
-              >
-                <p className={`text-[13px] font-semibold ${TONE_TEXT[status.tone]}`}>
-                  {status.title}
-                </p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-[#3D2E6B]">{status.detail}</p>
-                {reviewRan && med.safetyReviewedAt && (
-                  <p className="mt-1 text-[11.5px] text-[#6F6889]">
-                    Last checked {formatCheckedAt(med.safetyReviewedAt)}
-                  </p>
-                )}
-              </div>
-              <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                <SummaryPills summary={summary} />
-                {reviewRan && (
-                  <button
-                    type="button"
-                    onClick={() => setChecksOpen((v) => !v)}
-                    className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
-                  >
-                    <ChevronDown
-                      className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
-                    />
-                    {checksOpen ? "Hide safety review" : "View safety review"}
-                  </button>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={onRunReview}
-                className={`mt-2.5 inline-flex h-8 items-center rounded-[10px] px-3 text-[12.5px] font-semibold transition ${
-                  !reviewRan || staleReview
-                    ? "bg-[#6E4FD3] text-white hover:bg-[#5A3EB8]"
-                    : "border border-[#D9D5E3] bg-white text-[#3D2E6B] hover:bg-[#F7F5FB]"
-                }`}
-              >
-                {!reviewRan
-                  ? "Run safety review"
-                  : staleReview
-                    ? "Safety information changed · Run review again"
-                    : "Run safety review again"}
-              </button>
-              {checksOpen && reviewRan && (
-                <>
-                  <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
-                    {CHECK_ROWS.map((r) => (
-                      <CheckRow
-                        key={r.key}
-                        label={r.label}
-                        check={med.checks?.[r.key]}
-                        reviewedAt={med.checkReviews?.[r.key]}
-                        onMarkReviewed={() => onMarkCheckReviewed(r.key)}
-                      />
-                    ))}
-                  </ul>
-                  {med.warnings && (
-                    <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                      {med.warnings}
-                    </p>
-                  )}
-                </>
-              )}
-            </Panel>
-
-            <Panel title="Why this option was shown">
-              <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                This option was generated from the information documented for this visit. Review the
-                supporting information, alternatives, and patient-specific risks before deciding
-                whether it is appropriate.
-              </p>
-              <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                {med.basis?.whyIncluded ??
-                  med.rationale ??
-                  (med.origin === "manual"
-                    ? "Added by the prescribing clinician."
-                    : "No supporting explanation was recorded for this option.")}
-              </p>
-              {med.basis?.clinicalInformationUsed && (
-                <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {med.basis.clinicalInformationUsed}
-                </p>
-              )}
-            </Panel>
-          </>
-        )}
-
-        <Panel title="Medication reference">
-          <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
-            Official prescribing information for {JURISDICTION_LABEL[country]}, patient-specific
-            considerations and the AI explanation, kept separate.
-          </p>
-          <div className="mt-2">
-            <ReferenceButton hasName={hasName} onClick={onOpenReference} />
-          </div>
-        </Panel>
-      </div>
+      </section>
     </div>
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-      <h3 className="mb-2 text-[13px] font-semibold text-[#2C2B4B]">{title}</h3>
+    <h3 className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#6F6889]">
       {children}
-    </section>
+    </h3>
   );
 }
 
