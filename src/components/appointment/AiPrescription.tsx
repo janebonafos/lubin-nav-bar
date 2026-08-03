@@ -30,7 +30,6 @@ import {
   CHECK_ROWS,
   CHECK_STATE_LABEL,
   CHECK_STATE_TONE,
-  INFO_RELEVANCE,
   infoRelevance,
   missingInfoKeys,
   INFO_REQUIREMENT_LABEL,
@@ -1236,6 +1235,7 @@ function MedicationEditor({
                 info={patientInfo}
                 onChange={onPatientInfo}
                 onSave={() => setInfoOpen(false)}
+                relevanceFor={(k) => infoRelevance(med, k)}
               />
             )}
           </Panel>
