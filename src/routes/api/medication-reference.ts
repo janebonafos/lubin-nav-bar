@@ -17,6 +17,12 @@ type RefBody = {
   observations?: string;
   plan?: string;
   allergies?: string;
+  conditions?: string;
+  pregnancyStatus?: string;
+  bipolarHistory?: string;
+  ageYears?: number;
+  labs?: string;
+  sharedSafetyResponse?: { item?: string; response?: string; date?: string; assessment?: string };
   currentMedications?: { name: string; dose?: string; frequency?: string }[];
   includedAssessments?: { name: string; score?: number; statusLabel?: string }[];
 };
@@ -36,8 +42,13 @@ Rules:
 - Fill every field you can from well-established prescribing information. If you genuinely do not know a field, return an empty string for it rather than guessing.
 - "boxedWarning" must be an empty string when the medication has no boxed warning.
 - The patient section must be strictly limited to the supplied visit context. Never invent allergies, conditions, labs, or prior trials. When something was not supplied, say so plainly (e.g. "No allergy information supplied").
+- Never write "no issue", "none" or "no concern" for a patient field when the information was not supplied. Write exactly "Information required" plus what is needed.
+- Age-dependent warnings: if no age was supplied, do not evaluate them. Write "Information required: patient age or date of birth".
+- Pregnancy and lactation: use the exact pregnancy and lactation wording from the approved product information for this jurisdiction. Do NOT use letter categories such as "Pregnancy Category C" unless that exact wording appears in the applicable current approved product label for this jurisdiction.
+- Do not call the medication first-line, preferred or recommended unless you cite the specific guideline or label section in the same sentence, with the clinical context it applies to.
 - "missingInformation" must list the information a prescriber would still need before deciding.
-- Sources: list 1-3 authoritative prescribing-information sources for the given jurisdiction with a real, direct, stable URL (official label/registry/formulary/guideline pages only — never a search page or blog). Include the publication or revision date if known, else "".
+- Sources: list 1-4 sources with a real, direct, stable URL (official label/registry/formulary/guideline pages only — never a search page or blog). Include the publication or revision date if known, else "", and the publishing organisation.
+- Each source MUST carry a "kind": "label" only when the URL is the exact regulator- or manufacturer-approved product label for THIS medication in THIS jurisdiction; "formulary" for a government formulary or national reference; "secondary" for any other drug reference. Never mark a secondary reference as "label".
 - If you cannot identify any authoritative prescribing-information source for this medication in this jurisdiction, return "sources": [] and "sourcesAvailable": false.
 - Return STRICT JSON, nothing else:
 {
@@ -56,7 +67,7 @@ Rules:
     "potentialInteractions": string, "relevantConditions": string,
     "previousTrials": string, "labMonitoring": string, "missingInformation": string
   },
-  "sources": [{ "title": string, "url": string, "revisedAt": string, "jurisdiction": string }],
+  "sources": [{ "title": string, "url": string, "revisedAt": string, "jurisdiction": string, "organisation": string, "kind": "label" | "formulary" | "secondary" }],
   "sourcesAvailable": boolean
 }`;
 
@@ -110,6 +121,33 @@ export const Route = createFileRoute("/api/medication-reference")({
             }
           } else {
             lines.push("Current medications on file: none supplied");
+          }
+          lines.push(
+            body.conditions
+              ? `Relevant medical conditions on file: ${body.conditions}`
+              : "Relevant medical conditions on file: none supplied",
+          );
+          lines.push(
+            `Pregnancy and breastfeeding status on file: ${body.pregnancyStatus || "not documented"}`,
+          );
+          lines.push(
+            `Bipolar or mania history on file: ${body.bipolarHistory || "not documented"}`,
+          );
+          lines.push(
+            typeof body.ageYears === "number"
+              ? `Patient age on file: ${body.ageYears}`
+              : "Patient age on file: not documented — do not evaluate age-dependent warnings",
+          );
+          lines.push(
+            body.labs
+              ? `Laboratory or organ-function information on file: ${body.labs}`
+              : "Laboratory or organ-function information on file: none supplied",
+          );
+          if (body.sharedSafetyResponse?.response) {
+            const sf = body.sharedSafetyResponse;
+            lines.push(
+              `Shared assessment safety response (${sf.assessment ?? "assessment"}, ${sf.date ?? "date not stated"}): item "${sf.item ?? ""}" answered "${sf.response}". Report this response verbatim and never infer it from a total score.`,
+            );
           }
           if (body.includedAssessments?.length) {
             lines.push("Assessment results:");
@@ -177,7 +215,14 @@ export const Route = createFileRoute("/api/medication-reference")({
               title: str(s.title),
               url: str(s.url),
               revisedAt: str(s.revisedAt),
-              jurisdiction: str(s.jurisdiction) || (country === "PH" ? "Philippines" : "United States"),
+              jurisdiction:
+                str(s.jurisdiction) || (country === "PH" ? "Philippines" : "United States"),
+              organisation: str(s.organisation),
+              kind: (["label", "formulary", "secondary"] as const).includes(
+                str(s.kind) as "label",
+              )
+                ? (str(s.kind) as "label" | "formulary" | "secondary")
+                : "secondary",
             }))
             .filter((s) => s.title && /^https?:\/\//i.test(s.url));
 
