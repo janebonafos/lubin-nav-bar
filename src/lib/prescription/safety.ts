@@ -233,9 +233,19 @@ export const INFO_FIELDS: {
     multiline: true,
   },
   {
+    key: "bipolarHistory",
+    label: "Bipolar or mania history",
+    placeholder: "Screening result",
+  },
+  {
+    key: "age",
+    label: "Age or date of birth",
+    placeholder: "Date of birth or age in years",
+  },
+  {
     key: "pregnancy",
-    label: "Pregnancy or breastfeeding status",
-    placeholder: "Pregnant, breastfeeding, neither, or not applicable",
+    label: "Pregnancy and breastfeeding status",
+    placeholder: "Select a status",
   },
   {
     key: "labs",
@@ -245,16 +255,61 @@ export const INFO_FIELDS: {
   },
 ];
 
-/** Information this medication genuinely needs, in order. */
+/** Information this medication genuinely needs before verification, in order. */
 export function requiredInfoKeys(med: PrescriptionMedication): InfoKey[] {
-  const keys: InfoKey[] = ["allergies", "currentMedications", "conditions"];
-  if (med.requiresPregnancyStatus) keys.push("pregnancy");
-  if (med.requiresLabs) keys.push("labs");
-  return keys;
+  return ALL_INFO_KEYS.filter((k) => infoRequirement(med, k) === "required");
 }
 
 function has(v?: string) {
   return !!v && v.trim().length > 0;
+}
+
+/** Age in years derived from either the recorded age or the date of birth. */
+export function patientAge(info?: PatientSafetyInfo): number | null {
+  if (typeof info?.ageYears === "number" && info.ageYears > 0) return Math.floor(info.ageYears);
+  if (info?.dob) {
+    const d = new Date(info.dob);
+    if (!Number.isNaN(d.getTime())) {
+      const now = new Date();
+      let age = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
+      if (age >= 0 && age < 130) return age;
+    }
+  }
+  return null;
+}
+
+export function pregnancyStatus(info?: PatientSafetyInfo): PregnancyStatus {
+  return info?.pregnancyStatus ?? "not-documented";
+}
+
+export function bipolarHistoryState(info?: PatientSafetyInfo): HistoryState {
+  return info?.bipolarHistory ?? "not-documented";
+}
+
+/** Single source of truth: is this information actually on the record?
+ *  "Not documented" and blank never count as recorded. */
+export function infoRecorded(
+  key: InfoKey,
+  info?: PatientSafetyInfo,
+  visitMedications?: { name: string }[],
+): boolean {
+  switch (key) {
+    case "allergies":
+    case "conditions":
+      return structuredRecorded(info, key);
+    case "currentMedications":
+      return structuredRecorded(info, "currentMedications") || !!visitMedications?.length;
+    case "bipolarHistory":
+      return bipolarHistoryState(info) !== "not-documented";
+    case "age":
+      return patientAge(info) !== null;
+    case "pregnancy":
+      return pregnancyStatus(info) !== "not-documented";
+    case "labs":
+      return has(info?.labs);
+  }
 }
 
 /** Only the items genuinely missing for this patient and this medication. */
@@ -263,11 +318,7 @@ export function missingInfoKeys(
   info?: PatientSafetyInfo,
   visitMedications?: { name: string }[],
 ): InfoKey[] {
-  return requiredInfoKeys(med).filter((k) => {
-    if (k === "currentMedications" && visitMedications?.length) return false;
-    if (isStructuredKey(k)) return !structuredRecorded(info, k);
-    return !has(info?.[k]);
-  });
+  return requiredInfoKeys(med).filter((k) => !infoRecorded(k, info, visitMedications));
 }
 
 export function infoLabel(key: InfoKey): string {
