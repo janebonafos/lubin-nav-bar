@@ -268,10 +268,21 @@ export function loadPrescription(appointmentId: string): Prescription {
     const raw = window.localStorage.getItem(keyFor(appointmentId));
     if (!raw) return emptyPrescription(appointmentId);
     const parsed = JSON.parse(raw) as Prescription;
+    // A blank placeholder left behind by an abandoned manual entry is never a
+    // medication — drop it so the section shows the true "No prescription
+    // prepared" state instead of an empty draft.
+    const meds = (parsed.medications ?? []).filter(
+      (m) =>
+        m.name?.trim() ||
+        m.dose?.trim() ||
+        m.frequency?.trim() ||
+        m.instructions?.trim() ||
+        m.strength?.trim(),
+    );
     return {
       ...emptyPrescription(appointmentId),
       ...parsed,
-      medications: parsed.medications ?? [],
+      medications: meds,
     };
   } catch {
     return emptyPrescription(appointmentId);
