@@ -670,46 +670,74 @@ export function AiPrescription({
       sharedSafetyPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
     });
     const blocked = blockers.length > 0;
+    const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+    const requiredLeft = blockers.length - reviews;
+    const readiness = reviewMed.approved
+      ? 100
+      : Math.round((1 - Math.min(blockers.length, 6) / 6) * 100);
     return (
       <section className="text-[#2C2B4B]">
         {header}
-        <button
-          type="button"
-          onClick={() => setReviewMedId(null)}
-          className="mb-3 inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#5A4A8A] hover:text-[#3D2E6B]"
-        >
-          <ChevronLeft className="h-4 w-4" /> All medications
-        </button>
-        {reviewMed.demo && <DemoNote />}
-        <MedicationEditor
-          med={reviewMed}
-          country={country}
-          patientInfo={rx.patientInfo}
-          visitMeds={visitMeds}
-          onChange={(p) => updateMed(reviewMed.id, p)}
-          onPatientInfo={setPatientInfo}
-          onRunReview={() => runReview(reviewMed.id)}
-          onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
-          blockers={blockers}
-          onOpenReference={() => setRefMedId(reviewMed.id)}
-          sharedSafety={sharedSafety}
-        />
-        <StickyBar>
-          <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">
-            {blocked && !reviewMed.approved
-              ? (() => {
-                  const reviews = blockers.filter(
-                    (b) => b.kind === "review" || b.kind === "stale",
-                  ).length;
-                  const required = blockers.length - reviews;
-                  return `${required} required item${required === 1 ? "" : "s"} · ${reviews} review${reviews === 1 ? "" : "s"} remaining`;
-                })()
-              : countLabel}
-          </span>
+        <div className="overflow-hidden rounded-2xl border border-[#E7E2F5] bg-white shadow-sm shadow-[#6E4FD3]/5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[#F1EDFA] px-5 py-3.5 md:px-7">
+            <button
+              type="button"
+              onClick={() => setReviewMedId(null)}
+              className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+            >
+              <ChevronLeft className="h-4 w-4" /> All medications
+            </button>
+            {reviewMed.demo && (
+              <span className="ml-auto text-[11.5px] italic text-[#8C86A0]">
+                Demo data — sample clinical content for demonstration
+              </span>
+            )}
+          </div>
+          <MedicationEditor
+            med={reviewMed}
+            country={country}
+            patientInfo={rx.patientInfo}
+            visitMeds={visitMeds}
+            onChange={(p) => updateMed(reviewMed.id, p)}
+            onPatientInfo={setPatientInfo}
+            onRunReview={() => runReview(reviewMed.id)}
+            onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
+            blockers={blockers}
+            onOpenReference={() => setRefMedId(reviewMed.id)}
+            sharedSafety={sharedSafety}
+          />
+        </div>
+        <StickyBar tone="dark">
+          <div className="mr-auto flex flex-wrap items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-[13px] font-semibold text-white">
+                {blocked && !reviewMed.approved
+                  ? `${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`
+                  : countLabel}
+              </span>
+              {blocked && !reviewMed.approved && (
+                <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#A9A2C4]">
+                  {reviews} review{reviews === 1 ? "" : "s"} remaining
+                </span>
+              )}
+            </div>
+            <span className="hidden h-8 w-px bg-white/15 sm:block" />
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/15">
+                <div
+                  className="h-full rounded-full bg-[#9C7DF0] transition-all"
+                  style={{ width: `${readiness}%` }}
+                />
+              </div>
+              <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#A9A2C4]">
+                {readiness}% ready
+              </span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={saveDraft}
-            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+            className="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-[12.5px] font-semibold text-[#D9D4EC] transition hover:bg-white/10 hover:text-white"
           >
             Save draft
           </button>
@@ -724,7 +752,7 @@ export function AiPrescription({
               });
               setReviewMedId(null);
             }}
-            className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
             {reviewMed.approved ? "Verified" : "Verify medication"}
           </button>
