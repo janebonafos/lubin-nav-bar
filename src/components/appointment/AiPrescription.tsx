@@ -1061,7 +1061,7 @@ function MedicationEditor({
 }) {
   const [checksOpen, setChecksOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
+  const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
@@ -1207,16 +1207,6 @@ function MedicationEditor({
         </section>
 
         {/* Expanded panels stay in the left column so the layout stays balanced */}
-        {infoOpen && (
-          <PatientInfoForm
-            keys={outstanding.length > 0 ? outstanding.map((o) => o.key) : requiredKeys(med)}
-            info={patientInfo}
-            onChange={onPatientInfo}
-            onSave={() => setInfoOpen(false)}
-            relevanceFor={(k) => infoRelevance(med, k)}
-          />
-        )}
-
         {whyOpen && (
           <div className="rounded-xl bg-[#FAF9FD] px-4 py-3">
             <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
