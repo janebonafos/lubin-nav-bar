@@ -52,6 +52,33 @@ export type InfoDocState = "documented" | "none-known" | "not-documented";
 
 export type PatientInfoStatus = "active" | "past" | "suspected" | "resolved";
 
+/** Structured pregnancy / lactation status. "Not documented" is never "no". */
+export type PregnancyStatus =
+  | "pregnant"
+  | "breastfeeding"
+  | "trying"
+  | "not-pregnant"
+  | "not-applicable"
+  | "not-documented";
+
+export const PREGNANCY_STATUS_LABEL: Record<PregnancyStatus, string> = {
+  pregnant: "Pregnant",
+  breastfeeding: "Breastfeeding",
+  trying: "Trying to conceive",
+  "not-pregnant": "Not pregnant",
+  "not-applicable": "Not applicable",
+  "not-documented": "Not documented",
+};
+
+/** Bipolar / mania history is a distinct screening question, not a free-text note. */
+export type HistoryState = "present" | "none-known" | "not-documented";
+
+export const HISTORY_STATE_LABEL: Record<HistoryState, string> = {
+  present: "History present",
+  "none-known": "None known",
+  "not-documented": "Not documented",
+};
+
 export const INFO_STATUS_LABEL: Record<PatientInfoStatus, string> = {
   active: "Active",
   past: "Past",
@@ -85,6 +112,14 @@ export type PatientSafetyInfo = {
   allergyState?: InfoDocState;
   medicationState?: InfoDocState;
   conditionState?: InfoDocState;
+  /** Structured pregnancy / lactation status. */
+  pregnancyStatus?: PregnancyStatus;
+  /** Date of birth (ISO yyyy-mm-dd) and/or age in years. */
+  dob?: string;
+  ageYears?: number;
+  /** Bipolar or mania history screening result. */
+  bipolarHistory?: HistoryState;
+  bipolarDetail?: string;
   updatedAt?: number;
 };
 
