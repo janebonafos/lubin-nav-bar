@@ -3,12 +3,15 @@
 import type {
   MedicationCheck,
   MedicationChecks,
+  HistoryState,
   InfoDocState,
   PatientInfoEntry,
   PatientSafetyInfo,
+  PregnancyStatus,
   Prescription,
   PrescriptionMedication,
 } from "./store";
+import { PREGNANCY_STATUS_LABEL } from "./store";
 
 export type CheckState = "not-run" | "info-required" | "no-issue" | "review-needed" | "blocking";
 
@@ -51,12 +54,23 @@ export const CHECK_ROWS: {
   { key: "interactions", label: "Medication interactions" },
   { key: "contraindications", label: "Contraindications" },
   { key: "conditions", label: "Relevant conditions" },
+  { key: "bipolarHistory", label: "Bipolar or mania history" },
+  { key: "pregnancy", label: "Pregnancy and breastfeeding" },
+  { key: "age", label: "Age-dependent warnings" },
+  { key: "organFunction", label: "Laboratory and organ function" },
   { key: "monitoring", label: "Monitoring requirements" },
 ];
 
 /* -------------------------- patient information -------------------------- */
 
-export type InfoKey = "allergies" | "currentMedications" | "conditions" | "pregnancy" | "labs";
+export type InfoKey =
+  | "allergies"
+  | "currentMedications"
+  | "conditions"
+  | "bipolarHistory"
+  | "age"
+  | "pregnancy"
+  | "labs";
 
 export type CheckKey = keyof Omit<MedicationChecks, "missingInformation">;
 
@@ -78,9 +92,32 @@ export const INFO_RELEVANCE: Record<InfoKey, string> = {
     "Interaction checking cannot be completed without the current medication list.",
   conditions:
     "Used to check contraindications and conditions that change the dose or the monitoring plan.",
+  bipolarHistory:
+    "An antidepressant started without a bipolar or mania history check can precipitate a manic episode.",
+  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the patient's age or date of birth.",
   pregnancy: "Affects whether this medication can be used and at what dose.",
-  labs: "Only relevant when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
+  labs: "Requested only when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
 };
+
+/** Medication- and patient-specific reason, so nothing looks universal. */
+export function infoRelevance(med: PrescriptionMedication, key: InfoKey): string {
+  if (key === "labs") {
+    if (med.requiresLabs) {
+      return (
+        med.labsReason ??
+        `Required for ${med.name || "this medication"} because its prescribing information calls for baseline or ongoing laboratory or organ-function monitoring at this dose.`
+      );
+    }
+    return "Recommended, not required: no laboratory or organ-function result is needed by this medication's prescribing information for this patient. Record any result you already have.";
+  }
+  if (key === "pregnancy" && !med.requiresPregnancyStatus) {
+    return "Recommended, not required for this medication. Record the structured status so the check can be completed.";
+  }
+  if (key === "bipolarHistory" && !med.requiresBipolarScreen) {
+    return "Recommended, not required for this medication. Record the screening result so the check can be completed.";
+  }
+  return INFO_RELEVANCE[key];
+}
 
 /** Requirement level for one item against this specific medication. */
 export function infoRequirement(med: PrescriptionMedication, key: InfoKey): InfoRequirement {
@@ -88,11 +125,14 @@ export function infoRequirement(med: PrescriptionMedication, key: InfoKey): Info
     case "allergies":
     case "currentMedications":
     case "conditions":
+    case "age":
       return "required";
+    case "bipolarHistory":
+      return med.requiresBipolarScreen ? "required" : "recommended";
     case "pregnancy":
       return med.requiresPregnancyStatus ? "required" : "recommended";
     case "labs":
-      return med.requiresLabs ? "required" : "optional";
+      return med.requiresLabs ? "required" : "recommended";
   }
 }
 
@@ -100,6 +140,8 @@ export const ALL_INFO_KEYS: InfoKey[] = [
   "allergies",
   "currentMedications",
   "conditions",
+  "bipolarHistory",
+  "age",
   "pregnancy",
   "labs",
 ];
