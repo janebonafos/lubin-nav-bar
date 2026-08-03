@@ -1167,12 +1167,17 @@ function MedicationEditor({
                   </button>
                 )}
               </div>
+              {reviewRan && staleReview && (
+                <p className="mt-2.5 rounded-[10px] border border-[#E4E1EC] bg-[#FAF9FD] px-3 py-2 text-[12px] font-medium leading-snug text-[#5A4A8A]">
+                  Safety review needs updating — patient information changed after the last review.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={onRunReview}
                 className="mt-2.5 inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
               >
-                {reviewRan ? "Run safety review again" : "Run safety review"}
+                {!reviewRan ? "Run safety review" : staleReview ? "Run again" : "Run safety review again"}
               </button>
               {checksOpen && reviewRan && (
                 <>
