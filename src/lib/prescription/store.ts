@@ -161,6 +161,8 @@ export type Prescription = {
   country?: RxCountry;
   /** Pharmacy or delivery destination recorded on the final review screen. */
   destination?: string;
+  /** Patient information captured for the safety review. */
+  patientInfo?: PatientSafetyInfo;
   /** Final legal acknowledgement recorded on the final review screen. */
   legalAcknowledgedAt?: number;
   generatedAt?: number;
