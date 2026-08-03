@@ -23,8 +23,21 @@ import {
   type RxCountry,
   type MedicationReference,
   type MedicationCheck,
+  type PatientSafetyInfo,
 } from "@/lib/prescription/store";
-import { loadWorkspace } from "@/lib/visit-workspace/store";
+import { loadWorkspace, type MedicationEntry } from "@/lib/visit-workspace/store";
+import {
+  CHECK_ROWS,
+  CHECK_STATE_LABEL,
+  CHECK_STATE_TONE,
+  INFO_FIELDS,
+  checkState,
+  infoLabel,
+  missingInfoKeys,
+  runSafetyReview,
+  safetySummary,
+  type InfoKey,
+} from "@/lib/prescription/safety";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
@@ -36,17 +49,6 @@ const JURISDICTION_LABEL: Record<RxCountry, string> = {
 
 const STAGES = ["Draft", "Clinical review", "Sign and issue"] as const;
 type Stage = 0 | 1 | 2;
-
-const CHECK_ROWS: {
-  key: keyof Omit<NonNullable<PrescriptionMedication["checks"]>, "missingInformation">;
-  label: string;
-}[] = [
-  { key: "allergies", label: "Allergies" },
-  { key: "currentMedications", label: "Current medications" },
-  { key: "interactions", label: "Interactions" },
-  { key: "contraindications", label: "Contraindications" },
-  { key: "conditions", label: "Relevant medical conditions" },
-];
 
 function medComplete(m: PrescriptionMedication) {
   return m.name.trim() && m.dose.trim() && m.frequency.trim() && m.instructions.trim();
