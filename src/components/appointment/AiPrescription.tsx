@@ -920,7 +920,7 @@ function MedicationEditor({
             <input
               type="checkbox"
               checked={med.approved}
-              disabled={!complete}
+              disabled={!complete || !reviewRan}
               onChange={(e) =>
                 onChange({
                   approved: e.target.checked,
@@ -949,11 +949,15 @@ function MedicationEditor({
               {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
             </p>
           )}
-          {!complete && (
+          {!complete ? (
             <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
               Add medication, dose, frequency and patient instructions before verifying.
             </p>
-          )}
+          ) : !reviewRan ? (
+            <p className="mt-1.5 pl-7 text-[12px] text-[#8A6A20]">
+              Run the patient-specific safety review before verifying this medication.
+            </p>
+          ) : null}
         </div>
       </div>
 
