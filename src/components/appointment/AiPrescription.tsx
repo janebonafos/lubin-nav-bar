@@ -774,12 +774,7 @@ function MedicationSummaryCard({
               </>
             )}
           </div>
-          {hasName && (
-            <p className="mt-1.5 text-[11.5px] text-[#6F6889]">
-              {completed} checks completed
-              {missing > 0 ? ` · ${missing} require information` : ""}
-            </p>
-          )}
+          {hasName && <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>}
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
