@@ -10,33 +10,45 @@ export async function fetchMedicationReference(args: {
   allergies?: string;
 }): Promise<MedicationReference> {
   const ws = loadWorkspace(args.appointmentId);
-  const res = await fetch("/api/medication-reference", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      country: args.country,
-      medication: {
-        name: args.med.name,
-        genericName: args.med.genericName,
-        dose: args.med.dose,
-        route: args.med.route,
-        frequency: args.med.frequency,
-        duration: args.med.duration,
-        indication: args.med.indication,
-        rationale: args.med.rationale,
-      },
-      patientContext: { firstName: args.clientName },
-      presenting: ws.notes.presenting,
-      observations: ws.notes.observations,
-      plan: ws.notes.plan,
-      allergies: args.allergies,
-      currentMedications: (ws.medications ?? []).map((m) => ({
-        name: m.name,
-        dose: m.dose,
-        frequency: m.frequency,
-      })),
-    }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 40000);
+  let res: Response;
+  try {
+    res = await fetch("/api/medication-reference", {
+      method: "POST",
+      signal: controller.signal,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        country: args.country,
+        medication: {
+          name: args.med.name,
+          genericName: args.med.genericName,
+          dose: args.med.dose,
+          route: args.med.route,
+          frequency: args.med.frequency,
+          duration: args.med.duration,
+          indication: args.med.indication,
+          rationale: args.med.rationale,
+        },
+        patientContext: { firstName: args.clientName },
+        presenting: ws.notes.presenting,
+        observations: ws.notes.observations,
+        plan: ws.notes.plan,
+        allergies: args.allergies,
+        currentMedications: (ws.medications ?? []).map((m) => ({
+          name: m.name,
+          dose: m.dose,
+          frequency: m.frequency,
+        })),
+      }),
+    });
+  } catch {
+    throw new Error(
+      "The reference service could not be reached or took too long to respond. Check your connection and try again.",
+    );
+  } finally {
+    clearTimeout(timer);
+  }
   const data = (await res.json()) as MedicationReference & { error?: string };
   if (!res.ok) throw new Error(data.error ?? "Could not load medication reference.");
   return data;
