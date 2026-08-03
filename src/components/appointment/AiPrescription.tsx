@@ -1082,41 +1082,41 @@ function MedicationEditor({
             />
           </div>
           <div className="md:col-span-3">
-          {catalogue ? (
-            <SelectField
-              label="Strength and formulation"
-              value={med.strength ?? ""}
-              options={catalogue.forms}
-              onChange={(v) => edit({ strength: v })}
-            />
-          ) : (
-            <Field
-              label="Strength and formulation"
-              value={med.strength ?? ""}
-              onChange={(v) => edit({ strength: v })}
-              placeholder="Strength and formulation as dispensed"
-            />
-          )}
+            {catalogue ? (
+              <SelectField
+                label="Strength and formulation"
+                value={med.strength ?? ""}
+                options={catalogue.forms}
+                onChange={(v) => edit({ strength: v })}
+              />
+            ) : (
+              <Field
+                label="Strength and formulation"
+                value={med.strength ?? ""}
+                onChange={(v) => edit({ strength: v })}
+                placeholder="Strength and formulation as dispensed"
+              />
+            )}
           </div>
           <div className="md:col-span-3">
             <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
           </div>
           <div className="md:col-span-2">
-          {catalogue ? (
-            <SelectField
-              label="Route"
-              value={med.route ?? ""}
-              options={catalogue.routes}
-              onChange={(v) => edit({ route: v })}
-            />
-          ) : (
-            <Field
-              label="Route"
-              value={med.route ?? ""}
-              onChange={(v) => edit({ route: v })}
-              placeholder="Route of administration"
-            />
-          )}
+            {catalogue ? (
+              <SelectField
+                label="Route"
+                value={med.route ?? ""}
+                options={catalogue.routes}
+                onChange={(v) => edit({ route: v })}
+              />
+            ) : (
+              <Field
+                label="Route"
+                value={med.route ?? ""}
+                onChange={(v) => edit({ route: v })}
+                placeholder="Route of administration"
+              />
+            )}
           </div>
           <div className="md:col-span-2">
             <Field
@@ -1183,8 +1183,8 @@ function MedicationEditor({
           <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-white">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3">
               <p className="text-[13px] font-semibold text-[#2C2B4B]">
-                {requiredCount} required item{requiredCount === 1 ? "" : "s"} ·{" "}
-                {reviewsRemaining} item{reviewsRemaining === 1 ? "" : "s"} to review
+                {requiredCount} required item{requiredCount === 1 ? "" : "s"} · {reviewsRemaining}{" "}
+                item{reviewsRemaining === 1 ? "" : "s"} to review
               </p>
               {requiredCount === 0 && reviewsRemaining === 0 && (
                 <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1F7A57]">
@@ -1286,7 +1286,11 @@ function MedicationEditor({
 
         {/* Supporting information — never competing with required actions */}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] font-semibold text-[#6E4FD3]">
-          <button type="button" onClick={() => setWhyOpen((v) => !v)} className="hover:text-[#5A3EB8]">
+          <button
+            type="button"
+            onClick={() => setWhyOpen((v) => !v)}
+            className="hover:text-[#5A3EB8]"
+          >
             Why this option was shown
           </button>
           {hasName && (
@@ -1339,7 +1343,9 @@ function MedicationEditor({
               Full safety review{" "}
               <span className="font-normal text-[#6F6889]">
                 · {summary.text}
-                {med.safetyReviewedAt ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}` : ""}
+                {med.safetyReviewedAt
+                  ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
+                  : ""}
               </span>
             </p>
             <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
