@@ -30,6 +30,9 @@ export function demoPrescription(appointmentId: string): Prescription {
     demo: true,
     controlled: false,
     approved: false,
+    requiresLabs: true,
+    requiresPregnancyStatus: false,
+    safetyReviewedAt: generatedAt,
     basis: {
       generatedAt,
       clinicalInformationUsed:
@@ -43,26 +46,41 @@ export function demoPrescription(appointmentId: string): Prescription {
     },
     checks: {
       allergies: {
-        status: "checked",
-        detail: "No allergy to sertraline or other SSRIs recorded (demo).",
+        status: "no-issue",
+        detail: "No documented conflict with sertraline or other SSRIs (demo).",
+        informationUsed: "Recorded allergy history.",
+        checkedAt: generatedAt,
       },
       currentMedications: {
-        status: "unavailable",
-        detail: "Unable to complete — current medication list is missing.",
+        status: "info-required",
+        detail: "The current medication list has not been recorded.",
+        informationUsed: "Waiting on current medications.",
+        checkedAt: generatedAt,
       },
       interactions: {
-        status: "unavailable",
-        detail: "Unable to complete — current medication list is missing.",
+        status: "info-required",
+        detail: "Interactions cannot be evaluated without the current medication list.",
+        informationUsed: "Waiting on current medications.",
+        checkedAt: generatedAt,
       },
       contraindications: {
-        status: "checked",
-        detail: "No recorded MAOI use, pimozide use or known contraindication (demo).",
+        status: "no-issue",
+        detail: "No issue identified against the recorded conditions and prescribing information.",
+        informationUsed: "Recorded medical conditions and prescribing information.",
+        checkedAt: generatedAt,
       },
       conditions: {
-        status: "checked",
-        detail: "No recorded bipolar disorder, seizure disorder or bleeding disorder (demo).",
+        status: "no-issue",
+        detail: "Information complete — no condition that changes this prescription (demo).",
+        informationUsed: "Recorded medical conditions.",
+        checkedAt: generatedAt,
       },
-      missingInformation: "Current medications and recent laboratory results.",
+      monitoring: {
+        status: "review-needed",
+        detail: "Confirm review at two weeks and the monitoring plan before prescribing (demo).",
+        informationUsed: "Prescribing information and the recorded plan.",
+        checkedAt: generatedAt,
+      },
     },
   };
 
@@ -71,6 +89,11 @@ export function demoPrescription(appointmentId: string): Prescription {
     country: "PH",
     demo: true,
     medications: [med],
+    patientInfo: {
+      allergies: "No known drug allergies (demo).",
+      conditions: "No bipolar, seizure or bleeding disorder recorded (demo).",
+      updatedAt: generatedAt,
+    },
     generatedAt,
     updatedAt: Date.now(),
   };
