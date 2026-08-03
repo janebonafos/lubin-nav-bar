@@ -1102,10 +1102,10 @@ function MedicationEditor({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
+    <div>
+      <div className="grid grid-cols-1 items-stretch lg:grid-cols-12">
         {/* 1 — Medication details, with every expanded panel kept in this column */}
-        <div className="space-y-5 lg:col-span-7">
+        <div className="space-y-6 px-5 py-6 md:px-7 lg:col-span-7 lg:border-r lg:border-[#F1EDFA]">
         <section>
           <SectionHeading>Medication details</SectionHeading>
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
