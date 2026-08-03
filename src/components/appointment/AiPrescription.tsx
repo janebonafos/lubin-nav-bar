@@ -1565,49 +1565,8 @@ const TONE_TEXT = {
   red: "text-[#9B4A4A]",
 } as const;
 
-const TONE_BG = {
-  neutral: "bg-[#F2F0F7] text-[#5A4A8A]",
-  amber: "bg-[#FBF2DF] text-[#8A6A20]",
-  green: "bg-[#E7F6EF] text-[#1F7A57]",
-  red: "bg-[#FBEDED] text-[#9B4A4A]",
-} as const;
-
 function requiredKeys(med: PrescriptionMedication): InfoKey[] {
   return requiredInfoKeys(med);
-}
-
-function SummaryPills({ summary }: { summary: ReturnType<typeof safetySummary> }) {
-  if (!summary.ran) {
-    return (
-      <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.neutral}`}>
-        Safety review not run
-      </span>
-    );
-  }
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {summary.complete > 0 && (
-        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.green}`}>
-          {summary.complete} check{summary.complete === 1 ? "" : "s"} complete
-        </span>
-      )}
-      {summary.review > 0 && (
-        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
-          {summary.review} requires review
-        </span>
-      )}
-      {summary.needsInfo > 0 && (
-        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.amber}`}>
-          {summary.needsInfo} needs information
-        </span>
-      )}
-      {summary.blocking > 0 && (
-        <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${TONE_BG.red}`}>
-          {summary.blocking} blocking issue{summary.blocking === 1 ? "" : "s"}
-        </span>
-      )}
-    </div>
-  );
 }
 
 function CheckRow({
