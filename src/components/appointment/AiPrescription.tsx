@@ -31,6 +31,8 @@ import {
   CHECK_STATE_LABEL,
   CHECK_STATE_TONE,
   INFO_RELEVANCE,
+  infoRelevance,
+  missingInfoKeys,
   INFO_REQUIREMENT_LABEL,
   blockerSentence,
   checkState,
@@ -54,6 +56,7 @@ import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
+import { sharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -328,7 +331,18 @@ export function AiPrescription({
     });
 
   const canSign =
-    allVerified && !!rx.legalAcknowledgedAt && unverifiedSources.length === 0 && !restrictedPending;
+    allVerified &&
+    !!rx.legalAcknowledgedAt &&
+    unverifiedSources.length === 0 &&
+    !restrictedPending &&
+    // Required information must still be complete and every review acknowledged.
+    rx.medications.every(
+      (m) =>
+        missingInfoKeys(m, rx.patientInfo, visitMeds).length === 0 &&
+        unreviewedCheckKeys(m).length === 0 &&
+        !reviewStale(m, rx.patientInfo) &&
+        (!sharedSafety || !!m.sharedSafetyAcknowledgedAt),
+    );
 
   const saveDraft = () => {
     patch({});
@@ -336,6 +350,9 @@ export function AiPrescription({
   };
 
   const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
+
+  /** Shared assessment safety response, carried into the clinical review. */
+  const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
 
   const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
     patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
