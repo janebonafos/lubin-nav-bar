@@ -821,21 +821,33 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
 function MedicationEditor({
   med,
   country,
+  patientInfo,
+  visitMeds,
   onChange,
+  onPatientInfo,
+  onRunReview,
   onOpenReference,
-  onAddClinicalInfo,
 }: {
   med: PrescriptionMedication;
   country: RxCountry;
+  patientInfo?: PatientSafetyInfo;
+  visitMeds?: MedicationEntry[];
   onChange: (p: Partial<PrescriptionMedication>) => void;
+  onPatientInfo: (p: Partial<PatientSafetyInfo>) => void;
+  onRunReview: () => void;
   onOpenReference: () => void;
-  onAddClinicalInfo?: () => void;
 }) {
   const [checksOpen, setChecksOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
-  const { completed, missing } = checkSummary(med);
+  const missingKeys = useMemo(
+    () => missingInfoKeys(med, patientInfo, visitMeds),
+    [med, patientInfo, visitMeds],
+  );
+  const summary = safetySummary(med);
+  const reviewRan = summary.ran;
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined });
 
