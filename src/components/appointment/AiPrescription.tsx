@@ -888,30 +888,6 @@ function MedicationCard({
   );
 }
 
-function BasisRow({
-  label,
-  value,
-  fallback,
-}: {
-  label: string;
-  value?: string;
-  fallback?: string;
-}) {
-  return (
-    <div className="py-1.5">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-        {label}
-      </dt>
-      <dd className="mt-0.5 text-[12px] leading-relaxed text-[#3D2E6B]">
-        {value?.trim() ? (
-          value
-        ) : (
-          <span className="text-[#A89BD0]">{fallback ?? "Not recorded"}</span>
-        )}
-      </dd>
-    </div>
-  );
-}
 
 function Field({
   label,
