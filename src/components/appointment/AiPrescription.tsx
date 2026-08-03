@@ -1271,7 +1271,7 @@ function MedicationEditor({
         </div>
 
         {/* Right rail — safety checkpoint and final review stay in view */}
-        <div className="space-y-6 lg:sticky lg:top-24 lg:col-span-5 lg:border-l lg:border-[#EDEBF3] lg:pl-8">
+        <div className="space-y-6 border-t border-[#F1EDFA] bg-[#FAF9FD] px-5 py-6 md:px-7 lg:col-span-5 lg:border-t-0">
           {/* 2 — Patient information & safety */}
           <section>
             <SectionHeading>Patient information &amp; safety</SectionHeading>
@@ -1281,11 +1281,11 @@ function MedicationEditor({
                 prescription needs.
               </p>
             ) : (
-              <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-white">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-3">
-                  <p className="text-[13px] font-semibold text-[#2C2B4B]">
+              <div className="mt-3 space-y-2.5">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
                     {requiredCount} required item{requiredCount === 1 ? "" : "s"} ·{" "}
-                    {reviewsRemaining} item{reviewsRemaining === 1 ? "" : "s"} to review
+                    {reviewsRemaining} to review
                   </p>
                   {requiredCount === 0 && reviewsRemaining === 0 && (
                     <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1F7A57]">
@@ -1294,7 +1294,7 @@ function MedicationEditor({
                   )}
                 </div>
                 {(!reviewRan || staleReview) && (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-[#EDEBF3] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3 shadow-sm">
                     <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
                       {!reviewRan
                         ? "The patient-specific safety review has not run yet."
@@ -1310,26 +1310,32 @@ function MedicationEditor({
                   </div>
                 )}
                 {outstanding.length > 0 && (
-                  <ul className="border-t border-[#EDEBF3]">
+                  <ul className="space-y-2">
                     {outstanding.map(({ key, requirement }) => (
                       <li
                         key={key}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                        className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
+                          requirement === "required"
+                            ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
+                            : "border-[#E9E6F1]"
+                        }`}
                       >
-                        <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                          {infoLabel(key)}
-                        </span>
-                        <span
-                          className={`text-[11.5px] font-semibold ${
-                            requirement === "required" ? "text-[#8A6A20]" : "text-[#6F6889]"
-                          }`}
-                        >
-                          — {INFO_REQUIREMENT_LABEL[requirement]}
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                            {infoLabel(key)}
+                          </span>
+                          <span
+                            className={`block text-[11px] font-medium ${
+                              requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
+                            }`}
+                          >
+                            {INFO_REQUIREMENT_LABEL[requirement]}
+                          </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => setInfoOpen(true)}
-                          className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
                         >
                           Add information
                         </button>
@@ -1338,22 +1344,24 @@ function MedicationEditor({
                   </ul>
                 )}
                 {unreviewedKeys.length > 0 && (
-                  <ul className="border-t border-[#EDEBF3]">
+                  <ul className="space-y-2">
                     {unreviewedKeys.map((k) => (
                       <li
                         key={k}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#F2F0F7] px-4 py-2.5 last:border-b-0"
+                        className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#DCD2F5] bg-white px-4 py-3 shadow-sm transition hover:border-[#B9A5EE]"
                       >
-                        <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                          {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
-                        </span>
-                        <span className="text-[11.5px] font-semibold text-[#8A6A20]">
-                          — Review required
+                        <span className="min-w-0">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                            {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
+                          </span>
+                          <span className="block text-[11px] font-medium text-[#8A6A20]">
+                            Review required
+                          </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => setChecksOpen(true)}
-                          className="ml-auto text-[12.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8]"
+                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
                         >
                           Review
                         </button>
@@ -1362,14 +1370,16 @@ function MedicationEditor({
                   </ul>
                 )}
                 {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#EDEBF3] px-4 py-2.5">
-                    <span className="text-[12.5px] font-medium text-[#2C2B4B]">
-                      Shared {sharedSafety.clinicalName} safety response
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#F0D9A8] bg-white px-4 py-3 shadow-sm">
+                    <span className="min-w-0">
+                      <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                        Shared {sharedSafety.clinicalName} safety response
+                      </span>
+                      <span className="block text-[11px] font-medium text-[#8A6A20]">
+                        Review required
+                      </span>
                     </span>
-                    <span className="text-[11.5px] font-semibold text-[#8A6A20]">
-                      — Review required
-                    </span>
-                    <span className="ml-auto text-[12px] text-[#6F6889]">
+                    <span className="ml-auto text-[11.5px] text-[#8C86A0]">
                       See final review below
                     </span>
                   </div>
