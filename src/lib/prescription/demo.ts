@@ -16,6 +16,9 @@ export function demoPrescription(appointmentId: string): Prescription {
     route: "Oral",
     frequency: "Once daily in the morning",
     duration: "4 weeks, then review",
+    strength: "50 mg film-coated tablet (demo)",
+    quantity: "30 tablets (30-day supply) — demo",
+    refills: "No refills — review before continuing (demo)",
     indication: "Moderate depressive symptoms with anxiety (demo indication)",
     instructions:
       "Take one 50 mg tablet each morning with food. Do not stop suddenly. If a dose is missed, take it the same day and skip it if the next dose is due. Report worsening mood, agitation or thoughts of self-harm immediately. (Demo instructions.)",
@@ -53,16 +56,13 @@ export function demoPrescription(appointmentId: string): Prescription {
       },
       contraindications: {
         status: "checked",
-        detail:
-          "No recorded MAOI use, pimozide use or known contraindication (demo).",
+        detail: "No recorded MAOI use, pimozide use or known contraindication (demo).",
       },
       conditions: {
         status: "checked",
-        detail:
-          "No recorded bipolar disorder, seizure disorder or bleeding disorder (demo).",
+        detail: "No recorded bipolar disorder, seizure disorder or bleeding disorder (demo).",
       },
-      missingInformation:
-        "Current medications and recent laboratory results.",
+      missingInformation: "Current medications and recent laboratory results.",
     },
   };
 

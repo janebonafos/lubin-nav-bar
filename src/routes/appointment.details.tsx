@@ -2,25 +2,13 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, CalendarClock, Check, ChevronDown } from "lucide-react";
-import {
-  ApptNotesBlock,
-  type ApptLite,
-} from "@/components/profile/ProviderSections";
+import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
-import {
-  getAnyProviderGrant,
-  subscribeProviderShares,
-} from "@/lib/share/providerShareStore";
-import {
-  isVerifiedPrescriber,
-  serviceSupportsPrescription,
-} from "@/lib/prescription/store";
-import {
-  loadPrescription,
-  subscribePrescription,
-} from "@/lib/prescription/store";
+import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
+import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
+import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -139,13 +127,7 @@ function SectionCard({
   // A checked item (checkBadge) reads as complete, so it uses the same
   // "done" treatment as the During-the-session card.
   const state: "done" | "active" | "todo" | "reference" =
-    done || checkBadge
-      ? "done"
-      : reference
-        ? "reference"
-        : open
-          ? "active"
-          : "todo";
+    done || checkBadge ? "done" : reference ? "reference" : open ? "active" : "todo";
 
   const shell =
     state === "done"
@@ -164,10 +146,7 @@ function SectionCard({
         : "bg-[#EFE8FB] text-[#3D2E6B]";
 
   return (
-    <section
-      id={id}
-      className={`overflow-hidden rounded-[20px] border transition-all ${shell}`}
-    >
+    <section id={id} className={`overflow-hidden rounded-[20px] border transition-all ${shell}`}>
       <button
         type="button"
         onClick={() => (controlled ? onToggle?.() : setLocalOpen((v) => !v))}
@@ -193,63 +172,55 @@ function SectionCard({
               {eyebrow}
             </span>
           )}
-          <span className="mt-0.5 block text-[15px] font-semibold text-[#2C2B4B]">
-            {title}
-          </span>
+          <span className="mt-0.5 block text-[15px] font-semibold text-[#2C2B4B]">{title}</span>
           {description && (
             <span className="mt-1 block text-[13px] leading-snug text-[#7E6BAF]">
               {description}
             </span>
           )}
-          {hint && (
-            <span className="mt-1.5 block text-[12px] italic text-[#A89BD0]">
-              {hint}
-            </span>
-          )}
+          {hint && <span className="mt-1.5 block text-[12px] italic text-[#A89BD0]">{hint}</span>}
         </span>
         {!(state === "reference" && !pillLabel) && (
-        <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
-        {optional && (
-          <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-            Optional
+          <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
+            {optional && (
+              <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
+                Optional
+              </span>
+            )}
+            <span
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+              style={{
+                backgroundColor:
+                  state === "done"
+                    ? "#E7DAF8"
+                    : state === "active"
+                      ? "#3D2E6B"
+                      : state === "reference"
+                        ? "#F1EAFB"
+                        : "#F5F0FB",
+                color: state === "done" ? "#3D2E6B" : state === "active" ? "#FFFFFF" : "#7E6BAF",
+              }}
+            >
+              {pillLabel
+                ? pillLabel
+                : state === "done"
+                  ? "Shared"
+                  : state === "active"
+                    ? "In progress"
+                    : state === "reference"
+                      ? "Reference"
+                      : "Not started"}
+            </span>
           </span>
-        )}
-        <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-          style={{
-            backgroundColor:
-              state === "done"
-                ? "#E7DAF8"
-                : state === "active"
-                  ? "#3D2E6B"
-                  : state === "reference"
-                    ? "#F1EAFB"
-                    : "#F5F0FB",
-            color:
-              state === "done"
-                ? "#3D2E6B"
-                : state === "active"
-                  ? "#FFFFFF"
-                  : "#7E6BAF",
-          }}
-        >
-          {pillLabel
-            ? pillLabel
-            : state === "done"
-              ? "Shared"
-              : state === "active"
-                ? "In progress"
-                : state === "reference"
-                  ? "Reference"
-                  : "Not started"}
-        </span>
-        </span>
         )}
         <ChevronDown
           className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className={`border-t px-4 py-5 md:px-6 ${state === "done" ? "border-[#E4D5F5] bg-white" : "border-[#F1EAFB] bg-[#FBF9FF]"}`}>
+        <div
+          className={`border-t px-4 py-5 md:px-6 ${state === "done" ? "border-[#E4D5F5] bg-white" : "border-[#F1EAFB] bg-[#FBF9FF]"}`}
+        >
           {children}
         </div>
       )}
@@ -272,7 +243,6 @@ function DetailsPage() {
   const [rxTick, setRxTick] = useState(0);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
-
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
     try {
@@ -281,7 +251,9 @@ function DetailsPage() {
         const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
         setProviderDisplayName(parsed.displayName || parsed.name || undefined);
       }
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }, []);
 
   useEffect(() => {
@@ -301,10 +273,7 @@ function DetailsPage() {
         const parsed = JSON.parse(decoded) as StoredAppt;
         setAppt(parsed);
         try {
-          window.localStorage.setItem(
-            `lubin:appt-details:${id}`,
-            JSON.stringify(parsed),
-          );
+          window.localStorage.setItem(`lubin:appt-details:${id}`, JSON.stringify(parsed));
         } catch {
           /* noop */
         }
@@ -338,10 +307,7 @@ function DetailsPage() {
   };
 
   const appointmentLabel = useMemo(
-    () =>
-      [appt?.month, appt?.date, appt?.time ? "·" : "", appt?.time]
-        .filter(Boolean)
-        .join(" "),
+    () => [appt?.month, appt?.date, appt?.time ? "·" : "", appt?.time].filter(Boolean).join(" "),
     [appt?.month, appt?.date, appt?.time],
   );
 
@@ -378,9 +344,8 @@ function DetailsPage() {
     const rx = loadPrescription(appt.id);
     if (rx.finalisedAt) return "Signed and issued";
     if (rx.skippedAt && rx.medications.length === 0) return "Skipped";
-    if (rx.medications.length > 0 && rx.medications.every((m) => m.approved))
-      return "Verified";
-    if (rx.medications.length > 0 || rx.generatedAt) return "Draft saved";
+    if (rx.medications.length > 0 && rx.medications.every((m) => m.approved)) return "Verified";
+    if (rx.medications.length > 0 || rx.generatedAt) return "Draft prepared";
     return "Not started";
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, rxTick]);
@@ -391,9 +356,7 @@ function DetailsPage() {
     if (!grant || grant.revoked) return null;
     const attempts = grant.snapshot?.attemptsInRange ?? [];
     const safety = attempts.some(
-      (a) =>
-        a.assessmentId?.toLowerCase().includes("phq") &&
-        (a.answers?.[8] ?? 0) > 0,
+      (a) => a.assessmentId?.toLowerCase().includes("phq") && (a.answers?.[8] ?? 0) > 0,
     );
     return [
       grant.snapshot?.rangeLabel ?? grant.dateRangeLabel ?? "Recent activity",
@@ -417,24 +380,18 @@ function DetailsPage() {
 
   const recordedOutcome = appt?.outcome;
   const rxAllowed =
-    canPrescribe &&
-    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
-  const rxServiceOnly = serviceSupportsPrescription(
-    appt?.type,
-    appt?.prescriptionEligible,
-  );
+    canPrescribe && serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+  const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   if (missing) {
     return (
       <div className="min-h-screen bg-[#FBF9FF]">
         <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-24 text-center">
           <CalendarClock className="h-8 w-8 text-[#A89BD0]" />
-          <h1 className="mt-4 text-xl font-bold text-[#3D2E6B]">
-            Session not found
-          </h1>
+          <h1 className="mt-4 text-xl font-bold text-[#3D2E6B]">Session not found</h1>
           <p className="mt-2 text-sm text-[#7E6BAF]">
-            This session may have been cleared from this browser. Open it again
-            from your bookings list.
+            This session may have been cleared from this browser. Open it again from your bookings
+            list.
           </p>
           <Link
             to="/profile"
@@ -463,16 +420,26 @@ function DetailsPage() {
   const sessionStatusLabel = isCancelled
     ? "Cancelled"
     : isPublished
-      ? (recordedOutcome
-          ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
-          : "Completed")
+      ? recordedOutcome
+        ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
+        : "Completed"
       : showPostSession
         ? "Session ended · Follow-up in progress"
         : "Confirmed";
 
   const tasks: { key: string; label: string; status: string; optional?: boolean }[] = [
-    { key: "session-notes", label: "Private clinical documentation", status: docStatus, optional: true },
-    { key: "care-plan", label: `Summary for ${clientLabel}`, status: followUpStatus, optional: true },
+    {
+      key: "session-notes",
+      label: "Private clinical documentation",
+      status: docStatus,
+      optional: true,
+    },
+    {
+      key: "care-plan",
+      label: `Summary for ${clientLabel}`,
+      status: followUpStatus,
+      optional: true,
+    },
     ...(rxAllowed
       ? [{ key: "prescriptions", label: "Prescription", status: rxStatus, optional: true }]
       : []),
@@ -499,9 +466,8 @@ function DetailsPage() {
                   Complete your session notes
                 </h1>
                 <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[#7E6BAF]">
-                  Record your private clinical notes and, if you want, add a
-                  client-friendly summary for {clientLabel}. Nothing is shared
-                  until you review and confirm.
+                  Record your private clinical notes and, if you want, add a client-friendly summary
+                  for {clientLabel}. Nothing is shared until you review and confirm.
                 </p>
               </div>
               <p className="shrink-0 text-[11px] font-medium text-[#A89BD0] md:text-right">
@@ -540,8 +506,8 @@ function DetailsPage() {
                     Health information {clientLabel} shared
                   </span>
                   <span className="mt-1 block text-[13px] leading-snug text-[#7E6BAF]">
-                    Recent check-ins, assessments and Health Passport
-                    information shared for this appointment.
+                    Recent check-ins, assessments and Health Passport information shared for this
+                    appointment.
                   </span>
                   <span className="mt-1.5 block text-[12px] font-medium text-[#5A4A8A]">
                     {sharedSummaryLine ?? "Nothing shared for this appointment"}
@@ -639,9 +605,7 @@ function DetailsPage() {
                   variant="followup"
                   clientName={appt.client}
                   providerName={providerDisplayName}
-                  sessionDateLabel={
-                    [appt.month, appt.date].filter(Boolean).join(" ") || undefined
-                  }
+                  sessionDateLabel={[appt.month, appt.date].filter(Boolean).join(" ") || undefined}
                   onPublishConfirmed={setFollowUpPublishConfirmed}
                   onFollowUpSaved={(saved) => {
                     setFollowUpSaved(saved);
@@ -658,7 +622,7 @@ function DetailsPage() {
                 id="prescriptions"
                 eyebrow="Verified prescribers only"
                 title="Prescription"
-                description="Optional. Add medication only if clinically indicated for this session. Not included in the client summary."
+                description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 pillLabel={rxStatus}
@@ -677,9 +641,8 @@ function DetailsPage() {
 
             {!rxAllowed && rxServiceOnly && showPostSession && (
               <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
-                This service supports medication review, but prescribing tools
-                stay hidden until your prescribing authority is verified for your
-                client&rsquo;s jurisdiction.
+                This service supports medication review, but prescribing tools stay hidden until
+                your prescribing authority is verified for your client&rsquo;s jurisdiction.
               </div>
             )}
           </div>
@@ -702,9 +665,7 @@ function DetailsPage() {
                       >
                         <span
                           className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[11px] font-semibold ${
-                            complete
-                              ? "bg-[#6E4FD3] text-white"
-                              : "bg-[#EFE8FB] text-[#3D2E6B]"
+                            complete ? "bg-[#6E4FD3] text-white" : "bg-[#EFE8FB] text-[#3D2E6B]"
                           }`}
                         >
                           {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
@@ -724,7 +685,6 @@ function DetailsPage() {
                 })}
               </ul>
             </div>
-
           </aside>
         </div>
       </div>
@@ -732,35 +692,30 @@ function DetailsPage() {
   );
 }
 
-
-
-function FactTile({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
+function FactTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-xl bg-[#FBF9FF]/60 px-3.5 py-2.5">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-        {label}
-      </p>
-      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">
-        {value}
-      </p>
-      {sub && (
-        <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>
-      )}
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
+      {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
     </div>
   );
 }
 
 const MONTHS: Record<string, number> = {
-  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
-  jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11,
+  jan: 0,
+  feb: 1,
+  mar: 2,
+  apr: 3,
+  may: 4,
+  jun: 5,
+  jul: 6,
+  aug: 7,
+  sep: 8,
+  sept: 8,
+  oct: 9,
+  nov: 10,
+  dec: 11,
 };
 
 function parseApptStart(appt: StoredAppt | null): Date | null {
