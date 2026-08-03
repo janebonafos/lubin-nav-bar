@@ -220,6 +220,14 @@ export type PrescriptionMedication = {
   requiresPregnancyStatus?: boolean;
   /** Laboratory or organ-function information is required before prescribing. */
   requiresLabs?: boolean;
+  /** Why laboratory or organ-function information is required for this
+   *  medication and patient. Required whenever requiresLabs is true. */
+  labsReason?: string;
+  /** Bipolar / mania screening is required before this medication (e.g. an
+   *  antidepressant started as monotherapy). */
+  requiresBipolarScreen?: boolean;
+  /** Provider acknowledgement of the shared assessment safety response. */
+  sharedSafetyAcknowledgedAt?: number;
   /** True when this medication is a controlled / dangerous drug and needs the
    *  restricted issuing workflow instead of the standard signature. */
   controlled?: boolean;
