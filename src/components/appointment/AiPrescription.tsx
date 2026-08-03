@@ -749,9 +749,16 @@ function MedicationSummaryCard({
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-[#2C2B4B]">
-            {hasName ? med.name : "Untitled medication"}
-            {med.dose ? <span className="font-normal text-[#3D2E6B]"> {med.dose}</span> : null}
+            {hasName ? med.name : "Medication draft"}
+            {hasName && (med.strength || med.dose) ? (
+              <span className="font-normal text-[#3D2E6B]"> {med.strength || med.dose}</span>
+            ) : null}
           </p>
+          {!hasName && (
+            <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
+              Add a medication name and strength to continue.
+            </p>
+          )}
           {line && <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">{line}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span className="text-[11.5px] text-[#6F6889]">
@@ -1264,7 +1271,7 @@ function FinalReviewBody({
           {rx.medications.map((m) => (
             <li key={m.id} className="border-t border-[#EDEBF3] pt-3 first:border-t-0 first:pt-0">
               <p className="text-[13.5px] font-semibold text-[#2C2B4B]">
-                {m.name || "Untitled medication"} {m.dose}
+                {m.name || "Medication draft"} {m.strength || m.dose}
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#3D2E6B]">
                 {[m.strength, m.route, m.frequency, m.duration]
