@@ -1,0 +1,279 @@
+// Structured patient information for the prescription safety review.
+// Allergies, current medications and relevant conditions are captured as
+// searchable entries with a status, a source and a last-updated date.
+// "None known" and "Not documented" are deliberately distinct states.
+import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  INFO_SOURCE_LABEL,
+  INFO_STATUS_LABEL,
+  genRxId,
+  type InfoDocState,
+  type InfoSource,
+  type PatientInfoEntry,
+  type PatientInfoStatus,
+  type PatientSafetyInfo,
+} from "@/lib/prescription/store";
+import {
+  INFO_FIELDS,
+  docStateFor,
+  entriesFor,
+  entryField,
+  infoLabel,
+  isStructuredKey,
+  stateField,
+  type InfoKey,
+  type StructuredKey,
+} from "@/lib/prescription/safety";
+import { MEDICATION_CATALOGUE } from "@/lib/prescription/catalogue";
+
+const SUGGESTIONS: Record<StructuredKey, string[]> = {
+  allergies: [
+    "Penicillin",
+    "Amoxicillin",
+    "Sulfonamides",
+    "Aspirin",
+    "Ibuprofen",
+    "Codeine",
+    "Sertraline",
+    "Fluoxetine",
+    "Lamotrigine",
+    "Carbamazepine",
+  ],
+  currentMedications: MEDICATION_CATALOGUE.map((c) => c.name),
+  conditions: [
+    "Bipolar disorder",
+    "Seizure disorder",
+    "Bleeding disorder",
+    "Liver impairment",
+    "Renal impairment",
+    "Thyroid disorder",
+    "Hypertension",
+    "Diabetes mellitus",
+    "Pregnancy",
+    "Glaucoma",
+  ],
+};
+
+const DOC_STATES: { value: InfoDocState; label: string }[] = [
+  { value: "documented", label: "Documented items" },
+  { value: "none-known", label: "None known" },
+  { value: "not-documented", label: "Not documented" },
+];
+
+const STATUSES: PatientInfoStatus[] = ["active", "past", "suspected", "resolved"];
+const SOURCES: InfoSource[] = ["passport", "provider", "review"];
+
+const inputClass =
+  "w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] placeholder:text-[#9C96AF] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20";
+
+export function PatientInfoForm({
+  keys,
+  info,
+  onChange,
+  onSave,
+}: {
+  keys: InfoKey[];
+  info?: PatientSafetyInfo;
+  onChange: (p: Partial<PatientSafetyInfo>) => void;
+  onSave: () => void;
+}) {
+  const [saved, setSaved] = useState<number | null>(null);
+  const structured = keys.filter(isStructuredKey);
+  const freeText = INFO_FIELDS.filter((f) => keys.includes(f.key) && !isStructuredKey(f.key));
+
+  const setEntries = (key: StructuredKey, entries: PatientInfoEntry[]) =>
+    onChange({ [entryField(key)]: entries, [stateField(key)]: "documented" } as Partial<PatientSafetyInfo>);
+
+  const setState = (key: StructuredKey, state: InfoDocState) =>
+    onChange({
+      [stateField(key)]: state,
+      ...(state === "documented" ? {} : { [entryField(key)]: [] }),
+    } as Partial<PatientSafetyInfo>);
+
+  return (
+    <div className="mt-3 space-y-4 border-t border-[#EDEBF3] pt-3">
+      {structured.map((key) => {
+        const entries = entriesFor(info, key);
+        const state = docStateFor(info, key);
+        return (
+          <div key={key}>
+            <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{infoLabel(key)}</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {DOC_STATES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => setState(key, s.value)}
+                  className={`inline-flex h-7 items-center rounded-full px-3 text-[11.5px] font-semibold transition ${
+                    state === s.value
+                      ? "bg-[#6E4FD3] text-white"
+                      : "border border-[#DEDAE8] bg-white text-[#5A4A8A] hover:bg-[#F7F5FB]"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            {state === "documented" && (
+              <>
+                <datalist id={`rx-suggest-${key}`}>
+                  {SUGGESTIONS[key].map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+                <ul className="mt-2 space-y-2">
+                  {entries.map((entry, i) => (
+                    <li key={entry.id} className="rounded-lg border border-[#EDEBF3] bg-[#FCFBFE] p-2.5">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <input
+                          list={`rx-suggest-${key}`}
+                          value={entry.name}
+                          placeholder="Search or type a name"
+                          onChange={(e) => {
+                            const next = [...entries];
+                            next[i] = { ...entry, name: e.target.value, updatedAt: Date.now() };
+                            setEntries(key, next);
+                          }}
+                          className={inputClass}
+                        />
+                        <input
+                          value={entry.detail ?? ""}
+                          placeholder={
+                            key === "allergies"
+                              ? "Reaction and severity"
+                              : key === "currentMedications"
+                                ? "Dose and frequency"
+                                : "Relevant details"
+                          }
+                          onChange={(e) => {
+                            const next = [...entries];
+                            next[i] = { ...entry, detail: e.target.value, updatedAt: Date.now() };
+                            setEntries(key, next);
+                          }}
+                          className={inputClass}
+                        />
+                        <select
+                          value={entry.status ?? "active"}
+                          onChange={(e) => {
+                            const next = [...entries];
+                            next[i] = {
+                              ...entry,
+                              status: e.target.value as PatientInfoStatus,
+                              updatedAt: Date.now(),
+                            };
+                            setEntries(key, next);
+                          }}
+                          className={inputClass}
+                        >
+                          {STATUSES.map((s) => (
+                            <option key={s} value={s}>
+                              {INFO_STATUS_LABEL[s]}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          value={entry.source ?? "review"}
+                          onChange={(e) => {
+                            const next = [...entries];
+                            next[i] = {
+                              ...entry,
+                              source: e.target.value as InfoSource,
+                              updatedAt: Date.now(),
+                            };
+                            setEntries(key, next);
+                          }}
+                          className={inputClass}
+                        >
+                          {SOURCES.map((s) => (
+                            <option key={s} value={s}>
+                              {INFO_SOURCE_LABEL[s]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="mt-1.5 flex items-center justify-between">
+                        <p className="text-[11.5px] text-[#6F6889]">
+                          Last updated{" "}
+                          {entry.updatedAt ? new Date(entry.updatedAt).toLocaleDateString() : "—"}
+                        </p>
+                        <button
+                          type="button"
+                          aria-label="Remove item"
+                          onClick={() => setEntries(key, entries.filter((e) => e.id !== entry.id))}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-[8px] text-[#7E7794] transition hover:bg-[#F1EEF8] hover:text-[#3D2E6B]"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEntries(key, [
+                      ...entries,
+                      {
+                        id: genRxId(),
+                        name: "",
+                        status: "active",
+                        source: "review",
+                        updatedAt: Date.now(),
+                      },
+                    ])
+                  }
+                  className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add item
+                </button>
+              </>
+            )}
+            {state === "none-known" && (
+              <p className="mt-1.5 text-[12px] text-[#5A4A8A]">
+                Recorded as none known — reviewed with {"the client"} and documented for this visit.
+              </p>
+            )}
+            {state === "not-documented" && (
+              <p className="mt-1.5 text-[12px] text-[#8A6A20]">
+                Not documented. The safety review cannot evaluate this category until it is recorded.
+              </p>
+            )}
+          </div>
+        );
+      })}
+
+      {freeText.map((f) => (
+        <label key={f.key} className="block">
+          <span className="mb-1 block text-[12.5px] font-semibold text-[#2C2B4B]">{f.label}</span>
+          <textarea
+            rows={2}
+            value={(info?.[f.key] as string | undefined) ?? ""}
+            placeholder={f.placeholder}
+            onChange={(e) => onChange({ [f.key]: e.target.value } as Partial<PatientSafetyInfo>)}
+            className={inputClass}
+          />
+        </label>
+      ))}
+
+      <div>
+        <button
+          type="button"
+          onClick={() => {
+            onSave();
+            setSaved(Date.now());
+          }}
+          className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+        >
+          Save patient information
+        </button>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+          This information is saved to the client&rsquo;s private clinical record and is not included
+          in the client summary.
+          {saved ? ` Saved ${new Date(saved).toLocaleTimeString()}.` : ""}
+        </p>
+      </div>
+    </div>
+  );
+}
