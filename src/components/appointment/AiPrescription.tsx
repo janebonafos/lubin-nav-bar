@@ -397,10 +397,7 @@ export function AiPrescription({
   const header = (
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
-        <h2 className="text-[17px] font-semibold text-[#2C2B4B]">
-          Prescription <span className="font-normal text-[#6F6889]">· Optional</span>
-        </h2>
-        <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">
+        <p className="text-[13px] font-semibold text-[#3D2E6B]">
           {statusLabel}
           {draftSourceLabel && !signed && !allVerified ? (
             <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
