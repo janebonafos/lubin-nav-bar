@@ -7,12 +7,16 @@ import { Plus, Trash2 } from "lucide-react";
 import {
   INFO_SOURCE_LABEL,
   INFO_STATUS_LABEL,
+  HISTORY_STATE_LABEL,
+  PREGNANCY_STATUS_LABEL,
   genRxId,
   type InfoDocState,
+  type HistoryState,
   type InfoSource,
   type PatientInfoEntry,
   type PatientInfoStatus,
   type PatientSafetyInfo,
+  type PregnancyStatus,
 } from "@/lib/prescription/store";
 import {
   INFO_FIELDS,
@@ -22,6 +26,7 @@ import {
   infoLabel,
   isStructuredKey,
   stateField,
+  patientAge,
   type InfoKey,
   type StructuredKey,
 } from "@/lib/prescription/safety";
@@ -72,15 +77,22 @@ export function PatientInfoForm({
   info,
   onChange,
   onSave,
+  relevanceFor,
 }: {
   keys: InfoKey[];
   info?: PatientSafetyInfo;
   onChange: (p: Partial<PatientSafetyInfo>) => void;
   onSave: () => void;
+  /** Medication-specific reason shown under an item, so nothing looks universal. */
+  relevanceFor?: (key: InfoKey) => string;
 }) {
   const [saved, setSaved] = useState<number | null>(null);
   const structured = keys.filter(isStructuredKey);
-  const freeText = INFO_FIELDS.filter((f) => keys.includes(f.key) && !isStructuredKey(f.key));
+  const showBipolar = keys.includes("bipolarHistory");
+  const showAge = keys.includes("age");
+  const showPregnancy = keys.includes("pregnancy");
+  const showLabs = keys.includes("labs");
+  const labsField = INFO_FIELDS.find((f) => f.key === "labs")!;
 
   const setEntries = (key: StructuredKey, entries: PatientInfoEntry[]) =>
     onChange({
