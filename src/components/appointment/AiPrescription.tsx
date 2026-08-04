@@ -1537,7 +1537,16 @@ function MedicationEditor({
         <div className="space-y-6 border-t border-[#F1EDFA] bg-[#FAF9FD] px-5 py-6 md:px-7 lg:col-span-5 lg:border-t-0">
           {/* 2 — Patient information & safety */}
           <section>
-            <SectionHeading>Patient information &amp; safety</SectionHeading>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <SectionHeading>Patient information &amp; safety</SectionHeading>
+              <button
+                type="button"
+                onClick={() => setProfileOpen(true)}
+                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                View medical profile
+              </button>
+            </div>
             {!hasName ? (
               <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
                 Choose a medication above to see the patient information and safety items this
