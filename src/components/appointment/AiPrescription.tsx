@@ -688,8 +688,7 @@ export function AiPrescription({
             <h3 className="text-[14px] font-semibold text-[#2C2B4B]">AI suggestions ready</h3>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
               AI-generated medication options are available for your review. You can preview them,
-              prepare a draft directly, add a medication yourself, or record that no prescription is
-              needed.
+              add a medication yourself, or record that no prescription is needed.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <button
@@ -698,13 +697,6 @@ export function AiPrescription({
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
                 Show AI suggestions
-              </button>
-              <button
-                type="button"
-                onClick={() => void generate()}
-                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-              >
-                Prepare draft directly
               </button>
               <button
                 type="button"
@@ -735,9 +727,8 @@ export function AiPrescription({
             </div>
             <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              You can ask for AI suggestions to consider, prepare a draft directly, add a medication
-              yourself, or record that no prescription is needed. Nothing is prescribed until you
-              review and verify it.
+              You can ask for AI suggestions to consider, add a medication yourself, or record that
+              no prescription is needed. Nothing is prescribed until you review and verify it.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <button
@@ -746,13 +737,6 @@ export function AiPrescription({
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
                 Get AI options
-              </button>
-              <button
-                type="button"
-                onClick={() => void generate()}
-                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-              >
-                Prepare draft directly
               </button>
               <button
                 type="button"
