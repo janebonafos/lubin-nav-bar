@@ -7,7 +7,10 @@ import { medSafetySignature, runSafetyReview } from "./safety";
 export const DEMO_BANNER =
   "Demo data — all clinical information in this prescription is sample content for demonstration only.";
 
-export function demoPrescription(appointmentId: string): Prescription {
+export function demoPrescription(
+  appointmentId: string,
+  withSuggestions: boolean = true,
+): Prescription {
   const generatedAt = Date.now() - 4 * 60 * 1000;
   const med: PrescriptionMedication = {
     id: genRxId(),
@@ -90,8 +93,8 @@ export function demoPrescription(appointmentId: string): Prescription {
     // Suggestion-only: nothing is in the prescription until the provider
     // explicitly accepts a suggestion for review.
     medications: [],
-    suggestions: [med],
-    suggestedAt: generatedAt,
+    suggestions: withSuggestions ? [med] : [],
+    suggestedAt: withSuggestions ? generatedAt : undefined,
     patientInfo,
     generatedAt,
     updatedAt: Date.now(),
