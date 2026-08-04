@@ -266,6 +266,7 @@ export function AiPrescription({
         skippedAt: undefined,
       });
       setNotice(message ?? null);
+      setShowSuggestions(true);
       return;
     }
     patch({ ...demo, skippedAt: undefined });
