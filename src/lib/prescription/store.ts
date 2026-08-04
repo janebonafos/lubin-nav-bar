@@ -265,6 +265,13 @@ export type RxCountry = "US" | "PH";
 export type Prescription = {
   appointmentId: string;
   medications: PrescriptionMedication[];
+  /** AI-suggested medications for the prescriber's consideration only.
+   *  A suggestion is NOT part of the prescription: it carries no directions
+   *  the provider has accepted, is never signed, and must be explicitly
+   *  accepted into the draft (and then verified) before it can be issued. */
+  suggestions?: PrescriptionMedication[];
+  /** When suggestions were last prepared. */
+  suggestedAt?: number;
   clinicalNotes?: string;
   country?: RxCountry;
   /** Pharmacy or delivery destination recorded on the final review screen. */
