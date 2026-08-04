@@ -525,39 +525,26 @@ function SourceItem({
 }) {
   const kind: SourceKind = source.kind ?? "secondary";
   return (
-    <li className="rounded-xl border border-[#ECE7F6] bg-white p-3">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-        {SOURCE_KIND_LABEL[kind]}
-      </p>
-      <a
-        href={source.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-0.5 inline-flex items-start gap-1.5 text-[13px] font-semibold text-[#5A3E8F] underline decoration-[#D6CCEC] hover:decoration-[#5A3E8F]"
-      >
-        {source.title}
-        <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
-      </a>
-      <p className="mt-1 text-[11px] text-[#8B85A6]">
-        Source organisation: {sourceOrganisation(source)}
-      </p>
-      <p className="text-[11px] text-[#8B85A6]">
-        Jurisdiction: {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
-      </p>
-      <p className="text-[11px] text-[#8B85A6]">
-        Last updated: {source.revisedAt ? source.revisedAt : "not stated by the source"} · Lubin
-        last checked {new Date(ref_.checkedAt).toLocaleDateString()}
-      </p>
-      {source.url && (
+    <li className="group">
+      <div className="flex items-start justify-between gap-4">
         <a
           href={source.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block truncate text-[11px] text-[#6E4FD3] underline"
+          className="inline-flex items-start gap-1.5 text-sm text-[#6E4FD3] underline decoration-[#6E4FD3]/30 group-hover:decoration-[#6E4FD3]"
         >
-          {source.url}
+          {source.title}
+          <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
         </a>
-      )}
+        <span className="flex-none text-[11px] text-[#A89BD0]">
+          {source.revisedAt ? `Updated ${source.revisedAt}` : "Update date not stated"}
+        </span>
+      </div>
+      <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">
+        {SOURCE_KIND_LABEL[kind]} · {sourceOrganisation(source)} ·{" "}
+        {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")} · checked{" "}
+        {new Date(ref_.checkedAt).toLocaleDateString()}
+      </p>
     </li>
   );
 }
