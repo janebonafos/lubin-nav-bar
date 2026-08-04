@@ -1417,7 +1417,7 @@ function MedicationEditor({
                         Shared {sharedSafety.clinicalName} safety response
                       </span>
                       <span className="block text-[11px] font-medium text-[#8A6A20]">
-                        Review required
+                        Review required · client’s own answer, shared for this appointment
                       </span>
                     </span>
                     <span className="ml-auto text-[11.5px] text-[#8C86A0]">
