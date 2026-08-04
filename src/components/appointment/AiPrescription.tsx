@@ -54,6 +54,7 @@ import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
+import { PatientProfileDrawer } from "./PatientProfileDrawer";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 
@@ -93,6 +94,7 @@ export function AiPrescription({
   const [finalReview, setFinalReview] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const loaded = loadPrescription(appointmentId);
@@ -926,6 +928,7 @@ export function AiPrescription({
             onMarkCheckReviewed={(k) => markCheckReviewed(reviewMed.id, k)}
             blockers={blockers}
             onOpenReference={() => setRefMedId(reviewMed.id)}
+            onOpenProfile={() => setProfileOpen(true)}
             sharedSafety={sharedSafety}
           />
         </div>
@@ -1319,6 +1322,7 @@ function MedicationEditor({
   onMarkCheckReviewed,
   blockers,
   onOpenReference,
+  onOpenProfile,
   sharedSafety,
 }: {
   med: PrescriptionMedication;
@@ -1331,6 +1335,7 @@ function MedicationEditor({
   onMarkCheckReviewed: (key: CheckKey) => void;
   blockers: Blocker[];
   onOpenReference: () => void;
+  onOpenProfile: () => void;
   sharedSafety?: SharedSafetyResponse | null;
 }) {
   const [checksOpen, setChecksOpen] = useState(false);
@@ -1560,7 +1565,7 @@ function MedicationEditor({
               <SectionHeading>Patient information &amp; safety</SectionHeading>
               <button
                 type="button"
-                onClick={() => setProfileOpen(true)}
+                onClick={onOpenProfile}
                 className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
               >
                 View medical profile
