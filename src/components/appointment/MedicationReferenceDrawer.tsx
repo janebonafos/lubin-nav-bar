@@ -474,20 +474,20 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[#ECE7F6] bg-white p-3.5">
-      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#5A3E8F]">{title}</h3>
-      {subtitle && <p className="mt-0.5 text-[12px] font-semibold text-[#3D2E6B]">{subtitle}</p>}
-      {note && <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{note}</p>}
-      <div className="mt-2.5">{children}</div>
+    <section className="border-t border-[#F1ECF9] pt-8 first:border-0 first:pt-0">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">{title}</h3>
+      {subtitle && <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">{subtitle}</p>}
+      {note && <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">{note}</p>}
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
 
 function Row({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="py-2">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">{label}</dt>
-      <dd className="mt-0.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+    <div className="space-y-1.5">
+      <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">{label}</dt>
+      <dd className="text-sm leading-relaxed text-[#3D2E6B]">
         {value?.trim() ? value : <span className="text-[#A89BD0]">Not stated</span>}
       </dd>
     </div>
