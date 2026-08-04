@@ -87,7 +87,11 @@ export function demoPrescription(appointmentId: string): Prescription {
     appointmentId,
     country: "PH",
     demo: true,
-    medications: [med],
+    // Suggestion-only: nothing is in the prescription until the provider
+    // explicitly accepts a suggestion for review.
+    medications: [],
+    suggestions: [med],
+    suggestedAt: generatedAt,
     patientInfo,
     generatedAt,
     updatedAt: Date.now(),
