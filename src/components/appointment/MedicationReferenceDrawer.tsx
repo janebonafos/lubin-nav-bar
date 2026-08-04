@@ -185,34 +185,35 @@ export function MedicationReferenceDrawer({
         aria-label={`Medication reference for ${med.name || "medication"}`}
         className="relative flex h-full w-full max-w-[560px] flex-col bg-white shadow-2xl"
       >
-        <header className="flex items-start gap-3 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
+        <header className="sticky top-0 z-10 flex items-start gap-3 border-b border-[#F1ECF9] bg-white px-8 py-6">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
               Medication reference · {country === "PH" ? "Philippines" : "United States"}
             </p>
-            <h2 className="truncate text-base font-semibold text-[#3D2E6B]">
+            <h2 className="mt-1 truncate text-2xl font-bold tracking-tight text-[#3D2E6B]">
               {med.name || "Medication draft"}
             </h2>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-[#7E6BAF]">
               <OriginBadge med={med} />
-              {[med.dose, med.route, med.frequency].filter(Boolean).length > 0 && (
-                <span className="text-[11px] text-[#7E6BAF]">
-                  {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
+              {[med.dose, med.route, med.frequency].filter(Boolean).map((v) => (
+                <span key={v} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-[#D6CCEC]" />
+                  {v}
                 </span>
-              )}
+              ))}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[10px] p-1.5 text-[#7E6BAF] hover:bg-white"
+            className="rounded-full p-2 text-[#A89BD0] transition-colors hover:bg-[#F7F5FB] hover:text-[#5A4A8A]"
             aria-label="Close"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </header>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className="flex-1 space-y-8 overflow-y-auto px-8 py-6">
           {busy && (
             <div className="flex items-center gap-2 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3 text-[13px] text-[#3D2E6B]">
               <Loader2 className="h-4 w-4 animate-spin text-[#7E6BAF]" />
