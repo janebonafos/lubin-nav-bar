@@ -251,8 +251,7 @@ export function MedicationReferenceDrawer({
           {ref && (
             <>
               {/* AI summary caveat */}
-              <div className="flex gap-3 rounded-xl border border-[#6E4FD3]/10 bg-[#FAF7FE] px-4 py-3">
-                <Sparkles className="mt-0.5 h-4 w-4 flex-none text-[#6E4FD3]" />
+              <div className="rounded-xl border border-[#6E4FD3]/10 bg-[#FAF7FE] px-4 py-3">
                 <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
                   <span className="font-semibold text-[#6E4FD3]">AI summary</span> ·{" "}
                   {AI_SUMMARY_CAVEAT}
