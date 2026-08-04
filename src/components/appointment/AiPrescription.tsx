@@ -852,6 +852,12 @@ export function AiPrescription({
 
 /* ------------------------------ pieces ------------------------------ */
 
+/** First sentence only — the entry card shows one line, the full text lives in review. */
+function oneLine(text: string) {
+  const first = text.split(/(?<=\.)\s+/)[0]?.trim() ?? text.trim();
+  return first.length > 180 ? `${first.slice(0, 177).trimEnd()}…` : first;
+}
+
 function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
     <ol className="flex flex-wrap items-center gap-0.5 rounded-full bg-[#F4F1FC] p-1">
@@ -991,6 +997,12 @@ function MedicationSummaryCard({
             )}
           </div>
           <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>
+          {med.origin !== "manual" && (med.basis?.whyIncluded || med.rationale) && (
+            <p className="mt-2 border-t border-[#EFECF6] pt-2 text-[11.5px] leading-relaxed text-[#5A4A8A]">
+              <span className="font-semibold text-[#3D2E6B]">Drafted because: </span>
+              {oneLine(med.basis?.whyIncluded || med.rationale || "")}
+            </p>
+          )}
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
