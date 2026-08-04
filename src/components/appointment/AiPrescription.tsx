@@ -305,6 +305,7 @@ export function AiPrescription({
   const dismissSuggestions = () => {
     patch({ suggestions: [], suggestedAt: undefined });
     setNotice(null);
+    setShowSuggestions(false);
   };
 
   const suggestionsPanel =
