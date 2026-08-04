@@ -1339,9 +1339,11 @@ function MedicationEditor({
                             className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
                           >
                             <span className="min-w-0">
-                              <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+                              <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
                                 {recorded && !open && (
-                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1F7A57] text-white shadow-sm">
+                                    <Check className="h-3 w-3 shrink-0" strokeWidth={3} />
+                                  </span>
                                 )}
                                 {infoLabel(key)}
                               </span>
