@@ -994,7 +994,7 @@ function MedicationSummaryCard({
           {med.origin !== "manual" && (med.basis?.whyIncluded || med.rationale) && (
             <p className="mt-2 border-t border-[#EFECF6] pt-2 text-[11.5px] leading-relaxed text-[#5A4A8A]">
               <span className="font-semibold text-[#3D2E6B]">Drafted because: </span>
-              {med.basis?.whyIncluded || med.rationale}
+              {oneLine(med.basis?.whyIncluded || med.rationale || "")}
             </p>
           )}
         </div>
