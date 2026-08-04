@@ -160,7 +160,8 @@ export function AiPrescription({
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
 
-  const generate = async (opts?: { demoFallback?: boolean }) => {
+  const generate = async (opts?: { demoFallback?: boolean; mode?: "draft" | "suggest" }) => {
+    const mode = opts?.mode ?? "draft";
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -211,11 +212,21 @@ export function AiPrescription({
           res.ok
             ? "Not enough clinical information was recorded for a live draft, so a demo prescription was prepared instead."
             : "The drafting service is unavailable right now, so a demo prescription was prepared instead.",
+          mode,
         );
         return;
       }
       if (meds.length === 0) {
         setError(data.error ?? "Could not prepare a draft. Please try again.");
+        return;
+      }
+      if (mode === "suggest") {
+        patch({
+          suggestions: meds,
+          suggestedAt: Date.now(),
+          country: data.country ?? country,
+          skippedAt: undefined,
+        });
         return;
       }
       patch({
@@ -236,17 +247,136 @@ export function AiPrescription({
       console.error(e);
       loadDemo(
         "The drafting service could not be reached, so a demo prescription was prepared instead.",
+        mode,
       );
     } finally {
       setBusy(false);
     }
   };
 
-  const loadDemo = (message?: string) => {
+  const loadDemo = (message?: string, mode: "draft" | "suggest" = "draft") => {
     const demo = demoPrescription(appointmentId);
+    if (mode === "suggest") {
+      patch({
+        suggestions: demo.medications,
+        suggestedAt: Date.now(),
+        demo: true,
+        skippedAt: undefined,
+      });
+      setNotice(message ?? null);
+      return;
+    }
     patch({ ...demo, skippedAt: undefined });
     setNotice(message ?? null);
   };
+
+  const suggestions = rx.suggestions ?? [];
+
+  /** Move one suggestion into the draft. It is still unverified: the provider
+   *  must complete the clinical review before it can be issued. */
+  const acceptSuggestion = (id: string) => {
+    const s = suggestions.find((m) => m.id === id);
+    if (!s) return;
+    const med: PrescriptionMedication = {
+      ...s,
+      id: genRxId(),
+      origin: "ai-option",
+      approved: false,
+      verifiedAt: undefined,
+      acknowledgedAt: undefined,
+    };
+    const blank = rx.medications.filter((m) => m.name.trim());
+    patch({
+      medications: [...blank, med],
+      suggestions: suggestions.filter((m) => m.id !== id),
+      skippedAt: undefined,
+      reviewedAt: undefined,
+      legalAcknowledgedAt: undefined,
+      finalisedAt: undefined,
+      finalisedBy: undefined,
+    });
+    setReviewMedId(med.id);
+    setFinalReview(false);
+  };
+
+  const dismissSuggestions = () => {
+    patch({ suggestions: [], suggestedAt: undefined });
+    setNotice(null);
+  };
+
+  const suggestionsPanel =
+    suggestions.length > 0 ? (
+      <div className="mb-4 rounded-2xl border border-[#E7E2F5] bg-[#FBFAFE] px-4 py-4 md:px-5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#8C86A0]">
+              For your consideration only
+            </p>
+            <h3 className="mt-1 text-[14px] font-semibold text-[#2C2B4B]">
+              AI suggestions — not a recommendation to prescribe
+            </h3>
+            <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              These options were generated from this visit&rsquo;s recorded information. Nothing here
+              is part of the prescription. If you judge an option clinically appropriate, accept it
+              into your draft and complete the clinical review — the prescribing decision and the
+              directions remain yours.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={dismissSuggestions}
+            className="inline-flex h-9 items-center rounded-[10px] px-3 text-[13px] font-semibold text-[#5A4A8A] transition hover:bg-white hover:text-[#3D2E6B]"
+          >
+            Dismiss suggestions
+          </button>
+        </div>
+        <ul className="mt-3 space-y-2.5">
+          {suggestions.map((s) => (
+            <li
+              key={s.id}
+              className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5 md:flex md:items-start md:gap-4"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[13.5px] font-semibold text-[#2C2B4B]">
+                  {s.name || "Suggested option"}{" "}
+                  <span className="font-normal text-[#5A4A8A]">{s.strength ?? ""}</span>
+                </p>
+                <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
+                  {[s.route, s.frequency, s.duration].filter(Boolean).join(" · ")}
+                </p>
+                <p className="mt-1 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-[#8C86A0]">
+                  Suggestion · not verified{s.demo ? " · demo data" : ""}
+                </p>
+                {(s.rationale || s.indication) && (
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                    <span className="font-semibold text-[#3D2E6B]">Why it was surfaced: </span>
+                    {oneLine(s.rationale || s.indication || "")}
+                  </p>
+                )}
+              </div>
+              <div className="mt-3 flex flex-none flex-wrap items-center gap-2 md:mt-0">
+                <button
+                  type="button"
+                  onClick={() => acceptSuggestion(s.id)}
+                  className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                >
+                  Use and review
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    patch({ suggestions: suggestions.filter((m) => m.id !== s.id) })
+                  }
+                  className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+                >
+                  Not appropriate
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
 
   /** Any medication-field change resets that medication's verification and
    *  any completed whole-prescription review. */
