@@ -1319,7 +1319,7 @@ function MedicationEditor({
                 )}
                 {infoList.length > 0 && (
                   <ul className="space-y-2">
-                    {infoList.map(({ key, requirement, recorded }) => {
+                    {displayInfoList.map(({ key, requirement, recorded }) => {
                       const open = openInfoKey === key;
                       return (
                         <li
@@ -1345,7 +1345,7 @@ function MedicationEditor({
                                 )}
                                 {infoLabel(key)}
                               </span>
-                              {recorded ? (
+                              {open ? null : recorded ? (
                                 <span className="block text-[11.5px] text-[#4F7F68]">
                                   <span className="font-semibold text-[#1F7A57]">Completed</span>
                                   {" — "}
