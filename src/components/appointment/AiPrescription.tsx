@@ -1070,6 +1070,23 @@ function MedicationEditor({
     [med, patientInfo, visitMeds],
   );
   const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
+  /**
+   * Keep the visible order frozen while a field is expanded, so typing (which can
+   * flip an item to "recorded") never makes the open card jump to another position.
+   */
+  const infoOrderRef = useRef<InfoKey[]>([]);
+  const displayInfoList = useMemo(() => {
+    if (!openInfoKey) {
+      infoOrderRef.current = infoList.map((i) => i.key);
+      return infoList;
+    }
+    const order = infoOrderRef.current;
+    const rank = (k: InfoKey) => {
+      const i = order.indexOf(k);
+      return i === -1 ? order.length : i;
+    };
+    return [...infoList].sort((a, b) => rank(a.key) - rank(b.key));
+  }, [infoList, openInfoKey]);
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
   /** Medication or patient information changed after the last review ran. */
