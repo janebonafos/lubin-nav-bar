@@ -121,6 +121,7 @@ export function MedicationReferenceDrawer({
   const [ref, setRef] = useState<MedicationReference | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAllLabel, setShowAllLabel] = useState(false);
 
   const load = async (force?: boolean) => {
     if (!med) return;
@@ -185,34 +186,35 @@ export function MedicationReferenceDrawer({
         aria-label={`Medication reference for ${med.name || "medication"}`}
         className="relative flex h-full w-full max-w-[560px] flex-col bg-white shadow-2xl"
       >
-        <header className="flex items-start gap-3 border-b border-[#ECE7F6] bg-[#FAF7FE] px-4 py-3">
+        <header className="sticky top-0 z-10 flex items-start gap-3 border-b border-[#F1ECF9] bg-white px-8 py-6">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#7E6BAF]">
               Medication reference · {country === "PH" ? "Philippines" : "United States"}
             </p>
-            <h2 className="truncate text-base font-semibold text-[#3D2E6B]">
+            <h2 className="mt-1 truncate text-2xl font-bold tracking-tight text-[#3D2E6B]">
               {med.name || "Medication draft"}
             </h2>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-[#7E6BAF]">
               <OriginBadge med={med} />
-              {[med.dose, med.route, med.frequency].filter(Boolean).length > 0 && (
-                <span className="text-[11px] text-[#7E6BAF]">
-                  {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
+              {[med.dose, med.route, med.frequency].filter(Boolean).map((v) => (
+                <span key={v} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-[#D6CCEC]" />
+                  {v}
                 </span>
-              )}
+              ))}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[10px] p-1.5 text-[#7E6BAF] hover:bg-white"
+            className="rounded-full p-2 text-[#A89BD0] transition-colors hover:bg-[#F7F5FB] hover:text-[#5A4A8A]"
             aria-label="Close"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </header>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className="flex-1 space-y-8 overflow-y-auto px-8 py-6">
           {busy && (
             <div className="flex items-center gap-2 rounded-xl border border-[#E1D9F1] bg-[#FCFAFE] px-3.5 py-3 text-[13px] text-[#3D2E6B]">
               <Loader2 className="h-4 w-4 animate-spin text-[#7E6BAF]" />
@@ -252,47 +254,48 @@ export function MedicationReferenceDrawer({
           {ref && (
             <>
               {/* AI summary caveat */}
-              <div className="rounded-xl border border-[#E1D9F1] bg-[#FAF7FE] px-3.5 py-3">
-                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                  <Sparkles className="h-3.5 w-3.5" /> AI-generated summary
-                </p>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
+              <div className="flex gap-3 rounded-xl border border-[#6E4FD3]/10 bg-[#FAF7FE] px-4 py-3">
+                <Sparkles className="mt-0.5 h-4 w-4 flex-none text-[#6E4FD3]" />
+                <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
+                  <span className="font-semibold text-[#6E4FD3]">AI summary</span> ·{" "}
                   {AI_SUMMARY_CAVEAT}
                 </p>
               </div>
 
               {ref.general.boxedWarning && (
-                <div className="rounded-xl border border-[#E2D7F3] bg-white px-3.5 py-3">
-                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#5A3E8F]">
-                    <AlertTriangle className="h-3.5 w-3.5" /> Boxed warning
+                <section className="rounded-r-xl border-l-4 border-[#6E4FD3] bg-[#F4EFFD] p-5">
+                  <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#5A3E8F]">
+                    <AlertTriangle className="h-4 w-4" /> Boxed warning
                   </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#3D2E6B]">
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-[#3D2E6B]">
                     {ref.general.boxedWarning}
                   </p>
-                </div>
+                </section>
               )}
 
               {/* 1. Key safety information */}
               <Section
                 title="Key safety information"
-                subtitle="Reviewed first · interactions, contraindications and missing patient information"
               >
                 {missingPatientInfo.length > 0 && (
-                  <div className="mb-2.5 rounded-xl border border-[#E2D7F3] bg-[#FAF7FE] px-3 py-2.5">
-                    <p className="text-[12px] font-semibold text-[#5A3E8F]">
-                      Patient information still required
-                    </p>
-                    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[12px] leading-relaxed text-[#3D2E6B]">
+                  <div className="mb-6 rounded-2xl border border-[#6E4FD3]/10 bg-[#FAF7FE] p-5">
+                    <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-[#6E4FD3]">
+                      Information required for review
+                    </span>
+                    <ul className="mt-2 space-y-2 text-sm text-[#3D2E6B]">
                       {missingPatientInfo.map((m) => (
-                        <li key={m}>{m}</li>
+                        <li key={m} className="flex items-start gap-2">
+                          <span className="font-bold text-[#6E4FD3]">•</span>
+                          <span>{m}</span>
+                        </li>
                       ))}
                     </ul>
-                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#7E6BAF]">
+                    <p className="mt-3 border-t border-[#6E4FD3]/10 pt-2 text-[11px] italic leading-relaxed text-[#7E6BAF]">
                       These items are shown as “Information required”, never as “no issue”.
                     </p>
                   </div>
                 )}
-                <dl className="divide-y divide-[#F1ECF9]">
+                <dl className="grid gap-6">
                   {KEY_SAFETY_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.general[key]} />
                   ))}
@@ -302,27 +305,31 @@ export function MedicationReferenceDrawer({
               {/* 2. Patient-specific review */}
               <Section
                 title="Patient-specific review"
-                subtitle="Based on the information recorded for this patient · Not a clinical determination"
+                subtitle="Based on the information recorded for this patient · not a clinical determination"
                 note={PATIENT_REVIEW_CAVEAT}
               >
                 {sharedSafety && (
-                  <div className="mb-2.5 rounded-xl border border-[#E7D9B8] bg-[#FDF8EE] px-3 py-2.5">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A6A20]">
-                      Shared assessment safety response — review required
+                  <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700">
+                        Shared safety response — review required
+                      </span>
+                      <span className="text-[10px] font-medium text-amber-600">
+                        {new Date(sharedSafety.takenAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+                      {sharedSafety.assessmentName} ({sharedSafety.clinicalName})
                     </p>
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#3D2E6B]">
-                      {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
-                      {new Date(sharedSafety.takenAt).toLocaleDateString()}
-                    </p>
-                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                    <p className="mt-1 text-[13px] font-semibold leading-relaxed text-amber-900">
                       {sharedSafety.itemText}
                     </p>
-                    <p className="mt-0.5 text-[13px] font-semibold text-[#3D2E6B]">
-                      Response: “{sharedSafety.response}”
+                    <p className="mt-1 text-sm text-amber-800">
+                      Response: <span className="font-bold text-amber-900">“{sharedSafety.response}”</span>
                     </p>
                   </div>
                 )}
-                <dl className="divide-y divide-[#F1ECF9]">
+                <dl className="grid gap-6">
                   {PATIENT_ROWS.map(({ key, label }) => (
                     <Row key={key} label={label} value={ref.patient[key]} />
                   ))}
@@ -334,11 +341,31 @@ export function MedicationReferenceDrawer({
                 title="Official product label"
                 subtitle="Summarised from the approved product information linked below"
               >
-                <dl className="divide-y divide-[#F1ECF9]">
-                  {LABEL_ROWS.map(({ key, label }) => (
-                    <Row key={key} label={label} value={ref.general[key]} />
+                <dl className="divide-y divide-[#F1ECF9] text-sm">
+                  {(showAllLabel ? LABEL_ROWS : LABEL_ROWS.slice(0, 5)).map(({ key, label }) => (
+                    <div key={key} className="flex items-start justify-between gap-6 py-2.5">
+                      <dt className="flex-none text-[#7E6BAF]">{label}</dt>
+                      <dd className="text-right font-medium text-[#3D2E6B]">
+                        {ref.general[key]?.trim() ? (
+                          ref.general[key]
+                        ) : (
+                          <span className="font-normal text-[#A89BD0]">Not stated</span>
+                        )}
+                      </dd>
+                    </div>
                   ))}
                 </dl>
+                {LABEL_ROWS.length > 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllLabel((v) => !v)}
+                    className="mt-3 w-full rounded-lg border border-[#6E4FD3]/20 py-2 text-xs font-semibold text-[#6E4FD3] transition-colors hover:bg-[#FAF7FE]"
+                  >
+                    {showAllLabel
+                      ? "Show fewer label properties"
+                      : `View ${LABEL_ROWS.length - 5} additional label properties`}
+                  </button>
+                )}
               </Section>
 
               {/* 4. Additional drug references */}
@@ -347,13 +374,13 @@ export function MedicationReferenceDrawer({
                 subtitle="Formularies and secondary references · not the approved product label"
               >
                 {otherSources.length > 0 ? (
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {otherSources.map((s, i) => (
                       <SourceItem key={`${s.url}-${i}`} source={s} country={country} ref_={ref} />
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                  <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
                     No formulary or secondary reference was identified for this medication in this
                     jurisdiction.
                   </p>
@@ -365,7 +392,7 @@ export function MedicationReferenceDrawer({
                 title="AI explanation"
                 subtitle="Why this option was shown · not official prescribing information"
               >
-                <dl className="divide-y divide-[#F1ECF9]">
+                <dl className="grid gap-6">
                   <Row
                     label="Reason this option was shown"
                     value={ref.patient.aiRationale ?? med.rationale}
@@ -374,24 +401,24 @@ export function MedicationReferenceDrawer({
               </Section>
 
               {/* 6. Sources */}
-              <Section title="Sources" subtitle="Every source name and link is clickable">
+              <Section title="Sources and references">
                 {ref.sourcesAvailable ? (
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {sortedSources.map((s, i) => (
                       <SourceItem key={`${s.url}-${i}`} source={s} country={country} ref_={ref} />
                     ))}
                   </ul>
                 ) : (
-                  <div className="space-y-2 rounded-xl border border-[#E2D7F3] bg-[#FAF7FE] p-3">
+                  <div className="space-y-2 rounded-2xl border border-[#6E4FD3]/10 bg-[#FAF7FE] p-5">
                     <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
                       <AlertTriangle className="h-4 w-4 text-[#7E6BAF]" />
                       Official medication reference unavailable
                     </p>
-                    <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
+                    <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
                       Verify this medication through another authoritative source before signing the
                       prescription.
                     </p>
-                    <label className="flex items-start gap-2 text-[12px] font-medium text-[#3D2E6B]">
+                    <label className="flex items-start gap-2 text-[13px] font-medium text-[#3D2E6B]">
                       <input
                         type="checkbox"
                         checked={!!med.externallyVerifiedAt}
@@ -409,22 +436,24 @@ export function MedicationReferenceDrawer({
                     )}
                   </div>
                 )}
-                <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-snug text-[#8B85A6]">
-                  <ShieldCheck className="mt-[1px] h-3.5 w-3.5 flex-none" />
+                <p className="mt-6 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#7E6BAF]">
+                  <ShieldCheck className="mt-[2px] h-3.5 w-3.5 flex-none" />
                   The sections above are an AI-generated summary. A document is only called an
                   official approved product label when it links to the regulator- or
                   manufacturer-approved label for this medication and jurisdiction.
                 </p>
               </Section>
 
-              <button
-                type="button"
-                onClick={() => void load(true)}
-                disabled={busy}
-                className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5A4A8A] hover:bg-[#F7F4FB] disabled:opacity-60"
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Refresh reference
-              </button>
+              <div className="pb-10">
+                <button
+                  type="button"
+                  onClick={() => void load(true)}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#6E4FD3]/20 bg-white px-3 py-1.5 text-[12px] font-semibold text-[#6E4FD3] transition-colors hover:bg-[#FAF7FE] disabled:opacity-60"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Refresh reference
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -445,20 +474,20 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[#ECE7F6] bg-white p-3.5">
-      <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#5A3E8F]">{title}</h3>
-      {subtitle && <p className="mt-0.5 text-[12px] font-semibold text-[#3D2E6B]">{subtitle}</p>}
-      {note && <p className="mt-1 text-[11px] leading-relaxed text-[#7E6BAF]">{note}</p>}
-      <div className="mt-2.5">{children}</div>
+    <section className="border-t border-[#F1ECF9] pt-8 first:border-0 first:pt-0">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E6BAF]">{title}</h3>
+      {subtitle && <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">{subtitle}</p>}
+      {note && <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">{note}</p>}
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
 
 function Row({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="py-2">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">{label}</dt>
-      <dd className="mt-0.5 text-[13px] leading-relaxed text-[#3D2E6B]">
+    <div className="space-y-1.5">
+      <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">{label}</dt>
+      <dd className="text-sm leading-relaxed text-[#3D2E6B]">
         {value?.trim() ? value : <span className="text-[#A89BD0]">Not stated</span>}
       </dd>
     </div>
@@ -496,39 +525,26 @@ function SourceItem({
 }) {
   const kind: SourceKind = source.kind ?? "secondary";
   return (
-    <li className="rounded-xl border border-[#ECE7F6] bg-white p-3">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-        {SOURCE_KIND_LABEL[kind]}
-      </p>
-      <a
-        href={source.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-0.5 inline-flex items-start gap-1.5 text-[13px] font-semibold text-[#5A3E8F] underline decoration-[#D6CCEC] hover:decoration-[#5A3E8F]"
-      >
-        {source.title}
-        <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
-      </a>
-      <p className="mt-1 text-[11px] text-[#8B85A6]">
-        Source organisation: {sourceOrganisation(source)}
-      </p>
-      <p className="text-[11px] text-[#8B85A6]">
-        Jurisdiction: {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")}
-      </p>
-      <p className="text-[11px] text-[#8B85A6]">
-        Last updated: {source.revisedAt ? source.revisedAt : "not stated by the source"} · Lubin
-        last checked {new Date(ref_.checkedAt).toLocaleDateString()}
-      </p>
-      {source.url && (
+    <li className="group">
+      <div className="flex items-start justify-between gap-4">
         <a
           href={source.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block truncate text-[11px] text-[#6E4FD3] underline"
+          className="inline-flex items-start gap-1.5 text-sm text-[#6E4FD3] underline decoration-[#6E4FD3]/30 group-hover:decoration-[#6E4FD3]"
         >
-          {source.url}
+          {source.title}
+          <ExternalLink className="mt-[3px] h-3.5 w-3.5 flex-none" />
         </a>
-      )}
+        <span className="flex-none text-[11px] text-[#A89BD0]">
+          {source.revisedAt ? `Updated ${source.revisedAt}` : "Update date not stated"}
+        </span>
+      </div>
+      <p className="mt-1 text-[11px] leading-relaxed text-[#A89BD0]">
+        {SOURCE_KIND_LABEL[kind]} · {sourceOrganisation(source)} ·{" "}
+        {source.jurisdiction ?? (country === "PH" ? "Philippines" : "United States")} · checked{" "}
+        {new Date(ref_.checkedAt).toLocaleDateString()}
+      </p>
     </li>
   );
 }
