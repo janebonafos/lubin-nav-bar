@@ -258,8 +258,8 @@ export function AiPrescription({
     const demo = demoPrescription(appointmentId);
     if (mode === "suggest") {
       patch({
-        suggestions: demo.medications,
-        suggestedAt: Date.now(),
+        suggestions: demo.suggestions,
+        suggestedAt: demo.suggestedAt,
         demo: true,
         skippedAt: undefined,
       });

@@ -71,8 +71,9 @@ function PreviewPsychiatristSession() {
         prescriptionEligible: true,
       };
 
-      // Seed a clearly labelled demo AI-prepared draft to review.
-      savePrescription(demoPrescription(DEMO_ID));
+      // Seed an empty prescription with demo patient info, but no AI suggestions
+      // until the provider clicks "Get AI options".
+      savePrescription(demoPrescription(DEMO_ID, false));
 
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(appt))));
       navigate({
