@@ -616,6 +616,57 @@ export function outstandingInfo(
   }));
 }
 
+export type InfoItem = OutstandingInfo & { recorded: boolean };
+
+/** Every relevant item, recorded or not, so completed entries stay editable.
+ *  Outstanding items sort first; recorded items keep their place below. */
+export function infoItems(
+  med: PrescriptionMedication,
+  info?: PatientSafetyInfo,
+  visitMedications?: { name: string }[],
+): InfoItem[] {
+  const items = ALL_INFO_KEYS.map((key) => ({
+    key,
+    requirement: infoRequirement(med, key),
+    recorded: infoRecorded(key, info, visitMedications),
+  }));
+  return [...items.filter((i) => !i.recorded), ...items.filter((i) => i.recorded)];
+}
+
+/** Short human-readable value of what is on record, for the completed row. */
+export function infoRecordedSummary(
+  key: InfoKey,
+  info?: PatientSafetyInfo,
+  visitMedications?: { name: string }[],
+): string {
+  switch (key) {
+    case "allergies":
+    case "conditions":
+    case "currentMedications": {
+      const state = docStateFor(info, key);
+      if (state === "none-known") return "None known";
+      const names = entriesFor(info, key)
+        .map((e) => e.name.trim())
+        .filter(Boolean);
+      if (key === "currentMedications" && !names.length && visitMedications?.length) {
+        return visitMedications.map((m) => m.name).join(", ");
+      }
+      if (!names.length) return "Recorded";
+      return names.length > 3 ? `${names.slice(0, 3).join(", ")} +${names.length - 3} more` : names.join(", ");
+    }
+    case "bipolarHistory":
+      return HISTORY_STATE_LABEL[bipolarHistoryState(info)];
+    case "age": {
+      const age = patientAge(info);
+      return age === null ? "Recorded" : `${age} years`;
+    }
+    case "pregnancy":
+      return PREGNANCY_STATUS_LABEL[pregnancyStatus(info)];
+    case "labs":
+      return (info?.labs ?? "").trim().slice(0, 80) || "Recorded";
+  }
+}
+
 /* ------------------------- review acknowledgements ------------------------- */
 
 /** Check rows whose finding the provider must explicitly acknowledge. */
