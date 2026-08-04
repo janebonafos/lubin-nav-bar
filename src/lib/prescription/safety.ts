@@ -11,7 +11,7 @@ import type {
   Prescription,
   PrescriptionMedication,
 } from "./store";
-import { PREGNANCY_STATUS_LABEL } from "./store";
+import { PREGNANCY_STATUS_LABEL, HISTORY_STATE_LABEL } from "./store";
 
 export type CheckState = "not-run" | "info-required" | "no-issue" | "review-needed" | "blocking";
 
