@@ -309,7 +309,7 @@ export function AiPrescription({
   };
 
   const suggestionsPanel =
-    suggestions.length > 0 ? (
+    suggestions.length > 0 && showSuggestions ? (
       <div className="mb-4 rounded-2xl border border-[#E7E2F5] bg-[#FBFAFE] px-4 py-4 md:px-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
