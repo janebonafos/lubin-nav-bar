@@ -582,16 +582,7 @@ export function AiPrescription({
           authority. Not selectable here.
         </p>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setProfileOpen(true)}
-          className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-        >
-          Medical profile
-        </button>
-        <StageBar stage={stage} draftReady={total > 0} />
-      </div>
+      <StageBar stage={stage} draftReady={total > 0} />
     </div>
     </>
   );
