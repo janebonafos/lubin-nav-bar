@@ -381,6 +381,25 @@ export function AiPrescription({
             </li>
           ))}
         </ul>
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#E7E2F5] pt-3.5">
+          <p className="mr-1 text-[12px] text-[#5A4A8A]">
+            None of these fit?
+          </p>
+          <button
+            type="button"
+            onClick={addMed}
+            className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+          >
+            <Plus className="h-4 w-4" /> Add medication manually
+          </button>
+          <button
+            type="button"
+            onClick={() => patch({ skippedAt: Date.now() })}
+            className="inline-flex h-9 items-center rounded-[10px] px-3 text-[13px] font-semibold text-[#5A4A8A] transition hover:bg-white hover:text-[#3D2E6B]"
+          >
+            No prescription needed
+          </button>
+        </div>
       </div>
     ) : null;
 
