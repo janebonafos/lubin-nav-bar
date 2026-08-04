@@ -366,7 +366,7 @@ export function AiPrescription({
                   onClick={() => acceptSuggestion(s.id)}
                   className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
                 >
-                  Add to draft
+                  Review Suggested Medication
                 </button>
                 <button
                   type="button"
@@ -377,7 +377,7 @@ export function AiPrescription({
                   }}
                   className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
                 >
-                  Not clinically indicated
+                  Not applicable
                 </button>
               </div>
             </li>
