@@ -1340,7 +1340,7 @@ function MedicationEditor({
                           >
                             <span className="min-w-0">
                               <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-                                {recorded && (
+                                {recorded && !open && (
                                   <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
                                 )}
                                 {infoLabel(key)}
