@@ -368,9 +368,11 @@ export function AiPrescription({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    patch({ suggestions: suggestions.filter((m) => m.id !== s.id) })
-                  }
+                  onClick={() => {
+                    const next = suggestions.filter((m) => m.id !== s.id);
+                    patch({ suggestions: next });
+                    if (next.length === 0) setShowSuggestions(false);
+                  }}
                   className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
                 >
                   Not appropriate
