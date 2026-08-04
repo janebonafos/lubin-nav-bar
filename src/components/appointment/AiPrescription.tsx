@@ -1333,6 +1333,7 @@ function MedicationEditor({
   const [legalOpen, setLegalOpen] = useState(false);
   const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
   const infoList = useMemo(
@@ -1597,71 +1598,155 @@ function MedicationEditor({
                   </div>
                 )}
                 {infoList.length > 0 && (
-                  <ul className="space-y-2">
-                    {displayInfoList.map(({ key, requirement, recorded }) => {
-                      const open = openInfoKey === key;
-                      return (
-                        <li
-                          key={key}
-                          className={`rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
-                            recorded
-                              ? "border-[#E1EFE7]"
-                              : requirement === "required"
-                                ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
-                                : "border-[#E9E6F1]"
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            aria-expanded={open}
-                            onClick={() => setOpenInfoKey(open ? null : key)}
-                            className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
-                          >
-                            <span className="min-w-0">
-                              <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
-                                {recorded && !open && (
-                                   <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
-                                    <Check className="h-3 w-3 shrink-0" strokeWidth={3} />
+                  <div className="space-y-2">
+                    {/* Outstanding items — the provider's actual to-do list */}
+                    <ul className="space-y-2">
+                      {displayInfoList
+                        .filter((i) => !i.recorded)
+                        .map(({ key, requirement }) => {
+                          const open = openInfoKey === key;
+                          return (
+                            <li
+                              key={key}
+                              className={`rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
+                                requirement === "required"
+                                  ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
+                                  : "border-[#E9E6F1]"
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                aria-expanded={open}
+                                onClick={() => setOpenInfoKey(open ? null : key)}
+                                className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
+                              >
+                                <span className="min-w-0">
+                                  <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                                    {infoLabel(key)}
                                   </span>
-                                )}
-                                {infoLabel(key)}
-                              </span>
-                              {open ? null : recorded ? (
-                                <span className="block text-[11.5px] text-[#5A4A8A]">
-                                  <span className="font-semibold text-[#6E4FD3]">Completed</span>
-                                  {" — "}
-                                  {infoRecordedSummary(key, patientInfo, visitMeds)}
+                                  <span
+                                    className={`block text-[11px] font-medium ${
+                                      requirement === "required"
+                                        ? "text-[#8A6A20]"
+                                        : "text-[#8C86A0]"
+                                    }`}
+                                  >
+                                    {INFO_REQUIREMENT_LABEL[requirement]}
+                                  </span>
                                 </span>
-                              ) : (
-                                <span
-                                  className={`block text-[11px] font-medium ${
-                                    requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
-                                  }`}
-                                >
-                                  {INFO_REQUIREMENT_LABEL[requirement]}
+                                <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                                  {open ? "Close" : "Add information"}
+                                  <ChevronDown
+                                    className={`h-3.5 w-3.5 transition-transform ${
+                                      open ? "rotate-180" : ""
+                                    }`}
+                                  />
                                 </span>
+                              </button>
+                              {open && (
+                                <PatientInfoForm
+                                  keys={[key]}
+                                  info={patientInfo}
+                                  onChange={onPatientInfo}
+                                  onSave={() => setOpenInfoKey(null)}
+                                  relevanceFor={(k) => infoRelevance(med, k)}
+                                />
                               )}
+                            </li>
+                          );
+                        })}
+                    </ul>
+
+                    {/* Completed items — collapsed so they don't compete with action items */}
+                    {displayInfoList.some((i) => i.recorded) && (
+                      <div className="rounded-xl border border-[#E9E6F1] bg-white px-4 py-3 shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setShowCompleted((v) => !v)}
+                          className="flex w-full items-center justify-between text-left"
+                        >
+                          <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
+                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
+                              <Check className="h-3 w-3 shrink-0" strokeWidth={3} />
                             </span>
-                            <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                              {open ? "Close" : recorded ? "Edit" : "Add information"}
-                              <ChevronDown
-                                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-                              />
-                            </span>
-                          </button>
-                          {open && (
-                            <PatientInfoForm
-                              keys={[key]}
-                              info={patientInfo}
-                              onChange={onPatientInfo}
-                              onSave={() => setOpenInfoKey(null)}
-                              relevanceFor={(k) => infoRelevance(med, k)}
+                            {displayInfoList.filter((i) => i.recorded).length} item
+                            {displayInfoList.filter((i) => i.recorded).length === 1 ? "" : "s"}{" "}
+                            recorded
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                            {showCompleted ? "Hide" : "Edit"}
+                            <ChevronDown
+                              className={`h-3.5 w-3.5 transition-transform ${
+                                showCompleted ? "rotate-180" : ""
+                              }`}
                             />
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          </span>
+                        </button>
+                        {showCompleted && (
+                          <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+                            {displayInfoList
+                              .filter((i) => i.recorded)
+                              .map(({ key }) => {
+                                const open = openInfoKey === key;
+                                return (
+                                  <li
+                                    key={key}
+                                    className="rounded-xl border border-[#E1EFE7] bg-white px-4 py-3 transition"
+                                  >
+                                    <button
+                                      type="button"
+                                      aria-expanded={open}
+                                      onClick={() => setOpenInfoKey(open ? null : key)}
+                                      className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
+                                    >
+                                      <span className="min-w-0">
+                                        <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
+                                          {open ? null : (
+                                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
+                                              <Check
+                                                className="h-3 w-3 shrink-0"
+                                                strokeWidth={3}
+                                              />
+                                            </span>
+                                          )}
+                                          {infoLabel(key)}
+                                        </span>
+                                        {open ? null : (
+                                          <span className="block text-[11.5px] text-[#5A4A8A]">
+                                            <span className="font-semibold text-[#6E4FD3]">
+                                              Completed
+                                            </span>
+                                            {" — "}
+                                            {infoRecordedSummary(key, patientInfo, visitMeds)}
+                                          </span>
+                                        )}
+                                      </span>
+                                      <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                                        {open ? "Close" : "Edit"}
+                                        <ChevronDown
+                                          className={`h-3.5 w-3.5 transition-transform ${
+                                            open ? "rotate-180" : ""
+                                          }`}
+                                        />
+                                      </span>
+                                    </button>
+                                    {open && (
+                                      <PatientInfoForm
+                                        keys={[key]}
+                                        info={patientInfo}
+                                        onChange={onPatientInfo}
+                                        onSave={() => setOpenInfoKey(null)}
+                                        relevanceFor={(k) => infoRelevance(med, k)}
+                                      />
+                                    )}
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
                 {unreviewedKeys.length > 0 && (
                   <ul className="space-y-2">
@@ -1707,35 +1792,52 @@ function MedicationEditor({
               </div>
             )}
 
-            {/* Supporting information — never competing with required actions */}
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] font-semibold text-[#6E4FD3]">
-              <button
-                type="button"
-                onClick={() => setWhyOpen((v) => !v)}
-                className="hover:text-[#5A3EB8]"
-              >
-                Why this option was shown
-              </button>
-              {hasName && (
-                <button type="button" onClick={onOpenReference} className="hover:text-[#5A3EB8]">
-                  View medication reference
-                </button>
-              )}
-              {reviewRan && (
+            {/* Supporting information — compact and clearly secondary */}
+            <div className="mt-4 rounded-xl border border-[#E9E6F1] bg-[#F9F8FB] px-3.5 py-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-semibold text-[#6E4FD3]">
+                <span className="font-normal text-[#8C86A0]">Supporting:</span>
                 <button
                   type="button"
-                  onClick={() => setChecksOpen((v) => !v)}
-                  className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
+                  onClick={() => setWhyOpen((v) => !v)}
+                  className="hover:text-[#5A3EB8]"
                 >
-                  <ChevronDown
-                    className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
-                  />
-                  {checksOpen ? "Hide full safety review" : "View full safety review"}
+                  Why this option was shown
                 </button>
-              )}
-              {reviewRan && !checksOpen && (
-                <span className={`font-normal ${TONE_TEXT[status.tone]}`}>{summary.text}</span>
-              )}
+                {hasName && (
+                  <>
+                    <span className="text-[#D8C7F0]">·</span>
+                    <button
+                      type="button"
+                      onClick={onOpenReference}
+                      className="hover:text-[#5A3EB8]"
+                    >
+                      Medication information
+                    </button>
+                  </>
+                )}
+                {reviewRan && (
+                  <>
+                    <span className="text-[#D8C7F0]">·</span>
+                    <button
+                      type="button"
+                      onClick={() => setChecksOpen((v) => !v)}
+                      className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
+                    >
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform ${
+                          checksOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                      {checksOpen ? "Hide full safety review" : "Full safety review"}
+                    </button>
+                  </>
+                )}
+                {reviewRan && !checksOpen && (
+                  <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>
+                    {summary.text}
+                  </span>
+                )}
+              </div>
             </div>
           </section>
 
