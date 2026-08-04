@@ -12,7 +12,7 @@ import { infoLabel, infoRecordedSummary, type InfoKey } from "@/lib/prescription
 import { sharedSafetyResponses } from "@/lib/prescription/sharedSafety";
 import { getAnyProviderGrant } from "@/lib/share/providerShareStore";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
-import { getAssessmentStatus, PHQ9_SELF_HARM_FLAG_HELPER } from "@/lib/patterns/scoring";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
 
 const PROFILE_KEYS: InfoKey[] = [
   "allergies",
