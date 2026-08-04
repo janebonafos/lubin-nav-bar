@@ -1332,6 +1332,7 @@ function MedicationEditor({
   const [checksOpen, setChecksOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
+  const [whyOpen, setWhyOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
