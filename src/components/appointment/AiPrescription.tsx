@@ -620,11 +620,12 @@ export function AiPrescription({
       <section className="text-[#2C2B4B]">
         {header}
         {error && <ErrorNote text={error} />}
+        {suggestionsPanel}
         {busy ? (
           <div className="flex items-center gap-2.5 rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
             <Loader2 className="h-4 w-4 animate-spin text-[#6E4FD3]" />
             <p className="text-[13px] text-[#3D2E6B]">
-              Preparing draft from the recorded clinical information…
+              Preparing options from the recorded clinical information…
             </p>
           </div>
         ) : blankMed ? (
@@ -660,16 +661,24 @@ export function AiPrescription({
             </div>
             <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              Prepare a draft from this visit&rsquo;s clinical information, add a medication
-              yourself, or record that no prescription is needed.
+              You can ask for AI suggestions to consider, prepare a draft directly, add a medication
+              yourself, or record that no prescription is needed. Nothing is prescribed until you
+              review and verify it.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <button
                 type="button"
-                onClick={() => void generate()}
+                onClick={() => void generate({ mode: "suggest" })}
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                Prepare draft from clinical information
+                See AI suggestions
+              </button>
+              <button
+                type="button"
+                onClick={() => void generate()}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                Prepare draft directly
               </button>
               <button
                 type="button"
