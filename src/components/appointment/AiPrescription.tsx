@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   Check,
@@ -1070,6 +1070,23 @@ function MedicationEditor({
     [med, patientInfo, visitMeds],
   );
   const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
+  /**
+   * Keep the visible order frozen while a field is expanded, so typing (which can
+   * flip an item to "recorded") never makes the open card jump to another position.
+   */
+  const infoOrderRef = useRef<InfoKey[]>([]);
+  const displayInfoList = useMemo(() => {
+    if (!openInfoKey) {
+      infoOrderRef.current = infoList.map((i) => i.key);
+      return infoList;
+    }
+    const order = infoOrderRef.current;
+    const rank = (k: InfoKey) => {
+      const i = order.indexOf(k);
+      return i === -1 ? order.length : i;
+    };
+    return [...infoList].sort((a, b) => rank(a.key) - rank(b.key));
+  }, [infoList, openInfoKey]);
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
   /** Medication or patient information changed after the last review ran. */
@@ -1302,7 +1319,7 @@ function MedicationEditor({
                 )}
                 {infoList.length > 0 && (
                   <ul className="space-y-2">
-                    {infoList.map(({ key, requirement, recorded }) => {
+                    {displayInfoList.map(({ key, requirement, recorded }) => {
                       const open = openInfoKey === key;
                       return (
                         <li
@@ -1323,12 +1340,12 @@ function MedicationEditor({
                           >
                             <span className="min-w-0">
                               <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-                                {recorded && (
+                                {recorded && !open && (
                                   <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
                                 )}
                                 {infoLabel(key)}
                               </span>
-                              {recorded ? (
+                              {open ? null : recorded ? (
                                 <span className="block text-[11.5px] text-[#4F7F68]">
                                   <span className="font-semibold text-[#1F7A57]">Completed</span>
                                   {" — "}
