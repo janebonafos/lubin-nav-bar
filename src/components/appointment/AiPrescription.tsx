@@ -991,6 +991,12 @@ function MedicationSummaryCard({
             )}
           </div>
           <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>
+          {med.origin !== "manual" && (med.basis?.whyIncluded || med.rationale) && (
+            <p className="mt-2 border-t border-[#EFECF6] pt-2 text-[11.5px] leading-relaxed text-[#5A4A8A]">
+              <span className="font-semibold text-[#3D2E6B]">Drafted because: </span>
+              {med.basis?.whyIncluded || med.rationale}
+            </p>
+          )}
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           <button
