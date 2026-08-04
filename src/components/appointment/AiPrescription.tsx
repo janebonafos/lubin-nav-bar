@@ -914,6 +914,8 @@ export function AiPrescription({
       )}
       {error && <ErrorNote text={error} />}
 
+      {suggestionsPanel}
+
       <ul className="space-y-2.5">
         {rx.medications.map((m) => (
           <MedicationSummaryCard
