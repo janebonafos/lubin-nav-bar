@@ -92,6 +92,7 @@ export function AiPrescription({
   const [reviewMedId, setReviewMedId] = useState<string | null>(null);
   const [finalReview, setFinalReview] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     const loaded = loadPrescription(appointmentId);
@@ -227,6 +228,7 @@ export function AiPrescription({
           country: data.country ?? country,
           skippedAt: undefined,
         });
+        setShowSuggestions(true);
         return;
       }
       patch({
@@ -264,6 +266,7 @@ export function AiPrescription({
         skippedAt: undefined,
       });
       setNotice(message ?? null);
+      setShowSuggestions(true);
       return;
     }
     patch({ ...demo, skippedAt: undefined });
@@ -302,10 +305,11 @@ export function AiPrescription({
   const dismissSuggestions = () => {
     patch({ suggestions: [], suggestedAt: undefined });
     setNotice(null);
+    setShowSuggestions(false);
   };
 
   const suggestionsPanel =
-    suggestions.length > 0 ? (
+    suggestions.length > 0 && showSuggestions ? (
       <div className="mb-4 rounded-2xl border border-[#E7E2F5] bg-[#FBFAFE] px-4 py-4 md:px-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -364,9 +368,11 @@ export function AiPrescription({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    patch({ suggestions: suggestions.filter((m) => m.id !== s.id) })
-                  }
+                  onClick={() => {
+                    const next = suggestions.filter((m) => m.id !== s.id);
+                    patch({ suggestions: next });
+                    if (next.length === 0) setShowSuggestions(false);
+                  }}
                   className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
                 >
                   Not appropriate
@@ -620,7 +626,6 @@ export function AiPrescription({
       <section className="text-[#2C2B4B]">
         {header}
         {error && <ErrorNote text={error} />}
-        {suggestionsPanel}
         {busy ? (
           <div className="flex items-center gap-2.5 rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
             <Loader2 className="h-4 w-4 animate-spin text-[#6E4FD3]" />
@@ -653,6 +658,56 @@ export function AiPrescription({
                 Discard
               </button>
             </div>
+          </div>
+        ) : suggestions.length > 0 && showSuggestions ? (
+          suggestionsPanel
+        ) : suggestions.length > 0 ? (
+          <div className="rounded-xl border border-[#E4E1EC] bg-white px-5 py-8 text-center">
+            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F2FB]">
+              <img src={rxIcon.url} alt="" aria-hidden="true" className="h-5 w-5 opacity-50" />
+            </div>
+            <h3 className="text-[14px] font-semibold text-[#2C2B4B]">AI suggestions ready</h3>
+            <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              AI-generated medication options are available for your review. You can preview them,
+              prepare a draft directly, add a medication yourself, or record that no prescription is
+              needed.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSuggestions(true)}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+              >
+                Show AI suggestions
+              </button>
+              <button
+                type="button"
+                onClick={() => void generate()}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                Prepare draft directly
+              </button>
+              <button
+                type="button"
+                onClick={addMed}
+                className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                <Plus className="h-4 w-4" /> Add medication manually
+              </button>
+              <button
+                type="button"
+                onClick={() => patch({ skippedAt: Date.now() })}
+                className="inline-flex h-9 items-center rounded-[10px] px-3 text-[13px] font-semibold text-[#5A4A8A] transition hover:bg-[#F7F5FB] hover:text-[#3D2E6B]"
+              >
+                No prescription needed
+              </button>
+            </div>
+            <p className="mx-auto mt-3 max-w-md text-[11.5px] leading-relaxed text-[#7E6BAF]">
+              <Info className="inline h-3.5 w-3.5 align-text-bottom" aria-hidden="true" /> AI
+              suggestions are generated from the visit notes and assessments. They are not
+              prescriptions — the clinician must review, verify, and explicitly choose to add any
+              option to the draft.
+            </p>
           </div>
         ) : (
           <div className="rounded-xl border border-[#E4E1EC] bg-white px-5 py-8 text-center">
@@ -695,6 +750,12 @@ export function AiPrescription({
                 No prescription needed
               </button>
             </div>
+            <p className="mx-auto mt-3 max-w-md text-[11.5px] leading-relaxed text-[#7E6BAF]">
+              <Info className="inline h-3.5 w-3.5 align-text-bottom" aria-hidden="true" /> AI
+              suggestions are generated from the visit notes and assessments. They are not
+              prescriptions — the clinician must review, verify, and explicitly choose to add any
+              option to the draft.
+            </p>
           </div>
         )}
       </section>
@@ -914,7 +975,27 @@ export function AiPrescription({
       )}
       {error && <ErrorNote text={error} />}
 
-      {suggestionsPanel}
+      {suggestions.length > 0 && showSuggestions && suggestionsPanel}
+
+      {suggestions.length > 0 && !showSuggestions && (
+        <div className="mb-3 rounded-xl border border-[#E7E2F5] bg-[#FBFAFE] px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-[12.5px] font-semibold text-[#3D2E6B]">AI suggestions ready</p>
+              <p className="text-[11.5px] text-[#5A4A8A]">
+                AI-generated options are available but not yet added to the prescription.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSuggestions(true)}
+              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+            >
+              Show AI suggestions
+            </button>
+          </div>
+        </div>
+      )}
 
       <ul className="space-y-2.5">
         {rx.medications.map((m) => (
@@ -943,6 +1024,15 @@ export function AiPrescription({
             className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
           >
             Get AI options
+          </button>
+        )}
+        {suggestions.length > 0 && !showSuggestions && (
+          <button
+            type="button"
+            onClick={() => setShowSuggestions(true)}
+            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+          >
+            Show AI suggestions
           </button>
         )}
         <button
