@@ -121,6 +121,7 @@ export function MedicationReferenceDrawer({
   const [ref, setRef] = useState<MedicationReference | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAllLabel, setShowAllLabel] = useState(false);
 
   const load = async (force?: boolean) => {
     if (!med) return;
