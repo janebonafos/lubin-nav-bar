@@ -1341,15 +1341,15 @@ function MedicationEditor({
                             <span className="min-w-0">
                               <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
                                 {recorded && !open && (
-                                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1F7A57] text-white shadow-sm">
+                                   <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
                                     <Check className="h-3 w-3 shrink-0" strokeWidth={3} />
                                   </span>
                                 )}
                                 {infoLabel(key)}
                               </span>
                               {open ? null : recorded ? (
-                                <span className="block text-[11.5px] text-[#4F7F68]">
-                                  <span className="font-semibold text-[#1F7A57]">Completed</span>
+                                <span className="block text-[11.5px] text-[#5A4A8A]">
+                                  <span className="font-semibold text-[#6E4FD3]">Completed</span>
                                   {" — "}
                                   {infoRecordedSummary(key, patientInfo, visitMeds)}
                                 </span>
