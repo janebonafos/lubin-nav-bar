@@ -1064,10 +1064,11 @@ function MedicationEditor({
   const [whyOpen, setWhyOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
-  const outstanding = useMemo(
-    () => outstandingInfo(med, patientInfo, visitMeds),
+  const infoList = useMemo(
+    () => infoItems(med, patientInfo, visitMeds),
     [med, patientInfo, visitMeds],
   );
+  const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
   /** Medication or patient information changed after the last review ran. */
