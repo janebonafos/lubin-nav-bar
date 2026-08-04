@@ -1792,35 +1792,52 @@ function MedicationEditor({
               </div>
             )}
 
-            {/* Supporting information — never competing with required actions */}
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] font-semibold text-[#6E4FD3]">
-              <button
-                type="button"
-                onClick={() => setWhyOpen((v) => !v)}
-                className="hover:text-[#5A3EB8]"
-              >
-                Why this option was shown
-              </button>
-              {hasName && (
-                <button type="button" onClick={onOpenReference} className="hover:text-[#5A3EB8]">
-                  View medication reference
-                </button>
-              )}
-              {reviewRan && (
+            {/* Supporting information — compact and clearly secondary */}
+            <div className="mt-4 rounded-xl border border-[#E9E6F1] bg-[#F9F8FB] px-3.5 py-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-semibold text-[#6E4FD3]">
+                <span className="font-normal text-[#8C86A0]">Supporting:</span>
                 <button
                   type="button"
-                  onClick={() => setChecksOpen((v) => !v)}
-                  className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
+                  onClick={() => setWhyOpen((v) => !v)}
+                  className="hover:text-[#5A3EB8]"
                 >
-                  <ChevronDown
-                    className={`h-3.5 w-3.5 transition-transform ${checksOpen ? "rotate-180" : ""}`}
-                  />
-                  {checksOpen ? "Hide full safety review" : "View full safety review"}
+                  Why this option was shown
                 </button>
-              )}
-              {reviewRan && !checksOpen && (
-                <span className={`font-normal ${TONE_TEXT[status.tone]}`}>{summary.text}</span>
-              )}
+                {hasName && (
+                  <>
+                    <span className="text-[#D8C7F0]">·</span>
+                    <button
+                      type="button"
+                      onClick={onOpenReference}
+                      className="hover:text-[#5A3EB8]"
+                    >
+                      Medication information
+                    </button>
+                  </>
+                )}
+                {reviewRan && (
+                  <>
+                    <span className="text-[#D8C7F0]">·</span>
+                    <button
+                      type="button"
+                      onClick={() => setChecksOpen((v) => !v)}
+                      className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
+                    >
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform ${
+                          checksOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                      {checksOpen ? "Hide full safety review" : "Full safety review"}
+                    </button>
+                  </>
+                )}
+                {reviewRan && !checksOpen && (
+                  <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>
+                    {summary.text}
+                  </span>
+                )}
+              </div>
             </div>
           </section>
 
