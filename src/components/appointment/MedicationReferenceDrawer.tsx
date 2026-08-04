@@ -3,8 +3,6 @@ import {
   X,
   Loader2,
   ExternalLink,
-  FileText,
-  Sparkles,
   AlertTriangle,
   ShieldCheck,
   Check,
@@ -51,7 +49,6 @@ export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   const origin = med.origin ?? "ai";
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-      {origin === "manual" ? <FileText className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
       {ORIGIN_LABELS[origin]}
     </span>
   );
@@ -254,8 +251,7 @@ export function MedicationReferenceDrawer({
           {ref && (
             <>
               {/* AI summary caveat */}
-              <div className="flex gap-3 rounded-xl border border-[#6E4FD3]/10 bg-[#FAF7FE] px-4 py-3">
-                <Sparkles className="mt-0.5 h-4 w-4 flex-none text-[#6E4FD3]" />
+              <div className="rounded-xl border border-[#6E4FD3]/10 bg-[#FAF7FE] px-4 py-3">
                 <p className="text-[13px] leading-relaxed text-[#7E6BAF]">
                   <span className="font-semibold text-[#6E4FD3]">AI summary</span> ·{" "}
                   {AI_SUMMARY_CAVEAT}
