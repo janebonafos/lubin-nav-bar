@@ -323,6 +323,13 @@ export function MedicationReferenceDrawer({
                     <p className="mt-1 text-sm text-amber-800">
                       Response: <span className="font-bold text-amber-900">“{sharedSafety.response}”</span>
                     </p>
+                    <p className="mt-3 border-t border-amber-200 pt-3 text-[12px] leading-relaxed text-amber-800">
+                      {sharedSafety.reason}
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-amber-700">
+                      Source: the client’s own answer on this item, shared by the client for this
+                      appointment. Not a score, trend, or diagnosis.
+                    </p>
                   </div>
                 )}
                 <dl className="grid gap-6">
