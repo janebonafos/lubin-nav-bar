@@ -550,6 +550,15 @@ export function AiPrescription({
     });
 
   const header = (
+    <>
+    <PatientProfileDrawer
+      open={profileOpen}
+      onClose={() => setProfileOpen(false)}
+      appointmentId={appointmentId}
+      clientName={clientName}
+      patientInfo={rx.patientInfo}
+      visitMeds={visitMeds}
+    />
     <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
       <div>
         <p className="text-[13px] font-semibold text-[#3D2E6B]">
@@ -571,8 +580,18 @@ export function AiPrescription({
           authority. Not selectable here.
         </p>
       </div>
-      <StageBar stage={stage} draftReady={total > 0} />
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setProfileOpen(true)}
+          className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+        >
+          Medical profile
+        </button>
+        <StageBar stage={stage} draftReady={total > 0} />
+      </div>
     </div>
+    </>
   );
 
   // ---------- No prescription needed ----------
