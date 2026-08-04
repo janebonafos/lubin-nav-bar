@@ -92,6 +92,7 @@ export function AiPrescription({
   const [reviewMedId, setReviewMedId] = useState<string | null>(null);
   const [finalReview, setFinalReview] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     const loaded = loadPrescription(appointmentId);
