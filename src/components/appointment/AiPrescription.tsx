@@ -1557,7 +1557,7 @@ function MedicationEditor({
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+                className="text-[12px] font-semibold text-[#6E4FD3] underline-offset-2 transition hover:text-[#5A3EB8] hover:underline"
               >
                 View medical profile
               </button>
