@@ -3,8 +3,6 @@ import {
   X,
   Loader2,
   ExternalLink,
-  FileText,
-  Sparkles,
   AlertTriangle,
   ShieldCheck,
   Check,
@@ -51,7 +49,6 @@ export function OriginBadge({ med }: { med: PrescriptionMedication }) {
   const origin = med.origin ?? "ai";
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-[#E2D7F3] bg-[#FAF7FE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-      {origin === "manual" ? <FileText className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
       {ORIGIN_LABELS[origin]}
     </span>
   );
