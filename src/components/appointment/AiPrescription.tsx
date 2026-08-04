@@ -852,6 +852,12 @@ export function AiPrescription({
 
 /* ------------------------------ pieces ------------------------------ */
 
+/** First sentence only — the entry card shows one line, the full text lives in review. */
+function oneLine(text: string) {
+  const first = text.split(/(?<=\.)\s+/)[0]?.trim() ?? text.trim();
+  return first.length > 180 ? `${first.slice(0, 177).trimEnd()}…` : first;
+}
+
 function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
     <ol className="flex flex-wrap items-center gap-0.5 rounded-full bg-[#F4F1FC] p-1">
