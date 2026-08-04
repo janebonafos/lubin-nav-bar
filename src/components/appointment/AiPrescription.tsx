@@ -36,7 +36,8 @@ import {
   checkState,
   formatCheckedAt,
   infoLabel,
-  outstandingInfo,
+  infoItems,
+  infoRecordedSummary,
   reviewStale,
   requiredInfoKeys,
   runSafetyReview,
@@ -1064,10 +1065,11 @@ function MedicationEditor({
   const [whyOpen, setWhyOpen] = useState(false);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
-  const outstanding = useMemo(
-    () => outstandingInfo(med, patientInfo, visitMeds),
+  const infoList = useMemo(
+    () => infoItems(med, patientInfo, visitMeds),
     [med, patientInfo, visitMeds],
   );
+  const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
   /** Medication or patient information changed after the last review ran. */
@@ -1298,17 +1300,19 @@ function MedicationEditor({
                     </button>
                   </div>
                 )}
-                {outstanding.length > 0 && (
+                {infoList.length > 0 && (
                   <ul className="space-y-2">
-                    {outstanding.map(({ key, requirement }) => {
+                    {infoList.map(({ key, requirement, recorded }) => {
                       const open = openInfoKey === key;
                       return (
                         <li
                           key={key}
                           className={`rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
-                            requirement === "required"
-                              ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
-                              : "border-[#E9E6F1]"
+                            recorded
+                              ? "border-[#E1EFE7]"
+                              : requirement === "required"
+                                ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
+                                : "border-[#E9E6F1]"
                           }`}
                         >
                           <button
@@ -1318,19 +1322,30 @@ function MedicationEditor({
                             className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
                           >
                             <span className="min-w-0">
-                              <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                              <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+                                {recorded && (
+                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                                )}
                                 {infoLabel(key)}
                               </span>
-                              <span
-                                className={`block text-[11px] font-medium ${
-                                  requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
-                                }`}
-                              >
-                                {INFO_REQUIREMENT_LABEL[requirement]}
-                              </span>
+                              {recorded ? (
+                                <span className="block text-[11.5px] text-[#4F7F68]">
+                                  <span className="font-semibold text-[#1F7A57]">Completed</span>
+                                  {" — "}
+                                  {infoRecordedSummary(key, patientInfo, visitMeds)}
+                                </span>
+                              ) : (
+                                <span
+                                  className={`block text-[11px] font-medium ${
+                                    requirement === "required" ? "text-[#8A6A20]" : "text-[#8C86A0]"
+                                  }`}
+                                >
+                                  {INFO_REQUIREMENT_LABEL[requirement]}
+                                </span>
+                              )}
                             </span>
                             <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                              {open ? "Close" : "Add information"}
+                              {open ? "Close" : recorded ? "Edit" : "Add information"}
                               <ChevronDown
                                 className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                               />
