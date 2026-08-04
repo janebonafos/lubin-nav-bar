@@ -421,7 +421,7 @@ export function AiPrescription({
     });
     if (reviewMedId === id) setReviewMedId(null);
   };
-  const addMed = () => {
+  function addMed() {
     const blank = rx.medications.find((m) => !m.name.trim());
     if (blank) {
       setReviewMedId(blank.id);
@@ -448,7 +448,7 @@ export function AiPrescription({
     });
     setReviewMedId(id);
     setFinalReview(false);
-  };
+  }
 
   const discardDraft = () => {
     patch({
