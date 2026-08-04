@@ -228,6 +228,7 @@ export function AiPrescription({
           country: data.country ?? country,
           skippedAt: undefined,
         });
+        setShowSuggestions(true);
         return;
       }
       patch({
