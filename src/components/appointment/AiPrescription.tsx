@@ -469,6 +469,7 @@ export function AiPrescription({
     });
     setReviewMedId(null);
     setFinalReview(false);
+    setShowSuggestions(false);
     setNotice(null);
   };
 
