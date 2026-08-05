@@ -98,6 +98,27 @@ export function AiPrescription({
 
   useEffect(() => {
     const loaded = loadPrescription(appointmentId);
+    // Demo safeguard: a leftover AI draft from an earlier visit must never
+    // reappear on its own. The section always opens in the true
+    // "No prescription prepared" state, and AI content only comes back when
+    // the provider asks for it in this session.
+    const stale =
+      loaded.demo &&
+      !loaded.finalisedAt &&
+      !loaded.reviewedAt &&
+      Date.now() - (loaded.updatedAt ?? 0) > 10 * 60 * 1000 &&
+      (loaded.medications.some((m) => m.origin !== "manual" && !m.approved) ||
+        (loaded.suggestions?.length ?? 0) > 0);
+    if (stale) {
+      setRx(
+        updatePrescription(appointmentId, {
+          medications: loaded.medications.filter((m) => m.origin === "manual" || m.approved),
+          suggestions: [],
+          suggestedAt: undefined,
+        }),
+      );
+      return subscribePrescription(() => setRx(loadPrescription(appointmentId)));
+    }
     // Drop any blank placeholder left behind by an abandoned manual entry so
     // the section opens in the true "No prescription prepared" state instead
     // of an empty draft.
