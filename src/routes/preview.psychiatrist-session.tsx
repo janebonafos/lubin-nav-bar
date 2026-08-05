@@ -72,7 +72,7 @@ function PreviewPsychiatristSession() {
       };
 
       // Seed an empty prescription with demo patient info, but no AI suggestions
-      // until the provider clicks "Get AI options".
+      // until the provider clicks "See AI suggestion".
       savePrescription(demoPrescription(DEMO_ID, false));
 
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(appt))));
