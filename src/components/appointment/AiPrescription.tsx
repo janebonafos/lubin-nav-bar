@@ -993,26 +993,6 @@ export function AiPrescription({
 
       {suggestions.length > 0 && showSuggestions && suggestionsPanel}
 
-      {suggestions.length > 0 && !showSuggestions && (
-        <div className="mb-3 rounded-xl border border-[#E7E2F5] bg-[#FBFAFE] px-4 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-[12.5px] font-semibold text-[#3D2E6B]">AI suggestions ready</p>
-              <p className="text-[11.5px] text-[#5A4A8A]">
-                AI-generated options are available but not yet added to the prescription.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowSuggestions(true)}
-              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-            >
-              Show AI suggestions
-            </button>
-          </div>
-        </div>
-      )}
-
       <ul className="space-y-2.5">
         {rx.medications.map((m) => (
           <MedicationSummaryCard
