@@ -1573,38 +1573,39 @@ function MedicationEditor({
                 prescription needs.
               </p>
             ) : (
-              <div className="mt-3 space-y-2.5">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-                    {requiredCount} required item{requiredCount === 1 ? "" : "s"} ·{" "}
-                    {reviewsRemaining} to review
-                  </p>
-                  {requiredCount === 0 && reviewsRemaining === 0 && (
-                    <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1F7A57]">
+              <div className="mt-3 overflow-hidden rounded-xl border border-[#E7E2F5] bg-white shadow-sm">
+                {/* One header instead of a stack of competing cards */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#EDEBF3] bg-[#FCFBFE] px-4 py-2.5">
+                  {requiredCount === 0 && reviewsRemaining === 0 ? (
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1F7A57]">
                       <Check className="h-3.5 w-3.5" /> Nothing outstanding
                     </span>
-                  )}
-                </div>
-                {(!reviewRan || staleReview) && (
-                  <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3 shadow-sm">
-                    <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
-                      {!reviewRan
-                        ? "The patient-specific safety review has not run yet."
-                        : "Safety information changed since the last review."}
+                  ) : (
+                    <p className="text-[12px] font-semibold text-[#5A4A8A]">
+                      {requiredCount} required · {reviewsRemaining} to review
                     </p>
+                  )}
+                  {(!reviewRan || staleReview) && (
                     <button
                       type="button"
                       onClick={onRunReview}
-                      className="inline-flex h-8 items-center rounded-[10px] bg-[#6E4FD3] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                      className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
                     >
                       {reviewRan ? "Run review again" : "Run safety review"}
                     </button>
-                  </div>
+                  )}
+                </div>
+                {(!reviewRan || staleReview) && (
+                  <p className="border-b border-[#EDEBF3] px-4 py-2 text-[11.5px] leading-relaxed text-[#8C86A0]">
+                    {!reviewRan
+                      ? "The patient-specific safety review has not run yet."
+                      : "Safety information changed since the last review."}
+                  </p>
                 )}
                 {infoList.length > 0 && (
-                  <div className="space-y-2">
+                  <div>
                     {/* Outstanding items — the provider's actual to-do list */}
-                    <ul className="space-y-2">
+                    <ul className="divide-y divide-[#F1EFF7]">
                       {displayInfoList
                         .filter((i) => !i.recorded)
                         .map(({ key, requirement }) => {
@@ -1612,10 +1613,8 @@ function MedicationEditor({
                           return (
                             <li
                               key={key}
-                              className={`rounded-xl border bg-white px-4 py-3 shadow-sm transition ${
-                                requirement === "required"
-                                  ? "border-[#DCD2F5] hover:border-[#B9A5EE]"
-                                  : "border-[#E9E6F1]"
+                              className={`px-4 py-2.5 transition ${
+                                open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"
                               }`}
                             >
                               <button
@@ -1624,12 +1623,18 @@ function MedicationEditor({
                                 onClick={() => setOpenInfoKey(open ? null : key)}
                                 className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
                               >
-                                <span className="min-w-0">
-                                  <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                                <span className="flex min-w-0 items-center gap-2">
+                                  <span
+                                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                                      requirement === "required" ? "bg-[#C8A227]" : "bg-[#CFC9DE]"
+                                    }`}
+                                    aria-hidden
+                                  />
+                                  <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
                                     {infoLabel(key)}
                                   </span>
                                   <span
-                                    className={`block text-[11px] font-medium ${
+                                    className={`shrink-0 text-[11px] font-medium ${
                                       requirement === "required"
                                         ? "text-[#8A6A20]"
                                         : "text-[#8C86A0]"
@@ -1639,7 +1644,7 @@ function MedicationEditor({
                                   </span>
                                 </span>
                                 <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                                  {open ? "Close" : "Add information"}
+                                  {open ? "Close" : "Add"}
                                   <ChevronDown
                                     className={`h-3.5 w-3.5 transition-transform ${
                                       open ? "rotate-180" : ""
@@ -1663,16 +1668,14 @@ function MedicationEditor({
 
                     {/* Completed items — collapsed so they don't compete with action items */}
                     {displayInfoList.some((i) => i.recorded) && (
-                      <div className="rounded-xl border border-[#E9E6F1] bg-white px-4 py-3 shadow-sm">
+                      <div className="border-t border-[#F1EFF7] bg-[#FCFBFE] px-4 py-2.5">
                         <button
                           type="button"
                           onClick={() => setShowCompleted((v) => !v)}
                           className="flex w-full items-center justify-between text-left"
                         >
-                          <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
-                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
-                              <Check className="h-3 w-3 shrink-0" strokeWidth={3} />
-                            </span>
+                          <span className="flex items-center gap-2 text-[12px] font-semibold text-[#5A4A8A]">
+                            <Check className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]" strokeWidth={3} />
                             {displayInfoList.filter((i) => i.recorded).length} item
                             {displayInfoList.filter((i) => i.recorded).length === 1 ? "" : "s"}{" "}
                             recorded
@@ -1687,16 +1690,13 @@ function MedicationEditor({
                           </span>
                         </button>
                         {showCompleted && (
-                          <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+                          <ul className="mt-2 divide-y divide-[#F1EFF7] border-t border-[#EDEBF3]">
                             {displayInfoList
                               .filter((i) => i.recorded)
                               .map(({ key }) => {
                                 const open = openInfoKey === key;
                                 return (
-                                  <li
-                                    key={key}
-                                    className="rounded-xl border border-[#E1EFE7] bg-white px-4 py-3 transition"
-                                  >
+                                  <li key={key} className="py-2">
                                     <button
                                       type="button"
                                       aria-expanded={open}
@@ -1704,23 +1704,17 @@ function MedicationEditor({
                                       className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
                                     >
                                       <span className="min-w-0">
-                                        <span className="flex items-center gap-2 text-[13px] font-semibold text-[#2C2B4B]">
+                                        <span className="flex items-center gap-2 text-[12.5px] font-semibold text-[#2C2B4B]">
                                           {open ? null : (
-                                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#6E4FD3] text-white shadow-sm">
-                                              <Check
-                                                className="h-3 w-3 shrink-0"
-                                                strokeWidth={3}
-                                              />
-                                            </span>
+                                            <Check
+                                              className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]"
+                                              strokeWidth={3}
+                                            />
                                           )}
                                           {infoLabel(key)}
                                         </span>
                                         {open ? null : (
-                                          <span className="block text-[11.5px] text-[#5A4A8A]">
-                                            <span className="font-semibold text-[#6E4FD3]">
-                                              Completed
-                                            </span>
-                                            {" — "}
+                                          <span className="block text-[11.5px] text-[#8C86A0]">
                                             {infoRecordedSummary(key, patientInfo, visitMeds)}
                                           </span>
                                         )}
@@ -1753,17 +1747,21 @@ function MedicationEditor({
                   </div>
                 )}
                 {unreviewedKeys.length > 0 && (
-                  <ul className="space-y-2">
+                  <ul className="divide-y divide-[#F1EFF7] border-t border-[#F1EFF7]">
                     {unreviewedKeys.map((k) => (
                       <li
                         key={k}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#DCD2F5] bg-white px-4 py-3 shadow-sm transition hover:border-[#B9A5EE]"
+                        className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2.5 transition hover:bg-[#FBFAFE]"
                       >
-                        <span className="min-w-0">
-                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span
+                            className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8A227]"
+                            aria-hidden
+                          />
+                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
                             {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
                           </span>
-                          <span className="block text-[11px] font-medium text-[#8A6A20]">
+                          <span className="shrink-0 text-[11px] font-medium text-[#8A6A20]">
                             Review required
                           </span>
                         </span>
@@ -1779,17 +1777,18 @@ function MedicationEditor({
                   </ul>
                 )}
                 {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#F0D9A8] bg-white px-4 py-3 shadow-sm">
-                    <span className="min-w-0">
-                      <span className="block text-[13px] font-semibold text-[#2C2B4B]">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#F1EFF7] bg-[#FDFBF6] px-4 py-2.5">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8A227]"
+                        aria-hidden
+                      />
+                      <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
                         Shared {sharedSafety.clinicalName} safety response
                       </span>
-                      <span className="block text-[11px] font-medium text-[#8A6A20]">
-                        Review required · client’s own answer, shared for this appointment
-                      </span>
                     </span>
-                    <span className="ml-auto text-[11.5px] text-[#8C86A0]">
-                      See final review below
+                    <span className="ml-auto text-[11px] text-[#8C86A0]">
+                      Acknowledge in final review
                     </span>
                   </div>
                 )}
