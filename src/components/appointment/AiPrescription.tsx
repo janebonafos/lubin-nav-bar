@@ -455,6 +455,8 @@ export function AiPrescription({
   const discardDraft = () => {
     patch({
       medications: [],
+      suggestions: [],
+      suggestedAt: undefined,
       clinicalNotes: undefined,
       demo: false,
       generatedAt: undefined,
