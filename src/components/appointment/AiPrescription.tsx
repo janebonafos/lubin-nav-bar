@@ -1463,6 +1463,8 @@ function MedicationEditor({
   const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
   const requiredOutstanding = outstanding.filter((i) => i.requirement === "required");
   const reviewOutstanding = outstanding.filter((i) => i.requirement !== "required");
+  /** Patient information already recorded — kept visible so it stays editable. */
+  const recordedInfo = useMemo(() => infoList.filter((i) => i.recorded), [infoList]);
   /** Medication-specific checks the clinician has already acknowledged. */
   const reviewedCheckKeys = CHECK_ROWS.map((r) => r.key).filter(
     (k) => !!med.checkReviews?.[k] && !!med.checks?.[k],
