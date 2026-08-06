@@ -752,6 +752,55 @@ function DetailsPage() {
                 your prescribing authority is verified for your client&rsquo;s jurisdiction.
               </div>
             )}
+
+            {/* Close out — only once every step above has been handled */}
+            {showPostSession && (
+              <section className="rounded-[20px] border border-[#EAE2F6] bg-white px-5 py-5">
+                {isCompleted ? (
+                  <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
+                    <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
+                    completed.
+                  </p>
+                ) : canCloseOut ? (
+                  <>
+                    <p className="text-[15px] font-semibold text-[#2C2B4B]">
+                      Everything is handled
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
+                      You have gone through your notes, the client summary
+                      {rxAllowed ? " and the prescription step" : ""}. You can close this
+                      appointment now.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange({ status: "completed", outcome: "completed" });
+                        toast.success("Appointment marked as completed");
+                      }}
+                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                    >
+                      Mark the appointment as completed
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[15px] font-semibold text-[#2C2B4B]">
+                      A few steps left before you can close this appointment
+                    </p>
+                    <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
+                      <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
+                      <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
+                      {rxAllowed && (
+                        <StepTodo
+                          done={rxDone}
+                          label="Prescription — sign it or record that none is needed"
+                        />
+                      )}
+                    </ul>
+                  </>
+                )}
+              </section>
+            )}
           </div>
 
         </div>
