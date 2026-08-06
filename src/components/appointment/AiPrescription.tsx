@@ -870,6 +870,25 @@ export function AiPrescription({
           </label>
         </div>
 
+        <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
+          <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
+            <input
+              type="checkbox"
+              checked={!!rx.recordAttestedAt}
+              onChange={(e) => patch({ recordAttestedAt: e.target.checked ? Date.now() : undefined })}
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+            />
+            <span>
+              <span className="font-semibold">Record accuracy attestation</span> —{" "}
+              {RECORD_ATTESTATION_STATEMENT}
+            </span>
+          </label>
+          <p className="mt-2 pl-7 text-[11.5px] leading-relaxed text-[#6F6889]">
+            This attestation is stored with your name and a timestamp as part of the clinical record.
+            {rx.recordAttestedAt ? ` Attested ${formatCheckedAt(rx.recordAttestedAt)}.` : ""}
+          </p>
+        </div>
+
         <StickyBar>
           <span className="mr-auto text-[12.5px] font-medium text-[#5A4A8A]">{countLabel}</span>
           <button
