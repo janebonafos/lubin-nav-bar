@@ -14,7 +14,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
-import { toast } from "sonner";
 import {
   loadPrescription,
   subscribePrescription,
