@@ -1165,29 +1165,46 @@ function oneLine(text: string) {
 
 function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
   return (
-    <ol className="flex flex-wrap items-center gap-0.5 rounded-full bg-[#F4F1FC] p-1">
+    <div className="flex flex-wrap items-center gap-2" aria-label="Prescription progress">
       {STAGES.map((label, i) => {
         const active = i === stage;
-        // "Draft" is only complete once the draft actually contains a medication.
         const done = i < stage && (i !== 0 || !!draftReady);
+        const upcoming = i > stage;
         return (
-          <li key={label} className="flex items-center">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold transition ${
-                active
-                  ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
-                  : done
-                    ? "text-[#5A3EB8]"
-                    : "text-[#9A93B1]"
-              }`}
-            >
-              {done && <Check className="h-3 w-3" />}
-              {label}
-            </span>
-          </li>
+          <div key={label} className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-[10px] font-bold leading-none ${
+                  active
+                    ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
+                    : done
+                      ? "bg-[#6E4FD3]/15 text-[#6E4FD3]"
+                      : "bg-[#EFEDF5] text-[#9A93B1]"
+                }`}
+                aria-hidden="true"
+              >
+                {i + 1}
+              </span>
+              <span
+                className={`text-[11.5px] font-semibold ${
+                  active ? "text-[#2C2B4B]" : done ? "text-[#5A3EB8]" : "text-[#9A93B1]"
+                }`}
+              >
+                {label}
+              </span>
+            </div>
+            {i < STAGES.length - 1 && (
+              <span
+                className={`mx-0.5 h-[2px] w-5 rounded-full ${
+                  done ? "bg-[#6E4FD3]/40" : "bg-[#E4E1EC]"
+                }`}
+                aria-hidden="true"
+              />
+            )}
+          </div>
         );
       })}
-    </ol>
+    </div>
   );
 }
 
