@@ -8,9 +8,11 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (input: Record<string, unknown>) => {
+  validateSearch: (
+    input: Record<string, unknown>,
+  ): { redirect?: string; mode?: "signin" | "signup" } => {
     const result = searchSchema.safeParse(input);
-    return result.success ? result.data : { mode: "signup" };
+    return result.success ? result.data : { mode: "signup" as const };
   },
   component: AuthPage,
   head: () => ({
