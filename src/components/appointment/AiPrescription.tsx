@@ -343,10 +343,10 @@ export function AiPrescription({
               AI suggestions — not a recommendation to prescribe
             </h3>
             <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              These options were generated from this visit&rsquo;s recorded information. Nothing here
-              is part of the prescription. If you judge an option clinically appropriate, accept it
-              into your draft and complete the clinical review — the prescribing decision and the
-              directions remain yours.
+              These options were generated from this visit&rsquo;s recorded information. Nothing
+              here is part of the prescription. If you judge an option clinically appropriate,
+              accept it into your draft and complete the clinical review — the prescribing decision
+              and the directions remain yours.
             </p>
           </div>
           <button
@@ -405,9 +405,7 @@ export function AiPrescription({
           ))}
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#E7E2F5] pt-3.5">
-          <p className="mr-1 text-[12px] text-[#5A4A8A]">
-            None of these fit?
-          </p>
+          <p className="mr-1 text-[12px] text-[#5A4A8A]">None of these fit?</p>
           <button
             type="button"
             onClick={addMed}
@@ -577,37 +575,37 @@ export function AiPrescription({
 
   const header = (
     <>
-    <PatientProfileDrawer
-      open={profileOpen}
-      onClose={() => setProfileOpen(false)}
-      appointmentId={appointmentId}
-      clientName={clientName}
-      patientInfo={rx.patientInfo}
-      visitMeds={visitMeds}
-    />
-    <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
-      <div>
-        <p className="text-[13px] font-semibold text-[#3D2E6B]">
-          {statusLabel}
-          {draftSourceLabel && !signed && !allVerified ? (
-            <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
-          ) : null}
-        </p>
-        {total > 0 && !signed && !allVerified && (
-          <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
-            Review and verify this draft before issuing it, or discard it if no prescription is
-            needed.
+      <PatientProfileDrawer
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        appointmentId={appointmentId}
+        clientName={clientName}
+        patientInfo={rx.patientInfo}
+        visitMeds={visitMeds}
+      />
+      <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
+        <div>
+          <p className="text-[13px] font-semibold text-[#3D2E6B]">
+            {statusLabel}
+            {draftSourceLabel && !signed && !allVerified ? (
+              <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
+            ) : null}
           </p>
-        )}
-        <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
-          Jurisdiction{" "}
-          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> — set
-          from {clientName || "the client"}&rsquo;s recorded location and your verified prescribing
-          authority. Not selectable here.
-        </p>
+          {total > 0 && !signed && !allVerified && (
+            <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
+              Review and verify this draft before issuing it, or discard it if no prescription is
+              needed.
+            </p>
+          )}
+          <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
+            Jurisdiction{" "}
+            <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> —
+            set from {clientName || "the client"}&rsquo;s recorded location and your verified
+            prescribing authority. Not selectable here.
+          </p>
+        </div>
+        <StageBar stage={stage} draftReady={total > 0} />
       </div>
-      <StageBar stage={stage} draftReady={total > 0} />
-    </div>
     </>
   );
 
@@ -1132,8 +1130,8 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
                 active
                   ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
                   : done
-                      ? "text-[#5A3EB8]"
-                      : "text-[#9A93B1]"
+                    ? "text-[#5A3EB8]"
+                    : "text-[#9A93B1]"
               }`}
             >
               {done && <Check className="h-3 w-3" />}
@@ -1146,7 +1144,13 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
   );
 }
 
-function StickyBar({ children, tone = "light" }: { children: React.ReactNode; tone?: "light" | "dark" }) {
+function StickyBar({
+  children,
+  tone = "light",
+}: {
+  children: React.ReactNode;
+  tone?: "light" | "dark";
+}) {
   return (
     <div
       className={`sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-3 rounded-2xl px-5 py-4 backdrop-blur ${
@@ -1338,6 +1342,7 @@ function MedicationEditor({
   const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [medOpen, setMedOpen] = useState(true);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
   const infoList = useMemo(
@@ -1368,12 +1373,21 @@ function MedicationEditor({
   const staleReview = reviewStale(med, patientInfo);
   const status = safetyStatus(med, patientInfo);
   const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
-  const requiredCount =
-    outstanding.filter((o) => o.requirement === "required").length +
-    (!reviewRan || staleReview ? 1 : 0) +
-    (complete ? 0 : 1);
-  const reviewsRemaining =
-    unreviewedKeys.length + (sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0);
+  /** Header, safety summary and the sticky footer all count the same blockers. */
+  const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+  const requiredCount = blockers.length - reviewsRemaining;
+  /** Everything that must be settled before the final review becomes active. */
+  const prerequisitesLeft =
+    blockers.filter(
+      (b) =>
+        b.kind === "fields" || b.kind === "info" || b.kind === "blocking" || b.kind === "stale",
+    ).length + unreviewedKeys.length;
+  const finalReady = prerequisitesLeft === 0;
+  const medSummary = [med.name, med.dose, med.frequency, med.quantity].filter(Boolean).join(" · ");
+  const clientResponse = (sharedSafety?.response ?? "")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\uFE0F/g, "")
+    .trim();
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined, acknowledgedAt: undefined });
   const catalogue = findCatalogue(med.name);
@@ -1395,12 +1409,29 @@ function MedicationEditor({
   };
 
   return (
-    <div>
-      <div className="grid grid-cols-1 items-stretch lg:grid-cols-12">
-        {/* 1 — Medication details, with every expanded panel kept in this column */}
-        <div className="space-y-6 px-5 py-6 md:px-7 lg:col-span-7 lg:border-r lg:border-[#F1EDFA]">
-        <section>
+    <div className="mx-auto max-w-[960px] space-y-10 px-5 py-7 md:px-8">
+      {/* 1 — Medication details */}
+      <section>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <SectionHeading>Medication details</SectionHeading>
+          <button
+            type="button"
+            onClick={() => setMedOpen((v) => !v)}
+            aria-expanded={medOpen}
+            className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+          >
+            {medOpen ? "Collapse" : "Edit"}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${medOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+        </div>
+        {!medOpen && (
+          <p className="mt-2 text-[13px] font-semibold text-[#2C2B4B]">
+            {medSummary || "No medication details recorded yet"}
+          </p>
+        )}
+        {medOpen && (
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-6">
             <div className="md:col-span-6">
               <MedicationSelector
@@ -1497,358 +1528,303 @@ function MedicationEditor({
               />
             </div>
           </div>
-        </section>
-
-        {/* Expanded panels stay in the left column so the layout stays balanced */}
-        {whyOpen && (
-          <div className="rounded-xl bg-[#FAF9FD] px-4 py-3">
-            <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-              This option was generated from the information documented for this visit. Review the
-              supporting information, alternatives, and patient-specific risks before deciding
-              whether it is appropriate.
-            </p>
-            <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-              {med.basis?.whyIncluded ??
-                med.rationale ??
-                (med.origin === "manual"
-                  ? "Added by the prescribing clinician."
-                  : "No supporting explanation was recorded for this option.")}
-            </p>
-            {med.basis?.clinicalInformationUsed && (
-              <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                {med.basis.clinicalInformationUsed}
-              </p>
-            )}
-          </div>
         )}
+      </section>
 
-        {checksOpen && reviewRan && (
-          <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
-            <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-              Full safety review{" "}
-              <span className="font-normal text-[#6F6889]">
-                · {summary.text}
-                {med.safetyReviewedAt
-                  ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
-                  : ""}
+      {/* 2 — Patient information & safety */}
+      <section>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+            <SectionHeading>Patient information &amp; safety</SectionHeading>
+            {hasName && (
+              <span className="text-[12px] font-medium text-[#6F6889]">
+                {requiredCount === 0 && reviewsRemaining === 0
+                  ? "Nothing outstanding"
+                  : `${requiredCount} required · ${reviewsRemaining} to review`}
               </span>
-            </p>
-            <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
-              {CHECK_ROWS.map((r) => (
-                <CheckRow
-                  key={r.key}
-                  label={r.label}
-                  check={med.checks?.[r.key]}
-                  reviewedAt={med.checkReviews?.[r.key]}
-                  onMarkReviewed={() => onMarkCheckReviewed(r.key)}
-                />
-              ))}
-            </ul>
-            {med.warnings && (
-              <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                {med.warnings}
-              </p>
             )}
           </div>
-        )}
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className="text-[12px] font-semibold text-[#6E4FD3] underline-offset-2 transition hover:text-[#5A3EB8] hover:underline"
+          >
+            View medical profile
+          </button>
         </div>
 
-        {/* Right rail — safety checkpoint and final review stay in view */}
-        <div className="space-y-6 border-t border-[#F1EDFA] bg-[#FAF9FD] px-5 py-6 md:px-7 lg:col-span-5 lg:border-t-0">
-          {/* 2 — Patient information & safety */}
-          <section>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <SectionHeading>Patient information &amp; safety</SectionHeading>
-              <button
-                type="button"
-                onClick={onOpenProfile}
-                className="text-[12px] font-semibold text-[#6E4FD3] underline-offset-2 transition hover:text-[#5A3EB8] hover:underline"
-              >
-                View medical profile
-              </button>
-            </div>
-            {!hasName ? (
-              <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
-                Choose a medication above to see the patient information and safety items this
-                prescription needs.
-              </p>
-            ) : (
-              <div className="mt-3 overflow-hidden rounded-xl border border-[#E7E2F5] bg-white shadow-sm">
-                {/* One header instead of a stack of competing cards */}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#EDEBF3] bg-[#FCFBFE] px-4 py-2.5">
-                  {requiredCount === 0 && reviewsRemaining === 0 ? (
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1F7A57]">
-                      <Check className="h-3.5 w-3.5" /> Nothing outstanding
+        {!hasName ? (
+          <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            Choose a medication above to see the patient information and safety items this
+            prescription needs.
+          </p>
+        ) : (
+          <div className="mt-3">
+            {(!reviewRan || staleReview) && (
+              <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-[#FBFAFE] px-4 py-2.5">
+                <p className="text-[12px] text-[#5A4A8A]">
+                  {!reviewRan
+                    ? "The patient-specific safety review has not run yet."
+                    : "Safety information changed since the last review."}
+                </p>
+                <button
+                  type="button"
+                  onClick={onRunReview}
+                  className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                >
+                  {reviewRan ? "Run review again" : "Run safety review"}
+                </button>
+              </div>
+            )}
+
+            <ul className="divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+              {/* Outstanding patient information */}
+              {displayInfoList
+                .filter((i) => !i.recorded)
+                .map(({ key, requirement }) => {
+                  const open = openInfoKey === key;
+                  return (
+                    <li
+                      key={key}
+                      className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}
+                    >
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        onClick={() => setOpenInfoKey(open ? null : key)}
+                        className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
+                          {infoLabel(key)}
+                        </span>
+                        <StatusChip level={requirement === "required" ? "required" : "review"} />
+                        <span className="inline-flex w-[132px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                          {open ? "Close" : "Add information"}
+                          <ChevronDown
+                            className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+                          />
+                        </span>
+                      </button>
+                      {open && (
+                        <div className="px-4 pb-3">
+                          <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
+                            {infoRelevance(med, key)}
+                          </p>
+                          <PatientInfoForm
+                            keys={[key]}
+                            info={patientInfo}
+                            onChange={onPatientInfo}
+                            onSave={() => setOpenInfoKey(null)}
+                            relevanceFor={(k) => infoRelevance(med, k)}
+                          />
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+
+              {/* Safety checks awaiting acknowledgement */}
+              {unreviewedKeys.map((k) => (
+                <li key={k} className="transition hover:bg-[#FBFAFE]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+                    <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
+                      {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
                     </span>
-                  ) : (
-                    <p className="text-[12px] font-semibold text-[#5A4A8A]">
-                      {requiredCount} required · {reviewsRemaining} to review
-                    </p>
-                  )}
-                  {(!reviewRan || staleReview) && (
+                    <StatusChip level="review" />
                     <button
                       type="button"
-                      onClick={onRunReview}
-                      className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                      onClick={() => setChecksOpen(true)}
+                      className="inline-flex w-[132px] justify-end text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
                     >
-                      {reviewRan ? "Run review again" : "Run safety review"}
+                      Review
                     </button>
-                  )}
-                </div>
-                {(!reviewRan || staleReview) && (
-                  <p className="border-b border-[#EDEBF3] px-4 py-2 text-[11.5px] leading-relaxed text-[#8C86A0]">
-                    {!reviewRan
-                      ? "The patient-specific safety review has not run yet."
-                      : "Safety information changed since the last review."}
-                  </p>
-                )}
-                {infoList.length > 0 && (
-                  <div>
-                    {/* Outstanding items — the provider's actual to-do list */}
-                    <ul className="divide-y divide-[#F1EFF7]">
+                  </div>
+                </li>
+              ))}
+
+              {/* Shared assessment safety response — one compact row only */}
+              {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
+                <li>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
+                    <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
+                      Shared {sharedSafety.clinicalName} safety response
+                    </span>
+                    <StatusChip level="review" />
+                    <span className="inline-flex w-[132px] justify-end text-[11.5px] font-medium text-[#8C86A0]">
+                      Review in final step
+                    </span>
+                  </div>
+                </li>
+              )}
+
+              {/* Recorded information — collapsed, still editable */}
+              {displayInfoList.some((i) => i.recorded) && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setShowCompleted((v) => !v)}
+                    className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
+                  >
+                    <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
+                      Medical profile · {displayInfoList.filter((i) => i.recorded).length} items
+                      complete
+                    </span>
+                    <StatusChip level="complete" />
+                    <span className="inline-flex w-[132px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                      {showCompleted ? "Hide" : "Edit"}
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform ${showCompleted ? "rotate-180" : ""}`}
+                      />
+                    </span>
+                  </button>
+                  {showCompleted && (
+                    <ul className="divide-y divide-[#F4F2F9] border-t border-[#F4F2F9]">
                       {displayInfoList
-                        .filter((i) => !i.recorded)
-                        .map(({ key, requirement }) => {
+                        .filter((i) => i.recorded)
+                        .map(({ key }) => {
                           const open = openInfoKey === key;
                           return (
-                            <li
-                              key={key}
-                              className={`px-4 py-2.5 transition ${
-                                open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"
-                              }`}
-                            >
+                            <li key={key} className="bg-[#FCFBFE]">
                               <button
                                 type="button"
                                 aria-expanded={open}
                                 onClick={() => setOpenInfoKey(open ? null : key)}
-                                className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
+                                className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-left"
                               >
-                                <span className="flex min-w-0 items-center gap-2">
-                                  <span
-                                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                                      requirement === "required" ? "bg-[#C8A227]" : "bg-[#CFC9DE]"
-                                    }`}
-                                    aria-hidden
-                                  />
-                                  <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-[12.5px] font-semibold text-[#2C2B4B]">
                                     {infoLabel(key)}
                                   </span>
-                                  <span
-                                    className={`shrink-0 text-[11px] font-medium ${
-                                      requirement === "required"
-                                        ? "text-[#8A6A20]"
-                                        : "text-[#8C86A0]"
-                                    }`}
-                                  >
-                                    {INFO_REQUIREMENT_LABEL[requirement]}
-                                  </span>
+                                  {!open && (
+                                    <span className="block truncate text-[11.5px] text-[#8C86A0]">
+                                      {infoRecordedSummary(key, patientInfo, visitMeds)}
+                                    </span>
+                                  )}
                                 </span>
-                                <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                                  {open ? "Close" : "Add"}
+                                <span className="inline-flex w-[132px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                                  {open ? "Close" : "Edit"}
                                   <ChevronDown
-                                    className={`h-3.5 w-3.5 transition-transform ${
-                                      open ? "rotate-180" : ""
-                                    }`}
+                                    className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                                   />
                                 </span>
                               </button>
                               {open && (
-                                <PatientInfoForm
-                                  keys={[key]}
-                                  info={patientInfo}
-                                  onChange={onPatientInfo}
-                                  onSave={() => setOpenInfoKey(null)}
-                                  relevanceFor={(k) => infoRelevance(med, k)}
-                                />
+                                <div className="px-4 pb-3">
+                                  <PatientInfoForm
+                                    keys={[key]}
+                                    info={patientInfo}
+                                    onChange={onPatientInfo}
+                                    onSave={() => setOpenInfoKey(null)}
+                                    relevanceFor={(k) => infoRelevance(med, k)}
+                                  />
+                                </div>
                               )}
                             </li>
                           );
                         })}
                     </ul>
+                  )}
+                </li>
+              )}
+            </ul>
 
-                    {/* Completed items — collapsed so they don't compete with action items */}
-                    {displayInfoList.some((i) => i.recorded) && (
-                      <div className="border-t border-[#F1EFF7] bg-[#FCFBFE] px-4 py-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setShowCompleted((v) => !v)}
-                          className="flex w-full items-center justify-between text-left"
-                        >
-                          <span className="flex items-center gap-2 text-[12px] font-semibold text-[#5A4A8A]">
-                            <Check className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]" strokeWidth={3} />
-                            {displayInfoList.filter((i) => i.recorded).length} item
-                            {displayInfoList.filter((i) => i.recorded).length === 1 ? "" : "s"}{" "}
-                            recorded
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                            {showCompleted ? "Hide" : "Edit"}
-                            <ChevronDown
-                              className={`h-3.5 w-3.5 transition-transform ${
-                                showCompleted ? "rotate-180" : ""
-                              }`}
-                            />
-                          </span>
-                        </button>
-                        {showCompleted && (
-                          <ul className="mt-2 divide-y divide-[#F1EFF7] border-t border-[#EDEBF3]">
-                            {displayInfoList
-                              .filter((i) => i.recorded)
-                              .map(({ key }) => {
-                                const open = openInfoKey === key;
-                                return (
-                                  <li key={key} className="py-2">
-                                    <button
-                                      type="button"
-                                      aria-expanded={open}
-                                      onClick={() => setOpenInfoKey(open ? null : key)}
-                                      className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-left"
-                                    >
-                                      <span className="min-w-0">
-                                        <span className="flex items-center gap-2 text-[12.5px] font-semibold text-[#2C2B4B]">
-                                          {open ? null : (
-                                            <Check
-                                              className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]"
-                                              strokeWidth={3}
-                                            />
-                                          )}
-                                          {infoLabel(key)}
-                                        </span>
-                                        {open ? null : (
-                                          <span className="block text-[11.5px] text-[#8C86A0]">
-                                            {infoRecordedSummary(key, patientInfo, visitMeds)}
-                                          </span>
-                                        )}
-                                      </span>
-                                      <span className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                                        {open ? "Close" : "Edit"}
-                                        <ChevronDown
-                                          className={`h-3.5 w-3.5 transition-transform ${
-                                            open ? "rotate-180" : ""
-                                          }`}
-                                        />
-                                      </span>
-                                    </button>
-                                    {open && (
-                                      <PatientInfoForm
-                                        keys={[key]}
-                                        info={patientInfo}
-                                        onChange={onPatientInfo}
-                                        onSave={() => setOpenInfoKey(null)}
-                                        relevanceFor={(k) => infoRelevance(med, k)}
-                                      />
-                                    )}
-                                  </li>
-                                );
-                              })}
-                          </ul>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {unreviewedKeys.length > 0 && (
-                  <ul className="divide-y divide-[#F1EFF7] border-t border-[#F1EFF7]">
-                    {unreviewedKeys.map((k) => (
-                      <li
-                        key={k}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2.5 transition hover:bg-[#FBFAFE]"
-                      >
-                        <span className="flex min-w-0 items-center gap-2">
-                          <span
-                            className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8A227]"
-                            aria-hidden
-                          />
-                          <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
-                            {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
-                          </span>
-                          <span className="shrink-0 text-[11px] font-medium text-[#8A6A20]">
-                            Review required
-                          </span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setChecksOpen(true)}
-                          className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] hover:text-[#5A3EB8]"
-                        >
-                          Review
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#F1EFF7] bg-[#FDFBF6] px-4 py-2.5">
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C8A227]"
-                        aria-hidden
-                      />
-                      <span className="truncate text-[13px] font-semibold text-[#2C2B4B]">
-                        Shared {sharedSafety.clinicalName} safety response
-                      </span>
-                    </span>
-                    <span className="ml-auto text-[11px] text-[#8C86A0]">
-                      Acknowledge in final review
-                    </span>
-                  </div>
+            {/* Supporting links — plain, clearly secondary */}
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-semibold text-[#6E4FD3]">
+              <button
+                type="button"
+                onClick={() => setWhyOpen((v) => !v)}
+                className="hover:text-[#5A3EB8]"
+              >
+                Why this option was shown
+              </button>
+              {hasName && (
+                <button type="button" onClick={onOpenReference} className="hover:text-[#5A3EB8]">
+                  Medication information
+                </button>
+              )}
+              {reviewRan && (
+                <button
+                  type="button"
+                  onClick={() => setChecksOpen((v) => !v)}
+                  className="hover:text-[#5A3EB8]"
+                >
+                  {checksOpen ? "Hide full safety review" : "Full safety review"}
+                </button>
+              )}
+              {reviewRan && !checksOpen && (
+                <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>
+                  {summary.text}
+                </span>
+              )}
+            </div>
+
+            {whyOpen && (
+              <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
+                <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                  This option was generated from the information documented for this visit. Review
+                  the supporting information, alternatives, and patient-specific risks before
+                  deciding whether it is appropriate.
+                </p>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                  {med.basis?.whyIncluded ??
+                    med.rationale ??
+                    (med.origin === "manual"
+                      ? "Added by the prescribing clinician."
+                      : "No supporting explanation was recorded for this option.")}
+                </p>
+                {med.basis?.clinicalInformationUsed && (
+                  <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    {med.basis.clinicalInformationUsed}
+                  </p>
                 )}
               </div>
             )}
 
-            {/* Supporting information — compact and clearly secondary */}
-            <div className="mt-4 rounded-xl border border-[#E9E6F1] bg-[#F9F8FB] px-3.5 py-2.5">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-semibold text-[#6E4FD3]">
-                <span className="font-normal text-[#8C86A0]">Supporting:</span>
-                <button
-                  type="button"
-                  onClick={() => setWhyOpen((v) => !v)}
-                  className="hover:text-[#5A3EB8]"
-                >
-                  Why this option was shown
-                </button>
-                {hasName && (
-                  <>
-                    <span className="text-[#D8C7F0]">·</span>
-                    <button
-                      type="button"
-                      onClick={onOpenReference}
-                      className="hover:text-[#5A3EB8]"
-                    >
-                      Medication information
-                    </button>
-                  </>
-                )}
-                {reviewRan && (
-                  <>
-                    <span className="text-[#D8C7F0]">·</span>
-                    <button
-                      type="button"
-                      onClick={() => setChecksOpen((v) => !v)}
-                      className="inline-flex items-center gap-1 hover:text-[#5A3EB8]"
-                    >
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 transition-transform ${
-                          checksOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                      {checksOpen ? "Hide full safety review" : "Full safety review"}
-                    </button>
-                  </>
-                )}
-                {reviewRan && !checksOpen && (
-                  <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>
-                    {summary.text}
+            {checksOpen && reviewRan && (
+              <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
+                <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+                  Full safety review{" "}
+                  <span className="font-normal text-[#6F6889]">
+                    · {summary.text}
+                    {med.safetyReviewedAt
+                      ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
+                      : ""}
                   </span>
+                </p>
+                <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+                  {CHECK_ROWS.map((r) => (
+                    <CheckRow
+                      key={r.key}
+                      label={r.label}
+                      check={med.checks?.[r.key]}
+                      reviewedAt={med.checkReviews?.[r.key]}
+                      onMarkReviewed={() => onMarkCheckReviewed(r.key)}
+                    />
+                  ))}
+                </ul>
+                {med.warnings && (
+                  <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    {med.warnings}
+                  </p>
                 )}
               </div>
-            </div>
-          </section>
+            )}
+          </div>
+        )}
+      </section>
 
-          {/* 3 — Final review */}
-          <section>
-            <SectionHeading>Final review</SectionHeading>
+      {/* 3 — Final review */}
+      <section className={finalReady ? "" : "opacity-55"}>
+        <SectionHeading>Final review</SectionHeading>
+        {!finalReady ? (
+          <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            Final review becomes available once the required patient information and safety items
+            above are complete.
+          </p>
+        ) : (
+          <div className="mt-3 space-y-3">
             {sharedSafety && (
-              <div className="mt-3 rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-4 py-3">
+              <div className="rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-4 py-3">
                 <p className="text-[12px] font-semibold text-[#8A6A20]">
                   Shared assessment safety response — review required
                 </p>
@@ -1864,7 +1840,7 @@ function MedicationEditor({
                   {sharedSafety.itemText}
                 </p>
                 <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
-                  Client&rsquo;s response: “{sharedSafety.response}”
+                  Client response: “{clientResponse}”
                 </p>
                 <label className="mt-2.5 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
                   <input
@@ -1885,7 +1861,7 @@ function MedicationEditor({
               </div>
             )}
 
-            <div className="mt-3 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3.5 shadow-sm">
+            <div className="rounded-xl bg-[#FBFAFE] px-4 py-3.5">
               <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
                 <input
                   type="checkbox"
@@ -1895,11 +1871,9 @@ function MedicationEditor({
                   }
                   className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-40"
                 />
-                <span>
-                  <span className="font-semibold">
-                    I confirm that I reviewed this medication and its patient-specific safety
-                    information.
-                  </span>
+                <span className="font-semibold">
+                  I confirm that I reviewed this medication and its patient-specific safety
+                  information.
                 </span>
               </label>
               <button
@@ -1921,11 +1895,28 @@ function MedicationEditor({
                 </p>
               )}
             </div>
-          </section>
-        </div>
-      </div>
-
+          </div>
+        )}
+      </section>
     </div>
+  );
+}
+
+/** One status per checklist row. Amber only for items needing attention. */
+function StatusChip({ level }: { level: "required" | "review" | "complete" | "unavailable" }) {
+  const map = {
+    required: { label: "Required", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
+    review: { label: "Review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
+    complete: { label: "Complete", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
+    unavailable: { label: "Not available", cls: "bg-[#F4F3F7] text-[#6F6889]" },
+  } as const;
+  const s = map[level];
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.cls}`}
+    >
+      {s.label}
+    </span>
   );
 }
 
