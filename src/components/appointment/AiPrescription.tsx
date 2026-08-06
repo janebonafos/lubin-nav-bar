@@ -974,25 +974,35 @@ export function AiPrescription({
             >
               <Plus className="h-3.5 w-3.5" /> Add another medication
             </button>
-            <button
-              type="button"
-              onClick={() => setSafetyOpen(true)}
-              title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
-              aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
-              className={`relative ml-auto inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
-                requiredLeft > 0 || reviews > 0
-                  ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
-                  : "border-[#E7E2F5] bg-white text-[#5A4A8A] hover:bg-[#FAF7FE]"
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Patient safety
-              {requiredLeft > 0 && (
-                <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#6E4FD3] px-1 text-[11px] font-bold text-white">
-                  {requiredLeft}
-                </span>
-              )}
-            </button>
+            {reviewMed.name.trim() ? (
+              <button
+                type="button"
+                onClick={() => setSafetyOpen(true)}
+                title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
+                aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
+                className={`relative ml-auto inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
+                  requiredLeft > 0 || reviews > 0
+                    ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
+                    : "border-[#E7E2F5] bg-white text-[#5A4A8A] hover:bg-[#FAF7FE]"
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Patient safety
+                {requiredLeft > 0 && (
+                  <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#6E4FD3] px-1 text-[11px] font-bold text-white">
+                    {requiredLeft}
+                  </span>
+                )}
+              </button>
+            ) : (
+              <span
+                title="Add a medication first — safety items depend on the medication selected."
+                className="ml-auto inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-[10px] border border-[#EDEAF4] bg-[#FAF9FD] px-3 text-[12.5px] font-semibold text-[#A29CB8]"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Patient safety
+              </span>
+            )}
           </div>
           <MedicationEditor
             med={reviewMed}
