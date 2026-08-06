@@ -819,6 +819,29 @@ function FactTile({ label, value, sub }: { label: string; value: string; sub?: s
   );
 }
 
+function StepTodo({ done, label }: { done: boolean; label: string }) {
+  return (
+    <li className="flex items-start gap-2">
+      <span
+        className={`mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${done ? "bg-[#6E4FD3] text-white" : "border border-[#D6CCEC] text-transparent"}`}
+      >
+        ✓
+      </span>
+      <span className={done ? "text-[#A89BD0] line-through" : ""}>{label}</span>
+    </li>
+  );
+}
+
+function FactTileLegacy({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-xl bg-[#FBF9FF]/60 px-3.5 py-2.5">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
+      {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
+    </div>
+  );
+}
+
 const MONTHS: Record<string, number> = {
   jan: 0,
   feb: 1,
