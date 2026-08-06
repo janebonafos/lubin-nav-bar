@@ -922,7 +922,7 @@ export function AiPrescription({
                 <span className="rounded-[5px] bg-[#6E4FD3] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                   Demo
                 </span>
-                Sample clinical content — not for real prescribing
+                Sample patient data — confirm details before signing
               </span>
             )}
             <button

@@ -5,7 +5,7 @@ import { genRxId } from "./store";
 import { medSafetySignature, runSafetyReview } from "./safety";
 
 export const DEMO_BANNER =
-  "Demo data — all clinical information in this prescription is sample content for demonstration only.";
+  "Demo data — the patient details and suggestion below are sample content. Confirm every value against the patient record before signing.";
 
 export function demoPrescription(
   appointmentId: string,
