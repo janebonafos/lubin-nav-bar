@@ -1690,7 +1690,7 @@ function MedicationEditor({
           <>
             <div
               className={`mt-3 rounded-2xl border px-5 py-4 ${
-                safetyResolved ? "border-[#CFE9DD] bg-[#F6FBF8]" : "border-[#F0D9A8] bg-[#FDFAF3]"
+                safetyResolved ? "border-[#CFE9DD] bg-[#F6FBF8]" : "border-[#DCD2F4] bg-[#F6F3FE]"
               }`}
             >
               <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
@@ -1698,7 +1698,7 @@ function MedicationEditor({
                   <p className="text-[14px] font-semibold text-[#2C2B4B]">Patient safety review</p>
                   <p
                     className={`mt-0.5 text-[12.5px] font-semibold ${
-                      safetyResolved ? "text-[#1F7A57]" : "text-[#8A6A20]"
+                      safetyResolved ? "text-[#1F7A57]" : "text-[#5A3EB8]"
                     }`}
                   >
                     {safetyResolved ? (
