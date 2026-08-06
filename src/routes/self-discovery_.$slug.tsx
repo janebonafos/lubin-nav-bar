@@ -79,14 +79,16 @@ export const Route = createFileRoute("/self-discovery_/$slug")({
       ],
     };
   },
-  validateSearch: (search: Record<string, unknown>) => ({
-    attempt:
-      typeof search.attempt === "string" && search.attempt.length > 0
-        ? search.attempt
-        : undefined,
-    from:
-      search.from === "patterns" ? ("patterns" as const) : undefined,
-  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { attempt?: string; from?: "patterns" } => {
+    const out: { attempt?: string; from?: "patterns" } = {};
+    if (typeof search.attempt === "string" && search.attempt.length > 0) {
+      out.attempt = search.attempt;
+    }
+    if (search.from === "patterns") out.from = "patterns";
+    return out;
+  },
   component: PatternRunPage,
   notFoundComponent: () => <NotFound />,
   pendingComponent: () => <PatternLoading />,
