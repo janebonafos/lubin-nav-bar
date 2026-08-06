@@ -1338,6 +1338,7 @@ function MedicationEditor({
   const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [medOpen, setMedOpen] = useState(true);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
   const infoList = useMemo(
@@ -1368,12 +1369,19 @@ function MedicationEditor({
   const staleReview = reviewStale(med, patientInfo);
   const status = safetyStatus(med, patientInfo);
   const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
-  const requiredCount =
-    outstanding.filter((o) => o.requirement === "required").length +
-    (!reviewRan || staleReview ? 1 : 0) +
-    (complete ? 0 : 1);
-  const reviewsRemaining =
-    unreviewedKeys.length + (sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0);
+  /** Header, safety summary and the sticky footer all count the same blockers. */
+  const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+  const requiredCount = blockers.length - reviewsRemaining;
+  /** Everything that must be settled before the final review becomes active. */
+  const prerequisitesLeft =
+    blockers.filter(
+      (b) => b.kind === "fields" || b.kind === "info" || b.kind === "blocking" || b.kind === "stale",
+    ).length + unreviewedKeys.length;
+  const finalReady = prerequisitesLeft === 0;
+  const medSummary = [med.name, med.dose, med.frequency, med.quantity].filter(Boolean).join(" · ");
+  const clientResponse = (sharedSafety?.response ?? "")
+    .replace(/[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE0F}]/gu, "")
+    .trim();
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined, acknowledgedAt: undefined });
   const catalogue = findCatalogue(med.name);
