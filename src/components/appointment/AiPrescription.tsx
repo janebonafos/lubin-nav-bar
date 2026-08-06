@@ -30,8 +30,6 @@ import {
 import { loadWorkspace, type MedicationEntry } from "@/lib/visit-workspace/store";
 import {
   CHECK_ROWS,
-  CHECK_STATE_LABEL,
-  CHECK_STATE_TONE,
   infoRelevance,
   missingInfoKeys,
   INFO_REQUIREMENT_LABEL,
@@ -2453,34 +2451,24 @@ function requiredKeys(med: PrescriptionMedication): InfoKey[] {
 }
 
 function CheckRow({
-  label,
   check,
   reviewedAt,
   onMarkReviewed,
 }: {
-  label: string;
+  label?: string;
   check?: MedicationCheck;
   reviewedAt?: number;
   onMarkReviewed?: () => void;
 }) {
   const state = checkState(check);
-  const tone = CHECK_STATE_TONE[state];
   const needsAck = state === "review-needed" || state === "blocking";
   return (
     <li className="text-[12.5px] leading-snug">
-      <p className="flex flex-wrap items-center gap-x-1.5">
-        <span className="font-semibold text-[#2C2B4B]">{label}</span>
-        <span className="text-[#CFC9DC]">—</span>
-        <span className={`font-semibold ${TONE_TEXT[tone]}`}>{CHECK_STATE_LABEL[state]}</span>
-        {needsAck && reviewedAt && (
-          <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
-            <Check className="h-3.5 w-3.5" /> Reviewed
-          </span>
-        )}
-      </p>
-      {check?.detail && <p className="mt-0.5 text-[#3D2E6B]">{check.detail}</p>}
+      {check?.detail && (
+        <p className="font-medium text-[#3D2E6B]">{check.detail}</p>
+      )}
       {(check?.informationUsed || check?.checkedAt) && (
-        <p className="mt-0.5 text-[11.5px] text-[#6F6889]">
+        <p className="mt-1 text-[11.5px] text-[#6F6889]">
           {check?.informationUsed}
           {check?.checkedAt
             ? `${check.informationUsed ? " " : ""}Last checked ${formatCheckedAt(check.checkedAt)}.`
@@ -2488,7 +2476,7 @@ function CheckRow({
         </p>
       )}
       {needsAck && onMarkReviewed && (
-        <div className="mt-1.5 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
+        <div className="mt-2.5 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
           <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
             By marking this as reviewed you confirm that you read this finding
             {check?.detail ? ` — “${check.detail}” — ` : " "}
