@@ -1782,17 +1782,15 @@ function MedicationEditor({
             )}
 
             {checksOpen && reviewRan && (
-              <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
-                <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-                  Full safety review{" "}
-                  <span className="font-normal text-[#6F6889]">
-                    · {summary.text}
-                    {med.safetyReviewedAt
-                      ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
-                      : ""}
-                  </span>
-                </p>
-                <ul className="mt-2.5 space-y-2 border-t border-[#EDEBF3] pt-2.5">
+              <SafetyReviewDrawer
+                onClose={() => setChecksOpen(false)}
+                subtitle={`${summary.text}${
+                  med.safetyReviewedAt
+                    ? ` · Last checked ${formatCheckedAt(med.safetyReviewedAt)}`
+                    : ""
+                }`}
+              >
+                <ul className="space-y-3">
                   {CHECK_ROWS.map((r) => (
                     <CheckRow
                       key={r.key}
@@ -1804,11 +1802,11 @@ function MedicationEditor({
                   ))}
                 </ul>
                 {med.warnings && (
-                  <p className="mt-2.5 border-t border-[#EDEBF3] pt-2.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  <p className="mt-4 border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
                     {med.warnings}
                   </p>
                 )}
-              </div>
+              </SafetyReviewDrawer>
             )}
           </div>
         )}
