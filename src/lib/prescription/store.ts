@@ -280,6 +280,8 @@ export type Prescription = {
   patientInfo?: PatientSafetyInfo;
   /** Final legal acknowledgement recorded on the final review screen. */
   legalAcknowledgedAt?: number;
+  /** Record-integrity attestation recorded on the final review screen. */
+  recordAttestedAt?: number;
   generatedAt?: number;
   /** Set when the clinician completed the whole-prescription review step. */
   reviewedAt?: number;
