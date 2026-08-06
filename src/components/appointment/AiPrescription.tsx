@@ -1882,11 +1882,8 @@ function MedicationEditor({
                   Patient information
                 </p>
                 <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                  {infoList.map(({ key, recorded, requirement }) =>
-                    infoAccordionRow(
-                      key,
-                      recorded ? "complete" : requirement === "required" ? "required" : "review",
-                    ),
+                  {infoList.map(({ key, requirement }) =>
+                    infoAccordionRow(key, requirement === "required" ? "required" : "review"),
                   )}
                 </ul>
               </div>
