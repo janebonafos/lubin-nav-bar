@@ -1472,6 +1472,14 @@ function MedicationEditor({
   const reviewRan = summary.ran;
   const status = safetyStatus(med, patientInfo);
   const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
+  /** Fixed-order check rows: present or pending review, order never changes. */
+  const stableCheckKeys = useMemo(
+    () =>
+      CHECK_ROWS.map((r) => r.key).filter(
+        (k) => !!med.checks?.[k] || unreviewedKeys.includes(k),
+      ),
+    [med, unreviewedKeys],
+  );
   /** Header, safety summary and the sticky footer all count the same blockers. */
   const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
   const requiredCount = blockers.length - reviewsRemaining;
@@ -1826,28 +1834,31 @@ function MedicationEditor({
                 </div>
               )}
 
-              {requiredOutstanding.length > 0 && (
-                <div>
-                  <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#8A6A20]">
-                    Required
-                  </p>
-                  <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                    {requiredOutstanding.map(({ key }) => infoAccordionRow(key, "required"))}
-                  </ul>
-                </div>
-              )}
+              {/* One stable list — rows never move or regroup once information is added. */}
+              <div>
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
+                  Patient information
+                </p>
+                <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                  {infoList.map(({ key, recorded, requirement }) =>
+                    infoAccordionRow(
+                      key,
+                      recorded ? "complete" : requirement === "required" ? "required" : "review",
+                    ),
+                  )}
+                </ul>
+              </div>
 
-              {(reviewOutstanding.length > 0 ||
-                unreviewedKeys.length > 0 ||
-                (sharedSafety && !med.sharedSafetyAcknowledgedAt)) && (
+              {(stableCheckKeys.length > 0 || sharedSafety) && (
                 <div>
                   <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
-                    To review
+                    Medication-specific checks
                   </p>
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                    {reviewOutstanding.map(({ key }) => infoAccordionRow(key, "review"))}
-                    {unreviewedKeys.map((k) => {
+                    {stableCheckKeys.map((k) => {
                       const open = openCheckKey === k;
+                      const reviewed = !!med.checkReviews?.[k];
+                      const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
                       return (
                         <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
                           <button
@@ -1859,12 +1870,22 @@ function MedicationEditor({
                             }}
                             className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
                           >
-                            <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
-                              {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
+                                {reviewed && (
+                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                                )}
+                                <span className="truncate">{label}</span>
+                              </span>
+                              {reviewed && med.checkReviews?.[k] && (
+                                <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                </span>
+                              )}
                             </span>
-                            <StatusChip level="review" />
+                            <StatusChip level={reviewed ? "complete" : "review"} />
                             <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                              {open ? "Close" : "Review"}
+                              {open ? "Close" : reviewed ? "View" : "Review"}
                               <ChevronDown
                                 className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                               />
@@ -1873,12 +1894,11 @@ function MedicationEditor({
                           {open && (
                             <ul className="px-4 pb-3">
                               <CheckRow
-                                label={CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
+                                label={label}
                                 check={med.checks?.[k]}
                                 reviewedAt={med.checkReviews?.[k]}
                                 onMarkReviewed={() => {
                                   onMarkCheckReviewed(k);
-                                  setOpenCheckKey(null);
                                 }}
                               />
                             </ul>
@@ -1886,53 +1906,21 @@ function MedicationEditor({
                         </li>
                       );
                     })}
-                    {sharedSafety && !med.sharedSafetyAcknowledgedAt && (
+                    {sharedSafety && (
                       <li>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
                           <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
                             Shared {sharedSafety.clinicalName} safety response
                           </span>
-                          <StatusChip level="review" />
+                          <StatusChip
+                            level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"}
+                          />
                           <span className="inline-flex w-[132px] justify-end text-[11.5px] font-medium text-[#8C86A0]">
-                            Review in final step
+                            {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
                           </span>
                         </div>
                       </li>
                     )}
-                  </ul>
-                </div>
-              )}
-
-              {(recordedInfo.length > 0 || reviewedCheckKeys.length > 0) && (
-                <div>
-                  <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#1F7A57]">
-                    Added and completed
-                  </p>
-                  <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                    {recordedInfo.map(({ key }) => infoAccordionRow(key, "complete"))}
-                    {reviewedCheckKeys.map((k) => (
-                      <li key={k} className="flex flex-wrap items-start gap-x-3 gap-y-1 px-4 py-3">
-                        <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1F7A57]">
-                          <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-[13.5px] font-semibold text-[#2C2B4B]">
-                            {CHECK_ROWS.find((r) => r.key === k)?.label ?? k}
-                          </span>
-                          {med.checks?.[k]?.detail && (
-                            <span className="mt-0.5 block text-[11.5px] leading-relaxed text-[#5A4A8A]">
-                              {med.checks?.[k]?.detail}
-                            </span>
-                          )}
-                          {med.checkReviews?.[k] && (
-                            <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                              Reviewed {formatCheckedAt(med.checkReviews[k]!)}
-                            </span>
-                          )}
-                        </span>
-                        <StatusChip level="complete" />
-                      </li>
-                    ))}
                   </ul>
                 </div>
               )}
