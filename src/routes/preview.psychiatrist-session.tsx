@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { demoPrescription } from "@/lib/prescription/demo";
+import { fallbackPrescription } from "@/lib/prescription/demo";
 import { savePrescription } from "@/lib/prescription/store";
 
 export const Route = createFileRoute("/preview/psychiatrist-session")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/preview/psychiatrist-session")({
       {
         name: "description",
         content:
-          "Open a demo psychiatry appointment to review the prescriber version of the Lubin session workspace.",
+          "Open a preview psychiatry appointment to review the prescriber version of the Lubin session workspace.",
       },
       {
         property: "og:title",
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/preview/psychiatrist-session")({
       {
         property: "og:description",
         content:
-          "Demo view of the prescriber session workspace, including Step 4 prescription tools.",
+          "Preview of the prescriber session workspace, including Step 4 prescription tools.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/preview/psychiatrist-session")({
   }),
 });
 
-const DEMO_ID = "demo-psych-1";
+const PREVIEW_ID = "preview-psych-1";
 
 function PreviewPsychiatristSession() {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ function PreviewPsychiatristSession() {
 
   useEffect(() => {
     try {
-      // Demo only: unlock prescriber tools for this browser.
+      // Preview only: unlock prescriber tools for this browser.
       window.localStorage.setItem(
         "lubin.providerProfile.v1",
         JSON.stringify({
@@ -52,7 +52,7 @@ function PreviewPsychiatristSession() {
 
       const now = new Date(Date.now() - 60 * 60 * 1000);
       const appt = {
-        id: DEMO_ID,
+        id: PREVIEW_ID,
         status: "upcoming",
         client: "Anna Reyes",
         day: now.toLocaleDateString("en-US", { weekday: "short" }),
@@ -71,14 +71,14 @@ function PreviewPsychiatristSession() {
         prescriptionEligible: true,
       };
 
-      // Seed an empty prescription with demo patient info, but no AI suggestions
+      // Seed an empty prescription with sample patient info, but no AI suggestions
       // until the provider clicks "See AI suggestion".
-      savePrescription(demoPrescription(DEMO_ID, false));
+      savePrescription(fallbackPrescription(PREVIEW_ID, false));
 
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(appt))));
       navigate({
         to: "/appointment/details",
-        search: { id: DEMO_ID, d: encoded },
+        search: { id: PREVIEW_ID, d: encoded },
         replace: true,
       });
     } catch {
@@ -96,7 +96,7 @@ function PreviewPsychiatristSession() {
               Opening the prescriber session workspace
             </h1>
             <p className="mt-1 text-sm text-[#7E6BAF]">
-              Setting up a demo psychiatry appointment…
+              Setting up a preview psychiatry appointment…
             </p>
           </>
         ) : (

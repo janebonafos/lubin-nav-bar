@@ -189,7 +189,7 @@ export function AiProviderBrief({
           }}
           className="w-full rounded-xl border border-dashed border-[#D6CCEC] bg-white px-3 py-2 text-[11px] font-semibold text-[#7E6BAF] transition hover:border-[#7E6BAF] hover:bg-[#F7F4FB]"
         >
-          Preview shared view (demo data)
+          Preview shared view
         </button>
       </div>
     );

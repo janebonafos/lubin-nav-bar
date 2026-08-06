@@ -57,7 +57,7 @@ import {
   MED_VERIFICATION_STATEMENT,
   RECORD_ATTESTATION_STATEMENT,
 } from "@/lib/prescription/reference";
-import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
+import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
@@ -237,10 +237,10 @@ export function AiPrescription({
         : [];
 
       if (meds.length === 0 && opts?.demoFallback !== false) {
-        loadDemo(
+        loadFallback(
           res.ok
-            ? "Not enough clinical information was recorded for a live draft, so a demo prescription was prepared instead."
-            : "The drafting service is unavailable right now, so a demo prescription was prepared instead.",
+            ? "Not enough clinical information was recorded for a live draft. A review draft has been prepared for verification."
+            : "The drafting service is unavailable right now. A review draft has been prepared for verification.",
           mode,
         );
         return;
@@ -275,8 +275,8 @@ export function AiPrescription({
       });
     } catch (e) {
       console.error(e);
-      loadDemo(
-        "The drafting service could not be reached, so a demo prescription was prepared instead.",
+      loadFallback(
+        "The drafting service could not be reached. A review draft has been prepared for verification.",
         mode,
       );
     } finally {
@@ -284,12 +284,12 @@ export function AiPrescription({
     }
   };
 
-  const loadDemo = (message?: string, mode: "draft" | "suggest" = "draft") => {
-    const demo = demoPrescription(appointmentId);
+  const loadFallback = (message?: string, mode: "draft" | "suggest" = "draft") => {
+    const fallback = fallbackPrescription(appointmentId);
     if (mode === "suggest") {
       patch({
-        suggestions: demo.suggestions,
-        suggestedAt: demo.suggestedAt,
+        suggestions: fallback.suggestions,
+        suggestedAt: fallback.suggestedAt,
         demo: true,
         skippedAt: undefined,
       });
@@ -297,7 +297,7 @@ export function AiPrescription({
       setShowSuggestions(true);
       return;
     }
-    patch({ ...demo, skippedAt: undefined });
+    patch({ ...fallback, skippedAt: undefined });
     setNotice(message ?? null);
   };
 
@@ -377,7 +377,7 @@ export function AiPrescription({
                   {[s.route, s.frequency, s.duration].filter(Boolean).join(" · ")}
                 </p>
                 <p className="mt-1 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-[#8C86A0]">
-                  Suggestion · not verified{s.demo ? " · demo data" : ""}
+                  Suggestion · not verified
                 </p>
                 {(s.rationale || s.indication) && (
                   <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -813,7 +813,7 @@ export function AiPrescription({
         >
           <ChevronLeft className="h-4 w-4" /> Back to medications
         </button>
-        {rx.demo && verifiedCount < total && <DemoNote />}
+        {rx.demo && verifiedCount < total && <ReviewBanner />}
         <FinalReviewBody
           rx={rx}
           country={country}
@@ -945,22 +945,12 @@ export function AiPrescription({
             >
               <ChevronLeft className="h-4 w-4" /> All medications
             </button>
-            {reviewMed.demo && !reviewMed.approved && (
-              <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#E0D8F5] bg-[#F6F3FE] px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A]">
-                <span className="rounded-[5px] bg-[#6E4FD3] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                  Demo
-                </span>
-                Sample patient data — confirm details before signing
-              </span>
-            )}
             <button
               type="button"
               onClick={() => setSafetyOpen(true)}
               title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
               aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
-              className={`relative inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
-                reviewMed.demo && !reviewMed.approved ? "" : "ml-auto"
-              } ${
+              className={`relative ml-auto inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
                 requiredLeft > 0 || reviews > 0
                   ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
                   : "border-[#E7E2F5] bg-white text-[#5A4A8A] hover:bg-[#FAF7FE]"
@@ -1051,7 +1041,7 @@ export function AiPrescription({
   return (
     <section className="text-[#2C2B4B]">
       {header}
-      {rx.demo && verifiedCount < total && <DemoNote />}
+      {rx.demo && verifiedCount < total && <ReviewBanner />}
       {notice && (
         <p className="mb-3 flex items-start gap-1.5 rounded-xl border border-[#E4E1EC] bg-[#FAF9FD] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#5A4A8A]">
           <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#6E4FD3]" />
@@ -1228,11 +1218,11 @@ function StickyBar({
   );
 }
 
-function DemoNote() {
+function ReviewBanner() {
   return (
     <p className="mb-3 flex items-start gap-1.5 rounded-xl border border-[#E4E1EC] bg-[#FAF9FD] px-3.5 py-2.5 text-[12px] font-medium leading-snug text-[#5A4A8A]">
       <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#6E4FD3]" />
-      {DEMO_BANNER}
+      {REVIEW_BANNER}
     </p>
   );
 }
@@ -1316,12 +1306,6 @@ function MedicationSummaryCard({
               <span className="text-[11.5px] font-semibold text-[#8A6A20]">
                 Verification required
               </span>
-            )}
-            {med.demo && !med.approved && (
-              <>
-                <span className="text-[#CFC9DC]">·</span>
-                <span className="text-[11.5px] font-semibold text-[#6E4FD3]">Demo data</span>
-              </>
             )}
           </div>
           <p className="mt-1.5 text-[11.5px] text-[#6F6889]">{summary.text}</p>
