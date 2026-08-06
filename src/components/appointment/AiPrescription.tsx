@@ -959,7 +959,7 @@ export function AiPrescription({
               title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
               aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
               className={`relative inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
-                reviewMed.demo ? "" : "ml-auto"
+                reviewMed.demo && !reviewMed.approved ? "" : "ml-auto"
               } ${
                 requiredLeft > 0 || reviews > 0
                   ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
