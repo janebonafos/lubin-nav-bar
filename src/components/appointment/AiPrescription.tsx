@@ -2000,8 +2000,15 @@ function MedicationEditor({
                                 check={med.checks?.[k]}
                                 reviewedAt={med.checkReviews?.[k]}
                                 onMarkReviewed={() => {
+                                  const wasReviewed = !!med.checkReviews?.[k];
                                   onMarkCheckReviewed(k);
-                                  toast.success(`${label} marked as reviewed`);
+                                  if (wasReviewed) {
+                                    toast(`${label} review undone`, {
+                                      description: "This item needs review again.",
+                                    });
+                                  } else {
+                                    toast.success(`${label} marked as reviewed`);
+                                  }
                                 }}
                               />
                             </ul>
