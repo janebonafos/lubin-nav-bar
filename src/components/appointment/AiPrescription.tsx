@@ -2007,73 +2007,9 @@ function MedicationEditor({
                 Reusable patient information. Editing here updates it everywhere it is used.
               </p>
               <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                {infoList.map(({ key, recorded }) => {
-                  const open = openInfoKey === key;
-                  const snap = frozenInfo?.[key];
-                  const shown = snap ? snap.recorded : recorded;
-                  const value = snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds);
-                  const justSaved = savedInfoKey === key;
-                  return (
-                    <li key={key} className={open ? "bg-[#FBFAFE]" : ""}>
-                      <button
-                        type="button"
-                        aria-expanded={open}
-                        onClick={() => {
-                          setOpenCheckKey(null);
-                          setSavedInfoKey(null);
-                          if (open) {
-                            setFrozenInfo(null);
-                            setOpenInfoKey(null);
-                          } else {
-                            captureInfoSnapshot();
-                            setOpenInfoKey(key);
-                          }
-                        }}
-                        className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
-                      >
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
-                            {infoLabel(key)}
-                          </span>
-                          <span
-                            className={`block truncate text-[11.5px] ${
-                              shown ? "text-[#5A4A8A]" : "text-[#9A93AE]"
-                            }`}
-                          >
-                            {shown ? value : "Not documented"}
-                          </span>
-                          {justSaved && (
-                            <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
-                              <Check className="h-3 w-3" /> Information saved
-                            </span>
-                          )}
-                          {shown && patientInfo?.updatedAt && (
-                            <span className="block text-[11px] text-[#8C86A0]">
-                              Updated {formatCheckedAt(patientInfo.updatedAt)}
-                            </span>
-                          )}
-                        </span>
-                        <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                          {open ? "Close" : shown ? "Edit" : "Add"}
-                          <ChevronDown
-                            className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-                          />
-                        </span>
-                      </button>
-                      {open && (
-                        <div className="px-4 pb-3">
-                          <PatientInfoForm
-                            keys={[key]}
-                            info={patientInfo}
-                            onChange={onPatientInfo}
-                            onSave={() => confirmInfoSaved(key, shown)}
-                            relevanceFor={(k) => infoRelevance(med, k)}
-                          />
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
+                {infoList.map(({ key, requirement }) =>
+                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
+                )}
               </ul>
             </div>
           )}
