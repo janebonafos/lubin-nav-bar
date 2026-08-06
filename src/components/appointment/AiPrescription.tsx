@@ -1311,6 +1311,57 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
   );
 }
 
+function SafetyReviewDrawer({
+  onClose,
+  subtitle,
+  children,
+}: {
+  onClose: () => void;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[80] flex justify-end">
+      <button
+        type="button"
+        aria-label="Close safety review"
+        onClick={onClose}
+        className="absolute inset-0 bg-[#2C2B4B]/40"
+      />
+      <aside
+        role="dialog"
+        aria-label="Full safety review"
+        className="relative flex h-full w-full max-w-[520px] flex-col bg-white shadow-2xl"
+      >
+        <header className="flex items-start gap-3 border-b border-[#ECE7F6] bg-[#FAF7FE] px-5 py-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+              Safety review
+            </p>
+            <h2 className="text-base font-semibold text-[#3D2E6B]">Full safety review</h2>
+            <p className="mt-0.5 text-[12px] text-[#5A4A8A]">{subtitle}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-[10px] p-1.5 text-[#7E6BAF] hover:bg-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+        <div className="flex-1 overflow-auto px-5 py-4">{children}</div>
+      </aside>
+    </div>
+  );
+}
+
 function MedicationEditor({
   med,
   country,
