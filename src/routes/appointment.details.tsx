@@ -832,16 +832,6 @@ function StepTodo({ done, label }: { done: boolean; label: string }) {
   );
 }
 
-function FactTileLegacy({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="rounded-xl bg-[#FBF9FF]/60 px-3.5 py-2.5">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
-      <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
-      {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
-    </div>
-  );
-}
-
 const MONTHS: Record<string, number> = {
   jan: 0,
   feb: 1,
