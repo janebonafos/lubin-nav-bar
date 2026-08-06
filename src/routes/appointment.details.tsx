@@ -436,6 +436,16 @@ function DetailsPage() {
     canPrescribe && serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
+  // Sequential gating: 1 → 2 → prescription → close out.
+  const step1Done = (hasNotes && privateNotesSaved) || hasNotes || !!acks.notes;
+  const step2Done = isPublished || !!acks.summary;
+  const rxDone = !rxAllowed
+    ? true
+    : rxStatus === "Signed and issued" || rxStatus === "Skipped";
+  const step2Locked = !step1Done;
+  const rxLocked = !step1Done || !step2Done;
+  const canCloseOut = step1Done && step2Done && rxDone;
+
   if (missing) {
     return (
       <div className="min-h-screen bg-[#FBF9FF]">
