@@ -22,6 +22,8 @@ const searchSchema = z.object({
   format: z.enum(["online", "in-person"]).optional(),
   email: z.string().optional(),
   name: z.string().optional(),
+  ref: z.string().optional(),
+  code: z.string().optional(),
 });
 
 export const Route = createFileRoute("/payment-failed")({
@@ -212,11 +214,11 @@ function PaymentFailedPage() {
               <Link
                 to="/checkout"
                 search={{
-                  providerId: search.providerId,
-                  serviceId: search.serviceId,
-                  date: search.date,
-                  time: search.time,
-                  format: search.format,
+                  providerId: search.providerId ?? "",
+                  serviceId: search.serviceId ?? "",
+                  date: search.date ?? "",
+                  time: search.time ?? "",
+                  format: search.format ?? "online",
                 }}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5"
               >
