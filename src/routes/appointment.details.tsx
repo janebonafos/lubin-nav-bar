@@ -100,6 +100,8 @@ function SectionCard({
   pillLabel,
   optional = false,
   checkBadge = false,
+  locked = false,
+  lockedNote,
   openOverride,
   onToggle,
   children,
@@ -116,13 +118,15 @@ function SectionCard({
   pillLabel?: string;
   optional?: boolean;
   checkBadge?: boolean;
+  locked?: boolean;
+  lockedNote?: string;
   openOverride?: boolean;
   onToggle?: () => void;
   children: ReactNode;
 }) {
   const [localOpen, setLocalOpen] = useState(defaultOpen);
   const controlled = openOverride !== undefined;
-  const open = controlled ? openOverride : localOpen;
+  const open = locked ? false : controlled ? openOverride : localOpen;
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
   // A checked item (checkBadge) reads as complete, so it uses the same
   // "done" treatment as the During-the-session card.
@@ -137,6 +141,7 @@ function SectionCard({
         : state === "reference"
           ? "border-[#EAE2F6] bg-white"
           : "border-[#EAE2F6] bg-white";
+  const lockedShell = locked ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
 
   const badge =
     state === "done"
@@ -146,11 +151,15 @@ function SectionCard({
         : "bg-[#EFE8FB] text-[#3D2E6B]";
 
   return (
-    <section id={id} className={`overflow-hidden rounded-[20px] border transition-all ${shell}`}>
+    <section
+      id={id}
+      className={`overflow-hidden rounded-[20px] border transition-all ${shell}${lockedShell}`}
+    >
       <button
         type="button"
+        disabled={locked}
         onClick={() => (controlled ? onToggle?.() : setLocalOpen((v) => !v))}
-        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
+        className={`flex w-full items-start gap-4 px-5 py-4 text-left transition-colors ${locked ? "cursor-not-allowed" : ""}`}
       >
         {number != null && (
           <span
@@ -179,8 +188,20 @@ function SectionCard({
             </span>
           )}
           {hint && <span className="mt-1.5 block text-[12px] italic text-[#A89BD0]">{hint}</span>}
+          {locked && lockedNote && (
+            <span className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#A89BD0]">
+              <Lock className="h-3 w-3" /> {lockedNote}
+            </span>
+          )}
         </span>
-        {!(state === "reference" && !pillLabel) && (
+        {locked ? (
+          <span className="mt-0.5 hidden shrink-0 items-center sm:flex">
+            <span className="rounded-full bg-[#F1EDF8] px-2.5 py-0.5 text-[11px] font-medium text-[#A89BD0]">
+              Locked
+            </span>
+          </span>
+        ) : (
+        !(state === "reference" && !pillLabel) && (
           <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
             {optional && (
               <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
@@ -212,10 +233,12 @@ function SectionCard({
                       : "Not started"}
             </span>
           </span>
+        ))}
+        {!locked && (
+          <ChevronDown
+            className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+          />
         )}
-        <ChevronDown
-          className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
-        />
       </button>
       {open && (
         <div
