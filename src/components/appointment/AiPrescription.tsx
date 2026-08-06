@@ -1314,6 +1314,7 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
 function MedicationEditor({
   med,
   country,
+  // props below unchanged
   patientInfo,
   visitMeds,
   onChange,
