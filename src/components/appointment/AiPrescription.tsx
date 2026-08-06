@@ -53,7 +53,10 @@ import {
   type InfoKey,
 } from "@/lib/prescription/safety";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
-import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
+import {
+  MED_VERIFICATION_STATEMENT,
+  RECORD_ATTESTATION_STATEMENT,
+} from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
@@ -523,6 +526,7 @@ export function AiPrescription({
   const canSign =
     allVerified &&
     !!rx.legalAcknowledgedAt &&
+    !!rx.recordAttestedAt &&
     unverifiedSources.length === 0 &&
     !restrictedPending &&
     // Required information must still be complete and every review acknowledged.
