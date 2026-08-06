@@ -949,6 +949,14 @@ export function AiPrescription({
             >
               <ChevronLeft className="h-4 w-4" /> All medications
             </button>
+            <span className="hidden h-4 w-px bg-[#E7E2F5] sm:block" />
+            <button
+              type="button"
+              onClick={addMed}
+              className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#3D2E6B] hover:text-[#6E4FD3]"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add another medication
+            </button>
             <button
               type="button"
               onClick={() => setSafetyOpen(true)}
@@ -1019,7 +1027,7 @@ export function AiPrescription({
             onClick={saveDraft}
             className="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-[12.5px] font-semibold text-[#D9D4EC] transition hover:bg-white/10 hover:text-white"
           >
-            Save draft
+            {savedAt ? "Draft saved" : "Save draft"}
           </button>
           <button
             type="button"
@@ -1031,6 +1039,10 @@ export function AiPrescription({
                 verifiedAt: Date.now(),
               });
               setReviewMedId(null);
+              toast.success("Medication verified", {
+                description:
+                  "Add another medication if this prescription needs more, or continue to final review.",
+              });
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
