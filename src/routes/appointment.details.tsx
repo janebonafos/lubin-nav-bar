@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, ChevronDown } from "lucide-react";
+import { ArrowLeft, CalendarClock, Check, ChevronDown, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
@@ -100,6 +101,8 @@ function SectionCard({
   pillLabel,
   optional = false,
   checkBadge = false,
+  locked = false,
+  lockedNote,
   openOverride,
   onToggle,
   children,
@@ -116,13 +119,15 @@ function SectionCard({
   pillLabel?: string;
   optional?: boolean;
   checkBadge?: boolean;
+  locked?: boolean;
+  lockedNote?: string;
   openOverride?: boolean;
   onToggle?: () => void;
   children: ReactNode;
 }) {
   const [localOpen, setLocalOpen] = useState(defaultOpen);
   const controlled = openOverride !== undefined;
-  const open = controlled ? openOverride : localOpen;
+  const open = locked ? false : controlled ? openOverride : localOpen;
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
   // A checked item (checkBadge) reads as complete, so it uses the same
   // "done" treatment as the During-the-session card.
@@ -137,6 +142,7 @@ function SectionCard({
         : state === "reference"
           ? "border-[#EAE2F6] bg-white"
           : "border-[#EAE2F6] bg-white";
+  const lockedShell = locked ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
 
   const badge =
     state === "done"
@@ -146,11 +152,15 @@ function SectionCard({
         : "bg-[#EFE8FB] text-[#3D2E6B]";
 
   return (
-    <section id={id} className={`overflow-hidden rounded-[20px] border transition-all ${shell}`}>
+    <section
+      id={id}
+      className={`overflow-hidden rounded-[20px] border transition-all ${shell}${lockedShell}`}
+    >
       <button
         type="button"
+        disabled={locked}
         onClick={() => (controlled ? onToggle?.() : setLocalOpen((v) => !v))}
-        className="flex w-full items-start gap-4 px-5 py-4 text-left transition-colors"
+        className={`flex w-full items-start gap-4 px-5 py-4 text-left transition-colors ${locked ? "cursor-not-allowed" : ""}`}
       >
         {number != null && (
           <span
@@ -179,8 +189,20 @@ function SectionCard({
             </span>
           )}
           {hint && <span className="mt-1.5 block text-[12px] italic text-[#A89BD0]">{hint}</span>}
+          {locked && lockedNote && (
+            <span className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#A89BD0]">
+              <Lock className="h-3 w-3" /> {lockedNote}
+            </span>
+          )}
         </span>
-        {!(state === "reference" && !pillLabel) && (
+        {locked ? (
+          <span className="mt-0.5 hidden shrink-0 items-center sm:flex">
+            <span className="rounded-full bg-[#F1EDF8] px-2.5 py-0.5 text-[11px] font-medium text-[#A89BD0]">
+              Locked
+            </span>
+          </span>
+        ) : (
+        !(state === "reference" && !pillLabel) && (
           <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
             {optional && (
               <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
@@ -212,10 +234,12 @@ function SectionCard({
                       : "Not started"}
             </span>
           </span>
+        ))}
+        {!locked && (
+          <ChevronDown
+            className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+          />
         )}
-        <ChevronDown
-          className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
-        />
       </button>
       {open && (
         <div
@@ -241,7 +265,33 @@ function DetailsPage() {
   const [followUpSaved, setFollowUpSaved] = useState(false);
   const [sharedRefOpen, setSharedRefOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
+  // Step acknowledgements — a provider may have nothing to add, but must say so
+  // explicitly instead of silently skipping past the step.
+  const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
+  const [summaryAckChecked, setSummaryAckChecked] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const raw = window.localStorage.getItem(`lubin:appt-steps:${id}`);
+      if (raw) setAcks(JSON.parse(raw) as { notes?: boolean; summary?: boolean });
+    } catch {
+      /* noop */
+    }
+  }, [id]);
+
+  const setAck = (patch: { notes?: boolean; summary?: boolean }) => {
+    setAcks((cur) => {
+      const next = { ...cur, ...patch };
+      try {
+        if (id) window.localStorage.setItem(`lubin:appt-steps:${id}`, JSON.stringify(next));
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
@@ -385,6 +435,16 @@ function DetailsPage() {
   const rxAllowed =
     canPrescribe && serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+
+  // Sequential gating: 1 → 2 → prescription → close out.
+  const step1Done = (hasNotes && privateNotesSaved) || hasNotes || !!acks.notes;
+  const step2Done = isPublished || !!acks.summary;
+  const rxDone = !rxAllowed
+    ? true
+    : rxStatus === "Signed and issued" || rxStatus === "Skipped";
+  const step2Locked = !step1Done;
+  const rxLocked = !step1Done || !step2Done;
+  const canCloseOut = step1Done && step2Done && rxDone;
 
   if (missing) {
     return (
@@ -552,9 +612,10 @@ function DetailsPage() {
                 onToggle={() => toggleStep("session-notes")}
                 done={privateNotesSaved && hasNotes}
                 checkBadge={privateNotesSaved && hasNotes}
-                pillLabel={docStatus}
+                pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
                 optional
               >
+                <>
                 <ApptNotesBlock
                   appt={appt}
                   onChange={onChange}
@@ -566,6 +627,25 @@ function DetailsPage() {
                     if (saved) setOpenStep(null);
                   }}
                 />
+                {!hasNotes && !acks.notes && (
+                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                    <p className="text-[13px] leading-snug text-[#5A4A8A]">
+                      Nothing to record for this session? You can move on, but confirm it so the
+                      step is not left half-finished.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAck({ notes: true });
+                        setOpenStep("care-plan");
+                      }}
+                      className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      No private notes for this session
+                    </button>
+                  </div>
+                )}
+                </>
               </SectionCard>
             )}
 
@@ -581,9 +661,12 @@ function DetailsPage() {
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished}
                 checkBadge={isPublished}
-                pillLabel={followUpStatus}
+                locked={step2Locked}
+                lockedNote="Finish step 1 first"
+                pillLabel={acks.summary && !isPublished ? "Nothing to share" : followUpStatus}
                 optional
               >
+                <>
                 <ApptNotesBlock
                   appt={appt}
                   onChange={onChange}
@@ -598,6 +681,41 @@ function DetailsPage() {
                   }}
                   onFollowUpShared={() => setOpenStep(null)}
                 />
+                {!isPublished && !acks.summary && (
+                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                    <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                      Not sharing a summary this time?
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-[#5A4A8A]">
+                      {clientLabel} will see nothing new in their Health Passport for this
+                      appointment. Confirm you have read this before moving on.
+                    </p>
+                    <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-[#3D2E6B]">
+                      <input
+                        type="checkbox"
+                        checked={summaryAckChecked}
+                        onChange={(e) => setSummaryAckChecked(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+                      />
+                      <span>
+                        I have decided not to send a written summary to {clientLabel} for this
+                        appointment.
+                      </span>
+                    </label>
+                    <button
+                      type="button"
+                      disabled={!summaryAckChecked}
+                      onClick={() => {
+                        setAck({ summary: true });
+                        setOpenStep(rxAllowed ? "prescriptions" : null);
+                      }}
+                      className="mt-3 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      Confirm and continue
+                    </button>
+                  </div>
+                )}
+                </>
               </SectionCard>
             )}
 
@@ -610,6 +728,10 @@ function DetailsPage() {
                 description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
+                locked={rxLocked}
+                lockedNote="Finish steps 1 and 2 first"
+                done={rxDone}
+                checkBadge={rxDone}
                 pillLabel={rxStatus}
                 optional
               >
@@ -630,6 +752,55 @@ function DetailsPage() {
                 your prescribing authority is verified for your client&rsquo;s jurisdiction.
               </div>
             )}
+
+            {/* Close out — only once every step above has been handled */}
+            {showPostSession && (
+              <section className="rounded-[20px] border border-[#EAE2F6] bg-white px-5 py-5">
+                {isCompleted ? (
+                  <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
+                    <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
+                    completed.
+                  </p>
+                ) : canCloseOut ? (
+                  <>
+                    <p className="text-[15px] font-semibold text-[#2C2B4B]">
+                      Everything is handled
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
+                      You have gone through your notes, the client summary
+                      {rxAllowed ? " and the prescription step" : ""}. You can close this
+                      appointment now.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange({ status: "completed", outcome: "completed" });
+                        toast.success("Appointment marked as completed");
+                      }}
+                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                    >
+                      Mark the appointment as completed
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[15px] font-semibold text-[#2C2B4B]">
+                      A few steps left before you can close this appointment
+                    </p>
+                    <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
+                      <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
+                      <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
+                      {rxAllowed && (
+                        <StepTodo
+                          done={rxDone}
+                          label="Prescription — sign it or record that none is needed"
+                        />
+                      )}
+                    </ul>
+                  </>
+                )}
+              </section>
+            )}
           </div>
 
         </div>
@@ -645,6 +816,19 @@ function FactTile({ label, value, sub }: { label: string; value: string; sub?: s
       <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
       {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
     </div>
+  );
+}
+
+function StepTodo({ done, label }: { done: boolean; label: string }) {
+  return (
+    <li className="flex items-start gap-2">
+      <span
+        className={`mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${done ? "bg-[#6E4FD3] text-white" : "border border-[#D6CCEC] text-transparent"}`}
+      >
+        ✓
+      </span>
+      <span className={done ? "text-[#A89BD0] line-through" : ""}>{label}</span>
+    </li>
   );
 }
 
