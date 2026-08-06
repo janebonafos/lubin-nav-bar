@@ -432,7 +432,11 @@ export function AiPrescription({
   /** Any medication-field change resets that medication's verification and
    *  any completed whole-prescription review. */
   const updateMed = (id: string, p: Partial<PrescriptionMedication>) => {
-    const meds = rx.medications.map((m) => (m.id === id ? { ...m, ...p } : m));
+    const meds = rx.medications.map((m) => {
+      if (m.id !== id) return m;
+      const verified = "approved" in p && p.approved;
+      return { ...m, ...p, ...(verified ? { demo: false } : {}) };
+    });
     const isVerificationToggle = Object.keys(p).length <= 2 && "approved" in p;
     patch({
       medications: meds,
@@ -809,7 +813,7 @@ export function AiPrescription({
         >
           <ChevronLeft className="h-4 w-4" /> Back to medications
         </button>
-        {rx.demo && <DemoNote />}
+        {rx.demo && verifiedCount < total && <DemoNote />}
         <FinalReviewBody
           rx={rx}
           country={country}
@@ -941,7 +945,7 @@ export function AiPrescription({
             >
               <ChevronLeft className="h-4 w-4" /> All medications
             </button>
-            {reviewMed.demo && (
+            {reviewMed.demo && !reviewMed.approved && (
               <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#E0D8F5] bg-[#F6F3FE] px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A]">
                 <span className="rounded-[5px] bg-[#6E4FD3] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                   Demo
@@ -955,7 +959,7 @@ export function AiPrescription({
               title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
               aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
               className={`relative inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
-                reviewMed.demo ? "" : "ml-auto"
+                reviewMed.demo && !reviewMed.approved ? "" : "ml-auto"
               } ${
                 requiredLeft > 0 || reviews > 0
                   ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
@@ -1047,7 +1051,7 @@ export function AiPrescription({
   return (
     <section className="text-[#2C2B4B]">
       {header}
-      {rx.demo && <DemoNote />}
+      {rx.demo && verifiedCount < total && <DemoNote />}
       {notice && (
         <p className="mb-3 flex items-start gap-1.5 rounded-xl border border-[#E4E1EC] bg-[#FAF9FD] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#5A4A8A]">
           <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#6E4FD3]" />
@@ -1296,7 +1300,7 @@ function MedicationSummaryCard({
                 Verification required
               </span>
             )}
-            {med.demo && (
+            {med.demo && !med.approved && (
               <>
                 <span className="text-[#CFC9DC]">·</span>
                 <span className="text-[11.5px] font-semibold text-[#6E4FD3]">Demo data</span>
