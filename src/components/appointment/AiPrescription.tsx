@@ -1470,6 +1470,9 @@ function MedicationEditor({
     string,
     { recorded: boolean; value: string }
   > | null>(null);
+  /** Preserve the exact row order from the moment editing starts. Draft input
+   *  must never reorder the profile; only an explicit save may refresh it. */
+  const [frozenInfoOrder, setFrozenInfoOrder] = useState<InfoKey[] | null>(null);
   /** Last item the provider saved — shows an inline confirmation on that row. */
   const [savedInfoKey, setSavedInfoKey] = useState<InfoKey | null>(null);
   const [drawerTab, setDrawerTab] = useState<"safety" | "profile">("safety");
@@ -1513,16 +1516,20 @@ function MedicationEditor({
     .join(" and ")
     .trim();
   const captureInfoSnapshot = () =>
-    setFrozenInfo(
-      Object.fromEntries(
-        infoList.map((i) => [
-          i.key,
-          { recorded: i.recorded, value: infoRecordedSummary(i.key, patientInfo, visitMeds) },
-        ]),
-      ),
-    );
+    {
+      setFrozenInfoOrder(infoList.map((i) => i.key));
+      setFrozenInfo(
+        Object.fromEntries(
+          infoList.map((i) => [
+            i.key,
+            { recorded: i.recorded, value: infoRecordedSummary(i.key, patientInfo, visitMeds) },
+          ]),
+        ),
+      );
+    };
   const confirmInfoSaved = (key: InfoKey, edited: boolean) => {
     setFrozenInfo(null);
+    setFrozenInfoOrder(null);
     setOpenInfoKey(null);
     setSavedInfoKey(key);
     toast.success(`${infoLabel(key)} ${edited ? "updated" : "added"}`, {
@@ -1547,6 +1554,7 @@ function MedicationEditor({
             setSavedInfoKey(null);
             if (open) {
               setFrozenInfo(null);
+              setFrozenInfoOrder(null);
               setOpenInfoKey(null);
             } else {
               captureInfoSnapshot();
@@ -1971,7 +1979,13 @@ function MedicationEditor({
                 Reusable patient information. Editing here updates it everywhere it is used.
               </p>
               <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                {infoList.map(({ key, requirement }) =>
+                {(frozenInfoOrder
+                  ? frozenInfoOrder.flatMap((key) => {
+                      const item = infoList.find((candidate) => candidate.key === key);
+                      return item ? [item] : [];
+                    })
+                  : infoList
+                ).map(({ key, requirement }) =>
                   infoAccordionRow(key, requirement === "required" ? "required" : "review"),
                 )}
               </ul>
