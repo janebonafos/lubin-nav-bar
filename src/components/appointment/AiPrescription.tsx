@@ -1115,6 +1115,13 @@ export function AiPrescription({
           </button>
           <button
             type="button"
+            onClick={() => setClientCopyOpen(true)}
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/20 px-4 text-[12.5px] font-semibold text-[#D9D4EC] transition hover:bg-white/10 hover:text-white"
+          >
+            <Eye className="h-3.5 w-3.5" /> Preview prescription
+          </button>
+          <button
+            type="button"
             onClick={() => {
               if (!reviewMed.name.trim()) {
                 toast.info("Add the medication name first", {
@@ -1164,6 +1171,15 @@ export function AiPrescription({
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
+        <EPrescriptionPreview
+          open={clientCopyOpen}
+          onOpenChange={setClientCopyOpen}
+          rx={rx}
+          country={country}
+          clientName={clientName}
+          providerName={providerName}
+          draft
+        />
       </section>
     );
   }
