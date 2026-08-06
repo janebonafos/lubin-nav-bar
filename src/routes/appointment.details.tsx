@@ -265,7 +265,33 @@ function DetailsPage() {
   const [followUpSaved, setFollowUpSaved] = useState(false);
   const [sharedRefOpen, setSharedRefOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
+  // Step acknowledgements — a provider may have nothing to add, but must say so
+  // explicitly instead of silently skipping past the step.
+  const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
+  const [summaryAckChecked, setSummaryAckChecked] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const raw = window.localStorage.getItem(`lubin:appt-steps:${id}`);
+      if (raw) setAcks(JSON.parse(raw) as { notes?: boolean; summary?: boolean });
+    } catch {
+      /* noop */
+    }
+  }, [id]);
+
+  const setAck = (patch: { notes?: boolean; summary?: boolean }) => {
+    setAcks((cur) => {
+      const next = { ...cur, ...patch };
+      try {
+        if (id) window.localStorage.setItem(`lubin:appt-steps:${id}`, JSON.stringify(next));
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     setCanPrescribe(isVerifiedPrescriber());
