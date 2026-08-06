@@ -1312,6 +1312,7 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
 }
 
 function MedicationEditor({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   med,
   country,
   patientInfo,
