@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { demoPrescription } from "@/lib/prescription/demo";
+import { fallbackPrescription } from "@/lib/prescription/demo";
 import { savePrescription } from "@/lib/prescription/store";
 
 export const Route = createFileRoute("/preview/psychiatrist-session")({
@@ -73,7 +73,7 @@ function PreviewPsychiatristSession() {
 
       // Seed an empty prescription with demo patient info, but no AI suggestions
       // until the provider clicks "See AI suggestion".
-      savePrescription(demoPrescription(DEMO_ID, false));
+      savePrescription(fallbackPrescription(DEMO_ID, false));
 
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(appt))));
       navigate({
