@@ -1336,6 +1336,7 @@ function SafetyReviewDrawer({
   countLabel,
   tab,
   onTab,
+  profileBadge = 0,
   children,
   footer,
 }: {
