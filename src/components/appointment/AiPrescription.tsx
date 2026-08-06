@@ -1132,9 +1132,14 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            disabled={blocked || reviewMed.approved}
+            disabled={!reviewMed.approved && blocked}
             title={blocked ? blockerSentence(blockers) : undefined}
             onClick={() => {
+              if (reviewMed.approved) {
+                setReviewMedId(null);
+                setFinalReview(true);
+                return;
+              }
               updateMed(reviewMed.id, {
                 approved: true,
                 verifiedAt: Date.now(),
@@ -1155,7 +1160,7 @@ export function AiPrescription({
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
-            {reviewMed.approved ? "Verified" : "Verify medication"}
+            {reviewMed.approved ? "Back to prescription" : "Verify medication"}
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
