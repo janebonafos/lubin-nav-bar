@@ -945,7 +945,7 @@ export function AiPrescription({
             >
               <ChevronLeft className="h-4 w-4" /> All medications
             </button>
-            {reviewMed.demo && (
+            {reviewMed.demo && !reviewMed.approved && (
               <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#E0D8F5] bg-[#F6F3FE] px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A]">
                 <span className="rounded-[5px] bg-[#6E4FD3] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                   Demo
