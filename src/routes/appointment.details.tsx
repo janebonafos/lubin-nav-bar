@@ -674,6 +674,15 @@ function DetailsPage() {
                   clientName={appt.client}
                   providerName={providerDisplayName}
                   sessionDateLabel={[appt.month, appt.date].filter(Boolean).join(" ") || undefined}
+                  prescriptionContext={
+                    !rxAllowed
+                      ? "none"
+                      : rxStatus === "Signed and issued"
+                        ? "issued"
+                        : rxStatus === "Skipped"
+                          ? "none"
+                          : "pending"
+                  }
                   onPublishConfirmed={setFollowUpPublishConfirmed}
                   onFollowUpSaved={(saved) => {
                     setFollowUpSaved(saved);
