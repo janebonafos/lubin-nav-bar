@@ -519,7 +519,11 @@ export function AiPrescription({
 
   const saveDraft = () => {
     patch({});
-    setSavedAt(Date.now());
+    const at = Date.now();
+    setSavedAt(at);
+    toast.success("Draft saved", {
+      description: `Prescription draft saved ${formatCheckedAt(at)}. You can leave and come back to it.`,
+    });
   };
 
   const visitMeds: MedicationEntry[] = loadWorkspace(appointmentId).medications ?? [];
