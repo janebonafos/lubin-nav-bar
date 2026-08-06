@@ -969,7 +969,7 @@ export function AiPrescription({
             onClick={() => setClientCopyOpen(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
           >
-            <Eye className="h-4 w-4" /> Preview client copy
+            <Eye className="h-4 w-4" /> Preview E-Prescription
           </button>
           <button
             type="button"
