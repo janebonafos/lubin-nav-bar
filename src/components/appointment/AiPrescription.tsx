@@ -432,7 +432,11 @@ export function AiPrescription({
   /** Any medication-field change resets that medication's verification and
    *  any completed whole-prescription review. */
   const updateMed = (id: string, p: Partial<PrescriptionMedication>) => {
-    const meds = rx.medications.map((m) => (m.id === id ? { ...m, ...p } : m));
+    const meds = rx.medications.map((m) => {
+      if (m.id !== id) return m;
+      const verified = "approved" in p && p.approved;
+      return { ...m, ...p, ...(verified ? { demo: false } : {}) };
+    });
     const isVerificationToggle = Object.keys(p).length <= 2 && "approved" in p;
     patch({
       medications: meds,
@@ -809,7 +813,7 @@ export function AiPrescription({
         >
           <ChevronLeft className="h-4 w-4" /> Back to medications
         </button>
-        {rx.demo && <DemoNote />}
+        {rx.demo && verifiedCount < total && <DemoNote />}
         <FinalReviewBody
           rx={rx}
           country={country}
@@ -1047,7 +1051,7 @@ export function AiPrescription({
   return (
     <section className="text-[#2C2B4B]">
       {header}
-      {rx.demo && <DemoNote />}
+      {rx.demo && verifiedCount < total && <DemoNote />}
       {notice && (
         <p className="mb-3 flex items-start gap-1.5 rounded-xl border border-[#E4E1EC] bg-[#FAF9FD] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#5A4A8A]">
           <Info className="mt-[2px] h-3.5 w-3.5 flex-none text-[#6E4FD3]" />
@@ -1296,7 +1300,7 @@ function MedicationSummaryCard({
                 Verification required
               </span>
             )}
-            {med.demo && (
+            {med.demo && !med.approved && (
               <>
                 <span className="text-[#CFC9DC]">·</span>
                 <span className="text-[11.5px] font-semibold text-[#6E4FD3]">Demo data</span>
