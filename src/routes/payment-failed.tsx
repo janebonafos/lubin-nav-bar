@@ -22,6 +22,8 @@ const searchSchema = z.object({
   format: z.enum(["online", "in-person"]).optional(),
   email: z.string().optional(),
   name: z.string().optional(),
+  ref: z.string().optional(),
+  code: z.string().optional(),
 });
 
 export const Route = createFileRoute("/payment-failed")({
