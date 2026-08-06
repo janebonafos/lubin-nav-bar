@@ -1542,7 +1542,6 @@ function MedicationEditor({
     const live = infoList.find((i) => i.key === key);
     const done = snap ? snap.recorded : !!live?.recorded;
     const value = done ? (snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds)) : "";
-    const justSaved = savedInfoKey === key;
     return (
       <li key={key} className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}>
         <button
@@ -1550,7 +1549,6 @@ function MedicationEditor({
           aria-expanded={open}
           onClick={() => {
             setOpenCheckKey(null);
-            setSavedInfoKey(null);
             if (open) {
               setFrozenInfo(null);
               setFrozenInfoOrder(null);
@@ -1569,11 +1567,6 @@ function MedicationEditor({
             </span>
             {done && value && (
               <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
-            )}
-            {justSaved && (
-              <span className="mt-0.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
-                <Check className="h-3 w-3" /> Information saved
-              </span>
             )}
           </span>
           <StatusChip level={done ? "complete" : requirement} />
