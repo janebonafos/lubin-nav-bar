@@ -918,8 +918,11 @@ export function AiPrescription({
               <ChevronLeft className="h-4 w-4" /> All medications
             </button>
             {reviewMed.demo && (
-              <span className="ml-auto text-[11.5px] italic text-[#8C86A0]">
-                Demo data — sample clinical content for demonstration
+              <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#E0D8F5] bg-[#F6F3FE] px-2.5 py-1 text-[11px] font-semibold text-[#5A4A8A]">
+                <span className="rounded-[5px] bg-[#6E4FD3] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                  Demo
+                </span>
+                Sample clinical content — not for real prescribing
               </span>
             )}
             <button
@@ -931,14 +934,14 @@ export function AiPrescription({
                 reviewMed.demo ? "" : "ml-auto"
               } ${
                 requiredLeft > 0 || reviews > 0
-                  ? "border-[#F0D9A8] bg-[#FDFAF3] text-[#8A6A20] hover:bg-[#FBF4E6]"
-                  : "border-[#CFE9DD] bg-[#F6FBF8] text-[#1F7A57] hover:bg-[#EDF7F2]"
+                  ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
+                  : "border-[#E7E2F5] bg-white text-[#5A4A8A] hover:bg-[#FAF7FE]"
               }`}
             >
-              <ShieldUser className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" />
               Patient safety
               {requiredLeft > 0 && (
-                <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#E0A32B] px-1 text-[11px] font-bold text-white">
+                <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#6E4FD3] px-1 text-[11px] font-bold text-white">
                   {requiredLeft}
                 </span>
               )}
