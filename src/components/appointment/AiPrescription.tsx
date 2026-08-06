@@ -1404,7 +1404,17 @@ function SafetyReviewDrawer({
                   : "border-transparent text-[#8C86A0] hover:text-[#5A4A8A]"
               }`}
             >
-              {t.label}
+              <span className="inline-flex items-center gap-1.5">
+                {t.label}
+                {t.id === "profile" && profileBadge > 0 && (
+                  <span
+                    aria-label={`${profileBadge} item${profileBadge === 1 ? "" : "s"} need attention`}
+                    className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EDE6FF] px-1.5 text-[10.5px] font-bold text-[#5A3EB8]"
+                  >
+                    {profileBadge}
+                  </span>
+                )}
+              </span>
             </button>
           ))}
         </div>
