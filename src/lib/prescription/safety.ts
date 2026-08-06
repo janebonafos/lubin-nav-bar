@@ -308,7 +308,8 @@ export function infoRecorded(
     case "pregnancy":
       return pregnancyStatus(info) !== "not-documented";
     case "labs":
-      return has(info?.labs);
+      // A stray keystroke should not mark monitoring info as documented.
+      return (info?.labs ?? "").trim().length >= 3;
   }
 }
 
