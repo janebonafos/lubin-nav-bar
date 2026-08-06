@@ -2028,9 +2028,29 @@ function MedicationEditor({
                     </p>
                     <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
                     <span className="text-[11.5px] font-medium text-[#8C86A0]">
-                      {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
+                      {med.sharedSafetyAcknowledgedAt ? "Acknowledged" : "Acknowledge in final step"}
                     </span>
                   </div>
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    {sharedSafety.assessmentName} ({sharedSafety.clinicalName}) ·{" "}
+                    {new Date(sharedSafety.takenAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+                    {sharedSafety.itemText}
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
+                    Client response: “{clientResponse}”
+                  </p>
+                  {!med.sharedSafetyAcknowledgedAt && (
+                    <p className="mt-2 text-[11.5px] text-[#8C86A0]">
+                      You can review this now. Acknowledgement is required before signing the
+                      prescription.
+                    </p>
+                  )}
                 </div>
               )}
 
