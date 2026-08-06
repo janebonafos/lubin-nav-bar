@@ -116,6 +116,10 @@ export const PATIENT_REVIEW_CAVEAT =
 export const VERIFICATION_STATEMENT =
   "I reviewed the relevant prescribing information and patient-specific considerations for each medication included in this prescription.";
 
+/** Record-integrity attestation, modelled on standard prescriber attestations. */
+export const RECORD_ATTESTATION_STATEMENT =
+  "I attest that I personally reviewed this client's clinical record for this prescription, and that all information I have added, edited or removed — including medications, allergies, conditions, pregnancy or lactation status, laboratory or monitoring results and mental-health assessment responses — is truthful, accurate and taken from the client's record or reported directly by the client during this appointment. I have reviewed the patient-specific safety findings, and I take full clinical responsibility for the decision to prescribe.";
+
 /** Deliberate, per-medication verification statement. */
 export const MED_VERIFICATION_STATEMENT =
   "I reviewed the medication, dose, route, frequency, duration, indication, patient instructions, prescribing information and patient-specific considerations. I confirm that this medication is clinically appropriate and accurate.";
