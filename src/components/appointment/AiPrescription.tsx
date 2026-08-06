@@ -2316,7 +2316,7 @@ function StatusChip({
   const map = {
     required: { label: "Required", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
     review: { label: "Needs your review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
-    complete: { label: "Complete", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
+    complete: { label: "Reviewed", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
     unavailable: { label: "Not available", cls: "bg-[#F4F3F7] text-[#6F6889]" },
     "no-issue": { label: "No issue found", cls: "bg-[#F4F3F7] text-[#6F6889]" },
   } as const;
