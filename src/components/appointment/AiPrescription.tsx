@@ -1852,6 +1852,7 @@ function MedicationEditor({
           countLabel={countText}
           tab={drawerTab}
           onTab={setDrawerTab}
+          profileBadge={outstanding.length}
           footer={
             <>
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
@@ -1888,16 +1889,33 @@ function MedicationEditor({
                 </div>
               )}
 
-              {/* One stable list — rows never move or regroup once information is added. */}
-              <div>
-                <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
-                  Patient information
-                </p>
-                <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                  {infoList.map(({ key, requirement }) =>
-                    infoAccordionRow(key, requirement === "required" ? "required" : "review"),
+              {/* Patient information lives on the Medical profile tab — this is only a pointer,
+                  so the same rows are not duplicated in two places. */}
+              <div className="rounded-xl border border-[#EFECF7] bg-[#FBFAFE] px-4 py-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                    Patient information
+                  </p>
+                  {outstanding.length === 0 ? (
+                    <StatusChip level="complete" />
+                  ) : (
+                    <StatusChip level={requiredOutstanding.length > 0 ? "required" : "review"} />
                   )}
-                </ul>
+                  <button
+                    type="button"
+                    onClick={() => setDrawerTab("profile")}
+                    className="text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                  >
+                    Open medical profile
+                  </button>
+                </div>
+                <p className="mt-1 text-[12px] text-[#5A4A8A]">
+                  {outstanding.length === 0
+                    ? "All patient information needed for this medication is on the record."
+                    : `${requiredOutstanding.length} required · ${reviewOutstanding.length} to review${
+                        outstandingNames ? ` — ${outstandingNames}` : ""
+                      }`}
+                </p>
               </div>
 
               {(stableCheckKeys.length > 0 || sharedSafety) && (
