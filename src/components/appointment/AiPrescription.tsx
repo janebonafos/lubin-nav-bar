@@ -2049,67 +2049,6 @@ function MedicationEditor({
                   infoAccordionRow(key, requirement === "required" ? "required" : "review"),
                 )}
               </ul>
-              {stableCheckKeys.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
-                    Medication-specific checks
-                  </p>
-                  <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                    {stableCheckKeys.map((k) => {
-                      const open = openCheckKey === k;
-                      const reviewed = !!med.checkReviews?.[k];
-                      const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
-                      return (
-                        <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
-                          <button
-                            type="button"
-                            aria-expanded={open}
-                            onClick={() => {
-                              setOpenInfoKey(null);
-                              setOpenCheckKey(open ? null : k);
-                            }}
-                            className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
-                          >
-                            <span className="min-w-0 flex-1">
-                              <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
-                                {reviewed && (
-                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
-                                )}
-                                <span>{label}</span>
-                              </span>
-                              {reviewed && med.checkReviews?.[k] && (
-                                <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)}
-                                </span>
-                              )}
-                            </span>
-                            <StatusChip level={reviewed ? "complete" : "review"} />
-                            <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                              {open ? "Close" : reviewed ? "View" : "Review"}
-                              <ChevronDown
-                                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-                              />
-                            </span>
-                          </button>
-                          {open && (
-                            <ul className="px-4 pb-3">
-                              <CheckRow
-                                label={label}
-                                check={med.checks?.[k]}
-                                reviewedAt={med.checkReviews?.[k]}
-                                onMarkReviewed={() => {
-                                  onMarkCheckReviewed(k);
-                                  toast.success(`${label} marked as reviewed`);
-                                }}
-                              />
-                            </ul>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
             </div>
           )}
         </SafetyReviewDrawer>
