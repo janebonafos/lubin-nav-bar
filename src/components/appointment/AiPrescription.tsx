@@ -2002,7 +2002,7 @@ function MedicationEditor({
                         className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
                       >
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-semibold text-[#2C2B4B]">
+                          <span className="block text-[13px] font-semibold text-[#2C2B4B]">
                             {infoLabel(key)}
                           </span>
                           <span
