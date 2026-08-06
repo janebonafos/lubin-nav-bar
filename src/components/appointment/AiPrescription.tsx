@@ -1452,7 +1452,6 @@ function MedicationEditor({
   const [openCheckKey, setOpenCheckKey] = useState<CheckKey | null>(null);
   const [drawerTab, setDrawerTab] = useState<"safety" | "profile">("safety");
   const [whyOpen, setWhyOpen] = useState(false);
-  const [showCompleted, setShowCompleted] = useState(false);
   const [medOpen, setMedOpen] = useState(true);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
@@ -1471,8 +1470,6 @@ function MedicationEditor({
   );
   const summary = safetySummary(med);
   const reviewRan = summary.ran;
-  /** Medication or patient information changed after the last review ran. */
-  const staleReview = reviewStale(med, patientInfo);
   const status = safetyStatus(med, patientInfo);
   const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
   /** Header, safety summary and the sticky footer all count the same blockers. */
