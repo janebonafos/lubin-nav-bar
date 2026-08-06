@@ -30,8 +30,6 @@ import {
 import { loadWorkspace, type MedicationEntry } from "@/lib/visit-workspace/store";
 import {
   CHECK_ROWS,
-  CHECK_STATE_LABEL,
-  CHECK_STATE_TONE,
   infoRelevance,
   missingInfoKeys,
   INFO_REQUIREMENT_LABEL,
