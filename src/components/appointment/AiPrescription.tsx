@@ -2165,7 +2165,7 @@ function MedicationEditor({
                     </p>
                     <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
                     <span className="text-[11.5px] font-medium text-[#8C86A0]">
-                      {med.sharedSafetyAcknowledgedAt ? "Acknowledged" : "Acknowledge in final step"}
+                      {med.sharedSafetyAcknowledgedAt ? "Acknowledged" : "Needs acknowledgement"}
                     </span>
                   </div>
                   <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
@@ -2182,11 +2182,35 @@ function MedicationEditor({
                   <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
                     Client response: “{clientResponse}”
                   </p>
-                  {!med.sharedSafetyAcknowledgedAt && (
-                    <p className="mt-2 text-[11.5px] text-[#8C86A0]">
-                      You can review this now. Acknowledgement is required before signing the
-                      prescription.
+                  {med.sharedSafetyAcknowledgedAt ? (
+                    <p className="mt-2 text-[11.5px] text-[#1F7A57]">
+                      Acknowledged{" "}
+                      {new Date(med.sharedSafetyAcknowledgedAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                      })}
+                      . Required before signing the prescription.
                     </p>
+                  ) : (
+                    <div className="mt-2 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
+                      <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
+                        By acknowledging this response you confirm that you reviewed it and will
+                        take it into account before prescribing.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onChange({ sharedSafetyAcknowledgedAt: Date.now() });
+                          toast.success("Shared safety response acknowledged");
+                        }}
+                        className="mt-1.5 inline-flex h-7 items-center rounded-[8px] bg-[#6E4FD3] px-2.5 text-[11.5px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                      >
+                        Acknowledge safety response
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
