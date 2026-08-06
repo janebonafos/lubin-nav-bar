@@ -2714,10 +2714,22 @@ export function ApptNotesBlock({
                     Final step
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
-                    Preview before sharing
+                    {prescriptionContext === "none"
+                      ? "Preview before sharing"
+                      : "Preview the written summary"}
                   </p>
                   <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-                    Only the information above is shared with {clientLabel}. Private notes stay here and are never included.
+                    Only the information above is shared with {clientLabel}. Private notes stay here
+                    and are never included.
+                    {prescriptionContext !== "none" && (
+                      <>
+                        {" "}
+                        The prescription is a separate document —{" "}
+                        {prescriptionContext === "issued"
+                          ? `${clientLabel} already received it when you signed it.`
+                          : `${clientLabel} receives it when you sign it in the prescription step.`}
+                      </>
+                    )}
                   </p>
                 </div>
                 {isPublished && appt.publishedFollowUp && (
@@ -2732,7 +2744,11 @@ export function ApptNotesBlock({
                   onClick={() => setPublishPreview((p) => !p)}
                   className="rounded-[8px] border border-[#D6CCEC] bg-white px-3 py-1.5 text-xs font-semibold text-[#5A4A8A] hover:bg-[#F4EEFC]"
                 >
-                  {publishPreview ? "Hide preview" : `Preview as ${clientLabel}`}
+                  {publishPreview
+                    ? "Hide preview"
+                    : prescriptionContext === "none"
+                      ? `Preview as ${clientLabel}`
+                      : `Preview summary as ${clientLabel}`}
                 </button>
               </div>
               {publishPreview && (
