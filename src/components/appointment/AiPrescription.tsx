@@ -11,7 +11,7 @@ import {
   ChevronLeft,
   ChevronDown,
   X,
-  ShieldUser,
+  ShieldCheck,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
