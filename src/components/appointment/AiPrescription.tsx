@@ -456,6 +456,10 @@ export function AiPrescription({
     if (blank) {
       setReviewMedId(blank.id);
       setFinalReview(false);
+      toast.info("Finish this medication first", {
+        description:
+          "Add the medication name and required details, then you can add another to the same prescription.",
+      });
       return;
     }
     const id = genRxId();
