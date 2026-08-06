@@ -1474,7 +1474,7 @@ function MedicationEditor({
    *  must never reorder the profile; only an explicit save may refresh it. */
   const [frozenInfoOrder, setFrozenInfoOrder] = useState<InfoKey[] | null>(null);
   /** Last item the provider saved — shows an inline confirmation on that row. */
-  const [savedInfoKey, setSavedInfoKey] = useState<InfoKey | null>(null);
+  
   const [drawerTab, setDrawerTab] = useState<"safety" | "profile">("safety");
   const [whyOpen, setWhyOpen] = useState(false);
   const [medOpen, setMedOpen] = useState(true);
@@ -1531,7 +1531,6 @@ function MedicationEditor({
     setFrozenInfo(null);
     setFrozenInfoOrder(null);
     setOpenInfoKey(null);
-    setSavedInfoKey(key);
     toast.success(`${infoLabel(key)} ${edited ? "updated" : "added"}`, {
       description: "Saved to the client's private clinical record.",
     });
