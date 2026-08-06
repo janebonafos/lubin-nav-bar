@@ -1908,12 +1908,14 @@ function MedicationEditor({
                 </div>
               )}
 
-              {reviewedCheckKeys.length > 0 && (
+              {(recordedInfo.length > 0 || reviewedCheckKeys.length > 0) && (
                 <div>
                   <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#1F7A57]">
-                    Completed
+                    Added and completed
                   </p>
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                    {recordedInfo.map(({ key }) => infoAccordionRow(key, "complete"))}
+                    {reviewedCheckKeys.length > 0 && (
                     <li>
                       <button
                         type="button"
@@ -1946,6 +1948,7 @@ function MedicationEditor({
                         </ul>
                       )}
                     </li>
+                    )}
                   </ul>
                 </div>
               )}
