@@ -2163,7 +2163,7 @@ function MedicationEditor({
                     <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
                       Shared {sharedSafety.clinicalName} safety response
                     </p>
-                    <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
+                    <StatusChip level={med.sharedSafetyAcknowledgedAt ? "acknowledged" : "review"} />
                     <span className="text-[11.5px] font-medium text-[#8C86A0]">
                       {med.sharedSafetyAcknowledgedAt ? "Acknowledged" : "Needs acknowledgement"}
                     </span>
