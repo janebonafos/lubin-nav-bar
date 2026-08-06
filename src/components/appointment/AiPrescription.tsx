@@ -821,7 +821,7 @@ export function AiPrescription({
                 onClick={() => void generate({ mode: "suggest" })}
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                See AI suggestion
+                Prepare draft with AI
               </button>
               <button
                 type="button"
@@ -1140,10 +1140,18 @@ export function AiPrescription({
                 verifiedAt: Date.now(),
               });
               setReviewMedId(null);
-              toast.success("Medication verified", {
-                description:
-                  "Add another medication if this prescription needs more, or continue to final review.",
-              });
+              const othersPending = namedMeds.some((m) => m.id !== reviewMed.id && !m.approved);
+              if (!othersPending) {
+                // Straight to the prescription itself — no extra click.
+                setFinalReview(true);
+                toast.success("Medication verified", {
+                  description: "Here is the prescription. You can add another before signing.",
+                });
+              } else {
+                toast.success("Medication verified", {
+                  description: "Verify the remaining medication to continue.",
+                });
+              }
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
