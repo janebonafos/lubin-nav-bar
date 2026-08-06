@@ -1979,7 +1979,10 @@ function MedicationEditor({
               <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                 {infoList.map(({ key, recorded }) => {
                   const open = openInfoKey === key;
-                  const value = infoRecordedSummary(key, patientInfo, visitMeds);
+                  const snap = frozenInfo?.[key];
+                  const shown = snap ? snap.recorded : recorded;
+                  const value = snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds);
+                  const justSaved = savedInfoKey === key;
                   return (
                     <li key={key} className={open ? "bg-[#FBFAFE]" : ""}>
                       <button
@@ -1987,7 +1990,14 @@ function MedicationEditor({
                         aria-expanded={open}
                         onClick={() => {
                           setOpenCheckKey(null);
-                          setOpenInfoKey(open ? null : key);
+                          setSavedInfoKey(null);
+                          if (open) {
+                            setFrozenInfo(null);
+                            setOpenInfoKey(null);
+                          } else {
+                            captureInfoSnapshot();
+                            setOpenInfoKey(key);
+                          }
                         }}
                         className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
                       >
@@ -1997,19 +2007,24 @@ function MedicationEditor({
                           </span>
                           <span
                             className={`block truncate text-[11.5px] ${
-                              recorded ? "text-[#5A4A8A]" : "text-[#9A93AE]"
+                              shown ? "text-[#5A4A8A]" : "text-[#9A93AE]"
                             }`}
                           >
-                            {recorded ? value : "Not documented"}
+                            {shown ? value : "Not documented"}
                           </span>
-                          {recorded && patientInfo?.updatedAt && (
+                          {justSaved && (
+                            <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
+                              <Check className="h-3 w-3" /> Information saved
+                            </span>
+                          )}
+                          {shown && patientInfo?.updatedAt && (
                             <span className="block text-[11px] text-[#8C86A0]">
                               Updated {formatCheckedAt(patientInfo.updatedAt)}
                             </span>
                           )}
                         </span>
                         <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                          {open ? "Close" : recorded ? "Edit" : "Add"}
+                          {open ? "Close" : shown ? "Edit" : "Add"}
                           <ChevronDown
                             className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                           />
@@ -2021,7 +2036,7 @@ function MedicationEditor({
                             keys={[key]}
                             info={patientInfo}
                             onChange={onPatientInfo}
-                            onSave={() => setOpenInfoKey(null)}
+                            onSave={() => confirmInfoSaved(key, shown)}
                             relevanceFor={(k) => infoRelevance(med, k)}
                           />
                         </div>
