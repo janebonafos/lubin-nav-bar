@@ -343,10 +343,10 @@ export function AiPrescription({
               AI suggestions — not a recommendation to prescribe
             </h3>
             <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              These options were generated from this visit&rsquo;s recorded information. Nothing here
-              is part of the prescription. If you judge an option clinically appropriate, accept it
-              into your draft and complete the clinical review — the prescribing decision and the
-              directions remain yours.
+              These options were generated from this visit&rsquo;s recorded information. Nothing
+              here is part of the prescription. If you judge an option clinically appropriate,
+              accept it into your draft and complete the clinical review — the prescribing decision
+              and the directions remain yours.
             </p>
           </div>
           <button
@@ -405,9 +405,7 @@ export function AiPrescription({
           ))}
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#E7E2F5] pt-3.5">
-          <p className="mr-1 text-[12px] text-[#5A4A8A]">
-            None of these fit?
-          </p>
+          <p className="mr-1 text-[12px] text-[#5A4A8A]">None of these fit?</p>
           <button
             type="button"
             onClick={addMed}
@@ -577,37 +575,37 @@ export function AiPrescription({
 
   const header = (
     <>
-    <PatientProfileDrawer
-      open={profileOpen}
-      onClose={() => setProfileOpen(false)}
-      appointmentId={appointmentId}
-      clientName={clientName}
-      patientInfo={rx.patientInfo}
-      visitMeds={visitMeds}
-    />
-    <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
-      <div>
-        <p className="text-[13px] font-semibold text-[#3D2E6B]">
-          {statusLabel}
-          {draftSourceLabel && !signed && !allVerified ? (
-            <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
-          ) : null}
-        </p>
-        {total > 0 && !signed && !allVerified && (
-          <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
-            Review and verify this draft before issuing it, or discard it if no prescription is
-            needed.
+      <PatientProfileDrawer
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        appointmentId={appointmentId}
+        clientName={clientName}
+        patientInfo={rx.patientInfo}
+        visitMeds={visitMeds}
+      />
+      <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
+        <div>
+          <p className="text-[13px] font-semibold text-[#3D2E6B]">
+            {statusLabel}
+            {draftSourceLabel && !signed && !allVerified ? (
+              <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
+            ) : null}
           </p>
-        )}
-        <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
-          Jurisdiction{" "}
-          <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> — set
-          from {clientName || "the client"}&rsquo;s recorded location and your verified prescribing
-          authority. Not selectable here.
-        </p>
+          {total > 0 && !signed && !allVerified && (
+            <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
+              Review and verify this draft before issuing it, or discard it if no prescription is
+              needed.
+            </p>
+          )}
+          <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
+            Jurisdiction{" "}
+            <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> —
+            set from {clientName || "the client"}&rsquo;s recorded location and your verified
+            prescribing authority. Not selectable here.
+          </p>
+        </div>
+        <StageBar stage={stage} draftReady={total > 0} />
       </div>
-      <StageBar stage={stage} draftReady={total > 0} />
-    </div>
     </>
   );
 
@@ -1132,8 +1130,8 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
                 active
                   ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
                   : done
-                      ? "text-[#5A3EB8]"
-                      : "text-[#9A93B1]"
+                    ? "text-[#5A3EB8]"
+                    : "text-[#9A93B1]"
               }`}
             >
               {done && <Check className="h-3 w-3" />}
@@ -1146,7 +1144,13 @@ function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean })
   );
 }
 
-function StickyBar({ children, tone = "light" }: { children: React.ReactNode; tone?: "light" | "dark" }) {
+function StickyBar({
+  children,
+  tone = "light",
+}: {
+  children: React.ReactNode;
+  tone?: "light" | "dark";
+}) {
   return (
     <div
       className={`sticky bottom-0 z-10 mt-4 flex flex-wrap items-center gap-3 rounded-2xl px-5 py-4 backdrop-blur ${
@@ -1375,12 +1379,14 @@ function MedicationEditor({
   /** Everything that must be settled before the final review becomes active. */
   const prerequisitesLeft =
     blockers.filter(
-      (b) => b.kind === "fields" || b.kind === "info" || b.kind === "blocking" || b.kind === "stale",
+      (b) =>
+        b.kind === "fields" || b.kind === "info" || b.kind === "blocking" || b.kind === "stale",
     ).length + unreviewedKeys.length;
   const finalReady = prerequisitesLeft === 0;
   const medSummary = [med.name, med.dose, med.frequency, med.quantity].filter(Boolean).join(" · ");
   const clientResponse = (sharedSafety?.response ?? "")
-    .replace(/[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE0F}]/gu, "")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\uFE0F/g, "")
     .trim();
   const edit = (p: Partial<PrescriptionMedication>) =>
     onChange({ ...p, approved: false, verifiedAt: undefined, acknowledgedAt: undefined });
@@ -1415,7 +1421,9 @@ function MedicationEditor({
             className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
           >
             {medOpen ? "Collapse" : "Edit"}
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${medOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${medOpen ? "rotate-180" : ""}`}
+            />
           </button>
         </div>
         {!medOpen && (
@@ -1576,7 +1584,10 @@ function MedicationEditor({
                 .map(({ key, requirement }) => {
                   const open = openInfoKey === key;
                   return (
-                    <li key={key} className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}>
+                    <li
+                      key={key}
+                      className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}
+                    >
                       <button
                         type="button"
                         aria-expanded={open}
@@ -1719,7 +1730,11 @@ function MedicationEditor({
 
             {/* Supporting links — plain, clearly secondary */}
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-semibold text-[#6E4FD3]">
-              <button type="button" onClick={() => setWhyOpen((v) => !v)} className="hover:text-[#5A3EB8]">
+              <button
+                type="button"
+                onClick={() => setWhyOpen((v) => !v)}
+                className="hover:text-[#5A3EB8]"
+              >
                 Why this option was shown
               </button>
               {hasName && (
@@ -1737,16 +1752,18 @@ function MedicationEditor({
                 </button>
               )}
               {reviewRan && !checksOpen && (
-                <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>{summary.text}</span>
+                <span className={`ml-auto font-normal ${TONE_TEXT[status.tone]}`}>
+                  {summary.text}
+                </span>
               )}
             </div>
 
             {whyOpen && (
               <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
                 <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                  This option was generated from the information documented for this visit. Review the
-                  supporting information, alternatives, and patient-specific risks before deciding
-                  whether it is appropriate.
+                  This option was generated from the information documented for this visit. Review
+                  the supporting information, alternatives, and patient-specific risks before
+                  deciding whether it is appropriate.
                 </p>
                 <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
                   {med.basis?.whyIncluded ??
@@ -1868,7 +1885,8 @@ function MedicationEditor({
               </button>
               {legalOpen && (
                 <p className="mt-1.5 pl-7 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {MED_VERIFICATION_STATEMENT} Any change to this medication resets the verification.
+                  {MED_VERIFICATION_STATEMENT} Any change to this medication resets the
+                  verification.
                 </p>
               )}
               {med.approved && med.verifiedAt && (
@@ -1885,11 +1903,7 @@ function MedicationEditor({
 }
 
 /** One status per checklist row. Amber only for items needing attention. */
-function StatusChip({
-  level,
-}: {
-  level: "required" | "review" | "complete" | "unavailable";
-}) {
+function StatusChip({ level }: { level: "required" | "review" | "complete" | "unavailable" }) {
   const map = {
     required: { label: "Required", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
     review: { label: "Review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
