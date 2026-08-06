@@ -1852,7 +1852,7 @@ function MedicationEditor({
           countLabel={countText}
           tab={drawerTab}
           onTab={setDrawerTab}
-          profileBadge={outstanding.length}
+          profileBadge={outstanding.length + unreviewedKeys.length}
           footer={
             <>
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
@@ -1918,8 +1918,65 @@ function MedicationEditor({
                 </p>
               </div>
 
-              {(stableCheckKeys.length > 0 || sharedSafety) && (
-                <div>
+              {stableCheckKeys.length > 0 && (
+                <div className="rounded-xl border border-[#EFECF7] bg-[#FBFAFE] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                      Medication-specific checks
+                    </p>
+                    <StatusChip
+                      level={unreviewedKeys.length === 0 ? "complete" : "review"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setDrawerTab("profile")}
+                      className="text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                    >
+                      Open medical profile
+                    </button>
+                  </div>
+                  <p className="mt-1 text-[12px] text-[#5A4A8A]">
+                    {unreviewedKeys.length === 0
+                      ? "All checks for this medication have been reviewed."
+                      : `${unreviewedKeys.length} check${
+                          unreviewedKeys.length === 1 ? "" : "s"
+                        } still to review on the medical profile.`}
+                  </p>
+                </div>
+              )}
+
+              {sharedSafety && (
+                <div className="rounded-xl border border-[#EFECF7] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                      Shared {sharedSafety.clinicalName} safety response
+                    </p>
+                    <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
+                    <span className="text-[11.5px] font-medium text-[#8C86A0]">
+                      {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {med.warnings && (
+                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  {med.warnings}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div>
+              <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
+                Reusable patient information. Editing here updates it everywhere it is used.
+              </p>
+              <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                {infoList.map(({ key, requirement }) =>
+                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
+                )}
+              </ul>
+              {stableCheckKeys.length > 0 && (
+                <div className="mt-6">
                   <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
                     Medication-specific checks
                   </p>
@@ -1944,7 +2001,7 @@ function MedicationEditor({
                                 {reviewed && (
                                   <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
                                 )}
-                                <span className="truncate">{label}</span>
+                                <span>{label}</span>
                               </span>
                               {reviewed && med.checkReviews?.[k] && (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
@@ -1976,41 +2033,9 @@ function MedicationEditor({
                         </li>
                       );
                     })}
-                    {sharedSafety && (
-                      <li>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
-                          <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
-                            Shared {sharedSafety.clinicalName} safety response
-                          </span>
-                          <StatusChip
-                            level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"}
-                          />
-                          <span className="inline-flex w-[132px] justify-end text-[11.5px] font-medium text-[#8C86A0]">
-                            {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
-                          </span>
-                        </div>
-                      </li>
-                    )}
                   </ul>
                 </div>
               )}
-
-              {med.warnings && (
-                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {med.warnings}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
-                Reusable patient information. Editing here updates it everywhere it is used.
-              </p>
-              <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                {infoList.map(({ key, requirement }) =>
-                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
-                )}
-              </ul>
             </div>
           )}
         </SafetyReviewDrawer>
