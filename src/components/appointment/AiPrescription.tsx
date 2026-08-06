@@ -1344,6 +1344,7 @@ function SafetyReviewDrawer({
   countLabel: string;
   tab: "safety" | "profile";
   onTab: (t: "safety" | "profile") => void;
+  profileBadge?: number;
   children: React.ReactNode;
   footer: React.ReactNode;
 }) {
