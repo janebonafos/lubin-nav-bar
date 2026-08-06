@@ -2818,7 +2818,11 @@ export function ApptNotesBlock({
                       className="mt-0.5 h-4 w-4 rounded border-[#D6CCEC] text-[#7E6BAF] focus:ring-[#7E6BAF]"
                     />
                     <span>
-                      I reviewed this summary and confirm it is appropriate to share with {clientLabel}.
+                      I reviewed this summary and confirm it is appropriate to share with{" "}
+                      {clientLabel}
+                      {prescriptionContext === "none"
+                        ? "."
+                        : ". This does not sign or send the prescription."}
                     </span>
                   </label>
                 </>
@@ -2866,7 +2870,11 @@ export function ApptNotesBlock({
                   className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2F2354] disabled:cursor-not-allowed disabled:bg-[#C9BEE4] disabled:hover:bg-[#C9BEE4]"
                 >
                   {updatingShared && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {updatingShared ? "Sharing…" : `Review and share with ${clientLabel}`}
+                  {updatingShared
+                    ? "Sharing…"
+                    : prescriptionContext === "none"
+                      ? `Review and share with ${clientLabel}`
+                      : `Share summary with ${clientLabel}`}
                 </button>
               </div>
             )}
