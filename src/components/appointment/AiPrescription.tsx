@@ -1472,6 +1472,14 @@ function MedicationEditor({
   const reviewRan = summary.ran;
   const status = safetyStatus(med, patientInfo);
   const unreviewedKeys = useMemo(() => unreviewedCheckKeys(med), [med]);
+  /** Fixed-order check rows: present or pending review, order never changes. */
+  const stableCheckKeys = useMemo(
+    () =>
+      CHECK_ROWS.map((r) => r.key).filter(
+        (k) => !!med.checks?.[k] || unreviewedKeys.includes(k),
+      ),
+    [med, unreviewedKeys],
+  );
   /** Header, safety summary and the sticky footer all count the same blockers. */
   const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
   const requiredCount = blockers.length - reviewsRemaining;
