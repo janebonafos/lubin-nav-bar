@@ -1926,6 +1926,7 @@ export function ApptNotesBlock({
   onPrivateNotesSaved,
   onFollowUpSaved,
   onFollowUpShared,
+  prescriptionContext = "none",
 }: {
   appt: ApptLite;
   onChange: (patch: Partial<ApptLite>) => void;
@@ -1937,6 +1938,8 @@ export function ApptNotesBlock({
   onPrivateNotesSaved?: (saved: boolean) => void;
   onFollowUpSaved?: (saved: boolean) => void;
   onFollowUpShared?: () => void;
+  /** "none" = no prescription for this appointment, "pending" = prescription step still open, "issued" = signed. */
+  prescriptionContext?: "none" | "pending" | "issued";
 }) {
 
   const [editing, setEditing] = useState(false);
