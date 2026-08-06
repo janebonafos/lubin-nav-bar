@@ -58,6 +58,7 @@ import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
+import { toast } from "sonner";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -1450,6 +1451,15 @@ function MedicationEditor({
   const [legalOpen, setLegalOpen] = useState(false);
   const [openInfoKey, setOpenInfoKey] = useState<InfoKey | null>(null);
   const [openCheckKey, setOpenCheckKey] = useState<CheckKey | null>(null);
+  /** Frozen display state for the patient-information rows. While a row is open
+   *  the list renders from this snapshot, so nothing re-labels, resizes or moves
+   *  while the provider is still typing. Cleared on an explicit save or close. */
+  const [frozenInfo, setFrozenInfo] = useState<Record<
+    string,
+    { recorded: boolean; value: string }
+  > | null>(null);
+  /** Last item the provider saved — shows an inline confirmation on that row. */
+  const [savedInfoKey, setSavedInfoKey] = useState<InfoKey | null>(null);
   const [drawerTab, setDrawerTab] = useState<"safety" | "profile">("safety");
   const [whyOpen, setWhyOpen] = useState(false);
   const [medOpen, setMedOpen] = useState(true);
@@ -1490,11 +1500,31 @@ function MedicationEditor({
     .map((i) => infoLabel(i.key))
     .join(" and ")
     .trim();
+  const captureInfoSnapshot = () =>
+    setFrozenInfo(
+      Object.fromEntries(
+        infoList.map((i) => [
+          i.key,
+          { recorded: i.recorded, value: infoRecordedSummary(i.key, patientInfo, visitMeds) },
+        ]),
+      ),
+    );
+  const confirmInfoSaved = (key: InfoKey, edited: boolean) => {
+    setFrozenInfo(null);
+    setOpenInfoKey(null);
+    setSavedInfoKey(key);
+    toast.success(`${infoLabel(key)} ${edited ? "updated" : "added"}`, {
+      description: "Saved to the client's private clinical record.",
+    });
+  };
   /** One accordion row for a patient-information item inside the drawer. */
-  const infoAccordionRow = (key: InfoKey, level: "required" | "review" | "complete") => {
+  const infoAccordionRow = (key: InfoKey, requirement: "required" | "review") => {
     const open = openInfoKey === key;
-    const done = level === "complete";
-    const value = done ? infoRecordedSummary(key, patientInfo, visitMeds) : "";
+    const snap = frozenInfo?.[key];
+    const live = infoList.find((i) => i.key === key);
+    const done = snap ? snap.recorded : !!live?.recorded;
+    const value = done ? (snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds)) : "";
+    const justSaved = savedInfoKey === key;
     return (
       <li key={key} className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}>
         <button
@@ -1502,7 +1532,14 @@ function MedicationEditor({
           aria-expanded={open}
           onClick={() => {
             setOpenCheckKey(null);
-            setOpenInfoKey(open ? null : key);
+            setSavedInfoKey(null);
+            if (open) {
+              setFrozenInfo(null);
+              setOpenInfoKey(null);
+            } else {
+              captureInfoSnapshot();
+              setOpenInfoKey(key);
+            }
           }}
           className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
         >
@@ -1514,8 +1551,13 @@ function MedicationEditor({
             {done && value && (
               <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
             )}
+            {justSaved && (
+              <span className="mt-0.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
+                <Check className="h-3 w-3" /> Information saved
+              </span>
+            )}
           </span>
-          <StatusChip level={done ? "complete" : level} />
+          <StatusChip level={done ? "complete" : requirement} />
           <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
             {open ? "Close" : done ? "Edit" : "Add"}
             <ChevronDown
@@ -1530,7 +1572,7 @@ function MedicationEditor({
               keys={[key]}
               info={patientInfo}
               onChange={onPatientInfo}
-              onSave={() => setOpenInfoKey(null)}
+              onSave={() => confirmInfoSaved(key, !!snap?.recorded)}
               relevanceFor={(k) => infoRelevance(med, k)}
             />
           </div>
@@ -1840,11 +1882,8 @@ function MedicationEditor({
                   Patient information
                 </p>
                 <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                  {infoList.map(({ key, recorded, requirement }) =>
-                    infoAccordionRow(
-                      key,
-                      recorded ? "complete" : requirement === "required" ? "required" : "review",
-                    ),
+                  {infoList.map(({ key, requirement }) =>
+                    infoAccordionRow(key, requirement === "required" ? "required" : "review"),
                   )}
                 </ul>
               </div>
@@ -1899,6 +1938,7 @@ function MedicationEditor({
                                 reviewedAt={med.checkReviews?.[k]}
                                 onMarkReviewed={() => {
                                   onMarkCheckReviewed(k);
+                                  toast.success(`${label} marked as reviewed`);
                                 }}
                               />
                             </ul>
@@ -1939,7 +1979,10 @@ function MedicationEditor({
               <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                 {infoList.map(({ key, recorded }) => {
                   const open = openInfoKey === key;
-                  const value = infoRecordedSummary(key, patientInfo, visitMeds);
+                  const snap = frozenInfo?.[key];
+                  const shown = snap ? snap.recorded : recorded;
+                  const value = snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds);
+                  const justSaved = savedInfoKey === key;
                   return (
                     <li key={key} className={open ? "bg-[#FBFAFE]" : ""}>
                       <button
@@ -1947,7 +1990,14 @@ function MedicationEditor({
                         aria-expanded={open}
                         onClick={() => {
                           setOpenCheckKey(null);
-                          setOpenInfoKey(open ? null : key);
+                          setSavedInfoKey(null);
+                          if (open) {
+                            setFrozenInfo(null);
+                            setOpenInfoKey(null);
+                          } else {
+                            captureInfoSnapshot();
+                            setOpenInfoKey(key);
+                          }
                         }}
                         className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
                       >
@@ -1957,19 +2007,24 @@ function MedicationEditor({
                           </span>
                           <span
                             className={`block truncate text-[11.5px] ${
-                              recorded ? "text-[#5A4A8A]" : "text-[#9A93AE]"
+                              shown ? "text-[#5A4A8A]" : "text-[#9A93AE]"
                             }`}
                           >
-                            {recorded ? value : "Not documented"}
+                            {shown ? value : "Not documented"}
                           </span>
-                          {recorded && patientInfo?.updatedAt && (
+                          {justSaved && (
+                            <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
+                              <Check className="h-3 w-3" /> Information saved
+                            </span>
+                          )}
+                          {shown && patientInfo?.updatedAt && (
                             <span className="block text-[11px] text-[#8C86A0]">
                               Updated {formatCheckedAt(patientInfo.updatedAt)}
                             </span>
                           )}
                         </span>
                         <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                          {open ? "Close" : recorded ? "Edit" : "Add"}
+                          {open ? "Close" : shown ? "Edit" : "Add"}
                           <ChevronDown
                             className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                           />
@@ -1981,7 +2036,7 @@ function MedicationEditor({
                             keys={[key]}
                             info={patientInfo}
                             onChange={onPatientInfo}
-                            onSave={() => setOpenInfoKey(null)}
+                            onSave={() => confirmInfoSaved(key, shown)}
                             relevanceFor={(k) => infoRelevance(med, k)}
                           />
                         </div>
