@@ -53,7 +53,10 @@ import {
   type InfoKey,
 } from "@/lib/prescription/safety";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
-import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
+import {
+  MED_VERIFICATION_STATEMENT,
+  RECORD_ATTESTATION_STATEMENT,
+} from "@/lib/prescription/reference";
 import { DEMO_BANNER, demoPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
@@ -523,6 +526,7 @@ export function AiPrescription({
   const canSign =
     allVerified &&
     !!rx.legalAcknowledgedAt &&
+    !!rx.recordAttestedAt &&
     unverifiedSources.length === 0 &&
     !restrictedPending &&
     // Required information must still be complete and every review acknowledged.
@@ -864,6 +868,25 @@ export function AiPrescription({
               clinical responsibility for every medication and direction in this prescription.
             </span>
           </label>
+        </div>
+
+        <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
+          <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
+            <input
+              type="checkbox"
+              checked={!!rx.recordAttestedAt}
+              onChange={(e) => patch({ recordAttestedAt: e.target.checked ? Date.now() : undefined })}
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+            />
+            <span>
+              <span className="font-semibold">Record accuracy attestation</span> —{" "}
+              {RECORD_ATTESTATION_STATEMENT}
+            </span>
+          </label>
+          <p className="mt-2 pl-7 text-[11.5px] leading-relaxed text-[#6F6889]">
+            This attestation is stored with your name and a timestamp as part of the clinical record.
+            {rx.recordAttestedAt ? ` Attested ${formatCheckedAt(rx.recordAttestedAt)}.` : ""}
+          </p>
         </div>
 
         <StickyBar>
@@ -1852,7 +1875,7 @@ function MedicationEditor({
           countLabel={countText}
           tab={drawerTab}
           onTab={setDrawerTab}
-          profileBadge={outstanding.length + unreviewedKeys.length}
+          profileBadge={outstanding.length}
           footer={
             <>
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
@@ -1919,72 +1942,19 @@ function MedicationEditor({
               </div>
 
               {stableCheckKeys.length > 0 && (
-                <div className="rounded-xl border border-[#EFECF7] bg-[#FBFAFE] px-4 py-3">
+                <div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                    <p className="min-w-0 flex-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
                       Medication-specific checks
                     </p>
-                    <StatusChip
-                      level={unreviewedKeys.length === 0 ? "complete" : "review"}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setDrawerTab("profile")}
-                      className="text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
-                    >
-                      Open medical profile
-                    </button>
+                    <StatusChip level={unreviewedKeys.length === 0 ? "complete" : "review"} />
                   </div>
-                  <p className="mt-1 text-[12px] text-[#5A4A8A]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
                     {unreviewedKeys.length === 0
-                      ? "All checks for this medication have been reviewed."
+                      ? "Every check for this medication has been reviewed."
                       : `${unreviewedKeys.length} check${
                           unreviewedKeys.length === 1 ? "" : "s"
-                        } still to review on the medical profile.`}
-                  </p>
-                </div>
-              )}
-
-              {sharedSafety && (
-                <div className="rounded-xl border border-[#EFECF7] px-4 py-3">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
-                      Shared {sharedSafety.clinicalName} safety response
-                    </p>
-                    <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
-                    <span className="text-[11.5px] font-medium text-[#8C86A0]">
-                      {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {med.warnings && (
-                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {med.warnings}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
-                Reusable patient information. Editing here updates it everywhere it is used.
-              </p>
-              <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                {(frozenInfoOrder
-                  ? frozenInfoOrder.flatMap((key) => {
-                      const item = infoList.find((candidate) => candidate.key === key);
-                      return item ? [item] : [];
-                    })
-                  : infoList
-                ).map(({ key, requirement }) =>
-                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
-                )}
-              </ul>
-              {stableCheckKeys.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
-                    Medication-specific checks
+                        } to review before this medication can be verified.`}
                   </p>
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                     {stableCheckKeys.map((k) => {
@@ -2042,6 +2012,43 @@ function MedicationEditor({
                   </ul>
                 </div>
               )}
+
+              {sharedSafety && (
+                <div className="rounded-xl border border-[#EFECF7] px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                      Shared {sharedSafety.clinicalName} safety response
+                    </p>
+                    <StatusChip level={med.sharedSafetyAcknowledgedAt ? "complete" : "review"} />
+                    <span className="text-[11.5px] font-medium text-[#8C86A0]">
+                      {med.sharedSafetyAcknowledgedAt ? "Reviewed" : "Review in final step"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {med.warnings && (
+                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  {med.warnings}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div>
+              <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
+                Reusable patient information. Editing here updates it everywhere it is used.
+              </p>
+              <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                {(frozenInfoOrder
+                  ? frozenInfoOrder.flatMap((key) => {
+                      const item = infoList.find((candidate) => candidate.key === key);
+                      return item ? [item] : [];
+                    })
+                  : infoList
+                ).map(({ key, requirement }) =>
+                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
+                )}
+              </ul>
             </div>
           )}
         </SafetyReviewDrawer>
