@@ -978,6 +978,7 @@ export function AiPrescription({
             onOpenReference={() => setRefMedId(reviewMed.id)}
             sharedSafety={sharedSafety}
             clientName={clientName}
+            providerName={providerName}
             safetyOpen={safetyOpen}
             onSafetyOpenChange={setSafetyOpen}
           />
@@ -1468,6 +1469,7 @@ function MedicationEditor({
   onOpenReference,
   sharedSafety,
   clientName,
+  providerName,
   safetyOpen,
   onSafetyOpenChange,
 }: {
@@ -1483,6 +1485,7 @@ function MedicationEditor({
   onOpenReference: () => void;
   sharedSafety?: SharedSafetyResponse | null;
   clientName?: string;
+  providerName?: string;
   /** The patient information & safety drawer is controlled by the parent so the
    *  shield icon in the prescription header can open the same panel. */
   safetyOpen: boolean;
@@ -2145,8 +2148,8 @@ function MedicationEditor({
                   className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-40"
                 />
                 <span className="font-semibold">
-                  I confirm that I reviewed this medication and its patient-specific safety
-                  information.
+                  I, {providerName ? `Dr. ${providerName}` : "Dr. [Provider name]"}, confirm that I
+                  reviewed this medication and its patient-specific safety information.
                 </span>
               </label>
               <button
