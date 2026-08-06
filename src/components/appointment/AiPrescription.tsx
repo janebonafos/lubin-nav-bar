@@ -10,6 +10,7 @@ import {
   Info,
   ChevronLeft,
   ChevronDown,
+  X,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
