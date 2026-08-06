@@ -1486,8 +1486,10 @@ function MedicationEditor({
     .join(" and ")
     .trim();
   /** One accordion row for a patient-information item inside the drawer. */
-  const infoAccordionRow = (key: InfoKey, level: "required" | "review") => {
+  const infoAccordionRow = (key: InfoKey, level: "required" | "review" | "complete") => {
     const open = openInfoKey === key;
+    const done = level === "complete";
+    const value = done ? infoRecordedSummary(key, patientInfo, visitMeds) : "";
     return (
       <li key={key} className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}>
         <button
@@ -1499,12 +1501,18 @@ function MedicationEditor({
           }}
           className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
         >
-          <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-[#2C2B4B]">
-            {infoLabel(key)}
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
+              {done && <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />}
+              <span className="truncate">{infoLabel(key)}</span>
+            </span>
+            {done && value && (
+              <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
+            )}
           </span>
-          <StatusChip level={level} />
+          <StatusChip level={done ? "complete" : level} />
           <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-            {open ? "Close" : "Add"}
+            {open ? "Close" : done ? "Edit" : "Add"}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
             />
