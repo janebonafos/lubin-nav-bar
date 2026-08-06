@@ -612,9 +612,10 @@ function DetailsPage() {
                 onToggle={() => toggleStep("session-notes")}
                 done={privateNotesSaved && hasNotes}
                 checkBadge={privateNotesSaved && hasNotes}
-                pillLabel={docStatus}
+                pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
                 optional
               >
+                <>
                 <ApptNotesBlock
                   appt={appt}
                   onChange={onChange}
@@ -626,6 +627,25 @@ function DetailsPage() {
                     if (saved) setOpenStep(null);
                   }}
                 />
+                {!hasNotes && !acks.notes && (
+                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                    <p className="text-[13px] leading-snug text-[#5A4A8A]">
+                      Nothing to record for this session? You can move on, but confirm it so the
+                      step is not left half-finished.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAck({ notes: true });
+                        setOpenStep("care-plan");
+                      }}
+                      className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      No private notes for this session
+                    </button>
+                  </div>
+                )}
+                </>
               </SectionCard>
             )}
 
@@ -641,9 +661,12 @@ function DetailsPage() {
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished}
                 checkBadge={isPublished}
-                pillLabel={followUpStatus}
+                locked={step2Locked}
+                lockedNote="Finish step 1 first"
+                pillLabel={acks.summary && !isPublished ? "Nothing to share" : followUpStatus}
                 optional
               >
+                <>
                 <ApptNotesBlock
                   appt={appt}
                   onChange={onChange}
@@ -658,6 +681,41 @@ function DetailsPage() {
                   }}
                   onFollowUpShared={() => setOpenStep(null)}
                 />
+                {!isPublished && !acks.summary && (
+                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                    <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                      Not sharing a summary this time?
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-[#5A4A8A]">
+                      {clientLabel} will see nothing new in their Health Passport for this
+                      appointment. Confirm you have read this before moving on.
+                    </p>
+                    <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-[#3D2E6B]">
+                      <input
+                        type="checkbox"
+                        checked={summaryAckChecked}
+                        onChange={(e) => setSummaryAckChecked(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+                      />
+                      <span>
+                        I have decided not to send a written summary to {clientLabel} for this
+                        appointment.
+                      </span>
+                    </label>
+                    <button
+                      type="button"
+                      disabled={!summaryAckChecked}
+                      onClick={() => {
+                        setAck({ summary: true });
+                        setOpenStep(rxAllowed ? "prescriptions" : null);
+                      }}
+                      className="mt-3 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      Confirm and continue
+                    </button>
+                  </div>
+                )}
+                </>
               </SectionCard>
             )}
 
@@ -670,6 +728,10 @@ function DetailsPage() {
                 description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
+                locked={rxLocked}
+                lockedNote="Finish steps 1 and 2 first"
+                done={rxDone}
+                checkBadge={rxDone}
                 pillLabel={rxStatus}
                 optional
               >
