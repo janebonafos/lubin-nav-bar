@@ -1875,7 +1875,7 @@ function MedicationEditor({
           countLabel={countText}
           tab={drawerTab}
           onTab={setDrawerTab}
-          profileBadge={outstanding.length + unreviewedKeys.length}
+          profileBadge={outstanding.length}
           footer={
             <>
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
