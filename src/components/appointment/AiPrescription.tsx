@@ -12,6 +12,7 @@ import {
   ChevronDown,
   X,
   ShieldCheck,
+  Eye,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
