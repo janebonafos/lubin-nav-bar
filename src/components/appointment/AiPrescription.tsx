@@ -1942,29 +1942,74 @@ function MedicationEditor({
               </div>
 
               {stableCheckKeys.length > 0 && (
-                <div className="rounded-xl border border-[#EFECF7] bg-[#FBFAFE] px-4 py-3">
+                <div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
+                    <p className="min-w-0 flex-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
                       Medication-specific checks
                     </p>
-                    <StatusChip
-                      level={unreviewedKeys.length === 0 ? "complete" : "review"}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setDrawerTab("profile")}
-                      className="text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
-                    >
-                      Open medical profile
-                    </button>
+                    <StatusChip level={unreviewedKeys.length === 0 ? "complete" : "review"} />
                   </div>
-                  <p className="mt-1 text-[12px] text-[#5A4A8A]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
                     {unreviewedKeys.length === 0
-                      ? "All checks for this medication have been reviewed."
+                      ? "Every check for this medication has been reviewed."
                       : `${unreviewedKeys.length} check${
                           unreviewedKeys.length === 1 ? "" : "s"
-                        } still to review on the medical profile.`}
+                        } to review before this medication can be verified.`}
                   </p>
+                  <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                    {stableCheckKeys.map((k) => {
+                      const open = openCheckKey === k;
+                      const reviewed = !!med.checkReviews?.[k];
+                      const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
+                      return (
+                        <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
+                          <button
+                            type="button"
+                            aria-expanded={open}
+                            onClick={() => {
+                              setOpenInfoKey(null);
+                              setOpenCheckKey(open ? null : k);
+                            }}
+                            className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
+                          >
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
+                                {reviewed && (
+                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                                )}
+                                <span>{label}</span>
+                              </span>
+                              {reviewed && med.checkReviews?.[k] && (
+                                <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                </span>
+                              )}
+                            </span>
+                            <StatusChip level={reviewed ? "complete" : "review"} />
+                            <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
+                              {open ? "Close" : reviewed ? "View" : "Review"}
+                              <ChevronDown
+                                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+                              />
+                            </span>
+                          </button>
+                          {open && (
+                            <ul className="px-4 pb-3">
+                              <CheckRow
+                                label={label}
+                                check={med.checks?.[k]}
+                                reviewedAt={med.checkReviews?.[k]}
+                                onMarkReviewed={() => {
+                                  onMarkCheckReviewed(k);
+                                  toast.success(`${label} marked as reviewed`);
+                                }}
+                              />
+                            </ul>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               )}
 
