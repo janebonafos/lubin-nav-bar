@@ -251,13 +251,19 @@ export function AiPrescription({
         return;
       }
       if (mode === "suggest") {
-        patch({
-          suggestions: meds,
-          suggestedAt: Date.now(),
-          country: data.country ?? country,
-          skippedAt: undefined,
-        });
-        setShowSuggestions(true);
+        if (meds.length === 1) {
+          // One option only: open it straight in the clinical review workspace.
+          // It is still unverified — the provider decides and verifies there.
+          openAsDraft(meds[0]!, [], data.country ?? country);
+        } else {
+          patch({
+            suggestions: meds,
+            suggestedAt: Date.now(),
+            country: data.country ?? country,
+            skippedAt: undefined,
+          });
+          setShowSuggestions(true);
+        }
         return;
       }
       patch({
@@ -288,13 +294,18 @@ export function AiPrescription({
   const loadFallback = (message?: string, mode: "draft" | "suggest" = "draft") => {
     const fallback = fallbackPrescription(appointmentId);
     if (mode === "suggest") {
+      const list = fallback.suggestions ?? [];
+      setNotice(message ?? null);
+      if (list.length === 1) {
+        openAsDraft(list[0]!, [], country);
+        return;
+      }
       patch({
-        suggestions: fallback.suggestions,
+        suggestions: list,
         suggestedAt: fallback.suggestedAt,
         demo: true,
         skippedAt: undefined,
       });
-      setNotice(message ?? null);
       setShowSuggestions(true);
       return;
     }
@@ -304,11 +315,13 @@ export function AiPrescription({
 
   const suggestions = rx.suggestions ?? [];
 
-  /** Move one suggestion into the draft. It is still unverified: the provider
-   *  must complete the clinical review before it can be issued. */
-  const acceptSuggestion = (id: string) => {
-    const s = suggestions.find((m) => m.id === id);
-    if (!s) return;
+  /** Move one option into the draft and open it for review. It is still
+   *  unverified: the provider must complete the clinical review to issue it. */
+  function openAsDraft(
+    s: PrescriptionMedication,
+    remaining: PrescriptionMedication[],
+    nextCountry?: RxCountry,
+  ) {
     const med: PrescriptionMedication = {
       ...s,
       id: genRxId(),
@@ -317,18 +330,30 @@ export function AiPrescription({
       verifiedAt: undefined,
       acknowledgedAt: undefined,
     };
-    const blank = rx.medications.filter((m) => m.name.trim());
+    const named = rx.medications.filter((m) => m.name.trim());
     patch({
-      medications: [...blank, med],
-      suggestions: suggestions.filter((m) => m.id !== id),
+      medications: [...named, med],
+      suggestions: remaining,
+      suggestedAt: remaining.length ? Date.now() : undefined,
+      ...(nextCountry ? { country: nextCountry } : {}),
       skippedAt: undefined,
       reviewedAt: undefined,
       legalAcknowledgedAt: undefined,
       finalisedAt: undefined,
       finalisedBy: undefined,
     });
+    setShowSuggestions(false);
     setReviewMedId(med.id);
     setFinalReview(false);
+  }
+
+  const acceptSuggestion = (id: string) => {
+    const s = suggestions.find((m) => m.id === id);
+    if (!s) return;
+    openAsDraft(
+      s,
+      suggestions.filter((m) => m.id !== id),
+    );
   };
 
   const dismissSuggestions = () => {
@@ -796,7 +821,7 @@ export function AiPrescription({
                 onClick={() => void generate({ mode: "suggest" })}
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                See AI suggestion
+                Prepare draft with AI
               </button>
               <button
                 type="button"
@@ -1115,10 +1140,18 @@ export function AiPrescription({
                 verifiedAt: Date.now(),
               });
               setReviewMedId(null);
-              toast.success("Medication verified", {
-                description:
-                  "Add another medication if this prescription needs more, or continue to final review.",
-              });
+              const othersPending = namedMeds.some((m) => m.id !== reviewMed.id && !m.approved);
+              if (!othersPending) {
+                // Straight to the prescription itself — no extra click.
+                setFinalReview(true);
+                toast.success("Medication verified", {
+                  description: "Here is the prescription. You can add another before signing.",
+                });
+              } else {
+                toast.success("Medication verified", {
+                  description: "Verify the remaining medication to continue.",
+                });
+              }
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
@@ -1171,7 +1204,7 @@ export function AiPrescription({
             onClick={() => void generate({ mode: "suggest" })}
             className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
           >
-            See AI suggestion
+            Prepare draft with AI
           </button>
         )}
         {suggestions.length > 0 && !showSuggestions && (
