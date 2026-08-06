@@ -87,6 +87,13 @@ export function PatientInfoForm({
   relevanceFor?: (key: InfoKey) => string;
 }) {
   const [saved, setSaved] = useState<number | null>(null);
+  /** Nothing is written to the patient record while the provider types. Edits
+   *  live in this local draft until "Save patient information" is pressed. */
+  const [patch, setPatch] = useState<Partial<PatientSafetyInfo>>({});
+  const dirty = Object.keys(patch).length > 0;
+  /** What the fields show: the stored record with the unsaved draft on top. */
+  const view: PatientSafetyInfo = { ...(info ?? {}), ...patch };
+  const stage = (p: Partial<PatientSafetyInfo>) => setPatch((cur) => ({ ...cur, ...p }));
   const structured = keys.filter(isStructuredKey);
   const showBipolar = keys.includes("bipolarHistory");
   const showAge = keys.includes("age");
@@ -95,13 +102,13 @@ export function PatientInfoForm({
   const labsField = INFO_FIELDS.find((f) => f.key === "labs")!;
 
   const setEntries = (key: StructuredKey, entries: PatientInfoEntry[]) =>
-    onChange({
+    stage({
       [entryField(key)]: entries,
       [stateField(key)]: "documented",
     } as Partial<PatientSafetyInfo>);
 
   const setState = (key: StructuredKey, state: InfoDocState) =>
-    onChange({
+    stage({
       [stateField(key)]: state,
       ...(state === "documented" ? {} : { [entryField(key)]: [] }),
     } as Partial<PatientSafetyInfo>);
@@ -109,8 +116,8 @@ export function PatientInfoForm({
   return (
     <div className="mt-3 space-y-4 border-t border-[#EDEBF3] pt-3">
       {structured.map((key) => {
-        const entries = entriesFor(info, key);
-        const state = docStateFor(info, key);
+        const entries = entriesFor(view, key);
+        const state = docStateFor(view, key);
         return (
           <div key={key}>
             <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{infoLabel(key)}</p>
@@ -287,9 +294,9 @@ export function PatientInfoForm({
               <button
                 key={s}
                 type="button"
-                onClick={() => onChange({ bipolarHistory: s })}
+                onClick={() => stage({ bipolarHistory: s })}
                 className={`inline-flex h-7 items-center rounded-full px-3 text-[11.5px] font-semibold transition ${
-                  (info?.bipolarHistory ?? "not-documented") === s
+                  (view.bipolarHistory ?? "not-documented") === s
                     ? "bg-[#6E4FD3] text-white"
                     : "border border-[#DEDAE8] bg-white text-[#5A4A8A] hover:bg-[#F7F5FB]"
                 }`}
@@ -298,11 +305,11 @@ export function PatientInfoForm({
               </button>
             ))}
           </div>
-          {info?.bipolarHistory === "present" && (
+          {view.bipolarHistory === "present" && (
             <input
-              value={info?.bipolarDetail ?? ""}
+              value={view.bipolarDetail ?? ""}
               placeholder="Brief detail (episode, year, treatment)"
-              onChange={(e) => onChange({ bipolarDetail: e.target.value })}
+              onChange={(e) => stage({ bipolarDetail: e.target.value })}
               className={`mt-2 ${inputClass}`}
             />
           )}
@@ -321,8 +328,8 @@ export function PatientInfoForm({
               <span className="mb-1 block">Date of birth</span>
               <input
                 type="date"
-                value={info?.dob ?? ""}
-                onChange={(e) => onChange({ dob: e.target.value })}
+                value={view.dob ?? ""}
+                onChange={(e) => stage({ dob: e.target.value })}
                 className={inputClass}
               />
             </label>
@@ -332,9 +339,9 @@ export function PatientInfoForm({
                 type="number"
                 min={0}
                 max={120}
-                value={info?.ageYears ?? ""}
+                value={view.ageYears ?? ""}
                 onChange={(e) =>
-                  onChange({
+                  stage({
                     ageYears: e.target.value === "" ? undefined : Number(e.target.value),
                   })
                 }
@@ -343,8 +350,8 @@ export function PatientInfoForm({
             </label>
           </div>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-            {patientAge(info) !== null
-              ? `Recorded age ${patientAge(info)}. Age-dependent warnings can now be evaluated.`
+            {patientAge(view) !== null
+              ? `Recorded age ${patientAge(view)}. Age-dependent warnings can now be evaluated.`
               : (relevanceFor?.("age") ??
                 "Age-dependent warnings stay hidden until the age or date of birth is recorded.")}
           </p>
@@ -357,8 +364,8 @@ export function PatientInfoForm({
             Pregnancy and breastfeeding status
           </p>
           <select
-            value={info?.pregnancyStatus ?? "not-documented"}
-            onChange={(e) => onChange({ pregnancyStatus: e.target.value as PregnancyStatus })}
+            value={view.pregnancyStatus ?? "not-documented"}
+            onChange={(e) => stage({ pregnancyStatus: e.target.value as PregnancyStatus })}
             className={`mt-1.5 ${inputClass}`}
           >
             {(
@@ -377,7 +384,7 @@ export function PatientInfoForm({
             ))}
           </select>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#8A6A20]">
-            {(info?.pregnancyStatus ?? "not-documented") === "not-documented"
+            {(view.pregnancyStatus ?? "not-documented") === "not-documented"
               ? "“Not documented” leaves the pregnancy and breastfeeding check incomplete. It never means “not pregnant”."
               : (relevanceFor?.("pregnancy") ?? "Recorded status is used by the safety review.")}
           </p>
@@ -391,9 +398,9 @@ export function PatientInfoForm({
           </span>
           <textarea
             rows={2}
-            value={info?.labs ?? ""}
+            value={view.labs ?? ""}
             placeholder={labsField.placeholder}
-            onChange={(e) => onChange({ labs: e.target.value })}
+            onChange={(e) => stage({ labs: e.target.value })}
             className={inputClass}
           />
           <span className="mt-1.5 block text-[12px] leading-relaxed text-[#5A4A8A]">
@@ -407,14 +414,19 @@ export function PatientInfoForm({
         <button
           type="button"
           onClick={() => {
-            onSave();
+            if (dirty) onChange(patch);
+            setPatch({});
             setSaved(Date.now());
+            onSave();
           }}
           className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
         >
           Save patient information
         </button>
         <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+          {dirty
+            ? "Not saved yet — press “Save patient information” to record these details. "
+            : ""}
           This information is saved to the client&rsquo;s private clinical record and is not
           included in the client summary.
           {saved ? ` Saved ${new Date(saved).toLocaleTimeString()}.` : ""}
