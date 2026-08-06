@@ -2056,24 +2056,33 @@ function MedicationEditor({
                       ? "Every check for this medication has been reviewed."
                       : `${unreviewedKeys.length} check${
                           unreviewedKeys.length === 1 ? "" : "s"
-                        } to review before this medication can be verified.`}
+                        } need your review before this medication can be verified. The rest are shown for information only.`}
                   </p>
+                  {unreviewedKeys.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        unreviewedKeys.forEach((k) => onMarkCheckReviewed(k));
+                        toast.success(
+                          `${unreviewedKeys.length} checks marked as reviewed`,
+                          { description: "You can open any check to undo this." },
+                        );
+                      }}
+                      className="mt-2 inline-flex h-8 items-center rounded-[9px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+                    >
+                      Mark all {unreviewedKeys.length} as reviewed
+                    </button>
+                  )}
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                     {stableCheckKeys.map((k) => {
                       const open = openCheckKey === k;
                       const reviewed = !!med.checkReviews?.[k];
                       const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
+                      const state = checkState(med.checks?.[k]);
+                      const needsAck = state === "review-needed" || state === "blocking";
                       return (
                         <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
-                          <button
-                            type="button"
-                            aria-expanded={open}
-                            onClick={() => {
-                              setOpenInfoKey(null);
-                              setOpenCheckKey(open ? null : k);
-                            }}
-                            className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
-                          >
+                          <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left">
                             <span className="min-w-0 flex-1">
                               <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
                                 {reviewed && (
@@ -2081,20 +2090,48 @@ function MedicationEditor({
                                 )}
                                 <span>{label}</span>
                               </span>
-                              {reviewed && med.checkReviews?.[k] && (
+                              {reviewed && med.checkReviews?.[k] ? (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
                                   Reviewed {formatCheckedAt(med.checkReviews[k]!)}
                                 </span>
+                              ) : (
+                                <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                  {needsAck
+                                    ? "You need to mark this as reviewed"
+                                    : "Nothing for you to do — information only"}
+                                </span>
                               )}
                             </span>
-                            <StatusChip level={reviewed ? "complete" : "review"} />
-                            <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-                              {open ? "Close" : reviewed ? "View" : "Review"}
+                            <StatusChip
+                              level={reviewed ? "complete" : needsAck ? "review" : "no-issue"}
+                            />
+                            {needsAck && !reviewed && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  onMarkCheckReviewed(k);
+                                  toast.success(`${label} marked as reviewed`);
+                                }}
+                                className="inline-flex h-8 items-center rounded-[9px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#7C5FE0]"
+                              >
+                                Mark reviewed
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              aria-expanded={open}
+                              onClick={() => {
+                                setOpenInfoKey(null);
+                                setOpenCheckKey(open ? null : k);
+                              }}
+                              className="inline-flex w-[80px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                            >
+                              {open ? "Hide" : "Details"}
                               <ChevronDown
                                 className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                               />
-                            </span>
-                          </button>
+                            </button>
+                          </div>
                           {open && (
                             <ul className="px-4 pb-3">
                               <CheckRow
@@ -2273,12 +2310,17 @@ function MedicationEditor({
 }
 
 /** One status per checklist row. Amber only for items needing attention. */
-function StatusChip({ level }: { level: "required" | "review" | "complete" | "unavailable" }) {
+function StatusChip({
+  level,
+}: {
+  level: "required" | "review" | "complete" | "unavailable" | "no-issue";
+}) {
   const map = {
     required: { label: "Required", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
-    review: { label: "Review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
+    review: { label: "Needs your review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
     complete: { label: "Complete", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
     unavailable: { label: "Not available", cls: "bg-[#F4F3F7] text-[#6F6889]" },
+    "no-issue": { label: "No issue found", cls: "bg-[#F4F3F7] text-[#6F6889]" },
   } as const;
   const s = map[level];
   return (
