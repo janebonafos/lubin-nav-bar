@@ -1938,6 +1938,7 @@ function MedicationEditor({
                                 reviewedAt={med.checkReviews?.[k]}
                                 onMarkReviewed={() => {
                                   onMarkCheckReviewed(k);
+                                  toast.success(`${label} marked as reviewed`);
                                 }}
                               />
                             </ul>
