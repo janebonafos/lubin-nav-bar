@@ -205,6 +205,19 @@ export function AiPrescription({
   // over anything stored on the draft. Never a selectable display value.
   const country: RxCountry = jurisdiction ?? rx.country ?? "PH";
 
+  // Prescribing authority and every regulated credential number come from
+  // Lubin's verification record on the backend — never typed in here, and
+  // never shown on client-facing surfaces.
+  const profile = localProviderProfile();
+  const verification = useVerifiedPrescribing(providerName, profile.profession);
+  const record = verification.data ?? null;
+  const { identity, locked: lockedIdentityKeys } = useMemo(
+    () => applyVerifiedRecord(localIdentity, record),
+    [localIdentity, record],
+  );
+  const setIdentity = (next: PrescriberIdentity) => setLocalIdentity(saveIdentity(next));
+  const gate = prescribingGate({ record, country, profession: profile.profession });
+
   // A blank placeholder is never counted as a medication.
   const namedMeds = rx.medications.filter((m) => m.name.trim().length > 0);
   const blankMed = rx.medications.find((m) => !m.name.trim());
