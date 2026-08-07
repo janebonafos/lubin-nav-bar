@@ -587,20 +587,47 @@ export function AiPrescription({
   /** Shared assessment safety response, carried into the clinical review. */
   const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
 
-  const canSign =
-    allVerified &&
-    !!rx.legalAcknowledgedAt &&
-    !!rx.recordAttestedAt &&
-    unverifiedSources.length === 0 &&
-    !restrictedPending &&
-    // Required information must still be complete and every review acknowledged.
-    rx.medications.every(
-      (m) =>
-        missingInfoKeys(m, rx.patientInfo, visitMeds).length === 0 &&
-        unreviewedCheckKeys(m).length === 0 &&
-        !reviewStale(m, rx.patientInfo) &&
-        (!sharedSafety || !!m.sharedSafetyAcknowledgedAt),
+  const identityMissing = missingIdentityFields(identity, country);
+  const controlledReady = controlledSigningReady(rx, country, identity);
+
+  /** Only medication-specific required items block a signature. */
+  const signingBlocked = rx.medications.some((m) => {
+    if (!m.name.trim()) return false;
+    return (
+      requiredSigningBlockers(
+        verificationBlockers({
+          med: m,
+          info: rx.patientInfo,
+          visitMedications: visitMeds,
+          fieldsComplete: !!medComplete(m),
+          acknowledged: !!m.acknowledgedAt,
+          sharedSafetyPending: !!sharedSafety && !m.sharedSafetyAcknowledgedAt,
+        }),
+      ).length > 0
     );
+  });
+
+  /** Everything except the final authorisation tick. */
+  const readyToSign =
+    allVerified &&
+    !signingBlocked &&
+    unverifiedSources.length === 0 &&
+    identityMissing.length === 0 &&
+    controlledReady;
+
+  const canSign = readyToSign && !!rx.legalAcknowledgedAt;
+
+  const status = prescriptionStatus(rx, { readyToSign: canSign });
+  const statusLabel = prescriptionStatusLabel(rx, { readyToSign: canSign });
+  const stage: Stage = signed
+    ? deliveryComplete(rx)
+      ? 3
+      : 3
+    : total === 0
+      ? 0
+      : allVerified
+        ? 2
+        : 1;
 
   const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
     patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
