@@ -79,7 +79,7 @@ import {
   removeSignedPrescription,
 } from "@/lib/prescription/documents";
 import { DeliveryStep } from "./DeliveryStep";
-import { ControlledSigning } from "./ControlledSigning";
+import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import {
   MED_VERIFICATION_STATEMENT,
