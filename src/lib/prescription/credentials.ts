@@ -35,6 +35,10 @@ export type PrescriberIdentity = {
   epcsTokenRegisteredAt?: number;
   /** Set when the DEA registration was verified for controlled prescribing. */
   deaVerifiedAt?: number;
+  /** Salted hash of the prescriber's signing passphrase, used to
+   *  re-authenticate at the moment of signing. The passphrase itself is
+   *  never stored. */
+  signingPassphrase?: { salt: string; hash: string; setAt: number };
   updatedAt?: number;
 };
 
@@ -147,4 +151,43 @@ export function credentialSummary(id: PrescriberIdentity, country: RxCountry): s
       ? [id.prcNumber && `PRC ${id.prcNumber}`, id.ptrNumber && `PTR ${id.ptrNumber}`, id.s2Number && `S2 ${id.s2Number}`]
       : [id.npiNumber && `NPI ${id.npiNumber}`, id.deaNumber && `DEA ${id.deaNumber}`];
   return parts.filter(Boolean).join(" · ") || "No credentials on file";
+}
+
+// ------------------------------------------------- signing re-authentication
+
+function hashPassphrase(passphrase: string, salt: string): string {
+  let hash = 0xcbf29ce484222325n;
+  const prime = 0x100000001b3n;
+  const mask = 0xffffffffffffffffn;
+  const input = `${salt}:${passphrase}`;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash ^ BigInt(input.charCodeAt(i))) & mask;
+    hash = (hash * prime) & mask;
+  }
+  return hash.toString(16).padStart(16, "0");
+}
+
+/** Sets the passphrase the prescriber must re-enter to sign. */
+export function setSigningPassphrase(
+  identity: PrescriberIdentity,
+  passphrase: string,
+): PrescriberIdentity {
+  const salt = Math.random().toString(36).slice(2, 12);
+  return saveIdentity({
+    ...identity,
+    signingPassphrase: { salt, hash: hashPassphrase(passphrase, salt), setAt: Date.now() },
+  });
+}
+
+export function hasSigningPassphrase(identity: PrescriberIdentity): boolean {
+  return !!identity.signingPassphrase?.hash;
+}
+
+export function verifySigningPassphrase(
+  identity: PrescriberIdentity,
+  passphrase: string,
+): boolean {
+  const stored = identity.signingPassphrase;
+  if (!stored) return false;
+  return hashPassphrase(passphrase, stored.salt) === stored.hash;
 }
