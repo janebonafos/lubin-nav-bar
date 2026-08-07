@@ -1115,9 +1115,22 @@ export function AiPrescription({
           rx={rx}
           country={country}
           clientName={clientName}
-          providerName={providerName}
-          onDestination={(v) => patch({ destination: v })}
+          providerName={identity.fullName || providerName}
+          identity={identity}
         />
+
+        <div className="mt-3">
+          <IdentityCard
+            identity={identity}
+            country={country}
+            editing={editIdentity}
+            onEdit={setEditIdentity}
+            onChange={(next) => {
+              setIdentity(next);
+              saveIdentity(next);
+            }}
+          />
+        </div>
 
         {unverifiedSources.length > 0 && (
           <p className="mt-3 flex items-start gap-1.5 rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#8A6A20]">
@@ -1129,65 +1142,48 @@ export function AiPrescription({
         )}
 
         {controlledMeds.length > 0 && (
-          <div className="mt-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3">
-            <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[#9B4A4A]">
-              <Lock className="h-3.5 w-3.5" /> Controlled substance — restricted issuing workflow
-            </p>
-            <label className="mt-2 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#5C3B3B]">
-              <input
-                type="checkbox"
-                checked={!!rx.restrictedAcknowledgedAt}
-                onChange={(e) =>
-                  patch({
-                    restrictedAcknowledgedAt: e.target.checked ? Date.now() : undefined,
-                  })
-                }
-                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-              />
-              I will issue this medication on the official controlled-prescription form. The
-              confirmation in Lubin is a record only and is not the legal signature.
-            </label>
+          <div className="mt-3">
+            <ControlledSigning
+              rx={rx}
+              country={country}
+              identity={identity}
+              medications={controlledMeds}
+              onPatch={patch}
+            />
           </div>
         )}
-
-        <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
-          <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
-            <input
-              type="checkbox"
-              checked={!!rx.legalAcknowledgedAt}
-              onChange={(e) =>
-                patch({
-                  legalAcknowledgedAt: e.target.checked ? Date.now() : undefined,
-                  reviewedAt: e.target.checked ? Date.now() : undefined,
-                })
-              }
-              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-            />
-            <span>
-              <span className="font-semibold">Required acknowledgement</span> — I am the prescribing
-              clinician, I am authorised to prescribe in {JURISDICTION_LABEL[country]}, and I take
-              clinical responsibility for every medication and direction in this prescription.
-            </span>
-          </label>
-        </div>
 
         <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
           <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
             <input
               type="checkbox"
-              checked={!!rx.recordAttestedAt}
-              onChange={(e) => patch({ recordAttestedAt: e.target.checked ? Date.now() : undefined })}
-              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+              checked={!!rx.legalAcknowledgedAt}
+              disabled={!readyToSign}
+              onChange={(e) =>
+                patch({
+                  legalAcknowledgedAt: e.target.checked ? Date.now() : undefined,
+                  reviewedAt: e.target.checked ? Date.now() : undefined,
+                  recordAttestedAt: e.target.checked ? Date.now() : undefined,
+                })
+              }
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-50"
             />
-            <span>
-              <span className="font-semibold">Record accuracy attestation</span> —{" "}
-              {RECORD_ATTESTATION_STATEMENT}
-            </span>
+            <span>{FINAL_AUTHORISATION_STATEMENT}</span>
           </label>
           <p className="mt-2 pl-7 text-[11.5px] leading-relaxed text-[#6F6889]">
-            This attestation is stored with your name and a timestamp as part of the clinical record.
-            {rx.recordAttestedAt ? ` Attested ${formatCheckedAt(rx.recordAttestedAt)}.` : ""}
+            Recorded with your name, credentials, jurisdiction, the patient, the prescription
+            version, a timestamp, the authentication method and the delivery destination.
+            {rx.legalAcknowledgedAt ? ` Confirmed ${formatCheckedAt(rx.legalAcknowledgedAt)}.` : ""}
           </p>
+          {!readyToSign && (
+            <p className="mt-2 pl-7 text-[11.5px] font-semibold text-[#8A6A20]">
+              {identityMissing.length > 0
+                ? `Add your ${identityMissing.join(", ")} before signing.`
+                : !controlledReady
+                  ? "Complete the controlled-substance workflow above before signing."
+                  : "Finish the required medication checks before signing."}
+            </p>
+          )}
         </div>
 
         <StickyBar>
@@ -1212,10 +1208,10 @@ export function AiPrescription({
           <button
             type="button"
             disabled={!canSign}
-            onClick={() => patch({ finalisedAt: Date.now(), finalisedBy: providerName })}
+            onClick={signPrescription}
             className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
           >
-            Sign and issue prescription
+            Sign prescription
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
@@ -1225,7 +1221,8 @@ export function AiPrescription({
           rx={rx}
           country={country}
           clientName={clientName}
-          providerName={providerName}
+          providerName={identity.fullName || providerName}
+          identity={identity}
           draft
         />
       </section>
