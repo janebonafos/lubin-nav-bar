@@ -104,7 +104,6 @@ import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
 import { toast } from "sonner";
-import { EPrescriptionPreview } from "./EPrescriptionPreview";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -149,7 +148,6 @@ export function AiPrescription({
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
-  const [clientCopyOpen, setClientCopyOpen] = useState(false);
   const [localIdentity, setLocalIdentity] = useState<PrescriberIdentity>(() =>
     loadIdentity(providerName),
   );
@@ -991,7 +989,7 @@ export function AiPrescription({
           </p>
           <button
             type="button"
-            onClick={() => setClientCopyOpen(true)}
+            onClick={() => openClientCopy()}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
           >
             <Eye className="h-4 w-4" /> View E-Prescription
@@ -1011,15 +1009,6 @@ export function AiPrescription({
             <Lock className="h-4 w-4" /> Withdraw signature
           </button>
         </div>
-        <EPrescriptionPreview
-          open={clientCopyOpen}
-          onOpenChange={setClientCopyOpen}
-          rx={rx}
-          country={country}
-          clientName={clientName}
-          providerName={identity.fullName || providerName}
-          identity={identity}
-        />
       </section>
     );
   }
@@ -1263,7 +1252,7 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            onClick={() => setClientCopyOpen(true)}
+            onClick={() => openClientCopy()}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
           >
             <Eye className="h-4 w-4" /> Preview E-Prescription
@@ -1288,16 +1277,6 @@ export function AiPrescription({
           patientAgeYears={patientAge(rx.patientInfo)}
           onIdentityChange={setIdentity}
           onSigned={signPrescription}
-        />
-        <EPrescriptionPreview
-          open={clientCopyOpen}
-          onOpenChange={setClientCopyOpen}
-          rx={rx}
-          country={country}
-          clientName={clientName}
-          providerName={identity.fullName || providerName}
-          identity={identity}
-          draft
         />
       </section>
     );
@@ -1424,7 +1403,7 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            onClick={() => setClientCopyOpen(true)}
+            onClick={() => openClientCopy()}
             className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/20 px-4 text-[12.5px] font-semibold text-[#D9D4EC] transition hover:bg-white/10 hover:text-white"
           >
             <Eye className="h-3.5 w-3.5" /> Preview prescription
@@ -1480,16 +1459,6 @@ export function AiPrescription({
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
-        <EPrescriptionPreview
-          open={clientCopyOpen}
-          onOpenChange={setClientCopyOpen}
-          rx={rx}
-          country={country}
-          clientName={clientName}
-          providerName={identity.fullName || providerName}
-          identity={identity}
-          draft
-        />
       </section>
     );
   }
