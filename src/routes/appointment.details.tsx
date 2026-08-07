@@ -589,6 +589,104 @@ function DetailsPage() {
         <div className="grid gap-6">
           {/* Main working area */}
           <div className="flex min-w-0 flex-col gap-4">
+            {/* Progress timeline — kept at the top so the remaining work is visible first */}
+            {showPostSession && (
+              <section className="rounded-[20px] border border-[#EAE2F6] bg-white px-5 py-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  {isCompleted
+                    ? "Appointment completed"
+                    : canCloseOut
+                      ? "Ready to close this appointment"
+                      : "Steps left before you can close this appointment"}
+                </p>
+                <ol className="mt-3 flex flex-col gap-0 md:flex-row md:gap-0">
+                  {[
+                    {
+                      label: "Private clinical notes",
+                      done: step1Done,
+                      id: "session-notes" as const,
+                    },
+                    {
+                      label: `Summary for ${clientLabel}`,
+                      done: step2Done,
+                      id: "care-plan" as const,
+                    },
+                    ...(rxShown
+                      ? [
+                          {
+                            label: "Prescription — sign it or record that none is needed",
+                            done: rxDone,
+                            id: "prescription" as const,
+                          },
+                        ]
+                      : []),
+                    {
+                      label: "Close the appointment",
+                      done: isCompleted,
+                      id: null,
+                    },
+                  ].map((s, i, arr) => {
+                    const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
+                    return (
+                      <li key={s.label} className="relative flex flex-1 gap-3 md:flex-col md:gap-2">
+                        <div className="flex flex-col items-center md:w-full md:flex-row">
+                          <span
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                              s.done
+                                ? "bg-[#6E4FD3] text-white"
+                                : isCurrent
+                                  ? "border-2 border-[#6E4FD3] bg-white text-[#6E4FD3]"
+                                  : "border border-[#D6CCEC] bg-white text-[#A89BD0]"
+                            }`}
+                          >
+                            {s.done ? "✓" : i + 1}
+                          </span>
+                          {i < arr.length - 1 && (
+                            <span
+                              className={`w-px flex-1 md:h-px md:w-full md:flex-1 ${
+                                s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
+                              }`}
+                            />
+                          )}
+                        </div>
+                        <div className="pb-4 md:pb-0 md:pr-4">
+                          {s.id ? (
+                            <button
+                              type="button"
+                              onClick={() => setOpenStep(s.id)}
+                              className={`text-left text-[12.5px] font-semibold leading-snug hover:underline ${
+                                s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
+                              }`}
+                            >
+                              {s.label}
+                            </button>
+                          ) : (
+                            <span
+                              className={`text-[12.5px] font-semibold leading-snug ${
+                                s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
+                              }`}
+                            >
+                              {s.label}
+                            </span>
+                          )}
+                          {isCurrent && (
+                            <span className="mt-0.5 block text-[11.5px] text-[#7E6BAF]">
+                              In progress
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+                {!notesPathOk && !canCloseOut && (
+                  <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
+                    Add clinical notes, or record that no prescription is needed.
+                  </p>
+                )}
+              </section>
+            )}
+
             {/* Client-shared reference material — outside the numbered tasks */}
             <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
               <button
@@ -842,22 +940,9 @@ function DetailsPage() {
                     <p className="text-[15px] font-semibold text-[#2C2B4B]">
                       A few steps left before you can close this appointment
                     </p>
-                    <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
-                      <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
-                      <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
-                      {rxShown && (
-                        <StepTodo
-                          done={rxDone}
-                          label="Prescription — sign it or record that none is needed"
-                        />
-                      )}
-                      {!notesPathOk && (
-                        <StepTodo
-                          done={false}
-                          label="Add clinical notes, or record that no prescription is needed"
-                        />
-                      )}
-                    </ul>
+                    <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
+                      The timeline at the top of this page shows what is still open.
+                    </p>
                   </>
                 )}
               </section>
@@ -877,19 +962,6 @@ function FactTile({ label, value, sub }: { label: string; value: string; sub?: s
       <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
       {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
     </div>
-  );
-}
-
-function StepTodo({ done, label }: { done: boolean; label: string }) {
-  return (
-    <li className="flex items-start gap-2">
-      <span
-        className={`mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${done ? "bg-[#6E4FD3] text-white" : "border border-[#D6CCEC] text-transparent"}`}
-      >
-        ✓
-      </span>
-      <span className={done ? "text-[#A89BD0] line-through" : ""}>{label}</span>
-    </li>
   );
 }
 
