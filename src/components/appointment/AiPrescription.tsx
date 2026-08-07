@@ -133,6 +133,14 @@ export function AiPrescription({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [clientCopyOpen, setClientCopyOpen] = useState(false);
+  const [identity, setIdentity] = useState<PrescriberIdentity>(() => loadIdentity(providerName));
+  const [editIdentity, setEditIdentity] = useState(false);
+  const [auditTick, setAuditTick] = useState(0);
+
+  useEffect(() => {
+    setIdentity(loadIdentity(providerName));
+    return subscribeIdentity(() => setIdentity(loadIdentity(providerName)));
+  }, [providerName]);
 
   useEffect(() => {
     const loaded = loadPrescription(appointmentId);
@@ -193,26 +201,12 @@ export function AiPrescription({
   const unverifiedSources = rx.medications.filter(
     (m) => m.reference && !m.reference.sourcesAvailable && !m.externallyVerifiedAt,
   );
-  const stage: Stage = signed ? 2 : total === 0 ? 0 : allVerified ? 2 : 1;
   const medWord = total === 1 ? "medication" : "medications";
   const countLabel =
     total === 0
       ? "No medication added"
-      : allVerified
-        ? `${verifiedCount} of ${total} ${medWord} verified`
-        : verifiedCount > 0
-          ? `${verifiedCount} of ${total} ${medWord} verified`
-          : `${total} ${medWord} · Verification required`;
+      : `${verifiedCount} of ${total} ${medWord} clinically reviewed`;
   const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
-  const statusLabel = signed
-    ? "Prescription signed and issued"
-    : total === 0
-      ? blankMed
-        ? "Medication details incomplete"
-        : "No prescription prepared"
-      : allVerified
-        ? "Verified — ready for final review"
-        : "Review required before prescribing";
   const draftSourceLabel = hasAiDraft
     ? "AI-prepared draft"
     : total > 0
