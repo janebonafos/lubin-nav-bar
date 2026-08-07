@@ -291,12 +291,22 @@ export type Prescription = {
   };
   /** How the prescriber authenticated the signature. */
   signature?: {
-    method: "credentialed-attestation" | "two-factor";
+    method: "password-reauth" | "epcs-two-factor" | "credentialed-attestation" | "two-factor";
     at: number;
     by: string;
     credentials: string;
     jurisdiction: RxCountry;
+    /** Content hash the signature is bound to. */
+    documentHash?: string;
+    /** Prescription version the signature covers. */
+    version?: number;
+    /** Human-readable description of how the prescriber authenticated. */
+    methodLabel?: string;
   };
+  /** Set when a signed prescription was edited, voiding its signature. */
+  signatureInvalidatedAt?: number;
+  /** Content hash of the prescription that was signed, kept for comparison. */
+  signedHash?: string;
   /** Increments whenever medications or directions change after a signature. */
   version?: number;
   /** Signed clinical document created at signing, stored in the patient record. */
