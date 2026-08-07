@@ -3011,15 +3011,22 @@ function IdentityCard({
   editing,
   onEdit,
   onChange,
+  locked,
+  verifiedAt,
 }: {
   identity: PrescriberIdentity;
   country: RxCountry;
   editing: boolean;
   onEdit: (v: boolean) => void;
   onChange: (next: PrescriberIdentity) => void;
+  /** Field keys supplied by Lubin's verification record. */
+  locked?: Set<string>;
+  verifiedAt?: number;
 }) {
   const fields = IDENTITY_FIELDS[country];
   const missing = missingIdentityFields(identity, country);
+  const lockedKeys = locked ?? new Set<string>();
+  const editableFields = fields.filter((f) => !lockedKeys.has(String(f.key)));
   return (
     <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -3028,22 +3035,26 @@ function IdentityCard({
             Prescriber details printed on the prescription
           </h3>
           <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-            {missing.length === 0
-              ? "Complete — these appear on every copy the patient and pharmacy receive."
-              : `Missing: ${missing.join(", ")}. A prescription cannot be signed without them.`}
+            {lockedKeys.size > 0
+              ? `Pulled from your Lubin verification record${verifiedAt ? ` (verified ${new Date(verifiedAt).toLocaleDateString()})` : ""}. Verified credentials cannot be edited here and are never shown to clients.`
+              : missing.length === 0
+                ? "Complete — these appear on every copy the patient and pharmacy receive."
+                : `Missing: ${missing.join(", ")}. A prescription cannot be signed without them.`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => onEdit(!editing)}
-          className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-        >
-          {editing ? "Done" : missing.length ? "Add details" : "Edit"}
-        </button>
+        {editableFields.length > 0 && (
+          <button
+            type="button"
+            onClick={() => onEdit(!editing)}
+            className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+          >
+            {editing ? "Done" : missing.length ? "Add details" : "Edit"}
+          </button>
+        )}
       </div>
-      {editing ? (
+      {editing && editableFields.length > 0 ? (
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {fields.map((f) => (
+          {editableFields.map((f) => (
             <Field
               key={f.key}
               label={f.label}
@@ -3059,7 +3070,7 @@ function IdentityCard({
           {fields.map((f) => (
             <Row
               key={f.key}
-              label={f.label}
+              label={lockedKeys.has(String(f.key)) ? `${f.label} (verified)` : f.label}
               value={String(identity[f.key] ?? "").trim() || "Not on file"}
             />
           ))}
