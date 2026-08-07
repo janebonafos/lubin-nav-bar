@@ -645,7 +645,7 @@ function DetailsPage() {
                       return (
                         <li
                           key={s.label}
-                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-2 sm:flex-col sm:items-center sm:gap-0"
+                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-3 sm:flex-col sm:items-center sm:gap-0"
                         >
                           {/* Circle + connector row */}
                           <div className="flex flex-col items-center sm:w-full sm:flex-row sm:items-center">
@@ -653,13 +653,13 @@ function DetailsPage() {
                               <button
                                 type="button"
                                 onClick={() => setOpenStep(s.id)}
-                                className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6E4FD3] focus-visible:ring-offset-2"
+                                className="relative z-10 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6E4FD3] focus-visible:ring-offset-2"
                                 aria-label={`Open ${s.label}`}
                               >
                                 {circle}
                               </button>
                             ) : (
-                              circle
+                              <span className="relative z-10">{circle}</span>
                             )}
                             {!isLast && (
                               <>
@@ -671,16 +671,16 @@ function DetailsPage() {
                                 />
                                 {/* Mobile connector */}
                                 <span
-                                  className={`absolute left-[17px] top-9 w-[2px] flex-1 sm:hidden ${
+                                  className={`absolute left-[18px] top-9 w-[2px] sm:hidden ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
-                                  style={{ height: "calc(100% + 0.5rem)" }}
+                                  style={{ height: "calc(100% - 2.25rem)" }}
                                 />
                               </>
                             )}
                           </div>
                           {/* Label + status */}
-                          <div className="min-w-0 pb-4 sm:pb-0 sm:pt-2.5 sm:text-center">
+                          <div className="relative z-10 min-w-0 pb-5 sm:pb-0 sm:pt-2.5 sm:text-center">
                             {s.id ? (
                               <button
                                 type="button"
