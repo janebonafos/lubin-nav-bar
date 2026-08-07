@@ -624,12 +624,14 @@ export function AiPrescription({
     identityMissing.length === 0 &&
     controlledReady;
 
-  const canSign = readyToSign && !!rx.legalAcknowledgedAt;
+  /** Jurisdiction, authority and medication class decide what signing needs. */
+  const authority = prescribingAuthority({ rx, country, identity });
+  const canSign = readyToSign && authority.authorised;
+  const isEpcsSigning = authority.method === "epcs-two-factor";
 
-  const signatureMethodLabel =
-    controlledMeds.length > 0 && country === "US"
-      ? "Two-factor signing (EPCS)"
-      : "Signed in Lubin under verified prescribing credentials";
+  const signatureMethodLabel = isEpcsSigning
+    ? "EPCS two-factor signing"
+    : "Re-authenticated with signing passphrase";
 
   const audit = (
     action: Parameters<typeof appendRxAudit>[0]["action"],
@@ -648,7 +650,11 @@ export function AiPrescription({
       detail: extra?.detail,
     });
 
-  const signPrescription = () => {
+  const signPrescription = (auth: {
+    method: SigningMethod;
+    methodLabel: string;
+    hash: string;
+  }) => {
     const at = Date.now();
     const version = (rx.version ?? 0) + 1;
     const controlled = controlledMeds.length > 0;
@@ -661,7 +667,7 @@ export function AiPrescription({
       version,
       signedAt: at,
       signedBy: identity.fullName || providerName || "Prescriber",
-      authenticationMethod: signatureMethodLabel,
+      authenticationMethod: auth.methodLabel,
       identity,
       medications: namedMeds,
       controlled,
@@ -669,10 +675,17 @@ export function AiPrescription({
     patch({
       finalisedAt: at,
       finalisedBy: identity.fullName || providerName,
+      legalAcknowledgedAt: at,
+      recordAttestedAt: at,
       version,
       documentId: doc.id,
+      signedHash: auth.hash,
+      signatureInvalidatedAt: undefined,
       signature: {
-        method: controlled && country === "US" ? "two-factor" : "credentialed-attestation",
+        method: auth.method,
+        methodLabel: auth.methodLabel,
+        documentHash: auth.hash,
+        version,
         at,
         by: identity.fullName || providerName || "Prescriber",
         credentials: credentialSummary(identity, country),
@@ -687,10 +700,11 @@ export function AiPrescription({
       jurisdiction: JURISDICTION_LABEL[country],
       patient: clientName || "Patient",
       version,
-      authenticationMethod: signatureMethodLabel,
-      detail: `Prescription ${doc.number} signed and saved to the patient's prescription record.`,
+      authenticationMethod: auth.methodLabel,
+      detail: `Prescription ${doc.number} signed and saved to the patient's prescription record. Document hash ${auth.hash}.`,
     });
     setFinalReview(false);
+    setSigningOpen(false);
     setAuditTick((t) => t + 1);
     toast.success("Prescription signed", {
       description: "Now choose how the signed prescription reaches the patient.",
