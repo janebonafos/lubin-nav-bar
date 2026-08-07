@@ -143,6 +143,7 @@ export function AiPrescription({
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [clientCopyOpen, setClientCopyOpen] = useState(false);
   const [identity, setIdentity] = useState<PrescriberIdentity>(() => loadIdentity(providerName));
+  const [signingOpen, setSigningOpen] = useState(false);
   const [editIdentity, setEditIdentity] = useState(false);
   const [auditTick, setAuditTick] = useState(0);
 
