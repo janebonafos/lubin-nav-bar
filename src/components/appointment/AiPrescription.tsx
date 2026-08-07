@@ -82,6 +82,13 @@ import {
 } from "@/lib/prescription/documents";
 import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
+import { SigningDialog } from "./SigningDialog";
+import {
+  prescribingAuthority,
+  prescriptionContentHash,
+  type SigningMethod,
+  SIGNING_BUTTON_COPY,
+} from "@/lib/prescription/signing";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import {
   MED_VERIFICATION_STATEMENT,
