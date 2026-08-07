@@ -121,6 +121,8 @@ export type PatientSafetyInfo = {
   /** Date of birth (ISO yyyy-mm-dd) and/or age in years. */
   dob?: string;
   ageYears?: number;
+  /** Sex recorded on the prescription (required on a PH prescription). */
+  sex?: "female" | "male" | "intersex" | "prefer-not-to-say" | "not-documented";
   /** Bipolar or mania history screening result. */
   bipolarHistory?: HistoryState;
   bipolarDetail?: string;
@@ -274,8 +276,39 @@ export type Prescription = {
   suggestedAt?: number;
   clinicalNotes?: string;
   country?: RxCountry;
-  /** Pharmacy or delivery destination recorded on the final review screen. */
+  /** Legacy free-text destination from earlier drafts. Replaced by `delivery`. */
   destination?: string;
+  /** Delivery of the signed prescription — chosen only after signing. */
+  delivery?: {
+    method: "pharmacy" | "patient";
+    state: "not-chosen" | "sending" | "sent" | "failed" | "given";
+    pharmacyId?: string;
+    /** Resolved destination line stored with the signed document. */
+    destination?: string;
+    error?: string;
+    attempts?: number;
+    at?: number;
+  };
+  /** How the prescriber authenticated the signature. */
+  signature?: {
+    method: "credentialed-attestation" | "two-factor";
+    at: number;
+    by: string;
+    credentials: string;
+    jurisdiction: RxCountry;
+  };
+  /** Increments whenever medications or directions change after a signature. */
+  version?: number;
+  /** Signed clinical document created at signing, stored in the patient record. */
+  documentId?: string;
+  /** Controlled-substance authority captured for the restricted workflow. */
+  controlledAuth?: {
+    deaNumber?: string;
+    deaConfirmedAt?: number;
+    twoFactorAt?: number;
+    s2Number?: string;
+    s2SerialNumber?: string;
+  };
   /** Patient information captured for the safety review. */
   patientInfo?: PatientSafetyInfo;
   /** Final legal acknowledgement recorded on the final review screen. */

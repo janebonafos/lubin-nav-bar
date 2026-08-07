@@ -763,7 +763,72 @@ export function safetyStatus(med: PrescriptionMedication, info?: PatientSafetyIn
 
 export type BlockerKind = "fields" | "acknowledgement" | "info" | "blocking" | "review" | "stale";
 
-export type Blocker = { kind: BlockerKind; label: string };
+/** How an item relates to signing. Only medication-specific required items
+ *  can block a signature; everything else is advisory or does not apply. */
+export type SafetyClass = "required-before-signing" | "review-recommended" | "not-applicable";
+
+export const SAFETY_CLASS_LABEL: Record<SafetyClass, string> = {
+  "required-before-signing": "Required before signing",
+  "review-recommended": "Review recommended",
+  "not-applicable": "Not applicable",
+};
+
+export type Blocker = {
+  kind: BlockerKind;
+  label: string;
+  /** True only for medication-specific items that must block signing. */
+  required?: boolean;
+};
+
+/** Classification of one patient-information item for this medication. */
+export function infoSafetyClass(med: PrescriptionMedication, key: InfoKey): SafetyClass {
+  const req = infoRequirement(med, key);
+  if (req === "required") return "required-before-signing";
+  if (req === "recommended") return "review-recommended";
+  return "not-applicable";
+}
+
+/** Classification of one safety check row for this medication. */
+export function checkSafetyClass(med: PrescriptionMedication, key: CheckKey): SafetyClass {
+  const state = checkState(med.checks?.[key]);
+  switch (state) {
+    case "blocking":
+      return "required-before-signing";
+    case "info-required":
+      // Only required when the underlying information is required here.
+      return CHECK_TO_INFO[key] && infoRequirement(med, CHECK_TO_INFO[key]!) === "required"
+        ? "required-before-signing"
+        : "review-recommended";
+    case "review-needed":
+      return "review-recommended";
+    case "no-issue":
+      return "not-applicable";
+    case "not-run":
+      return "review-recommended";
+  }
+}
+
+/** Check rows that depend on a specific piece of patient information. */
+const CHECK_TO_INFO: Partial<Record<CheckKey, InfoKey>> = {
+  allergies: "allergies",
+  currentMedications: "currentMedications",
+  interactions: "currentMedications",
+  conditions: "conditions",
+  bipolarHistory: "bipolarHistory",
+  pregnancy: "pregnancy",
+  age: "age",
+  organFunction: "labs",
+};
+
+/** Items that must be resolved before this medication can be signed. */
+export function requiredSigningBlockers(blockers: Blocker[]): Blocker[] {
+  return blockers.filter((b) => b.required);
+}
+
+/** Advisory items — surfaced, never blocking. */
+export function recommendedBlockers(blockers: Blocker[]): Blocker[] {
+  return blockers.filter((b) => !b.required);
+}
 
 /** Everything standing between this medication and verification. */
 export function verificationBlockers(args: {
@@ -781,46 +846,67 @@ export function verificationBlockers(args: {
     out.push({
       kind: "fields",
       label: "Add medication, dose, frequency and patient instructions.",
+      required: true,
     });
   for (const k of missingInfoKeys(med, info, visitMedications)) {
-    out.push({ kind: "info", label: `Record ${infoLabel(k).toLowerCase()}.` });
+    out.push({ kind: "info", label: `Record ${infoLabel(k).toLowerCase()}.`, required: true });
   }
   const s = safetySummary(med);
-  if (!s.ran) out.push({ kind: "review", label: "Run the patient-specific safety review." });
+  if (!s.ran)
+    out.push({
+      kind: "review",
+      label: "Run the patient-specific safety review.",
+      required: true,
+    });
   else if (reviewStale(med, info))
-    out.push({ kind: "stale", label: "Run the safety review again with the updated information." });
+    out.push({
+      kind: "stale",
+      label: "Run the safety review again with the updated information.",
+      required: true,
+    });
   if (s.blocking > 0)
     out.push({
       kind: "blocking",
       label: `Resolve ${s.blocking} blocking safety issue${s.blocking === 1 ? "" : "s"}.`,
+      required: true,
     });
   for (const k of unreviewedCheckKeys(med)) {
     const row = CHECK_ROWS.find((r) => r.key === k);
-    out.push({ kind: "review", label: `Mark ${(row?.label ?? k).toLowerCase()} as reviewed.` });
+    out.push({
+      kind: "review",
+      label: `Mark ${(row?.label ?? k).toLowerCase()} as reviewed.`,
+      // Advisory: a review-recommended finding never blocks the signature.
+      required: checkSafetyClass(med, k) === "required-before-signing",
+    });
   }
   if (sharedSafetyPending)
     out.push({
       kind: "review",
       label: "Acknowledge the shared assessment safety response.",
+      required: true,
     });
   if (!acknowledged)
-    out.push({ kind: "acknowledgement", label: "Tick the verification acknowledgement." });
+    out.push({
+      kind: "acknowledgement",
+      label: "Confirm the clinical review of this medication.",
+      required: true,
+    });
   return out;
 }
 
-/** "Complete 2 required items and review 1 safety item before verifying." */
+/** "Complete 2 required items and review 1 safety item before signing." */
 export function blockerSentence(blockers: Blocker[]): string {
   if (blockers.length === 0) return "";
-  const reviewCount = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
-  const requiredCount = blockers.length - reviewCount;
+  const requiredCount = blockers.filter((b) => b.required).length;
+  const reviewCount = blockers.length - requiredCount;
   const parts: string[] = [];
   if (requiredCount > 0)
     parts.push(`Complete ${requiredCount} required item${requiredCount === 1 ? "" : "s"}`);
   if (reviewCount > 0)
     parts.push(
-      `${parts.length ? "review" : "Review"} ${reviewCount} safety item${reviewCount === 1 ? "" : "s"}`,
+      `${parts.length ? "review" : "Review"} ${reviewCount} recommended item${reviewCount === 1 ? "" : "s"}`,
     );
-  return `${parts.join(" and ")} before verifying.`;
+  return `${parts.join(" and ")} before signing.`;
 }
 
 export function formatCheckedAt(ts?: number): string {
