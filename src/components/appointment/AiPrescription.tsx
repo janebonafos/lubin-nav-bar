@@ -85,7 +85,7 @@ import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import {
   MED_VERIFICATION_STATEMENT,
-  RECORD_ATTESTATION_STATEMENT,
+  FINAL_AUTHORISATION_STATEMENT,
 } from "@/lib/prescription/reference";
 import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
