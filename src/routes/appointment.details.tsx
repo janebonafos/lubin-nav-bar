@@ -10,6 +10,10 @@ import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
 import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
+import {
+  prescribingGate,
+  VERIFICATION_STATUS_LABEL,
+} from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 
@@ -32,6 +36,8 @@ type StoredAppt = ApptLite & {
   amount?: string;
   paymentStatus?: "Paid" | "Pending" | "Refunded" | "Failed";
   promoCode?: string;
+  /** Patient's jurisdiction — drives which prescribing rules apply. */
+  jurisdiction?: "PH" | "US";
 };
 
 type Outcome = NonNullable<ApptLite["outcome"]>;
@@ -101,7 +107,7 @@ function SectionCard({
   done = false,
   reference = false,
   pillLabel,
-  optional = false,
+  requirementLabel,
   checkBadge = false,
   locked = false,
   lockedNote,
@@ -119,7 +125,7 @@ function SectionCard({
   done?: boolean;
   reference?: boolean;
   pillLabel?: string;
-  optional?: boolean;
+  requirementLabel?: string;
   checkBadge?: boolean;
   locked?: boolean;
   lockedNote?: string;
@@ -200,15 +206,15 @@ function SectionCard({
         {locked ? (
           <span className="mt-0.5 hidden shrink-0 items-center sm:flex">
             <span className="rounded-full bg-[#F1EDF8] px-2.5 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-              {optional ? "Required before prescribing" : "Locked"}
+              {requirementLabel ?? "Locked"}
             </span>
           </span>
         ) : (
         !(state === "reference" && !pillLabel) && (
           <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
-            {optional && (
+            {requirementLabel && (
               <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-                Required before prescribing
+                {requirementLabel}
               </span>
             )}
             <span
@@ -396,7 +402,7 @@ function DetailsPage() {
     return "Not started";
   }, [isPublished, followUpPublishConfirmed, hasFollowUpContent]);
 
-  const docStatus = hasNotes ? "Draft saved" : "Not started";
+  const docStatus = hasNotes ? "Complete" : "Not started";
 
   // Lifecycle wording comes from the single e-prescribing status source, so the
   // task pill never says "Verified" for the prescription as a whole.
@@ -453,16 +459,42 @@ function DetailsPage() {
     serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
+  // One source of truth for the card header: it can never say "Verified" while
+  // the tools inside report expired or unverified credentials.
+  const rxCountry: "PH" | "US" = appt?.jurisdiction === "US" ? "US" : "PH";
+  const rxGate = useMemo(
+    () =>
+      prescribingGate({
+        record: verification.data ?? null,
+        country: rxCountry,
+        profession: verification.data?.profession,
+      }),
+    [verification.data, rxCountry],
+  );
+  const rxHeaderEyebrow = verification.isLoading
+    ? "Checking verification"
+    : rxGate.allowed
+      ? "Verified prescriber"
+      : VERIFICATION_STATUS_LABEL[rxGate.status];
+
   // Sequential gating: 1 → 2 → prescription → close out.
-  const step1Done = (hasNotes && privateNotesSaved) || hasNotes || !!acks.notes;
+  const step1Done = hasNotes || !!acks.notes;
+  // Prescribing needs actual clinical documentation supporting the medication
+  // decision. Confirming "no private notes" resolves the step for closing the
+  // appointment, but it never unlocks prescribing.
+  const clinicalDocForRx = hasNotes;
   const step2Done = isPublished || !!acks.summary;
-  const rxDone = !rxAllowed ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxShown = rxServiceOnly && showPostSession;
+  const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
   // patient information and the medication clinical review inside the tool.
   const rxLocked = false;
-  const canCloseOut = step1Done && step2Done && rxDone;
+  // With no private notes recorded, the appointment can only be closed once the
+  // provider has recorded that no prescription is needed.
+  const notesPathOk = hasNotes || !rxShown || rxLifecycle.skipped;
+  const canCloseOut = step1Done && step2Done && rxDone && notesPathOk;
 
   if (missing) {
     return (
@@ -631,7 +663,7 @@ function DetailsPage() {
                 done={privateNotesSaved && hasNotes}
                 checkBadge={privateNotesSaved && hasNotes}
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
-                optional
+                requirementLabel="Required before prescribing"
               >
                 <>
                 <ApptNotesBlock
@@ -648,8 +680,9 @@ function DetailsPage() {
                 {!hasNotes && !acks.notes && (
                   <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
                     <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      Nothing to record for this session? You can move on, but confirm it so the
-                      step is not left half-finished.
+                      Nothing to record for this session? You can move on, but prescribing stays
+                      closed: a prescription needs clinical documentation supporting the medication
+                      decision.
                     </p>
                     <button
                       type="button"
@@ -677,12 +710,14 @@ function DetailsPage() {
                 description={`Add a session recap, next steps, or resources. ${clientLabel} sees this in their Health Passport once you send it.`}
                 openOverride={openStep === "care-plan"}
                 onToggle={() => toggleStep("care-plan")}
-                done={isPublished}
-                checkBadge={isPublished}
+                done={isPublished || !!acks.summary}
+                checkBadge={isPublished || !!acks.summary}
                 locked={step2Locked}
                 lockedNote="Finish step 1 first"
-                pillLabel={acks.summary && !isPublished ? "Nothing to share" : followUpStatus}
-                optional
+                pillLabel={
+                  acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
+                }
+                requirementLabel="Decision required before prescribing"
               >
                 <>
                 <ApptNotesBlock
@@ -746,11 +781,12 @@ function DetailsPage() {
               </SectionCard>
             )}
 
-            {/* Task 3 — prescription (verified prescribers only) */}
-            {rxAllowed && showPostSession && (
+            {/* Task 3 — prescription. Always available so a provider can record
+                that no prescription is needed, even when prescribing is closed. */}
+            {rxShown && (
               <SectionCard
                 id="prescriptions"
-                eyebrow="Verified prescribers only"
+                eyebrow={rxHeaderEyebrow}
                 title="Prescription"
                 description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
@@ -765,17 +801,11 @@ function DetailsPage() {
                   clientName={appt.client}
                   providerName={providerDisplayName}
                   appointmentLabel={appointmentLabel}
-                  jurisdiction="PH"
+                  jurisdiction={rxCountry}
+                  clinicalDocumentationReady={clinicalDocForRx}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
               </SectionCard>
-            )}
-
-            {!rxAllowed && rxServiceOnly && showPostSession && (
-              <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
-                This service supports medication review, but prescribing tools stay hidden until
-                your prescribing authority is verified for your client&rsquo;s jurisdiction.
-              </div>
             )}
 
             {/* Close out — only once every step above has been handled */}
@@ -815,10 +845,16 @@ function DetailsPage() {
                     <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
                       <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
                       <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
-                      {rxAllowed && (
+                      {rxShown && (
                         <StepTodo
                           done={rxDone}
                           label="Prescription — sign it or record that none is needed"
+                        />
+                      )}
+                      {!notesPathOk && (
+                        <StepTodo
+                          done={false}
+                          label="Add clinical notes, or record that no prescription is needed"
                         />
                       )}
                     </ul>

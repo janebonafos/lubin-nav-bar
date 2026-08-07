@@ -126,6 +126,8 @@ export function AiPrescription({
   clientName,
   providerName,
   jurisdiction,
+  clinicalDocumentationReady = true,
+  onAddClinicalInfo,
 }: {
   appointmentId: string;
   clientName?: string;
@@ -133,6 +135,9 @@ export function AiPrescription({
   appointmentLabel?: string;
   /** Locked from the client's jurisdiction and the provider's authority. */
   jurisdiction?: RxCountry;
+  /** True once Step 1 holds clinical documentation supporting a medication
+   *  decision. Prescribing stays closed until then. */
+  clinicalDocumentationReady?: boolean;
   /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
@@ -906,23 +911,11 @@ export function AiPrescription({
     </>
   );
 
-  // ---------- Prescribing not verified by Lubin ----------
-  if (verification.isLoading) {
-    return (
-      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
-        Checking your prescribing verification…
-      </section>
-    );
-  }
-  if (!gate.allowed) {
-    return <PrescribingLocked gate={gate} country={country} />;
-  }
-
   // ---------- No prescription needed ----------
+  // Recorded first: this path stays available whatever the verification state.
   if (rx.skippedAt && total === 0) {
     return (
       <section className="text-[#2C2B4B]">
-        {header}
         <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
           <p className="text-[13.5px] font-semibold">No prescription needed for this appointment</p>
           <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
@@ -937,6 +930,33 @@ export function AiPrescription({
           </button>
         </div>
       </section>
+    );
+  }
+
+  // ---------- Prescribing not verified by Lubin ----------
+  if (verification.isLoading) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
+        Checking your prescribing verification…
+      </section>
+    );
+  }
+  if (!gate.allowed) {
+    return (
+      <PrescribingLocked
+        gate={gate}
+        country={country}
+        onSkip={() => patch({ skippedAt: Date.now() })}
+      />
+    );
+  }
+  // ---------- Clinical documentation required before prescribing ----------
+  if (!clinicalDocumentationReady && !signed) {
+    return (
+      <DocumentationRequired
+        onAddClinicalInfo={onAddClinicalInfo}
+        onSkip={() => patch({ skippedAt: Date.now() })}
+      />
     );
   }
 
@@ -3176,7 +3196,15 @@ function FieldArea({
 /** Shown instead of the prescribing tools when Lubin has not verified this
  *  provider's prescribing authority for the patient's jurisdiction. Being a
  *  doctor is not enough — the credentials must be verified by Lubin first. */
-function PrescribingLocked({ gate, country }: { gate: PrescribingGate; country: RxCountry }) {
+function PrescribingLocked({
+  gate,
+  country,
+  onSkip,
+}: {
+  gate: PrescribingGate;
+  country: RxCountry;
+  onSkip?: () => void;
+}) {
   return (
     <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
       <div className="flex items-start gap-2.5">
@@ -3211,12 +3239,68 @@ function PrescribingLocked({ gate, country }: { gate: PrescribingGate; country: 
             share a summary. Your credential numbers stay with Lubin — they are never shown to
             clients, and they are filled in automatically once verification is complete.
           </p>
-          <Link
-            to="/provider-onboarding"
-            className="mt-3.5 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-          >
-            Go to Lubin verification
-          </Link>
+          <div className="mt-3.5 flex flex-wrap items-center gap-2">
+            <Link
+              to="/provider-onboarding"
+              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+            >
+              Go to Lubin verification
+            </Link>
+            {onSkip && (
+              <button
+                type="button"
+                onClick={onSkip}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+              >
+                No prescription needed
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Prescribing needs clinical documentation supporting the medication
+ *  decision. Recording that no prescription is needed stays available. */
+function DocumentationRequired({
+  onAddClinicalInfo,
+  onSkip,
+}: {
+  onAddClinicalInfo?: () => void;
+  onSkip: () => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
+      <div className="flex items-start gap-2.5">
+        <Lock className="mt-[3px] h-4 w-4 flex-none text-[#6E4FD3]" />
+        <div>
+          <h3 className="text-[14px] font-semibold">
+            Clinical documentation is needed before prescribing
+          </h3>
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[#5A4A8A]">
+            Add your private clinical notes for this appointment first. A prescription must be
+            supported by documentation of the assessment and the reason for the medication.
+          </p>
+          <div className="mt-3.5 flex flex-wrap items-center gap-2">
+            {onAddClinicalInfo && (
+              <button
+                type="button"
+                onClick={onAddClinicalInfo}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+              >
+                Add clinical notes
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onSkip}
+              className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            >
+              No prescription needed
+            </button>
+          </div>
         </div>
       </div>
     </section>
