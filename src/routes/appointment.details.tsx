@@ -441,7 +441,9 @@ function DetailsPage() {
 
   const recordedOutcome = appt?.outcome;
   const rxAllowed =
-    canPrescribe && serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+    canPrescribe &&
+    backendPrescribingVerified &&
+    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // Sequential gating: 1 → 2 → prescription → close out.
