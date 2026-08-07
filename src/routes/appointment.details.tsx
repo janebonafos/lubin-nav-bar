@@ -757,11 +757,12 @@ function DetailsPage() {
               </SectionCard>
             )}
 
-            {/* Task 3 — prescription (verified prescribers only) */}
-            {rxAllowed && showPostSession && (
+            {/* Task 3 — prescription. Always available so a provider can record
+                that no prescription is needed, even when prescribing is closed. */}
+            {rxShown && (
               <SectionCard
                 id="prescriptions"
-                eyebrow="Verified prescribers only"
+                eyebrow={rxHeaderEyebrow}
                 title="Prescription"
                 description="Add medication only if clinically indicated for this session. Not included in the client summary."
                 openOverride={openStep === "prescriptions"}
@@ -777,16 +778,10 @@ function DetailsPage() {
                   providerName={providerDisplayName}
                   appointmentLabel={appointmentLabel}
                   jurisdiction="PH"
+                  clinicalDocumentationReady={clinicalDocForRx}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
               </SectionCard>
-            )}
-
-            {!rxAllowed && rxServiceOnly && showPostSession && (
-              <div className="rounded-2xl border border-[#EAE2F6] bg-white/70 px-5 py-4 text-[13px] leading-snug text-[#5A4A8A]">
-                This service supports medication review, but prescribing tools stay hidden until
-                your prescribing authority is verified for your client&rsquo;s jurisdiction.
-              </div>
             )}
 
             {/* Close out — only once every step above has been handled */}
@@ -826,10 +821,16 @@ function DetailsPage() {
                     <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
                       <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
                       <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
-                      {rxAllowed && (
+                      {rxShown && (
                         <StepTodo
                           done={rxDone}
                           label="Prescription — sign it or record that none is needed"
+                        />
+                      )}
+                      {!notesPathOk && (
+                        <StepTodo
+                          done={false}
+                          label="Add clinical notes, or record that no prescription is needed"
                         />
                       )}
                     </ul>
