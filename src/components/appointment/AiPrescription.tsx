@@ -1179,6 +1179,8 @@ export function AiPrescription({
             country={country}
             editing={editIdentity}
             onEdit={setEditIdentity}
+            locked={lockedIdentityKeys}
+            verifiedAt={record?.verifiedAt}
             onChange={(next) => {
               setIdentity(next);
               saveIdentity(next);
