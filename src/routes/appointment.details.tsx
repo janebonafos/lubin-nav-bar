@@ -940,22 +940,9 @@ function DetailsPage() {
                     <p className="text-[15px] font-semibold text-[#2C2B4B]">
                       A few steps left before you can close this appointment
                     </p>
-                    <ul className="mt-2.5 space-y-1.5 text-[13px] text-[#5A4A8A]">
-                      <StepTodo done={step1Done} label="Step 1 — private clinical notes" />
-                      <StepTodo done={step2Done} label={`Step 2 — summary for ${clientLabel}`} />
-                      {rxShown && (
-                        <StepTodo
-                          done={rxDone}
-                          label="Prescription — sign it or record that none is needed"
-                        />
-                      )}
-                      {!notesPathOk && (
-                        <StepTodo
-                          done={false}
-                          label="Add clinical notes, or record that no prescription is needed"
-                        />
-                      )}
-                    </ul>
+                    <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
+                      The timeline at the top of this page shows what is still open.
+                    </p>
                   </>
                 )}
               </section>
