@@ -109,9 +109,9 @@ function SectionCard({
   pillLabel,
   requirementLabel,
   checkBadge = false,
-  locked = false,
+  locked: lockedProp = false,
   lockedNote,
-  dimmed = false,
+  dimmed: dimmedProp = false,
   openOverride,
   onToggle,
   children,
@@ -136,6 +136,11 @@ function SectionCard({
   children: ReactNode;
 }) {
   const [localOpen, setLocalOpen] = useState(defaultOpen);
+  // A completed step is never locked or dimmed, even if a prerequisite
+  // step is still outstanding — it already reads as done.
+  const isComplete = done || checkBadge;
+  const locked = lockedProp && !isComplete;
+  const dimmed = dimmedProp && !isComplete;
   const controlled = openOverride !== undefined;
   const open = locked ? false : controlled ? openOverride : localOpen;
   // Visual state: done > active (open) > todo. `reference` is a neutral read-only tone.
