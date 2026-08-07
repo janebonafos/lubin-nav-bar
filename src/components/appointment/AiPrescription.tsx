@@ -618,6 +618,16 @@ export function AiPrescription({
   /** Shared assessment safety response, carried into the clinical review. */
   const sharedSafety = useMemo(() => sharedSafetyResponse(appointmentId), [appointmentId]);
 
+  /** Open the patient-facing copy in a new tab so it reads as a document. */
+  const openClientCopy = (draft = true) => {
+    const params = new URLSearchParams({ appointment: appointmentId, country });
+    if (clientName) params.set("client", clientName);
+    const name = identity.fullName || providerName;
+    if (name) params.set("provider", name);
+    if (draft) params.set("draft", "true");
+    window.open(`/e-prescription?${params.toString()}`, "_blank", "noopener,noreferrer");
+  };
+
   const identityMissing = missingIdentityFields(identity, country);
   const controlledReady = controlledSigningReady(rx, country, identity);
 
@@ -989,7 +999,7 @@ export function AiPrescription({
           </p>
           <button
             type="button"
-            onClick={() => openClientCopy()}
+            onClick={() => openClientCopy(false)}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
           >
             <Eye className="h-4 w-4" /> View E-Prescription
