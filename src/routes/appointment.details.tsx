@@ -671,7 +671,7 @@ function DetailsPage() {
                                 />
                                 {/* Mobile connector */}
                                 <span
-                                  className={`absolute left-[18px] top-9 w-[2px] sm:hidden ${
+                                  className={`absolute left-[17px] top-9 w-[2px] sm:hidden ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
                                   style={{ height: "calc(100% - 2.25rem)" }}
