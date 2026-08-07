@@ -127,6 +127,7 @@ export function AiPrescription({
   providerName,
   jurisdiction,
   clinicalDocumentationReady = true,
+  onAddClinicalInfo,
 }: {
   appointmentId: string;
   clientName?: string;
