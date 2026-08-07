@@ -21,6 +21,7 @@ import { Route as MyHealthPassportRouteImport } from './routes/my-health-passpor
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as EmailPreviewRouteImport } from './routes/email-preview'
+import { Route as EPrescriptionRouteImport } from './routes/e-prescription'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -102,6 +103,11 @@ const FaqsRoute = FaqsRouteImport.update({
 const EmailPreviewRoute = EmailPreviewRouteImport.update({
   id: '/email-preview',
   path: '/email-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EPrescriptionRoute = EPrescriptionRouteImport.update({
+  id: '/e-prescription',
+  path: '/e-prescription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
+  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
+    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
+    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
+    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -442,6 +454,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
+  EPrescriptionRoute: typeof EPrescriptionRoute
   EmailPreviewRoute: typeof EmailPreviewRoute
   FaqsRoute: typeof FaqsRoute
   FindProviderRoute: typeof FindProviderRoute
@@ -557,6 +570,13 @@ declare module '@tanstack/react-router' {
       path: '/email-preview'
       fullPath: '/email-preview'
       preLoaderRoute: typeof EmailPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e-prescription': {
+      id: '/e-prescription'
+      path: '/e-prescription'
+      fullPath: '/e-prescription'
+      preLoaderRoute: typeof EPrescriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -732,6 +752,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
+  EPrescriptionRoute: EPrescriptionRoute,
   EmailPreviewRoute: EmailPreviewRoute,
   FaqsRoute: FaqsRoute,
   FindProviderRoute: FindProviderRoute,
