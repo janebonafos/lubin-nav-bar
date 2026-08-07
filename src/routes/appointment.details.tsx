@@ -742,7 +742,6 @@ function DetailsPage() {
                 done={rxDone}
                 checkBadge={rxDone}
                 pillLabel={rxStatus}
-                optional
               >
                 <AiPrescription
                   appointmentId={appt.id}
