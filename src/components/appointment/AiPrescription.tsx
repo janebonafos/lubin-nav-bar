@@ -905,6 +905,18 @@ export function AiPrescription({
     </>
   );
 
+  // ---------- Prescribing not verified by Lubin ----------
+  if (verification.isLoading) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
+        Checking your prescribing verification…
+      </section>
+    );
+  }
+  if (!gate.allowed) {
+    return <PrescribingLocked gate={gate} country={country} />;
+  }
+
   // ---------- No prescription needed ----------
   if (rx.skippedAt && total === 0) {
     return (
