@@ -600,7 +600,7 @@ function DetailsPage() {
                         ? "Ready to close this appointment"
                         : "Steps left before you can close this appointment"}
                   </p>
-                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-2">
+                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-0">
                     {[
                       {
                         label: "Private clinical notes",
