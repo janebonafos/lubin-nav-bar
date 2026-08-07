@@ -146,14 +146,16 @@ export function AiPrescription({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [clientCopyOpen, setClientCopyOpen] = useState(false);
-  const [identity, setIdentity] = useState<PrescriberIdentity>(() => loadIdentity(providerName));
+  const [localIdentity, setLocalIdentity] = useState<PrescriberIdentity>(() =>
+    loadIdentity(providerName),
+  );
   const [signingOpen, setSigningOpen] = useState(false);
   const [editIdentity, setEditIdentity] = useState(false);
   const [auditTick, setAuditTick] = useState(0);
 
   useEffect(() => {
-    setIdentity(loadIdentity(providerName));
-    return subscribeIdentity(() => setIdentity(loadIdentity(providerName)));
+    setLocalIdentity(loadIdentity(providerName));
+    return subscribeIdentity(() => setLocalIdentity(loadIdentity(providerName)));
   }, [providerName]);
 
   useEffect(() => {
