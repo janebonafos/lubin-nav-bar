@@ -10,6 +10,10 @@ import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
 import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
+import {
+  prescribingGate,
+  VERIFICATION_STATUS_LABEL,
+} from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 
@@ -452,6 +456,23 @@ function DetailsPage() {
     backendPrescribingVerified &&
     serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+
+  // One source of truth for the card header: it can never say "Verified" while
+  // the tools inside report expired or unverified credentials.
+  const rxGate = useMemo(
+    () =>
+      prescribingGate({
+        record: verification.data ?? null,
+        country: "PH",
+        profession: verification.data?.profession,
+      }),
+    [verification.data],
+  );
+  const rxHeaderEyebrow = verification.isLoading
+    ? "Checking verification"
+    : rxGate.allowed
+      ? "Verified prescriber"
+      : VERIFICATION_STATUS_LABEL[rxGate.status];
 
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = hasNotes || !!acks.notes;
