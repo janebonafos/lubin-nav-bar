@@ -36,6 +36,8 @@ type StoredAppt = ApptLite & {
   amount?: string;
   paymentStatus?: "Paid" | "Pending" | "Refunded" | "Failed";
   promoCode?: string;
+  /** Patient's jurisdiction — drives which prescribing rules apply. */
+  jurisdiction?: "PH" | "US";
 };
 
 type Outcome = NonNullable<ApptLite["outcome"]>;
@@ -459,14 +461,15 @@ function DetailsPage() {
 
   // One source of truth for the card header: it can never say "Verified" while
   // the tools inside report expired or unverified credentials.
+  const rxCountry: "PH" | "US" = appt?.jurisdiction === "US" ? "US" : "PH";
   const rxGate = useMemo(
     () =>
       prescribingGate({
         record: verification.data ?? null,
-        country: "PH",
+        country: rxCountry,
         profession: verification.data?.profession,
       }),
-    [verification.data],
+    [verification.data, rxCountry],
   );
   const rxHeaderEyebrow = verification.isLoading
     ? "Checking verification"
@@ -798,7 +801,7 @@ function DetailsPage() {
                   clientName={appt.client}
                   providerName={providerDisplayName}
                   appointmentLabel={appointmentLabel}
-                  jurisdiction="PH"
+                  jurisdiction={rxCountry}
                   clinicalDocumentationReady={clinicalDocForRx}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
