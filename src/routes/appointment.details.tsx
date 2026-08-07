@@ -129,6 +129,7 @@ function SectionCard({
   checkBadge?: boolean;
   locked?: boolean;
   lockedNote?: string;
+  dimmed?: boolean;
   openOverride?: boolean;
   onToggle?: () => void;
   children: ReactNode;
