@@ -121,6 +121,8 @@ export type PatientSafetyInfo = {
   /** Date of birth (ISO yyyy-mm-dd) and/or age in years. */
   dob?: string;
   ageYears?: number;
+  /** Sex recorded on the prescription (required on a PH prescription). */
+  sex?: "female" | "male" | "intersex" | "prefer-not-to-say" | "not-documented";
   /** Bipolar or mania history screening result. */
   bipolarHistory?: HistoryState;
   bipolarDetail?: string;
