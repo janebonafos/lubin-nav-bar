@@ -616,7 +616,7 @@ function DetailsPage() {
                           {
                             label: "Prescription — sign it or record that none is needed",
                             done: rxDone,
-                            id: "prescription" as const,
+                            id: "prescriptions" as const,
                           },
                         ]
                       : []),
@@ -884,9 +884,10 @@ function DetailsPage() {
             {rxShown && (
               <SectionCard
                 id="prescriptions"
+                number={3}
                 eyebrow={rxHeaderEyebrow}
                 title="Prescription"
-                description="Add medication only if clinically indicated for this session. Not included in the client summary."
+                description="A separate step from your clinical notes, available only to verified prescribers. Add medication only if clinically indicated, or record that none is needed."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
