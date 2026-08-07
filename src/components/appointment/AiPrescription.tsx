@@ -3158,3 +3158,53 @@ function FieldArea({
     </div>
   );
 }
+
+/** Shown instead of the prescribing tools when Lubin has not verified this
+ *  provider's prescribing authority for the patient's jurisdiction. Being a
+ *  doctor is not enough — the credentials must be verified by Lubin first. */
+function PrescribingLocked({ gate, country }: { gate: PrescribingGate; country: RxCountry }) {
+  return (
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
+      <div className="flex items-start gap-2.5">
+        <Lock className="mt-[3px] h-4 w-4 flex-none text-[#6E4FD3]" />
+        <div>
+          <h3 className="text-[14px] font-semibold">Prescribing is not available yet</h3>
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[#5A4A8A]">
+            {gate.reason} Prescriptions on Lubin can only be written once your professional licence
+            and prescribing credentials are verified through Lubin&rsquo;s verification process for{" "}
+            {country === "PH" ? "the Philippines" : "the United States"}.
+          </p>
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F1ECFD] px-2.5 py-1 text-[11.5px] font-semibold text-[#5A3EB8]">
+            {VERIFICATION_STATUS_LABEL[gate.status]}
+          </p>
+          {gate.outstanding.length > 0 && (
+            <>
+              <p className="mt-3 text-[12.5px] font-semibold text-[#3D2E6B]">
+                What Lubin still needs
+              </p>
+              <ul className="mt-1.5 space-y-1.5">
+                {gate.outstanding.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-[12.5px] text-[#5A4A8A]">
+                    <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-[#B9A9E8]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p className="mt-3 text-[12px] leading-relaxed text-[#6F6889]">
+            You can still document the session, review the client&rsquo;s current medication and
+            share a summary. Your credential numbers stay with Lubin — they are never shown to
+            clients, and they are filled in automatically once verification is complete.
+          </p>
+          <Link
+            to="/provider-onboarding"
+            className="mt-3.5 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+          >
+            Go to Lubin verification
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
