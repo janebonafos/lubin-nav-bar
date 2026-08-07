@@ -906,7 +906,6 @@ export function AiPrescription({
             prescribing authority. Not selectable here.
           </p>
         </div>
-        <StageBar stage={stage} draftReady={total > 0} />
       </div>
     </>
   );
