@@ -1,0 +1,101 @@
+// A signed prescription is its own clinical document. It is stored in the
+// patient's medication / prescription record — never inside the session
+// summary — and is immutable once signed.
+import type { PrescriptionMedication, RxCountry } from "./store";
+import type { PrescriberIdentity } from "./credentials";
+import type { DeliveryMethod, DeliveryState } from "./status";
+
+export type SignedPrescriptionDocument = {
+  id: string;
+  /** Human-readable prescription number shown on the document. */
+  number: string;
+  appointmentId: string;
+  patientName: string;
+  patientAgeYears?: number;
+  patientSex?: string;
+  country: RxCountry;
+  version: number;
+  signedAt: number;
+  signedBy: string;
+  authenticationMethod: string;
+  identity: PrescriberIdentity;
+  medications: PrescriptionMedication[];
+  controlled: boolean;
+  delivery?: { method: DeliveryMethod; state: DeliveryState; destination?: string; at?: number };
+};
+
+const KEY = "lubin.prescriptionDocuments.v1";
+const CHANGE_EVENT = "lubin-prescription-documents-change";
+
+function readAll(): SignedPrescriptionDocument[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    return raw ? (JSON.parse(raw) as SignedPrescriptionDocument[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAll(docs: SignedPrescriptionDocument[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(docs.slice(0, 300)));
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  } catch {
+    /* noop */
+  }
+}
+
+export function prescriptionNumber(country: RxCountry, at: number): string {
+  const d = new Date(at);
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  return `${country}-RX-${stamp}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+}
+
+export function saveSignedPrescription(
+  doc: Omit<SignedPrescriptionDocument, "id" | "number">,
+): SignedPrescriptionDocument {
+  const full: SignedPrescriptionDocument = {
+    ...doc,
+    id: "rxdoc_" + Math.random().toString(36).slice(2, 10),
+    number: prescriptionNumber(doc.country, doc.signedAt),
+  };
+  writeAll([full, ...readAll()]);
+  return full;
+}
+
+export function listSignedPrescriptions(filter?: {
+  appointmentId?: string;
+  patientName?: string;
+}): SignedPrescriptionDocument[] {
+  return readAll().filter(
+    (d) =>
+      (!filter?.appointmentId || d.appointmentId === filter.appointmentId) &&
+      (!filter?.patientName || d.patientName === filter.patientName),
+  );
+}
+
+export function latestSignedPrescription(
+  appointmentId: string,
+): SignedPrescriptionDocument | undefined {
+  return listSignedPrescriptions({ appointmentId }).sort((a, b) => b.signedAt - a.signedAt)[0];
+}
+
+export function updateSignedPrescription(
+  id: string,
+  patch: Partial<Pick<SignedPrescriptionDocument, "delivery">>,
+) {
+  writeAll(readAll().map((d) => (d.id === id ? { ...d, ...patch } : d)));
+}
+
+/** Withdrawing a signature removes the issued document from the record. */
+export function removeSignedPrescription(id: string) {
+  writeAll(readAll().filter((d) => d.id !== id));
+}
+
+export function subscribePrescriptionDocuments(fn: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(CHANGE_EVENT, fn);
+  return () => window.removeEventListener(CHANGE_EVENT, fn);
+}
