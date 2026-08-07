@@ -206,7 +206,7 @@ function SectionCard({
           <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
             {optional && (
               <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-                Optional
+                Required before prescribing
               </span>
             )}
             <span
