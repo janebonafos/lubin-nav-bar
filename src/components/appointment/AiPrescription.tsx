@@ -3272,36 +3272,28 @@ function DocumentationRequired({
   onSkip: () => void;
 }) {
   return (
-    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
-      <div className="flex items-start gap-2.5">
-        <Lock className="mt-[3px] h-4 w-4 flex-none text-[#6E4FD3]" />
-        <div>
-          <h3 className="text-[14px] font-semibold">
-            Clinical documentation is needed before prescribing
-          </h3>
-          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[#5A4A8A]">
-            Add your private clinical notes for this appointment first. A prescription must be
-            supported by documentation of the assessment and the reason for the medication.
-          </p>
-          <div className="mt-3.5 flex flex-wrap items-center gap-2">
-            {onAddClinicalInfo && (
-              <button
-                type="button"
-                onClick={onAddClinicalInfo}
-                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-              >
-                Add clinical notes
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onSkip}
-              className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-            >
-              No prescription needed
-            </button>
-          </div>
-        </div>
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-4 py-3.5 text-[#2C2B4B]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Lock className="h-4 w-4 flex-none text-[#6E4FD3]" />
+        <p className="min-w-[220px] flex-1 text-[13px] leading-relaxed text-[#5A4A8A]">
+          Prescribing unlocks once step 1 is complete.
+        </p>
+        {onAddClinicalInfo && (
+          <button
+            type="button"
+            onClick={onAddClinicalInfo}
+            className="text-[13px] font-semibold text-[#6E4FD3] underline underline-offset-2 transition hover:text-[#5A3EB8]"
+          >
+            Go to step 1
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onSkip}
+          className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+        >
+          No prescription needed
+        </button>
       </div>
     </section>
   );
