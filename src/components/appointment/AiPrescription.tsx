@@ -111,8 +111,6 @@ const JURISDICTION_LABEL: Record<RxCountry, string> = {
   PH: "Philippines",
 };
 
-const STAGES = ["Draft", "Clinical review", "Sign", "Send / issue"] as const;
-type Stage = 0 | 1 | 2 | 3;
 
 export const RX_ATTESTATION_STATEMENT =
   "I have reviewed this prescription and the relevant patient information. I confirm that it is clinically appropriate and authorize it under my verified prescribing credentials.";
@@ -835,15 +833,6 @@ export function AiPrescription({
 
   const status = prescriptionStatus(rx, { readyToSign: canSign });
   const statusLabel = prescriptionStatusLabel(rx, { readyToSign: canSign });
-  const stage: Stage = signed
-    ? deliveryComplete(rx)
-      ? 3
-      : 3
-    : total === 0
-      ? 0
-      : allVerified
-        ? 2
-        : 1;
 
   const setPatientInfo = (p: Partial<PatientSafetyInfo>) =>
     patch({ patientInfo: { ...(rx.patientInfo ?? {}), ...p, updatedAt: Date.now() } });
@@ -906,7 +895,6 @@ export function AiPrescription({
             prescribing authority. Not selectable here.
           </p>
         </div>
-        <StageBar stage={stage} draftReady={total > 0} />
       </div>
     </>
   );
@@ -1620,51 +1608,6 @@ export function AiPrescription({
 function oneLine(text: string) {
   const first = text.split(/(?<=\.)\s+/)[0]?.trim() ?? text.trim();
   return first.length > 180 ? `${first.slice(0, 177).trimEnd()}…` : first;
-}
-
-function StageBar({ stage, draftReady }: { stage: Stage; draftReady?: boolean }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2" aria-label="Prescription progress">
-      {STAGES.map((label, i) => {
-        const active = i === stage;
-        const done = i < stage && (i !== 0 || !!draftReady);
-        const upcoming = i > stage;
-        return (
-          <div key={label} className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-[10px] font-bold leading-none ${
-                  active
-                    ? "bg-[#6E4FD3] text-white shadow-sm shadow-[#6E4FD3]/25"
-                    : done
-                      ? "bg-[#6E4FD3]/15 text-[#6E4FD3]"
-                      : "bg-[#EFEDF5] text-[#9A93B1]"
-                }`}
-                aria-hidden="true"
-              >
-                {i + 1}
-              </span>
-              <span
-                className={`text-[11.5px] font-semibold ${
-                  active ? "text-[#2C2B4B]" : done ? "text-[#5A3EB8]" : "text-[#9A93B1]"
-                }`}
-              >
-                {label}
-              </span>
-            </div>
-            {i < STAGES.length - 1 && (
-              <span
-                className={`mx-0.5 h-[2px] w-5 rounded-full ${
-                  done ? "bg-[#6E4FD3]/40" : "bg-[#E4E1EC]"
-                }`}
-                aria-hidden="true"
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 function StickyBar({
