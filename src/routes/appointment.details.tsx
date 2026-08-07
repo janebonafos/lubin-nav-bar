@@ -306,6 +306,13 @@ function DetailsPage() {
     }
   }, []);
 
+  // Lubin's backend is the source of truth for prescribing authority: a
+  // provider may be a doctor on their profile, but the tools stay closed until
+  // Lubin has verified their licence and prescribing credentials.
+  const verification = useVerifiedPrescribing(providerDisplayName);
+  const backendPrescribingVerified =
+    verification.data?.status === "verified" && verification.data.jurisdictions.length > 0;
+
   useEffect(() => {
     if (!id) {
       setMissing(true);
