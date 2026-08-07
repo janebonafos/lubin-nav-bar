@@ -910,23 +910,11 @@ export function AiPrescription({
     </>
   );
 
-  // ---------- Prescribing not verified by Lubin ----------
-  if (verification.isLoading) {
-    return (
-      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
-        Checking your prescribing verification…
-      </section>
-    );
-  }
-  if (!gate.allowed) {
-    return <PrescribingLocked gate={gate} country={country} />;
-  }
-
   // ---------- No prescription needed ----------
+  // Recorded first: this path stays available whatever the verification state.
   if (rx.skippedAt && total === 0) {
     return (
       <section className="text-[#2C2B4B]">
-        {header}
         <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
           <p className="text-[13.5px] font-semibold">No prescription needed for this appointment</p>
           <p className="mt-1 text-[12.5px] text-[#5A4A8A]">
@@ -941,6 +929,33 @@ export function AiPrescription({
           </button>
         </div>
       </section>
+    );
+  }
+
+  // ---------- Prescribing not verified by Lubin ----------
+  if (verification.isLoading) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
+        Checking your prescribing verification…
+      </section>
+    );
+  }
+  if (!gate.allowed) {
+    return (
+      <PrescribingLocked
+        gate={gate}
+        country={country}
+        onSkip={() => patch({ skippedAt: Date.now() })}
+      />
+    );
+  }
+  // ---------- Clinical documentation required before prescribing ----------
+  if (!clinicalDocumentationReady && !signed) {
+    return (
+      <DocumentationRequired
+        onAddClinicalInfo={onAddClinicalInfo}
+        onSkip={() => patch({ skippedAt: Date.now() })}
+      />
     );
   }
 
