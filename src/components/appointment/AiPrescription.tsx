@@ -888,27 +888,51 @@ export function AiPrescription({
 
   // ---------- Signed ----------
   if (signed) {
+    const doc = latestSignedPrescription(appointmentId);
     return (
       <section className="text-[#2C2B4B]">
         {header}
+        <div className="mb-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
+            <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Signed prescription
+            {doc ? ` ${doc.number}` : ""}
+          </p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            Signed {new Date(rx.finalisedAt!).toLocaleString()}
+            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""} · {credentialSummary(identity, country)}{" "}
+            · {JURISDICTION_LABEL[country]} · Version {rx.version ?? 1}. Saved as its own signed
+            clinical document in {clientName || "the patient"}&rsquo;s medication and prescription
+            record — it is not part of the session summary.
+          </p>
+        </div>
+        <div className="mb-3">
+          <DeliveryStep
+            rx={rx}
+            country={country}
+            clientName={clientName}
+            onSendToPharmacy={(id) => void sendToPharmacy(id)}
+            onGiveToPatient={giveCopyToPatient}
+          />
+        </div>
         <FinalReviewBody
           rx={rx}
           country={country}
           clientName={clientName}
-          providerName={providerName}
+          providerName={identity.fullName || providerName}
+          identity={identity}
           locked
         />
+        <AuditTrail appointmentId={appointmentId} tick={auditTick} />
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
           <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
-            Signed and issued {new Date(rx.finalisedAt!).toLocaleString()}
-            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""}.
+            {statusLabel}
           </p>
           <button
             type="button"
             onClick={() => setClientCopyOpen(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
           >
-            <Eye className="h-4 w-4" /> View client's e-prescription
+            <Eye className="h-4 w-4" /> View E-Prescription
           </button>
           <button
             type="button"
@@ -919,16 +943,10 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            onClick={() =>
-              patch({
-                finalisedAt: undefined,
-                finalisedBy: undefined,
-                legalAcknowledgedAt: undefined,
-              })
-            }
+            onClick={withdrawSignature}
             className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
           >
-            <Lock className="h-4 w-4" /> Unlock
+            <Lock className="h-4 w-4" /> Withdraw signature
           </button>
         </div>
         <EPrescriptionPreview
@@ -937,7 +955,8 @@ export function AiPrescription({
           rx={rx}
           country={country}
           clientName={clientName}
-          providerName={providerName}
+          providerName={identity.fullName || providerName}
+          identity={identity}
         />
       </section>
     );
