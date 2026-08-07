@@ -687,12 +687,12 @@ function DetailsPage() {
                             )}
                           </div>
                           {/* Label + status */}
-                          <div className="relative z-10 min-w-0 pb-5 sm:w-full sm:px-2 sm:pb-0 sm:pt-2.5 sm:text-center">
+                          <div className="relative z-10 min-w-0 pb-5 text-left sm:w-full sm:px-2 sm:pb-0 sm:pt-2.5 sm:text-center">
                             {s.id ? (
                               <button
                                 type="button"
                                 onClick={() => setOpenStep(s.id)}
-                                className={`block text-left text-[13px] font-semibold leading-snug transition-colors hover:text-[#6E4FD3] sm:text-center ${
+                                className={`block w-full text-[13px] font-semibold leading-snug transition-colors hover:text-[#6E4FD3] ${
                                   s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
                                 }`}
                               >
@@ -700,7 +700,7 @@ function DetailsPage() {
                               </button>
                             ) : (
                               <span
-                                className={`block text-left text-[13px] font-semibold leading-snug sm:text-center ${
+                                className={`block w-full text-[13px] font-semibold leading-snug ${
                                   s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
                                 }`}
                               >
