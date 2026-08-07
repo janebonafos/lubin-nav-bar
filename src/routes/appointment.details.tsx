@@ -959,6 +959,10 @@ function DetailsPage() {
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
+                dimmed={!clinicalDocForRx}
+                lockedNote={
+                  !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
+                }
                 done={rxDone}
                 checkBadge={rxDone}
                 pillLabel={rxStatus}
