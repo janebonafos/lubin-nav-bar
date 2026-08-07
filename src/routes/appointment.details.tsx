@@ -198,7 +198,7 @@ function SectionCard({
         {locked ? (
           <span className="mt-0.5 hidden shrink-0 items-center sm:flex">
             <span className="rounded-full bg-[#F1EDF8] px-2.5 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-              Locked
+              {optional ? "Required before prescribing" : "Locked"}
             </span>
           </span>
         ) : (
