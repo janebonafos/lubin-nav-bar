@@ -48,15 +48,18 @@ export type VerifiedPrescriberRecord = {
   epcsTokenRegisteredAt?: number;
 };
 
-const DAY = 86_400_000;
+// Demo verification records use fixed dates so the signing flow can always be
+// reviewed: nothing here expires because time passed since the demo was built.
+const VERIFIED_ON = Date.UTC(2026, 0, 15);
+const EXPIRES_ON = Date.UTC(2030, 11, 31);
 
 /** Verification records held by Lubin, keyed by provider account. */
 const RECORDS: Record<string, VerifiedPrescriberRecord> = {
   "dr-maria-santos": {
     providerKey: "dr-maria-santos",
     status: "verified",
-    verifiedAt: Date.now() - 90 * DAY,
-    expiresAt: Date.now() + 270 * DAY,
+    verifiedAt: VERIFIED_ON,
+    expiresAt: EXPIRES_ON,
     jurisdictions: ["PH", "US"],
     outstanding: [],
     profession: "Psychiatrist",
@@ -75,8 +78,8 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
   "dr-mateo-reyes": {
     providerKey: "dr-mateo-reyes",
     status: "verified",
-    verifiedAt: Date.now() - 120 * DAY,
-    expiresAt: Date.now() + 245 * DAY,
+    verifiedAt: VERIFIED_ON,
+    expiresAt: EXPIRES_ON,
     jurisdictions: ["PH"],
     outstanding: [],
     profession: "Psychiatrist",
@@ -92,8 +95,8 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
   "dr-ana-villaruel": {
     providerKey: "dr-ana-villaruel",
     status: "verified",
-    verifiedAt: Date.now() - 60 * DAY,
-    expiresAt: Date.now() + 300 * DAY,
+    verifiedAt: VERIFIED_ON,
+    expiresAt: EXPIRES_ON,
     jurisdictions: ["US"],
     outstanding: [],
     profession: "Psychiatrist",
@@ -105,6 +108,31 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     licenseNumber: "A-148902",
     licenseState: "California",
     npiNumber: "1487203941",
+  },
+  // United States prescriber set up for controlled substances: verified DEA
+  // authority plus a certified EPCS provider with identity proofing and a
+  // registered two-factor token.
+  "dr-james-whitfield": {
+    providerKey: "dr-james-whitfield",
+    status: "verified",
+    verifiedAt: VERIFIED_ON,
+    expiresAt: EXPIRES_ON,
+    jurisdictions: ["US"],
+    outstanding: [],
+    profession: "Psychiatrist",
+    fullName: "Dr. James Whitfield",
+    qualifications: "MD, DFAPA",
+    clinicName: "Lubin Behavioral Health — Austin",
+    clinicAddress: "1201 W 6th St, Suite C200, Austin, TX 78703",
+    clinicContact: "(512) 555 0188 · care@lubin.health",
+    licenseNumber: "TX-K4820",
+    licenseState: "Texas",
+    npiNumber: "1730254881",
+    deaNumber: "BW4820117",
+    deaVerifiedAt: VERIFIED_ON,
+    epcsProvider: "IdentiTrust EPCS",
+    epcsIdentityProofedAt: VERIFIED_ON,
+    epcsTokenRegisteredAt: VERIFIED_ON,
   },
   "dr-paolo-cruz": {
     providerKey: "dr-paolo-cruz",
