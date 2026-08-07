@@ -126,6 +126,7 @@ export function AiPrescription({
   clientName,
   providerName,
   jurisdiction,
+  clinicalDocumentationReady = true,
 }: {
   appointmentId: string;
   clientName?: string;
@@ -133,6 +134,9 @@ export function AiPrescription({
   appointmentLabel?: string;
   /** Locked from the client's jurisdiction and the provider's authority. */
   jurisdiction?: RxCountry;
+  /** True once Step 1 holds clinical documentation supporting a medication
+   *  decision. Prescribing stays closed until then. */
+  clinicalDocumentationReady?: boolean;
   /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
