@@ -2826,31 +2826,39 @@ function FinalReviewBody({
   country,
   clientName,
   providerName,
+  identity,
   locked,
-  onDestination,
 }: {
   rx: Prescription;
   country: RxCountry;
   clientName?: string;
   providerName?: string;
+  identity: PrescriberIdentity;
   locked?: boolean;
-  onDestination?: (v: string) => void;
 }) {
+  const age = patientAge(rx.patientInfo);
   return (
     <div className="space-y-3">
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Complete prescription</h3>
         <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
           <Row label="Patient" value={clientName || "—"} />
+          <Row
+            label="Age and sex"
+            value={[age !== null ? `${age} years` : null, sexLabel(rx.patientInfo?.sex)]
+              .filter(Boolean)
+              .join(" · ")}
+          />
           <Row label="Prescriber" value={providerName || "—"} />
+          <Row label="Credentials" value={credentialSummary(identity, country)} />
           <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
           <Row
-            label="Safety review"
+            label="Clinical review"
             value={(() => {
               const named = rx.medications.filter((m) => m.name.trim().length > 0);
               if (named.length === 0) return "No medication added";
               const word = named.length === 1 ? "medication" : "medications";
-              return `${named.filter((m) => m.approved).length} of ${named.length} ${word} verified`;
+              return `${named.filter((m) => m.approved).length} of ${named.length} ${word} reviewed`;
             })()}
           />
         </dl>
@@ -2879,23 +2887,123 @@ function FinalReviewBody({
       </section>
 
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
-          Pharmacy or delivery destination
-        </h3>
-        {locked ? (
-          <p className="mt-1.5 text-[12.5px] text-[#3D2E6B]">
-            {rx.destination || "Given to the patient."}
-          </p>
-        ) : (
-          <input
-            value={rx.destination ?? ""}
-            onChange={(e) => onDestination?.(e.target.value)}
-            placeholder="Pharmacy name and branch, or give to the patient"
-            className="mt-2 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] placeholder:text-[#9C96AF] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-          />
-        )}
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Delivery</h3>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+          {locked
+            ? rx.delivery?.destination ||
+              "Not chosen yet — pick a verified pharmacy or release the signed copy to the patient."
+            : "Delivery is chosen after signing, so a signed document is never changed to reroute it."}
+        </p>
       </section>
     </div>
+  );
+}
+
+function sexLabel(sex?: PatientSafetyInfo["sex"]): string {
+  switch (sex) {
+    case "female":
+      return "Female";
+    case "male":
+      return "Male";
+    case "intersex":
+      return "Intersex";
+    case "prefer-not-to-say":
+      return "Prefers not to say";
+    default:
+      return "Sex not documented";
+  }
+}
+
+/** Immutable record of who signed, under which authority and where it went. */
+function AuditTrail({ appointmentId, tick }: { appointmentId: string; tick: number }) {
+  const events = useMemo(() => loadRxAudit(appointmentId), [appointmentId, tick]);
+  if (events.length === 0) return null;
+  return (
+    <section className="mt-3 rounded-xl border border-[#E4E1EC] bg-white p-4">
+      <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Audit log</h3>
+      <ul className="mt-2.5 space-y-2.5">
+        {events.map((e) => (
+          <li key={e.id} className="border-t border-[#EDEBF3] pt-2.5 first:border-t-0 first:pt-0">
+            <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
+              {RX_AUDIT_LABEL[e.action]} · {formatCheckedAt(e.at)}
+            </p>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#6F6889]">
+              {e.providerName} · {e.credentials} · {e.jurisdiction} · Patient {e.patient} · Version{" "}
+              {e.version} · {e.authenticationMethod}
+              {e.destination ? ` · Destination: ${e.destination}` : ""}
+            </p>
+            {e.detail && (
+              <p className="mt-0.5 text-[11.5px] leading-relaxed text-[#6F6889]">{e.detail}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Prescriber identity that must be printed on the prescription. */
+function IdentityCard({
+  identity,
+  country,
+  editing,
+  onEdit,
+  onChange,
+}: {
+  identity: PrescriberIdentity;
+  country: RxCountry;
+  editing: boolean;
+  onEdit: (v: boolean) => void;
+  onChange: (next: PrescriberIdentity) => void;
+}) {
+  const fields = IDENTITY_FIELDS[country];
+  const missing = missingIdentityFields(identity, country);
+  return (
+    <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
+            Prescriber details printed on the prescription
+          </h3>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {missing.length === 0
+              ? "Complete — these appear on every copy the patient and pharmacy receive."
+              : `Missing: ${missing.join(", ")}. A prescription cannot be signed without them.`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onEdit(!editing)}
+          className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+        >
+          {editing ? "Done" : missing.length ? "Add details" : "Edit"}
+        </button>
+      </div>
+      {editing ? (
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {fields.map((f) => (
+            <Field
+              key={f.key}
+              label={f.label}
+              required={f.required}
+              placeholder={f.hint}
+              value={String(identity[f.key] ?? "")}
+              onChange={(v) => onChange({ ...identity, [f.key]: v })}
+            />
+          ))}
+        </div>
+      ) : (
+        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
+          {fields.map((f) => (
+            <Row
+              key={f.key}
+              label={f.label}
+              value={String(identity[f.key] ?? "").trim() || "Not on file"}
+            />
+          ))}
+        </dl>
+      )}
+    </section>
   );
 }
 
