@@ -166,21 +166,6 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicContact: "(02) 8721 4410 · care@lubin.health",
     prcNumber: "0098221",
   },
-  "dr-paolo-cruz-legacy": {
-    providerKey: "dr-paolo-cruz",
-    status: "in-review",
-    jurisdictions: [],
-    outstanding: [
-      "PRC registration is being verified against the Professional Regulation Commission register",
-      "PTR number for the current year",
-    ],
-    profession: "Psychiatrist",
-    fullName: "Dr. Paolo Cruz",
-    qualifications: "MD",
-    clinicName: "",
-    clinicAddress: "",
-    clinicContact: "",
-  },
 };
 
 export function lookupPrescribingVerification(
