@@ -639,7 +639,7 @@ function DetailsPage() {
                 done={privateNotesSaved && hasNotes}
                 checkBadge={privateNotesSaved && hasNotes}
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
-                optional
+                requirementLabel="Required before prescribing"
               >
                 <>
                 <ApptNotesBlock
@@ -656,8 +656,9 @@ function DetailsPage() {
                 {!hasNotes && !acks.notes && (
                   <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
                     <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      Nothing to record for this session? You can move on, but confirm it so the
-                      step is not left half-finished.
+                      Nothing to record for this session? You can move on, but prescribing stays
+                      closed: a prescription needs clinical documentation supporting the medication
+                      decision.
                     </p>
                     <button
                       type="button"
