@@ -20,6 +20,19 @@ export type PrescriberIdentity = {
   /** United States */
   npiNumber: string;
   deaNumber: string;
+  /** Professional licence used to prescribe. PH: mirrors the PRC record.
+   *  US: the state medical licence for the state the patient is in. */
+  licenseNumber: string;
+  /** US state that issued the licence, e.g. "California". */
+  licenseState: string;
+  /** Set only when the licence was verified against the issuing register. */
+  licenseVerifiedAt?: number;
+  /** Certified EPCS provider connected to this account, if any. */
+  epcsProvider?: string;
+  /** Identity proofing completed with the EPCS provider. */
+  epcsIdentityProofedAt?: number;
+  /** Two-factor authenticator registered with the EPCS provider. */
+  epcsTokenRegisteredAt?: number;
   /** Set when the DEA registration was verified for controlled prescribing. */
   deaVerifiedAt?: number;
   updatedAt?: number;
@@ -37,6 +50,8 @@ export function emptyIdentity(): PrescriberIdentity {
     s2Number: "",
     npiNumber: "",
     deaNumber: "",
+    licenseNumber: "",
+    licenseState: "",
   };
 }
 
@@ -101,6 +116,13 @@ export const IDENTITY_FIELDS: Record<
     { key: "clinicName", label: "Practice name", required: true },
     { key: "clinicAddress", label: "Practice address", required: true },
     { key: "clinicContact", label: "Practice contact information", required: true },
+    { key: "licenseNumber", label: "State licence number", required: true },
+    {
+      key: "licenseState",
+      label: "State of licensure",
+      required: true,
+      hint: "Must cover the state the patient is located in",
+    },
     { key: "npiNumber", label: "NPI number", required: true },
     {
       key: "deaNumber",
