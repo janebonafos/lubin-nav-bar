@@ -2,6 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Printer, Eye } from "lucide-react";
 import logo from "@/assets/lubin-logo.svg";
 import type { Prescription, RxCountry } from "@/lib/prescription/store";
+import type { PrescriberIdentity } from "@/lib/prescription/credentials";
+import { patientAge } from "@/lib/prescription/safety";
+import { latestSignedPrescription } from "@/lib/prescription/documents";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -19,6 +22,7 @@ export function EPrescriptionPreview({
   country,
   clientName,
   providerName,
+  identity,
   draft,
 }: {
   open: boolean;
@@ -27,11 +31,21 @@ export function EPrescriptionPreview({
   country: RxCountry;
   clientName?: string;
   providerName?: string;
+  identity: PrescriberIdentity;
   /** True when shown before signing, so the copy is clearly a preview. */
   draft?: boolean;
 }) {
   const issued = rx.finalisedAt ? new Date(rx.finalisedAt) : new Date();
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
+  const age = patientAge(rx.patientInfo);
+  const doc = rx.documentId ? latestSignedPrescription(rx.appointmentId) : null;
+  const controlled = meds.some((m) => m.controlled);
+  const sex =
+    rx.patientInfo?.sex && rx.patientInfo.sex !== "not-documented"
+      ? rx.patientInfo.sex === "prefer-not-to-say"
+        ? "Prefers not to say"
+        : rx.patientInfo.sex.charAt(0).toUpperCase() + rx.patientInfo.sex.slice(1)
+      : "Not documented";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,12 +91,47 @@ export function EPrescriptionPreview({
             </header>
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-2 border-b border-[#EDEBF3] px-5 py-4 text-[12.5px] sm:grid-cols-2">
+              <Line
+                label="Date issued"
+                value={issued.toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              />
+              {doc && <Line label="Prescription no." value={doc.number} />}
               <Line label="Patient" value={clientName || "—"} />
-              <Line label="Prescriber" value={providerName || "—"} />
+              <Line label="Age" value={age !== null ? `${age} years` : "Not documented"} />
+              <Line label="Sex" value={sex} />
+              <Line
+                label="Prescriber"
+                value={[identity.fullName || providerName || "—", identity.qualifications]
+                  .filter(Boolean)
+                  .join(", ")}
+              />
+              <Line label="Clinic" value={identity.clinicName || "Not on file"} />
+              <Line label="Clinic address" value={identity.clinicAddress || "Not on file"} />
+              <Line label="Contact" value={identity.clinicContact || "Not on file"} />
+              {country === "PH" ? (
+                <>
+                  <Line label="PRC no." value={identity.prcNumber || "Not on file"} />
+                  <Line label="PTR no." value={identity.ptrNumber || "Not on file"} />
+                  {controlled && (
+                    <Line label="S2 licence no." value={identity.s2Number || "Not on file"} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <Line label="NPI no." value={identity.npiNumber || "Not on file"} />
+                  {controlled && (
+                    <Line label="DEA no." value={identity.deaNumber || "Not on file"} />
+                  )}
+                </>
+              )}
               <Line label="Issued in" value={JURISDICTION_LABEL[country]} />
               <Line
                 label="Where to collect"
-                value={rx.destination || "Given to you directly"}
+                value={rx.delivery?.destination || "Given to you directly"}
               />
             </div>
 
@@ -102,11 +151,12 @@ export function EPrescriptionPreview({
                       className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] p-4"
                     >
                       <p className="text-[14px] font-semibold text-[#2C2B4B]">
-                        {m.name} {m.strength || m.dose}
+                        {m.genericName || m.name} {m.strength || m.dose}
+                        {m.form ? ` · ${m.form}` : ""}
                       </p>
-                      {m.genericName && (
+                      {m.genericName && m.genericName !== m.name && (
                         <p className="mt-0.5 text-[12px] text-[#6F6889]">
-                          Generic name: {m.genericName}
+                          Brand name: {m.name}
                         </p>
                       )}
                       <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
@@ -116,8 +166,18 @@ export function EPrescriptionPreview({
                       <dl className="mt-2.5 grid grid-cols-1 gap-x-6 gap-y-1 text-[12px] sm:grid-cols-2">
                         {m.frequency && <Line label="When" value={m.frequency} />}
                         {m.duration && <Line label="How long" value={m.duration} />}
-                        {m.quantity && <Line label="Quantity" value={m.quantity} />}
-                        {m.refills && <Line label="Refills" value={m.refills} />}
+                        <Line label="Quantity" value={m.quantity || "Not specified"} />
+                        <Line label="Refills" value={m.refills || "None"} />
+                        {m.controlled && (
+                          <Line
+                            label="Special"
+                            value={
+                              country === "PH"
+                                ? "Dangerous drug — issued on the official S2 prescription form"
+                                : "Controlled substance — issued under DEA authority"
+                            }
+                          />
+                        )}
                       </dl>
                       {m.indication && (
                         <p className="mt-2 text-[12px] text-[#5A4A8A]">
@@ -139,7 +199,7 @@ export function EPrescriptionPreview({
             <footer className="border-t border-[#EDEBF3] bg-[#FBFAFE] px-5 py-4">
               <p className="text-[12.5px] font-medium text-[#2C2B4B]">
                 {rx.finalisedAt
-                  ? `Signed by ${rx.finalisedBy || providerName || "your prescriber"} on ${issued.toLocaleString()}`
+                  ? `Authenticated signature — ${rx.finalisedBy || identity.fullName || providerName || "your prescriber"}${identity.qualifications ? `, ${identity.qualifications}` : ""} · ${issued.toLocaleString()}${rx.signature ? ` · ${rx.signature.credentials}` : ""}`
                   : "This copy is not signed yet."}
               </p>
               <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#6F6889]">
