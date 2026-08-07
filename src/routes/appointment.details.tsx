@@ -111,6 +111,7 @@ function SectionCard({
   checkBadge = false,
   locked = false,
   lockedNote,
+  dimmed = false,
   openOverride,
   onToggle,
   children,
@@ -129,6 +130,7 @@ function SectionCard({
   checkBadge?: boolean;
   locked?: boolean;
   lockedNote?: string;
+  dimmed?: boolean;
   openOverride?: boolean;
   onToggle?: () => void;
   children: ReactNode;
@@ -151,6 +153,8 @@ function SectionCard({
           ? "border-[#EAE2F6] bg-white"
           : "border-[#EAE2F6] bg-white";
   const lockedShell = locked ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
+  const dimmedShell =
+    !locked && dimmed && !open ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
 
   const badge =
     state === "done"
@@ -162,7 +166,7 @@ function SectionCard({
   return (
     <section
       id={id}
-      className={`overflow-hidden rounded-[20px] border transition-all ${shell}${lockedShell}`}
+      className={`overflow-hidden rounded-[20px] border transition-all ${shell}${lockedShell}${dimmedShell}`}
     >
       <button
         type="button"
@@ -198,6 +202,11 @@ function SectionCard({
           )}
           {hint && <span className="mt-1.5 block text-[12px] italic text-[#A89BD0]">{hint}</span>}
           {locked && lockedNote && (
+            <span className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#A89BD0]">
+              <Lock className="h-3 w-3" /> {lockedNote}
+            </span>
+          )}
+          {!locked && dimmed && lockedNote && (
             <span className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#A89BD0]">
               <Lock className="h-3 w-3" /> {lockedNote}
             </span>
@@ -950,6 +959,10 @@ function DetailsPage() {
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
+                dimmed={!clinicalDocForRx}
+                lockedNote={
+                  !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
+                }
                 done={rxDone}
                 checkBadge={rxDone}
                 pillLabel={rxStatus}
