@@ -600,7 +600,7 @@ function DetailsPage() {
                         ? "Ready to close this appointment"
                         : "Steps left before you can close this appointment"}
                   </p>
-                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-2">
+                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-0">
                     {[
                       {
                         label: "Private clinical notes",
@@ -630,15 +630,15 @@ function DetailsPage() {
                       const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
                       const isLast = i === arr.length - 1;
                       const circle = s.done ? (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6E4FD3] text-white transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#6E4FD3] text-white transition-transform group-hover:scale-105">
                           <Check className="h-5 w-5" strokeWidth={3} />
                         </span>
                       ) : isCurrent ? (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#6E4FD3] bg-white text-[13px] font-bold text-[#6E4FD3] shadow-[0_0_0_4px_rgba(110,79,211,0.08)] transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-[#6E4FD3] bg-white text-center text-[13px] font-bold leading-none text-[#6E4FD3] shadow-[0_0_0_4px_rgba(110,79,211,0.08)] transition-transform group-hover:scale-105">
                           {i + 1}
                         </span>
                       ) : (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DCF5] bg-white text-[13px] font-bold text-[#A89BD0] transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#E5DCF5] bg-white text-center text-[13px] font-bold leading-none text-[#A89BD0] transition-transform group-hover:scale-105">
                           {i + 1}
                         </span>
                       );
@@ -653,34 +653,34 @@ function DetailsPage() {
                               <button
                                 type="button"
                                 onClick={() => setOpenStep(s.id)}
-                                className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6E4FD3] focus-visible:ring-offset-2"
+                                className="relative z-10 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6E4FD3] focus-visible:ring-offset-2"
                                 aria-label={`Open ${s.label}`}
                               >
                                 {circle}
                               </button>
                             ) : (
-                              circle
+                              <span className="relative z-10">{circle}</span>
                             )}
                             {!isLast && (
                               <>
                                 {/* Desktop connector */}
                                 <span
-                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-2 ${
+                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-1.5 ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
                                 />
                                 {/* Mobile connector */}
                                 <span
-                                  className={`absolute left-[17px] top-9 w-[2px] flex-1 sm:hidden ${
+                                  className={`absolute left-[17px] top-9 w-[2px] sm:hidden ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
-                                  style={{ height: "calc(100% + 0.75rem)" }}
+                                  style={{ height: "calc(100% - 2.25rem)" }}
                                 />
                               </>
                             )}
                           </div>
                           {/* Label + status */}
-                          <div className="min-w-0 pb-5 sm:pb-0 sm:pt-3 sm:text-center">
+                          <div className="relative z-10 min-w-0 pb-5 sm:pb-0 sm:pt-2.5 sm:text-center">
                             {s.id ? (
                               <button
                                 type="button"
