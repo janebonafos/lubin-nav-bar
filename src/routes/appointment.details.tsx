@@ -397,19 +397,25 @@ function DetailsPage() {
 
   const docStatus = hasNotes ? "Draft saved" : "Not started";
 
-  const rxStatus = useMemo(() => {
-    if (!appt?.id) return "Not started";
+  // Lifecycle wording comes from the single e-prescribing status source, so the
+  // task pill never says "Verified" for the prescription as a whole.
+  const rxLifecycle = useMemo(() => {
+    if (!appt?.id) return { label: "Not started", issued: false, skipped: false };
     const rx = loadPrescription(appt.id);
-    // A blank placeholder never counts as a medication or a prepared draft.
     const named = rx.medications.filter((m) => m.name.trim().length > 0);
-    if (rx.finalisedAt) return "Signed and issued";
-    if (rx.skippedAt && named.length === 0) return "Skipped";
-    if (named.length > 0 && named.every((m) => m.approved)) return "Verified";
-    if (named.length > 0) return "Verification required";
-    if (rx.medications.length > 0) return "Details incomplete";
-    return "Not started";
+    if (rx.skippedAt && named.length === 0)
+      return { label: "Skipped", issued: false, skipped: true };
+    if (named.length === 0 && rx.medications.length > 0)
+      return { label: "Details incomplete", issued: false, skipped: false };
+    if (named.length === 0) return { label: "Not started", issued: false, skipped: false };
+    return {
+      label: prescriptionStatusLabel(rx, { readyToSign: false }),
+      issued: !!rx.finalisedAt && deliveryComplete(rx),
+      skipped: false,
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, rxTick]);
+  const rxStatus = rxLifecycle.label;
 
   const sharedSummaryLine = useMemo(() => {
     if (!appt?.id) return null;
@@ -449,11 +455,12 @@ function DetailsPage() {
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = (hasNotes && privateNotesSaved) || hasNotes || !!acks.notes;
   const step2Done = isPublished || !!acks.summary;
-  const rxDone = !rxAllowed
-    ? true
-    : rxStatus === "Signed and issued" || rxStatus === "Skipped";
+  const rxDone = !rxAllowed ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
-  const rxLocked = !step1Done || !step2Done;
+  // Prescribing is never gated on the optional shared summary. Access depends on
+  // the appointment having occurred, verified prescribing authority, the required
+  // patient information and the medication clinical review inside the tool.
+  const rxLocked = false;
   const canCloseOut = step1Done && step2Done && rxDone;
 
   if (missing) {
@@ -687,9 +694,9 @@ function DetailsPage() {
                   prescriptionContext={
                     !rxAllowed
                       ? "none"
-                      : rxStatus === "Signed and issued"
+                      : rxLifecycle.issued
                         ? "issued"
-                        : rxStatus === "Skipped"
+                        : rxLifecycle.skipped
                           ? "none"
                           : "pending"
                   }
@@ -748,7 +755,6 @@ function DetailsPage() {
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
-                lockedNote="Finish steps 1 and 2 first"
                 done={rxDone}
                 checkBadge={rxDone}
                 pillLabel={rxStatus}
