@@ -1177,35 +1177,32 @@ export function AiPrescription({
           </div>
         )}
 
-        <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
-          <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[#2C2B4B]">
-            <input
-              type="checkbox"
-              checked={!!rx.legalAcknowledgedAt}
-              disabled={!readyToSign}
-              onChange={(e) =>
-                patch({
-                  legalAcknowledgedAt: e.target.checked ? Date.now() : undefined,
-                  reviewedAt: e.target.checked ? Date.now() : undefined,
-                  recordAttestedAt: e.target.checked ? Date.now() : undefined,
-                })
-              }
-              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3] disabled:opacity-50"
-            />
-            <span>{FINAL_AUTHORISATION_STATEMENT}</span>
-          </label>
-          <p className="mt-2 pl-7 text-[11.5px] leading-relaxed text-[#6F6889]">
-            Recorded with your name, credentials, jurisdiction, the patient, the prescription
-            version, a timestamp, the authentication method and the delivery destination.
-            {rx.legalAcknowledgedAt ? ` Confirmed ${formatCheckedAt(rx.legalAcknowledgedAt)}.` : ""}
+        {rx.signatureInvalidatedAt && (
+          <p className="mt-3 flex items-start gap-1.5 rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#8A6A20]">
+            <AlertTriangle className="mt-[2px] h-3.5 w-3.5 flex-none" />
+            This prescription was edited after it was signed, so the earlier signature is void. It
+            is now version {rx.version ?? 1} and needs to be signed again.
           </p>
-          {!readyToSign && (
-            <p className="mt-2 pl-7 text-[11.5px] font-semibold text-[#8A6A20]">
-              {identityMissing.length > 0
+        )}
+
+        <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
+          <p className="text-[13px] font-semibold text-[#2C2B4B]">
+            {readyToSign ? "Ready to sign" : "Not yet ready to sign"}
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {readyToSign
+              ? `You will see the complete prescription, the patient, your verified credentials and the ${JURISDICTION_LABEL[country]} requirements, then re-authenticate. The signature is bound to that exact version and recorded in the audit log. Signing does not send anything.`
+              : identityMissing.length > 0
                 ? `Add your ${identityMissing.join(", ")} before signing.`
                 : !controlledReady
                   ? "Complete the controlled-substance workflow above before signing."
-                  : "Finish the required medication checks before signing."}
+                  : authority.blockers.length > 0
+                    ? authority.blockers[0]!.detail
+                    : "Finish the required medication checks before signing."}
+          </p>
+          {readyToSign && authority.blockers.length > 0 && (
+            <p className="mt-2 text-[11.5px] font-semibold leading-relaxed text-[#8A6A20]">
+              {authority.blockers[0]!.detail}
             </p>
           )}
         </div>
@@ -1232,13 +1229,24 @@ export function AiPrescription({
           <button
             type="button"
             disabled={!canSign}
-            onClick={signPrescription}
+            onClick={() => setSigningOpen(true)}
             className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
           >
-            Sign prescription
+            {isEpcsSigning ? SIGNING_BUTTON_COPY.epcs : SIGNING_BUTTON_COPY.standard}
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
+        <SigningDialog
+          open={signingOpen}
+          onOpenChange={setSigningOpen}
+          rx={rx}
+          country={country}
+          identity={identity}
+          clientName={clientName}
+          patientAgeYears={patientAge(rx.patientInfo)}
+          onIdentityChange={setIdentity}
+          onSigned={signPrescription}
+        />
         <EPrescriptionPreview
           open={clientCopyOpen}
           onOpenChange={setClientCopyOpen}
