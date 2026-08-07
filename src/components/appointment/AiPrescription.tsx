@@ -85,7 +85,6 @@ import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { SigningDialog } from "./SigningDialog";
 import {
   prescribingAuthority,
-  prescriptionContentHash,
   type SigningMethod,
   SIGNING_BUTTON_COPY,
 } from "@/lib/prescription/signing";
