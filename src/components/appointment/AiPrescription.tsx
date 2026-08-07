@@ -51,6 +51,35 @@ import {
   type CheckKey,
   type InfoKey,
 } from "@/lib/prescription/safety";
+import {
+  requiredSigningBlockers,
+  SAFETY_CLASS_LABEL,
+  checkSafetyClass,
+} from "@/lib/prescription/safety";
+import {
+  prescriptionStatus,
+  prescriptionStatusLabel,
+  RX_STATUS_HINT,
+  deliveryComplete,
+} from "@/lib/prescription/status";
+import {
+  loadIdentity,
+  saveIdentity,
+  subscribeIdentity,
+  credentialSummary,
+  missingIdentityFields,
+  IDENTITY_FIELDS,
+  type PrescriberIdentity,
+} from "@/lib/prescription/credentials";
+import { appendRxAudit, loadRxAudit, RX_AUDIT_LABEL } from "@/lib/prescription/audit";
+import {
+  saveSignedPrescription,
+  latestSignedPrescription,
+  updateSignedPrescription,
+  removeSignedPrescription,
+} from "@/lib/prescription/documents";
+import { DeliveryStep } from "./DeliveryStep";
+import { ControlledSigning } from "./ControlledSigning";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import {
   MED_VERIFICATION_STATEMENT,
@@ -68,8 +97,11 @@ const JURISDICTION_LABEL: Record<RxCountry, string> = {
   PH: "Philippines",
 };
 
-const STAGES = ["Draft", "Clinical review", "Sign and issue"] as const;
-type Stage = 0 | 1 | 2;
+const STAGES = ["Draft", "Clinical review", "Sign", "Send / issue"] as const;
+type Stage = 0 | 1 | 2 | 3;
+
+export const RX_ATTESTATION_STATEMENT =
+  "I have reviewed this prescription and the relevant patient information. I confirm that it is clinically appropriate and authorize it under my verified prescribing credentials.";
 
 function medComplete(m: PrescriptionMedication) {
   return m.name.trim() && m.dose.trim() && m.frequency.trim() && m.instructions.trim();
