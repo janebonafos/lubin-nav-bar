@@ -20,8 +20,25 @@ export type PrescriberIdentity = {
   /** United States */
   npiNumber: string;
   deaNumber: string;
+  /** Professional licence used to prescribe. PH: mirrors the PRC record.
+   *  US: the state medical licence for the state the patient is in. */
+  licenseNumber: string;
+  /** US state that issued the licence, e.g. "California". */
+  licenseState: string;
+  /** Set only when the licence was verified against the issuing register. */
+  licenseVerifiedAt?: number;
+  /** Certified EPCS provider connected to this account, if any. */
+  epcsProvider?: string;
+  /** Identity proofing completed with the EPCS provider. */
+  epcsIdentityProofedAt?: number;
+  /** Two-factor authenticator registered with the EPCS provider. */
+  epcsTokenRegisteredAt?: number;
   /** Set when the DEA registration was verified for controlled prescribing. */
   deaVerifiedAt?: number;
+  /** Salted hash of the prescriber's signing passphrase, used to
+   *  re-authenticate at the moment of signing. The passphrase itself is
+   *  never stored. */
+  signingPassphrase?: { salt: string; hash: string; setAt: number };
   updatedAt?: number;
 };
 
@@ -37,6 +54,8 @@ export function emptyIdentity(): PrescriberIdentity {
     s2Number: "",
     npiNumber: "",
     deaNumber: "",
+    licenseNumber: "",
+    licenseState: "",
   };
 }
 
@@ -101,6 +120,13 @@ export const IDENTITY_FIELDS: Record<
     { key: "clinicName", label: "Practice name", required: true },
     { key: "clinicAddress", label: "Practice address", required: true },
     { key: "clinicContact", label: "Practice contact information", required: true },
+    { key: "licenseNumber", label: "State licence number", required: true },
+    {
+      key: "licenseState",
+      label: "State of licensure",
+      required: true,
+      hint: "Must cover the state the patient is located in",
+    },
     { key: "npiNumber", label: "NPI number", required: true },
     {
       key: "deaNumber",
@@ -125,4 +151,43 @@ export function credentialSummary(id: PrescriberIdentity, country: RxCountry): s
       ? [id.prcNumber && `PRC ${id.prcNumber}`, id.ptrNumber && `PTR ${id.ptrNumber}`, id.s2Number && `S2 ${id.s2Number}`]
       : [id.npiNumber && `NPI ${id.npiNumber}`, id.deaNumber && `DEA ${id.deaNumber}`];
   return parts.filter(Boolean).join(" · ") || "No credentials on file";
+}
+
+// ------------------------------------------------- signing re-authentication
+
+function hashPassphrase(passphrase: string, salt: string): string {
+  let hash = 0xcbf29ce484222325n;
+  const prime = 0x100000001b3n;
+  const mask = 0xffffffffffffffffn;
+  const input = `${salt}:${passphrase}`;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash ^ BigInt(input.charCodeAt(i))) & mask;
+    hash = (hash * prime) & mask;
+  }
+  return hash.toString(16).padStart(16, "0");
+}
+
+/** Sets the passphrase the prescriber must re-enter to sign. */
+export function setSigningPassphrase(
+  identity: PrescriberIdentity,
+  passphrase: string,
+): PrescriberIdentity {
+  const salt = Math.random().toString(36).slice(2, 12);
+  return saveIdentity({
+    ...identity,
+    signingPassphrase: { salt, hash: hashPassphrase(passphrase, salt), setAt: Date.now() },
+  });
+}
+
+export function hasSigningPassphrase(identity: PrescriberIdentity): boolean {
+  return !!identity.signingPassphrase?.hash;
+}
+
+export function verifySigningPassphrase(
+  identity: PrescriberIdentity,
+  passphrase: string,
+): boolean {
+  const stored = identity.signingPassphrase;
+  if (!stored) return false;
+  return hashPassphrase(passphrase, stored.salt) === stored.hash;
 }

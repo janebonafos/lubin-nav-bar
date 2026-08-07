@@ -291,12 +291,22 @@ export type Prescription = {
   };
   /** How the prescriber authenticated the signature. */
   signature?: {
-    method: "credentialed-attestation" | "two-factor";
+    method: "password-reauth" | "epcs-two-factor" | "credentialed-attestation" | "two-factor";
     at: number;
     by: string;
     credentials: string;
     jurisdiction: RxCountry;
+    /** Content hash the signature is bound to. */
+    documentHash?: string;
+    /** Prescription version the signature covers. */
+    version?: number;
+    /** Human-readable description of how the prescriber authenticated. */
+    methodLabel?: string;
   };
+  /** Set when a signed prescription was edited, voiding its signature. */
+  signatureInvalidatedAt?: number;
+  /** Content hash of the prescription that was signed, kept for comparison. */
+  signedHash?: string;
   /** Increments whenever medications or directions change after a signature. */
   version?: number;
   /** Signed clinical document created at signing, stored in the patient record. */
@@ -404,14 +414,71 @@ export function updatePrescription(
   patch: Partial<Prescription>,
 ): Prescription {
   const cur = loadPrescription(appointmentId);
-  const next: Prescription = {
+  let next: Prescription = {
     ...cur,
     ...patch,
     medications: patch.medications ?? cur.medications,
     updatedAt: Date.now(),
   };
+  next = invalidateSignatureIfEdited(cur, next, patch);
   savePrescription(next);
   return next;
+}
+
+/** A signature covers one exact prescription version. If a signed
+ *  prescription is edited, the signature is void and the prescription returns
+ *  to clinical review at a new version. */
+function invalidateSignatureIfEdited(
+  cur: Prescription,
+  next: Prescription,
+  patch: Partial<Prescription>,
+): Prescription {
+  // Signing and delivery themselves are not edits.
+  if (!cur.finalisedAt || patch.finalisedAt !== undefined || patch.delivery !== undefined)
+    return next;
+  const before = signedContentKey(cur);
+  const after = signedContentKey(next);
+  if (before === after) return next;
+  return {
+    ...next,
+    finalisedAt: undefined,
+    finalisedBy: undefined,
+    legalAcknowledgedAt: undefined,
+    recordAttestedAt: undefined,
+    signature: undefined,
+    signedHash: undefined,
+    documentId: undefined,
+    delivery: undefined,
+    signatureInvalidatedAt: Date.now(),
+    version: (cur.version ?? 1) + 1,
+  };
+}
+
+/** Everything a signature covers, flattened for change detection. */
+function signedContentKey(rx: Prescription): string {
+  return JSON.stringify([
+    rx.medications
+      .filter((m) => m.name.trim().length > 0)
+      .map((m) =>
+        [
+          m.genericName ?? "",
+          m.name,
+          m.strength ?? "",
+          m.dose,
+          m.route ?? "",
+          m.frequency,
+          m.duration ?? "",
+          m.quantity ?? "",
+          m.refills ?? "",
+          m.instructions ?? "",
+          m.controlled ? "c" : "",
+        ].join("|"),
+      )
+      .sort(),
+    rx.patientInfo?.sex ?? "",
+    rx.patientInfo?.dob ?? "",
+    rx.patientInfo?.ageYears ?? "",
+  ]);
 }
 
 export function subscribePrescription(fn: () => void): () => void {
