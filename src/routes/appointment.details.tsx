@@ -591,104 +591,150 @@ function DetailsPage() {
           <div className="flex min-w-0 flex-col gap-4">
             {/* Progress timeline — kept at the top so the remaining work is visible first */}
             {showPostSession && (
-              <section className="rounded-[20px] border border-[#EAE2F6] bg-white px-5 py-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                  {isCompleted
-                    ? "Appointment completed"
-                    : canCloseOut
-                      ? "Ready to close this appointment"
-                      : "Steps left before you can close this appointment"}
-                </p>
-                <ol className="mt-3 flex flex-col gap-0 md:flex-row md:items-stretch">
-                  {[
-                    {
-                      label: "Private clinical notes",
-                      done: step1Done,
-                      id: "session-notes" as const,
-                    },
-                    {
-                      label: `Summary for ${clientLabel}`,
-                      done: step2Done,
-                      id: "care-plan" as const,
-                    },
-                    ...(rxShown
-                      ? [
-                    {
-                      label: "Prescription",
-                      done: rxDone,
-                      id: "prescriptions" as const,
-                    },
-                        ]
-                      : []),
-                    {
-                      label: "Close the appointment",
-                      done: isCompleted,
-                      id: null,
-                    },
-                  ].map((s, i, arr) => {
-                    const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
-                    return (
-                      <li
-                        key={s.label}
-                        className="relative flex min-w-0 gap-3 md:flex-1 md:basis-0 md:flex-col md:gap-2"
-                      >
-                        <div className="flex flex-col items-center md:w-full md:flex-row">
-                          <span
-                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
-                              s.done
-                                ? "bg-[#6E4FD3] text-white"
-                                : isCurrent
-                                  ? "border-2 border-[#6E4FD3] bg-white text-[#6E4FD3]"
-                                  : "border border-[#D6CCEC] bg-white text-[#A89BD0]"
-                            }`}
-                          >
-                            {s.done ? "✓" : i + 1}
-                          </span>
-                          {i < arr.length - 1 && (
-                            <span
-                              className={`w-px flex-1 md:ml-2 md:mr-3 md:h-px md:w-auto md:flex-1 ${
-                                s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
-                              }`}
-                            />
-                          )}
-                        </div>
-                        <div className="min-w-0 pb-4 md:pb-0 md:pr-3">
-                          {s.id ? (
-                            <button
-                              type="button"
-                              onClick={() => setOpenStep(s.id)}
-                              className={`block text-left text-[12.5px] font-semibold leading-snug hover:underline ${
-                                s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          ) : (
-                            <span
-                              className={`block text-[12.5px] font-semibold leading-snug ${
-                                s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
-                              }`}
-                            >
-                              {s.label}
-                            </span>
-                          )}
-                          {isCurrent && (
-                            <span className="mt-0.5 block text-[11.5px] text-[#7E6BAF]">
-                              In progress
-                            </span>
-                          )}
-                          {s.done && (
-                            <span className="mt-0.5 block text-[11.5px] text-[#A89BD0]">Done</span>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-                {!notesPathOk && !canCloseOut && (
-                  <p className="mt-3 border-t border-[#F0EAFA] pt-3 text-[12px] leading-snug text-[#5A4A8A]">
-                    Next: add your clinical notes, or record that no prescription is needed.
+              <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
+                <div className="px-5 py-4 md:px-6 md:pt-5 md:pb-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                    {isCompleted
+                      ? "Appointment completed"
+                      : canCloseOut
+                        ? "Ready to close this appointment"
+                        : "Steps left before you can close this appointment"}
                   </p>
+                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-2">
+                    {[
+                      {
+                        label: "Private clinical notes",
+                        done: step1Done,
+                        id: "session-notes" as const,
+                      },
+                      {
+                        label: `Summary for ${clientLabel}`,
+                        done: step2Done,
+                        id: "care-plan" as const,
+                      },
+                      ...(rxShown
+                        ? [
+                            {
+                              label: "Prescription",
+                              done: rxDone,
+                              id: "prescriptions" as const,
+                            },
+                          ]
+                        : []),
+                      {
+                        label: "Close the appointment",
+                        done: isCompleted,
+                        id: null,
+                      },
+                    ].map((s, i, arr) => {
+                      const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
+                      const isLast = i === arr.length - 1;
+                      const circle = s.done ? (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6E4FD3] text-white transition-transform group-hover:scale-105">
+                          <Check className="h-5 w-5" strokeWidth={3} />
+                        </span>
+                      ) : isCurrent ? (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#6E4FD3] bg-white text-[13px] font-bold text-[#6E4FD3] shadow-[0_0_0_4px_rgba(110,79,211,0.08)] transition-transform group-hover:scale-105">
+                          {i + 1}
+                        </span>
+                      ) : (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DCF5] bg-white text-[13px] font-bold text-[#A89BD0] transition-transform group-hover:scale-105">
+                          {i + 1}
+                        </span>
+                      );
+                      return (
+                        <li
+                          key={s.label}
+                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-3 sm:flex-col sm:items-center sm:gap-0"
+                        >
+                          {/* Circle + connector row */}
+                          <div className="flex flex-col items-center sm:w-full sm:flex-row sm:items-center">
+                            {s.id ? (
+                              <button
+                                type="button"
+                                onClick={() => setOpenStep(s.id)}
+                                className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6E4FD3] focus-visible:ring-offset-2"
+                                aria-label={`Open ${s.label}`}
+                              >
+                                {circle}
+                              </button>
+                            ) : (
+                              circle
+                            )}
+                            {!isLast && (
+                              <>
+                                {/* Desktop connector */}
+                                <span
+                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-2 ${
+                                    s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
+                                  }`}
+                                />
+                                {/* Mobile connector */}
+                                <span
+                                  className={`absolute left-[17px] top-9 w-[2px] flex-1 sm:hidden ${
+                                    s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
+                                  }`}
+                                  style={{ height: "calc(100% + 0.75rem)" }}
+                                />
+                              </>
+                            )}
+                          </div>
+                          {/* Label + status */}
+                          <div className="min-w-0 pb-5 sm:pb-0 sm:pt-3 sm:text-center">
+                            {s.id ? (
+                              <button
+                                type="button"
+                                onClick={() => setOpenStep(s.id)}
+                                className={`block text-left text-[13px] font-semibold leading-snug transition-colors hover:text-[#6E4FD3] sm:text-center ${
+                                  s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
+                                }`}
+                              >
+                                {s.label}
+                              </button>
+                            ) : (
+                              <span
+                                className={`block text-left text-[13px] font-semibold leading-snug sm:text-center ${
+                                  s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
+                                }`}
+                              >
+                                {s.label}
+                              </span>
+                            )}
+                            {isCurrent && (
+                              <span className="mt-0.5 block text-[11.5px] font-medium text-[#6E4FD3]">
+                                In progress
+                              </span>
+                            )}
+                            {s.done && (
+                              <span className="mt-0.5 block text-[11.5px] text-[#A89BD0]">
+                                Done
+                              </span>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+                {!notesPathOk && !canCloseOut && (
+                  <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
+                    <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                      <span className="font-semibold text-[#3D2E6B]">Next:</span> add your
+                      clinical notes, or record that no prescription is needed.
+                    </p>
+                  </div>
+                )}
+                {(notesPathOk || canCloseOut) && !isCompleted && (
+                  <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
+                    <p className="text-[12px] leading-snug text-[#5A4A8A]">
+                      <span className="font-semibold text-[#3D2E6B]">Next:</span>{" "}
+                      {canCloseOut
+                        ? "Review and close this appointment."
+                        : "Complete the step in progress to unlock the next one."}
+                    </p>
+                  </div>
                 )}
               </section>
             )}
