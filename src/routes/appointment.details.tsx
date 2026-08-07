@@ -9,6 +9,7 @@ import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
+import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 
 const searchSchema = z.object({
