@@ -84,6 +84,14 @@ import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { SigningDialog } from "./SigningDialog";
 import {
+  useVerifiedPrescribing,
+  prescribingGate,
+  applyVerifiedRecord,
+  localProviderProfile,
+  VERIFICATION_STATUS_LABEL,
+  type PrescribingGate,
+} from "@/lib/prescription/useVerifiedPrescribing";
+import {
   prescribingAuthority,
   type SigningMethod,
   SIGNING_BUTTON_COPY,
