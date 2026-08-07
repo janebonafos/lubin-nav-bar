@@ -133,3 +133,7 @@ export const DRAFT_BASIS_TITLE = "Why this draft was prepared";
 
 export const DRAFT_BASIS_BODY =
   "Based on the clinical information recorded for this visit. Review the information below and confirm that it is complete and accurate before verifying the medication.";
+
+/** Single authorisation recorded in place of the old pair of checkboxes. */
+export const FINAL_AUTHORISATION_STATEMENT =
+  "I have reviewed this prescription and the relevant patient information. I confirm that it is clinically appropriate and authorize it under my verified prescribing credentials.";

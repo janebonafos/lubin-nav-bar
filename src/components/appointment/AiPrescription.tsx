@@ -1147,8 +1147,8 @@ export function AiPrescription({
               rx={rx}
               country={country}
               identity={identity}
-              medications={controlledMeds}
-              onPatch={patch}
+              medicationNames={controlledMeds.map((m) => m.name).filter(Boolean)}
+              onChange={patch}
             />
           </div>
         )}
@@ -1402,7 +1402,7 @@ export function AiPrescription({
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
-            {reviewMed.approved ? "Back to prescription" : "Verify medication"}
+            {reviewMed.approved ? "Back to prescription" : "Complete clinical review"}
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
@@ -1412,7 +1412,8 @@ export function AiPrescription({
           rx={rx}
           country={country}
           clientName={clientName}
-          providerName={providerName}
+          providerName={identity.fullName || providerName}
+          identity={identity}
           draft
         />
       </section>

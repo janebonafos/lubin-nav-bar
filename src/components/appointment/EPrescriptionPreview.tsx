@@ -152,7 +152,7 @@ export function EPrescriptionPreview({
                     >
                       <p className="text-[14px] font-semibold text-[#2C2B4B]">
                         {m.genericName || m.name} {m.strength || m.dose}
-                        {m.form ? ` · ${m.form}` : ""}
+                        
                       </p>
                       {m.genericName && m.genericName !== m.name && (
                         <p className="mt-0.5 text-[12px] text-[#6F6889]">
