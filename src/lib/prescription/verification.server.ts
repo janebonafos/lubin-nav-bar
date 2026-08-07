@@ -52,6 +52,26 @@ const DAY = 86_400_000;
 
 /** Verification records held by Lubin, keyed by provider account. */
 const RECORDS: Record<string, VerifiedPrescriberRecord> = {
+  "dr-maria-santos": {
+    providerKey: "dr-maria-santos",
+    status: "verified",
+    verifiedAt: Date.now() - 90 * DAY,
+    expiresAt: Date.now() + 270 * DAY,
+    jurisdictions: ["PH", "US"],
+    outstanding: [],
+    profession: "Psychiatrist",
+    fullName: "Dr. Maria Santos",
+    qualifications: "MD, FPPA",
+    clinicName: "Lubin Psychiatry — Bonifacio Global City",
+    clinicAddress: "12th Floor, One Bonifacio High Street, 5th Ave, Taguig City 1634",
+    clinicContact: "(02) 8894 1120 · care@lubin.health",
+    prcNumber: "0102934",
+    ptrNumber: "PTR-2026-0038211",
+    s2Number: "S2-PH-104773",
+    licenseNumber: "A-092416",
+    licenseState: "California",
+    npiNumber: "1902847361",
+  },
   "dr-mateo-reyes": {
     providerKey: "dr-mateo-reyes",
     status: "verified",
