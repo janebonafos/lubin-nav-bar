@@ -600,7 +600,12 @@ function DetailsPage() {
                         ? "Ready to close this appointment"
                         : "Steps left before you can close this appointment"}
                   </p>
-                  <ol className="mt-4 flex flex-col gap-0 sm:flex-row sm:items-start sm:gap-0">
+                  <ol
+                    className="mt-4 flex flex-col gap-0 sm:grid sm:items-start sm:gap-0"
+                    style={{
+                      gridTemplateColumns: `repeat(${rxShown ? 4 : 3}, minmax(0, 1fr))`,
+                    }}
+                  >
                     {[
                       {
                         label: "Private clinical notes",
@@ -645,10 +650,29 @@ function DetailsPage() {
                       return (
                         <li
                           key={s.label}
-                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-3 sm:flex-col sm:items-center sm:gap-0"
+                          className="group relative flex min-w-0 flex-row items-start gap-3 sm:flex-col sm:items-center sm:gap-0"
                         >
-                          {/* Circle + connector row */}
-                          <div className="flex flex-col items-center sm:w-full sm:flex-row sm:items-center">
+                          {/* Connector: spans from this circle's center to the next circle's center */}
+                          {!isLast && (
+                            <>
+                              <span
+                                aria-hidden
+                                className={`pointer-events-none absolute left-1/2 hidden h-[2px] w-full sm:block ${
+                                  s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
+                                }`}
+                                style={{ top: "17px" }}
+                              />
+                              <span
+                                aria-hidden
+                                className={`pointer-events-none absolute left-[17px] w-[2px] sm:hidden ${
+                                  s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
+                                }`}
+                                style={{ top: "2.25rem", bottom: 0 }}
+                              />
+                            </>
+                          )}
+                          {/* Circle */}
+                          <div className="relative z-10 flex shrink-0 items-center justify-center">
                             {s.id ? (
                               <button
                                 type="button"
@@ -661,26 +685,9 @@ function DetailsPage() {
                             ) : (
                               <span className="relative z-10">{circle}</span>
                             )}
-                            {!isLast && (
-                              <>
-                                {/* Desktop connector */}
-                                <span
-                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-1.5 ${
-                                    s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
-                                  }`}
-                                />
-                                {/* Mobile connector */}
-                                <span
-                                  className={`absolute left-[17px] top-9 w-[2px] sm:hidden ${
-                                    s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
-                                  }`}
-                                  style={{ height: "calc(100% - 2.25rem)" }}
-                                />
-                              </>
-                            )}
                           </div>
                           {/* Label + status */}
-                          <div className="relative z-10 min-w-0 pb-5 sm:pb-0 sm:pt-2.5 sm:text-center">
+                          <div className="relative z-10 min-w-0 pb-5 sm:w-full sm:px-2 sm:pb-0 sm:pt-2.5 sm:text-center">
                             {s.id ? (
                               <button
                                 type="button"
