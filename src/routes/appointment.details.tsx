@@ -630,15 +630,15 @@ function DetailsPage() {
                       const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
                       const isLast = i === arr.length - 1;
                       const circle = s.done ? (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#6E4FD3] text-white transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#6E4FD3] text-white transition-transform group-hover:scale-105">
                           <Check className="h-5 w-5" strokeWidth={3} />
                         </span>
                       ) : isCurrent ? (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#6E4FD3] bg-white text-[13px] font-bold text-[#6E4FD3] shadow-[0_0_0_4px_rgba(110,79,211,0.08)] transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-[#6E4FD3] bg-white text-center text-[13px] font-bold leading-none text-[#6E4FD3] shadow-[0_0_0_4px_rgba(110,79,211,0.08)] transition-transform group-hover:scale-105">
                           {i + 1}
                         </span>
                       ) : (
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5DCF5] bg-white text-[13px] font-bold text-[#A89BD0] transition-transform group-hover:scale-105">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#E5DCF5] bg-white text-center text-[13px] font-bold leading-none text-[#A89BD0] transition-transform group-hover:scale-105">
                           {i + 1}
                         </span>
                       );
