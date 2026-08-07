@@ -396,7 +396,7 @@ function DetailsPage() {
     return "Not started";
   }, [isPublished, followUpPublishConfirmed, hasFollowUpContent]);
 
-  const docStatus = hasNotes ? "Draft saved" : "Not started";
+  const docStatus = hasNotes ? "Complete" : "Not started";
 
   // Lifecycle wording comes from the single e-prescribing status source, so the
   // task pill never says "Verified" for the prescription as a whole.
@@ -454,15 +454,23 @@ function DetailsPage() {
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // Sequential gating: 1 → 2 → prescription → close out.
-  const step1Done = (hasNotes && privateNotesSaved) || hasNotes || !!acks.notes;
+  const step1Done = hasNotes || !!acks.notes;
+  // Prescribing needs actual clinical documentation supporting the medication
+  // decision. Confirming "no private notes" resolves the step for closing the
+  // appointment, but it never unlocks prescribing.
+  const clinicalDocForRx = hasNotes;
   const step2Done = isPublished || !!acks.summary;
-  const rxDone = !rxAllowed ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxShown = rxServiceOnly && showPostSession;
+  const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
   // patient information and the medication clinical review inside the tool.
   const rxLocked = false;
-  const canCloseOut = step1Done && step2Done && rxDone;
+  // With no private notes recorded, the appointment can only be closed once the
+  // provider has recorded that no prescription is needed.
+  const notesPathOk = hasNotes || !rxShown || rxLifecycle.skipped;
+  const canCloseOut = step1Done && step2Done && rxDone && notesPathOk;
 
   if (missing) {
     return (
