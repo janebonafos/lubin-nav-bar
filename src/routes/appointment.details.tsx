@@ -645,7 +645,7 @@ function DetailsPage() {
                       return (
                         <li
                           key={s.label}
-                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-3 sm:flex-col sm:items-center sm:gap-0"
+                          className="group relative flex min-w-0 flex-1 flex-row items-start gap-2 sm:flex-col sm:items-center sm:gap-0"
                         >
                           {/* Circle + connector row */}
                           <div className="flex flex-col items-center sm:w-full sm:flex-row sm:items-center">
@@ -665,7 +665,7 @@ function DetailsPage() {
                               <>
                                 {/* Desktop connector */}
                                 <span
-                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-2 ${
+                                  className={`hidden h-[2px] flex-1 sm:block sm:mx-1.5 ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
                                 />
@@ -674,13 +674,13 @@ function DetailsPage() {
                                   className={`absolute left-[17px] top-9 w-[2px] flex-1 sm:hidden ${
                                     s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                                   }`}
-                                  style={{ height: "calc(100% + 0.75rem)" }}
+                                  style={{ height: "calc(100% + 0.5rem)" }}
                                 />
                               </>
                             )}
                           </div>
                           {/* Label + status */}
-                          <div className="min-w-0 pb-5 sm:pb-0 sm:pt-3 sm:text-center">
+                          <div className="min-w-0 pb-4 sm:pb-0 sm:pt-2.5 sm:text-center">
                             {s.id ? (
                               <button
                                 type="button"
