@@ -965,19 +965,6 @@ function FactTile({ label, value, sub }: { label: string; value: string; sub?: s
   );
 }
 
-function StepTodo({ done, label }: { done: boolean; label: string }) {
-  return (
-    <li className="flex items-start gap-2">
-      <span
-        className={`mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${done ? "bg-[#6E4FD3] text-white" : "border border-[#D6CCEC] text-transparent"}`}
-      >
-        ✓
-      </span>
-      <span className={done ? "text-[#A89BD0] line-through" : ""}>{label}</span>
-    </li>
-  );
-}
-
 const MONTHS: Record<string, number> = {
   jan: 0,
   feb: 1,
