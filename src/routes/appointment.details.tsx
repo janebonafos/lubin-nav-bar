@@ -9,6 +9,7 @@ import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
+import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 
 const searchSchema = z.object({
@@ -306,6 +307,13 @@ function DetailsPage() {
     }
   }, []);
 
+  // Lubin's backend is the source of truth for prescribing authority: a
+  // provider may be a doctor on their profile, but the tools stay closed until
+  // Lubin has verified their licence and prescribing credentials.
+  const verification = useVerifiedPrescribing(providerDisplayName);
+  const backendPrescribingVerified =
+    verification.data?.status === "verified" && verification.data.jurisdictions.length > 0;
+
   useEffect(() => {
     if (!id) {
       setMissing(true);
@@ -433,7 +441,9 @@ function DetailsPage() {
 
   const recordedOutcome = appt?.outcome;
   const rxAllowed =
-    canPrescribe && serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
+    canPrescribe &&
+    backendPrescribingVerified &&
+    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // Sequential gating: 1 → 2 → prescription → close out.

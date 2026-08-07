@@ -83,6 +83,15 @@ import {
 import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { SigningDialog } from "./SigningDialog";
+import { Link } from "@tanstack/react-router";
+import {
+  useVerifiedPrescribing,
+  prescribingGate,
+  applyVerifiedRecord,
+  localProviderProfile,
+  VERIFICATION_STATUS_LABEL,
+  type PrescribingGate,
+} from "@/lib/prescription/useVerifiedPrescribing";
 import {
   prescribingAuthority,
   type SigningMethod,
@@ -138,14 +147,16 @@ export function AiPrescription({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [clientCopyOpen, setClientCopyOpen] = useState(false);
-  const [identity, setIdentity] = useState<PrescriberIdentity>(() => loadIdentity(providerName));
+  const [localIdentity, setLocalIdentity] = useState<PrescriberIdentity>(() =>
+    loadIdentity(providerName),
+  );
   const [signingOpen, setSigningOpen] = useState(false);
   const [editIdentity, setEditIdentity] = useState(false);
   const [auditTick, setAuditTick] = useState(0);
 
   useEffect(() => {
-    setIdentity(loadIdentity(providerName));
-    return subscribeIdentity(() => setIdentity(loadIdentity(providerName)));
+    setLocalIdentity(loadIdentity(providerName));
+    return subscribeIdentity(() => setLocalIdentity(loadIdentity(providerName)));
   }, [providerName]);
 
   useEffect(() => {
@@ -194,6 +205,19 @@ export function AiPrescription({
   // Locked: the client's jurisdiction and the provider's verified authority win
   // over anything stored on the draft. Never a selectable display value.
   const country: RxCountry = jurisdiction ?? rx.country ?? "PH";
+
+  // Prescribing authority and every regulated credential number come from
+  // Lubin's verification record on the backend — never typed in here, and
+  // never shown on client-facing surfaces.
+  const profile = localProviderProfile();
+  const verification = useVerifiedPrescribing(providerName, profile.profession);
+  const record = verification.data ?? null;
+  const { identity, locked: lockedIdentityKeys } = useMemo(
+    () => applyVerifiedRecord(localIdentity, record),
+    [localIdentity, record],
+  );
+  const setIdentity = (next: PrescriberIdentity) => setLocalIdentity(saveIdentity(next));
+  const gate = prescribingGate({ record, country, profession: profile.profession });
 
   // A blank placeholder is never counted as a medication.
   const namedMeds = rx.medications.filter((m) => m.name.trim().length > 0);
@@ -882,6 +906,18 @@ export function AiPrescription({
     </>
   );
 
+  // ---------- Prescribing not verified by Lubin ----------
+  if (verification.isLoading) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4 text-[13px] text-[#5A4A8A]">
+        Checking your prescribing verification…
+      </section>
+    );
+  }
+  if (!gate.allowed) {
+    return <PrescribingLocked gate={gate} country={country} />;
+  }
+
   // ---------- No prescription needed ----------
   if (rx.skippedAt && total === 0) {
     return (
@@ -1143,6 +1179,8 @@ export function AiPrescription({
             country={country}
             editing={editIdentity}
             onEdit={setEditIdentity}
+            locked={lockedIdentityKeys}
+            verifiedAt={record?.verifiedAt}
             onChange={(next) => {
               setIdentity(next);
               saveIdentity(next);
@@ -2975,15 +3013,22 @@ function IdentityCard({
   editing,
   onEdit,
   onChange,
+  locked,
+  verifiedAt,
 }: {
   identity: PrescriberIdentity;
   country: RxCountry;
   editing: boolean;
   onEdit: (v: boolean) => void;
   onChange: (next: PrescriberIdentity) => void;
+  /** Field keys supplied by Lubin's verification record. */
+  locked?: Set<string>;
+  verifiedAt?: number;
 }) {
   const fields = IDENTITY_FIELDS[country];
   const missing = missingIdentityFields(identity, country);
+  const lockedKeys = locked ?? new Set<string>();
+  const editableFields = fields.filter((f) => !lockedKeys.has(String(f.key)));
   return (
     <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -2992,22 +3037,26 @@ function IdentityCard({
             Prescriber details printed on the prescription
           </h3>
           <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-            {missing.length === 0
-              ? "Complete — these appear on every copy the patient and pharmacy receive."
-              : `Missing: ${missing.join(", ")}. A prescription cannot be signed without them.`}
+            {lockedKeys.size > 0
+              ? `Pulled from your Lubin verification record${verifiedAt ? ` (verified ${new Date(verifiedAt).toLocaleDateString()})` : ""}. Verified credentials cannot be edited here and are never shown to clients.`
+              : missing.length === 0
+                ? "Complete — these appear on every copy the patient and pharmacy receive."
+                : `Missing: ${missing.join(", ")}. A prescription cannot be signed without them.`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => onEdit(!editing)}
-          className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-        >
-          {editing ? "Done" : missing.length ? "Add details" : "Edit"}
-        </button>
+        {editableFields.length > 0 && (
+          <button
+            type="button"
+            onClick={() => onEdit(!editing)}
+            className="inline-flex h-8 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+          >
+            {editing ? "Done" : missing.length ? "Add details" : "Edit"}
+          </button>
+        )}
       </div>
-      {editing ? (
+      {editing && editableFields.length > 0 ? (
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {fields.map((f) => (
+          {editableFields.map((f) => (
             <Field
               key={f.key}
               label={f.label}
@@ -3023,7 +3072,7 @@ function IdentityCard({
           {fields.map((f) => (
             <Row
               key={f.key}
-              label={f.label}
+              label={lockedKeys.has(String(f.key)) ? `${f.label} (verified)` : f.label}
               value={String(identity[f.key] ?? "").trim() || "Not on file"}
             />
           ))}
@@ -3121,5 +3170,55 @@ function FieldArea({
         className="mt-1 w-full resize-y rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] leading-relaxed text-[#2C2B4B] placeholder:text-[#9C96AF] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
       />
     </div>
+  );
+}
+
+/** Shown instead of the prescribing tools when Lubin has not verified this
+ *  provider's prescribing authority for the patient's jurisdiction. Being a
+ *  doctor is not enough — the credentials must be verified by Lubin first. */
+function PrescribingLocked({ gate, country }: { gate: PrescribingGate; country: RxCountry }) {
+  return (
+    <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
+      <div className="flex items-start gap-2.5">
+        <Lock className="mt-[3px] h-4 w-4 flex-none text-[#6E4FD3]" />
+        <div>
+          <h3 className="text-[14px] font-semibold">Prescribing is not available yet</h3>
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[#5A4A8A]">
+            {gate.reason} Prescriptions on Lubin can only be written once your professional licence
+            and prescribing credentials are verified through Lubin&rsquo;s verification process for{" "}
+            {country === "PH" ? "the Philippines" : "the United States"}.
+          </p>
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F1ECFD] px-2.5 py-1 text-[11.5px] font-semibold text-[#5A3EB8]">
+            {VERIFICATION_STATUS_LABEL[gate.status]}
+          </p>
+          {gate.outstanding.length > 0 && (
+            <>
+              <p className="mt-3 text-[12.5px] font-semibold text-[#3D2E6B]">
+                What Lubin still needs
+              </p>
+              <ul className="mt-1.5 space-y-1.5">
+                {gate.outstanding.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-[12.5px] text-[#5A4A8A]">
+                    <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-[#B9A9E8]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p className="mt-3 text-[12px] leading-relaxed text-[#6F6889]">
+            You can still document the session, review the client&rsquo;s current medication and
+            share a summary. Your credential numbers stay with Lubin — they are never shown to
+            clients, and they are filled in automatically once verification is complete.
+          </p>
+          <Link
+            to="/provider-onboarding"
+            className="mt-3.5 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+          >
+            Go to Lubin verification
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
