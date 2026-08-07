@@ -617,6 +617,173 @@ export function AiPrescription({
 
   const canSign = readyToSign && !!rx.legalAcknowledgedAt;
 
+  const signatureMethodLabel =
+    controlledMeds.length > 0 && country === "US"
+      ? "Two-factor signing (EPCS)"
+      : "Signed in Lubin under verified prescribing credentials";
+
+  const audit = (
+    action: Parameters<typeof appendRxAudit>[0]["action"],
+    extra?: { destination?: string; detail?: string; authenticationMethod?: string },
+  ) =>
+    appendRxAudit({
+      appointmentId,
+      action,
+      providerName: identity.fullName || providerName || "Prescriber",
+      credentials: credentialSummary(identity, country),
+      jurisdiction: JURISDICTION_LABEL[country],
+      patient: clientName || "Patient",
+      version: rx.version ?? 1,
+      authenticationMethod: extra?.authenticationMethod ?? signatureMethodLabel,
+      destination: extra?.destination,
+      detail: extra?.detail,
+    });
+
+  const signPrescription = () => {
+    const at = Date.now();
+    const version = (rx.version ?? 0) + 1;
+    const controlled = controlledMeds.length > 0;
+    const doc = saveSignedPrescription({
+      appointmentId,
+      patientName: clientName || "Patient",
+      patientAgeYears: patientAge(rx.patientInfo) ?? undefined,
+      patientSex: rx.patientInfo?.sex,
+      country,
+      version,
+      signedAt: at,
+      signedBy: identity.fullName || providerName || "Prescriber",
+      authenticationMethod: signatureMethodLabel,
+      identity,
+      medications: namedMeds,
+      controlled,
+    });
+    patch({
+      finalisedAt: at,
+      finalisedBy: identity.fullName || providerName,
+      version,
+      documentId: doc.id,
+      signature: {
+        method: controlled && country === "US" ? "two-factor" : "credentialed-attestation",
+        at,
+        by: identity.fullName || providerName || "Prescriber",
+        credentials: credentialSummary(identity, country),
+        jurisdiction: country,
+      },
+    });
+    appendRxAudit({
+      appointmentId,
+      action: controlled ? "controlled-signed" : "signed",
+      providerName: identity.fullName || providerName || "Prescriber",
+      credentials: credentialSummary(identity, country),
+      jurisdiction: JURISDICTION_LABEL[country],
+      patient: clientName || "Patient",
+      version,
+      authenticationMethod: signatureMethodLabel,
+      detail: `Prescription ${doc.number} signed and saved to the patient's prescription record.`,
+    });
+    setFinalReview(false);
+    setAuditTick((t) => t + 1);
+    toast.success("Prescription signed", {
+      description: "Now choose how the signed prescription reaches the patient.",
+    });
+  };
+
+  const sendToPharmacy = async (pharmacyId: string) => {
+    const pharmacy = findPharmacy(pharmacyId);
+    const attempts = (rx.delivery?.attempts ?? 0) + 1;
+    patch({
+      delivery: {
+        method: "pharmacy",
+        state: "sending",
+        pharmacyId,
+        destination: pharmacy ? pharmacyLine(pharmacy) : undefined,
+        attempts,
+        at: Date.now(),
+      },
+    });
+    audit("delivery-chosen", { destination: pharmacy ? pharmacyLine(pharmacy) : pharmacyId });
+    await new Promise((r) => setTimeout(r, 900));
+    if (!pharmacy) {
+      patch({
+        delivery: {
+          method: "pharmacy",
+          state: "failed",
+          pharmacyId,
+          attempts,
+          at: Date.now(),
+          error: "That pharmacy branch is no longer in the verified directory.",
+        },
+      });
+      audit("send-failed", { detail: "Branch not found in the verified directory." });
+      setAuditTick((t) => t + 1);
+      toast.error("Send failed", { description: "Choose another verified branch." });
+      return;
+    }
+    const at = Date.now();
+    patch({
+      delivery: {
+        method: "pharmacy",
+        state: "sent",
+        pharmacyId,
+        destination: pharmacyLine(pharmacy),
+        attempts,
+        at,
+      },
+    });
+    if (rx.documentId)
+      updateSignedPrescription(rx.documentId, {
+        delivery: {
+          method: "pharmacy",
+          state: "sent",
+          destination: pharmacyLine(pharmacy),
+          at,
+        },
+      });
+    audit("sent-to-pharmacy", { destination: pharmacyLine(pharmacy) });
+    setAuditTick((t) => t + 1);
+    toast.success("Sent to pharmacy", { description: pharmacyLine(pharmacy) });
+  };
+
+  const giveCopyToPatient = () => {
+    const at = Date.now();
+    patch({
+      delivery: {
+        method: "patient",
+        state: "given",
+        destination: `Signed copy released to ${clientName || "the patient"}`,
+        at,
+      },
+    });
+    if (rx.documentId)
+      updateSignedPrescription(rx.documentId, {
+        delivery: {
+          method: "patient",
+          state: "given",
+          destination: `Signed copy released to ${clientName || "the patient"}`,
+          at,
+        },
+      });
+    audit("copy-given", { destination: clientName || "Patient" });
+    setAuditTick((t) => t + 1);
+    toast.success("Signed copy released", {
+      description: `${clientName || "The patient"} can download it from their Lubin account.`,
+    });
+  };
+
+  const withdrawSignature = () => {
+    if (rx.documentId) removeSignedPrescription(rx.documentId);
+    audit("unlocked", { detail: "Signature withdrawn; the signed document was removed." });
+    patch({
+      finalisedAt: undefined,
+      finalisedBy: undefined,
+      legalAcknowledgedAt: undefined,
+      signature: undefined,
+      documentId: undefined,
+      delivery: undefined,
+    });
+    setAuditTick((t) => t + 1);
+  };
+
   const status = prescriptionStatus(rx, { readyToSign: canSign });
   const statusLabel = prescriptionStatusLabel(rx, { readyToSign: canSign });
   const stage: Stage = signed
