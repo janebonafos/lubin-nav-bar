@@ -1148,7 +1148,9 @@ export function AiPrescription({
               country={country}
               identity={identity}
               medicationNames={controlledMeds.map((m) => m.name).filter(Boolean)}
-              onChange={patch}
+              onChange={(next) =>
+                patch({ controlledAuth: { ...(rx.controlledAuth ?? {}), ...next } })
+              }
             />
           </div>
         )}
