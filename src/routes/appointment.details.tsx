@@ -101,7 +101,7 @@ function SectionCard({
   done = false,
   reference = false,
   pillLabel,
-  optional = false,
+  requirementLabel,
   checkBadge = false,
   locked = false,
   lockedNote,
@@ -119,7 +119,7 @@ function SectionCard({
   done?: boolean;
   reference?: boolean;
   pillLabel?: string;
-  optional?: boolean;
+  requirementLabel?: string;
   checkBadge?: boolean;
   locked?: boolean;
   lockedNote?: string;
@@ -200,15 +200,15 @@ function SectionCard({
         {locked ? (
           <span className="mt-0.5 hidden shrink-0 items-center sm:flex">
             <span className="rounded-full bg-[#F1EDF8] px-2.5 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-              {optional ? "Required before prescribing" : "Locked"}
+              {requirementLabel ?? "Locked"}
             </span>
           </span>
         ) : (
         !(state === "reference" && !pillLabel) && (
           <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
-            {optional && (
+            {requirementLabel && (
               <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-                Required before prescribing
+                {requirementLabel}
               </span>
             )}
             <span
