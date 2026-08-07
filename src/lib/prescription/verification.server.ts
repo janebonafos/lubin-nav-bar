@@ -149,6 +149,38 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicAddress: "",
     clinicContact: "",
   },
+  // Expired credentials: prescribing stays closed, but the provider can still
+  // record that no prescription is needed.
+  "dr-lena-ortega": {
+    providerKey: "dr-lena-ortega",
+    status: "expired",
+    verifiedAt: Date.UTC(2024, 0, 10),
+    expiresAt: Date.UTC(2025, 11, 31),
+    jurisdictions: ["PH"],
+    outstanding: ["Renew your PTR for the current year and resubmit it to Lubin"],
+    profession: "Psychiatrist",
+    fullName: "Dr. Lena Ortega",
+    qualifications: "MD",
+    clinicName: "Lubin Psychiatry — Quezon City",
+    clinicAddress: "5th Floor, Eton Centris Cyberpod, Quezon Ave, Quezon City 1100",
+    clinicContact: "(02) 8721 4410 · care@lubin.health",
+    prcNumber: "0098221",
+  },
+  "dr-paolo-cruz-legacy": {
+    providerKey: "dr-paolo-cruz",
+    status: "in-review",
+    jurisdictions: [],
+    outstanding: [
+      "PRC registration is being verified against the Professional Regulation Commission register",
+      "PTR number for the current year",
+    ],
+    profession: "Psychiatrist",
+    fullName: "Dr. Paolo Cruz",
+    qualifications: "MD",
+    clinicName: "",
+    clinicAddress: "",
+    clinicContact: "",
+  },
 };
 
 export function lookupPrescribingVerification(
