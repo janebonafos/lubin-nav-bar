@@ -83,6 +83,7 @@ import {
 import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
 import { SigningDialog } from "./SigningDialog";
+import { Link } from "@tanstack/react-router";
 import {
   useVerifiedPrescribing,
   prescribingGate,
