@@ -680,12 +680,9 @@ export function AiPrescription({
               <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
             ) : null}
           </p>
-          {total > 0 && !signed && !allVerified && (
-            <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
-              Review and verify this draft before issuing it, or discard it if no prescription is
-              needed.
-            </p>
-          )}
+          <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
+            {RX_STATUS_HINT[status]}
+          </p>
           <p className="mt-0.5 text-[12px] text-[#5A4A8A]">
             Jurisdiction{" "}
             <span className="font-semibold text-[#3D2E6B]">{JURISDICTION_LABEL[country]}</span> —
