@@ -686,12 +686,14 @@ function DetailsPage() {
                 description={`Add a session recap, next steps, or resources. ${clientLabel} sees this in their Health Passport once you send it.`}
                 openOverride={openStep === "care-plan"}
                 onToggle={() => toggleStep("care-plan")}
-                done={isPublished}
-                checkBadge={isPublished}
+                done={isPublished || !!acks.summary}
+                checkBadge={isPublished || !!acks.summary}
                 locked={step2Locked}
                 lockedNote="Finish step 1 first"
-                pillLabel={acks.summary && !isPublished ? "Nothing to share" : followUpStatus}
-                optional
+                pillLabel={
+                  acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
+                }
+                requirementLabel="Decision required before prescribing"
               >
                 <>
                 <ApptNotesBlock
