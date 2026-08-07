@@ -599,7 +599,7 @@ function DetailsPage() {
                       ? "Ready to close this appointment"
                       : "Steps left before you can close this appointment"}
                 </p>
-                <ol className="mt-3 flex flex-col gap-0 md:flex-row md:gap-0">
+                <ol className="mt-3 flex flex-col gap-0 md:flex-row md:items-stretch">
                   {[
                     {
                       label: "Private clinical notes",
@@ -613,11 +613,11 @@ function DetailsPage() {
                     },
                     ...(rxShown
                       ? [
-                          {
-                            label: "Prescription — sign it or record that none is needed",
-                            done: rxDone,
-                            id: "prescriptions" as const,
-                          },
+                    {
+                      label: "Prescription",
+                      done: rxDone,
+                      id: "prescriptions" as const,
+                    },
                         ]
                       : []),
                     {
@@ -628,7 +628,10 @@ function DetailsPage() {
                   ].map((s, i, arr) => {
                     const isCurrent = !s.done && arr.slice(0, i).every((p) => p.done);
                     return (
-                      <li key={s.label} className="relative flex flex-1 gap-3 md:flex-col md:gap-2">
+                      <li
+                        key={s.label}
+                        className="relative flex min-w-0 gap-3 md:flex-1 md:basis-0 md:flex-col md:gap-2"
+                      >
                         <div className="flex flex-col items-center md:w-full md:flex-row">
                           <span
                             className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
@@ -643,18 +646,18 @@ function DetailsPage() {
                           </span>
                           {i < arr.length - 1 && (
                             <span
-                              className={`w-px flex-1 md:h-px md:w-full md:flex-1 ${
+                              className={`w-px flex-1 md:ml-2 md:mr-3 md:h-px md:w-auto md:flex-1 ${
                                 s.done ? "bg-[#6E4FD3]" : "bg-[#E5DCF5]"
                               }`}
                             />
                           )}
                         </div>
-                        <div className="pb-4 md:pb-0 md:pr-4">
+                        <div className="min-w-0 pb-4 md:pb-0 md:pr-3">
                           {s.id ? (
                             <button
                               type="button"
                               onClick={() => setOpenStep(s.id)}
-                              className={`text-left text-[12.5px] font-semibold leading-snug hover:underline ${
+                              className={`block text-left text-[12.5px] font-semibold leading-snug hover:underline ${
                                 s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
                               }`}
                             >
@@ -662,7 +665,7 @@ function DetailsPage() {
                             </button>
                           ) : (
                             <span
-                              className={`text-[12.5px] font-semibold leading-snug ${
+                              className={`block text-[12.5px] font-semibold leading-snug ${
                                 s.done ? "text-[#A89BD0]" : "text-[#2C2B4B]"
                               }`}
                             >
@@ -674,14 +677,17 @@ function DetailsPage() {
                               In progress
                             </span>
                           )}
+                          {s.done && (
+                            <span className="mt-0.5 block text-[11.5px] text-[#A89BD0]">Done</span>
+                          )}
                         </div>
                       </li>
                     );
                   })}
                 </ol>
                 {!notesPathOk && !canCloseOut && (
-                  <p className="mt-1 text-[12px] leading-snug text-[#5A4A8A]">
-                    Add clinical notes, or record that no prescription is needed.
+                  <p className="mt-3 border-t border-[#F0EAFA] pt-3 text-[12px] leading-snug text-[#5A4A8A]">
+                    Next: add your clinical notes, or record that no prescription is needed.
                   </p>
                 )}
               </section>
