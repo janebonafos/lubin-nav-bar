@@ -239,11 +239,12 @@ export function AiPrescription({
       ? "No medication added"
       : `${verifiedCount} of ${total} ${medWord} clinically reviewed`;
   const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
-  const draftSourceLabel = hasAiDraft
-    ? "AI-prepared draft"
-    : total > 0
-      ? "Clinician-added medication"
-      : null;
+  const draftSourceLabel =
+    hasAiDraft
+      ? "Includes an AI-assisted medication option. Clinical review required."
+      : total > 0
+        ? "Clinician-added medication."
+        : null;
 
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
@@ -890,10 +891,12 @@ export function AiPrescription({
         <div>
           <p className="text-[13px] font-semibold text-[#3D2E6B]">
             {statusLabel}
-            {draftSourceLabel && !signed && !allVerified ? (
-              <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
-            ) : null}
           </p>
+          {draftSourceLabel && !signed && !allVerified ? (
+            <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#6F6889]">
+              {draftSourceLabel}
+            </p>
+          ) : null}
           <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
             {RX_STATUS_HINT[status]}
           </p>
