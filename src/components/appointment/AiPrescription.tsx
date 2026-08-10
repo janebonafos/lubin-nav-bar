@@ -2343,9 +2343,9 @@ function MedicationEditor({
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
                 {safetyResolved
                   ? "Nothing outstanding"
-                  : `${requiredCount} required · ${reviewsRemaining} review${
-                      reviewsRemaining === 1 ? "" : "s"
-                    } remaining`}
+                  : countBreakdown
+                    ? `${countText} — ${countBreakdown}`
+                    : countText}
               </span>
               <button
                 type="button"
