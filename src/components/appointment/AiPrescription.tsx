@@ -1311,9 +1311,6 @@ export function AiPrescription({
     const blocked = blockers.length > 0;
     const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
     const requiredLeft = blockers.length - reviews;
-    const readiness = reviewMed.approved
-      ? 100
-      : Math.round((1 - Math.min(blockers.length, 6) / 6) * 100);
     /** Same "actions remaining" definition used by the drawer — one source of truth. */
     const reviewsRemaining = reviews;
     const requiredCount = requiredLeft;
@@ -1331,6 +1328,12 @@ export function AiPrescription({
     ]
       .filter(Boolean)
       .join(" · ");
+    /** Clinically meaningful states instead of a gamified readiness percentage. */
+    const readinessLabel = blocked
+      ? "Not ready to sign"
+      : reviewMed.approved
+        ? "Ready to sign"
+        : "Ready for final review";
     return (
       <section className="text-[#2C2B4B]">
         {header}
