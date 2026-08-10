@@ -1238,6 +1238,8 @@ export function AiPrescription({
           <p className="text-[13px] font-semibold text-[#2C2B4B]">
             {readyToSign ? "Ready to sign" : "Not yet ready to sign"}
           </p>
+        </div>
+          </p>
           <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
             {readyToSign
               ? `You will see the complete prescription, the patient, your verified credentials and the ${JURISDICTION_LABEL[country]} requirements, then re-authenticate. The signature is bound to that exact version and recorded in the audit log. Signing does not send anything.`
