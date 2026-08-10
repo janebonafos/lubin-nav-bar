@@ -77,8 +77,17 @@ export function EPrescriptionDocument({
         day: "numeric",
         hour: "numeric",
         minute: "2-digit",
+        timeZoneName: "short",
       })
     : null;
+  const signed = !!rx.finalisedAt;
+  /** A signed prescription never prints "Required before signing": signing is
+   *  blocked while credentials are incomplete, so missing values are omitted. */
+  const printed = (value?: string) => {
+    const text = (value ?? "").trim();
+    if (text) return text;
+    return signed ? null : REQUIRED;
+  };
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
@@ -207,10 +216,10 @@ export function EPrescriptionDocument({
                   {country === "PH"
                     ? identity.prcNumber
                       ? `PRC ${identity.prcNumber}`
-                      : "PRC number required before signing"
+                      : "Credentials incomplete"
                     : identity.npiNumber
                       ? `NPI ${identity.npiNumber}`
-                      : "NPI required before signing"}
+                      : "Credentials incomplete"}
                 </p>
                 <p className="text-[12px] text-white/70">
                   Issued in {JURISDICTION_LABEL[country]}
@@ -309,31 +318,31 @@ export function EPrescriptionDocument({
               />
               {country === "PH" ? (
                 <>
-                  <Line label="Clinic" value={identity.clinicName || REQUIRED} />
-                  <Line label="Clinic address" value={identity.clinicAddress || REQUIRED} />
-                  <Line label="Contact" value={identity.clinicContact || REQUIRED} />
-                  <Line label="PRC no." value={identity.prcNumber || REQUIRED} />
-                  <Line label="PTR no." value={identity.ptrNumber || REQUIRED} />
+                  <Line label="Clinic" value={printed(identity.clinicName)} />
+                  <Line label="Clinic address" value={printed(identity.clinicAddress)} />
+                  <Line label="Contact" value={printed(identity.clinicContact)} />
+                  <Line label="PRC no." value={printed(identity.prcNumber)} />
+                  <Line label="PTR no." value={printed(identity.ptrNumber)} />
                   {controlled && (
-                    <Line label="S2 licence no." value={identity.s2Number || REQUIRED} />
+                    <Line label="S2 licence no." value={printed(identity.s2Number)} />
                   )}
                 </>
               ) : (
                 <>
-                  <Line label="Practice" value={identity.clinicName || REQUIRED} />
-                  <Line label="Practice address" value={identity.clinicAddress || REQUIRED} />
-                  <Line label="Contact" value={identity.clinicContact || REQUIRED} />
+                  <Line label="Practice" value={printed(identity.clinicName)} />
+                  <Line label="Practice address" value={printed(identity.clinicAddress)} />
+                  <Line label="Contact" value={printed(identity.clinicContact)} />
                   <Line
                     label="State licence"
                     value={
                       identity.licenseNumber
                         ? `${identity.licenseNumber}${identity.licenseState ? ` · ${identity.licenseState}` : ""}`
-                        : REQUIRED
+                        : printed(identity.licenseNumber)
                     }
                   />
-                  <Line label="NPI no." value={identity.npiNumber || REQUIRED} />
+                  <Line label="NPI no." value={printed(identity.npiNumber)} />
                   {controlled && (
-                    <Line label="DEA no." value={identity.deaNumber || REQUIRED} />
+                    <Line label="DEA no." value={printed(identity.deaNumber)} />
                   )}
                 </>
               )}
@@ -350,19 +359,25 @@ export function EPrescriptionDocument({
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
               </p>
-              {rx.finalisedAt ? (
+              {signed ? (
                 <>
                   <p className="mt-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-                    {rx.finalisedBy || identity.fullName || providerName || "your prescriber"}
+                    {withDoctorTitle(
+                      identity.fullName || rx.finalisedBy || providerName || "your prescriber",
+                    )}
                     {identity.qualifications ? `, ${identity.qualifications}` : ""}
                   </p>
                   <p className="mt-1 text-[12px] text-[#6F6889]">
                     {signedStamp}
-                    {rx.signature ? ` · ${rx.signature.credentials}` : ""}
                   </p>
                   {doc && (
                     <p className="mt-1 font-mono text-[12px] text-[#6F6889]">
-                      Prescription ID: {doc.number}
+                      Rx # {doc.number}
+                    </p>
+                  )}
+                  {rx.signature?.credentials && (
+                    <p className="mt-1 text-[12px] text-[#6F6889]">
+                      {rx.signature.credentials}
                     </p>
                   )}
                   {rx.signature?.methodLabel && (
@@ -400,6 +415,11 @@ export function EPrescriptionDocument({
 
 const REQUIRED = "Required before signing";
 
+/** The signed copy names the verified prescriber; it is never hand-entered. */
+function withDoctorTitle(name: string): string {
+  return /^(dr\.?|doctor)\b/i.test(name.trim()) ? name.trim() : `Dr. ${name.trim()}`;
+}
+
 function Notice({ title, lines }: { title: string; lines: string[] }) {
   return (
     <div className="mb-4 flex gap-3 rounded-[14px] border border-[#F0D9A8] bg-[#FDF6E7] px-4 py-3 text-[12.5px] leading-relaxed text-[#6B4E10]">
@@ -434,7 +454,8 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
   );
 }
 
-function Line({ label, value }: { label: string; value: string }) {
+function Line({ label, value }: { label: string; value: string | null }) {
+  if (!value) return null;
   return (
     <div className="flex gap-2">
       <dt className="min-w-[110px] shrink-0 text-[#8A7FB0]">{label}</dt>

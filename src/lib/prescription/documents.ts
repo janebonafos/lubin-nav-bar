@@ -50,8 +50,15 @@ function writeAll(docs: SignedPrescriptionDocument[]) {
 export function prescriptionNumber(country: RxCountry, at: number): string {
   const d = new Date(at);
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  const serial = String(Math.floor(Math.random() * 100000)).padStart(5, "0");
-  return `LBN-${country}-${stamp}-${serial}`;
+  const prefix = `LBN-${country}-${stamp}-`;
+  // Sequential within the day so each issued prescription carries a unique,
+  // immutable identifier (e.g. LBN-PH-20260810-0001).
+  const used = readAll()
+    .filter((doc) => doc.number.startsWith(prefix))
+    .map((doc) => Number(doc.number.slice(prefix.length)))
+    .filter((n) => Number.isFinite(n));
+  const next = (used.length ? Math.max(...used) : 0) + 1;
+  return `${prefix}${String(next).padStart(4, "0")}`;
 }
 
 export function saveSignedPrescription(
