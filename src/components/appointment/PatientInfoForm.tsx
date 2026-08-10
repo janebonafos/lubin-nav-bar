@@ -449,7 +449,9 @@ export function PatientInfoForm({
 
       {showBipolar && (
         <div>
-          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Bipolar or mania history</p>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+            Bipolar disorder or history of mania/hypomania
+          </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {(["present", "none-known", "not-documented"] as HistoryState[]).map((s) => (
               <button
@@ -469,7 +471,7 @@ export function PatientInfoForm({
           {view.bipolarHistory === "present" && (
             <input
               value={view.bipolarDetail ?? ""}
-              placeholder="Brief detail (episode, year, treatment)"
+              placeholder="Brief detail — episode type, year, treatment"
               onChange={(e) => stage({ bipolarDetail: e.target.value })}
               className={`mt-2 ${inputClass}`}
             />
@@ -483,19 +485,38 @@ export function PatientInfoForm({
 
       {showAge && (
         <div>
-          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Age or date of birth</p>
-          <div className="mt-1.5 flex flex-wrap gap-2">
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Date of birth</p>
+          <div className="mt-1.5 flex flex-wrap items-end gap-3">
             <label className="text-[12px] text-[#5A4A8A]">
-              <span className="mb-1 block">Date of birth</span>
+              <span className="mb-1 block">MM / DD / YYYY</span>
               <input
                 type="date"
                 value={view.dob ?? ""}
-                onChange={(e) => stage({ dob: e.target.value })}
+                onChange={(e) => stage({ dob: e.target.value, dobUnavailable: false })}
                 className={inputClass}
               />
             </label>
-            <label className="text-[12px] text-[#5A4A8A]">
-              <span className="mb-1 block">or age in years</span>
+            <p className="pb-2 text-[12.5px] font-semibold text-[#2C2B4B]">
+              {patientAge(view) !== null ? `Age ${patientAge(view)}` : "Age —"}
+            </p>
+          </div>
+          <label className="mt-2 flex items-start gap-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+            <input
+              type="checkbox"
+              checked={!!view.dobUnavailable}
+              onChange={(e) =>
+                stage({
+                  dobUnavailable: e.target.checked,
+                  ...(e.target.checked ? { dob: "" } : {}),
+                })
+              }
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+            />
+            <span>Date of birth unavailable</span>
+          </label>
+          {view.dobUnavailable && (
+            <label className="mt-2 block text-[12px] text-[#5A4A8A]">
+              <span className="mb-1 block">Estimated age in years, if known</span>
               <input
                 type="number"
                 min={0}
@@ -509,12 +530,12 @@ export function PatientInfoForm({
                 className={inputClass}
               />
             </label>
-          </div>
+          )}
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
             {patientAge(view) !== null
-              ? `Recorded age ${patientAge(view)}. Age-dependent warnings can now be evaluated.`
+              ? "Age is calculated from the date of birth. Age-dependent warnings can now be evaluated."
               : (relevanceFor?.("age") ??
-                "Age-dependent warnings stay hidden until the age or date of birth is recorded.")}
+                "Age-dependent warnings stay hidden until the date of birth is recorded.")}
           </p>
         </div>
       )}
@@ -522,7 +543,7 @@ export function PatientInfoForm({
       {showPregnancy && (
         <div>
           <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-            Pregnancy and breastfeeding status
+            Pregnancy / breastfeeding status
           </p>
           <select
             value={view.pregnancyStatus ?? "not-documented"}
@@ -531,11 +552,11 @@ export function PatientInfoForm({
           >
             {(
               [
+                "not-applicable",
+                "not-pregnant",
                 "pregnant",
                 "breastfeeding",
                 "trying",
-                "not-pregnant",
-                "not-applicable",
                 "not-documented",
               ] as PregnancyStatus[]
             ).map((s) => (
@@ -546,7 +567,7 @@ export function PatientInfoForm({
           </select>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#8A6A20]">
             {(view.pregnancyStatus ?? "not-documented") === "not-documented"
-              ? "“Not documented” leaves the pregnancy and breastfeeding check incomplete. It never means “not pregnant”."
+              ? "“Unknown / not assessed” leaves this check incomplete. It never means “not pregnant”. Select “Not applicable” when this is not clinically relevant for the patient."
               : (relevanceFor?.("pregnancy") ?? "Recorded status is used by the safety review.")}
           </p>
         </div>
