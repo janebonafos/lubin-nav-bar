@@ -443,7 +443,8 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
   );
 }
 
-function Line({ label, value }: { label: string; value: string }) {
+function Line({ label, value }: { label: string; value: string | null }) {
+  if (!value) return null;
   return (
     <div className="flex gap-2">
       <dt className="min-w-[110px] shrink-0 text-[#8A7FB0]">{label}</dt>
