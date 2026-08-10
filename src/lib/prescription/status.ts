@@ -21,7 +21,7 @@ export const RX_STATUS_LABEL: Record<RxStatus, string> = {
 };
 
 export const RX_STATUS_HINT: Record<RxStatus, string> = {
-  none: "Prepare a draft with AI or add a medication yourself.",
+  none: "Review medication options or add a medication yourself.",
   "ai-draft": "Complete the clinical review for every medication in this draft.",
   "review-complete": "Confirm the prescriber authorisation to unlock signing.",
   "ready-to-sign": "Sign the prescription to make it a legal document.",
