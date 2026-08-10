@@ -60,11 +60,38 @@ const SUGGESTIONS: Record<StructuredKey, string[]> = {
   ],
 };
 
-const DOC_STATES: { value: InfoDocState; label: string }[] = [
-  { value: "documented", label: "Documented items" },
+const DOCUMENTED_LABEL: Record<StructuredKey, string> = {
+  allergies: "Documented allergies",
+  currentMedications: "Documented medications",
+  conditions: "Documented conditions",
+};
+
+const docStates = (key: StructuredKey): { value: InfoDocState; label: string }[] => [
+  { value: "documented", label: DOCUMENTED_LABEL[key] },
   { value: "none-known", label: "None known" },
   { value: "not-documented", label: "Not documented" },
 ];
+
+const SEVERITIES: { value: NonNullable<PatientInfoEntry["severity"]>; label: string }[] = [
+  { value: "mild", label: "Mild" },
+  { value: "moderate", label: "Moderate" },
+  { value: "severe", label: "Severe" },
+  { value: "unknown", label: "Severity unknown" },
+];
+
+const REACTION_TYPES: { value: NonNullable<PatientInfoEntry["reactionType"]>; label: string }[] = [
+  { value: "allergy", label: "Allergy" },
+  { value: "intolerance", label: "Intolerance / side effect" },
+  { value: "unknown", label: "Not distinguished" },
+];
+
+const TAKING: { value: NonNullable<PatientInfoEntry["taking"]>; label: string }[] = [
+  { value: "yes", label: "Actively taking" },
+  { value: "no", label: "Not currently taking" },
+  { value: "unknown", label: "Unclear" },
+];
+
+const ROUTES = ["Oral", "Sublingual", "Intramuscular", "Intravenous", "Topical", "Other"];
 
 const STATUSES: PatientInfoStatus[] = ["active", "past", "suspected", "resolved"];
 const SOURCES: InfoSource[] = ["passport", "provider", "review"];
