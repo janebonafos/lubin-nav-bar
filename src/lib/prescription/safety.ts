@@ -482,7 +482,7 @@ export function runSafetyReview(
       status: state === "present" ? "review-needed" : "no-issue",
       detail:
         state === "present"
-          ? `Documented bipolar or mania history${info?.bipolarDetail ? ` — ${info.bipolarDetail}` : ""}. Review the risk of precipitating mania before prescribing.`
+          ? `Bipolar or mania history documented${info?.bipolarDetail ? ` — ${info.bipolarDetail}` : ""}. Review whether this affects medication choice or monitoring before prescribing — an antidepressant started without this review can precipitate a manic episode.`
           : "Documented as none known by the prescribing clinician.",
       informationUsed: "Recorded bipolar or mania screening result.",
       checkedAt: now,
