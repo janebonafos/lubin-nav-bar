@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
@@ -4389,6 +4390,7 @@ export function VerificationSection() {
           </div>
         </div>
       </div>
+      <PrescribingVerificationCard />
       {preview && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A1F4D]/60 p-4 backdrop-blur-sm"
