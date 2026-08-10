@@ -1002,10 +1002,33 @@ function DetailsPage() {
             {showPostSession && (
               <section className="rounded-[20px] border border-[#EAE2F6] bg-white px-5 py-5">
                 {isCompleted ? (
-                  <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
-                    <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
-                    completed.
-                  </p>
+                  <>
+                    <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
+                      <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
+                      completed.
+                    </p>
+                    <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
+                      Your appointments list has been updated with the new status and details.
+                    </p>
+                    <div className="mt-3.5 flex flex-wrap gap-2">
+                      <Link
+                        to="/provider/appointments"
+                        className="inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                      >
+                        Back to Appointments
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.history.length > 1) window.history.back();
+                          else window.location.assign("/provider/appointments");
+                        }}
+                        className="inline-flex h-10 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-4 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </>
                 ) : canCloseOut ? (
                   <>
                     <p className="text-[15px] font-semibold text-[#2C2B4B]">

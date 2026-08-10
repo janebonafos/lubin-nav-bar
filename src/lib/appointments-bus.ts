@@ -11,6 +11,9 @@ export type AppointmentEvent =
 
 const CHANNEL = "lubin-appointments";
 const STORAGE_KEY = "lubin:appt-event";
+/** Same-tab delivery: BroadcastChannel never echoes to the sending tab, and
+ *  `storage` events never fire in the tab that wrote them. */
+const LOCAL_EVENT = "lubin-appointments-local";
 
 let bc: BroadcastChannel | null = null;
 if (typeof window !== "undefined" && "BroadcastChannel" in window) {
@@ -25,6 +28,11 @@ export function publishAppointmentEvent(evt: AppointmentEvent) {
   if (typeof window === "undefined") return;
   try {
     bc?.postMessage(evt);
+  } catch {
+    /* noop */
+  }
+  try {
+    window.dispatchEvent(new CustomEvent(LOCAL_EVENT, { detail: evt }));
   } catch {
     /* noop */
   }
@@ -53,8 +61,11 @@ export function subscribeAppointmentEvents(
   };
   bc?.addEventListener("message", onBc);
   window.addEventListener("storage", onStorage);
+  const onLocal = (e: Event) => handler((e as CustomEvent).detail as AppointmentEvent);
+  window.addEventListener(LOCAL_EVENT, onLocal);
   return () => {
     bc?.removeEventListener("message", onBc);
     window.removeEventListener("storage", onStorage);
+    window.removeEventListener(LOCAL_EVENT, onLocal);
   };
 }
