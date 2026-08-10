@@ -673,12 +673,31 @@ export function infoRecordedSummary(
       return HISTORY_STATE_LABEL[bipolarHistoryState(info)];
     case "age": {
       const age = patientAge(info);
-      return age === null ? "Recorded" : `${age} years`;
+      if (age === null) return "Date of birth unavailable";
+      const dob = info?.dob
+        ? new Date(info.dob).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null;
+      return dob ? `${age} years · born ${dob}` : `${age} years`;
     }
     case "pregnancy":
       return PREGNANCY_STATUS_LABEL[pregnancyStatus(info)];
-    case "labs":
-      return (info?.labs ?? "").trim().slice(0, 80) || "Recorded";
+    case "labs": {
+      const labs = (info?.labs ?? "").trim();
+      if (!labs) return "No relevant results documented";
+      const taken = info?.labsAt
+        ? new Date(info.labsAt).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null;
+      const value = labs.length > 70 ? `${labs.slice(0, 67)}…` : labs;
+      return taken ? `${value} · ${taken}` : value;
+    }
   }
 }
 
