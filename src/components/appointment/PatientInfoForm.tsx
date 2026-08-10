@@ -48,9 +48,11 @@ const SUGGESTIONS: Record<StructuredKey, string[]> = {
   currentMedications: MEDICATION_CATALOGUE.map((c) => c.name),
   conditions: [
     "Bipolar disorder",
+    "Epilepsy",
     "Seizure disorder",
     "Bleeding disorder",
     "Liver impairment",
+    "Liver disease",
     "Renal impairment",
     "Thyroid disorder",
     "Hypertension",
@@ -618,8 +620,8 @@ export function PatientInfoForm({
           {dirty
             ? "Not saved yet — press “Save patient information” to record these details. "
             : ""}
-          This information is saved to the client&rsquo;s private clinical record and is not
-          included in the client summary.
+          Information saved here becomes part of the client&rsquo;s clinical record and may be used
+          in future medication safety reviews. It is not included in the client summary.
           {saved ? ` Saved ${new Date(saved).toLocaleTimeString()}.` : ""}
         </p>
       </div>
