@@ -17,8 +17,8 @@ export type CheckState = "not-run" | "info-required" | "no-issue" | "review-need
 
 export const CHECK_STATE_LABEL: Record<CheckState, string> = {
   "not-run": "Not run",
-  "info-required": "Information required",
-  "no-issue": "No issue identified",
+  "info-required": "Information not available",
+  "no-issue": "No conflict identified",
   "review-needed": "Review needed",
   blocking: "Blocking issue",
 };
@@ -60,6 +60,13 @@ export const CHECK_ROWS: {
   { key: "organFunction", label: "Laboratory and organ function" },
   { key: "monitoring", label: "Monitoring requirements" },
 ];
+
+/** A short, item-specific line for the checklist row — never just the category. */
+export function checkHeadline(check?: MedicationCheck): string {
+  if (!check) return "Not evaluated yet";
+  const first = check.detail.split(/(?<=\.)\s/)[0] ?? check.detail;
+  return first.length > 130 ? `${first.slice(0, 127)}…` : first;
+}
 
 /* -------------------------- patient information -------------------------- */
 
