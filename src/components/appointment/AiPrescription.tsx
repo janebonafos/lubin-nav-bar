@@ -2509,7 +2509,7 @@ function MedicationEditor({
                 <div className="rounded-xl border border-[#EFECF7] px-4 py-3">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
-                      Shared {sharedSafety.clinicalName} safety response
+                      Suicide and self-harm safety — {sharedSafety.clinicalName} response
                     </p>
                     <StatusChip level={med.sharedSafetyAcknowledgedAt ? "acknowledged" : "review"} />
                     <span className="text-[11.5px] font-medium text-[#8C86A0]">
@@ -2545,8 +2545,10 @@ function MedicationEditor({
                   ) : (
                     <div className="mt-2 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
                       <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
-                        By acknowledging this response you confirm that you reviewed it and will
-                        take it into account before prescribing.
+                        This item has its own acknowledgement and is never cleared by reviewing the
+                        medication checks. By acknowledging it you confirm that you reviewed this
+                        response, considered suicide risk for this patient, and will act on it as
+                        clinically indicated before prescribing.
                       </p>
                       <button
                         type="button"
