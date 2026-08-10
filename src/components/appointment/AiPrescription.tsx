@@ -1986,7 +1986,7 @@ function MedicationEditor({
     });
   };
   /** One accordion row for a patient-information item inside the drawer. */
-  const infoAccordionRow = (key: InfoKey, requirement: "required" | "review") => {
+  const infoAccordionRow = (key: InfoKey, requirement: "required" | "recommended") => {
     const open = openInfoKey === key;
     const snap = frozenInfo?.[key];
     const live = infoList.find((i) => i.key === key);
