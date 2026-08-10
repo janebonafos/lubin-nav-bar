@@ -594,9 +594,16 @@ export function PatientInfoForm({
               className={inputClass}
             />
           </label>
+          <button
+            type="button"
+            onClick={() => stage({ labs: "No relevant results available", labsAt: "" })}
+            className="mt-2 inline-flex h-8 items-center rounded-lg border border-[#DEDAE8] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+          >
+            No relevant results available
+          </button>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
             {(view.labs ?? "").trim().length < 3
-              ? "No relevant results documented. Leave blank when no result is available — this is recorded as “not available”, never as normal."
+              ? "No relevant results documented. Where no result exists, record “No relevant results available” — that is never the same as a normal result."
               : (relevanceFor?.("labs") ??
                 "Recorded only when this medication or this patient needs monitoring.")}
           </p>

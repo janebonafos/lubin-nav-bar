@@ -688,6 +688,9 @@ export function infoRecordedSummary(
     case "labs": {
       const labs = (info?.labs ?? "").trim();
       if (!labs) return "No relevant results documented";
+      // A bare "none"/"nil" is ambiguous next to a cleared badge: state it plainly.
+      if (/^(none|nil|n\/?a|no results?|no relevant results?)\.?$/i.test(labs))
+        return "No relevant results available";
       const taken = info?.labsAt
         ? new Date(info.labsAt).toLocaleDateString(undefined, {
             month: "short",

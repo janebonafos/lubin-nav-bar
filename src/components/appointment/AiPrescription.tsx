@@ -1310,24 +1310,17 @@ export function AiPrescription({
     });
     const blocked = blockers.length > 0;
     const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
-    const requiredLeft = blockers.length - reviews;
-    /** Same "actions remaining" definition used by the drawer — one source of truth. */
-    const reviewsRemaining = reviews;
-    const requiredCount = requiredLeft;
-    const safetyAckRemaining =
-      sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt ? 1 : 0;
-    const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
-    const totalActions = requiredCount + reviewsRemaining;
-    const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
-    const countBreakdown = [
-      requiredCount > 0 ? `${requiredCount} patient information` : null,
-      medReviewsRemaining > 0
-        ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
-        : null,
-      safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+    void reviews;
+    /** Same "actions remaining" definition used everywhere — one source of truth. */
+    const counts = actionCounts({
+      blockers,
+      infoOutstanding: infoItems(reviewMed, rx.patientInfo, visitMeds).filter((i) => !i.recorded)
+        .length,
+      safetyAckPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
+    });
+    const totalActions = counts.total;
+    const countText = counts.text;
+    const countBreakdown = counts.breakdown;
     /** Clinically meaningful states instead of a gamified readiness percentage. */
     const readinessLabel = blocked
       ? "Not ready to sign"
@@ -1764,6 +1757,41 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
   );
 }
 
+/** Single source of truth for "N actions remaining" and its breakdown.
+ *  Every surface (header count, drawer, sticky footer, Medical profile tab
+ *  badge) reads from here so the numbers always reconcile exactly. */
+function actionCounts(args: {
+  blockers: Blocker[];
+  /** Every incomplete patient-information row, required or recommended. */
+  infoOutstanding: number;
+  safetyAckPending: boolean;
+}) {
+  const { blockers, infoOutstanding, safetyAckPending } = args;
+  const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+  const safetyAck = safetyAckPending ? 1 : 0;
+  const medReviews = Math.max(reviews - safetyAck, 0);
+  const details = blockers.filter((b) => b.kind === "fields").length;
+  const blocking = blockers.filter((b) => b.kind === "blocking").length;
+  const confirmations = blockers.filter((b) => b.kind === "acknowledgement").length;
+  const total = infoOutstanding + medReviews + safetyAck + details + blocking + confirmations;
+  const breakdown = [
+    infoOutstanding > 0 ? `${infoOutstanding} patient information` : null,
+    medReviews > 0 ? `${medReviews} medication review${medReviews === 1 ? "" : "s"}` : null,
+    safetyAck > 0 ? "1 safety acknowledgement" : null,
+    blocking > 0 ? `${blocking} blocking safety issue${blocking === 1 ? "" : "s"}` : null,
+    details > 0 ? "1 prescription detail" : null,
+    confirmations > 0 ? "1 clinical confirmation" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return {
+    total,
+    infoOutstanding,
+    breakdown,
+    text: `${total} action${total === 1 ? "" : "s"} remaining`,
+  };
+}
+
 function SafetyReviewDrawer({
   onClose,
   clientName,
@@ -1945,22 +1973,18 @@ function MedicationEditor({
   /** Header, safety summary and the sticky footer all count the same blockers. */
   const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
   const requiredCount = blockers.length - reviewsRemaining;
-  /** One shared count for the summary card, the drawer and the sticky footer. */
-  const safetyResolved = requiredCount === 0 && reviewsRemaining === 0;
-  /** Split the outstanding reviews so the clinician can scan what kind of action is left. */
-  const safetyAckRemaining = sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0;
-  const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
-  const totalActions = requiredCount + reviewsRemaining;
-  const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
-  const countBreakdown = [
-    requiredCount > 0 ? `${requiredCount} patient information` : null,
-    medReviewsRemaining > 0
-      ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
-      : null,
-    safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  /** Shared counter: the breakdown adds up to the headline number exactly, and
+   *  the patient-information figure is the same one shown on the profile tab. */
+  const counts = actionCounts({
+    blockers,
+    infoOutstanding: outstanding.length,
+    safetyAckPending: !!sharedSafety && !med.sharedSafetyAcknowledgedAt,
+  });
+  const totalActions = counts.total;
+  const countText = counts.text;
+  const countBreakdown = counts.breakdown;
+  /** One shared "nothing left" state for the summary card, drawer and footer. */
+  const safetyResolved = requiredCount === 0 && reviewsRemaining === 0 && totalActions === 0;
   const outstandingNames = requiredOutstanding
     .map((i) => infoLabel(i.key))
     .join(" and ")
