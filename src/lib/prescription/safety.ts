@@ -446,7 +446,7 @@ export function runSafetyReview(
       status: hits.length ? "blocking" : "no-issue",
       detail: hits.length
         ? `Recorded information includes a contraindication: ${hits.join(", ")}.`
-        : "No issue identified against the recorded conditions and prescribing information.",
+        : "No contraindication identified from the conditions recorded for this visit.",
       informationUsed: "Recorded medical conditions and prescribing information.",
       checkedAt: now,
     };
@@ -460,8 +460,8 @@ export function runSafetyReview(
     checks.conditions = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? `Consider the recorded condition(s) before prescribing: ${hits.join(", ")}.`
-        : "Information complete — no condition that changes this prescription.",
+        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} documented — review before prescribing.`
+        : "No condition identified from the available information that changes this prescription.",
       informationUsed: "Recorded medical conditions.",
       checkedAt: now,
     };
@@ -546,8 +546,8 @@ export function runSafetyReview(
     checks.organFunction = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? "Recorded results include values to review before prescribing."
-        : "Recorded laboratory or organ-function information shows nothing that changes this prescription.",
+        ? `Recorded results flagged (${hits.join(", ")}) — review before prescribing.`
+        : "No abnormality identified in the laboratory or organ-function information available.",
       informationUsed: "Recorded laboratory or organ-function information.",
       checkedAt: now,
     };
@@ -555,7 +555,9 @@ export function runSafetyReview(
 
   checks.monitoring = {
     status: "review-needed",
-    detail: "Confirm the follow-up and monitoring plan before prescribing.",
+    detail: med.requiresLabs
+      ? `Baseline and follow-up monitoring is called for by this medication${med.labsReason ? ` — ${med.labsReason}` : ""}. Confirm the monitoring plan and review interval before prescribing.`
+      : "Confirm the follow-up interval and what will be monitored before prescribing.",
     informationUsed: "Prescribing information for this medication and the recorded plan.",
     checkedAt: now,
   };
