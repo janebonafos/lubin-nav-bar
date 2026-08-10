@@ -508,7 +508,11 @@ function DetailsPage() {
   // appointment, but it never unlocks prescribing.
   const clinicalDocForRx = hasNotes;
   const step2Done = isPublished || !!acks.summary;
-  const rxShown = rxServiceOnly && showPostSession;
+  // Prescribing is a profession-bound surface: only a mental-health doctor,
+  // psychiatrist or other prescribing profession ever sees the step. For
+  // everyone else it does not exist — it is not shown as locked or unavailable.
+  const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
+  const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
   const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
