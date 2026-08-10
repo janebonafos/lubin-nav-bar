@@ -127,7 +127,7 @@ function PrescribingVerificationPage() {
   return (
     <div className="min-h-screen bg-[#FBFAFE]">
       <Navbar />
-      <main className="mx-auto w-full max-w-[960px] px-4 pb-20 pt-6 sm:px-6">
+      <main className="mx-auto w-full max-w-[960px] px-4 pb-20 pt-24 sm:px-6 sm:pt-28">
         <Link
           to="/provider/appointments"
           className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#5A4A8A] transition hover:text-[#3D2E6B]"
