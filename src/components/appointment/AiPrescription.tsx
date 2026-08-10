@@ -2389,26 +2389,15 @@ function MedicationEditor({
 
               {stableCheckKeys.length > 0 && (
                 <div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="min-w-0 flex-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
-                      Medication-specific checks
-                    </p>
-                    <StatusChip level={unreviewedKeys.length === 0 ? "complete" : "review"} />
-                  </div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#5A4A8A]">
-                    {unreviewedKeys.length === 0
-                      ? "Every check for this medication has been reviewed."
-                      : `${unreviewedKeys.length} check${
-                          unreviewedKeys.length === 1 ? "" : "s"
-                        } need your review before this medication can be verified. The rest are shown for information only.`}
-                  </p>
-                  {unreviewedKeys.length > 1 && (
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Each material warning is acknowledged individually — there is no bulk review.
-                    </p>
-                  )}
-                  <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
-                    {stableCheckKeys.map((k) => {
+                  {(() => {
+                    const actionKeys = stableCheckKeys.filter((k) => {
+                      const st = checkState(med.checks?.[k]);
+                      return (
+                        (st === "review-needed" || st === "blocking") && !med.checkReviews?.[k]
+                      );
+                    });
+                    const clearedKeys = stableCheckKeys.filter((k) => !actionKeys.includes(k));
+                    const renderRow = (k: (typeof stableCheckKeys)[number]) => {
                       const open = openCheckKey === k;
                       const reviewed = !!med.checkReviews?.[k];
                       const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
@@ -2431,7 +2420,11 @@ function MedicationEditor({
                                   {headline} · Reviewed {formatCheckedAt(med.checkReviews[k]!)}
                                 </span>
                               ) : (
-                                <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                <span
+                                  className={`mt-0.5 block text-[11px] ${
+                                    needsAck ? "text-[#5A4A8A]" : "text-[#8C86A0]"
+                                  }`}
+                                >
                                   {headline}
                                   {needsAck
                                     ? " · Acknowledge this item individually"
@@ -2461,7 +2454,7 @@ function MedicationEditor({
                                 }}
                                 className="inline-flex h-8 items-center rounded-[9px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#7C5FE0]"
                               >
-                                Mark reviewed
+                                Acknowledge
                               </button>
                             )}
                             <button
@@ -2501,8 +2494,63 @@ function MedicationEditor({
                           )}
                         </li>
                       );
-                    })}
-                  </ul>
+                    };
+                    return (
+                      <>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <p className="min-w-0 flex-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
+                            Medication-specific checks
+                          </p>
+                          <StatusChip level={actionKeys.length === 0 ? "complete" : "review"} />
+                        </div>
+                        <p className="mt-1 text-[13px] font-semibold text-[#3D2E6B]">
+                          {actionKeys.length === 0
+                            ? "No items require your review"
+                            : `${actionKeys.length} item${
+                                actionKeys.length === 1 ? "" : "s"
+                              } require your review`}
+                        </p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                          {actionKeys.length === 0
+                            ? "Every check for this medication has been reviewed or cleared."
+                            : "Each item is acknowledged individually with its reason shown. There is no bulk review."}
+                        </p>
+
+                        {actionKeys.length > 0 && (
+                          <ul className="mt-2 divide-y divide-[#EFECF7] rounded-xl border border-[#DCD2F4] bg-[#FCFBFE]">
+                            {actionKeys.map(renderRow)}
+                          </ul>
+                        )}
+
+                        {clearedKeys.length > 0 && (
+                          <div className="mt-3">
+                            <button
+                              type="button"
+                              aria-expanded={clearedOpen}
+                              onClick={() => setClearedOpen((v) => !v)}
+                              className="flex w-full items-center gap-2 rounded-xl border border-[#EFECF7] px-4 py-2.5 text-left transition hover:bg-[#FBFAFE]"
+                            >
+                              <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                              <span className="min-w-0 flex-1 text-[12.5px] font-semibold text-[#3D2E6B]">
+                                {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"} —
+                                no conflict identified or already reviewed
+                              </span>
+                              <ChevronDown
+                                className={`h-3.5 w-3.5 text-[#6E4FD3] transition-transform ${
+                                  clearedOpen ? "rotate-180" : ""
+                                }`}
+                              />
+                            </button>
+                            {clearedOpen && (
+                              <ul className="mt-1 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
+                                {clearedKeys.map(renderRow)}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               )}
 
