@@ -1403,13 +1403,11 @@ export function AiPrescription({
           <div className="mr-auto flex flex-wrap items-center gap-4">
             <div className="flex flex-col">
               <span className="text-[13px] font-semibold text-white">
-                {blocked && !reviewMed.approved
-                  ? `${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`
-                  : countLabel}
+                {blocked && !reviewMed.approved ? countText : countLabel}
               </span>
-              {blocked && !reviewMed.approved && (
+              {blocked && !reviewMed.approved && countBreakdown && (
                 <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#A9A2C4]">
-                  {reviews} review{reviews === 1 ? "" : "s"} remaining
+                  {countBreakdown}
                 </span>
               )}
             </div>
