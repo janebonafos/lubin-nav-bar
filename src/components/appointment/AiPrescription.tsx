@@ -35,6 +35,7 @@ import {
   INFO_REQUIREMENT_LABEL,
   blockerSentence,
   checkState,
+  checkHeadline,
   formatCheckedAt,
   infoLabel,
   infoItems,
