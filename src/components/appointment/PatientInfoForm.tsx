@@ -611,18 +611,20 @@ export function PatientInfoForm({
       )}
 
       <div>
-        <button
-          type="button"
-          onClick={() => {
-            if (dirty) onChange(patch);
-            setPatch({});
-            setSaved(Date.now());
-            onSave();
-          }}
-          className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-        >
-          Save patient information
-        </button>
+        {dirty && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange(patch);
+              setPatch({});
+              setSaved(Date.now());
+              onSave();
+            }}
+            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+          >
+            Save patient information
+          </button>
+        )}
         <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
           {dirty
             ? "Not saved yet — press “Save patient information” to record these details. "
