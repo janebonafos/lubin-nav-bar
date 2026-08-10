@@ -2442,7 +2442,7 @@ function MedicationEditor({
                                   }`}
                                 >
                                   {needsAck
-                                    ? `${headline} · Acknowledge this item individually`
+                                    ? `${headline} · Review & acknowledge this item individually`
                                     : missingInfo
                                       ? `${headline} · Information not available — judge independently`
                                       : "No conflict identified from available information"}
@@ -2469,7 +2469,7 @@ function MedicationEditor({
                                 }}
                                 className="inline-flex h-8 items-center rounded-[9px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#7C5FE0]"
                               >
-                                Acknowledge
+                                Review & acknowledge
                               </button>
                             )}
                             <button
@@ -2622,7 +2622,7 @@ function MedicationEditor({
                         }}
                         className="mt-1.5 inline-flex h-7 items-center rounded-[8px] bg-[#6E4FD3] px-2.5 text-[11.5px] font-semibold text-white transition hover:bg-[#5A3EB8]"
                       >
-                        Acknowledge safety response
+                        Review & acknowledge safety response
                       </button>
                     </div>
                   )}
