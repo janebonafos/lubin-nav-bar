@@ -61,8 +61,8 @@ export function SigningDialog({
   const version = (rx.version ?? 0) + 1;
 
   const authority = useMemo(
-    () => prescribingAuthority({ rx, country, identity, patientState }),
-    [rx, country, identity, patientState],
+    () => prescribingAuthority({ rx, country, identity, patientState, patientName: clientName }),
+    [rx, country, identity, patientState, clientName],
   );
   const hash = useMemo(
     () =>
