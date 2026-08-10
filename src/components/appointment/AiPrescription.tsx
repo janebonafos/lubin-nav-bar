@@ -99,6 +99,7 @@ import {
 } from "@/lib/prescription/signing";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
+import { loadApplication } from "@/lib/prescription/verificationApplication";
 import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
@@ -3127,6 +3128,16 @@ function PrescribingLocked({
   country: RxCountry;
   onSkip?: () => void;
 }) {
+  const submittedApp = loadApplication();
+  const awaitingReview = !!submittedApp?.submittedAt && gate.status !== "expired";
+  const started = !!submittedApp && !submittedApp.submittedAt;
+  const cta = awaitingReview
+    ? "View verification status"
+    : gate.status === "expired"
+      ? "Renew my credentials"
+      : started
+        ? "Continue verification"
+        : "Start Lubin verification";
   return (
     <section className="rounded-2xl border border-[#EAE2F6] bg-white px-5 py-5 text-[#2C2B4B]">
       <div className="flex items-start gap-2.5">
@@ -3139,8 +3150,14 @@ function PrescribingLocked({
             {country === "PH" ? "the Philippines" : "the United States"}.
           </p>
           <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F1ECFD] px-2.5 py-1 text-[11.5px] font-semibold text-[#5A3EB8]">
-            {VERIFICATION_STATUS_LABEL[gate.status]}
+            {awaitingReview ? "Verification in review" : VERIFICATION_STATUS_LABEL[gate.status]}
           </p>
+          {awaitingReview && (
+            <p className="mt-2 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              Your documents are with Lubin. Prescribing opens automatically once they are verified
+              against the issuing register — usually within 2 business days.
+            </p>
+          )}
           {gate.outstanding.length > 0 && (
             <>
               <p className="mt-3 text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -3163,10 +3180,10 @@ function PrescribingLocked({
           </p>
           <div className="mt-3.5 flex flex-wrap items-center gap-2">
             <Link
-              to="/provider-onboarding"
+              to="/prescribing-verification"
               className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
             >
-              Go to Lubin verification
+              {cta}
             </Link>
             {onSkip && (
               <button

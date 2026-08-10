@@ -15,6 +15,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PrescribingVerificationRouteImport } from './routes/prescribing-verification'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
 import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
@@ -73,6 +74,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrescribingVerificationRoute = PrescribingVerificationRouteImport.update({
+  id: '/prescribing-verification',
+  path: '/prescribing-verification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/prescribing-verification': typeof PrescribingVerificationRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/prescribing-verification': typeof PrescribingVerificationRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/my-health-passport': typeof MyHealthPassportRoute
   '/payment-failed': typeof PaymentFailedRoute
   '/payment-success': typeof PaymentSuccessRoute
+  '/prescribing-verification': typeof PrescribingVerificationRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/provider-onboarding': typeof ProviderOnboardingRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/payment-failed'
     | '/payment-success'
+    | '/prescribing-verification'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/payment-failed'
     | '/payment-success'
+    | '/prescribing-verification'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '/my-health-passport'
     | '/payment-failed'
     | '/payment-success'
+    | '/prescribing-verification'
     | '/privacy'
     | '/profile'
     | '/provider-onboarding'
@@ -461,6 +473,7 @@ export interface RootRouteChildren {
   MyHealthPassportRoute: typeof MyHealthPassportRoute
   PaymentFailedRoute: typeof PaymentFailedRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
+  PrescribingVerificationRoute: typeof PrescribingVerificationRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   ProviderOnboardingRoute: typeof ProviderOnboardingRoute
@@ -528,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prescribing-verification': {
+      id: '/prescribing-verification'
+      path: '/prescribing-verification'
+      fullPath: '/prescribing-verification'
+      preLoaderRoute: typeof PrescribingVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment-success': {
@@ -759,6 +779,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyHealthPassportRoute: MyHealthPassportRoute,
   PaymentFailedRoute: PaymentFailedRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
+  PrescribingVerificationRoute: PrescribingVerificationRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
   ProviderOnboardingRoute: ProviderOnboardingRoute,
