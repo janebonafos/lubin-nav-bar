@@ -201,7 +201,11 @@ export function docStateFor(info: PatientSafetyInfo | undefined, key: Structured
 /** Text used by the deterministic review for a structured category. */
 function structuredText(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
   const entries = entriesFor(info, key)
-    .map((e) => [e.name, e.detail].filter(Boolean).join(" "))
+    .map((e) =>
+      [e.name, e.strength, e.dose, e.frequency, e.route, e.reaction, e.detail]
+        .filter(Boolean)
+        .join(" "),
+    )
     .join(", ");
   const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
   return [entries, legacy ?? ""].filter((v) => v && v.trim()).join(", ");
