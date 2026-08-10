@@ -77,8 +77,17 @@ export function EPrescriptionDocument({
         day: "numeric",
         hour: "numeric",
         minute: "2-digit",
+        timeZoneName: "short",
       })
     : null;
+  const signed = !!rx.finalisedAt;
+  /** A signed prescription never prints "Required before signing": signing is
+   *  blocked while credentials are incomplete, so missing values are omitted. */
+  const printed = (value?: string) => {
+    const text = (value ?? "").trim();
+    if (text) return text;
+    return signed ? null : REQUIRED;
+  };
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
@@ -207,10 +216,10 @@ export function EPrescriptionDocument({
                   {country === "PH"
                     ? identity.prcNumber
                       ? `PRC ${identity.prcNumber}`
-                      : "PRC number required before signing"
+                      : "Credentials incomplete"
                     : identity.npiNumber
                       ? `NPI ${identity.npiNumber}`
-                      : "NPI required before signing"}
+                      : "Credentials incomplete"}
                 </p>
                 <p className="text-[12px] text-white/70">
                   Issued in {JURISDICTION_LABEL[country]}
