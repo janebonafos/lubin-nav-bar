@@ -149,7 +149,7 @@ export function PatientInfoForm({
           <div key={key}>
             <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{infoLabel(key)}</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {DOC_STATES.map((s) => (
+              {docStates(key).map((s) => (
                 <button
                   key={s.value}
                   type="button"
