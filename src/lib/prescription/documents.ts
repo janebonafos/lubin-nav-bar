@@ -50,7 +50,8 @@ function writeAll(docs: SignedPrescriptionDocument[]) {
 export function prescriptionNumber(country: RxCountry, at: number): string {
   const d = new Date(at);
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  return `${country}-RX-${stamp}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const serial = String(Math.floor(Math.random() * 100000)).padStart(5, "0");
+  return `LBN-${country}-${stamp}-${serial}`;
 }
 
 export function saveSignedPrescription(

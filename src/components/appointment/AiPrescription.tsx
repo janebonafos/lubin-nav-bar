@@ -660,7 +660,7 @@ export function AiPrescription({
     controlledReady;
 
   /** Jurisdiction, authority and medication class decide what signing needs. */
-  const authority = prescribingAuthority({ rx, country, identity });
+  const authority = prescribingAuthority({ rx, country, identity, patientName: clientName });
   const canSign = readyToSign && authority.authorised;
   const isEpcsSigning = authority.method === "epcs-two-factor";
 

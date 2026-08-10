@@ -539,6 +539,21 @@ export function PatientInfoForm({
               : (relevanceFor?.("age") ??
                 "Age-dependent warnings stay hidden until the date of birth is recorded.")}
           </p>
+          <label className="mt-3 block text-[12px] text-[#5A4A8A]">
+            <span className="mb-1 block font-semibold text-[#2C2B4B]">
+              Patient address
+            </span>
+            <input
+              value={view.address ?? ""}
+              placeholder="Street, city, state / province, postal code"
+              onChange={(e) => stage({ address: e.target.value })}
+              className={inputClass}
+            />
+            <span className="mt-1 block leading-relaxed">
+              Printed on the prescription where it is legally required. Required on
+              United States prescriptions, including controlled substances.
+            </span>
+          </label>
         </div>
       )}
 
