@@ -2020,8 +2020,8 @@ function MedicationEditor({
             )}
           </span>
           <StatusChip level={done ? "complete" : requirement} />
-          <span className="inline-flex w-[92px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3]">
-            {open ? "Close" : done ? "Edit" : "Add"}
+          <span className="inline-flex w-[128px] items-center justify-end gap-1 text-[11.5px] font-semibold text-[#6E4FD3]">
+            {open ? "Close" : done ? "Edit" : "Add information"}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
             />
@@ -2664,8 +2664,10 @@ function MedicationEditor({
             </div>
           ) : (
             <div>
-              <p className="text-[12px] leading-relaxed text-[#5A4A8A]">
-                Reusable patient information. Editing here updates it everywhere it is used.
+              <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Clinical profile</p>
+              <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                Information saved here becomes part of the patient&rsquo;s clinical record and may be
+                used in future medication safety reviews.
               </p>
               <ul className="mt-3 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                 {(frozenInfoOrder
@@ -2675,7 +2677,7 @@ function MedicationEditor({
                     })
                   : infoList
                 ).map(({ key, requirement }) =>
-                  infoAccordionRow(key, requirement === "required" ? "required" : "review"),
+                  infoAccordionRow(key, requirement === "required" ? "required" : "recommended"),
                 )}
               </ul>
             </div>
