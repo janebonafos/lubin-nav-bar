@@ -1937,7 +1937,20 @@ function MedicationEditor({
   const requiredCount = blockers.length - reviewsRemaining;
   /** One shared count for the summary card, the drawer and the sticky footer. */
   const safetyResolved = requiredCount === 0 && reviewsRemaining === 0;
-  const countText = `${requiredCount} required · ${reviewsRemaining} to review`;
+  /** Split the outstanding reviews so the clinician can scan what kind of action is left. */
+  const safetyAckRemaining = sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0;
+  const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
+  const totalActions = requiredCount + reviewsRemaining;
+  const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
+  const countBreakdown = [
+    requiredCount > 0 ? `${requiredCount} patient information` : null,
+    medReviewsRemaining > 0
+      ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
+      : null,
+    safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   const outstandingNames = requiredOutstanding
     .map((i) => infoLabel(i.key))
     .join(" and ")
@@ -2205,6 +2218,9 @@ function MedicationEditor({
                       countText
                     )}
                   </p>
+                  {!safetyResolved && countBreakdown && (
+                    <p className="mt-0.5 text-[12px] text-[#6F6889]">{countBreakdown}</p>
+                  )}
                   <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
                     {safetyResolved
                       ? "Required information and safety acknowledgements are complete."
@@ -2327,9 +2343,9 @@ function MedicationEditor({
               <span className="mr-auto text-[12px] font-semibold text-[#5A4A8A]">
                 {safetyResolved
                   ? "Nothing outstanding"
-                  : `${requiredCount} required · ${reviewsRemaining} review${
-                      reviewsRemaining === 1 ? "" : "s"
-                    } remaining`}
+                  : countBreakdown
+                    ? `${countText} — ${countBreakdown}`
+                    : countText}
               </span>
               <button
                 type="button"
@@ -2417,7 +2433,7 @@ function MedicationEditor({
                               </span>
                               {reviewed && med.checkReviews?.[k] ? (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                                  {headline} · Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)} · {headline}
                                 </span>
                               ) : (
                                 <span
@@ -2425,12 +2441,11 @@ function MedicationEditor({
                                     needsAck ? "text-[#5A4A8A]" : "text-[#8C86A0]"
                                   }`}
                                 >
-                                  {headline}
                                   {needsAck
-                                    ? " · Acknowledge this item individually"
+                                    ? `${headline} · Acknowledge this item individually`
                                     : missingInfo
-                                      ? " · Information not available — judge independently"
-                                      : " · Information only"}
+                                      ? `${headline} · Information not available — judge independently`
+                                      : "No conflict identified from available information"}
                                 </span>
                               )}
                             </span>
@@ -2532,8 +2547,8 @@ function MedicationEditor({
                             >
                               <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
                               <span className="min-w-0 flex-1 text-[12.5px] font-semibold text-[#3D2E6B]">
-                                {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"} —
-                                no conflict identified or already reviewed
+                                {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"}{" "}
+                                completed
                               </span>
                               <ChevronDown
                                 className={`h-3.5 w-3.5 text-[#6E4FD3] transition-transform ${
@@ -2595,9 +2610,9 @@ function MedicationEditor({
                     <div className="mt-2 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
                       <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
                         This item has its own acknowledgement and is never cleared by reviewing the
-                        medication checks. By acknowledging it you confirm that you reviewed this
-                        response, considered suicide risk for this patient, and will act on it as
-                        clinically indicated before prescribing.
+                        medication checks. I have reviewed this response and considered whether
+                        further suicide risk assessment or immediate clinical action is required
+                        before prescribing.
                       </p>
                       <button
                         type="button"
@@ -2614,11 +2629,28 @@ function MedicationEditor({
                 </div>
               )}
 
-              {med.warnings && (
-                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {med.warnings}
+              <div className="border-t border-[#EDEBF3] pt-3">
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
+                  Medication safety information
                 </p>
-              )}
+                {med.warnings ? (
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    {med.warnings}
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    General effect and warning information for this medication is available in the
+                    reference source. It is not patient-specific.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={onOpenReference}
+                  className="mt-1.5 text-[12px] font-semibold text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                >
+                  View prescribing information
+                </button>
+              </div>
             </div>
           ) : (
             <div>

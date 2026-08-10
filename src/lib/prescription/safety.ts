@@ -460,7 +460,7 @@ export function runSafetyReview(
     checks.conditions = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} documented — review before prescribing.`
+        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} history documented. Review whether this affects medication choice or monitoring before prescribing.`
         : "No condition identified from the available information that changes this prescription.",
       informationUsed: "Recorded medical conditions.",
       checkedAt: now,
@@ -546,7 +546,7 @@ export function runSafetyReview(
     checks.organFunction = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? `Recorded results flagged (${hits.join(", ")}) — review before prescribing.`
+        ? `Recorded results flagged (${hits.join(", ")}). Review whether this affects dose or monitoring before prescribing.`
         : "No abnormality identified in the laboratory or organ-function information available.",
       informationUsed: "Recorded laboratory or organ-function information.",
       checkedAt: now,
@@ -556,8 +556,8 @@ export function runSafetyReview(
   checks.monitoring = {
     status: "review-needed",
     detail: med.requiresLabs
-      ? `Baseline and follow-up monitoring is called for by this medication${med.labsReason ? ` — ${med.labsReason}` : ""}. Confirm the monitoring plan and review interval before prescribing.`
-      : "Confirm the follow-up interval and what will be monitored before prescribing.",
+      ? `Baseline and follow-up monitoring is called for by this medication${med.labsReason ? ` — ${med.labsReason}` : ""}. Confirm the follow-up interval and monitoring plan before prescribing.`
+      : "Confirm the follow-up interval and monitoring plan before prescribing.",
     informationUsed: "Prescribing information for this medication and the recorded plan.",
     checkedAt: now,
   };
