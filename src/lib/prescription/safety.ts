@@ -86,8 +86,8 @@ export type CheckKey = keyof Omit<MedicationChecks, "missingInformation">;
 export type InfoRequirement = "required" | "recommended" | "optional";
 
 export const INFO_REQUIREMENT_LABEL: Record<InfoRequirement, string> = {
-  required: "Required before verification",
-  recommended: "Review recommended",
+  required: "Required for this prescription",
+  recommended: "Recommended",
   optional: "Optional for this medication",
 };
 
@@ -101,8 +101,9 @@ export const INFO_RELEVANCE: Record<InfoKey, string> = {
     "Used to check contraindications and conditions that change the dose or the monitoring plan.",
   bipolarHistory:
     "An antidepressant started without a bipolar or mania history check can precipitate a manic episode.",
-  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the patient's age or date of birth.",
-  pregnancy: "Affects whether this medication can be used and at what dose.",
+  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the date of birth.",
+  pregnancy:
+    "Required when clinically applicable: affects whether this medication can be used and at what dose.",
   labs: "Requested only when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
 };
 
@@ -241,23 +242,23 @@ export const INFO_FIELDS: {
   },
   {
     key: "bipolarHistory",
-    label: "Bipolar or mania history",
+    label: "Bipolar disorder or history of mania/hypomania",
     placeholder: "Screening result",
   },
   {
     key: "age",
-    label: "Age or date of birth",
-    placeholder: "Date of birth or age in years",
+    label: "Date of birth",
+    placeholder: "MM / DD / YYYY",
   },
   {
     key: "pregnancy",
-    label: "Pregnancy and breastfeeding status",
+    label: "Pregnancy / breastfeeding status",
     placeholder: "Select a status",
   },
   {
     key: "labs",
-    label: "Laboratory or organ-function information",
-    placeholder: "Recent renal, hepatic or other relevant results",
+    label: "Relevant labs / organ function",
+    placeholder: "e.g. Creatinine: 0.9 mg/dL",
     multiline: true,
   },
 ];
