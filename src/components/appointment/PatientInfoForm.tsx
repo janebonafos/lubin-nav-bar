@@ -182,7 +182,13 @@ export function PatientInfoForm({
                         <input
                           list={`rx-suggest-${key}`}
                           value={entry.name}
-                          placeholder="Search or type a name"
+                          placeholder={
+                            key === "allergies"
+                              ? "Substance"
+                              : key === "currentMedications"
+                                ? "Medication name"
+                                : "Condition"
+                          }
                           onChange={(e) => {
                             const next = [...entries];
                             next[i] = { ...entry, name: e.target.value, updatedAt: Date.now() };
@@ -190,22 +196,150 @@ export function PatientInfoForm({
                           }}
                           className={inputClass}
                         />
-                        <input
-                          value={entry.detail ?? ""}
-                          placeholder={
-                            key === "allergies"
-                              ? "Reaction and severity"
-                              : key === "currentMedications"
-                                ? "Dose and frequency"
-                                : "Relevant details"
-                          }
-                          onChange={(e) => {
-                            const next = [...entries];
-                            next[i] = { ...entry, detail: e.target.value, updatedAt: Date.now() };
-                            setEntries(key, next);
-                          }}
-                          className={inputClass}
-                        />
+                        {key === "currentMedications" && (
+                          <>
+                            <input
+                              value={entry.strength ?? ""}
+                              placeholder="Strength (e.g. 50 mg)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  strength: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <input
+                              value={entry.dose ?? ""}
+                              placeholder="Dose (e.g. 1 tablet)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = { ...entry, dose: e.target.value, updatedAt: Date.now() };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <input
+                              value={entry.frequency ?? ""}
+                              placeholder="Frequency (e.g. once daily)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  frequency: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <select
+                              value={entry.route ?? "Oral"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = { ...entry, route: e.target.value, updatedAt: Date.now() };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {ROUTES.map((r) => (
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={entry.taking ?? "yes"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  taking: e.target.value as PatientInfoEntry["taking"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {TAKING.map((t) => (
+                                <option key={t.value} value={t.value}>
+                                  {t.label}
+                                </option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        {key === "allergies" && (
+                          <>
+                            <input
+                              value={entry.reaction ?? ""}
+                              placeholder="Reaction (e.g. rash, angioedema)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  reaction: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <select
+                              value={entry.severity ?? "unknown"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  severity: e.target.value as PatientInfoEntry["severity"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {SEVERITIES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={entry.reactionType ?? "allergy"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  reactionType: e.target.value as PatientInfoEntry["reactionType"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {REACTION_TYPES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        {key === "conditions" && (
+                          <input
+                            value={entry.detail ?? ""}
+                            placeholder="Relevant detail (e.g. year, severity, treatment)"
+                            onChange={(e) => {
+                              const next = [...entries];
+                              next[i] = { ...entry, detail: e.target.value, updatedAt: Date.now() };
+                              setEntries(key, next);
+                            }}
+                            className={inputClass}
+                          />
+                        )}
                         <select
                           value={entry.status ?? "active"}
                           onChange={(e) => {
