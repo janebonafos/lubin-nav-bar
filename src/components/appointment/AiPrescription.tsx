@@ -1415,17 +1415,9 @@ export function AiPrescription({
               )}
             </div>
             <span className="hidden h-8 w-px bg-white/15 sm:block" />
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/15">
-                <div
-                  className="h-full rounded-full bg-[#9C7DF0] transition-all"
-                  style={{ width: `${readiness}%` }}
-                />
-              </div>
-              <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#A9A2C4]">
-                {readiness}% ready
-              </span>
-            </div>
+            <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#A9A2C4]">
+              {readinessLabel}
+            </span>
           </div>
           <button
             type="button"
