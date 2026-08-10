@@ -2218,6 +2218,9 @@ function MedicationEditor({
                       countText
                     )}
                   </p>
+                  {!safetyResolved && countBreakdown && (
+                    <p className="mt-0.5 text-[12px] text-[#6F6889]">{countBreakdown}</p>
+                  )}
                   <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
                     {safetyResolved
                       ? "Required information and safety acknowledgements are complete."
