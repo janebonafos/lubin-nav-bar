@@ -48,9 +48,11 @@ const SUGGESTIONS: Record<StructuredKey, string[]> = {
   currentMedications: MEDICATION_CATALOGUE.map((c) => c.name),
   conditions: [
     "Bipolar disorder",
+    "Epilepsy",
     "Seizure disorder",
     "Bleeding disorder",
     "Liver impairment",
+    "Liver disease",
     "Renal impairment",
     "Thyroid disorder",
     "Hypertension",
@@ -60,11 +62,38 @@ const SUGGESTIONS: Record<StructuredKey, string[]> = {
   ],
 };
 
-const DOC_STATES: { value: InfoDocState; label: string }[] = [
-  { value: "documented", label: "Documented items" },
+const DOCUMENTED_LABEL: Record<StructuredKey, string> = {
+  allergies: "Documented allergies",
+  currentMedications: "Documented medications",
+  conditions: "Documented conditions",
+};
+
+const docStates = (key: StructuredKey): { value: InfoDocState; label: string }[] => [
+  { value: "documented", label: DOCUMENTED_LABEL[key] },
   { value: "none-known", label: "None known" },
   { value: "not-documented", label: "Not documented" },
 ];
+
+const SEVERITIES: { value: NonNullable<PatientInfoEntry["severity"]>; label: string }[] = [
+  { value: "mild", label: "Mild" },
+  { value: "moderate", label: "Moderate" },
+  { value: "severe", label: "Severe" },
+  { value: "unknown", label: "Severity unknown" },
+];
+
+const REACTION_TYPES: { value: NonNullable<PatientInfoEntry["reactionType"]>; label: string }[] = [
+  { value: "allergy", label: "Allergy" },
+  { value: "intolerance", label: "Intolerance / side effect" },
+  { value: "unknown", label: "Not distinguished" },
+];
+
+const TAKING: { value: NonNullable<PatientInfoEntry["taking"]>; label: string }[] = [
+  { value: "yes", label: "Actively taking" },
+  { value: "no", label: "Not currently taking" },
+  { value: "unknown", label: "Unclear" },
+];
+
+const ROUTES = ["Oral", "Sublingual", "Intramuscular", "Intravenous", "Topical", "Other"];
 
 const STATUSES: PatientInfoStatus[] = ["active", "past", "suspected", "resolved"];
 const SOURCES: InfoSource[] = ["passport", "provider", "review"];
@@ -122,7 +151,7 @@ export function PatientInfoForm({
           <div key={key}>
             <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{infoLabel(key)}</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {DOC_STATES.map((s) => (
+              {docStates(key).map((s) => (
                 <button
                   key={s.value}
                   type="button"
@@ -155,7 +184,13 @@ export function PatientInfoForm({
                         <input
                           list={`rx-suggest-${key}`}
                           value={entry.name}
-                          placeholder="Search or type a name"
+                          placeholder={
+                            key === "allergies"
+                              ? "Substance"
+                              : key === "currentMedications"
+                                ? "Medication name"
+                                : "Condition"
+                          }
                           onChange={(e) => {
                             const next = [...entries];
                             next[i] = { ...entry, name: e.target.value, updatedAt: Date.now() };
@@ -163,22 +198,150 @@ export function PatientInfoForm({
                           }}
                           className={inputClass}
                         />
-                        <input
-                          value={entry.detail ?? ""}
-                          placeholder={
-                            key === "allergies"
-                              ? "Reaction and severity"
-                              : key === "currentMedications"
-                                ? "Dose and frequency"
-                                : "Relevant details"
-                          }
-                          onChange={(e) => {
-                            const next = [...entries];
-                            next[i] = { ...entry, detail: e.target.value, updatedAt: Date.now() };
-                            setEntries(key, next);
-                          }}
-                          className={inputClass}
-                        />
+                        {key === "currentMedications" && (
+                          <>
+                            <input
+                              value={entry.strength ?? ""}
+                              placeholder="Strength (e.g. 50 mg)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  strength: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <input
+                              value={entry.dose ?? ""}
+                              placeholder="Dose (e.g. 1 tablet)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = { ...entry, dose: e.target.value, updatedAt: Date.now() };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <input
+                              value={entry.frequency ?? ""}
+                              placeholder="Frequency (e.g. once daily)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  frequency: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <select
+                              value={entry.route ?? "Oral"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = { ...entry, route: e.target.value, updatedAt: Date.now() };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {ROUTES.map((r) => (
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={entry.taking ?? "yes"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  taking: e.target.value as PatientInfoEntry["taking"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {TAKING.map((t) => (
+                                <option key={t.value} value={t.value}>
+                                  {t.label}
+                                </option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        {key === "allergies" && (
+                          <>
+                            <input
+                              value={entry.reaction ?? ""}
+                              placeholder="Reaction (e.g. rash, angioedema)"
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  reaction: e.target.value,
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            />
+                            <select
+                              value={entry.severity ?? "unknown"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  severity: e.target.value as PatientInfoEntry["severity"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {SEVERITIES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={entry.reactionType ?? "allergy"}
+                              onChange={(e) => {
+                                const next = [...entries];
+                                next[i] = {
+                                  ...entry,
+                                  reactionType: e.target.value as PatientInfoEntry["reactionType"],
+                                  updatedAt: Date.now(),
+                                };
+                                setEntries(key, next);
+                              }}
+                              className={inputClass}
+                            >
+                              {REACTION_TYPES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        {key === "conditions" && (
+                          <input
+                            value={entry.detail ?? ""}
+                            placeholder="Relevant detail (e.g. year, severity, treatment)"
+                            onChange={(e) => {
+                              const next = [...entries];
+                              next[i] = { ...entry, detail: e.target.value, updatedAt: Date.now() };
+                              setEntries(key, next);
+                            }}
+                            className={inputClass}
+                          />
+                        )}
                         <select
                           value={entry.status ?? "active"}
                           onChange={(e) => {
@@ -288,7 +451,9 @@ export function PatientInfoForm({
 
       {showBipolar && (
         <div>
-          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Bipolar or mania history</p>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
+            Bipolar disorder or history of mania/hypomania
+          </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {(["present", "none-known", "not-documented"] as HistoryState[]).map((s) => (
               <button
@@ -308,7 +473,7 @@ export function PatientInfoForm({
           {view.bipolarHistory === "present" && (
             <input
               value={view.bipolarDetail ?? ""}
-              placeholder="Brief detail (episode, year, treatment)"
+              placeholder="Brief detail — episode type, year, treatment"
               onChange={(e) => stage({ bipolarDetail: e.target.value })}
               className={`mt-2 ${inputClass}`}
             />
@@ -322,19 +487,38 @@ export function PatientInfoForm({
 
       {showAge && (
         <div>
-          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Age or date of birth</p>
-          <div className="mt-1.5 flex flex-wrap gap-2">
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">Date of birth</p>
+          <div className="mt-1.5 flex flex-wrap items-end gap-3">
             <label className="text-[12px] text-[#5A4A8A]">
-              <span className="mb-1 block">Date of birth</span>
+              <span className="mb-1 block">MM / DD / YYYY</span>
               <input
                 type="date"
                 value={view.dob ?? ""}
-                onChange={(e) => stage({ dob: e.target.value })}
+                onChange={(e) => stage({ dob: e.target.value, dobUnavailable: false })}
                 className={inputClass}
               />
             </label>
-            <label className="text-[12px] text-[#5A4A8A]">
-              <span className="mb-1 block">or age in years</span>
+            <p className="pb-2 text-[12.5px] font-semibold text-[#2C2B4B]">
+              {patientAge(view) !== null ? `Age ${patientAge(view)}` : "Age —"}
+            </p>
+          </div>
+          <label className="mt-2 flex items-start gap-2 text-[12px] leading-relaxed text-[#5A4A8A]">
+            <input
+              type="checkbox"
+              checked={!!view.dobUnavailable}
+              onChange={(e) =>
+                stage({
+                  dobUnavailable: e.target.checked,
+                  ...(e.target.checked ? { dob: "" } : {}),
+                })
+              }
+              className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+            />
+            <span>Date of birth unavailable</span>
+          </label>
+          {view.dobUnavailable && (
+            <label className="mt-2 block text-[12px] text-[#5A4A8A]">
+              <span className="mb-1 block">Estimated age in years, if known</span>
               <input
                 type="number"
                 min={0}
@@ -348,12 +532,12 @@ export function PatientInfoForm({
                 className={inputClass}
               />
             </label>
-          </div>
+          )}
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
             {patientAge(view) !== null
-              ? `Recorded age ${patientAge(view)}. Age-dependent warnings can now be evaluated.`
+              ? "Age is calculated from the date of birth. Age-dependent warnings can now be evaluated."
               : (relevanceFor?.("age") ??
-                "Age-dependent warnings stay hidden until the age or date of birth is recorded.")}
+                "Age-dependent warnings stay hidden until the date of birth is recorded.")}
           </p>
         </div>
       )}
@@ -361,7 +545,7 @@ export function PatientInfoForm({
       {showPregnancy && (
         <div>
           <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-            Pregnancy and breastfeeding status
+            Pregnancy / breastfeeding status
           </p>
           <select
             value={view.pregnancyStatus ?? "not-documented"}
@@ -370,11 +554,11 @@ export function PatientInfoForm({
           >
             {(
               [
+                "not-applicable",
+                "not-pregnant",
                 "pregnant",
                 "breastfeeding",
                 "trying",
-                "not-pregnant",
-                "not-applicable",
                 "not-documented",
               ] as PregnancyStatus[]
             ).map((s) => (
@@ -385,29 +569,38 @@ export function PatientInfoForm({
           </select>
           <p className="mt-1.5 text-[12px] leading-relaxed text-[#8A6A20]">
             {(view.pregnancyStatus ?? "not-documented") === "not-documented"
-              ? "“Not documented” leaves the pregnancy and breastfeeding check incomplete. It never means “not pregnant”."
+              ? "“Unknown / not assessed” leaves this check incomplete. It never means “not pregnant”. Select “Not applicable” when this is not clinically relevant for the patient."
               : (relevanceFor?.("pregnancy") ?? "Recorded status is used by the safety review.")}
           </p>
         </div>
       )}
 
       {showLabs && (
-        <label className="block">
-          <span className="mb-1 block text-[12.5px] font-semibold text-[#2C2B4B]">
-            {labsField.label}
-          </span>
+        <div>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{labsField.label}</p>
           <textarea
             rows={2}
             value={view.labs ?? ""}
             placeholder={labsField.placeholder}
             onChange={(e) => stage({ labs: e.target.value })}
-            className={inputClass}
+            className={`mt-1.5 ${inputClass}`}
           />
-          <span className="mt-1.5 block text-[12px] leading-relaxed text-[#5A4A8A]">
-            {relevanceFor?.("labs") ??
-              "Recorded only when this medication or this patient needs monitoring."}
-          </span>
-        </label>
+          <label className="mt-2 block text-[12px] text-[#5A4A8A]">
+            <span className="mb-1 block">Date the result was taken</span>
+            <input
+              type="date"
+              value={view.labsAt ?? ""}
+              onChange={(e) => stage({ labsAt: e.target.value })}
+              className={inputClass}
+            />
+          </label>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {(view.labs ?? "").trim().length < 3
+              ? "No relevant results documented. Leave blank when no result is available — this is recorded as “not available”, never as normal."
+              : (relevanceFor?.("labs") ??
+                "Recorded only when this medication or this patient needs monitoring.")}
+          </p>
+        </div>
       )}
 
       <div>
@@ -427,8 +620,8 @@ export function PatientInfoForm({
           {dirty
             ? "Not saved yet — press “Save patient information” to record these details. "
             : ""}
-          This information is saved to the client&rsquo;s private clinical record and is not
-          included in the client summary.
+          Information saved here becomes part of the client&rsquo;s clinical record and may be used
+          in future medication safety reviews. It is not included in the client summary.
           {saved ? ` Saved ${new Date(saved).toLocaleTimeString()}.` : ""}
         </p>
       </div>

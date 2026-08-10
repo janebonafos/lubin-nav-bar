@@ -69,18 +69,18 @@ export const PREGNANCY_STATUS_LABEL: Record<PregnancyStatus, string> = {
   pregnant: "Pregnant",
   breastfeeding: "Breastfeeding",
   trying: "Trying to conceive",
-  "not-pregnant": "Not pregnant",
+  "not-pregnant": "Not pregnant / not breastfeeding",
   "not-applicable": "Not applicable",
-  "not-documented": "Not documented",
+  "not-documented": "Unknown / not assessed",
 };
 
 /** Bipolar / mania history is a distinct screening question, not a free-text note. */
 export type HistoryState = "present" | "none-known" | "not-documented";
 
 export const HISTORY_STATE_LABEL: Record<HistoryState, string> = {
-  present: "History present",
+  present: "Documented history",
   "none-known": "None known",
-  "not-documented": "Not documented",
+  "not-documented": "Not assessed / not documented",
 };
 
 export const INFO_STATUS_LABEL: Record<PatientInfoStatus, string> = {
@@ -98,6 +98,17 @@ export type PatientInfoEntry = {
   status?: PatientInfoStatus;
   source?: InfoSource;
   updatedAt?: number;
+  /** Medication entries: structured prescribing detail for interaction checking. */
+  strength?: string;
+  dose?: string;
+  frequency?: string;
+  route?: string;
+  /** Medication entries: is the patient actively taking it right now? */
+  taking?: "yes" | "no" | "unknown";
+  /** Allergy entries: reaction, severity and allergy vs intolerance. */
+  reaction?: string;
+  severity?: "mild" | "moderate" | "severe" | "unknown";
+  reactionType?: "allergy" | "intolerance" | "unknown";
 };
 
 /** Patient information the safety review needs. Captured directly in the
@@ -121,6 +132,10 @@ export type PatientSafetyInfo = {
   /** Date of birth (ISO yyyy-mm-dd) and/or age in years. */
   dob?: string;
   ageYears?: number;
+  /** Date of birth is genuinely unavailable — never treated as "none known". */
+  dobUnavailable?: boolean;
+  /** Date the recorded laboratory / organ-function result was taken. */
+  labsAt?: string;
   /** Sex recorded on the prescription (required on a PH prescription). */
   sex?: "female" | "male" | "intersex" | "prefer-not-to-say" | "not-documented";
   /** Bipolar or mania history screening result. */

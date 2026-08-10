@@ -86,8 +86,8 @@ export type CheckKey = keyof Omit<MedicationChecks, "missingInformation">;
 export type InfoRequirement = "required" | "recommended" | "optional";
 
 export const INFO_REQUIREMENT_LABEL: Record<InfoRequirement, string> = {
-  required: "Required before verification",
-  recommended: "Review recommended",
+  required: "Required for this prescription",
+  recommended: "Recommended",
   optional: "Optional for this medication",
 };
 
@@ -101,8 +101,9 @@ export const INFO_RELEVANCE: Record<InfoKey, string> = {
     "Used to check contraindications and conditions that change the dose or the monitoring plan.",
   bipolarHistory:
     "An antidepressant started without a bipolar or mania history check can precipitate a manic episode.",
-  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the patient's age or date of birth.",
-  pregnancy: "Affects whether this medication can be used and at what dose.",
+  age: "Age-dependent warnings, including the early-treatment suicidality warning for younger patients and dose caution in older patients, cannot be evaluated without the date of birth.",
+  pregnancy:
+    "Required when clinically applicable: affects whether this medication can be used and at what dose.",
   labs: "Requested only when this medication, the patient's history or the jurisdiction requires baseline or ongoing monitoring.",
 };
 
@@ -200,7 +201,11 @@ export function docStateFor(info: PatientSafetyInfo | undefined, key: Structured
 /** Text used by the deterministic review for a structured category. */
 function structuredText(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
   const entries = entriesFor(info, key)
-    .map((e) => [e.name, e.detail].filter(Boolean).join(" "))
+    .map((e) =>
+      [e.name, e.strength, e.dose, e.frequency, e.route, e.reaction, e.detail]
+        .filter(Boolean)
+        .join(" "),
+    )
     .join(", ");
   const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
   return [entries, legacy ?? ""].filter((v) => v && v.trim()).join(", ");
@@ -241,23 +246,23 @@ export const INFO_FIELDS: {
   },
   {
     key: "bipolarHistory",
-    label: "Bipolar or mania history",
+    label: "Bipolar disorder or history of mania/hypomania",
     placeholder: "Screening result",
   },
   {
     key: "age",
-    label: "Age or date of birth",
-    placeholder: "Date of birth or age in years",
+    label: "Date of birth",
+    placeholder: "MM / DD / YYYY",
   },
   {
     key: "pregnancy",
-    label: "Pregnancy and breastfeeding status",
+    label: "Pregnancy / breastfeeding status",
     placeholder: "Select a status",
   },
   {
     key: "labs",
-    label: "Laboratory or organ-function information",
-    placeholder: "Recent renal, hepatic or other relevant results",
+    label: "Relevant labs / organ function",
+    placeholder: "e.g. Creatinine: 0.9 mg/dL",
     multiline: true,
   },
 ];
@@ -539,7 +544,7 @@ export function runSafetyReview(
       med.requiresLabs
         ? (med.labsReason ??
             "Laboratory or organ-function information is required by this medication's prescribing information.")
-        : "No laboratory or organ-function result has been recorded. Recommended, not required for this medication.",
+        : "No relevant results documented. Recommended, not required for this medication — it does not block verification.",
     );
   } else {
     const hits = contains(info?.labs ?? "", ["abnormal", "elevated", "impair", "low", "high"]);
@@ -548,7 +553,7 @@ export function runSafetyReview(
       detail: hits.length
         ? `Recorded results flagged (${hits.join(", ")}). Review whether this affects dose or monitoring before prescribing.`
         : "No abnormality identified in the laboratory or organ-function information available.",
-      informationUsed: "Recorded laboratory or organ-function information.",
+      informationUsed: "Recorded laboratory / organ-function result and the date it was taken.",
       checkedAt: now,
     };
   }
@@ -668,12 +673,31 @@ export function infoRecordedSummary(
       return HISTORY_STATE_LABEL[bipolarHistoryState(info)];
     case "age": {
       const age = patientAge(info);
-      return age === null ? "Recorded" : `${age} years`;
+      if (age === null) return "Date of birth unavailable";
+      const dob = info?.dob
+        ? new Date(info.dob).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null;
+      return dob ? `${age} years · born ${dob}` : `${age} years`;
     }
     case "pregnancy":
       return PREGNANCY_STATUS_LABEL[pregnancyStatus(info)];
-    case "labs":
-      return (info?.labs ?? "").trim().slice(0, 80) || "Recorded";
+    case "labs": {
+      const labs = (info?.labs ?? "").trim();
+      if (!labs) return "No relevant results documented";
+      const taken = info?.labsAt
+        ? new Date(info.labsAt).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null;
+      const value = labs.length > 70 ? `${labs.slice(0, 67)}…` : labs;
+      return taken ? `${value} · ${taken}` : value;
+    }
   }
 }
 
