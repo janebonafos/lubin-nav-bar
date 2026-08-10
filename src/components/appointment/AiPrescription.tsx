@@ -2101,6 +2101,22 @@ function MedicationEditor({
         b.kind === "fields" || b.kind === "info" || b.kind === "blocking" || b.kind === "stale",
     ).length + unreviewedKeys.length;
   const finalReady = prerequisitesLeft === 0;
+  /** Medication-level review items still open (check acknowledgements / re-run). */
+  const pendingCheckLabels = unreviewedKeys.map(
+    (k) => CHECK_ROWS.find((r) => r.key === k)?.label ?? String(k),
+  );
+  const needsReviewRun = !safetySummary(med).ran || reviewStale(med, patientInfo);
+  /** Patient information is settled — the only thing left is the medication review. */
+  const medicationReviewOnly =
+    hasName && outstanding.length === 0 && !finalReady && (needsReviewRun || unreviewedKeys.length > 0);
+  const medicationReviewRemainder = [
+    needsReviewRun ? "Run the patient-specific safety review" : null,
+    pendingCheckLabels.length
+      ? `Review & acknowledge: ${pendingCheckLabels.join(", ")}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   const medSummary = [med.name, med.dose, med.frequency, med.quantity].filter(Boolean).join(" · ");
   const clientResponse = (sharedSafety?.response ?? "")
     .replace(/\p{Extended_Pictographic}/gu, "")
@@ -2288,8 +2304,15 @@ function MedicationEditor({
                       ? "Required information and safety acknowledgements are complete."
                       : reviewRan && reviewStale(med, patientInfo)
                         ? "The patient information changed after the last safety review. Open the review and run the safety checks again to continue."
-                        : "Complete the required patient information and review the flagged safety items before verification."}
+                        : medicationReviewOnly
+                          ? "Patient information is complete. Complete the medication review to unlock the final review."
+                          : "Complete the required patient information and review the flagged safety items before verification."}
                   </p>
+                  {medicationReviewOnly && medicationReviewRemainder && (
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#5A3EB8]">
+                      Remaining: {medicationReviewRemainder}
+                    </p>
+                  )}
                   {!safetyResolved && outstandingNames && (
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
                       {outstandingNames} still needed before this medication can be verified.
@@ -2298,10 +2321,17 @@ function MedicationEditor({
                 </div>
                 <button
                   type="button"
-                  onClick={() => onSafetyOpenChange(true)}
+                  onClick={() => {
+                    setDrawerTab(medicationReviewOnly ? "safety" : drawerTab);
+                    onSafetyOpenChange(true);
+                  }}
                   className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#7C5FE0]"
                 >
-                  {safetyResolved ? "View details" : "Review patient information"}
+                  {safetyResolved
+                    ? "View details"
+                    : medicationReviewOnly
+                      ? "Complete medication review"
+                      : "Review patient information"}
                   <span aria-hidden="true">&rarr;</span>
                 </button>
               </div>
@@ -2756,8 +2786,9 @@ function MedicationEditor({
         <SectionHeading>Final review</SectionHeading>
         {!finalReady ? (
           <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
-            Final review becomes available once the required patient information and safety items
-            above are complete.
+            {medicationReviewOnly && medicationReviewRemainder
+              ? `Final review unlocks once the medication review is complete — ${medicationReviewRemainder.toLowerCase()}.`
+              : "Final review becomes available once the required patient information and safety items above are complete."}
           </p>
         ) : (
           <div className="mt-3 space-y-3">
