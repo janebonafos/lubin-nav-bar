@@ -664,6 +664,9 @@ export function AiPrescription({
   const canSign = readyToSign && authority.authorised;
   const isEpcsSigning = authority.method === "epcs-two-factor";
 
+  /** Final clinical authorisation tick, required before the signing action. */
+  const [finalAuthorised, setFinalAuthorised] = useState(false);
+
   const signatureMethodLabel = isEpcsSigning
     ? "EPCS two-factor signing"
     : "Re-authenticated with signing passphrase";
