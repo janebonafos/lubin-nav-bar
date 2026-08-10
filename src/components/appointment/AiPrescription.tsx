@@ -1764,6 +1764,41 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
   );
 }
 
+/** Single source of truth for "N actions remaining" and its breakdown.
+ *  Every surface (header count, drawer, sticky footer, Medical profile tab
+ *  badge) reads from here so the numbers always reconcile exactly. */
+function actionCounts(args: {
+  blockers: Blocker[];
+  /** Every incomplete patient-information row, required or recommended. */
+  infoOutstanding: number;
+  safetyAckPending: boolean;
+}) {
+  const { blockers, infoOutstanding, safetyAckPending } = args;
+  const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
+  const safetyAck = safetyAckPending ? 1 : 0;
+  const medReviews = Math.max(reviews - safetyAck, 0);
+  const details = blockers.filter((b) => b.kind === "fields").length;
+  const blocking = blockers.filter((b) => b.kind === "blocking").length;
+  const confirmations = blockers.filter((b) => b.kind === "acknowledgement").length;
+  const total = infoOutstanding + medReviews + safetyAck + details + blocking + confirmations;
+  const breakdown = [
+    infoOutstanding > 0 ? `${infoOutstanding} patient information` : null,
+    medReviews > 0 ? `${medReviews} medication review${medReviews === 1 ? "" : "s"}` : null,
+    safetyAck > 0 ? "1 safety acknowledgement" : null,
+    blocking > 0 ? `${blocking} blocking safety issue${blocking === 1 ? "" : "s"}` : null,
+    details > 0 ? "1 prescription detail" : null,
+    confirmations > 0 ? "1 clinical confirmation" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return {
+    total,
+    infoOutstanding,
+    breakdown,
+    text: `${total} action${total === 1 ? "" : "s"} remaining`,
+  };
+}
+
 function SafetyReviewDrawer({
   onClose,
   clientName,
