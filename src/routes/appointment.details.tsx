@@ -365,6 +365,27 @@ function DetailsPage() {
         const decoded = decodeURIComponent(escape(atob(d)));
         const parsed = JSON.parse(decoded) as StoredAppt;
         setAppt(parsed);
+        // Prototype only: a demo link may declare which provider is opening it
+        // so the prescribing surface can be reviewed without hand-seeding this
+        // browser. Production reads the signed-in provider instead.
+        if (parsed.providerProfession || parsed.providerName) {
+          if (parsed.providerName) setProviderDisplayName(parsed.providerName);
+          if (parsed.providerProfession) setProviderProfession(parsed.providerProfession);
+          try {
+            const rawProfile = window.localStorage.getItem("lubin.providerProfile.v1");
+            const profile = rawProfile ? (JSON.parse(rawProfile) as Record<string, unknown>) : {};
+            window.localStorage.setItem(
+              "lubin.providerProfile.v1",
+              JSON.stringify({
+                ...profile,
+                ...(parsed.providerName ? { name: parsed.providerName } : {}),
+                ...(parsed.providerProfession ? { profession: parsed.providerProfession } : {}),
+              }),
+            );
+          } catch {
+            /* noop */
+          }
+        }
         try {
           window.localStorage.setItem(`lubin:appt-details:${id}`, JSON.stringify(parsed));
         } catch {
