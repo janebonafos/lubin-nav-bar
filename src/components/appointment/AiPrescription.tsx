@@ -2610,9 +2610,9 @@ function MedicationEditor({
                     <div className="mt-2 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
                       <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
                         This item has its own acknowledgement and is never cleared by reviewing the
-                        medication checks. By acknowledging it you confirm that you reviewed this
-                        response, considered suicide risk for this patient, and will act on it as
-                        clinically indicated before prescribing.
+                        medication checks. I have reviewed this response and considered whether
+                        further suicide risk assessment or immediate clinical action is required
+                        before prescribing.
                       </p>
                       <button
                         type="button"
@@ -2629,11 +2629,28 @@ function MedicationEditor({
                 </div>
               )}
 
-              {med.warnings && (
-                <p className="border-t border-[#EDEBF3] pt-3 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  {med.warnings}
+              <div className="border-t border-[#EDEBF3] pt-3">
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#6F6889]">
+                  Medication safety information
                 </p>
-              )}
+                {med.warnings ? (
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    {med.warnings}
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                    General effect and warning information for this medication is available in the
+                    reference source. It is not patient-specific.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={onOpenReference}
+                  className="mt-1.5 text-[12px] font-semibold text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                >
+                  View prescribing information
+                </button>
+              </div>
             </div>
           ) : (
             <div>
