@@ -2778,10 +2778,18 @@ function MedicationEditor({
 function StatusChip({
   level,
 }: {
-  level: "required" | "review" | "complete" | "acknowledged" | "unavailable" | "no-issue";
+  level:
+    | "required"
+    | "recommended"
+    | "review"
+    | "complete"
+    | "acknowledged"
+    | "unavailable"
+    | "no-issue";
 }) {
   const map = {
-    required: { label: "Required", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
+    required: { label: "Required for this prescription", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
+    recommended: { label: "Recommended", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
     review: { label: "Needs your review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
     complete: { label: "Reviewed", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
     acknowledged: { label: "Acknowledged", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
