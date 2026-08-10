@@ -126,6 +126,8 @@ export function prescribingAuthority(args: {
   identity: PrescriberIdentity;
   /** US: the state the patient is located in for this encounter. */
   patientState?: string;
+  /** Name the prescription is issued to, when it is not stored on the record. */
+  patientName?: string;
 }): AuthorityResult {
   const { rx, country, identity } = args;
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
@@ -133,6 +135,25 @@ export function prescribingAuthority(args: {
   const checks: AuthorityCheck[] = [];
 
   const has = (v?: string) => !!(v ?? "").trim();
+
+  const patientGaps = patientLegalGaps({
+    info: rx.patientInfo,
+    patientName: args.patientName ?? rx.patientInfo?.["patientName" as never],
+    country,
+  });
+  checks.push({
+    key: "patient-identifiers",
+    label:
+      country === "US"
+        ? "Patient full name, date of birth and address"
+        : "Patient full name and date of birth",
+    ok: patientGaps.length === 0,
+    detail:
+      patientGaps.length === 0
+        ? "The prescription carries the patient identifiers required in this jurisdiction."
+        : `Record ${patientGaps.join(", ").toLowerCase()} before signing. These fields cannot be left blank on an issued prescription.`,
+    blocking: true,
+  });
 
   if (country === "PH") {
     checks.push({
