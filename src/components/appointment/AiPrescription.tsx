@@ -2433,7 +2433,7 @@ function MedicationEditor({
                               </span>
                               {reviewed && med.checkReviews?.[k] ? (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                                  {headline} · Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)} · {headline}
                                 </span>
                               ) : (
                                 <span
@@ -2441,12 +2441,11 @@ function MedicationEditor({
                                     needsAck ? "text-[#5A4A8A]" : "text-[#8C86A0]"
                                   }`}
                                 >
-                                  {headline}
                                   {needsAck
-                                    ? " · Acknowledge this item individually"
+                                    ? `${headline} · Acknowledge this item individually`
                                     : missingInfo
-                                      ? " · Information not available — judge independently"
-                                      : " · Information only"}
+                                      ? `${headline} · Information not available — judge independently`
+                                      : "No conflict identified from available information"}
                                 </span>
                               )}
                             </span>
