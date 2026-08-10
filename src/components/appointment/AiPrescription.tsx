@@ -2547,8 +2547,8 @@ function MedicationEditor({
                             >
                               <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
                               <span className="min-w-0 flex-1 text-[12.5px] font-semibold text-[#3D2E6B]">
-                                {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"} —
-                                no conflict identified or already reviewed
+                                {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"}{" "}
+                                completed
                               </span>
                               <ChevronDown
                                 className={`h-3.5 w-3.5 text-[#6E4FD3] transition-transform ${
