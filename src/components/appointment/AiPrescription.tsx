@@ -664,6 +664,9 @@ export function AiPrescription({
   const canSign = readyToSign && authority.authorised;
   const isEpcsSigning = authority.method === "epcs-two-factor";
 
+  /** Final clinical authorisation tick, required before the signing action. */
+  const [finalAuthorised, setFinalAuthorised] = useState(false);
+
   const signatureMethodLabel = isEpcsSigning
     ? "EPCS two-factor signing"
     : "Re-authenticated with signing passphrase";
@@ -1231,6 +1234,31 @@ export function AiPrescription({
           </p>
         )}
 
+        {readyToSign && (
+          <div className="mt-3 rounded-xl border border-[#E7E2F5] bg-white px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#2C2B4B]">
+              Final clinical authorization
+            </p>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#3D2E6B]">
+              “I, Dr.{" "}
+              {(identity.fullName || providerName || "").replace(/^Dr\.?\s+/i, "") ||
+                "[verified prescriber name]"}
+              , confirm that I have independently reviewed the patient information, medication, dose,
+              directions, relevant safety checks, and prescribing information, and that this
+              prescription reflects my clinical judgment for this patient.”
+            </p>
+            <label className="mt-2.5 flex items-start gap-2.5 text-[12.5px] font-semibold leading-relaxed text-[#2C2B4B]">
+              <input
+                type="checkbox"
+                checked={finalAuthorised}
+                onChange={(e) => setFinalAuthorised(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+              />
+              <span>I confirm and authorize this prescription</span>
+            </label>
+          </div>
+        )}
+
         <div className="mt-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
           <p className="text-[13px] font-semibold text-[#2C2B4B]">
             {readyToSign ? "Ready to sign" : "Not yet ready to sign"}
@@ -1274,7 +1302,7 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            disabled={!canSign}
+            disabled={!canSign || !finalAuthorised}
             onClick={() => setSigningOpen(true)}
             className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
           >
