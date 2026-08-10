@@ -1903,6 +1903,7 @@ function MedicationEditor({
   
   const [drawerTab, setDrawerTab] = useState<"safety" | "profile">("safety");
   const [whyOpen, setWhyOpen] = useState(false);
+  const [clearedOpen, setClearedOpen] = useState(false);
   const [medOpen, setMedOpen] = useState(true);
   const hasName = med.name.trim().length > 0;
   const complete = useMemo(() => medComplete(med), [med]);
