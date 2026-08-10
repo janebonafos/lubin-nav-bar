@@ -5,6 +5,7 @@
 // credential stays unverified and blocks the signature.
 import type { Prescription, PrescriptionMedication, RxCountry } from "./store";
 import type { PrescriberIdentity } from "./credentials";
+import { patientLegalGaps } from "./legal";
 
 /** Stable, order-independent content hash of everything the signature covers.
  *  Any edit to a medication, direction or patient identity changes the hash,
@@ -138,7 +139,7 @@ export function prescribingAuthority(args: {
 
   const patientGaps = patientLegalGaps({
     info: rx.patientInfo,
-    patientName: args.patientName ?? rx.patientInfo?.["patientName" as never],
+    patientName: args.patientName,
     country,
   });
   checks.push({
