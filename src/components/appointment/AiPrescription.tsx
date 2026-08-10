@@ -1975,20 +1975,16 @@ function MedicationEditor({
   const requiredCount = blockers.length - reviewsRemaining;
   /** One shared count for the summary card, the drawer and the sticky footer. */
   const safetyResolved = requiredCount === 0 && reviewsRemaining === 0;
-  /** Split the outstanding reviews so the clinician can scan what kind of action is left. */
-  const safetyAckRemaining = sharedSafety && !med.sharedSafetyAcknowledgedAt ? 1 : 0;
-  const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
-  const totalActions = requiredCount + reviewsRemaining;
-  const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
-  const countBreakdown = [
-    requiredCount > 0 ? `${requiredCount} patient information` : null,
-    medReviewsRemaining > 0
-      ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
-      : null,
-    safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  /** Shared counter: the breakdown adds up to the headline number exactly, and
+   *  the patient-information figure is the same one shown on the profile tab. */
+  const counts = actionCounts({
+    blockers,
+    infoOutstanding: outstanding.length,
+    safetyAckPending: !!sharedSafety && !med.sharedSafetyAcknowledgedAt,
+  });
+  const totalActions = counts.total;
+  const countText = counts.text;
+  const countBreakdown = counts.breakdown;
   const outstandingNames = requiredOutstanding
     .map((i) => infoLabel(i.key))
     .join(" and ")
