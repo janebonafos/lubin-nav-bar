@@ -2359,19 +2359,9 @@ function MedicationEditor({
                         } need your review before this medication can be verified. The rest are shown for information only.`}
                   </p>
                   {unreviewedKeys.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        unreviewedKeys.forEach((k) => onMarkCheckReviewed(k));
-                        toast.success(
-                          `${unreviewedKeys.length} checks marked as reviewed`,
-                          { description: "You can open any check to undo this." },
-                        );
-                      }}
-                      className="mt-2 inline-flex h-8 items-center rounded-[9px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-                    >
-                      Mark all {unreviewedKeys.length} as reviewed
-                    </button>
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                      Each material warning is acknowledged individually — there is no bulk review.
+                    </p>
                   )}
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                     {stableCheckKeys.map((k) => {
@@ -2380,6 +2370,8 @@ function MedicationEditor({
                       const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
                       const state = checkState(med.checks?.[k]);
                       const needsAck = state === "review-needed" || state === "blocking";
+                      const missingInfo = state === "info-required";
+                      const headline = checkHeadline(med.checks?.[k]);
                       return (
                         <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
                           <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left">
@@ -2392,18 +2384,29 @@ function MedicationEditor({
                               </span>
                               {reviewed && med.checkReviews?.[k] ? (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                  {headline} · Reviewed {formatCheckedAt(med.checkReviews[k]!)}
                                 </span>
                               ) : (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                  {headline}
                                   {needsAck
-                                    ? "You need to mark this as reviewed"
-                                    : "Nothing for you to do — information only"}
+                                    ? " · Acknowledge this item individually"
+                                    : missingInfo
+                                      ? " · Information not available — judge independently"
+                                      : " · Information only"}
                                 </span>
                               )}
                             </span>
                             <StatusChip
-                              level={reviewed ? "complete" : needsAck ? "review" : "no-issue"}
+                              level={
+                                reviewed
+                                  ? "complete"
+                                  : needsAck
+                                    ? "review"
+                                    : missingInfo
+                                      ? "unavailable"
+                                      : "no-issue"
+                              }
                             />
                             {needsAck && !reviewed && (
                               <button
