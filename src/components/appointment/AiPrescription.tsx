@@ -2711,6 +2711,24 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** One labelled block inside the decision-support basis panel. */
+function WhyBlock({ title, body }: { title: string; body: string }) {
+  return (
+    <div>
+      <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#6F6889]">{title}</p>
+      <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D2E6B]">{body}</p>
+    </div>
+  );
+}
+
+function SectionHeadingLegacy({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#6F6889]">
+      {children}
+    </h3>
+  );
+}
+
 /** One searchable medication selector — the single place a medication is chosen. */
 function MedicationSelector({
   value,
