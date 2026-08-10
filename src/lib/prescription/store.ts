@@ -134,6 +134,9 @@ export type PatientSafetyInfo = {
   ageYears?: number;
   /** Date of birth is genuinely unavailable — never treated as "none known". */
   dobUnavailable?: boolean;
+  /** Patient address as printed on the legal prescription layer. Required in
+   *  the U.S.; recorded where it is legally required. */
+  address?: string;
   /** Date the recorded laboratory / organ-function result was taken. */
   labsAt?: string;
   /** Sex recorded on the prescription (required on a PH prescription). */
