@@ -42,6 +42,10 @@ type StoredAppt = ApptLite & {
   promoCode?: string;
   /** Patient's jurisdiction — drives which prescribing rules apply. */
   jurisdiction?: "PH" | "US";
+  /** Prototype only: lets a demo link open as a specific provider so the
+   *  prescribing surface can be reviewed without seeding this browser. */
+  providerName?: string;
+  providerProfession?: string;
 };
 
 type Outcome = NonNullable<ApptLite["outcome"]>;
@@ -361,6 +365,27 @@ function DetailsPage() {
         const decoded = decodeURIComponent(escape(atob(d)));
         const parsed = JSON.parse(decoded) as StoredAppt;
         setAppt(parsed);
+        // Prototype only: a demo link may declare which provider is opening it
+        // so the prescribing surface can be reviewed without hand-seeding this
+        // browser. Production reads the signed-in provider instead.
+        if (parsed.providerProfession || parsed.providerName) {
+          if (parsed.providerName) setProviderDisplayName(parsed.providerName);
+          if (parsed.providerProfession) setProviderProfession(parsed.providerProfession);
+          try {
+            const rawProfile = window.localStorage.getItem("lubin.providerProfile.v1");
+            const profile = rawProfile ? (JSON.parse(rawProfile) as Record<string, unknown>) : {};
+            window.localStorage.setItem(
+              "lubin.providerProfile.v1",
+              JSON.stringify({
+                ...profile,
+                ...(parsed.providerName ? { name: parsed.providerName } : {}),
+                ...(parsed.providerProfession ? { profession: parsed.providerProfession } : {}),
+              }),
+            );
+          } catch {
+            /* noop */
+          }
+        }
         try {
           window.localStorage.setItem(`lubin:appt-details:${id}`, JSON.stringify(parsed));
         } catch {
@@ -477,10 +502,6 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
 
   const recordedOutcome = appt?.outcome;
-  const rxAllowed =
-    canPrescribe &&
-    backendPrescribingVerified &&
-    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -500,6 +521,10 @@ function DetailsPage() {
     : rxGate.allowed
       ? "Verified prescriber"
       : VERIFICATION_STATUS_LABEL[rxGate.status];
+
+  // Lubin's verification register is the source of truth for prescribing
+  // authority; the locally cached flag only corroborates it.
+  const rxAllowed = rxServiceOnly && (rxGate.allowed || (canPrescribe && backendPrescribingVerified));
 
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = hasNotes || !!acks.notes;
