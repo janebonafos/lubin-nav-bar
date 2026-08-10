@@ -1471,6 +1471,33 @@ export function AppointmentsSection() {
     return () => window.clearTimeout(t);
   }, []);
 
+  // Work saved on the appointment detail page (notes, shared summary, outcome,
+  // completion) lives in localStorage. Re-hydrate on mount so coming back to
+  // this list always shows the current status, not the seeded one.
+  useEffect(() => {
+    const hydrate = () =>
+      setAll((list) =>
+        list.map((a) => {
+          try {
+            const raw = window.localStorage.getItem(`lubin:appt-details:${a.id}`);
+            if (!raw) return a;
+            const stored = JSON.parse(raw) as Partial<Appt>;
+            return { ...a, ...stored, id: a.id };
+          } catch {
+            return a;
+          }
+        }),
+      );
+    hydrate();
+    const onFocus = () => hydrate();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, []);
+
   useEffect(() => {
     const unsub = subscribeAppointmentEvents((evt) => {
       if (evt.type === "lock") {
