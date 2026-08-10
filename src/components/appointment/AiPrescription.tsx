@@ -2286,7 +2286,9 @@ function MedicationEditor({
                   <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
                     {safetyResolved
                       ? "Required information and safety acknowledgements are complete."
-                      : "Complete the required patient information and review the flagged safety items before verification."}
+                      : reviewRan && reviewStale(med, patientInfo)
+                        ? "The patient information changed after the last safety review. Open the review and run the safety checks again to continue."
+                        : "Complete the required patient information and review the flagged safety items before verification."}
                   </p>
                   {!safetyResolved && outstandingNames && (
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
