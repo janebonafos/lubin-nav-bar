@@ -2721,14 +2721,6 @@ function WhyBlock({ title, body }: { title: string; body: string }) {
   );
 }
 
-function SectionHeadingLegacy({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#6F6889]">
-      {children}
-    </h3>
-  );
-}
-
 /** One searchable medication selector — the single place a medication is chosen. */
 function MedicationSelector({
   value,
