@@ -1314,6 +1314,23 @@ export function AiPrescription({
     const readiness = reviewMed.approved
       ? 100
       : Math.round((1 - Math.min(blockers.length, 6) / 6) * 100);
+    /** Same "actions remaining" definition used by the drawer — one source of truth. */
+    const reviewsRemaining = reviews;
+    const requiredCount = requiredLeft;
+    const safetyAckRemaining =
+      sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt ? 1 : 0;
+    const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
+    const totalActions = requiredCount + reviewsRemaining;
+    const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
+    const countBreakdown = [
+      requiredCount > 0 ? `${requiredCount} patient information` : null,
+      medReviewsRemaining > 0
+        ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
+        : null,
+      safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
     return (
       <section className="text-[#2C2B4B]">
         {header}
