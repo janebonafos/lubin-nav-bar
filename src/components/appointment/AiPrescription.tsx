@@ -1973,8 +1973,6 @@ function MedicationEditor({
   /** Header, safety summary and the sticky footer all count the same blockers. */
   const reviewsRemaining = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
   const requiredCount = blockers.length - reviewsRemaining;
-  /** One shared count for the summary card, the drawer and the sticky footer. */
-  const safetyResolved = requiredCount === 0 && reviewsRemaining === 0;
   /** Shared counter: the breakdown adds up to the headline number exactly, and
    *  the patient-information figure is the same one shown on the profile tab. */
   const counts = actionCounts({
@@ -1985,6 +1983,8 @@ function MedicationEditor({
   const totalActions = counts.total;
   const countText = counts.text;
   const countBreakdown = counts.breakdown;
+  /** One shared "nothing left" state for the summary card, drawer and footer. */
+  const safetyResolved = requiredCount === 0 && reviewsRemaining === 0 && totalActions === 0;
   const outstandingNames = requiredOutstanding
     .map((i) => infoLabel(i.key))
     .join(" and ")
