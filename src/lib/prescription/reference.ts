@@ -124,10 +124,10 @@ export const RECORD_ATTESTATION_STATEMENT =
 export const MED_VERIFICATION_STATEMENT =
   "I reviewed the medication, dose, route, frequency, duration, indication, patient instructions, prescribing information and patient-specific considerations. I confirm that this medication is clinically appropriate and accurate.";
 
-export const DRAFT_STATUS_TITLE = "AI-prepared draft — not yet a prescription";
+export const DRAFT_STATUS_TITLE = "Prescription draft";
 
 export const DRAFT_STATUS_BODY =
-  "This draft was prepared from the clinical information recorded for this visit. Review every field, check the supporting information and verify each medication. Nothing can be signed or issued until you complete the review.";
+  "Includes an AI-assisted medication option. Clinical review required. Review every field, check the supporting information and verify each medication. Nothing can be signed or issued until you complete the review.";
 
 export const DRAFT_BASIS_TITLE = "Why this draft was prepared";
 
