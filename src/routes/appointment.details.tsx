@@ -8,7 +8,11 @@ import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
-import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
+import {
+  isPrescriber,
+  isVerifiedPrescriber,
+  serviceSupportsPrescription,
+} from "@/lib/prescription/store";
 import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
 import {
   prescribingGate,
@@ -282,6 +286,7 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
+  const [providerProfession, setProviderProfession] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
   const [followUpSaved, setFollowUpSaved] = useState(false);
@@ -320,8 +325,13 @@ function DetailsPage() {
     try {
       const raw = window.localStorage.getItem("lubin.providerProfile.v1");
       if (raw) {
-        const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
+        const parsed = JSON.parse(raw) as {
+          name?: string;
+          displayName?: string;
+          profession?: string;
+        };
         setProviderDisplayName(parsed.displayName || parsed.name || undefined);
+        setProviderProfession(parsed.profession || undefined);
       }
     } catch {
       /* noop */
@@ -498,7 +508,11 @@ function DetailsPage() {
   // appointment, but it never unlocks prescribing.
   const clinicalDocForRx = hasNotes;
   const step2Done = isPublished || !!acks.summary;
-  const rxShown = rxServiceOnly && showPostSession;
+  // Prescribing is a profession-bound surface: only a mental-health doctor,
+  // psychiatrist or other prescribing profession ever sees the step. For
+  // everyone else it does not exist — it is not shown as locked or unavailable.
+  const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
+  const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
   const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
