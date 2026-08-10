@@ -1310,24 +1310,17 @@ export function AiPrescription({
     });
     const blocked = blockers.length > 0;
     const reviews = blockers.filter((b) => b.kind === "review" || b.kind === "stale").length;
-    const requiredLeft = blockers.length - reviews;
-    /** Same "actions remaining" definition used by the drawer — one source of truth. */
-    const reviewsRemaining = reviews;
-    const requiredCount = requiredLeft;
-    const safetyAckRemaining =
-      sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt ? 1 : 0;
-    const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
-    const totalActions = requiredCount + reviewsRemaining;
-    const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
-    const countBreakdown = [
-      requiredCount > 0 ? `${requiredCount} patient information` : null,
-      medReviewsRemaining > 0
-        ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
-        : null,
-      safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+    void reviews;
+    /** Same "actions remaining" definition used everywhere — one source of truth. */
+    const counts = actionCounts({
+      blockers,
+      infoOutstanding: infoItems(reviewMed, rx.patientInfo, visitMeds).filter((i) => !i.recorded)
+        .length,
+      safetyAckPending: !!sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt,
+    });
+    const totalActions = counts.total;
+    const countText = counts.text;
+    const countBreakdown = counts.breakdown;
     /** Clinically meaningful states instead of a gamified readiness percentage. */
     const readinessLabel = blocked
       ? "Not ready to sign"
