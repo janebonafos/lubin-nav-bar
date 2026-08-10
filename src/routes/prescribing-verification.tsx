@@ -159,7 +159,7 @@ function PrescribingVerificationPage() {
               ) : submitted ? (
                 <Clock className="mt-0.5 h-5 w-5 flex-none text-[#6E4FD3]" />
               ) : (
-                <Lock className="mt-0.5 h-5 w-5 flex-none text+[#6E4FD3] text-[#6E4FD3]" />
+                <Lock className="mt-0.5 h-5 w-5 flex-none text-[#6E4FD3]" />
               )}
               <div>
                 <h2 className="text-[15px] font-semibold text-[#2C2B4B]">{statusLabel}</h2>
