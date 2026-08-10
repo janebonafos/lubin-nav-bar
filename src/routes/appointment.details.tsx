@@ -8,7 +8,11 @@ import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
-import { isVerifiedPrescriber, serviceSupportsPrescription } from "@/lib/prescription/store";
+import {
+  isPrescriber,
+  isVerifiedPrescriber,
+  serviceSupportsPrescription,
+} from "@/lib/prescription/store";
 import { useVerifiedPrescribing } from "@/lib/prescription/useVerifiedPrescribing";
 import {
   prescribingGate,
@@ -282,6 +286,7 @@ function DetailsPage() {
   const [missing, setMissing] = useState(false);
   const [canPrescribe, setCanPrescribe] = useState(false);
   const [providerDisplayName, setProviderDisplayName] = useState<string | undefined>(undefined);
+  const [providerProfession, setProviderProfession] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
   const [followUpSaved, setFollowUpSaved] = useState(false);
@@ -320,8 +325,13 @@ function DetailsPage() {
     try {
       const raw = window.localStorage.getItem("lubin.providerProfile.v1");
       if (raw) {
-        const parsed = JSON.parse(raw) as { name?: string; displayName?: string };
+        const parsed = JSON.parse(raw) as {
+          name?: string;
+          displayName?: string;
+          profession?: string;
+        };
         setProviderDisplayName(parsed.displayName || parsed.name || undefined);
+        setProviderProfession(parsed.profession || undefined);
       }
     } catch {
       /* noop */
