@@ -574,22 +574,31 @@ export function PatientInfoForm({
       )}
 
       {showLabs && (
-        <label className="block">
-          <span className="mb-1 block text-[12.5px] font-semibold text-[#2C2B4B]">
-            {labsField.label}
-          </span>
+        <div>
+          <p className="text-[12.5px] font-semibold text-[#2C2B4B]">{labsField.label}</p>
           <textarea
             rows={2}
             value={view.labs ?? ""}
             placeholder={labsField.placeholder}
             onChange={(e) => stage({ labs: e.target.value })}
-            className={inputClass}
+            className={`mt-1.5 ${inputClass}`}
           />
-          <span className="mt-1.5 block text-[12px] leading-relaxed text-[#5A4A8A]">
-            {relevanceFor?.("labs") ??
-              "Recorded only when this medication or this patient needs monitoring."}
-          </span>
-        </label>
+          <label className="mt-2 block text-[12px] text-[#5A4A8A]">
+            <span className="mb-1 block">Date the result was taken</span>
+            <input
+              type="date"
+              value={view.labsAt ?? ""}
+              onChange={(e) => stage({ labsAt: e.target.value })}
+              className={inputClass}
+            />
+          </label>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+            {(view.labs ?? "").trim().length < 3
+              ? "No relevant results documented. Leave blank when no result is available — this is recorded as “not available”, never as normal."
+              : (relevanceFor?.("labs") ??
+                "Recorded only when this medication or this patient needs monitoring.")}
+          </p>
+        </div>
       )}
 
       <div>
