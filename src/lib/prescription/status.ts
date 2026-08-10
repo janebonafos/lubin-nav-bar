@@ -13,7 +13,7 @@ export type RxStatus =
 
 export const RX_STATUS_LABEL: Record<RxStatus, string> = {
   none: "No prescription prepared",
-  "ai-draft": "AI-prepared draft",
+  "ai-draft": "Prescription draft",
   "review-complete": "Clinical review complete",
   "ready-to-sign": "Ready to sign",
   signed: "Signed",

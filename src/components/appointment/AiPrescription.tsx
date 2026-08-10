@@ -35,6 +35,7 @@ import {
   INFO_REQUIREMENT_LABEL,
   blockerSentence,
   checkState,
+  checkHeadline,
   formatCheckedAt,
   infoLabel,
   infoItems,
@@ -239,11 +240,12 @@ export function AiPrescription({
       ? "No medication added"
       : `${verifiedCount} of ${total} ${medWord} clinically reviewed`;
   const hasAiDraft = namedMeds.some((m) => m.origin !== "manual");
-  const draftSourceLabel = hasAiDraft
-    ? "AI-prepared draft"
-    : total > 0
-      ? "Clinician-added medication"
-      : null;
+  const draftSourceLabel =
+    hasAiDraft
+      ? "Includes an AI-assisted medication option. Clinical review required."
+      : total > 0
+        ? "Clinician-added medication."
+        : null;
 
   const reviewMed = rx.medications.find((m) => m.id === reviewMedId) ?? null;
   const refMed = rx.medications.find((m) => m.id === refMedId) ?? null;
@@ -890,10 +892,12 @@ export function AiPrescription({
         <div>
           <p className="text-[13px] font-semibold text-[#3D2E6B]">
             {statusLabel}
-            {draftSourceLabel && !signed && !allVerified ? (
-              <span className="font-normal text-[#6F6889]"> · {draftSourceLabel}</span>
-            ) : null}
           </p>
+          {draftSourceLabel && !signed && !allVerified ? (
+            <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#6F6889]">
+              {draftSourceLabel}
+            </p>
+          ) : null}
           <p className="mt-0.5 max-w-lg text-[12px] leading-relaxed text-[#5A4A8A]">
             {RX_STATUS_HINT[status]}
           </p>
@@ -2242,24 +2246,66 @@ function MedicationEditor({
             </div>
 
             {whyOpen && (
-              <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
+              <div className="mt-3 space-y-3 rounded-xl bg-[#FAF9FD] px-4 py-3.5">
                 <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                  This option was generated from the information documented for this visit. Review
-                  the supporting information, alternatives, and patient-specific risks before
-                  deciding whether it is appropriate.
+                  {med.origin === "manual"
+                    ? "Added by the prescribing clinician. The basis below is shown so it can be checked independently."
+                    : "This option was generated from the information documented for this visit. It is decision support only — review the basis, the knowns and the unknowns below and decide independently."}
                 </p>
-                <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                  {med.basis?.whyIncluded ??
+                <WhyBlock
+                  title="Why this option was shown"
+                  body={
+                    med.basis?.whyIncluded ??
                     med.rationale ??
-                    (med.origin === "manual"
-                      ? "Added by the prescribing clinician."
-                      : "No supporting explanation was recorded for this option.")}
-                </p>
-                {med.basis?.clinicalInformationUsed && (
-                  <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                    {med.basis.clinicalInformationUsed}
-                  </p>
-                )}
+                    "No supporting explanation was recorded for this option."
+                  }
+                />
+                <WhyBlock
+                  title="Patient factors considered"
+                  body={
+                    med.basis?.patientConsiderations ??
+                    med.basis?.clinicalInformationUsed ??
+                    "No patient-specific factors were recorded with this option. Treat the recommendation as unpersonalised."
+                  }
+                />
+                <WhyBlock
+                  title="Guideline and label basis"
+                  body={
+                    med.reference?.sourcesAvailable
+                      ? "Based on the approved product information and reference sources linked under Medication information. Open it to read the source text before prescribing."
+                      : "No authoritative product label or formulary source has been linked for this medication yet. Verify against the prescribing information yourself before issuing."
+                  }
+                />
+                <WhyBlock
+                  title="Relevant contraindications and warnings"
+                  body={
+                    [
+                      checkState(med.checks?.contraindications) === "blocking" ||
+                      checkState(med.checks?.contraindications) === "review-needed"
+                        ? med.checks?.contraindications?.detail
+                        : null,
+                      checkState(med.checks?.conditions) === "review-needed"
+                        ? med.checks?.conditions?.detail
+                        : null,
+                      checkState(med.checks?.interactions) === "review-needed"
+                        ? med.checks?.interactions?.detail
+                        : null,
+                      med.warnings || null,
+                    ]
+                      .filter(Boolean)
+                      .join(" ") ||
+                    "No contraindication or interaction was identified from the information available. This is not a statement that none exists."
+                  }
+                />
+                <WhyBlock
+                  title="Missing inputs"
+                  body={
+                    med.basis?.missingInformation ??
+                    (outstandingNames
+                      ? `Not available for this patient: ${outstandingNames}. The checks that depend on them could not be completed.`
+                      : "Every input this review depends on has been recorded.")
+                  }
+                />
               </div>
             )}
           </>
@@ -2356,19 +2402,9 @@ function MedicationEditor({
                         } need your review before this medication can be verified. The rest are shown for information only.`}
                   </p>
                   {unreviewedKeys.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        unreviewedKeys.forEach((k) => onMarkCheckReviewed(k));
-                        toast.success(
-                          `${unreviewedKeys.length} checks marked as reviewed`,
-                          { description: "You can open any check to undo this." },
-                        );
-                      }}
-                      className="mt-2 inline-flex h-8 items-center rounded-[9px] border border-[#D9D5E3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
-                    >
-                      Mark all {unreviewedKeys.length} as reviewed
-                    </button>
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                      Each material warning is acknowledged individually — there is no bulk review.
+                    </p>
                   )}
                   <ul className="mt-2 divide-y divide-[#EFECF7] border-y border-[#EFECF7]">
                     {stableCheckKeys.map((k) => {
@@ -2377,6 +2413,8 @@ function MedicationEditor({
                       const label = CHECK_ROWS.find((r) => r.key === k)?.label ?? k;
                       const state = checkState(med.checks?.[k]);
                       const needsAck = state === "review-needed" || state === "blocking";
+                      const missingInfo = state === "info-required";
+                      const headline = checkHeadline(med.checks?.[k]);
                       return (
                         <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
                           <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left">
@@ -2389,18 +2427,29 @@ function MedicationEditor({
                               </span>
                               {reviewed && med.checkReviews?.[k] ? (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
-                                  Reviewed {formatCheckedAt(med.checkReviews[k]!)}
+                                  {headline} · Reviewed {formatCheckedAt(med.checkReviews[k]!)}
                                 </span>
                               ) : (
                                 <span className="mt-0.5 block text-[11px] text-[#8C86A0]">
+                                  {headline}
                                   {needsAck
-                                    ? "You need to mark this as reviewed"
-                                    : "Nothing for you to do — information only"}
+                                    ? " · Acknowledge this item individually"
+                                    : missingInfo
+                                      ? " · Information not available — judge independently"
+                                      : " · Information only"}
                                 </span>
                               )}
                             </span>
                             <StatusChip
-                              level={reviewed ? "complete" : needsAck ? "review" : "no-issue"}
+                              level={
+                                reviewed
+                                  ? "complete"
+                                  : needsAck
+                                    ? "review"
+                                    : missingInfo
+                                      ? "unavailable"
+                                      : "no-issue"
+                              }
                             />
                             {needsAck && !reviewed && (
                               <button
@@ -2460,7 +2509,7 @@ function MedicationEditor({
                 <div className="rounded-xl border border-[#EFECF7] px-4 py-3">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <p className="min-w-0 flex-1 text-[13px] font-semibold text-[#2C2B4B]">
-                      Shared {sharedSafety.clinicalName} safety response
+                      Suicide and self-harm safety — {sharedSafety.clinicalName} response
                     </p>
                     <StatusChip level={med.sharedSafetyAcknowledgedAt ? "acknowledged" : "review"} />
                     <span className="text-[11.5px] font-medium text-[#8C86A0]">
@@ -2496,8 +2545,10 @@ function MedicationEditor({
                   ) : (
                     <div className="mt-2 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
                       <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
-                        By acknowledging this response you confirm that you reviewed it and will
-                        take it into account before prescribing.
+                        This item has its own acknowledgement and is never cleared by reviewing the
+                        medication checks. By acknowledging it you confirm that you reviewed this
+                        response, considered suicide risk for this patient, and will act on it as
+                        clinically indicated before prescribing.
                       </p>
                       <button
                         type="button"
@@ -2641,8 +2692,8 @@ function StatusChip({
     review: { label: "Needs your review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
     complete: { label: "Reviewed", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
     acknowledged: { label: "Acknowledged", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
-    unavailable: { label: "Not available", cls: "bg-[#F4F3F7] text-[#6F6889]" },
-    "no-issue": { label: "No issue found", cls: "bg-[#F4F3F7] text-[#6F6889]" },
+    unavailable: { label: "Information not available", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
+    "no-issue": { label: "No conflict identified", cls: "bg-[#F4F3F7] text-[#6F6889]" },
   } as const;
   const s = map[level];
   return (
@@ -2659,6 +2710,16 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
     <h3 className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#6F6889]">
       {children}
     </h3>
+  );
+}
+
+/** One labelled block inside the decision-support basis panel. */
+function WhyBlock({ title, body }: { title: string; body: string }) {
+  return (
+    <div>
+      <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#6F6889]">{title}</p>
+      <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D2E6B]">{body}</p>
+    </div>
   );
 }
 
