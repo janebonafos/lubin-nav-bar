@@ -2246,24 +2246,66 @@ function MedicationEditor({
             </div>
 
             {whyOpen && (
-              <div className="mt-3 rounded-xl bg-[#FAF9FD] px-4 py-3">
+              <div className="mt-3 space-y-3 rounded-xl bg-[#FAF9FD] px-4 py-3.5">
                 <p className="text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                  This option was generated from the information documented for this visit. Review
-                  the supporting information, alternatives, and patient-specific risks before
-                  deciding whether it is appropriate.
+                  {med.origin === "manual"
+                    ? "Added by the prescribing clinician. The basis below is shown so it can be checked independently."
+                    : "This option was generated from the information documented for this visit. It is decision support only — review the basis, the knowns and the unknowns below and decide independently."}
                 </p>
-                <p className="mt-2 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                  {med.basis?.whyIncluded ??
+                <WhyBlock
+                  title="Why this option was shown"
+                  body={
+                    med.basis?.whyIncluded ??
                     med.rationale ??
-                    (med.origin === "manual"
-                      ? "Added by the prescribing clinician."
-                      : "No supporting explanation was recorded for this option.")}
-                </p>
-                {med.basis?.clinicalInformationUsed && (
-                  <p className="mt-2 text-[12px] leading-relaxed text-[#5A4A8A]">
-                    {med.basis.clinicalInformationUsed}
-                  </p>
-                )}
+                    "No supporting explanation was recorded for this option."
+                  }
+                />
+                <WhyBlock
+                  title="Patient factors considered"
+                  body={
+                    med.basis?.patientConsiderations ??
+                    med.basis?.clinicalInformationUsed ??
+                    "No patient-specific factors were recorded with this option. Treat the recommendation as unpersonalised."
+                  }
+                />
+                <WhyBlock
+                  title="Guideline and label basis"
+                  body={
+                    med.reference?.sourcesAvailable
+                      ? "Based on the approved product information and reference sources linked under Medication information. Open it to read the source text before prescribing."
+                      : "No authoritative product label or formulary source has been linked for this medication yet. Verify against the prescribing information yourself before issuing."
+                  }
+                />
+                <WhyBlock
+                  title="Relevant contraindications and warnings"
+                  body={
+                    [
+                      checkState(med.checks?.contraindications) === "blocking" ||
+                      checkState(med.checks?.contraindications) === "review-needed"
+                        ? med.checks?.contraindications?.detail
+                        : null,
+                      checkState(med.checks?.conditions) === "review-needed"
+                        ? med.checks?.conditions?.detail
+                        : null,
+                      checkState(med.checks?.interactions) === "review-needed"
+                        ? med.checks?.interactions?.detail
+                        : null,
+                      med.warnings || null,
+                    ]
+                      .filter(Boolean)
+                      .join(" ") ||
+                    "No contraindication or interaction was identified from the information available. This is not a statement that none exists."
+                  }
+                />
+                <WhyBlock
+                  title="Missing inputs"
+                  body={
+                    med.basis?.missingInformation ??
+                    (outstandingNames
+                      ? `Not available for this patient: ${outstandingNames}. The checks that depend on them could not be completed.`
+                      : "Every input this review depends on has been recorded.")
+                  }
+                />
               </div>
             )}
           </>
