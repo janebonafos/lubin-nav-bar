@@ -2286,7 +2286,9 @@ function MedicationEditor({
                   <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
                     {safetyResolved
                       ? "Required information and safety acknowledgements are complete."
-                      : "Complete the required patient information and review the flagged safety items before verification."}
+                      : reviewRan && reviewStale(med, patientInfo)
+                        ? "The patient information changed after the last safety review. Open the review and run the safety checks again to continue."
+                        : "Complete the required patient information and review the flagged safety items before verification."}
                   </p>
                   {!safetyResolved && outstandingNames && (
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
@@ -2421,17 +2423,29 @@ function MedicationEditor({
         >
           {drawerTab === "safety" ? (
             <div className="space-y-5">
-              {!reviewRan && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-[#FBFAFE] px-4 py-2.5">
-                  <p className="text-[12px] text-[#5A4A8A]">
-                    The patient-specific safety review has not run yet.
+              {(!reviewRan || reviewStale(med, patientInfo)) && (
+                <div
+                  className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 ${
+                    reviewRan
+                      ? "border border-[#EADFC4] bg-[#FDF8EC]"
+                      : "bg-[#FBFAFE]"
+                  }`}
+                >
+                  <p
+                    className={`min-w-0 flex-1 text-[12px] leading-relaxed ${
+                      reviewRan ? "text-[#8A6A20]" : "text-[#5A4A8A]"
+                    }`}
+                  >
+                    {reviewRan
+                      ? "The patient information changed after the last safety review. Run it again so the checks reflect what is now on the record."
+                      : "The patient-specific safety review has not run yet."}
                   </p>
                   <button
                     type="button"
                     onClick={onRunReview}
-                    className="ml-auto text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
+                    className="shrink-0 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
                   >
-                    Run safety review
+                    {reviewRan ? "Run safety review again" : "Run safety review"}
                   </button>
                 </div>
               )}
