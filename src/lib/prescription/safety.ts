@@ -544,7 +544,7 @@ export function runSafetyReview(
       med.requiresLabs
         ? (med.labsReason ??
             "Laboratory or organ-function information is required by this medication's prescribing information.")
-        : "No laboratory or organ-function result has been recorded. Recommended, not required for this medication.",
+        : "No relevant results documented. Recommended, not required for this medication — it does not block verification.",
     );
   } else {
     const hits = contains(info?.labs ?? "", ["abnormal", "elevated", "impair", "low", "high"]);
@@ -553,7 +553,7 @@ export function runSafetyReview(
       detail: hits.length
         ? `Recorded results flagged (${hits.join(", ")}). Review whether this affects dose or monitoring before prescribing.`
         : "No abnormality identified in the laboratory or organ-function information available.",
-      informationUsed: "Recorded laboratory or organ-function information.",
+      informationUsed: "Recorded laboratory / organ-function result and the date it was taken.",
       checkedAt: now,
     };
   }
