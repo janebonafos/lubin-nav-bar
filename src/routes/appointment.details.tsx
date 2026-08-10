@@ -42,6 +42,10 @@ type StoredAppt = ApptLite & {
   promoCode?: string;
   /** Patient's jurisdiction — drives which prescribing rules apply. */
   jurisdiction?: "PH" | "US";
+  /** Prototype only: lets a demo link open as a specific provider so the
+   *  prescribing surface can be reviewed without seeding this browser. */
+  providerName?: string;
+  providerProfession?: string;
 };
 
 type Outcome = NonNullable<ApptLite["outcome"]>;
