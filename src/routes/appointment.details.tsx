@@ -502,10 +502,6 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
 
   const recordedOutcome = appt?.outcome;
-  const rxAllowed =
-    canPrescribe &&
-    backendPrescribingVerified &&
-    serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -525,6 +521,10 @@ function DetailsPage() {
     : rxGate.allowed
       ? "Verified prescriber"
       : VERIFICATION_STATUS_LABEL[rxGate.status];
+
+  // Lubin's verification register is the source of truth for prescribing
+  // authority; the locally cached flag only corroborates it.
+  const rxAllowed = rxServiceOnly && (rxGate.allowed || (canPrescribe && backendPrescribingVerified));
 
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = hasNotes || !!acks.notes;
