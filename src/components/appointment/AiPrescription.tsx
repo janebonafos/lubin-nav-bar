@@ -1314,6 +1314,23 @@ export function AiPrescription({
     const readiness = reviewMed.approved
       ? 100
       : Math.round((1 - Math.min(blockers.length, 6) / 6) * 100);
+    /** Same "actions remaining" definition used by the drawer — one source of truth. */
+    const reviewsRemaining = reviews;
+    const requiredCount = requiredLeft;
+    const safetyAckRemaining =
+      sharedSafety && !reviewMed.sharedSafetyAcknowledgedAt ? 1 : 0;
+    const medReviewsRemaining = Math.max(reviewsRemaining - safetyAckRemaining, 0);
+    const totalActions = requiredCount + reviewsRemaining;
+    const countText = `${totalActions} action${totalActions === 1 ? "" : "s"} remaining`;
+    const countBreakdown = [
+      requiredCount > 0 ? `${requiredCount} patient information` : null,
+      medReviewsRemaining > 0
+        ? `${medReviewsRemaining} medication review${medReviewsRemaining === 1 ? "" : "s"}`
+        : null,
+      safetyAckRemaining > 0 ? "1 safety acknowledgement" : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
     return (
       <section className="text-[#2C2B4B]">
         {header}
@@ -1338,19 +1355,19 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => setSafetyOpen(true)}
-                title={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
-                aria-label={`Patient safety review — ${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`}
+                title={`Patient safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
+                aria-label={`Patient safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
                 className={`relative ml-auto inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
-                  requiredLeft > 0 || reviews > 0
+                  totalActions > 0
                     ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
                     : "border-[#E7E2F5] bg-white text-[#5A4A8A] hover:bg-[#FAF7FE]"
                 }`}
               >
                 <ShieldCheck className="h-4 w-4" />
                 Patient safety
-                {requiredLeft > 0 && (
+                {totalActions > 0 && (
                   <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#6E4FD3] px-1 text-[11px] font-bold text-white">
-                    {requiredLeft}
+                    {totalActions}
                   </span>
                 )}
               </button>
@@ -1386,13 +1403,11 @@ export function AiPrescription({
           <div className="mr-auto flex flex-wrap items-center gap-4">
             <div className="flex flex-col">
               <span className="text-[13px] font-semibold text-white">
-                {blocked && !reviewMed.approved
-                  ? `${requiredLeft} required item${requiredLeft === 1 ? "" : "s"}`
-                  : countLabel}
+                {blocked && !reviewMed.approved ? countText : countLabel}
               </span>
-              {blocked && !reviewMed.approved && (
+              {blocked && !reviewMed.approved && countBreakdown && (
                 <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#A9A2C4]">
-                  {reviews} review{reviews === 1 ? "" : "s"} remaining
+                  {countBreakdown}
                 </span>
               )}
             </div>
