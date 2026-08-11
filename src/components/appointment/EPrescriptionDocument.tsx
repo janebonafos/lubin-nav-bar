@@ -6,8 +6,10 @@ import { patientAge } from "@/lib/prescription/safety";
 import { latestSignedPrescription } from "@/lib/prescription/documents";
 import {
   formatDob,
+  formatValidityDate,
   patientLegalGaps,
   prescriberPrintGaps,
+  prescriptionValidity,
   refillCount,
   refillNote,
   requiresPhSpecialForm,
@@ -48,6 +50,15 @@ export function EPrescriptionDocument({
   const address = (rx.patientInfo?.address ?? "").trim();
   const doc = rx.documentId ? latestSignedPrescription(rx.appointmentId) : null;
   const controlled = meds.some((m) => m.controlled);
+  /** Validity comes from the rules layer. Once signed it is the immutable value
+   *  stored on the signed document, never recomputed. */
+  const validityRule = prescriptionValidity({
+    country,
+    controlled,
+    issuedAt: rx.finalisedAt ?? Date.now(),
+  });
+  const validUntil = doc?.validUntil ?? (rx.finalisedAt ? undefined : validityRule.validUntil);
+  const validityLabel = doc?.validityLabel ?? validityRule.label;
   const specialForm = requiresPhSpecialForm(meds, country);
   const prescriberGaps = prescriberPrintGaps(identity, country, controlled);
   const patientGaps = patientLegalGaps({
@@ -191,6 +202,18 @@ export function EPrescriptionDocument({
           />
         )}
 
+        {draft && !validityRule.configured && (
+          <Notice
+            title="Validity rule not configured"
+            lines={[
+              `No prescription validity rule is configured for ${JURISDICTION_LABEL[country]}${controlled ? " controlled / dangerous-drug" : ""} prescriptions, so no expiry date can be printed.`,
+              validityRule.legallyRequired
+                ? "A validity period is legally required for this prescription type, so it cannot be issued until the rule is configured."
+                : "The document will show that the validity rule is not configured rather than an assumed date.",
+            ]}
+          />
+        )}
+
         <article className="relative overflow-hidden rounded-[24px] border border-[#E4E1EC] bg-white shadow-[0_24px_60px_-32px_rgba(61,46,107,0.45)] print:rounded-none print:border-0 print:shadow-none">
           {/* Header */}
           <header className="relative overflow-hidden bg-[#3D2E6B] px-7 py-7 text-white">
@@ -225,6 +248,11 @@ export function EPrescriptionDocument({
                   {rxNumber
                     ? `Date issued ${dateLong}`
                     : `Date prepared ${dateLong} · assigned when signed`}
+                </p>
+                <p className="mt-1 text-[11.5px] font-semibold text-white/85">
+                  {validUntil
+                    ? `${validityLabel}: ${formatValidityDate(validUntil)}`
+                    : "Validity rule not configured"}
                 </p>
               </div>
             </div>

@@ -21,6 +21,12 @@ export type SignedPrescriptionDocument = {
   identity: PrescriberIdentity;
   medications: PrescriptionMedication[];
   controlled: boolean;
+  /** Expiry derived from the jurisdiction validity rule at the moment of
+   *  signing. Undefined when no rule is configured. Immutable once signed:
+   *  only delivery and void metadata may be patched afterwards. */
+  validUntil?: number;
+  /** Label the jurisdiction uses for the expiry ("Valid until" / "Dispense by"). */
+  validityLabel?: string;
   delivery?: { method: DeliveryMethod; state: DeliveryState; destination?: string; at?: number };
   /** Set when the prescriber voided the prescription. The signed document and
    *  its signature are preserved for the record — only marked void. */

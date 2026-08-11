@@ -96,3 +96,80 @@ export function prescriberPrintGaps(
   }
   return gaps;
 }
+
+// ------------------------------------------------------------------ validity
+
+/** Result of the jurisdiction validity rule for one prescription. */
+export type PrescriptionValidity = {
+  /** False when no rule is configured for this jurisdiction / prescription type. */
+  configured: boolean;
+  /** Days the prescription stays dispensable, when a rule is configured. */
+  days?: number;
+  /** Absolute expiry, derived from the issue date and the configured rule. */
+  validUntil?: number;
+  /** Field label the jurisdiction uses on the document. */
+  label: string;
+  /** True when a validity period is legally required for this prescription. */
+  legallyRequired: boolean;
+  /** Short plain-language note about the applicable rule. */
+  note: string;
+};
+
+/** Configured validity rules, keyed by jurisdiction and prescription type.
+ *  Nothing is defaulted globally: a combination with no entry reports
+ *  `configured: false` so the document never shows an invented date. */
+const VALIDITY_RULES: Record<
+  string,
+  { days: number; label: string; legallyRequired: boolean; note: string }
+> = {
+  "US:standard": {
+    days: 365,
+    label: "Dispense by",
+    legallyRequired: true,
+    note: "Non-controlled prescriptions in the United States are dispensable for up to 12 months from the date issued, subject to state limits.",
+  },
+  "PH:standard": {
+    days: 365,
+    label: "Valid until",
+    legallyRequired: false,
+    note: "Philippine non-dangerous-drug prescriptions are treated as valid for 12 months from the date issued for dispensing and refills.",
+  },
+};
+
+export function prescriptionValidity(args: {
+  country: RxCountry;
+  controlled: boolean;
+  /** Date the prescription is (or would be) issued. */
+  issuedAt: number;
+}): PrescriptionValidity {
+  const type = args.controlled ? "controlled" : "standard";
+  const rule = VALIDITY_RULES[`${args.country}:${type}`];
+  if (!rule) {
+    return {
+      configured: false,
+      label: args.country === "PH" ? "Valid until" : "Dispense by",
+      // A controlled / dangerous-drug prescription is only dispensable inside a
+      // legally defined window, so issuance cannot proceed without the rule.
+      legallyRequired: args.controlled,
+      note:
+        "Validity rule not configured for this jurisdiction and prescription type. No expiry date can be printed until the rule is configured.",
+    };
+  }
+  const validUntil = args.issuedAt + rule.days * 24 * 60 * 60 * 1000;
+  return {
+    configured: true,
+    days: rule.days,
+    validUntil,
+    label: rule.label,
+    legallyRequired: rule.legallyRequired,
+    note: rule.note,
+  };
+}
+
+export function formatValidityDate(at: number): string {
+  return new Date(at).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}

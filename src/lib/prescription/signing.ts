@@ -5,7 +5,13 @@
 // credential stays unverified and blocks the signature.
 import type { Prescription, PrescriptionMedication, RxCountry } from "./store";
 import type { PrescriberIdentity } from "./credentials";
-import { patientLegalGaps, prescriberPrintGaps, requiresPhSpecialForm } from "./legal";
+import {
+  patientLegalGaps,
+  prescriberPrintGaps,
+  prescriptionValidity,
+  requiresPhSpecialForm,
+  formatValidityDate,
+} from "./legal";
 
 /** Stable, order-independent content hash of everything the signature covers.
  *  Any edit to a medication, direction or patient identity changes the hash,
@@ -278,11 +284,25 @@ export function prescribingAuthority(args: {
     }
   }
 
-  const blockers = checks.filter((c) => c.blocking && !c.ok);
+  const validity = prescriptionValidity({
+    country,
+    controlled: controlled.length > 0,
+    issuedAt: Date.now(),
+  });
+  checks.push({
+    key: "validity-rule",
+    label: "Prescription validity period",
+    ok: validity.configured,
+    detail: validity.configured
+      ? `${validity.label} ${formatValidityDate(validity.validUntil!)} — ${validity.note}`
+      : validity.note,
+    blocking: validity.legallyRequired,
+  });
+  const allBlockers = checks.filter((c) => c.blocking && !c.ok);
   return {
     checks,
-    blockers,
-    authorised: blockers.length === 0 && meds.length > 0,
+    blockers: allBlockers,
+    authorised: allBlockers.length === 0 && meds.length > 0,
     method: country === "US" && controlled.length > 0 ? "epcs-two-factor" : "password-reauth",
   };
 }

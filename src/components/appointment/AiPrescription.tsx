@@ -99,6 +99,10 @@ import {
 
 } from "@/lib/prescription/signing";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
+import {
+  formatValidityDate,
+  prescriptionValidity,
+} from "@/lib/prescription/legal";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { loadApplication } from "@/lib/prescription/verificationApplication";
 import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
@@ -742,6 +746,7 @@ export function AiPrescription({
     const at = Date.now();
     const version = (rx.version ?? 0) + 1;
     const controlled = controlledMeds.length > 0;
+    const validity = prescriptionValidity({ country, controlled, issuedAt: at });
     const doc = saveSignedPrescription({
       appointmentId,
       patientName: clientName || "Patient",
@@ -755,6 +760,8 @@ export function AiPrescription({
       identity,
       medications: namedMeds,
       controlled,
+      validUntil: validity.validUntil,
+      validityLabel: validity.label,
     });
     patch({
       finalisedAt: at,
@@ -1047,6 +1054,12 @@ export function AiPrescription({
             · {JURISDICTION_LABEL[country]} · Version {rx.version ?? 1}. Saved as its own signed
             clinical document in {clientName || "the patient"}&rsquo;s medication and prescription
             record — it is not part of the session summary.
+          </p>
+          <p className="mt-1.5 text-[12.5px] font-medium text-[#3D2E6B]">
+            Date issued {new Date(rx.finalisedAt!).toLocaleDateString()} ·{" "}
+            {doc?.validUntil
+              ? `${doc.validityLabel ?? "Valid until"} ${formatValidityDate(doc.validUntil)}`
+              : "Validity rule not configured (internal)"}
           </p>
         </div>
         {!rx.voided && (
