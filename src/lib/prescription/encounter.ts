@@ -20,22 +20,22 @@ const BLOCKED: Record<Exclude<AppointmentOutcome, "completed">, EncounterBlock> 
   client_no_show: {
     title: "Prescribing is closed — recorded as a client no-show",
     reason:
-      "No clinical encounter took place, so a prescription cannot be created, signed or issued for this appointment. Prescribe from a completed appointment instead.",
+      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history but cannot be signed or issued from this encounter.",
   },
   provider_no_show: {
     title: "Prescribing is closed — recorded as a provider no-show",
     reason:
-      "No clinical encounter took place, so a prescription cannot be created, signed or issued for this appointment.",
+      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history but cannot be signed or issued from this encounter.",
   },
   cancelled: {
     title: "Prescribing is closed — this appointment is cancelled",
     reason:
-      "A cancelled appointment is not a prescribing encounter. Medication decisions belong to an appointment that was delivered.",
+      "The scheduled clinical encounter did not take place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history.",
   },
   rescheduled: {
     title: "Prescribing has moved to the rescheduled appointment",
     reason:
-      "This slot is closed. The prescription workflow becomes available on the rescheduled encounter when it is delivered and clinically appropriate.",
+      "The prescription step is Not applicable for this appointment. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
   },
 };
 
