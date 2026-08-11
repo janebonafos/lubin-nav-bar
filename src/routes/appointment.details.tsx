@@ -23,6 +23,13 @@ import {
   VERIFICATION_STATUS_LABEL,
 } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 import {
   encounterPrescribingBlock,
