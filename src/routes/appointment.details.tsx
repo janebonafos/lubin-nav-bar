@@ -33,6 +33,8 @@ import {
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 import {
   encounterPrescribingBlock,
+  OUTCOME_COPY,
+  SIGNED_RX_MODAL,
   SIGNED_RX_CONFLICT,
   UNSIGNED_DRAFT_WARNING,
 } from "@/lib/prescription/encounter";
@@ -75,31 +77,31 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The appointment is closed as delivered. Anything you share in Step 3 becomes visible in your client's Health Passport, and the payment for this session enters payout review — funds are released after our standard verification.",
+      "The scheduled clinical encounter took place and the visit is finished. Your notes, client summary and any prescription decision remain part of the appointment record.",
   },
   {
     value: "client_no_show",
     label: "Client no-show",
     consequence:
-      "Recorded as a no-show by the client. Nothing is shared with your client. The session fee is held for review against your no-show policy before any payout or refund is decided.",
+      "The client did not attend and a clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
   },
   {
     value: "provider_no_show",
     label: "Provider no-show",
     consequence:
-      "Recorded as a no-show on your side. Nothing is shared with your client, no payout is issued for this session, and your client is offered a refund or a free rebooking.",
+      "The scheduled clinical encounter did not take place because the provider was unavailable. The prescription step will be marked Not applicable for this appointment.",
   },
   {
     value: "cancelled",
     label: "Cancelled",
     consequence:
-      "The appointment is closed as cancelled. Nothing is shared with your client and the payment is returned or refunded according to the cancellation window.",
+      "The appointment was cancelled and the scheduled clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
   },
   {
     value: "rescheduled",
     label: "Rescheduled",
     consequence:
-      "This slot is closed and the session carries over to the new date. No payout or refund is triggered — the payment stays attached to the rescheduled appointment.",
+      "This appointment will not take place at the original date or time and a new appointment will be scheduled instead. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
   },
 ];
 
@@ -182,8 +184,7 @@ function SectionCard({
           ? "border-[#EAE2F6] bg-white"
           : "border-[#EAE2F6] bg-white";
   const lockedShell = locked ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
-  const dimmedShell =
-    !locked && dimmed && !open ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
+  const dimmedShell = !locked && dimmed && !open ? " border-[#EDE8F6] bg-[#FBFAFD] opacity-70" : "";
 
   const badge =
     state === "done"
@@ -248,39 +249,40 @@ function SectionCard({
             </span>
           </span>
         ) : (
-        !(state === "reference" && !pillLabel) && (
-          <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
-            {requirementLabel && (
-              <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
-                {requirementLabel}
-              </span>
-            )}
-            <span
-              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-              style={{
-                backgroundColor:
-                  state === "done"
-                    ? "#E7DAF8"
+          !(state === "reference" && !pillLabel) && (
+            <span className="mt-0.5 hidden shrink-0 items-center gap-1.5 sm:flex">
+              {requirementLabel && (
+                <span className="rounded-full border border-[#E5DCF5] bg-white px-2 py-0.5 text-[11px] font-medium text-[#A89BD0]">
+                  {requirementLabel}
+                </span>
+              )}
+              <span
+                className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                style={{
+                  backgroundColor:
+                    state === "done"
+                      ? "#E7DAF8"
+                      : state === "active"
+                        ? "#3D2E6B"
+                        : state === "reference"
+                          ? "#F1EAFB"
+                          : "#F5F0FB",
+                  color: state === "done" ? "#3D2E6B" : state === "active" ? "#FFFFFF" : "#7E6BAF",
+                }}
+              >
+                {pillLabel
+                  ? pillLabel
+                  : state === "done"
+                    ? "Shared"
                     : state === "active"
-                      ? "#3D2E6B"
+                      ? "In progress"
                       : state === "reference"
-                        ? "#F1EAFB"
-                        : "#F5F0FB",
-                color: state === "done" ? "#3D2E6B" : state === "active" ? "#FFFFFF" : "#7E6BAF",
-              }}
-            >
-              {pillLabel
-                ? pillLabel
-                : state === "done"
-                  ? "Shared"
-                  : state === "active"
-                    ? "In progress"
-                    : state === "reference"
-                      ? "Reference"
-                      : "Not started"}
+                        ? "Reference"
+                        : "Not started"}
+              </span>
             </span>
-          </span>
-        ))}
+          )
+        )}
         {!locked && (
           <ChevronDown
             className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
@@ -547,8 +549,13 @@ function DetailsPage() {
     ? null
     : encounterPrescribingBlock(outcomeChoice ?? undefined);
   const activeBlock = encounterBlock ?? pendingBlock;
-  const pendingOutcomeLabel =
-    OUTCOMES.find((o) => o.value === (outcomeChoice ?? recordedOutcome))?.label ?? "This outcome";
+  // Confirmation modal state: the appointment outcome is the headline, the
+  // prescription consequence is supporting information.
+  const noticeOutcome = outcomeChoice ?? null;
+  const noticeCopy = noticeOutcome ? OUTCOME_COPY[noticeOutcome] : null;
+  const noticeBlocksRx = !!noticeOutcome && !!encounterPrescribingBlock(noticeOutcome);
+  const noticeSignedConflict = noticeBlocksRx && rxRecordState.signed;
+  const noticeDraftWarning = noticeBlocksRx && !rxRecordState.signed && rxRecordState.unsignedDraft;
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -571,7 +578,8 @@ function DetailsPage() {
 
   // Lubin's verification register is the source of truth for prescribing
   // authority; the locally cached flag only corroborates it.
-  const rxAllowed = rxServiceOnly && (rxGate.allowed || (canPrescribe && backendPrescribingVerified));
+  const rxAllowed =
+    rxServiceOnly && (rxGate.allowed || (canPrescribe && backendPrescribingVerified));
 
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = hasNotes || !!acks.notes;
@@ -911,44 +919,45 @@ function DetailsPage() {
                 requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
                 <>
-                <ApptNotesBlock
-                  appt={appt}
-                  onChange={onChange}
-                  variant="private"
-                  clientName={appt.client}
-                  providerName={providerDisplayName}
-                  onPrivateNotesSaved={(saved) => {
-                    setPrivateNotesSaved(saved);
-                    if (saved) setOpenStep(null);
-                  }}
-                />
-                {!hasNotes && !acks.notes && (
-                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
-                    <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      Nothing to record for this session? You can move on — just confirm it so the
-                      step is not left open by accident. You can still add notes afterwards.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAck({ notes: true });
-                        setOpenStep("care-plan");
-                      }}
-                      className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
-                    >
-                      No private notes for this session
-                    </button>
-                  </div>
-                )}
-                {!hasNotes && acks.notes && (
-                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
-                    <p className="text-[13px] text-[#5A4A8A]">
-                      You recorded that there are no private notes for this session. If you decide to
-                      document something, use <span className="font-semibold">Add clinical notes</span>{" "}
-                      above and save it — that replaces this. Otherwise it stays as no notes.
-                    </p>
-                  </div>
-                )}
+                  <ApptNotesBlock
+                    appt={appt}
+                    onChange={onChange}
+                    variant="private"
+                    clientName={appt.client}
+                    providerName={providerDisplayName}
+                    onPrivateNotesSaved={(saved) => {
+                      setPrivateNotesSaved(saved);
+                      if (saved) setOpenStep(null);
+                    }}
+                  />
+                  {!hasNotes && !acks.notes && (
+                    <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                      <p className="text-[13px] leading-snug text-[#5A4A8A]">
+                        Nothing to record for this session? You can move on — just confirm it so the
+                        step is not left open by accident. You can still add notes afterwards.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAck({ notes: true });
+                          setOpenStep("care-plan");
+                        }}
+                        className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                      >
+                        No private notes for this session
+                      </button>
+                    </div>
+                  )}
+                  {!hasNotes && acks.notes && (
+                    <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                      <p className="text-[13px] text-[#5A4A8A]">
+                        You recorded that there are no private notes for this session. If you decide
+                        to document something, use{" "}
+                        <span className="font-semibold">Add clinical notes</span> above and save it
+                        — that replaces this. Otherwise it stays as no notes.
+                      </p>
+                    </div>
+                  )}
                 </>
               </SectionCard>
             )}
@@ -973,80 +982,82 @@ function DetailsPage() {
                 requirementLabel={rxShown ? "Decision required before prescribing" : undefined}
               >
                 <>
-                <ApptNotesBlock
-                  appt={appt}
-                  onChange={onChange}
-                  variant="followup"
-                  clientName={appt.client}
-                  providerName={providerDisplayName}
-                  sessionDateLabel={[appt.month, appt.date].filter(Boolean).join(" ") || undefined}
-                  prescriptionContext={
-                    !rxAllowed
-                      ? "none"
-                      : rxLifecycle.issued
-                        ? "issued"
-                        : rxLifecycle.skipped
-                          ? "none"
-                          : "pending"
-                  }
-                  onPublishConfirmed={setFollowUpPublishConfirmed}
-                  onFollowUpSaved={(saved) => {
-                    setFollowUpSaved(saved);
-                    if (saved) setOpenStep(null);
-                  }}
-                  onFollowUpShared={() => setOpenStep(null)}
-                />
-                {!isPublished && !acks.summary && (
-                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
-                    <p className="text-[13px] font-semibold text-[#2C2B4B]">
-                      Not sharing a summary this time?
-                    </p>
-                    <p className="mt-1 text-[13px] leading-snug text-[#5A4A8A]">
-                      {clientLabel} will see nothing new in their Health Passport for this
-                      appointment. Confirm you have read this before moving on.
-                    </p>
-                    <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-[#3D2E6B]">
-                      <input
-                        type="checkbox"
-                        checked={summaryAckChecked}
-                        onChange={(e) => setSummaryAckChecked(e.target.checked)}
-                        className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
-                      />
-                      <span>
-                        I have decided not to send a written summary to {clientLabel} for this
-                        appointment.
-                      </span>
-                    </label>
-                    <button
-                      type="button"
-                      disabled={!summaryAckChecked}
-                      onClick={() => {
-                        setAck({ summary: true });
-                        setOpenStep(rxAllowed ? "prescriptions" : null);
-                      }}
-                      className="mt-3 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      Confirm and continue
-                    </button>
-                  </div>
-                )}
-                {!isPublished && acks.summary && (
-                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
-                    <p className="text-[13px] text-[#5A4A8A]">
-                      You decided not to send a written summary for this appointment.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAck({ summary: false });
-                        setSummaryAckChecked(false);
-                      }}
-                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
-                    >
-                      Undo
-                    </button>
-                  </div>
-                )}
+                  <ApptNotesBlock
+                    appt={appt}
+                    onChange={onChange}
+                    variant="followup"
+                    clientName={appt.client}
+                    providerName={providerDisplayName}
+                    sessionDateLabel={
+                      [appt.month, appt.date].filter(Boolean).join(" ") || undefined
+                    }
+                    prescriptionContext={
+                      !rxAllowed
+                        ? "none"
+                        : rxLifecycle.issued
+                          ? "issued"
+                          : rxLifecycle.skipped
+                            ? "none"
+                            : "pending"
+                    }
+                    onPublishConfirmed={setFollowUpPublishConfirmed}
+                    onFollowUpSaved={(saved) => {
+                      setFollowUpSaved(saved);
+                      if (saved) setOpenStep(null);
+                    }}
+                    onFollowUpShared={() => setOpenStep(null)}
+                  />
+                  {!isPublished && !acks.summary && (
+                    <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                      <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                        Not sharing a summary this time?
+                      </p>
+                      <p className="mt-1 text-[13px] leading-snug text-[#5A4A8A]">
+                        {clientLabel} will see nothing new in their Health Passport for this
+                        appointment. Confirm you have read this before moving on.
+                      </p>
+                      <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-[#3D2E6B]">
+                        <input
+                          type="checkbox"
+                          checked={summaryAckChecked}
+                          onChange={(e) => setSummaryAckChecked(e.target.checked)}
+                          className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+                        />
+                        <span>
+                          I have decided not to send a written summary to {clientLabel} for this
+                          appointment.
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        disabled={!summaryAckChecked}
+                        onClick={() => {
+                          setAck({ summary: true });
+                          setOpenStep(rxAllowed ? "prescriptions" : null);
+                        }}
+                        className="mt-3 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Confirm and continue
+                      </button>
+                    </div>
+                  )}
+                  {!isPublished && acks.summary && (
+                    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                      <p className="text-[13px] text-[#5A4A8A]">
+                        You decided not to send a written summary for this appointment.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAck({ summary: false });
+                          setSummaryAckChecked(false);
+                        }}
+                        className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                      >
+                        Undo
+                      </button>
+                    </div>
+                  )}
                 </>
               </SectionCard>
             )}
@@ -1152,11 +1163,9 @@ function DetailsPage() {
                               setOutcomeChoice(o.value);
                               setOutcomeConflict(null);
                               setDraftWarningFor(null);
-                              // Immediately reflect the prescribing consequence of
-                              // this outcome, and say so once in a modal.
-                              setOutcomeNoticeOpen(
-                                rxShown && !!encounterPrescribingBlock(o.value),
-                              );
+                              // Confirm what this outcome does before anything is
+                              // recorded; the modal carries the exact copy.
+                              setOutcomeNoticeOpen(true);
                             }}
                             className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
                           />
@@ -1240,56 +1249,68 @@ function DetailsPage() {
               </section>
             )}
           </div>
-
         </div>
       </div>
 
-      {/* Prescribing not applicable for the selected outcome */}
-      <Dialog open={outcomeNoticeOpen && !!pendingBlock} onOpenChange={setOutcomeNoticeOpen}>
+      {/* Confirm the appointment outcome */}
+      <Dialog open={outcomeNoticeOpen && !!noticeCopy} onOpenChange={setOutcomeNoticeOpen}>
         <DialogContent className="max-w-[452px] overflow-hidden p-0">
           <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-5 py-4">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6E4FD3]">
-              <Ban className="h-3.5 w-3.5" /> Prescription not applicable
+              {noticeSignedConflict && <Ban className="h-3.5 w-3.5" />}
+              {noticeSignedConflict ? SIGNED_RX_MODAL.eyebrow : noticeCopy?.eyebrow}
             </span>
             <DialogHeader className="mt-2.5 space-y-1 text-left">
               <DialogTitle className="text-[16.5px] font-bold leading-snug text-[#2C2B4B]">
-                {pendingOutcomeLabel} means no prescription can be issued
+                {noticeSignedConflict ? SIGNED_RX_MODAL.title : noticeCopy?.title}
               </DialogTitle>
               <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
-                {pendingBlock?.reason}
+                {noticeSignedConflict
+                  ? SIGNED_RX_MODAL.description
+                  : noticeCopy?.primaryDescription}
               </DialogDescription>
             </DialogHeader>
           </div>
           <div className="px-5 py-4">
-            <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-              Step 3 is greyed out and marked{" "}
-              <span className="font-semibold text-[#3D2E6B]">Not applicable</span> while this
-              outcome is selected. Anything you drafted is kept but cannot be signed or sent from
-              this appointment.
-            </p>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-[#7E6BAF]">
-              Nothing is recorded yet — you still close the appointment yourself at the bottom of
-              the page.
-            </p>
+            {!noticeSignedConflict && (
+              <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+                {noticeCopy?.secondaryDescription}
+              </p>
+            )}
+            {noticeDraftWarning && (
+              <p className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#6B5327]">
+                {UNSIGNED_DRAFT_WARNING}
+              </p>
+            )}
             <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
-                  setOutcomeChoice("completed");
+                  setOutcomeChoice(recordedOutcome ?? null);
                   setOutcomeConflict(null);
                   setDraftWarningFor(null);
                   setOutcomeNoticeOpen(false);
                 }}
                 className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
               >
-                Go back
+                {noticeSignedConflict
+                  ? SIGNED_RX_MODAL.secondaryButton
+                  : noticeCopy?.secondaryButton}
               </button>
               <button
                 type="button"
-                onClick={() => setOutcomeNoticeOpen(false)}
+                onClick={() => {
+                  if (noticeSignedConflict) {
+                    setOutcomeChoice(recordedOutcome ?? null);
+                    setOutcomeNoticeOpen(false);
+                    setOpenStep("prescriptions");
+                    return;
+                  }
+                  setOutcomeNoticeOpen(false);
+                }}
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                Mark as {pendingOutcomeLabel.toLowerCase()}
+                {noticeSignedConflict ? SIGNED_RX_MODAL.primaryButton : noticeCopy?.primaryButton}
               </button>
             </div>
           </div>
