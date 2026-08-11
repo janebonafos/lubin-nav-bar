@@ -1055,6 +1055,12 @@ export function AiPrescription({
             clinical document in {clientName || "the patient"}&rsquo;s medication and prescription
             record — it is not part of the session summary.
           </p>
+          <p className="mt-1.5 text-[12.5px] font-medium text-[#3D2E6B]">
+            Date issued {new Date(rx.finalisedAt!).toLocaleDateString()} ·{" "}
+            {doc?.validUntil
+              ? `${doc.validityLabel ?? "Valid until"} ${formatValidityDate(doc.validUntil)}`
+              : "Validity rule not configured (internal)"}
+          </p>
         </div>
         {!rx.voided && (
         <div className="mb-3">
