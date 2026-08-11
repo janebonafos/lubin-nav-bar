@@ -130,6 +130,7 @@ export function AiPrescription({
   providerName,
   jurisdiction,
   clinicalDocumentationReady = true,
+  encounterBlock = null,
   onAddClinicalInfo,
 }: {
   appointmentId: string;
@@ -141,6 +142,9 @@ export function AiPrescription({
   /** True once Step 1 holds clinical documentation supporting a medication
    *  decision. Prescribing stays closed until then. */
   clinicalDocumentationReady?: boolean;
+  /** Set when the recorded appointment outcome (no-show, cancelled,
+   *  rescheduled) means this is no longer an active prescribing encounter. */
+  encounterBlock?: { title: string; reason: string } | null;
   /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
