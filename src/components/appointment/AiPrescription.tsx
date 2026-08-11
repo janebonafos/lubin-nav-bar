@@ -1019,9 +1019,22 @@ export function AiPrescription({
   // ---------- Signed ----------
   if (signed) {
     const doc = latestSignedPrescription(appointmentId);
+    const signedControlled = rx.medications.some(
+      (m) => m.controlled && m.name.trim().length > 0,
+    );
     return (
       <section className="text-[#2C2B4B]">
         {header}
+        {rx.voided && (
+          <div className="mb-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#9B4A4A]">Prescription voided</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5C3B3B]">
+              Voided {new Date(rx.voided.at).toLocaleString()}
+              {rx.voided.by ? ` by ${rx.voided.by}` : ""} · Reason: {rx.voided.reason}. The original
+              signed prescription and its audit trail are preserved.
+            </p>
+          </div>
+        )}
         <div className="mb-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
           <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
             <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Signed prescription
@@ -1029,12 +1042,14 @@ export function AiPrescription({
           </p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
             Signed {new Date(rx.finalisedAt!).toLocaleString()}
-            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""} · {credentialSummary(identity, country)}{" "}
+            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""} ·{" "}
+            {credentialSummary(identity, country, { controlled: signedControlled })}{" "}
             · {JURISDICTION_LABEL[country]} · Version {rx.version ?? 1}. Saved as its own signed
             clinical document in {clientName || "the patient"}&rsquo;s medication and prescription
             record — it is not part of the session summary.
           </p>
         </div>
+        {!rx.voided && (
         <div className="mb-3">
           <DeliveryStep
             rx={rx}
@@ -1044,6 +1059,7 @@ export function AiPrescription({
             onGiveToPatient={giveCopyToPatient}
           />
         </div>
+        )}
         <FinalReviewBody
           rx={rx}
           country={country}
@@ -1051,8 +1067,9 @@ export function AiPrescription({
           providerName={identity.fullName || providerName}
           identity={identity}
           locked
+          collapsed
         />
-        <AuditTrail appointmentId={appointmentId} tick={auditTick} />
+        <AuditTrail appointmentId={appointmentId} tick={auditTick} collapsed />
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
           <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
             {statusLabel}
@@ -1071,14 +1088,51 @@ export function AiPrescription({
           >
             <Printer className="h-4 w-4" /> Print
           </button>
-          <button
-            type="button"
-            onClick={withdrawSignature}
-            className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-          >
-            <Lock className="h-4 w-4" /> Withdraw signature
-          </button>
+          {!rx.voided && (
+            <button
+              type="button"
+              onClick={() => setVoidOpen((v) => !v)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+            >
+              <Lock className="h-4 w-4" /> Void prescription
+            </button>
+          )}
         </div>
+        {voidOpen && !rx.voided && (
+          <div className="mt-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#2C2B4B]">Void this prescription</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              The signature and the signed document are kept in the patient record and in the audit
+              trail. Voiding only marks the prescription as no longer valid to dispense.
+            </p>
+            <label className="mt-2.5 block text-[12px] font-medium text-[#5A4A8A]">
+              Reason for voiding
+              <input
+                value={voidReason}
+                onChange={(e) => setVoidReason(e.target.value)}
+                placeholder="e.g. Wrong strength issued — replacement prescription to follow"
+                className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+              />
+            </label>
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={voidReason.trim().length < 4}
+                onClick={() => voidPrescription(voidReason.trim())}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Void prescription
+              </button>
+              <button
+                type="button"
+                onClick={() => setVoidOpen(false)}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     );
   }
