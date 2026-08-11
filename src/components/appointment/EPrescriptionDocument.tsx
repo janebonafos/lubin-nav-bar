@@ -422,18 +422,18 @@ export function EPrescriptionDocument({
                 Lubin's prescribing verification.
               </p>
             </div>
-            <div className="w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3">
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
+            <div className="w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {signed ? "Electronically signed by" : "Electronic signature"}
               </p>
-              <p className="mt-1 text-[14px] font-bold text-[#2C2B4B]">
+              <p className="mt-1.5 text-[18px] font-bold leading-snug text-[#2C2B4B]">
                 {withDoctorTitle(
                   identity.fullName || rx.finalisedBy || providerName || "your prescriber",
                 )}
                 {identity.qualifications ? `, ${identity.qualifications}` : ""}
               </p>
               {signed ? (
-                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#6F6889]">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[#6F6889]">
                   {signedDate && signedTime && (
                     <span>
                       {signedDate} · {signedTime} {signedTz}
@@ -443,7 +443,7 @@ export function EPrescriptionDocument({
                   {rxNumber && <span>Rx # {rxNumber}</span>}
                 </div>
               ) : (
-                <p className="mt-1 text-[12.5px] text-[#6F6889]">
+                <p className="mt-1.5 text-[13px] text-[#6F6889]">
                   This prescription has not been signed yet.
                 </p>
               )}
