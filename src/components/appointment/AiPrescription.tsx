@@ -79,7 +79,7 @@ import {
   saveSignedPrescription,
   latestSignedPrescription,
   updateSignedPrescription,
-  removeSignedPrescription,
+  voidSignedPrescription,
 } from "@/lib/prescription/documents";
 import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
@@ -877,18 +877,21 @@ export function AiPrescription({
     });
   };
 
-  const withdrawSignature = () => {
-    if (rx.documentId) removeSignedPrescription(rx.documentId);
-    audit("unlocked", { detail: "Signature withdrawn; the signed document was removed." });
-    patch({
-      finalisedAt: undefined,
-      finalisedBy: undefined,
-      legalAcknowledgedAt: undefined,
-      signature: undefined,
-      documentId: undefined,
-      delivery: undefined,
-    });
+  // Voiding never deletes the signature or the signed document: the original
+  // prescription and its audit trail are preserved and marked void with a
+  // reason and timestamp.
+  const voidPrescription = (reason: string) => {
+    const at = Date.now();
+    const by = identity.fullName || providerName || undefined;
+    if (rx.documentId) voidSignedPrescription(rx.documentId, { reason, by, at });
+    audit("voided", { detail: `Void reason: ${reason}` });
+    patch({ voided: { at, reason, by } });
     setAuditTick((t) => t + 1);
+    setVoidOpen(false);
+    setVoidReason("");
+    toast.success("Prescription voided", {
+      description: "The signed prescription is preserved in the record and marked void.",
+    });
   };
 
   const status = prescriptionStatus(rx, { readyToSign: canSign });
