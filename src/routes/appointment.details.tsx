@@ -875,10 +875,10 @@ function DetailsPage() {
                 description={`For your records only. Not shared with ${clientLabel}.`}
                 openOverride={openStep === "session-notes"}
                 onToggle={() => toggleStep("session-notes")}
-                done={privateNotesSaved && hasNotes}
-                checkBadge={privateNotesSaved && hasNotes}
+                done={step1Done}
+                checkBadge={step1Done}
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
-                requirementLabel="Required before prescribing"
+                requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
                 <>
                 <ApptNotesBlock
@@ -895,9 +895,9 @@ function DetailsPage() {
                 {!hasNotes && !acks.notes && (
                   <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
                     <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      Nothing to record for this session? You can move on, but prescribing stays
-                      closed: a prescription needs clinical documentation supporting the medication
-                      decision.
+                      {rxShown
+                        ? "Nothing to record for this session? You can move on, but prescribing stays closed: a prescription needs clinical documentation supporting the medication decision."
+                        : "Nothing to record for this session? You can move on — just confirm it so the step is not left open by accident."}
                     </p>
                     <button
                       type="button"
@@ -908,6 +908,20 @@ function DetailsPage() {
                       className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
                     >
                       No private notes for this session
+                    </button>
+                  </div>
+                )}
+                {!hasNotes && acks.notes && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                    <p className="text-[13px] text-[#5A4A8A]">
+                      You recorded that there are no private notes for this session.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setAck({ notes: false })}
+                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      Undo
                     </button>
                   </div>
                 )}
