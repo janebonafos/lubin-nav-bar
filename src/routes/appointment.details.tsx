@@ -304,6 +304,7 @@ function DetailsPage() {
   // explicitly instead of silently skipping past the step.
   const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
   const [summaryAckChecked, setSummaryAckChecked] = useState(false);
+  const [outcomeChoice, setOutcomeChoice] = useState<Outcome | null>(null);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
