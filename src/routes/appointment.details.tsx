@@ -549,8 +549,6 @@ function DetailsPage() {
     ? null
     : encounterPrescribingBlock(outcomeChoice ?? undefined);
   const activeBlock = encounterBlock ?? pendingBlock;
-  const pendingOutcomeLabel =
-    OUTCOMES.find((o) => o.value === (outcomeChoice ?? recordedOutcome))?.label ?? "This outcome";
   // Confirmation modal state: the appointment outcome is the headline, the
   // prescription consequence is supporting information.
   const noticeOutcome = outcomeChoice ?? null;
