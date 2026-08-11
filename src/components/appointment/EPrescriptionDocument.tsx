@@ -424,8 +424,8 @@ export function EPrescriptionDocument({
           </section>
 
           {/* Signature */}
-          <footer className="grid gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:grid-cols-[1fr_auto] sm:items-end">
-            <div className="max-w-sm space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+          <footer className="grid gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:grid-cols-[minmax(240px,1fr)_auto] sm:items-end">
+            <div className="min-w-0 max-w-sm space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
               <p>
                 Take this exactly as written. Questions or side effects — message your
                 prescriber in Lubin. Urgent help — contact local emergency services.
