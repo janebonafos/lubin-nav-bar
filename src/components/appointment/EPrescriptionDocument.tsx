@@ -64,7 +64,7 @@ export function EPrescriptionDocument({
       ? rx.patientInfo.sex === "prefer-not-to-say"
         ? "Prefers not to say"
         : rx.patientInfo.sex.charAt(0).toUpperCase() + rx.patientInfo.sex.slice(1)
-      : "Not documented";
+      : null;
   const dateLong = issued.toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -96,6 +96,31 @@ export function EPrescriptionDocument({
       : identity.npiNumber
         ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}` : ""}${controlled && identity.deaNumber ? ` | DEA ${identity.deaNumber}` : ""}`
         : "Credentials incomplete";
+  /** Registration identifiers are legally required on the printed copy, so they
+   *  render as highlighted chips instead of a low-contrast text line. */
+  const credentialChips: { label: string; value: string }[] =
+    country === "PH"
+      ? [
+          ...(identity.prcNumber ? [{ label: "PRC no.", value: identity.prcNumber }] : []),
+          ...(identity.ptrNumber ? [{ label: "PTR no.", value: identity.ptrNumber }] : []),
+          ...(controlled && identity.s2Number
+            ? [{ label: "S2 licence", value: identity.s2Number }]
+            : []),
+        ]
+      : [
+          ...(identity.npiNumber ? [{ label: "NPI", value: identity.npiNumber }] : []),
+          ...(identity.licenseNumber
+            ? [
+                {
+                  label: "State licence",
+                  value: `${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}`,
+                },
+              ]
+            : []),
+          ...(controlled && identity.deaNumber
+            ? [{ label: "DEA", value: identity.deaNumber }]
+            : []),
+        ];
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
@@ -208,15 +233,16 @@ export function EPrescriptionDocument({
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-3 text-[13px] text-[#6F6889]">
                 {age !== null && <span>{age} years old</span>}
-                {age !== null && <span className="text-[#D9D5E3]">|</span>}
-                <span>{sex}</span>
+                {age !== null && sex && <span className="text-[#D9D5E3]">|</span>}
+                {sex && <span>Sex: {sex}</span>}
               </div>
               <p className="mt-1 text-[12px] text-[#8A7FB0]">
-                DOB: {dob || "not documented"}
+                DOB: {dob || "not recorded"}
+                {!sex && " · Sex not recorded"}
               </p>
               {(country === "US" || address) && (
                 <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
-                  Address: {address || "not documented"}
+                  Address: {address || "not recorded"}
                 </p>
               )}
             </div>
@@ -227,15 +253,30 @@ export function EPrescriptionDocument({
               <p className="mt-2.5 text-[14px] font-bold text-[#2C2B4B]">
                 {prescriberName}
               </p>
-              <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
-                {credentialLine}
-                {identity.clinicAddress.trim() && (
-                  <>
-                    <br />
-                    {identity.clinicAddress.trim()}
-                  </>
-                )}
-              </p>
+              {credentialChips.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {credentialChips.map((c) => (
+                    <span
+                      key={c.label}
+                      className="inline-flex items-baseline gap-1.5 rounded-[7px] border border-[#DCD2F4] bg-[#F6F2FF] px-2 py-1 print:border-[#B9ABE0] print:bg-transparent"
+                    >
+                      <span className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8A7FB0]">
+                        {c.label}
+                      </span>
+                      <span className="text-[12px] font-bold tabular-nums text-[#3D2E6B]">
+                        {c.value}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-[11.5px] font-semibold text-[#B4342F]">{credentialLine}</p>
+              )}
+              {identity.clinicAddress.trim() && (
+                <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#6F6889]">
+                  {identity.clinicAddress.trim()}
+                </p>
+              )}
               {identity.clinicContact.trim() && (
                 <p className="mt-1 text-[11.5px] font-medium text-[#6E4FD3]">
                   {identity.clinicContact.trim()}
