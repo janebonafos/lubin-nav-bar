@@ -24,6 +24,11 @@ import {
 } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
+import {
+  encounterPrescribingBlock,
+  SIGNED_RX_CONFLICT,
+  UNSIGNED_DRAFT_WARNING,
+} from "@/lib/prescription/encounter";
 
 const searchSchema = z.object({
   id: z.string().optional(),
