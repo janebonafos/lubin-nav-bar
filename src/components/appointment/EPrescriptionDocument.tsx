@@ -88,13 +88,14 @@ export function EPrescriptionDocument({
   /** Traceability identifier for this document, independent of the Rx number. */
   const documentId = doc?.id || rx.documentId || null;
   const rxNumber = doc ? doc.number : null;
-  /** A signed prescription never prints "Required before signing": signing is
-   *  blocked while credentials are incomplete, so missing values are omitted. */
-  const printed = (value?: string) => {
-    const text = (value ?? "").trim();
-    if (text) return text;
-    return signed ? null : REQUIRED;
-  };
+  const credentialLine =
+    country === "PH"
+      ? identity.prcNumber
+        ? `PRC ${identity.prcNumber}${identity.ptrNumber ? ` | PTR ${identity.ptrNumber}` : ""}${controlled && identity.s2Number ? ` | S2 ${identity.s2Number}` : ""}`
+        : "Credentials incomplete"
+      : identity.npiNumber
+        ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}` : ""}${controlled && identity.deaNumber ? ` | DEA ${identity.deaNumber}` : ""}`
+        : "Credentials incomplete";
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
@@ -179,8 +180,7 @@ export function EPrescriptionDocument({
                   Prescription
                 </p>
                 <p className="mt-1 text-[13px] text-white/80">
-                  {identity.clinicName.trim() || "Lubin care team"} ·{" "}
-                  {JURISDICTION_LABEL[country]}
+                  Issued in {JURISDICTION_LABEL[country]}
                 </p>
               </div>
               <div className="sm:text-right">
@@ -192,9 +192,6 @@ export function EPrescriptionDocument({
                 </p>
                 <p className="mt-2 text-[11.5px] text-white/70">
                   {rxNumber ? `Date issued ${dateLong}` : "Assigned when signed"}
-                </p>
-                <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-white/55">
-                  Document ID {documentId ?? "pending"}
                 </p>
               </div>
             </div>
@@ -231,21 +228,13 @@ export function EPrescriptionDocument({
                 {prescriberName}
               </p>
               <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
-                {country === "PH"
-                  ? identity.prcNumber
-                    ? `PRC ${identity.prcNumber}${identity.ptrNumber ? ` | PTR ${identity.ptrNumber}` : ""}`
-                    : "Credentials incomplete"
-                  : identity.npiNumber
-                    ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}` : ""}`
-                    : "Credentials incomplete"}
+                {credentialLine}
                 {identity.clinicAddress.trim() && (
                   <>
                     <br />
                     {identity.clinicAddress.trim()}
                   </>
                 )}
-                <br />
-                Issued in {JURISDICTION_LABEL[country]}
               </p>
               {identity.clinicContact.trim() && (
                 <p className="mt-1 text-[11.5px] font-medium text-[#6E4FD3]">
@@ -363,66 +352,6 @@ export function EPrescriptionDocument({
             )}
           </section>
 
-          {/* Details */}
-          <section className="border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-6">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A79FC4]">
-              Prescription details
-            </h2>
-            <dl className="mt-3 grid grid-cols-1 gap-x-10 gap-y-2 text-[12px] sm:grid-cols-2">
-              <Line label="Date issued" value={dateLong} />
-              <Line
-                label="Rx no."
-                value={doc ? doc.number : "Assigned when the prescription is signed"}
-              />
-              {country === "PH" ? (
-                <>
-                  <Line
-                    label="Practice / clinic name"
-                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
-                  />
-                  <Line
-                    label="Professional / practice address"
-                    value={printed(identity.clinicAddress)}
-                  />
-                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
-                  <Line label="PRC no." value={printed(identity.prcNumber)} />
-                  <Line label="PTR no." value={printed(identity.ptrNumber)} />
-                  {controlled && (
-                    <Line label="S2 licence no." value={printed(identity.s2Number)} />
-                  )}
-                </>
-              ) : (
-                <>
-                  <Line
-                    label="Practice / clinic name"
-                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
-                  />
-                  <Line
-                    label="Professional / practice address"
-                    value={printed(identity.clinicAddress)}
-                  />
-                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
-                  <Line
-                    label="State licence"
-                    value={
-                      identity.licenseNumber
-                        ? `${identity.licenseNumber}${identity.licenseState ? ` · ${identity.licenseState}` : ""}`
-                        : printed(identity.licenseNumber)
-                    }
-                  />
-                  <Line label="NPI no." value={printed(identity.npiNumber)} />
-                  {controlled && (
-                    <Line label="DEA no." value={printed(identity.deaNumber)} />
-                  )}
-                </>
-              )}
-              <Line
-                label="Pharmacy"
-                value={rx.delivery?.destination || "Given to you directly"}
-              />
-            </dl>
-          </section>
-
           {/* Signature */}
           <footer className="flex flex-col gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-[220px] flex-1 space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
@@ -456,21 +385,6 @@ export function EPrescriptionDocument({
                     Signed {signedStamp}
                     {timeZone ? ` (${timeZone})` : ""}
                   </p>
-                  {rxNumber && (
-                    <p className="mt-1 font-mono text-[12px] font-semibold text-[#2C2B4B]">
-                      Rx # {rxNumber}
-                    </p>
-                  )}
-                  {documentId && (
-                    <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#A79FC4]">
-                      Document ID {documentId}
-                    </p>
-                  )}
-                  {rx.signature?.credentials && (
-                    <p className="mt-1 text-[12px] text-[#6F6889]">
-                      {rx.signature.credentials}
-                    </p>
-                  )}
                   {rx.signature?.methodLabel && (
                     <p className="mt-1 text-[12px] text-[#6F6889]">
                       {rx.signature.methodLabel}
@@ -494,7 +408,6 @@ export function EPrescriptionDocument({
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
-            <span>{rxNumber ? `Rx # ${rxNumber}` : "Rx # assigned when signed"}</span>
             <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
             <span>Page 1 of 1</span>
           </div>
@@ -503,8 +416,6 @@ export function EPrescriptionDocument({
     </div>
   );
 }
-
-const REQUIRED = "Required before signing";
 
 /** The signed copy names the verified prescriber; it is never hand-entered. */
 function withDoctorTitle(name: string): string {
@@ -534,22 +445,6 @@ function Stat({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className="mt-1 text-[13px] font-semibold leading-snug text-[#2C2B4B]">
-        {value}
-      </dd>
-    </div>
-  );
-}
-
-function Line({ label, value }: { label: string; value: string | null }) {
-  if (!value) return null;
-  return (
-    <div className="flex gap-2">
-      <dt className="min-w-[110px] shrink-0 text-[#8A7FB0]">{label}</dt>
-      <dd
-        className={
-          value === REQUIRED ? "font-medium text-[#B0741A]" : "font-medium text-[#2C2B4B]"
-        }
-      >
         {value}
       </dd>
     </div>
