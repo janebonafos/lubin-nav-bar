@@ -1000,6 +1000,29 @@ export function AiPrescription({
     );
   }
 
+  // ---------- Not an active prescribing encounter ----------
+  // The recorded appointment outcome (no-show, cancelled, rescheduled) closes
+  // creation, signing and issuance here. A prescription already signed stays
+  // visible below with its audit trail.
+  if (encounterBlock && !signed) {
+    return (
+      <section className="text-[#2C2B4B]">
+        <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
+          <p className="text-[13.5px] font-semibold">{encounterBlock.title}</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            {encounterBlock.reason}
+          </p>
+          {total > 0 && (
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#8A6420]">
+              An unsigned draft is kept on record for reference only. It is no longer associated
+              with an active prescribing encounter and cannot be signed or issued.
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  }
+
   // ---------- Prescribing not verified by Lubin ----------
   if (verification.isLoading) {
     return (
