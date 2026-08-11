@@ -352,66 +352,6 @@ export function EPrescriptionDocument({
             )}
           </section>
 
-          {/* Details */}
-          <section className="border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-6">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A79FC4]">
-              Prescription details
-            </h2>
-            <dl className="mt-3 grid grid-cols-1 gap-x-10 gap-y-2 text-[12px] sm:grid-cols-2">
-              <Line label="Date issued" value={dateLong} />
-              <Line
-                label="Rx no."
-                value={doc ? doc.number : "Assigned when the prescription is signed"}
-              />
-              {country === "PH" ? (
-                <>
-                  <Line
-                    label="Practice / clinic name"
-                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
-                  />
-                  <Line
-                    label="Professional / practice address"
-                    value={printed(identity.clinicAddress)}
-                  />
-                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
-                  <Line label="PRC no." value={printed(identity.prcNumber)} />
-                  <Line label="PTR no." value={printed(identity.ptrNumber)} />
-                  {controlled && (
-                    <Line label="S2 licence no." value={printed(identity.s2Number)} />
-                  )}
-                </>
-              ) : (
-                <>
-                  <Line
-                    label="Practice / clinic name"
-                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
-                  />
-                  <Line
-                    label="Professional / practice address"
-                    value={printed(identity.clinicAddress)}
-                  />
-                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
-                  <Line
-                    label="State licence"
-                    value={
-                      identity.licenseNumber
-                        ? `${identity.licenseNumber}${identity.licenseState ? ` · ${identity.licenseState}` : ""}`
-                        : printed(identity.licenseNumber)
-                    }
-                  />
-                  <Line label="NPI no." value={printed(identity.npiNumber)} />
-                  {controlled && (
-                    <Line label="DEA no." value={printed(identity.deaNumber)} />
-                  )}
-                </>
-              )}
-              <Line
-                label="Pharmacy"
-                value={rx.delivery?.destination || "Given to you directly"}
-              />
-            </dl>
-          </section>
-
           {/* Signature */}
           <footer className="flex flex-col gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-[220px] flex-1 space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
