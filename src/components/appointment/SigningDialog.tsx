@@ -16,7 +16,6 @@ import {
   SIGNING_METHOD_LABEL,
   type SigningMethod,
 } from "@/lib/prescription/signing";
-import { FINAL_AUTHORISATION_STATEMENT } from "@/lib/prescription/reference";
 import { requiresPhSpecialForm } from "@/lib/prescription/legal";
 import { requestSigningOtp, verifySigningOtp } from "@/lib/prescription/signOtp.functions";
 import type { SigningReviewState } from "@/lib/prescription/signOtp.functions";
@@ -47,7 +46,6 @@ export function SigningDialog({
   clientName,
   patientAgeYears,
   patientState,
-  onIdentityChange,
   onSigned,
   reviewState,
 }: {
@@ -59,13 +57,13 @@ export function SigningDialog({
   clientName?: string;
   patientAgeYears?: number | null;
   patientState?: string;
-  onIdentityChange: (next: PrescriberIdentity) => void;
+  /** Kept for API compatibility; the signing email is never edited here. */
+  onIdentityChange?: (next: PrescriberIdentity) => void;
   onSigned: (args: { method: SigningMethod; methodLabel: string; hash: string }) => void;
   /** Required review states, re-validated on the server before the code is issued. */
   reviewState: SigningReviewSnapshot;
 }) {
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
-  const controlled = controlledMedications(rx.medications);
   // Only PH medications that genuinely need the dangerous-drug pathway.
   const specialForm = requiresPhSpecialForm(rx.medications, country);
   const version = (rx.version ?? 0) + 1;
@@ -91,9 +89,7 @@ export function SigningDialog({
   const isEpcs = authority.method === "epcs-two-factor";
 
   const [code, setCode] = useState("");
-  const [attested, setAttested] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState(identity.signingEmail ?? "");
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [sent, setSent] = useState<{ masked: string; ttl: number; fallback?: string } | null>(null);
@@ -101,12 +97,14 @@ export function SigningDialog({
   const sendOtp = useServerFn(requestSigningOtp);
   const verifyOtp = useServerFn(verifySigningOtp);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  // The signing address always comes from the verified prescribing account and
+  // can never be edited here.
   const registeredEmail = (identity.signingEmail ?? "").trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registeredEmail);
   const payload = (extra?: { code: string }) => ({
     ...reviewState,
     ...extra,
-    email: email.trim(),
+    email: registeredEmail,
     hash,
     version,
     jurisdiction: country,
@@ -116,7 +114,9 @@ export function SigningDialog({
   const requestCode = async () => {
     setError(null);
     if (!emailValid) {
-      setError("Add the email registered to your prescribing account.");
+      setError(
+        "No verified email is on file for your prescribing account. Update it in prescribing verification before signing.",
+      );
       return;
     }
     setSending(true);
@@ -125,9 +125,6 @@ export function SigningDialog({
       if (!res.ok) {
         setError(res.blockers[0] ?? "Some required review items are still outstanding.");
         return;
-      }
-      if (identity.signingEmail !== email.trim()) {
-        onIdentityChange({ ...identity, signingEmail: email.trim() });
       }
       setSent({ masked: res.maskedEmail, ttl: res.ttlMinutes, fallback: res.fallbackCode });
     } catch {
@@ -138,12 +135,7 @@ export function SigningDialog({
   };
 
   const codeValid = /^\d{6}$/.test(code.trim());
-  const ready =
-    authority.authorised &&
-    attested &&
-    !!sent &&
-    codeValid &&
-    (!isEpcs || epcs.ready);
+  const ready = authority.authorised && !!sent && codeValid && (!isEpcs || epcs.ready);
 
   const sign = async () => {
     setError(null);
@@ -162,7 +154,6 @@ export function SigningDialog({
         ? `${SIGNING_METHOD_LABEL["epcs-two-factor"]} (${epcs.provider})`
         : "Verified with a one-time code sent to the prescriber's registered email";
       setCode("");
-      setAttested(false);
       setSent(null);
       onSigned({ method: authority.method, methodLabel, hash });
     } catch {
@@ -264,22 +255,8 @@ export function SigningDialog({
             </ul>
           </section>
 
-          {/* One clear sequence: final authorisation, then a one-time code. */}
-          <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-              <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Final authorization
-            </p>
-            <label className="mt-2 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
-              <input
-                type="checkbox"
-                checked={attested}
-                onChange={(e) => setAttested(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-              />
-              <span>{FINAL_AUTHORISATION_STATEMENT}</span>
-            </label>
-          </section>
-
+          {/* Authentication only — the clinical authorisation was completed in
+              Final review immediately before this modal opened. */}
           <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
               <KeyRound className="h-4 w-4 text-[#6E4FD3]" /> Verify with a one-time code
@@ -291,30 +268,18 @@ export function SigningDialog({
 
             {!sent ? (
               <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-end">
-                {registeredEmail ? (
-                  <div className="flex-1">
-                    <p className="text-[12px] font-medium text-[#5A4A8A]">Verified email</p>
-                    <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
-                      {maskEmail(registeredEmail)}
-                    </p>
-                  </div>
-                ) : (
-                  <label className="flex-1 block text-[12px] font-medium text-[#5A4A8A]">
-                    Registered email
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      placeholder="you@clinic.com"
-                      className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-                    />
-                  </label>
-                )}
+                <div className="flex-1">
+                  <p className="text-[12px] font-medium text-[#5A4A8A]">
+                    Verified prescribing account email
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
+                    {registeredEmail ? maskEmail(registeredEmail) : "Not on file"}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={requestCode}
-                  disabled={sending || !emailValid || !attested}
+                  disabled={sending || !emailValid}
                   className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {sending ? (
