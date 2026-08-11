@@ -385,21 +385,6 @@ export function EPrescriptionDocument({
                     Signed {signedStamp}
                     {timeZone ? ` (${timeZone})` : ""}
                   </p>
-                  {rxNumber && (
-                    <p className="mt-1 font-mono text-[12px] font-semibold text-[#2C2B4B]">
-                      Rx # {rxNumber}
-                    </p>
-                  )}
-                  {documentId && (
-                    <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#A79FC4]">
-                      Document ID {documentId}
-                    </p>
-                  )}
-                  {rx.signature?.credentials && (
-                    <p className="mt-1 text-[12px] text-[#6F6889]">
-                      {rx.signature.credentials}
-                    </p>
-                  )}
                   {rx.signature?.methodLabel && (
                     <p className="mt-1 text-[12px] text-[#6F6889]">
                       {rx.signature.methodLabel}
@@ -423,7 +408,6 @@ export function EPrescriptionDocument({
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
-            <span>{rxNumber ? `Rx # ${rxNumber}` : "Rx # assigned when signed"}</span>
             <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
             <span>Page 1 of 1</span>
           </div>
@@ -432,8 +416,6 @@ export function EPrescriptionDocument({
     </div>
   );
 }
-
-const REQUIRED = "Required before signing";
 
 /** The signed copy names the verified prescriber; it is never hand-entered. */
 function withDoctorTitle(name: string): string {
@@ -463,22 +445,6 @@ function Stat({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className="mt-1 text-[13px] font-semibold leading-snug text-[#2C2B4B]">
-        {value}
-      </dd>
-    </div>
-  );
-}
-
-function Line({ label, value }: { label: string; value: string | null }) {
-  if (!value) return null;
-  return (
-    <div className="flex gap-2">
-      <dt className="min-w-[110px] shrink-0 text-[#8A7FB0]">{label}</dt>
-      <dd
-        className={
-          value === REQUIRED ? "font-medium text-[#B0741A]" : "font-medium text-[#2C2B4B]"
-        }
-      >
         {value}
       </dd>
     </div>
