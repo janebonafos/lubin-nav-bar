@@ -310,6 +310,10 @@ function DetailsPage() {
   const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
   const [summaryAckChecked, setSummaryAckChecked] = useState(false);
   const [outcomeChoice, setOutcomeChoice] = useState<Outcome | null>(null);
+  // Prescription-driven conflicts on the closeout: a hard block when a signed
+  // prescription exists, a confirm-once warning when an unsigned draft does.
+  const [outcomeConflict, setOutcomeConflict] = useState<string | null>(null);
+  const [draftWarningFor, setDraftWarningFor] = useState<Outcome | null>(null);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
