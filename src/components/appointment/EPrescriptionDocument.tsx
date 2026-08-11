@@ -81,6 +81,13 @@ export function EPrescriptionDocument({
       })
     : null;
   const signed = !!rx.finalisedAt;
+  const timeZone =
+    typeof Intl !== "undefined"
+      ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "")
+      : "";
+  /** Traceability identifier for this document, independent of the Rx number. */
+  const documentId = doc?.id || rx.documentId || null;
+  const rxNumber = doc ? doc.number : null;
   /** A signed prescription never prints "Required before signing": signing is
    *  blocked while credentials are incomplete, so missing values are omitted. */
   const printed = (value?: string) => {
