@@ -64,7 +64,7 @@ export function EPrescriptionDocument({
       ? rx.patientInfo.sex === "prefer-not-to-say"
         ? "Prefers not to say"
         : rx.patientInfo.sex.charAt(0).toUpperCase() + rx.patientInfo.sex.slice(1)
-      : "Not documented";
+      : null;
   const dateLong = issued.toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -96,6 +96,31 @@ export function EPrescriptionDocument({
       : identity.npiNumber
         ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}` : ""}${controlled && identity.deaNumber ? ` | DEA ${identity.deaNumber}` : ""}`
         : "Credentials incomplete";
+  /** Registration identifiers are legally required on the printed copy, so they
+   *  render as highlighted chips instead of a low-contrast text line. */
+  const credentialChips: { label: string; value: string }[] =
+    country === "PH"
+      ? [
+          ...(identity.prcNumber ? [{ label: "PRC no.", value: identity.prcNumber }] : []),
+          ...(identity.ptrNumber ? [{ label: "PTR no.", value: identity.ptrNumber }] : []),
+          ...(controlled && identity.s2Number
+            ? [{ label: "S2 licence", value: identity.s2Number }]
+            : []),
+        ]
+      : [
+          ...(identity.npiNumber ? [{ label: "NPI", value: identity.npiNumber }] : []),
+          ...(identity.licenseNumber
+            ? [
+                {
+                  label: "State licence",
+                  value: `${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}`,
+                },
+              ]
+            : []),
+          ...(controlled && identity.deaNumber
+            ? [{ label: "DEA", value: identity.deaNumber }]
+            : []),
+        ];
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
