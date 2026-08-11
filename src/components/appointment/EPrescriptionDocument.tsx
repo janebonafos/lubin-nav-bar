@@ -276,28 +276,32 @@ export function EPrescriptionDocument({
                       {m.instructions || "Follow your prescriber's directions."}
                     </p>
 
-                    <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
                       <Stat label="Route" value={m.route || "As directed"} />
                       <Stat label="Frequency" value={m.frequency || "As directed"} />
                       <Stat label="Duration" value={m.duration || "As directed"} />
                       <Stat label="Quantity" value={m.quantity || "Not specified"} />
-                      <Stat
-                        label="Refills"
-                        value={String(refillCount(m.refills))}
-                        note={refillNote(m.refills)}
-                      />
+                      <Stat label="Refills" value={String(refillCount(m.refills))} />
                       {m.indication && (
                         <Stat label="Indication" value={m.indication} />
                       )}
                     </dl>
+                    <p className="mt-4 text-[11.5px] leading-relaxed text-[#6F6889]">
+                      {refillNote(m.refills)}
+                    </p>
 
                     {m.warnings && (
-                      <div className="mt-4 rounded-[14px] bg-[#F1ECFD] px-4 py-3 text-[12.5px] leading-relaxed text-[#3D2E6B]">
-                        <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#6A5AA0]">
+                      <details className="group mt-4 border-l-2 border-[#DCD3F5] pl-4">
+                        <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6A5AA0] print:hidden">
+                          Important medication information
+                        </summary>
+                        <p className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6A5AA0] print:block">
                           Important medication information
                         </p>
-                        <p className="mt-1.5">{m.warnings}</p>
-                      </div>
+                        <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889] print:block">
+                          {m.warnings}
+                        </p>
+                      </details>
                     )}
                   </li>
                 ))}
@@ -448,19 +452,14 @@ function Notice({ title, lines }: { title: string; lines: string[] }) {
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[12px] border border-[#EAE5F6] bg-white px-3 py-2.5">
-      <dt className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#8A7FB0]">
+    <div>
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A79FC4]">
         {label}
       </dt>
-      <dd className="mt-1 text-[12.5px] font-semibold leading-snug text-[#2C2B4B]">
+      <dd className="mt-1 text-[13px] font-semibold leading-snug text-[#2C2B4B]">
         {value}
-        {note && (
-          <span className="mt-1 block text-[11.5px] font-normal leading-relaxed text-[#6F6889]">
-            {note}
-          </span>
-        )}
       </dd>
     </div>
   );
