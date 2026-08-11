@@ -1154,11 +1154,9 @@ function DetailsPage() {
                               setOutcomeChoice(o.value);
                               setOutcomeConflict(null);
                               setDraftWarningFor(null);
-                              // Immediately reflect the prescribing consequence of
-                              // this outcome, and say so once in a modal.
-                              setOutcomeNoticeOpen(
-                                rxShown && !!encounterPrescribingBlock(o.value),
-                              );
+                              // Confirm what this outcome does before anything is
+                              // recorded; the modal carries the exact copy.
+                              setOutcomeNoticeOpen(true);
                             }}
                             className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
                           />
