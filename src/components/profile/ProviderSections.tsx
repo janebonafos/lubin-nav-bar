@@ -2465,7 +2465,7 @@ export function ApptNotesBlock({
               {showSupporting && (
               <div className="space-y-4 border-t border-[#F0EAFB] p-3">
                 <p className="text-xs leading-relaxed text-[#7E6BAF]">
-                  Share files, web links, or a short note Anna can use between sessions or on her own. Everything here is optional.
+                  Share files, web links, or a short note {clientLabel} can use between sessions or on their own. Everything here is optional.
                 </p>
             {/* Files to share */}
             <div>
@@ -2597,7 +2597,7 @@ export function ApptNotesBlock({
                 )}
               </div>
               <p className="mt-0.5 text-[11px] text-[#A89BD0]">
-                Add any web link Anna may find useful: videos, articles, worksheets, apps, or files stored online.
+                Add any web link {clientLabel} may find useful: videos, articles, worksheets, apps, or files stored online.
               </p>
 
               <ul className="mt-2 space-y-2">
@@ -2725,7 +2725,7 @@ export function ApptNotesBlock({
                     autoFocus={isReopened("nextFocus")}
                     onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
                     rows={2}
-                    placeholder="What Anna can practice or review between sessions."
+                    placeholder={`What ${clientLabel} can practice or review between sessions.`}
                     className={fieldClass("nextFocus")}
                   />
                   {isReopened("nextFocus") && (
