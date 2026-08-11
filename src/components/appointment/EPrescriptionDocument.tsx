@@ -237,6 +237,11 @@ export function EPrescriptionDocument({
                     ? `Date issued ${dateLong}`
                     : `Date prepared ${dateLong} · assigned when signed`}
                 </p>
+                <p className="mt-1 text-[11.5px] font-semibold text-white/85">
+                  {validUntil
+                    ? `${validityLabel}: ${formatValidityDate(validUntil)}`
+                    : "Validity rule not configured"}
+                </p>
               </div>
             </div>
           </header>
