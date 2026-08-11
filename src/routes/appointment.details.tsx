@@ -551,6 +551,13 @@ function DetailsPage() {
   const activeBlock = encounterBlock ?? pendingBlock;
   const pendingOutcomeLabel =
     OUTCOMES.find((o) => o.value === (outcomeChoice ?? recordedOutcome))?.label ?? "This outcome";
+  // Confirmation modal state: the appointment outcome is the headline, the
+  // prescription consequence is supporting information.
+  const noticeOutcome = outcomeChoice ?? null;
+  const noticeCopy = noticeOutcome ? OUTCOME_COPY[noticeOutcome] : null;
+  const noticeBlocksRx = !!noticeOutcome && !!encounterPrescribingBlock(noticeOutcome);
+  const noticeSignedConflict = noticeBlocksRx && rxRecordState.signed;
+  const noticeDraftWarning = noticeBlocksRx && !rxRecordState.signed && rxRecordState.unsignedDraft;
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
