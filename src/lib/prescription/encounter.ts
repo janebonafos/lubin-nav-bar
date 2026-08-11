@@ -20,22 +20,22 @@ const BLOCKED: Record<Exclude<AppointmentOutcome, "completed">, EncounterBlock> 
   client_no_show: {
     title: "Prescribing is closed — recorded as a client no-show",
     reason:
-      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history but cannot be signed or issued from this encounter.",
+      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any prescription created here is voided for this encounter: it stays saved for audit and history, but it cannot be signed, issued, or received by the client.",
   },
   provider_no_show: {
     title: "Prescribing is closed — recorded as a provider no-show",
     reason:
-      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history but cannot be signed or issued from this encounter.",
+      "No clinical encounter took place, so the prescription step is Not applicable for this appointment. Any prescription created here is voided for this encounter: it stays saved for audit and history, but it cannot be signed, issued, or received by the client.",
   },
   cancelled: {
     title: "Prescribing is closed — this appointment is cancelled",
     reason:
-      "The scheduled clinical encounter did not take place, so the prescription step is Not applicable for this appointment. Any unsigned draft stays saved for audit/history.",
+      "The scheduled clinical encounter did not take place, so the prescription step is Not applicable for this appointment. Any prescription created here is voided for this encounter and will not reach the client, though it stays saved for audit and history.",
   },
   rescheduled: {
     title: "Prescribing has moved to the rescheduled appointment",
     reason:
-      "The prescription step is Not applicable for this appointment. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
+      "The prescription step is Not applicable for this appointment, so any prescription created here is voided for this encounter and will not reach the client. Prescribing can be completed again from the rescheduled appointment if clinically appropriate.",
   },
 };
 
@@ -52,10 +52,13 @@ export function outcomeAllowsPrescribing(outcome?: AppointmentOutcome | null): b
 }
 
 export const SIGNED_RX_CONFLICT =
-  "A prescription has already been signed from this encounter. Resolve the prescription before changing the appointment outcome to no-show, cancelled, or rescheduled.";
+  "A prescription has already been signed from this appointment, so this outcome cannot be recorded yet. Keeping the appointment as Completed is what lets the client receive it. If the medication should not stand, void the signed prescription first — voiding is permanent and the client will not receive it.";
 
 export const UNSIGNED_DRAFT_WARNING =
-  "An unsigned prescription draft exists for this appointment. It will remain saved for audit/history but cannot be signed or issued from this encounter after you confirm this outcome.";
+  "A prescription has already been created for this appointment. Continuing with this outcome voids it for this encounter — it stays saved for audit and history, but it can no longer be signed or issued, and the client will not receive any medication. Mark the appointment as Completed instead if the prescription should reach the client.";
+
+export const RX_COMPLETED_RELEASE_NOTE =
+  "A prescription has been created for this appointment. Marking it Completed keeps the prescription valid, so it can be signed and issued and the client can receive it.";
 
 /** Confirmation copy for each appointment outcome. */
 export type OutcomeCopy = {
@@ -72,9 +75,9 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     eyebrow: "APPOINTMENT COMPLETED",
     title: "Mark this appointment as completed?",
     primaryDescription:
-      "Use this when the scheduled clinical encounter took place and the visit is finished.",
+      "Use this when the scheduled clinical encounter took place and the visit is finished. This is the only outcome that keeps prescribing open, so a prescription created here can be signed, issued and received by the client.",
     secondaryDescription:
-      "Your completed notes, client summary, and any prescription decision from this encounter will remain part of the appointment record.",
+      "Your clinical notes, the client summary and any prescription decision from this encounter stay part of the appointment record.",
     primaryButton: "Mark as completed",
     secondaryButton: "Go back",
   },
@@ -84,7 +87,7 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     primaryDescription:
       "Use this when the client did not attend and a clinical encounter did not take place.",
     secondaryDescription:
-      "The prescription step will be marked Not applicable for this appointment. Any unsigned prescription draft will not be issued from this encounter.",
+      "The prescription step becomes Not applicable for this appointment. Any prescription already created here is voided for this encounter — it stays saved for audit and history, but it cannot be signed or issued and the client will not receive it. Choose Completed instead if the prescription should reach the client.",
     primaryButton: "Mark as client no-show",
     secondaryButton: "Go back",
   },
@@ -94,7 +97,7 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     primaryDescription:
       "Use this when the scheduled clinical encounter did not take place because the provider was unavailable.",
     secondaryDescription:
-      "The prescription step will be marked Not applicable for this appointment. Any unsigned prescription draft will not be issued from this encounter.",
+      "The prescription step becomes Not applicable for this appointment. Any prescription already created here is voided for this encounter — it stays saved for audit and history, but it cannot be signed or issued and the client will not receive it. Choose Completed instead if the prescription should reach the client.",
     primaryButton: "Mark as provider no-show",
     secondaryButton: "Go back",
   },
@@ -104,7 +107,7 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     primaryDescription:
       "Use this when the appointment was cancelled and the scheduled clinical encounter did not take place.",
     secondaryDescription:
-      "The prescription step will be marked Not applicable for this appointment. Any unsigned prescription draft will not be issued from this encounter.",
+      "The prescription step becomes Not applicable for this appointment. Any prescription already created here is voided for this encounter — it stays saved for audit and history, but it cannot be signed or issued and the client will not receive it. Choose Completed instead if the prescription should reach the client.",
     primaryButton: "Mark as cancelled",
     secondaryButton: "Go back",
   },
@@ -114,7 +117,7 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     primaryDescription:
       "Use this when this appointment will not take place at the original date or time and a new appointment will be scheduled instead.",
     secondaryDescription:
-      "The prescription step will be marked Not applicable for this appointment. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
+      "The prescription step becomes Not applicable for this appointment, so any prescription created here is voided for this encounter and will not reach the client. Prescribing can be completed again from the rescheduled appointment if clinically appropriate.",
     primaryButton: "Mark as rescheduled",
     secondaryButton: "Go back",
   },
@@ -122,7 +125,7 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
 
 export const SIGNED_RX_MODAL = {
   eyebrow: "SIGNED PRESCRIPTION EXISTS",
-  title: "This appointment has a signed prescription",
+  title: "A signed prescription already exists for this appointment",
   description: SIGNED_RX_CONFLICT,
   primaryButton: "Review prescription",
   secondaryButton: "Go back",

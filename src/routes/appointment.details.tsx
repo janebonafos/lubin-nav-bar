@@ -37,6 +37,7 @@ import {
   SIGNED_RX_MODAL,
   SIGNED_RX_CONFLICT,
   UNSIGNED_DRAFT_WARNING,
+  RX_COMPLETED_RELEASE_NOTE,
 } from "@/lib/prescription/encounter";
 
 const searchSchema = z.object({
@@ -77,31 +78,31 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The scheduled clinical encounter took place and the visit is finished. Your notes, client summary and any prescription decision remain part of the appointment record.",
+      "The clinical encounter took place and the visit is finished. Prescribing stays open, so a prescription created here can be signed, issued and received by the client.",
   },
   {
     value: "client_no_show",
     label: "Client no-show",
     consequence:
-      "The client did not attend and a clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
+      "The client did not attend and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "provider_no_show",
     label: "Provider no-show",
     consequence:
-      "The scheduled clinical encounter did not take place because the provider was unavailable. The prescription step will be marked Not applicable for this appointment.",
+      "The encounter did not take place because the provider was unavailable. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "cancelled",
     label: "Cancelled",
     consequence:
-      "The appointment was cancelled and the scheduled clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
+      "The appointment was cancelled and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "rescheduled",
     label: "Rescheduled",
     consequence:
-      "This appointment will not take place at the original date or time and a new appointment will be scheduled instead. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
+      "A new appointment will be scheduled instead. Any prescription created here is voided for this encounter, and prescribing can be completed again from the rescheduled appointment.",
   },
 ];
 
@@ -1183,7 +1184,7 @@ function DetailsPage() {
                     {outcomeConflict && (
                       <div className="mt-3 rounded-[14px] border border-[#E9C3C3] bg-[#FDF4F4] px-3.5 py-3">
                         <p className="text-[13px] font-semibold text-[#9B4A4A]">
-                          Cannot record this outcome — signed prescription on file
+                          You cannot record this outcome yet — a signed prescription exists
                         </p>
                         <p className="mt-1 text-[12.5px] leading-snug text-[#5C3B3B]">
                           {outcomeConflict}
@@ -1193,11 +1194,11 @@ function DetailsPage() {
                     {draftWarningFor && (
                       <div className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3">
                         <p className="text-[13px] font-semibold text-[#8A6420]">
-                          Unsigned prescription draft on this appointment
+                          This will void the prescription created for this appointment
                         </p>
                         <p className="mt-1 text-[12.5px] leading-snug text-[#6B5327]">
                           {UNSIGNED_DRAFT_WARNING} Choose &ldquo;Close this appointment&rdquo; again
-                          to continue.
+                          to confirm.
                         </p>
                       </div>
                     )}
@@ -1282,6 +1283,12 @@ function DetailsPage() {
                 {UNSIGNED_DRAFT_WARNING}
               </p>
             )}
+            {noticeOutcome === "completed" &&
+              (rxRecordState.signed || rxRecordState.unsignedDraft) && (
+                <p className="mt-3 rounded-[14px] border border-[#DCCFF5] bg-[#F7F3FF] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#4A3A7A]">
+                  {RX_COMPLETED_RELEASE_NOTE}
+                </p>
+              )}
             <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
