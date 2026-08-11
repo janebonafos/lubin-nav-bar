@@ -2977,12 +2977,14 @@ export function ApptNotesBlock({
               >
                 Cancel
               </button>
-              <button
-                onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); onPrivateNotesSaved?.(true); }}
-                className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
-              >
-                Save notes
-              </button>
+              {draft.trim() !== (appt.notes ?? "").trim() && draft.trim().length > 0 && (
+                <button
+                  onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); onPrivateNotesSaved?.(true); }}
+                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                >
+                  Save notes
+                </button>
+              )}
 
             </div>
           </div>
