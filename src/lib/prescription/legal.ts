@@ -30,20 +30,37 @@ export function formatDob(info?: PatientSafetyInfo): string | null {
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
-/** Patient-side fields the legal prescription layer requires. Address is
- *  mandatory in the U.S. (DEA requires patient name and address on controlled
- *  prescriptions and it is standard practice on all U.S. prescriptions). */
+/** Patient-side fields the legal prescription layer requires.
+ *
+ *  Address: the DEA requires the patient's full name and address on every
+ *  electronically prescribed controlled substance, and Philippine dangerous
+ *  drug / senior-citizen / PWD prescription rules require name, age, sex and
+ *  address. Requirements for ordinary non-controlled prescriptions vary by
+ *  state, so the address is recorded and printed everywhere, but only blocks
+ *  issuance where a rule clearly requires it. */
 export function patientLegalGaps(args: {
   info?: PatientSafetyInfo;
   patientName?: string;
   country: RxCountry;
+  /** True when the prescription contains a controlled / dangerous drug. */
+  controlled?: boolean;
 }): string[] {
   const gaps: string[] = [];
   if (!(args.patientName ?? "").trim()) gaps.push("Patient full name");
   if (!(args.info?.dob ?? "").trim()) gaps.push("Patient date of birth");
-  if (args.country === "US" && !(args.info?.address ?? "").trim())
+  if (args.controlled && !(args.info?.address ?? "").trim())
     gaps.push("Patient address");
   return gaps;
+}
+
+/** Address is recorded on every prescription, but is only legally mandatory
+ *  in some contexts. Used for the wording next to the field. */
+export function addressRequirement(
+  country: RxCountry,
+  controlled: boolean,
+): "mandatory" | "recommended" {
+  if (controlled) return "mandatory";
+  return country === "PH" ? "recommended" : "recommended";
 }
 
 /** A Philippine dangerous drug must be issued on the official special
