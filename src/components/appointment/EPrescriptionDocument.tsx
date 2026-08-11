@@ -144,16 +144,35 @@ export function EPrescriptionDocument({
       {/* Print hardening: keep clinical blocks whole, stamp every printed page with
           the Rx identifier so a detached page cannot be passed off as a valid script. */}
       <style>{`
-        @page { size: A4; margin: 12mm 12mm 20mm; }
+        @page { size: A4; margin: 20mm 12mm 20mm; }
         @media print {
           html, body { background: #fff; }
           .rx-doc { padding-bottom: 6mm; }
           .rx-keep { break-inside: avoid; page-break-inside: avoid; }
           .rx-attach { break-before: avoid; page-break-before: avoid; }
           .rx-page-band { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; }
+          .rx-page-head { display: block !important; position: fixed; top: -12mm; left: 0; right: 0; }
         }
       `}</style>
       <div className="mx-auto w-full max-w-[820px] px-4 sm:px-6">
+        {/* Repeats at the top of every printed page so no page can be detached,
+            reprinted or re-created without the issuing Rx identity. */}
+        <div className="rx-page-head hidden border-b border-[#E4E1EC] bg-white px-1 pb-1">
+          <div className="flex items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[0.12em] text-[#3D2E6B]">
+            <span>
+              Lubin ℞ — {JURISDICTION_LABEL[country]}
+              {" · "}
+              {rxNumber ?? "unsigned draft"}
+            </span>
+            <span className="text-[#8A7FB0]">
+              {clientName || "patient"} ·{" "}
+              {withDoctorTitle(
+                identity.fullName || rx.finalisedBy || providerName || "prescriber",
+              )}
+            </span>
+          </div>
+        </div>
+
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 print:hidden">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8A7FB0]">
