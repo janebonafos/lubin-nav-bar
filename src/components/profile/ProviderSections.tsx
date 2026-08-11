@@ -1584,9 +1584,21 @@ export function AppointmentsSection() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="This week" value="6" hint="3 confirmed · 3 pending" />
-        <StatCard label="Completed" value={String(counts.completed)} hint="Last 30 days" />
-        <StatCard label="No-show rate" value="2%" hint="Last 30 days" />
+        <StatCard
+          label="Upcoming"
+          value={String(counts.upcoming)}
+          hint={`${counts.all} total booking${counts.all === 1 ? "" : "s"}`}
+        />
+        <StatCard label="Completed" value={String(counts.completed)} hint="Closed appointments" />
+        <StatCard
+          label="No-shows"
+          value={String(
+            list.filter(
+              (a) => a.outcome === "client_no_show" || a.outcome === "provider_no_show",
+            ).length,
+          )}
+          hint="Recorded at close-out"
+        />
       </div>
 
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
@@ -2886,7 +2898,7 @@ export function ApptNotesBlock({
                 </button>
                 <button
                   type="button"
-                  disabled={!publishConfirmed || updatingShared}
+                  disabled={!publishConfirmed || updatingShared || !fuSummary.trim()}
                   onClick={() => {
                     if (updatingShared) return;
                     setUpdatingShared(true);
