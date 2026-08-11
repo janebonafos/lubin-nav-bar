@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, CalendarClock, Check, ChevronDown, Lock } from "lucide-react";
+import { ArrowLeft, CalendarClock, Check, ChevronDown, Lock, Ban } from "lucide-react";
 import { toast } from "sonner";
 import {
   ApptNotesBlock,
@@ -547,6 +547,8 @@ function DetailsPage() {
     ? null
     : encounterPrescribingBlock(outcomeChoice ?? undefined);
   const activeBlock = encounterBlock ?? pendingBlock;
+  const pendingOutcomeLabel =
+    OUTCOMES.find((o) => o.value === (outcomeChoice ?? recordedOutcome))?.label ?? "This outcome";
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -1061,12 +1063,12 @@ function DetailsPage() {
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
-                dimmed={!clinicalDocForRx}
+                dimmed={!clinicalDocForRx || !!activeBlock}
                 lockedNote={
                   !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
                 }
-                done={rxDone}
-                checkBadge={rxDone}
+                done={activeBlock ? false : rxDone}
+                checkBadge={activeBlock ? false : rxDone}
                 pillLabel={activeBlock ? "Not applicable" : rxStatus}
               >
                 <AiPrescription
@@ -1244,46 +1246,52 @@ function DetailsPage() {
 
       {/* Prescribing not applicable for the selected outcome */}
       <Dialog open={outcomeNoticeOpen && !!pendingBlock} onOpenChange={setOutcomeNoticeOpen}>
-        <DialogContent className="max-w-[440px]">
-          <DialogHeader>
-            <DialogTitle className="text-[15px] font-bold text-[#2C2B4B]">
-              {pendingBlock?.title ?? "Prescribing is not applicable"}
-            </DialogTitle>
-            <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
-              {pendingBlock?.reason}
-            </DialogDescription>
-          </DialogHeader>
-          <p className="text-[12.5px] leading-snug text-[#7E6BAF]">
-            The prescription step is now marked{" "}
-            <span className="font-semibold text-[#3D2E6B]">Not applicable</span>. Switching back to{" "}
-            <span className="font-semibold text-[#3D2E6B]">Completed</span> makes any prescription
-            you already created available again.
-          </p>
-          <p className="rounded-[10px] bg-[#F7F3FF] px-3 py-2 text-[12px] leading-snug text-[#5A4A8F]">
-            Nothing is submitted yet. This appointment is only closed when you choose{" "}
-            <span className="font-semibold text-[#3D2E6B]">Close this appointment</span> at the
-            bottom of the page.
-          </p>
-          <div className="mt-1 flex flex-wrap justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setOutcomeChoice("completed");
-                setOutcomeConflict(null);
-                setDraftWarningFor(null);
-                setOutcomeNoticeOpen(false);
-              }}
-              className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
-            >
-              Switch back to Completed
-            </button>
-            <button
-              type="button"
-              onClick={() => setOutcomeNoticeOpen(false)}
-              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-            >
-              Keep this outcome selected
-            </button>
+        <DialogContent className="max-w-[452px] overflow-hidden p-0">
+          <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-5 py-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6E4FD3]">
+              <Ban className="h-3.5 w-3.5" /> Prescription not applicable
+            </span>
+            <DialogHeader className="mt-2.5 space-y-1 text-left">
+              <DialogTitle className="text-[16.5px] font-bold leading-snug text-[#2C2B4B]">
+                {pendingOutcomeLabel} means no prescription can be issued
+              </DialogTitle>
+              <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
+                {pendingBlock?.reason}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+              Step 3 is greyed out and marked{" "}
+              <span className="font-semibold text-[#3D2E6B]">Not applicable</span> while this
+              outcome is selected. Anything you drafted is kept but cannot be signed or sent from
+              this appointment.
+            </p>
+            <p className="mt-3 text-[12.5px] leading-relaxed text-[#7E6BAF]">
+              Nothing is recorded yet — you still close the appointment yourself at the bottom of
+              the page.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setOutcomeChoice("completed");
+                  setOutcomeConflict(null);
+                  setDraftWarningFor(null);
+                  setOutcomeNoticeOpen(false);
+                }}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
+              >
+                Go back
+              </button>
+              <button
+                type="button"
+                onClick={() => setOutcomeNoticeOpen(false)}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+              >
+                Mark as {pendingOutcomeLabel.toLowerCase()}
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
