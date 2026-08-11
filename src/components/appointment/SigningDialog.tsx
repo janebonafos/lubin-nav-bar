@@ -16,7 +16,6 @@ import {
   SIGNING_METHOD_LABEL,
   type SigningMethod,
 } from "@/lib/prescription/signing";
-import { FINAL_AUTHORISATION_STATEMENT } from "@/lib/prescription/reference";
 import { requiresPhSpecialForm } from "@/lib/prescription/legal";
 import { requestSigningOtp, verifySigningOtp } from "@/lib/prescription/signOtp.functions";
 import type { SigningReviewState } from "@/lib/prescription/signOtp.functions";
