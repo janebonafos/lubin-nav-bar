@@ -99,6 +99,7 @@ export function SigningDialog({
   const verifyOtp = useServerFn(verifySigningOtp);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const registeredEmail = (identity.signingEmail ?? "").trim();
   const payload = (extra?: { code: string }) => ({
     ...reviewState,
     ...extra,
