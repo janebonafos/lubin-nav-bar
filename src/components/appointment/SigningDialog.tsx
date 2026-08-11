@@ -17,6 +17,7 @@ import {
   type SigningMethod,
 } from "@/lib/prescription/signing";
 import { FINAL_AUTHORISATION_STATEMENT } from "@/lib/prescription/reference";
+import { requiresPhSpecialForm } from "@/lib/prescription/legal";
 import { requestSigningOtp, verifySigningOtp } from "@/lib/prescription/signOtp.functions";
 import type { SigningReviewState } from "@/lib/prescription/signOtp.functions";
 
@@ -65,6 +66,8 @@ export function SigningDialog({
 }) {
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
   const controlled = controlledMedications(rx.medications);
+  // Only PH medications that genuinely need the dangerous-drug pathway.
+  const specialForm = requiresPhSpecialForm(rx.medications, country);
   const version = (rx.version ?? 0) + 1;
 
   const authority = useMemo(
