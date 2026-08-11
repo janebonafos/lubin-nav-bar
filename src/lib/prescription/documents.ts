@@ -22,6 +22,9 @@ export type SignedPrescriptionDocument = {
   medications: PrescriptionMedication[];
   controlled: boolean;
   delivery?: { method: DeliveryMethod; state: DeliveryState; destination?: string; at?: number };
+  /** Set when the prescriber voided the prescription. The signed document and
+   *  its signature are preserved for the record — only marked void. */
+  voided?: { at: number; reason: string; by?: string };
 };
 
 const KEY = "lubin.prescriptionDocuments.v1";
@@ -92,9 +95,20 @@ export function latestSignedPrescription(
 
 export function updateSignedPrescription(
   id: string,
-  patch: Partial<Pick<SignedPrescriptionDocument, "delivery">>,
+  patch: Partial<Pick<SignedPrescriptionDocument, "delivery" | "voided">>,
 ) {
   writeAll(readAll().map((d) => (d.id === id ? { ...d, ...patch } : d)));
+}
+
+/** Voids a signed prescription without destroying it: the signature, the
+ *  document and the audit trail are all preserved and it is marked void. */
+export function voidSignedPrescription(
+  id: string,
+  args: { reason: string; by?: string; at?: number },
+) {
+  updateSignedPrescription(id, {
+    voided: { at: args.at ?? Date.now(), reason: args.reason, by: args.by },
+  });
 }
 
 /** Withdrawing a signature removes the issued document from the record. */

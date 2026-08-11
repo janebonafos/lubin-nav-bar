@@ -9,7 +9,8 @@ export type RxAuditAction =
   | "sent-to-pharmacy"
   | "send-failed"
   | "copy-given"
-  | "unlocked";
+  | "unlocked"
+  | "voided";
 
 export const RX_AUDIT_LABEL: Record<RxAuditAction, string> = {
   signed: "Prescription signed",
@@ -19,6 +20,7 @@ export const RX_AUDIT_LABEL: Record<RxAuditAction, string> = {
   "send-failed": "Send to pharmacy failed",
   "copy-given": "Signed copy given to patient",
   unlocked: "Signature withdrawn",
+  voided: "Prescription voided",
 };
 
 export type RxAuditEvent = {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Loader2,
   Check,
@@ -79,7 +79,7 @@ import {
   saveSignedPrescription,
   latestSignedPrescription,
   updateSignedPrescription,
-  removeSignedPrescription,
+  voidSignedPrescription,
 } from "@/lib/prescription/documents";
 import { DeliveryStep } from "./DeliveryStep";
 import { ControlledSigning, controlledSigningReady } from "./ControlledSigning";
@@ -877,18 +877,24 @@ export function AiPrescription({
     });
   };
 
-  const withdrawSignature = () => {
-    if (rx.documentId) removeSignedPrescription(rx.documentId);
-    audit("unlocked", { detail: "Signature withdrawn; the signed document was removed." });
-    patch({
-      finalisedAt: undefined,
-      finalisedBy: undefined,
-      legalAcknowledgedAt: undefined,
-      signature: undefined,
-      documentId: undefined,
-      delivery: undefined,
-    });
+  const [voidOpen, setVoidOpen] = useState(false);
+  const [voidReason, setVoidReason] = useState("");
+
+  // Voiding never deletes the signature or the signed document: the original
+  // prescription and its audit trail are preserved and marked void with a
+  // reason and timestamp.
+  const voidPrescription = (reason: string) => {
+    const at = Date.now();
+    const by = identity.fullName || providerName || undefined;
+    if (rx.documentId) voidSignedPrescription(rx.documentId, { reason, by, at });
+    audit("voided", { detail: `Void reason: ${reason}` });
+    patch({ voided: { at, reason, by } });
     setAuditTick((t) => t + 1);
+    setVoidOpen(false);
+    setVoidReason("");
+    toast.success("Prescription voided", {
+      description: "The signed prescription is preserved in the record and marked void.",
+    });
   };
 
   const status = prescriptionStatus(rx, { readyToSign: canSign });
@@ -1013,9 +1019,22 @@ export function AiPrescription({
   // ---------- Signed ----------
   if (signed) {
     const doc = latestSignedPrescription(appointmentId);
+    const signedControlled = rx.medications.some(
+      (m) => m.controlled && m.name.trim().length > 0,
+    );
     return (
       <section className="text-[#2C2B4B]">
         {header}
+        {rx.voided && (
+          <div className="mb-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#9B4A4A]">Prescription voided</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5C3B3B]">
+              Voided {new Date(rx.voided.at).toLocaleString()}
+              {rx.voided.by ? ` by ${rx.voided.by}` : ""} · Reason: {rx.voided.reason}. The original
+              signed prescription and its audit trail are preserved.
+            </p>
+          </div>
+        )}
         <div className="mb-3 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 py-3.5">
           <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#3D2E6B]">
             <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Signed prescription
@@ -1023,12 +1042,14 @@ export function AiPrescription({
           </p>
           <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
             Signed {new Date(rx.finalisedAt!).toLocaleString()}
-            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""} · {credentialSummary(identity, country)}{" "}
+            {rx.finalisedBy ? ` by ${rx.finalisedBy}` : ""} ·{" "}
+            {credentialSummary(identity, country, { controlled: signedControlled })}{" "}
             · {JURISDICTION_LABEL[country]} · Version {rx.version ?? 1}. Saved as its own signed
             clinical document in {clientName || "the patient"}&rsquo;s medication and prescription
             record — it is not part of the session summary.
           </p>
         </div>
+        {!rx.voided && (
         <div className="mb-3">
           <DeliveryStep
             rx={rx}
@@ -1038,6 +1059,7 @@ export function AiPrescription({
             onGiveToPatient={giveCopyToPatient}
           />
         </div>
+        )}
         <FinalReviewBody
           rx={rx}
           country={country}
@@ -1045,8 +1067,9 @@ export function AiPrescription({
           providerName={identity.fullName || providerName}
           identity={identity}
           locked
+          collapsed
         />
-        <AuditTrail appointmentId={appointmentId} tick={auditTick} />
+        <AuditTrail appointmentId={appointmentId} tick={auditTick} collapsed />
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
           <p className="mr-auto text-[12.5px] text-[#5A4A8A]">
             {statusLabel}
@@ -1065,14 +1088,51 @@ export function AiPrescription({
           >
             <Printer className="h-4 w-4" /> Print
           </button>
-          <button
-            type="button"
-            onClick={withdrawSignature}
-            className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
-          >
-            <Lock className="h-4 w-4" /> Withdraw signature
-          </button>
+          {!rx.voided && (
+            <button
+              type="button"
+              onClick={() => setVoidOpen((v) => !v)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+            >
+              <Lock className="h-4 w-4" /> Void prescription
+            </button>
+          )}
         </div>
+        {voidOpen && !rx.voided && (
+          <div className="mt-2 rounded-xl border border-[#E4E1EC] bg-white px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#2C2B4B]">Void this prescription</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+              The signature and the signed document are kept in the patient record and in the audit
+              trail. Voiding only marks the prescription as no longer valid to dispense.
+            </p>
+            <label className="mt-2.5 block text-[12px] font-medium text-[#5A4A8A]">
+              Reason for voiding
+              <input
+                value={voidReason}
+                onChange={(e) => setVoidReason(e.target.value)}
+                placeholder="e.g. Wrong strength issued — replacement prescription to follow"
+                className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+              />
+            </label>
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={voidReason.trim().length < 4}
+                onClick={() => voidPrescription(voidReason.trim())}
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Void prescription
+              </button>
+              <button
+                type="button"
+                onClick={() => setVoidOpen(false)}
+                className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F7F5FB]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     );
   }
@@ -1242,6 +1302,7 @@ export function AiPrescription({
             onEdit={setEditIdentity}
             locked={lockedIdentityKeys}
             verifiedAt={record?.verifiedAt}
+            controlled={rx.medications.some((m) => m.controlled && m.name.trim().length > 0)}
             onChange={(next) => {
               setIdentity(next);
               saveIdentity(next);
@@ -1690,7 +1751,7 @@ function StickyBar({
   children,
   tone = "light",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: "light" | "dark";
 }) {
   return (
@@ -3155,6 +3216,7 @@ function FinalReviewBody({
   providerName,
   identity,
   locked,
+  collapsed,
 }: {
   rx: Prescription;
   country: RxCountry;
@@ -3162,13 +3224,16 @@ function FinalReviewBody({
   providerName?: string;
   identity: PrescriberIdentity;
   locked?: boolean;
+  /** After signing the primary task is delivery, so the repeated review
+   *  sections start collapsed. */
+  collapsed?: boolean;
 }) {
   const age = patientAge(rx.patientInfo);
+  const controlled = rx.medications.some((m) => m.controlled && m.name.trim().length > 0);
   return (
     <div className="space-y-3">
-      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Complete prescription</h3>
-        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
+      <FoldSection title="Complete prescription" collapsed={collapsed}>
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
           <Row label="Patient" value={clientName || "—"} />
           <Row
             label="Age and sex"
@@ -3177,7 +3242,7 @@ function FinalReviewBody({
               .join(" · ")}
           />
           <Row label="Prescriber" value={providerName || "—"} />
-          <Row label="Credentials" value={credentialSummary(identity, country)} />
+          <Row label="Credentials" value={credentialSummary(identity, country, { controlled })} />
           <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
           <Row
             label="Clinical review"
@@ -3189,11 +3254,10 @@ function FinalReviewBody({
             })()}
           />
         </dl>
-      </section>
+      </FoldSection>
 
-      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medications and directions</h3>
-        <ul className="mt-3 space-y-3">
+      <FoldSection title="Medications and directions" collapsed={collapsed}>
+        <ul className="space-y-3">
           {rx.medications.map((m) => (
             <li key={m.id} className="border-t border-[#EDEBF3] pt-3 first:border-t-0 first:pt-0">
               <p className="text-[13.5px] font-semibold text-[#2C2B4B]">
@@ -3211,8 +3275,9 @@ function FinalReviewBody({
             </li>
           ))}
         </ul>
-      </section>
+      </FoldSection>
 
+      {!collapsed && (
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Delivery</h3>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -3222,7 +3287,38 @@ function FinalReviewBody({
             : "Delivery is chosen after signing, so a signed document is never changed to reroute it."}
         </p>
       </section>
+      )}
     </div>
+  );
+}
+
+/** Section that is a plain card while editing and a collapsed fold once the
+ *  prescription is signed. */
+function FoldSection({
+  title,
+  collapsed,
+  children,
+}: {
+  title: string;
+  collapsed?: boolean;
+  children: React.ReactNode;
+}) {
+  if (!collapsed) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">{title}</h3>
+        <div className="mt-3">{children}</div>
+      </section>
+    );
+  }
+  return (
+    <details className="group rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-[13.5px] font-semibold text-[#2C2B4B]">
+        {title}
+        <ChevronDown className="h-4 w-4 flex-none text-[#8A7FB0] transition group-open:rotate-180" />
+      </summary>
+      <div className="mt-3">{children}</div>
+    </details>
   );
 }
 
@@ -3242,13 +3338,19 @@ function sexLabel(sex?: PatientSafetyInfo["sex"]): string {
 }
 
 /** Immutable record of who signed, under which authority and where it went. */
-function AuditTrail({ appointmentId, tick }: { appointmentId: string; tick: number }) {
+function AuditTrail({
+  appointmentId,
+  tick,
+  collapsed,
+}: {
+  appointmentId: string;
+  tick: number;
+  collapsed?: boolean;
+}) {
   const events = useMemo(() => loadRxAudit(appointmentId), [appointmentId, tick]);
   if (events.length === 0) return null;
-  return (
-    <section className="mt-3 rounded-xl border border-[#E4E1EC] bg-white p-4">
-      <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Audit log</h3>
-      <ul className="mt-2.5 space-y-2.5">
+  const list = (
+      <ul className="space-y-2.5">
         {events.map((e) => (
           <li key={e.id} className="border-t border-[#EDEBF3] pt-2.5 first:border-t-0 first:pt-0">
             <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -3265,6 +3367,12 @@ function AuditTrail({ appointmentId, tick }: { appointmentId: string; tick: numb
           </li>
         ))}
       </ul>
+  );
+  return (
+    <section className="mt-3">
+      <FoldSection title="Audit log" collapsed={collapsed}>
+        {list}
+      </FoldSection>
     </section>
   );
 }
@@ -3278,6 +3386,7 @@ function IdentityCard({
   onChange,
   locked,
   verifiedAt,
+  controlled,
 }: {
   identity: PrescriberIdentity;
   country: RxCountry;
@@ -3287,8 +3396,14 @@ function IdentityCard({
   /** Field keys supplied by Lubin's verification record. */
   locked?: Set<string>;
   verifiedAt?: number;
+  /** Controlled / dangerous-drug credentials (PH S2, US DEA) only appear when
+   *  this prescription actually uses that pathway. */
+  controlled?: boolean;
 }) {
-  const fields = IDENTITY_FIELDS[country];
+  const controlledKeys = new Set(["s2Number", "s2SerialNumber", "deaNumber"]);
+  const fields = IDENTITY_FIELDS[country].filter(
+    (f) => controlled || !controlledKeys.has(String(f.key)),
+  );
   const missing = missingIdentityFields(identity, country);
   const lockedKeys = locked ?? new Set<string>();
   const editableFields = fields.filter((f) => !lockedKeys.has(String(f.key)));

@@ -147,12 +147,27 @@ export function missingIdentityFields(id: PrescriberIdentity, country: RxCountry
     .map((f) => f.label);
 }
 
-/** Credentials recorded in the audit log alongside the signature. */
-export function credentialSummary(id: PrescriberIdentity, country: RxCountry): string {
+/** Credentials recorded in the audit log alongside the signature.
+ *  Controlled-drug credentials (PH S2, US DEA) are only relevant when the
+ *  prescription itself uses the controlled / dangerous-drug pathway, so pass
+ *  `{ controlled: false }` to keep them off a standard prescription. */
+export function credentialSummary(
+  id: PrescriberIdentity,
+  country: RxCountry,
+  opts?: { controlled?: boolean },
+): string {
+  const showControlled = opts?.controlled !== false;
   const parts =
     country === "PH"
-      ? [id.prcNumber && `PRC ${id.prcNumber}`, id.ptrNumber && `PTR ${id.ptrNumber}`, id.s2Number && `S2 ${id.s2Number}`]
-      : [id.npiNumber && `NPI ${id.npiNumber}`, id.deaNumber && `DEA ${id.deaNumber}`];
+      ? [
+          id.prcNumber && `PRC ${id.prcNumber}`,
+          id.ptrNumber && `PTR ${id.ptrNumber}`,
+          showControlled && id.s2Number && `S2 ${id.s2Number}`,
+        ]
+      : [
+          id.npiNumber && `NPI ${id.npiNumber}`,
+          showControlled && id.deaNumber && `DEA ${id.deaNumber}`,
+        ];
   return parts.filter(Boolean).join(" · ") || "No credentials on file";
 }
 

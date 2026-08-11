@@ -328,6 +328,9 @@ export type Prescription = {
   };
   /** Set when a signed prescription was edited, voiding its signature. */
   signatureInvalidatedAt?: number;
+  /** Set when the prescriber voided the prescription. The signature and the
+   *  signed document are preserved; the prescription is marked void. */
+  voided?: { at: number; reason: string; by?: string };
   /** Content hash of the prescription that was signed, kept for comparison. */
   signedHash?: string;
   /** Increments whenever medications or directions change after a signature. */
