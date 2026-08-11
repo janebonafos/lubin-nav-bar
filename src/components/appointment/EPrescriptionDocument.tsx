@@ -182,57 +182,69 @@ export function EPrescriptionDocument({
                 </p>
               </div>
             </div>
-            <div className="relative mt-6 grid gap-x-8 gap-y-4 border-t border-white/15 pt-5 sm:grid-cols-2">
-              <div>
-                <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-white/60">
-                  Patient
-                </p>
-                <p className="text-[18px] font-bold leading-tight">
-                  {clientName || "—"}
-                </p>
-                <p className="text-[12px] text-white/70">
-                  DOB:{" "}
-                  {dob
-                    ? `${dob}${age !== null ? ` (${age} years)` : ""}`
-                    : age !== null
-                      ? `not documented · estimated age ${age} years`
-                      : "not documented"}
-                </p>
-                {(country === "US" || address) && (
-                  <p className="text-[12px] text-white/70">
-                    Address: {address || "not documented"}
-                  </p>
-                )}
-                <p className="text-[12px] text-white/70">Sex: {sex}</p>
-              </div>
-              <div className="sm:text-right">
-                <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-white/60">
-                  Prescriber
-                </p>
-                <p className="text-[14px] font-semibold leading-tight">
-                  {prescriberName}
-                </p>
-                <p className="text-[12px] text-white/70">
-                  {country === "PH"
-                    ? identity.prcNumber
-                      ? `PRC ${identity.prcNumber}`
-                      : "Credentials incomplete"
-                    : identity.npiNumber
-                      ? `NPI ${identity.npiNumber}`
-                      : "Credentials incomplete"}
-                </p>
-                <p className="text-[12px] text-white/70">
-                  Issued in {JURISDICTION_LABEL[country]}
-                </p>
-              </div>
-            </div>
           </header>
+
+          {/* Identity grid */}
+          <section className="grid gap-8 border-b border-[#EDEBF3] px-7 py-7 sm:grid-cols-2 sm:gap-12">
+            <div>
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+                Patient information
+              </h2>
+              <p className="mt-3 text-[18px] font-bold leading-tight text-[#2C2B4B]">
+                {clientName || "—"}
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-[13px] text-[#6F6889]">
+                {age !== null && <span>{age} years old</span>}
+                {age !== null && <span className="text-[#D9D5E3]">|</span>}
+                <span>{sex}</span>
+              </div>
+              <p className="mt-1 text-[12px] text-[#8A7FB0]">
+                DOB: {dob || "not documented"}
+              </p>
+              {(country === "US" || address) && (
+                <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
+                  Address: {address || "not documented"}
+                </p>
+              )}
+            </div>
+            <div>
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+                Prescribing professional
+              </h2>
+              <p className="mt-3 text-[14px] font-bold text-[#2C2B4B]">
+                {prescriberName}
+              </p>
+              <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
+                {country === "PH"
+                  ? identity.prcNumber
+                    ? `PRC ${identity.prcNumber}${identity.ptrNumber ? ` | PTR ${identity.ptrNumber}` : ""}`
+                    : "Credentials incomplete"
+                  : identity.npiNumber
+                    ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}` : ""}`
+                    : "Credentials incomplete"}
+                {identity.clinicAddress.trim() && (
+                  <>
+                    <br />
+                    {identity.clinicAddress.trim()}
+                  </>
+                )}
+                <br />
+                Issued in {JURISDICTION_LABEL[country]}
+              </p>
+              {identity.clinicContact.trim() && (
+                <p className="mt-1 text-[11.5px] font-medium text-[#6E4FD3]">
+                  {identity.clinicContact.trim()}
+                </p>
+              )}
+            </div>
+          </section>
 
           {/* Medications */}
           <section className="px-7 py-7">
             <div className="flex items-center gap-3">
-              <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
-                Your medication{meds.length > 1 ? "s" : ""}
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+                Prescribed medication{meds.length > 1 ? "s" : ""}
+                {meds.length > 0 ? ` (${meds.length})` : ""}
               </h2>
               <span className="h-px flex-1 bg-[#EDEBF3]" />
             </div>
@@ -241,54 +253,80 @@ export function EPrescriptionDocument({
                 No medication has been added yet.
               </p>
             ) : (
-              <ol className="mt-4 space-y-5">
+              <ol className="mt-4 space-y-6">
                 {meds.map((m, i) => (
                   <li
                     key={m.id}
-                    className="relative overflow-hidden rounded-[18px] border border-[#EAE5F6] bg-[#FBFAFE] p-5"
+                    className="relative overflow-hidden rounded-[18px] border border-[#EAE5F6] bg-[#FBFAFE] p-6"
                   >
-                    <span className="absolute left-0 top-0 h-full w-1 bg-[#6E4FD3]" />
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#EFE8FB] text-[11.5px] font-bold leading-none text-[#3D2E6B]">
-                        {i + 1}
-                      </span>
+                    <span className="absolute right-0 top-0 rounded-bl-[10px] bg-[#EFE8FB] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#3D2E6B]">
+                      Item {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="flex flex-wrap items-start justify-between gap-4 pr-16">
                       <div className="min-w-0">
-                        <p className="text-[16px] font-bold leading-snug text-[#2C2B4B]">
-                          {m.genericName || m.name} {m.strength || m.dose}
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6E4FD3]">
+                          Generic name
+                        </p>
+                        <p className="mt-1 text-[19px] font-bold leading-snug text-[#2C2B4B]">
+                          {m.genericName || m.name}
                         </p>
                         {m.genericName && m.genericName !== m.name && (
-                          <p className="mt-0.5 text-[12.5px] text-[#6F6889]">
+                          <p className="text-[12.5px] text-[#6F6889]">
                             Brand name: {m.name}
                           </p>
                         )}
-                        {m.controlled && (
-                          <p className="mt-2 inline-flex rounded-full bg-[#EFE8FB] px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B]">
-                            {country === "PH"
-                              ? "Dangerous drug — official special prescription form required"
-                              : "Controlled substance — DEA registration and EPCS signing required"}
-                          </p>
-                        )}
+                      </div>
+                      <div className="sm:text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A79FC4]">
+                          Quantity
+                        </p>
+                        <p className="mt-1 text-[17px] font-bold text-[#2C2B4B]">
+                          {m.quantity || "Not specified"}
+                        </p>
                       </div>
                     </div>
+                    {m.controlled && (
+                      <p className="mt-3 inline-flex rounded-full bg-[#EFE8FB] px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B]">
+                        {country === "PH"
+                          ? "Dangerous drug — official special prescription form required"
+                          : "Controlled substance — DEA registration and EPCS signing required"}
+                      </p>
+                    )}
 
-                    <p className="mt-4 rounded-[14px] border border-[#E4DDF5] bg-white px-4 py-3 text-[13.5px] leading-relaxed text-[#3D2E6B]">
-                      <span className="font-semibold">How to take it: </span>
-                      {m.instructions || "Follow your prescriber's directions."}
-                    </p>
-
-                    <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+                    <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+                      <Stat label="Strength" value={m.strength || m.dose || "As directed"} />
                       <Stat label="Route" value={m.route || "As directed"} />
                       <Stat label="Frequency" value={m.frequency || "As directed"} />
                       <Stat label="Duration" value={m.duration || "As directed"} />
-                      <Stat label="Quantity" value={m.quantity || "Not specified"} />
-                      <Stat label="Refills" value={String(refillCount(m.refills))} />
-                      {m.indication && (
-                        <Stat label="Indication" value={m.indication} />
-                      )}
                     </dl>
-                    <p className="mt-4 text-[11.5px] leading-relaxed text-[#6F6889]">
-                      {refillNote(m.refills)}
-                    </p>
+
+                    <div className="mt-5 border-t border-[#EAE5F6] pt-5">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A79FC4]">
+                        Patient instructions
+                      </p>
+                      <p className="mt-2 rounded-[12px] border border-[#E4DDF5] bg-white px-4 py-3 text-[13.5px] italic leading-relaxed text-[#3D2E6B]">
+                        {m.instructions || "Follow your prescriber's directions."}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[11.5px] text-[#6F6889]">
+                        <span>
+                          <span className="font-bold uppercase tracking-[0.1em] text-[#A79FC4]">
+                            Refills:{" "}
+                          </span>
+                          {refillCount(m.refills)}
+                        </span>
+                        {m.indication && (
+                          <span>
+                            <span className="font-bold uppercase tracking-[0.1em] text-[#A79FC4]">
+                              Indication:{" "}
+                            </span>
+                            {m.indication}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+                        {refillNote(m.refills)}
+                      </p>
+                    </div>
 
                     {m.warnings && (
                       <details className="group mt-4 border-l-2 border-[#DCD3F5] pl-4">
