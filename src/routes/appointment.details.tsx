@@ -314,6 +314,9 @@ function DetailsPage() {
   // prescription exists, a confirm-once warning when an unsigned draft does.
   const [outcomeConflict, setOutcomeConflict] = useState<string | null>(null);
   const [draftWarningFor, setDraftWarningFor] = useState<Outcome | null>(null);
+  // Selecting a non-delivered outcome closes prescribing immediately, before the
+  // appointment is closed, so the provider cannot keep working on medication.
+  const [outcomeNoticeOpen, setOutcomeNoticeOpen] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
