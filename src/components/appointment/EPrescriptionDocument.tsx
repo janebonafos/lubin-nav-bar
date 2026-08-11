@@ -408,8 +408,23 @@ export function EPrescriptionDocument({
           </section>
 
           {/* Signature */}
-          <footer className="border-t border-[#EDEBF3] px-7 py-6">
-            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4">
+          <footer className="grid gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div className="max-w-sm space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+              <p>
+                Take this exactly as written. Questions or side effects — message your
+                prescriber in Lubin. Urgent help — contact local emergency services.
+              </p>
+              {country === "US" && (
+                <p>
+                  Your copy only — the prescription is sent electronically to your pharmacy.
+                </p>
+              )}
+              <p className="text-[10px] text-[#A79FC4]">
+                Computer-generated document. The prescriber's identity is verified through
+                Lubin's prescribing verification.
+              </p>
+            </div>
+            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4 sm:min-w-[280px] sm:text-right">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
               </p>
@@ -446,16 +461,13 @@ export function EPrescriptionDocument({
                 </p>
               )}
             </div>
-            <p className="mt-4 text-[11.5px] leading-relaxed text-[#6F6889]">
-              Take this exactly as written. Questions or side effects — message your
-              prescriber in Lubin. Urgent help — contact local emergency services.
-            </p>
-            {country === "US" && (
-              <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
-                Your copy only — the prescription is sent electronically to your pharmacy.
-              </p>
-            )}
           </footer>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
+            <span>Lubin — patient prescription copy</span>
+            <span>{doc ? `Rx # ${doc.number}` : "Rx # assigned when signed"}</span>
+            <span>Page 1 of 1</span>
+          </div>
         </article>
       </div>
     </div>
