@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Loader2,
   Check,
@@ -1690,7 +1690,7 @@ function StickyBar({
   children,
   tone = "light",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: "light" | "dark";
 }) {
   return (
