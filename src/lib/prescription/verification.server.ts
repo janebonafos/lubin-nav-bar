@@ -32,6 +32,8 @@ export type VerifiedPrescriberRecord = {
   clinicName: string;
   clinicAddress: string;
   clinicContact: string;
+  /** Registered account email that receives signing one-time codes. */
+  accountEmail?: string;
   /** Philippines */
   prcNumber?: string;
   ptrNumber?: string;
@@ -68,6 +70,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "Lubin Psychiatry — Bonifacio Global City",
     clinicAddress: "12th Floor, One Bonifacio High Street, 5th Ave, Taguig City 1634",
     clinicContact: "(02) 8894 1120 · care@lubin.health",
+    accountEmail: "maria.santos@lubin.health",
     prcNumber: "0102934",
     ptrNumber: "PTR-2026-0038211",
     s2Number: "S2-PH-104773",
@@ -88,6 +91,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "Lubin Psychiatry — Makati",
     clinicAddress: "8th Floor, Alveo Financial Tower, 6794 Ayala Ave, Makati City 1226",
     clinicContact: "(02) 8541 2280 · care@lubin.health",
+    accountEmail: "mateo.reyes@lubin.health",
     prcNumber: "0114872",
     ptrNumber: "PTR-2026-0041938",
     s2Number: "S2-PH-118420",
@@ -105,6 +109,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "Lubin Behavioral Health — San Diego",
     clinicAddress: "2650 Camino del Rio N, Suite 305, San Diego, CA 92108",
     clinicContact: "(619) 555 0142 · care@lubin.health",
+    accountEmail: "ana.villaruel@lubin.health",
     licenseNumber: "A-148902",
     licenseState: "California",
     npiNumber: "1487203941",
@@ -125,6 +130,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "Lubin Behavioral Health — Austin",
     clinicAddress: "1201 W 6th St, Suite C200, Austin, TX 78703",
     clinicContact: "(512) 555 0188 · care@lubin.health",
+    accountEmail: "james.whitfield@lubin.health",
     licenseNumber: "TX-K4820",
     licenseState: "Texas",
     npiNumber: "1730254881",
@@ -148,6 +154,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "",
     clinicAddress: "",
     clinicContact: "",
+    accountEmail: "paolo.cruz@lubin.health",
   },
   // Expired credentials: prescribing stays closed, but the provider can still
   // record that no prescription is needed.
@@ -164,6 +171,7 @@ const RECORDS: Record<string, VerifiedPrescriberRecord> = {
     clinicName: "Lubin Psychiatry — Quezon City",
     clinicAddress: "5th Floor, Eton Centris Cyberpod, Quezon Ave, Quezon City 1100",
     clinicContact: "(02) 8721 4410 · care@lubin.health",
+    accountEmail: "lena.ortega@lubin.health",
     prcNumber: "0098221",
   },
 };

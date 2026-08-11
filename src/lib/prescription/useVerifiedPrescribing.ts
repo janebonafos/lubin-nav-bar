@@ -160,6 +160,10 @@ export function applyVerifiedRecord(
       locked.add(key);
     }
   }
+  if (record.accountEmail?.trim()) {
+    next.signingEmail = record.accountEmail.trim();
+    locked.add("signingEmail");
+  }
   if (record.status === "verified" && record.verifiedAt) next.licenseVerifiedAt = record.verifiedAt;
   if (record.deaVerifiedAt) next.deaVerifiedAt = record.deaVerifiedAt;
   if (record.epcsProvider) next.epcsProvider = record.epcsProvider;
