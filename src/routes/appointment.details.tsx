@@ -3,7 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, CalendarClock, Check, ChevronDown, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
+import {
+  ApptNotesBlock,
+  ApptPayoutStatus,
+  type ApptLite,
+} from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
