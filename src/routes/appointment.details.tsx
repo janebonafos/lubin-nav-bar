@@ -1065,8 +1065,11 @@ function DetailsPage() {
                 {isCompleted ? (
                   <>
                     <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
-                      <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
-                      completed.
+                      <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is closed as{" "}
+                      {(
+                        OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
+                      ).toLowerCase()}
+                      .
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       Your appointments list has been updated with the new status and details.
@@ -1097,18 +1100,54 @@ function DetailsPage() {
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       You have gone through your notes, the client summary
-                      {rxAllowed ? " and the prescription step" : ""}. You can close this
-                      appointment now.
+                      {rxAllowed ? " and the prescription step" : ""}. Record what happened with
+                      this appointment to close it.
                     </p>
+                    <div className="mt-4 space-y-2">
+                      {OUTCOMES.map((o) => (
+                        <label
+                          key={o.value}
+                          className={`flex cursor-pointer items-start gap-3 rounded-[14px] border px-3.5 py-3 transition ${
+                            outcomeChoice === o.value
+                              ? "border-[#6E4FD3] bg-[#F7F3FF]"
+                              : "border-[#EAE2F6] bg-white hover:bg-[#FBF9FF]"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="appointment-outcome"
+                            value={o.value}
+                            checked={outcomeChoice === o.value}
+                            onChange={() => setOutcomeChoice(o.value)}
+                            className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-[13.5px] font-semibold text-[#2C2B4B]">
+                              {o.label}
+                            </span>
+                            <span className="mt-0.5 block text-[12.5px] leading-snug text-[#7E6BAF]">
+                              {o.consequence}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                     <button
                       type="button"
+                      disabled={!outcomeChoice}
                       onClick={() => {
-                        onChange({ status: "completed", outcome: "completed" });
-                        toast.success("Appointment marked as completed");
+                        if (!outcomeChoice) return;
+                        const label =
+                          OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
+                        onChange({
+                          status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
+                          outcome: outcomeChoice,
+                        });
+                        toast.success(`Appointment closed as ${label.toLowerCase()}`);
                       }}
-                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
                     >
-                      Mark the appointment as completed
+                      Close this appointment
                     </button>
                   </>
                 ) : (
