@@ -91,9 +91,7 @@ export function SigningDialog({
   const isEpcs = authority.method === "epcs-two-factor";
 
   const [code, setCode] = useState("");
-  const [attested, setAttested] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState(identity.signingEmail ?? "");
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [sent, setSent] = useState<{ masked: string; ttl: number; fallback?: string } | null>(null);
@@ -101,12 +99,14 @@ export function SigningDialog({
   const sendOtp = useServerFn(requestSigningOtp);
   const verifyOtp = useServerFn(verifySigningOtp);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  // The signing address always comes from the verified prescribing account and
+  // can never be edited here.
   const registeredEmail = (identity.signingEmail ?? "").trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registeredEmail);
   const payload = (extra?: { code: string }) => ({
     ...reviewState,
     ...extra,
-    email: email.trim(),
+    email: registeredEmail,
     hash,
     version,
     jurisdiction: country,
@@ -116,7 +116,9 @@ export function SigningDialog({
   const requestCode = async () => {
     setError(null);
     if (!emailValid) {
-      setError("Add the email registered to your prescribing account.");
+      setError(
+        "No verified email is on file for your prescribing account. Update it in prescribing verification before signing.",
+      );
       return;
     }
     setSending(true);
@@ -125,9 +127,6 @@ export function SigningDialog({
       if (!res.ok) {
         setError(res.blockers[0] ?? "Some required review items are still outstanding.");
         return;
-      }
-      if (identity.signingEmail !== email.trim()) {
-        onIdentityChange({ ...identity, signingEmail: email.trim() });
       }
       setSent({ masked: res.maskedEmail, ttl: res.ttlMinutes, fallback: res.fallbackCode });
     } catch {
@@ -138,12 +137,7 @@ export function SigningDialog({
   };
 
   const codeValid = /^\d{6}$/.test(code.trim());
-  const ready =
-    authority.authorised &&
-    attested &&
-    !!sent &&
-    codeValid &&
-    (!isEpcs || epcs.ready);
+  const ready = authority.authorised && !!sent && codeValid && (!isEpcs || epcs.ready);
 
   const sign = async () => {
     setError(null);
@@ -162,7 +156,6 @@ export function SigningDialog({
         ? `${SIGNING_METHOD_LABEL["epcs-two-factor"]} (${epcs.provider})`
         : "Verified with a one-time code sent to the prescriber's registered email";
       setCode("");
-      setAttested(false);
       setSent(null);
       onSigned({ method: authority.method, methodLabel, hash });
     } catch {
