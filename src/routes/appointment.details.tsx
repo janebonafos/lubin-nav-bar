@@ -1092,6 +1092,11 @@ function DetailsPage() {
                         Close
                       </button>
                     </div>
+                    {recordedOutcome !== "provider_no_show" && (
+                      <div className="mt-4">
+                        <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
+                      </div>
+                    )}
                   </>
                 ) : canCloseOut ? (
                   <>
