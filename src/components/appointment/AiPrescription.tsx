@@ -742,6 +742,7 @@ export function AiPrescription({
     const at = Date.now();
     const version = (rx.version ?? 0) + 1;
     const controlled = controlledMeds.length > 0;
+    const validity = prescriptionValidity({ country, controlled, issuedAt: at });
     const doc = saveSignedPrescription({
       appointmentId,
       patientName: clientName || "Patient",
@@ -755,6 +756,8 @@ export function AiPrescription({
       identity,
       medications: namedMeds,
       controlled,
+      validUntil: validity.validUntil,
+      validityLabel: validity.label,
     });
     patch({
       finalisedAt: at,
