@@ -97,11 +97,11 @@ export const IDENTITY_FIELDS: Record<
   PH: [
     { key: "fullName", label: "Prescriber full name", required: true },
     { key: "qualifications", label: "Qualifications", required: false, hint: "e.g. MD, FPPA" },
-    { key: "clinicName", label: "Clinic name", required: true },
-    { key: "clinicAddress", label: "Clinic address", required: true },
+    { key: "clinicName", label: "Practice / clinic name", required: false },
+    { key: "clinicAddress", label: "Professional / practice address", required: true },
     {
       key: "clinicContact",
-      label: "Clinic contact information",
+      label: "Professional contact",
       required: true,
       hint: "Landline, mobile or email printed on the prescription",
     },
@@ -117,9 +117,9 @@ export const IDENTITY_FIELDS: Record<
   US: [
     { key: "fullName", label: "Prescriber full name", required: true },
     { key: "qualifications", label: "Qualifications", required: false, hint: "e.g. MD, DO, NP" },
-    { key: "clinicName", label: "Practice name", required: true },
-    { key: "clinicAddress", label: "Practice address", required: true },
-    { key: "clinicContact", label: "Practice contact information", required: true },
+    { key: "clinicName", label: "Practice / clinic name", required: false },
+    { key: "clinicAddress", label: "Professional / practice address", required: true },
+    { key: "clinicContact", label: "Professional contact", required: true },
     { key: "licenseNumber", label: "State licence number", required: true },
     {
       key: "licenseState",
