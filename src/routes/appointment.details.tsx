@@ -1129,7 +1129,11 @@ function DetailsPage() {
                             name="appointment-outcome"
                             value={o.value}
                             checked={outcomeChoice === o.value}
-                            onChange={() => setOutcomeChoice(o.value)}
+                            onChange={() => {
+                              setOutcomeChoice(o.value);
+                              setOutcomeConflict(null);
+                              setDraftWarningFor(null);
+                            }}
                             className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
                           />
                           <span className="min-w-0">
@@ -1143,11 +1147,49 @@ function DetailsPage() {
                         </label>
                       ))}
                     </div>
+                    {outcomeConflict && (
+                      <div className="mt-3 rounded-[14px] border border-[#E9C3C3] bg-[#FDF4F4] px-3.5 py-3">
+                        <p className="text-[13px] font-semibold text-[#9B4A4A]">
+                          Cannot record this outcome — signed prescription on file
+                        </p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-[#5C3B3B]">
+                          {outcomeConflict}
+                        </p>
+                      </div>
+                    )}
+                    {draftWarningFor && (
+                      <div className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3">
+                        <p className="text-[13px] font-semibold text-[#8A6420]">
+                          Unsigned prescription draft on this appointment
+                        </p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-[#6B5327]">
+                          {UNSIGNED_DRAFT_WARNING} Choose &ldquo;Close this appointment&rdquo; again
+                          to continue.
+                        </p>
+                      </div>
+                    )}
                     <button
                       type="button"
                       disabled={!outcomeChoice}
                       onClick={() => {
                         if (!outcomeChoice) return;
+                        const blocksRx = !!encounterPrescribingBlock(outcomeChoice);
+                        if (blocksRx && rxRecordState.signed) {
+                          setDraftWarningFor(null);
+                          setOutcomeConflict(SIGNED_RX_CONFLICT);
+                          return;
+                        }
+                        if (
+                          blocksRx &&
+                          rxRecordState.unsignedDraft &&
+                          draftWarningFor !== outcomeChoice
+                        ) {
+                          setOutcomeConflict(null);
+                          setDraftWarningFor(outcomeChoice);
+                          return;
+                        }
+                        setOutcomeConflict(null);
+                        setDraftWarningFor(null);
                         const label =
                           OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
                         onChange({
