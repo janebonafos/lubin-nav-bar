@@ -1184,7 +1184,7 @@ function DetailsPage() {
                     {outcomeConflict && (
                       <div className="mt-3 rounded-[14px] border border-[#E9C3C3] bg-[#FDF4F4] px-3.5 py-3">
                         <p className="text-[13px] font-semibold text-[#9B4A4A]">
-                          Cannot record this outcome — signed prescription on file
+                          You cannot record this outcome yet — a signed prescription exists
                         </p>
                         <p className="mt-1 text-[12.5px] leading-snug text-[#5C3B3B]">
                           {outcomeConflict}
@@ -1194,11 +1194,11 @@ function DetailsPage() {
                     {draftWarningFor && (
                       <div className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3">
                         <p className="text-[13px] font-semibold text-[#8A6420]">
-                          Unsigned prescription draft on this appointment
+                          This will void the prescription created for this appointment
                         </p>
                         <p className="mt-1 text-[12.5px] leading-snug text-[#6B5327]">
                           {UNSIGNED_DRAFT_WARNING} Choose &ldquo;Close this appointment&rdquo; again
-                          to continue.
+                          to confirm.
                         </p>
                       </div>
                     )}
