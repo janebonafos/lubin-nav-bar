@@ -533,10 +533,10 @@ function DetailsPage() {
 
   // Sequential gating: 1 → 2 → prescription → close out.
   const step1Done = hasNotes || !!acks.notes;
-  // Prescribing needs actual clinical documentation supporting the medication
-  // decision. Confirming "no private notes" resolves the step for closing the
-  // appointment, but it never unlocks prescribing.
-  const clinicalDocForRx = hasNotes;
+  // Step 1 is a documentation decision: either notes are recorded, or the
+  // provider explicitly recorded that there are none. Either resolves it and
+  // unlocks prescribing.
+  const clinicalDocForRx = hasNotes || !!acks.notes;
   const step2Done = isPublished || !!acks.summary;
   // Prescribing is a profession-bound surface: only a mental-health doctor,
   // psychiatrist or other prescribing profession ever sees the step. For
@@ -549,10 +549,7 @@ function DetailsPage() {
   // the appointment having occurred, verified prescribing authority, the required
   // patient information and the medication clinical review inside the tool.
   const rxLocked = false;
-  // With no private notes recorded, the appointment can only be closed once the
-  // provider has recorded that no prescription is needed.
-  const notesPathOk = hasNotes || !rxShown || rxLifecycle.skipped;
-  const canCloseOut = step1Done && step2Done && rxDone && notesPathOk;
+  const canCloseOut = step1Done && step2Done && rxDone;
 
   if (missing) {
     return (
@@ -781,16 +778,7 @@ function DetailsPage() {
                     })}
                   </ol>
                 </div>
-                {!notesPathOk && !canCloseOut && (
-                  <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
-                    <p className="text-[12px] leading-snug text-[#5A4A8A]">
-                      <span className="font-semibold text-[#3D2E6B]">Next:</span> add your
-                      clinical notes, or record that no prescription is needed.
-                    </p>
-                  </div>
-                )}
-                {(notesPathOk || canCloseOut) && !isCompleted && (
+                {!isCompleted && (
                   <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
                     <p className="text-[12px] leading-snug text-[#5A4A8A]">
@@ -895,9 +883,8 @@ function DetailsPage() {
                 {!hasNotes && !acks.notes && (
                   <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
                     <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      {rxShown
-                        ? "Nothing to record for this session? You can move on, but prescribing stays closed: a prescription needs clinical documentation supporting the medication decision."
-                        : "Nothing to record for this session? You can move on — just confirm it so the step is not left open by accident."}
+                      Nothing to record for this session? You can move on — just confirm it so the
+                      step is not left open by accident. You can still add notes afterwards.
                     </p>
                     <button
                       type="button"
@@ -912,17 +899,12 @@ function DetailsPage() {
                   </div>
                 )}
                 {!hasNotes && acks.notes && (
-                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                  <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
                     <p className="text-[13px] text-[#5A4A8A]">
-                      You recorded that there are no private notes for this session.
+                      You recorded that there are no private notes for this session. If you decide to
+                      document something, use <span className="font-semibold">Add clinical notes</span>{" "}
+                      above and save it — that replaces this. Otherwise it stays as no notes.
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setAck({ notes: false })}
-                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
-                    >
-                      Undo
-                    </button>
                   </div>
                 )}
                 </>
