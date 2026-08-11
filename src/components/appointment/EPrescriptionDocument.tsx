@@ -202,8 +202,19 @@ export function EPrescriptionDocument({
           />
         )}
 
+        {draft && !validityRule.configured && (
+          <Notice
+            title="Validity rule not configured"
+            lines={[
+              `No prescription validity rule is configured for ${JURISDICTION_LABEL[country]}${controlled ? " controlled / dangerous-drug" : ""} prescriptions, so no expiry date can be printed.`,
+              validityRule.legallyRequired
+                ? "A validity period is legally required for this prescription type, so it cannot be issued until the rule is configured."
+                : "The document will show that the validity rule is not configured rather than an assumed date.",
+            ]}
+          />
+        )}
+
         <article className="relative overflow-hidden rounded-[24px] border border-[#E4E1EC] bg-white shadow-[0_24px_60px_-32px_rgba(61,46,107,0.45)] print:rounded-none print:border-0 print:shadow-none">
-          {/* placeholder */}
           {/* Header */}
           <header className="relative overflow-hidden bg-[#3D2E6B] px-7 py-7 text-white">
             <span
