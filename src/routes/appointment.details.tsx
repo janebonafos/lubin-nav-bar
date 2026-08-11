@@ -563,7 +563,7 @@ function DetailsPage() {
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
-  const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxDone = !rxShown || !!encounterBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
