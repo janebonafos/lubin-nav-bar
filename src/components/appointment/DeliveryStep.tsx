@@ -33,16 +33,21 @@ export function DeliveryStep({
 
   if (state === "sent" || state === "given") {
     const pharmacy = findPharmacy(delivery?.pharmacyId);
+    const methodLabel =
+      state === "sent" ? "Sent to pharmacy" : "Signed copy given to patient";
     return (
       <section className="rounded-xl border border-[#CDE8D8] bg-[#F3FAF6] px-4 py-3.5">
         <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2F6B4A]">
-          <Check className="h-4 w-4" /> {DELIVERY_STATE_LABEL[state]}
+          <Check className="h-4 w-4" /> Prescription issued
+        </p>
+        <p className="mt-1 text-[12.5px] font-semibold text-[#2F6B4A]">
+          {methodLabel}
+          {delivery?.at ? ` · ${formatCheckedAt(delivery.at)}` : ""}
         </p>
         <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D6B54]">
           {state === "sent" && pharmacy
             ? `${pharmacyLine(pharmacy)} · ${pharmacy.phone}`
             : `${clientName || "The patient"} received the signed copy in their Lubin account.`}
-          {delivery?.at ? ` Recorded ${formatCheckedAt(delivery.at)}.` : ""}
         </p>
       </section>
     );
@@ -51,7 +56,7 @@ export function DeliveryStep({
   return (
     <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
       <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">
-        Step 2 of signing — choose how this prescription is delivered
+        Delivery — choose how this prescription is delivered
       </h3>
       <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
         The prescription is already signed. Delivery is recorded separately, so the signed document
@@ -127,7 +132,7 @@ export function DeliveryStep({
                 </p>
                 <p className="mt-0.5 text-[11.5px] text-[#6F6889]">
                   {p.phone} · Licence verified {p.verifiedOn}
-                  {p.acceptsControlled ? " · Accepts controlled prescriptions" : ""}
+                  {controlled && p.acceptsControlled ? " · Accepts controlled prescriptions" : ""}
                 </p>
               </button>
             </li>
