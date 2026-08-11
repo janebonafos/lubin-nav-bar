@@ -175,17 +175,26 @@ export function EPrescriptionDocument({
                   alt="Lubin"
                   className="h-7 w-auto brightness-0 invert"
                 />
-                <p className="mt-2 text-[12px] text-white/70">
-                  {identity.clinicName || "Lubin care team"}
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
+                  Prescription
+                </p>
+                <p className="mt-1 text-[13px] text-white/80">
+                  {identity.clinicName.trim() || "Lubin care team"} ·{" "}
+                  {JURISDICTION_LABEL[country]}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
-                  E-prescription
+              <div className="sm:text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">
+                  Rx no.
                 </p>
-                <p className="mt-1 text-[15px] font-semibold">{dateLong}</p>
-                <p className="mt-1 font-mono text-[12px] text-white/70">
-                  {doc ? `Rx # ${doc.number}` : "Rx # assigned when signed"}
+                <p className="mt-1 font-mono text-[20px] font-bold leading-none tracking-tight">
+                  {rxNumber ?? "—"}
+                </p>
+                <p className="mt-2 text-[11.5px] text-white/70">
+                  {rxNumber ? `Date issued ${dateLong}` : "Assigned when signed"}
+                </p>
+                <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-white/55">
+                  Document ID {documentId ?? "pending"}
                 </p>
               </div>
             </div>
