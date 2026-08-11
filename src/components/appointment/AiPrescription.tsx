@@ -1059,6 +1059,15 @@ export function AiPrescription({
     return (
       <section className="text-[#2C2B4B]">
         {header}
+        {encounterBlock && (
+          <div className="mb-3 rounded-xl border border-[#EBD3A6] bg-[#FDF8EE] px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#8A6420]">{encounterBlock.title}</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5327]">
+              {encounterBlock.reason} The signed prescription and its audit history are preserved —
+              use void if it must be withdrawn.
+            </p>
+          </div>
+        )}
         {rx.voided && (
           <div className="mb-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3.5">
             <p className="text-[13px] font-semibold text-[#9B4A4A]">Prescription voided</p>
