@@ -1561,12 +1561,20 @@ export function AppointmentsSection() {
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
 
-  // Sessions read as "Completed" only after the provider marks them completed.
+  // The pill reflects the recorded outcome, so an item inside the Completed tab
+  // never reads as "confirmed".
+  const OUTCOME_LABEL: Record<NonNullable<Appt["outcome"]>, string> = {
+    completed: "completed",
+    client_no_show: "client no-show",
+    provider_no_show: "provider no-show",
+    cancelled: "cancelled",
+    rescheduled: "rescheduled",
+  };
   const statusLabel = (a: Appt) =>
-    a.status === "completed" && !a.publishedFollowUp ? "confirmed" : a.status;
+    a.status === "completed" && a.outcome ? OUTCOME_LABEL[a.outcome] : a.status;
   const statusTone = (a: Appt) =>
-    a.status === "completed" && !a.publishedFollowUp
-      ? statusStyle.upcoming
+    a.status === "completed" && a.outcome && a.outcome !== "completed"
+      ? statusStyle.cancelled
       : statusStyle[a.status];
 
   if (loading) {
