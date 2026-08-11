@@ -165,7 +165,7 @@ export function prescribingAuthority(args: {
   const pushPrescriberDetails = () =>
     checks.push({
       key: "prescriber-print-details",
-      label: "Prescriber details required on an issued prescription",
+      label: "Required professional / practice information complete",
       ok: printGaps.length === 0,
       detail:
         printGaps.length === 0
