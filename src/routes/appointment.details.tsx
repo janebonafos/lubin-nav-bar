@@ -1251,52 +1251,63 @@ function DetailsPage() {
         </div>
       </div>
 
-      {/* Prescribing not applicable for the selected outcome */}
-      <Dialog open={outcomeNoticeOpen && !!pendingBlock} onOpenChange={setOutcomeNoticeOpen}>
+      {/* Confirm the appointment outcome */}
+      <Dialog open={outcomeNoticeOpen && !!noticeCopy} onOpenChange={setOutcomeNoticeOpen}>
         <DialogContent className="max-w-[452px] overflow-hidden p-0">
           <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-5 py-4">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6E4FD3]">
-              <Ban className="h-3.5 w-3.5" /> Prescription not applicable
+              {noticeSignedConflict && <Ban className="h-3.5 w-3.5" />}
+              {noticeSignedConflict ? SIGNED_RX_MODAL.eyebrow : noticeCopy?.eyebrow}
             </span>
             <DialogHeader className="mt-2.5 space-y-1 text-left">
               <DialogTitle className="text-[16.5px] font-bold leading-snug text-[#2C2B4B]">
-                {pendingOutcomeLabel} means no prescription can be issued
+                {noticeSignedConflict ? SIGNED_RX_MODAL.title : noticeCopy?.title}
               </DialogTitle>
               <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
-                {pendingBlock?.reason}
+                {noticeSignedConflict
+                  ? SIGNED_RX_MODAL.description
+                  : noticeCopy?.primaryDescription}
               </DialogDescription>
             </DialogHeader>
           </div>
           <div className="px-5 py-4">
-            <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
-              Step 3 is greyed out and marked{" "}
-              <span className="font-semibold text-[#3D2E6B]">Not applicable</span> while this
-              outcome is selected. Anything you drafted is kept but cannot be signed or sent from
-              this appointment.
-            </p>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-[#7E6BAF]">
-              Nothing is recorded yet — you still close the appointment yourself at the bottom of
-              the page.
-            </p>
+            {!noticeSignedConflict && (
+              <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+                {noticeCopy?.secondaryDescription}
+              </p>
+            )}
+            {noticeDraftWarning && (
+              <p className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#6B5327]">
+                {UNSIGNED_DRAFT_WARNING}
+              </p>
+            )}
             <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
-                  setOutcomeChoice("completed");
+                  setOutcomeChoice(recordedOutcome ?? null);
                   setOutcomeConflict(null);
                   setDraftWarningFor(null);
                   setOutcomeNoticeOpen(false);
                 }}
                 className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
               >
-                Go back
+                {noticeSignedConflict ? SIGNED_RX_MODAL.secondaryButton : noticeCopy?.secondaryButton}
               </button>
               <button
                 type="button"
-                onClick={() => setOutcomeNoticeOpen(false)}
+                onClick={() => {
+                  if (noticeSignedConflict) {
+                    setOutcomeChoice(recordedOutcome ?? null);
+                    setOutcomeNoticeOpen(false);
+                    setOpenStep("prescriptions");
+                    return;
+                  }
+                  setOutcomeNoticeOpen(false);
+                }}
                 className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                Mark as {pendingOutcomeLabel.toLowerCase()}
+                {noticeSignedConflict ? SIGNED_RX_MODAL.primaryButton : noticeCopy?.primaryButton}
               </button>
             </div>
           </div>
