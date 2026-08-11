@@ -440,24 +440,30 @@ export function EPrescriptionDocument({
                 Lubin's prescribing verification.
               </p>
             </div>
-            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4 sm:min-w-[280px] sm:text-right">
+            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4 sm:min-w-[300px] sm:text-right">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
               </p>
               {signed ? (
                 <>
-                  <p className="mt-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+                  <p className="mt-2 border-b border-[#EDEBF3] pb-2 text-[14px] font-bold text-[#2C2B4B]">
                     {withDoctorTitle(
                       identity.fullName || rx.finalisedBy || providerName || "your prescriber",
                     )}
                     {identity.qualifications ? `, ${identity.qualifications}` : ""}
                   </p>
-                  <p className="mt-1 text-[12px] text-[#6F6889]">
-                    {signedStamp}
+                  <p className="mt-2 text-[12px] text-[#6F6889]">
+                    Signed {signedStamp}
+                    {timeZone ? ` (${timeZone})` : ""}
                   </p>
-                  {doc && (
-                    <p className="mt-1 font-mono text-[12px] text-[#6F6889]">
-                      Rx # {doc.number}
+                  {rxNumber && (
+                    <p className="mt-1 font-mono text-[12px] font-semibold text-[#2C2B4B]">
+                      Rx # {rxNumber}
+                    </p>
+                  )}
+                  {documentId && (
+                    <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#A79FC4]">
+                      Document ID {documentId}
                     </p>
                   )}
                   {rx.signature?.credentials && (
@@ -472,16 +478,24 @@ export function EPrescriptionDocument({
                   )}
                 </>
               ) : (
-                <p className="mt-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-                  This copy is not signed yet.
-                </p>
+                <>
+                  <p className="mt-2 border-b border-dashed border-[#D9D5E3] pb-6" />
+                  <p className="mt-2 text-[12.5px] font-semibold text-[#2C2B4B]">
+                    This copy is not signed yet.
+                  </p>
+                  <p className="mt-1 text-[11.5px] text-[#6F6889]">
+                    The prescriber's name, signing date and time, timezone and Rx
+                    number appear here once the prescription is signed.
+                  </p>
+                </>
               )}
             </div>
           </footer>
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
-            <span>{doc ? `Rx # ${doc.number}` : "Rx # assigned when signed"}</span>
+            <span>{rxNumber ? `Rx # ${rxNumber}` : "Rx # assigned when signed"}</span>
+            <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
             <span>Page 1 of 1</span>
           </div>
         </article>
