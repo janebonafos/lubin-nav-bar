@@ -171,9 +171,8 @@ export function stepGaps(app: VerificationApplication, step: StepId): string[] {
     }
   }
   if (step === "practice") {
-    if (!app.clinicName.trim()) gaps.push("Practice or clinic name");
-    if (!app.clinicAddress.trim()) gaps.push("Practice address");
-    if (!app.clinicContact.trim()) gaps.push("Practice contact number or email");
+    if (!app.clinicAddress.trim()) gaps.push("Professional / practice address");
+    if (!app.clinicContact.trim()) gaps.push("Professional contact number or email");
   }
   if (step === "attest") {
     if (!app.attestTrue) gaps.push("Confirm the information is true and current");
