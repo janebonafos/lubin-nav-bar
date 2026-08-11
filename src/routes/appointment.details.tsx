@@ -77,31 +77,31 @@ const OUTCOMES: {
     value: "completed",
     label: "Completed",
     consequence:
-      "The scheduled clinical encounter took place and the visit is finished. Your notes, client summary and any prescription decision remain part of the appointment record.",
+      "The clinical encounter took place and the visit is finished. Prescribing stays open, so a prescription created here can be signed, issued and received by the client.",
   },
   {
     value: "client_no_show",
     label: "Client no-show",
     consequence:
-      "The client did not attend and a clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
+      "The client did not attend and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "provider_no_show",
     label: "Provider no-show",
     consequence:
-      "The scheduled clinical encounter did not take place because the provider was unavailable. The prescription step will be marked Not applicable for this appointment.",
+      "The encounter did not take place because the provider was unavailable. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "cancelled",
     label: "Cancelled",
     consequence:
-      "The appointment was cancelled and the scheduled clinical encounter did not take place. The prescription step will be marked Not applicable for this appointment.",
+      "The appointment was cancelled and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
   },
   {
     value: "rescheduled",
     label: "Rescheduled",
     consequence:
-      "This appointment will not take place at the original date or time and a new appointment will be scheduled instead. Prescribing can be completed from the rescheduled encounter if clinically appropriate.",
+      "A new appointment will be scheduled instead. Any prescription created here is voided for this encounter, and prescribing can be completed again from the rescheduled appointment.",
   },
 ];
 
