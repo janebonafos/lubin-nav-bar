@@ -216,14 +216,16 @@ export function EPrescriptionDocument({
                   {rxNumber ?? "Pending"}
                 </p>
                 <p className="mt-2 text-[11.5px] text-white/70">
-                  {rxNumber ? `Date issued ${dateLong}` : "Assigned when signed"}
+                  {rxNumber
+                    ? `Date issued ${dateLong}`
+                    : `Date prepared ${dateLong} · assigned when signed`}
                 </p>
               </div>
             </div>
           </header>
 
           {/* Identity grid */}
-          <section className="grid gap-6 border-b border-[#EDEBF3] px-7 py-5 sm:grid-cols-2 sm:gap-10">
+          <section className="grid gap-5 border-b border-[#EDEBF3] px-7 py-4 sm:grid-cols-2 sm:gap-10">
             <div>
               <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Patient information
@@ -346,7 +348,7 @@ export function EPrescriptionDocument({
                       <Stat label="Duration" value={m.duration || "As directed"} />
                     </dl>
 
-                    <div className="mt-4 border-t border-[#F1EDF9] pt-4">
+                    <div className="mt-6 border-t border-[#F1EDF9] pt-5">
                       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A79FC4]">
                         Patient instructions
                       </p>
@@ -369,9 +371,6 @@ export function EPrescriptionDocument({
                           </span>
                         )}
                       </div>
-                      <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
-                        {refillNote(m.refills)}
-                      </p>
                     </div>
 
                     {m.warnings && (
