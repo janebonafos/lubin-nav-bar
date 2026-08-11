@@ -419,15 +419,6 @@ export function SigningDialog({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <dt className="min-w-[92px] flex-none text-[#8A7FB0]">{label}</dt>
-      <dd className="font-medium text-[#2C2B4B]">{value}</dd>
-    </div>
-  );
-}
-
 /** m•••••@clinic.com — enough for the prescriber to recognise, not to expose. */
 function maskEmail(value: string): string {
   const [local, domain] = value.split("@");
@@ -436,7 +427,7 @@ function maskEmail(value: string): string {
   return `${head}${"•".repeat(Math.max(3, Math.min(6, local.length - 1)))}@${domain}`;
 }
 
-function RowLegacy({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
       <dt className="min-w-[104px] shrink-0 text-[#8A7FB0]">{label}</dt>
