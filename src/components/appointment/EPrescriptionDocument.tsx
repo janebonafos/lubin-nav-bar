@@ -466,7 +466,6 @@ export function EPrescriptionDocument({
                       {signedDate} · {signedTime} {signedTz}
                     </span>
                   )}
-                  {rx.signature?.methodLabel && <span>{rx.signature.methodLabel}</span>}
                   {rxNumber && <span>Rx # {rxNumber}</span>}
                 </div>
               ) : (
