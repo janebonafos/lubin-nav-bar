@@ -778,16 +778,7 @@ function DetailsPage() {
                     })}
                   </ol>
                 </div>
-                {!notesPathOk && !canCloseOut && (
-                  <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
-                    <p className="text-[12px] leading-snug text-[#5A4A8A]">
-                      <span className="font-semibold text-[#3D2E6B]">Next:</span> add your
-                      clinical notes, or record that no prescription is needed.
-                    </p>
-                  </div>
-                )}
-                {(notesPathOk || canCloseOut) && !isCompleted && (
+                {!isCompleted && (
                   <div className="flex items-center gap-3 border-t border-[#F0EAFA] bg-[#FBF9FF] px-5 py-3.5 md:px-6">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E4FD3]" />
                     <p className="text-[12px] leading-snug text-[#5A4A8A]">
