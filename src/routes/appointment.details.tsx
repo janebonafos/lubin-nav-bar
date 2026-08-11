@@ -595,7 +595,7 @@ function DetailsPage() {
         ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
         : "Completed"
       : showPostSession
-        ? "Session ended · Follow-up in progress"
+        ? "Session ended · Notes pending"
         : "Confirmed";
 
   return (
