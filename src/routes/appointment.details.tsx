@@ -483,6 +483,18 @@ function DetailsPage() {
   }, [appt?.id, rxTick]);
   const rxStatus = rxLifecycle.label;
 
+  // Prescription lifecycle facts that constrain which outcomes may be recorded.
+  const rxRecordState = useMemo(() => {
+    if (!appt?.id) return { signed: false, unsignedDraft: false };
+    const rx = loadPrescription(appt.id);
+    const named = rx.medications.filter((m) => m.name.trim().length > 0);
+    return {
+      signed: !!rx.finalisedAt,
+      unsignedDraft: !rx.finalisedAt && named.length > 0,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt?.id, rxTick]);
+
   const sharedSummaryLine = useMemo(() => {
     if (!appt?.id) return null;
     const grant = getAnyProviderGrant(appt.id);
