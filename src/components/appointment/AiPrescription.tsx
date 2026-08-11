@@ -3155,6 +3155,7 @@ function FinalReviewBody({
   providerName,
   identity,
   locked,
+  collapsed,
 }: {
   rx: Prescription;
   country: RxCountry;
@@ -3162,13 +3163,16 @@ function FinalReviewBody({
   providerName?: string;
   identity: PrescriberIdentity;
   locked?: boolean;
+  /** After signing the primary task is delivery, so the repeated review
+   *  sections start collapsed. */
+  collapsed?: boolean;
 }) {
   const age = patientAge(rx.patientInfo);
+  const controlled = rx.medications.some((m) => m.controlled && m.name.trim().length > 0);
   return (
     <div className="space-y-3">
-      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Complete prescription</h3>
-        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
+      <FoldSection title="Complete prescription" collapsed={collapsed}>
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
           <Row label="Patient" value={clientName || "—"} />
           <Row
             label="Age and sex"
@@ -3177,7 +3181,7 @@ function FinalReviewBody({
               .join(" · ")}
           />
           <Row label="Prescriber" value={providerName || "—"} />
-          <Row label="Credentials" value={credentialSummary(identity, country)} />
+          <Row label="Credentials" value={credentialSummary(identity, country, { controlled })} />
           <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
           <Row
             label="Clinical review"
@@ -3189,11 +3193,10 @@ function FinalReviewBody({
             })()}
           />
         </dl>
-      </section>
+      </FoldSection>
 
-      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Medications and directions</h3>
-        <ul className="mt-3 space-y-3">
+      <FoldSection title="Medications and directions" collapsed={collapsed}>
+        <ul className="space-y-3">
           {rx.medications.map((m) => (
             <li key={m.id} className="border-t border-[#EDEBF3] pt-3 first:border-t-0 first:pt-0">
               <p className="text-[13.5px] font-semibold text-[#2C2B4B]">
@@ -3211,8 +3214,9 @@ function FinalReviewBody({
             </li>
           ))}
         </ul>
-      </section>
+      </FoldSection>
 
+      {!collapsed && (
       <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
         <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Delivery</h3>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -3222,7 +3226,38 @@ function FinalReviewBody({
             : "Delivery is chosen after signing, so a signed document is never changed to reroute it."}
         </p>
       </section>
+      )}
     </div>
+  );
+}
+
+/** Section that is a plain card while editing and a collapsed fold once the
+ *  prescription is signed. */
+function FoldSection({
+  title,
+  collapsed,
+  children,
+}: {
+  title: string;
+  collapsed?: boolean;
+  children: React.ReactNode;
+}) {
+  if (!collapsed) {
+    return (
+      <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
+        <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">{title}</h3>
+        <div className="mt-3">{children}</div>
+      </section>
+    );
+  }
+  return (
+    <details className="group rounded-xl border border-[#E4E1EC] bg-white px-4 py-3">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-[13.5px] font-semibold text-[#2C2B4B]">
+        {title}
+        <ChevronDown className="h-4 w-4 flex-none text-[#8A7FB0] transition group-open:rotate-180" />
+      </summary>
+      <div className="mt-3">{children}</div>
+    </details>
   );
 }
 
