@@ -1254,10 +1254,15 @@ function DetailsPage() {
             </DialogDescription>
           </DialogHeader>
           <p className="text-[12.5px] leading-snug text-[#7E6BAF]">
-            The prescription step is now closed and marked{" "}
-            <span className="font-semibold text-[#3D2E6B]">Not applicable</span>. Select{" "}
-            <span className="font-semibold text-[#3D2E6B]">Completed</span> again if this
-            appointment was delivered — any prescription you already created becomes available.
+            The prescription step is now marked{" "}
+            <span className="font-semibold text-[#3D2E6B]">Not applicable</span>. Switching back to{" "}
+            <span className="font-semibold text-[#3D2E6B]">Completed</span> makes any prescription
+            you already created available again.
+          </p>
+          <p className="rounded-[10px] bg-[#F7F3FF] px-3 py-2 text-[12px] leading-snug text-[#5A4A8F]">
+            Nothing is submitted yet. This appointment is only closed when you choose{" "}
+            <span className="font-semibold text-[#3D2E6B]">Close this appointment</span> at the
+            bottom of the page.
           </p>
           <div className="mt-1 flex flex-wrap justify-end gap-2">
             <button
@@ -1270,14 +1275,14 @@ function DetailsPage() {
               }}
               className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
             >
-              Back to Completed
+              Switch back to Completed
             </button>
             <button
               type="button"
               onClick={() => setOutcomeNoticeOpen(false)}
               className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
             >
-              Understood
+              Keep this outcome selected
             </button>
           </div>
         </DialogContent>
