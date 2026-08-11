@@ -141,6 +141,18 @@ export function EPrescriptionDocument({
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
+      {/* Print hardening: keep clinical blocks whole, stamp every printed page with
+          the Rx identifier so a detached page cannot be passed off as a valid script. */}
+      <style>{`
+        @page { size: A4; margin: 12mm 12mm 20mm; }
+        @media print {
+          html, body { background: #fff; }
+          .rx-doc { padding-bottom: 6mm; }
+          .rx-keep { break-inside: avoid; page-break-inside: avoid; }
+          .rx-attach { break-before: avoid; page-break-before: avoid; }
+          .rx-page-band { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; }
+        }
+      `}</style>
       <div className="mx-auto w-full max-w-[820px] px-4 sm:px-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 print:hidden">
           <div>
