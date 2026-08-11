@@ -99,6 +99,10 @@ import {
 
 } from "@/lib/prescription/signing";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
+import {
+  formatValidityDate,
+  prescriptionValidity,
+} from "@/lib/prescription/legal";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
 import { loadApplication } from "@/lib/prescription/verificationApplication";
 import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
