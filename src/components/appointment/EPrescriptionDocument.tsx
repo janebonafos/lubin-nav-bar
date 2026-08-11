@@ -203,6 +203,7 @@ export function EPrescriptionDocument({
         )}
 
         <article className="relative overflow-hidden rounded-[24px] border border-[#E4E1EC] bg-white shadow-[0_24px_60px_-32px_rgba(61,46,107,0.45)] print:rounded-none print:border-0 print:shadow-none">
+          {/* internal-only: no expiry can be printed without a configured rule */}
           {/* Header */}
           <header className="relative overflow-hidden bg-[#3D2E6B] px-7 py-7 text-white">
             <span
