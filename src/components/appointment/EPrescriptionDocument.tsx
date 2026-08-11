@@ -410,7 +410,6 @@ export function EPrescriptionDocument({
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
             <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
-            <span>Page 1 of 1</span>
           </div>
         </article>
       </div>
