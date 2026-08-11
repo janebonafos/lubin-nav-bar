@@ -284,7 +284,6 @@ export function prescribingAuthority(args: {
     }
   }
 
-  const blockers = checks.filter((c) => c.blocking && !c.ok);
   const validity = prescriptionValidity({
     country,
     controlled: controlled.length > 0,
