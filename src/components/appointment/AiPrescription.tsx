@@ -3385,6 +3385,7 @@ function IdentityCard({
   onChange,
   locked,
   verifiedAt,
+  controlled,
 }: {
   identity: PrescriberIdentity;
   country: RxCountry;
@@ -3394,8 +3395,14 @@ function IdentityCard({
   /** Field keys supplied by Lubin's verification record. */
   locked?: Set<string>;
   verifiedAt?: number;
+  /** Controlled / dangerous-drug credentials (PH S2, US DEA) only appear when
+   *  this prescription actually uses that pathway. */
+  controlled?: boolean;
 }) {
-  const fields = IDENTITY_FIELDS[country];
+  const controlledKeys = new Set(["s2Number", "s2SerialNumber", "deaNumber"]);
+  const fields = IDENTITY_FIELDS[country].filter(
+    (f) => controlled || !controlledKeys.has(String(f.key)),
+  );
   const missing = missingIdentityFields(identity, country);
   const lockedKeys = locked ?? new Set<string>();
   const editableFields = fields.filter((f) => !lockedKeys.has(String(f.key)));
