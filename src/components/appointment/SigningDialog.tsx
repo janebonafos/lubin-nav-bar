@@ -257,22 +257,8 @@ export function SigningDialog({
             </ul>
           </section>
 
-          {/* One clear sequence: final authorisation, then a one-time code. */}
-          <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
-            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-              <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Final authorization
-            </p>
-            <label className="mt-2 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
-              <input
-                type="checkbox"
-                checked={attested}
-                onChange={(e) => setAttested(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-              />
-              <span>{FINAL_AUTHORISATION_STATEMENT}</span>
-            </label>
-          </section>
-
+          {/* Authentication only — the clinical authorisation was completed in
+              Final review immediately before this modal opened. */}
           <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
               <KeyRound className="h-4 w-4 text-[#6E4FD3]" /> Verify with a one-time code
@@ -284,30 +270,18 @@ export function SigningDialog({
 
             {!sent ? (
               <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-end">
-                {registeredEmail ? (
-                  <div className="flex-1">
-                    <p className="text-[12px] font-medium text-[#5A4A8A]">Verified email</p>
-                    <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
-                      {maskEmail(registeredEmail)}
-                    </p>
-                  </div>
-                ) : (
-                  <label className="flex-1 block text-[12px] font-medium text-[#5A4A8A]">
-                    Registered email
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      placeholder="you@clinic.com"
-                      className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-                    />
-                  </label>
-                )}
+                <div className="flex-1">
+                  <p className="text-[12px] font-medium text-[#5A4A8A]">
+                    Verified prescribing account email
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
+                    {registeredEmail ? maskEmail(registeredEmail) : "Not on file"}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={requestCode}
-                  disabled={sending || !emailValid || !attested}
+                  disabled={sending || !emailValid}
                   className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {sending ? (
