@@ -96,7 +96,7 @@ import {
 import {
   prescribingAuthority,
   type SigningMethod,
-  SIGNING_BUTTON_COPY,
+
 } from "@/lib/prescription/signing";
 import { MedicationReferenceDrawer } from "./MedicationReferenceDrawer";
 import { MED_VERIFICATION_STATEMENT } from "@/lib/prescription/reference";
@@ -664,12 +664,58 @@ export function AiPrescription({
   const canSign = readyToSign && authority.authorised;
   const isEpcsSigning = authority.method === "epcs-two-factor";
 
+  /** Required review states, re-validated on the server before a code is issued. */
+  const reviewSnapshot = useMemo(() => {
+    const meds = rx.medications.filter((m) => m.name.trim().length > 0);
+    const perMed = meds.map((m) => {
+      const required = requiredSigningBlockers(
+        verificationBlockers({
+          med: m,
+          info: rx.patientInfo,
+          visitMedications: visitMeds,
+          fieldsComplete: !!medComplete(m),
+          acknowledged: !!m.acknowledgedAt,
+          sharedSafetyPending: !!sharedSafety && !m.sharedSafetyAcknowledgedAt,
+        }),
+      );
+      return {
+        med: m,
+        infoOutstanding: required.some((b) => b.kind === "info"),
+        entry: {
+          id: m.id,
+          name: m.name,
+          fieldsComplete: !!medComplete(m),
+          safetyChecksComplete: !required.some(
+            (b) => b.kind === "review" || b.kind === "stale" || b.kind === "blocking",
+          ),
+          highRiskAcknowledged: !(!!sharedSafety && !m.sharedSafetyAcknowledgedAt),
+          clinicianConfirmed: !!m.acknowledgedAt,
+        },
+      };
+    });
+    return {
+      appointmentId,
+      patientInfoComplete: perMed.every((p) => !p.infoOutstanding),
+      identityComplete: identityMissing.length === 0,
+      controlledReady,
+      medications: perMed.map((p) => p.entry),
+    };
+  }, [
+    appointmentId,
+    rx.medications,
+    rx.patientInfo,
+    visitMeds,
+    sharedSafety,
+    identityMissing.length,
+    controlledReady,
+  ]);
+
   /** Final clinical authorisation tick, required before the signing action. */
   const [finalAuthorised, setFinalAuthorised] = useState(false);
 
   const signatureMethodLabel = isEpcsSigning
     ? "EPCS two-factor signing"
-    : "Re-authenticated with signing passphrase";
+    : "Verified with a one-time code sent to the prescriber's registered email";
 
   const audit = (
     action: Parameters<typeof appendRxAudit>[0]["action"],
@@ -1306,7 +1352,7 @@ export function AiPrescription({
             onClick={() => setSigningOpen(true)}
             className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
           >
-            {isEpcsSigning ? SIGNING_BUTTON_COPY.epcs : SIGNING_BUTTON_COPY.standard}
+            Sign prescription
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
@@ -1320,6 +1366,7 @@ export function AiPrescription({
           patientAgeYears={patientAge(rx.patientInfo)}
           onIdentityChange={setIdentity}
           onSigned={signPrescription}
+          reviewState={reviewSnapshot}
         />
       </section>
     );
@@ -1350,11 +1397,7 @@ export function AiPrescription({
     const countText = counts.text;
     const countBreakdown = counts.breakdown;
     /** Clinically meaningful states instead of a gamified readiness percentage. */
-    const readinessLabel = blocked
-      ? "Not ready to sign"
-      : reviewMed.approved
-        ? "Ready to sign"
-        : "Ready for final review";
+    const readinessLabel = blocked ? "Not ready to sign" : "Ready to sign";
     return (
       <section className="text-[#2C2B4B]">
         {header}
@@ -1473,38 +1516,56 @@ export function AiPrescription({
           </button>
           <button
             type="button"
-            disabled={!reviewMed.approved && blocked}
+            disabled={blocked}
             title={blocked ? blockerSentence(blockers) : undefined}
             onClick={() => {
-              if (reviewMed.approved) {
-                setReviewMedId(null);
-                setFinalReview(true);
+              // The clinical review state is still recorded — it is now captured as
+              // part of signing instead of a separate confirmation step.
+              if (!reviewMed.approved) {
+                updateMed(reviewMed.id, { approved: true, verifiedAt: Date.now() });
+              }
+              const othersPending = namedMeds.some((m) => m.id !== reviewMed.id && !m.approved);
+              const signingReady =
+                !othersPending &&
+                authority.authorised &&
+                identityMissing.length === 0 &&
+                controlledReady &&
+                unverifiedSources.length === 0;
+              if (signingReady) {
+                setSigningOpen(true);
                 return;
               }
-              updateMed(reviewMed.id, {
-                approved: true,
-                verifiedAt: Date.now(),
-              });
               setReviewMedId(null);
-              const othersPending = namedMeds.some((m) => m.id !== reviewMed.id && !m.approved);
-              if (!othersPending) {
-                // Straight to the prescription itself — no extra click.
-                setFinalReview(true);
-                toast.success("Medication verified", {
-                  description: "Here is the prescription. You can add another before signing.",
-                });
-              } else {
-                toast.success("Medication verified", {
-                  description: "Verify the remaining medication to continue.",
-                });
-              }
+              setFinalReview(true);
+              toast.info(othersPending ? "One more medication to review" : "Almost ready to sign", {
+                description: othersPending
+                  ? "Review the remaining medication, then sign the prescription."
+                  : identityMissing.length > 0
+                    ? `Add your ${identityMissing.join(", ")} before signing.`
+                    : !controlledReady
+                      ? "Complete the controlled-substance workflow before signing."
+                      : (authority.blockers[0]?.detail ??
+                        "Confirm the prescribing requirements before signing."),
+              });
             }}
             className="inline-flex h-10 items-center rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
-            {reviewMed.approved ? "Back to prescription" : "Complete clinical review"}
+            Sign prescription
           </button>
         </StickyBar>
         <ReferenceDrawerHost />
+        <SigningDialog
+          open={signingOpen}
+          onOpenChange={setSigningOpen}
+          rx={rx}
+          country={country}
+          identity={identity}
+          clientName={clientName}
+          patientAgeYears={patientAge(rx.patientInfo)}
+          onIdentityChange={setIdentity}
+          onSigned={signPrescription}
+          reviewState={reviewSnapshot}
+        />
       </section>
     );
   }
