@@ -226,9 +226,9 @@ export function EPrescriptionDocument({
           />
         )}
 
-        <article className="relative overflow-hidden rounded-[24px] border border-[#E4E1EC] bg-white shadow-[0_24px_60px_-32px_rgba(61,46,107,0.45)] print:rounded-none print:border-0 print:shadow-none">
+        <article className="rx-doc relative overflow-hidden rounded-[24px] border border-[#E4E1EC] bg-white shadow-[0_24px_60px_-32px_rgba(61,46,107,0.45)] print:rounded-none print:border-0 print:shadow-none">
           {/* Header */}
-          <header className="relative overflow-hidden bg-[#3D2E6B] px-7 py-7 text-white">
+          <header className="rx-keep relative overflow-hidden bg-[#3D2E6B] px-7 py-7 text-white print:py-5">
             <span
               aria-hidden
               className="pointer-events-none absolute -right-6 -top-10 select-none font-serif text-[170px] leading-none text-white/10"
@@ -271,7 +271,7 @@ export function EPrescriptionDocument({
           </header>
 
           {/* Identity grid */}
-          <section className="grid gap-5 border-b border-[#EDEBF3] px-7 py-4 sm:grid-cols-2 sm:gap-10">
+          <section className="rx-keep grid gap-5 border-b border-[#EDEBF3] px-7 py-4 sm:grid-cols-2 sm:gap-10">
             <div>
               <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Patient information
@@ -332,7 +332,7 @@ export function EPrescriptionDocument({
           </section>
 
           {/* Medications */}
-          <section className="px-7 py-7">
+          <section className="px-7 py-7 print:py-5">
             <div className="flex items-center gap-3">
               <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Prescribed medication{meds.length > 1 ? "s" : ""}
@@ -349,7 +349,7 @@ export function EPrescriptionDocument({
                 {meds.map((m, i) => (
                   <li
                     key={m.id}
-                    className="relative overflow-hidden rounded-[18px] border border-[#F1EDF9] bg-[#FBFAFE] p-5"
+                    className="rx-keep relative overflow-hidden rounded-[18px] border border-[#F1EDF9] bg-[#FBFAFE] p-5"
                   >
                     <span className="absolute right-0 top-0 rounded-bl-[10px] bg-[#EFE8FB] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#3D2E6B]">
                       Item {String(i + 1).padStart(2, "0")}
@@ -440,7 +440,7 @@ export function EPrescriptionDocument({
           </section>
 
           {/* Signature */}
-          <footer className="border-t border-[#EDEBF3]">
+          <footer className="rx-keep border-t border-[#EDEBF3]">
             <div className="space-y-1.5 px-7 py-5 text-[11.5px] leading-relaxed text-[#6F6889]">
               {Array.from(
                 new Set(meds.map((m) => refillNote(m.refills)).filter(Boolean)),
@@ -461,7 +461,7 @@ export function EPrescriptionDocument({
                 Lubin's prescribing verification.
               </p>
             </div>
-            <div className="w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-4">
+            <div className="rx-keep rx-attach w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {signed ? "Electronically signed by" : "Electronic signature"}
               </p>
@@ -488,11 +488,28 @@ export function EPrescriptionDocument({
             </div>
           </footer>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
+          <div className="rx-keep rx-attach flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
             <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
           </div>
         </article>
+
+        {/* Repeats on every printed page — a page without this band is not a valid copy. */}
+        <div className="rx-page-band hidden border-t border-[#EDEBF3] bg-white px-1 pt-1 text-[8.5px] font-semibold uppercase tracking-[0.1em] text-[#8A7FB0]">
+          <div className="flex items-center justify-between gap-3">
+            <span>
+              Rx {rxNumber ?? "unsigned draft"} · {clientName || "patient"} ·{" "}
+              {withDoctorTitle(
+                identity.fullName || rx.finalisedBy || providerName || "prescriber",
+              )}
+            </span>
+            <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
+          </div>
+          <p className="mt-0.5 font-medium normal-case tracking-normal text-[#A79FC4]">
+            Valid only as the complete document. Any page without this Rx identifier, or a
+            signature page presented on its own, is not a valid prescription.
+          </p>
+        </div>
       </div>
     </div>
   );
