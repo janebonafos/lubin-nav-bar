@@ -524,6 +524,9 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
 
   const recordedOutcome = appt?.outcome;
+  // The recorded outcome decides whether this appointment is still a valid
+  // prescribing encounter.
+  const encounterBlock = encounterPrescribingBlock(recordedOutcome);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
