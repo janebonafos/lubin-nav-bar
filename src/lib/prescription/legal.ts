@@ -55,12 +55,8 @@ export function patientLegalGaps(args: {
 
 /** Address is recorded on every prescription, but is only legally mandatory
  *  in some contexts. Used for the wording next to the field. */
-export function addressRequirement(
-  country: RxCountry,
-  controlled: boolean,
-): "mandatory" | "recommended" {
-  if (controlled) return "mandatory";
-  return country === "PH" ? "recommended" : "recommended";
+export function addressRequirement(controlled: boolean): "mandatory" | "recommended" {
+  return controlled ? "mandatory" : "recommended";
 }
 
 /** A Philippine dangerous drug must be issued on the official special
