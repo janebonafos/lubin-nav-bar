@@ -37,6 +37,7 @@ import {
   SIGNED_RX_MODAL,
   SIGNED_RX_CONFLICT,
   UNSIGNED_DRAFT_WARNING,
+  RX_COMPLETED_RELEASE_NOTE,
 } from "@/lib/prescription/encounter";
 
 const searchSchema = z.object({
