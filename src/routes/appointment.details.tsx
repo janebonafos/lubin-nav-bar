@@ -547,6 +547,8 @@ function DetailsPage() {
     ? null
     : encounterPrescribingBlock(outcomeChoice ?? undefined);
   const activeBlock = encounterBlock ?? pendingBlock;
+  const pendingOutcomeLabel =
+    OUTCOMES.find((o) => o.value === (outcomeChoice ?? recordedOutcome))?.label ?? "This outcome";
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
