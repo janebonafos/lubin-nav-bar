@@ -68,14 +68,14 @@ export function prescriberPrintGaps(
   const gaps: string[] = [];
   if (!has(identity.fullName)) gaps.push("Prescriber name");
   if (country === "PH") {
-    if (!has(identity.clinicName)) gaps.push("Clinic name");
-    if (!has(identity.clinicAddress)) gaps.push("Clinic address");
-    if (!has(identity.clinicContact)) gaps.push("Clinic contact information");
+    if (!has(identity.clinicAddress)) gaps.push("Professional / practice address");
+    if (!has(identity.clinicContact)) gaps.push("Professional contact");
     if (!has(identity.prcNumber)) gaps.push("PRC number");
     if (!has(identity.ptrNumber)) gaps.push("PTR number");
     if (controlled && !has(identity.s2Number)) gaps.push("S2 licence number");
   } else {
-    if (!has(identity.clinicAddress)) gaps.push("Practice address");
+    if (!has(identity.clinicAddress)) gaps.push("Professional / practice address");
+    if (!has(identity.clinicContact)) gaps.push("Professional contact");
     if (!has(identity.licenseNumber)) gaps.push("State licence number");
     if (!has(identity.licenseState)) gaps.push("State of licensure");
     if (!has(identity.npiNumber)) gaps.push("NPI number");
