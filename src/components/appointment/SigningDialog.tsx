@@ -135,6 +135,20 @@ export function SigningDialog({
   };
 
   const codeValid = /^\d{6}$/.test(code.trim());
+
+  // The code is dispatched to the verified account email as soon as the
+  // prescriber reaches this screen — there is nothing for them to type first.
+  const autoSent = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      autoSent.current = false;
+      return;
+    }
+    if (autoSent.current || sent || sending || isEpcs || !emailValid) return;
+    autoSent.current = true;
+    void requestCode();
+  }, [open, sent, sending, isEpcs, emailValid]);
+
   const ready = authority.authorised && !!sent && codeValid && (!isEpcs || epcs.ready);
 
   const sign = async () => {
@@ -276,19 +290,14 @@ export function SigningDialog({
                     {registeredEmail ? maskEmail(registeredEmail) : "Not on file"}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={requestCode}
-                  disabled={sending || !emailValid}
-                  className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
-                >
+                <p className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8]">
                   {sending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Mail className="h-4 w-4" />
                   )}
-                  Send code
-                </button>
+                  {sending ? "Sending code…" : "Preparing code…"}
+                </p>
               </div>
             ) : (
               <div className="mt-2.5">
@@ -369,11 +378,7 @@ export function SigningDialog({
               onClick={sign}
               className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
             >
-              {verifying ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ShieldCheck className="h-4 w-4" />
-              )}
+              {verifying && <Loader2 className="h-4 w-4 animate-spin" />}
               {verifying ? "Verifying…" : "Verify & sign"}
             </button>
           </div>
