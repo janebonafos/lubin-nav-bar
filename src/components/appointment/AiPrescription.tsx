@@ -3277,13 +3277,19 @@ function sexLabel(sex?: PatientSafetyInfo["sex"]): string {
 }
 
 /** Immutable record of who signed, under which authority and where it went. */
-function AuditTrail({ appointmentId, tick }: { appointmentId: string; tick: number }) {
+function AuditTrail({
+  appointmentId,
+  tick,
+  collapsed,
+}: {
+  appointmentId: string;
+  tick: number;
+  collapsed?: boolean;
+}) {
   const events = useMemo(() => loadRxAudit(appointmentId), [appointmentId, tick]);
   if (events.length === 0) return null;
-  return (
-    <section className="mt-3 rounded-xl border border-[#E4E1EC] bg-white p-4">
-      <h3 className="text-[13.5px] font-semibold text-[#2C2B4B]">Audit log</h3>
-      <ul className="mt-2.5 space-y-2.5">
+  const list = (
+      <ul className="space-y-2.5">
         {events.map((e) => (
           <li key={e.id} className="border-t border-[#EDEBF3] pt-2.5 first:border-t-0 first:pt-0">
             <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -3300,6 +3306,12 @@ function AuditTrail({ appointmentId, tick }: { appointmentId: string; tick: numb
           </li>
         ))}
       </ul>
+  );
+  return (
+    <section className="mt-3">
+      <FoldSection title="Audit log" collapsed={collapsed}>
+        {list}
+      </FoldSection>
     </section>
   );
 }
