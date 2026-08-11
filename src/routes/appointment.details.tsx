@@ -1283,6 +1283,12 @@ function DetailsPage() {
                 {UNSIGNED_DRAFT_WARNING}
               </p>
             )}
+            {noticeOutcome === "completed" &&
+              (rxRecordState.signed || rxRecordState.unsignedDraft) && (
+                <p className="mt-3 rounded-[14px] border border-[#DCCFF5] bg-[#F7F3FF] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#4A3A7A]">
+                  {RX_COMPLETED_RELEASE_NOTE}
+                </p>
+              )}
             <div className="mt-4 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
