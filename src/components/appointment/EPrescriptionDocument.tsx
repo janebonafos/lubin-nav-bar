@@ -201,9 +201,9 @@ export function EPrescriptionDocument({
           </header>
 
           {/* Identity grid */}
-          <section className="grid gap-8 border-b border-[#EDEBF3] px-7 py-7 sm:grid-cols-2 sm:gap-12">
-            <div>
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+          <section className="grid gap-5 border-b border-[#EDEBF3] px-7 py-7 sm:grid-cols-2 sm:gap-6">
+            <div className="rounded-[16px] border border-[#EAE5F6] bg-[#FCFBFE] p-5">
+              <h2 className="border-b border-[#EAE5F6] pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Patient information
               </h2>
               <p className="mt-3 text-[18px] font-bold leading-tight text-[#2C2B4B]">
@@ -223,8 +223,8 @@ export function EPrescriptionDocument({
                 </p>
               )}
             </div>
-            <div>
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+            <div className="rounded-[16px] border border-[#EAE5F6] bg-[#FCFBFE] p-5">
+              <h2 className="border-b border-[#EAE5F6] pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Prescribing professional
               </h2>
               <p className="mt-3 text-[14px] font-bold text-[#2C2B4B]">
