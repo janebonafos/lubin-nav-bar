@@ -398,6 +398,11 @@ export function EPrescriptionDocument({
           {/* Signature */}
           <footer className="border-t border-[#EDEBF3]">
             <div className="space-y-1.5 px-7 py-5 text-[11.5px] leading-relaxed text-[#6F6889]">
+              {Array.from(
+                new Set(meds.map((m) => refillNote(m.refills)).filter(Boolean)),
+              ).map((note) => (
+                <p key={note}>{note}</p>
+              ))}
               <p>
                 Take this exactly as written. Questions or side effects — message your
                 prescriber in Lubin. Urgent help — contact local emergency services.
@@ -412,13 +417,13 @@ export function EPrescriptionDocument({
                 Lubin's prescribing verification.
               </p>
             </div>
-            <div className="border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-4">
+            <div className="w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
               </p>
               {signed ? (
                 <>
-                  <p className="mt-1.5 text-[14px] font-bold text-[#2C2B4B]">
+                  <p className="mt-1 text-[14px] font-bold text-[#2C2B4B]">
                     {withDoctorTitle(
                       identity.fullName || rx.finalisedBy || providerName || "your prescriber",
                     )}
@@ -434,7 +439,7 @@ export function EPrescriptionDocument({
                   </div>
                 </>
               ) : (
-                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                   <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
                     Not signed yet.
                   </p>
