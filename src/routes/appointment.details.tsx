@@ -24,6 +24,11 @@ import {
 } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
+import {
+  encounterPrescribingBlock,
+  SIGNED_RX_CONFLICT,
+  UNSIGNED_DRAFT_WARNING,
+} from "@/lib/prescription/encounter";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -305,6 +310,10 @@ function DetailsPage() {
   const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
   const [summaryAckChecked, setSummaryAckChecked] = useState(false);
   const [outcomeChoice, setOutcomeChoice] = useState<Outcome | null>(null);
+  // Prescription-driven conflicts on the closeout: a hard block when a signed
+  // prescription exists, a confirm-once warning when an unsigned draft does.
+  const [outcomeConflict, setOutcomeConflict] = useState<string | null>(null);
+  const [draftWarningFor, setDraftWarningFor] = useState<Outcome | null>(null);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
@@ -478,6 +487,18 @@ function DetailsPage() {
   }, [appt?.id, rxTick]);
   const rxStatus = rxLifecycle.label;
 
+  // Prescription lifecycle facts that constrain which outcomes may be recorded.
+  const rxRecordState = useMemo(() => {
+    if (!appt?.id) return { signed: false, unsignedDraft: false };
+    const rx = loadPrescription(appt.id);
+    const named = rx.medications.filter((m) => m.name.trim().length > 0);
+    return {
+      signed: !!rx.finalisedAt,
+      unsignedDraft: !rx.finalisedAt && named.length > 0,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appt?.id, rxTick]);
+
   const sharedSummaryLine = useMemo(() => {
     if (!appt?.id) return null;
     const grant = getAnyProviderGrant(appt.id);
@@ -507,6 +528,9 @@ function DetailsPage() {
   const showPostSession = isCompleted || (isPastStart && !isCancelled);
 
   const recordedOutcome = appt?.outcome;
+  // The recorded outcome decides whether this appointment is still a valid
+  // prescribing encounter.
+  const encounterBlock = encounterPrescribingBlock(recordedOutcome);
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -543,7 +567,7 @@ function DetailsPage() {
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
-  const rxDone = !rxShown ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxDone = !rxShown || !!encounterBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
@@ -1027,7 +1051,7 @@ function DetailsPage() {
                 }
                 done={rxDone}
                 checkBadge={rxDone}
-                pillLabel={rxStatus}
+                pillLabel={encounterBlock ? "Not applicable" : rxStatus}
               >
                 <AiPrescription
                   appointmentId={appt.id}
@@ -1036,6 +1060,7 @@ function DetailsPage() {
                   appointmentLabel={appointmentLabel}
                   jurisdiction={rxCountry}
                   clinicalDocumentationReady={clinicalDocForRx}
+                  encounterBlock={encounterBlock}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
               </SectionCard>
@@ -1105,7 +1130,11 @@ function DetailsPage() {
                             name="appointment-outcome"
                             value={o.value}
                             checked={outcomeChoice === o.value}
-                            onChange={() => setOutcomeChoice(o.value)}
+                            onChange={() => {
+                              setOutcomeChoice(o.value);
+                              setOutcomeConflict(null);
+                              setDraftWarningFor(null);
+                            }}
                             className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
                           />
                           <span className="min-w-0">
@@ -1119,11 +1148,49 @@ function DetailsPage() {
                         </label>
                       ))}
                     </div>
+                    {outcomeConflict && (
+                      <div className="mt-3 rounded-[14px] border border-[#E9C3C3] bg-[#FDF4F4] px-3.5 py-3">
+                        <p className="text-[13px] font-semibold text-[#9B4A4A]">
+                          Cannot record this outcome — signed prescription on file
+                        </p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-[#5C3B3B]">
+                          {outcomeConflict}
+                        </p>
+                      </div>
+                    )}
+                    {draftWarningFor && (
+                      <div className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3">
+                        <p className="text-[13px] font-semibold text-[#8A6420]">
+                          Unsigned prescription draft on this appointment
+                        </p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-[#6B5327]">
+                          {UNSIGNED_DRAFT_WARNING} Choose &ldquo;Close this appointment&rdquo; again
+                          to continue.
+                        </p>
+                      </div>
+                    )}
                     <button
                       type="button"
                       disabled={!outcomeChoice}
                       onClick={() => {
                         if (!outcomeChoice) return;
+                        const blocksRx = !!encounterPrescribingBlock(outcomeChoice);
+                        if (blocksRx && rxRecordState.signed) {
+                          setDraftWarningFor(null);
+                          setOutcomeConflict(SIGNED_RX_CONFLICT);
+                          return;
+                        }
+                        if (
+                          blocksRx &&
+                          rxRecordState.unsignedDraft &&
+                          draftWarningFor !== outcomeChoice
+                        ) {
+                          setOutcomeConflict(null);
+                          setDraftWarningFor(outcomeChoice);
+                          return;
+                        }
+                        setOutcomeConflict(null);
+                        setDraftWarningFor(null);
                         const label =
                           OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
                         onChange({

@@ -130,6 +130,7 @@ export function AiPrescription({
   providerName,
   jurisdiction,
   clinicalDocumentationReady = true,
+  encounterBlock = null,
   onAddClinicalInfo,
 }: {
   appointmentId: string;
@@ -141,6 +142,9 @@ export function AiPrescription({
   /** True once Step 1 holds clinical documentation supporting a medication
    *  decision. Prescribing stays closed until then. */
   clinicalDocumentationReady?: boolean;
+  /** Set when the recorded appointment outcome (no-show, cancelled,
+   *  rescheduled) means this is no longer an active prescribing encounter. */
+  encounterBlock?: { title: string; reason: string } | null;
   /** Kept for callers; missing patient information is now captured in place. */
   onAddClinicalInfo?: () => void;
 }) {
@@ -996,6 +1000,29 @@ export function AiPrescription({
     );
   }
 
+  // ---------- Not an active prescribing encounter ----------
+  // The recorded appointment outcome (no-show, cancelled, rescheduled) closes
+  // creation, signing and issuance here. A prescription already signed stays
+  // visible below with its audit trail.
+  if (encounterBlock && !signed) {
+    return (
+      <section className="text-[#2C2B4B]">
+        <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
+          <p className="text-[13.5px] font-semibold">{encounterBlock.title}</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+            {encounterBlock.reason}
+          </p>
+          {total > 0 && (
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#8A6420]">
+              An unsigned draft is kept on record for reference only. It is no longer associated
+              with an active prescribing encounter and cannot be signed or issued.
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  }
+
   // ---------- Prescribing not verified by Lubin ----------
   if (verification.isLoading) {
     return (
@@ -1032,6 +1059,15 @@ export function AiPrescription({
     return (
       <section className="text-[#2C2B4B]">
         {header}
+        {encounterBlock && (
+          <div className="mb-3 rounded-xl border border-[#EBD3A6] bg-[#FDF8EE] px-4 py-3.5">
+            <p className="text-[13px] font-semibold text-[#8A6420]">{encounterBlock.title}</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#6B5327]">
+              {encounterBlock.reason} The signed prescription and its audit history are preserved —
+              use void if it must be withdrawn.
+            </p>
+          </div>
+        )}
         {rx.voided && (
           <div className="mb-3 rounded-xl border border-[#E9C3C3] bg-[#FDF4F4] px-4 py-3.5">
             <p className="text-[13px] font-semibold text-[#9B4A4A]">Prescription voided</p>
