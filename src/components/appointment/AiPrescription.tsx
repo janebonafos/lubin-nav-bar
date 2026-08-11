@@ -1302,6 +1302,7 @@ export function AiPrescription({
             onEdit={setEditIdentity}
             locked={lockedIdentityKeys}
             verifiedAt={record?.verifiedAt}
+            controlled={rx.medications.some((m) => m.controlled && m.name.trim().length > 0)}
             onChange={(next) => {
               setIdentity(next);
               saveIdentity(next);
