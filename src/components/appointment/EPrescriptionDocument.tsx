@@ -88,13 +88,14 @@ export function EPrescriptionDocument({
   /** Traceability identifier for this document, independent of the Rx number. */
   const documentId = doc?.id || rx.documentId || null;
   const rxNumber = doc ? doc.number : null;
-  /** A signed prescription never prints "Required before signing": signing is
-   *  blocked while credentials are incomplete, so missing values are omitted. */
-  const printed = (value?: string) => {
-    const text = (value ?? "").trim();
-    if (text) return text;
-    return signed ? null : REQUIRED;
-  };
+  const credentialLine =
+    country === "PH"
+      ? identity.prcNumber
+        ? `PRC ${identity.prcNumber}${identity.ptrNumber ? ` | PTR ${identity.ptrNumber}` : ""}${controlled && identity.s2Number ? ` | S2 ${identity.s2Number}` : ""}`
+        : "Credentials incomplete"
+      : identity.npiNumber
+        ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}` : ""}${controlled && identity.deaNumber ? ` | DEA ${identity.deaNumber}` : ""}`
+        : "Credentials incomplete";
 
   return (
     <div className="min-h-screen bg-[#F3F0FA] py-8 print:bg-white print:py-0">
@@ -179,8 +180,7 @@ export function EPrescriptionDocument({
                   Prescription
                 </p>
                 <p className="mt-1 text-[13px] text-white/80">
-                  {identity.clinicName.trim() || "Lubin care team"} ·{" "}
-                  {JURISDICTION_LABEL[country]}
+                  Issued in {JURISDICTION_LABEL[country]}
                 </p>
               </div>
               <div className="sm:text-right">
@@ -192,9 +192,6 @@ export function EPrescriptionDocument({
                 </p>
                 <p className="mt-2 text-[11.5px] text-white/70">
                   {rxNumber ? `Date issued ${dateLong}` : "Assigned when signed"}
-                </p>
-                <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-white/55">
-                  Document ID {documentId ?? "pending"}
                 </p>
               </div>
             </div>
@@ -231,21 +228,13 @@ export function EPrescriptionDocument({
                 {prescriberName}
               </p>
               <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
-                {country === "PH"
-                  ? identity.prcNumber
-                    ? `PRC ${identity.prcNumber}${identity.ptrNumber ? ` | PTR ${identity.ptrNumber}` : ""}`
-                    : "Credentials incomplete"
-                  : identity.npiNumber
-                    ? `NPI ${identity.npiNumber}${identity.licenseNumber ? ` | Licence ${identity.licenseNumber}` : ""}`
-                    : "Credentials incomplete"}
+                {credentialLine}
                 {identity.clinicAddress.trim() && (
                   <>
                     <br />
                     {identity.clinicAddress.trim()}
                   </>
                 )}
-                <br />
-                Issued in {JURISDICTION_LABEL[country]}
               </p>
               {identity.clinicContact.trim() && (
                 <p className="mt-1 text-[11.5px] font-medium text-[#6E4FD3]">
