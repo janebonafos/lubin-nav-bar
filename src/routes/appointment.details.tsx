@@ -534,6 +534,12 @@ function DetailsPage() {
   // The recorded outcome decides whether this appointment is still a valid
   // prescribing encounter.
   const encounterBlock = encounterPrescribingBlock(recordedOutcome);
+  // A pending (selected but not yet recorded) outcome gates prescribing the same
+  // way a recorded one does; switching back to Completed restores the workflow.
+  const pendingBlock = recordedOutcome
+    ? null
+    : encounterPrescribingBlock(outcomeChoice ?? undefined);
+  const activeBlock = encounterBlock ?? pendingBlock;
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -570,7 +576,7 @@ function DetailsPage() {
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
-  const rxDone = !rxShown || !!encounterBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxDone = !rxShown || !!activeBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
