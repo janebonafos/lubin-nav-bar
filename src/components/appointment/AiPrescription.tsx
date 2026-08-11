@@ -877,6 +877,9 @@ export function AiPrescription({
     });
   };
 
+  const [voidOpen, setVoidOpen] = useState(false);
+  const [voidReason, setVoidReason] = useState("");
+
   // Voiding never deletes the signature or the signed document: the original
   // prescription and its audit trail are preserved and marked void with a
   // reason and timestamp.
