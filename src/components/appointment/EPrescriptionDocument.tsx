@@ -6,8 +6,10 @@ import { patientAge } from "@/lib/prescription/safety";
 import { latestSignedPrescription } from "@/lib/prescription/documents";
 import {
   formatDob,
+  formatValidityDate,
   patientLegalGaps,
   prescriberPrintGaps,
+  prescriptionValidity,
   refillCount,
   refillNote,
   requiresPhSpecialForm,
@@ -48,6 +50,15 @@ export function EPrescriptionDocument({
   const address = (rx.patientInfo?.address ?? "").trim();
   const doc = rx.documentId ? latestSignedPrescription(rx.appointmentId) : null;
   const controlled = meds.some((m) => m.controlled);
+  /** Validity comes from the rules layer. Once signed it is the immutable value
+   *  stored on the signed document, never recomputed. */
+  const validityRule = prescriptionValidity({
+    country,
+    controlled,
+    issuedAt: rx.finalisedAt ?? Date.now(),
+  });
+  const validUntil = doc?.validUntil ?? (rx.finalisedAt ? undefined : validityRule.validUntil);
+  const validityLabel = doc?.validityLabel ?? validityRule.label;
   const specialForm = requiresPhSpecialForm(meds, country);
   const prescriberGaps = prescriberPrintGaps(identity, country, controlled);
   const patientGaps = patientLegalGaps({
