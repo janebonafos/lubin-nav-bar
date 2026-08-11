@@ -311,10 +311,10 @@ export function EPrescriptionDocument({
 
           {/* Details */}
           <section className="border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-6">
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A79FC4]">
               Prescription details
             </h2>
-            <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-2.5 text-[12.5px] sm:grid-cols-2">
+            <dl className="mt-3 grid grid-cols-1 gap-x-10 gap-y-2 text-[12px] sm:grid-cols-2">
               <Line label="Date issued" value={dateLong} />
               <Line
                 label="Rx no."
@@ -408,18 +408,13 @@ export function EPrescriptionDocument({
                 </p>
               )}
             </div>
-            <p className="mt-4 text-[12px] leading-relaxed text-[#6F6889]">
-              Take your medication exactly as written above. If something does not feel
-              right, or you have questions about a dose, message your prescriber through
-              Lubin. If you feel unsafe or need urgent help, contact local emergency
-              services.
+            <p className="mt-4 text-[11.5px] leading-relaxed text-[#6F6889]">
+              Take this exactly as written. Questions or side effects — message your
+              prescriber in Lubin. Urgent help — contact local emergency services.
             </p>
             {country === "US" && (
-              <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889]">
-                This is your prescription copy. The prescription itself is sent to your
-                pharmacy as structured electronic prescription data through the
-                e-prescribing network; a printed or emailed copy of this page is not the
-                electronic prescription.
+              <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+                Your copy only — the prescription is sent electronically to your pharmacy.
               </p>
             )}
           </footer>
