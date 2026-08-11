@@ -1593,7 +1593,7 @@ export function AppointmentsSection() {
         <StatCard
           label="No-shows"
           value={String(
-            list.filter(
+            all.filter(
               (a) => a.outcome === "client_no_show" || a.outcome === "provider_no_show",
             ).length,
           )}
