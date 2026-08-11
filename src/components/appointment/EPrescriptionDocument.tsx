@@ -70,21 +70,26 @@ export function EPrescriptionDocument({
     month: "long",
     day: "numeric",
   });
-  const signedStamp = rx.finalisedAt
-    ? issued.toLocaleString(undefined, {
-        year: "numeric",
-        month: "long",
+  const signedDate = rx.finalisedAt
+    ? issued.toLocaleDateString(undefined, {
+        month: "short",
         day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZoneName: "short",
+        year: "numeric",
       })
     : null;
-  const signed = !!rx.finalisedAt;
-  const timeZone =
-    typeof Intl !== "undefined"
-      ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "")
+  const signedTime = rx.finalisedAt
+    ? issued.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
+  const signedTz =
+    rx.finalisedAt && typeof Intl !== "undefined"
+      ? (Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+          .formatToParts(issued)
+          .find((p) => p.type === "timeZoneName")?.value ?? "")
       : "";
+  const signed = !!rx.finalisedAt;
   /** Traceability identifier for this document, independent of the Rx number. */
   const documentId = doc?.id || rx.documentId || null;
   const rxNumber = doc ? doc.number : null;
@@ -419,35 +424,28 @@ export function EPrescriptionDocument({
             </div>
             <div className="w-full border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
-                {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
+                {signed ? "Electronically signed by" : "Electronic signature"}
+              </p>
+              <p className="mt-1 text-[14px] font-bold text-[#2C2B4B]">
+                {withDoctorTitle(
+                  identity.fullName || rx.finalisedBy || providerName || "your prescriber",
+                )}
+                {identity.qualifications ? `, ${identity.qualifications}` : ""}
               </p>
               {signed ? (
-                <>
-                  <p className="mt-1 text-[14px] font-bold text-[#2C2B4B]">
-                    {withDoctorTitle(
-                      identity.fullName || rx.finalisedBy || providerName || "your prescriber",
-                    )}
-                    {identity.qualifications ? `, ${identity.qualifications}` : ""}
-                  </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#6F6889]">
+                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#6F6889]">
+                  {signedDate && signedTime && (
                     <span>
-                      Signed {signedStamp}
-                      {timeZone ? ` (${timeZone})` : ""}
+                      {signedDate} · {signedTime} {signedTz}
                     </span>
-                    {rx.signature?.methodLabel && <span>{rx.signature.methodLabel}</span>}
-                    {rxNumber && <span>Rx {rxNumber}</span>}
-                  </div>
-                </>
-              ) : (
-                <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                  <p className="text-[12.5px] font-semibold text-[#2C2B4B]">
-                    Not signed yet.
-                  </p>
-                  <p className="text-[11.5px] text-[#6F6889]">
-                    Prescriber name, signing date and time, timezone and Rx number
-                    appear here once signed.
-                  </p>
+                  )}
+                  {rx.signature?.methodLabel && <span>{rx.signature.methodLabel}</span>}
+                  {rxNumber && <span>Rx # {rxNumber}</span>}
                 </div>
+              ) : (
+                <p className="mt-1 text-[12.5px] text-[#6F6889]">
+                  This prescription has not been signed yet.
+                </p>
               )}
             </div>
           </footer>
