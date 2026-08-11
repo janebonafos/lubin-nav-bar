@@ -90,10 +90,6 @@ export function EPrescriptionDocument({
           .find((p) => p.type === "timeZoneName")?.value ?? "")
       : "";
   const signed = !!rx.finalisedAt;
-  const timeZone =
-    typeof Intl !== "undefined"
-      ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "")
-      : "";
   /** Traceability identifier for this document, independent of the Rx number. */
   const documentId = doc?.id || rx.documentId || null;
   const rxNumber = doc ? doc.number : null;
