@@ -141,11 +141,12 @@ export function prescribingAuthority(args: {
     info: rx.patientInfo,
     patientName: args.patientName,
     country,
+    controlled: controlled.length > 0,
   });
   checks.push({
     key: "patient-identifiers",
     label:
-      country === "US"
+      controlled.length > 0
         ? "Patient full name, date of birth and address"
         : "Patient full name and date of birth",
     ok: patientGaps.length === 0,

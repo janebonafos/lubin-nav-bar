@@ -135,8 +135,13 @@ export type PatientSafetyInfo = {
   /** Date of birth is genuinely unavailable — never treated as "none known". */
   dobUnavailable?: boolean;
   /** Patient address as printed on the legal prescription layer. Required in
-   *  the U.S.; recorded where it is legally required. */
+   *  the U.S. for controlled substances and on Philippine dangerous drug,
+   *  senior-citizen and PWD prescriptions. Printed on every copy. */
   address?: string;
+  /** Where the patient was located during this encounter. Not the same as the
+   *  residential address — this decides which jurisdiction's prescribing rules
+   *  apply for a telehealth session. */
+  encounterLocation?: string;
   /** Date the recorded laboratory / organ-function result was taken. */
   labsAt?: string;
   /** Sex recorded on the prescription (required on a PH prescription). */

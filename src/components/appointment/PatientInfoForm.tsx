@@ -541,7 +541,7 @@ export function PatientInfoForm({
           </p>
           <label className="mt-3 block text-[12px] text-[#5A4A8A]">
             <span className="mb-1 block font-semibold text-[#2C2B4B]">
-              Patient address
+              Patient residential address
             </span>
             <input
               value={view.address ?? ""}
@@ -550,8 +550,26 @@ export function PatientInfoForm({
               className={inputClass}
             />
             <span className="mt-1 block leading-relaxed">
-              Printed on the prescription where it is legally required. Required on
-              United States prescriptions, including controlled substances.
+              Printed on the prescription copy. Mandatory before signing for
+              controlled / dangerous drugs — United States electronic controlled
+              prescriptions and Philippine dangerous drug, senior-citizen and PWD
+              prescriptions all require the patient's address.
+            </span>
+          </label>
+          <label className="mt-3 block text-[12px] text-[#5A4A8A]">
+            <span className="mb-1 block font-semibold text-[#2C2B4B]">
+              Patient location during this session
+            </span>
+            <input
+              value={view.encounterLocation ?? ""}
+              placeholder="City, state / province, country"
+              onChange={(e) => stage({ encounterLocation: e.target.value })}
+              className={inputClass}
+            />
+            <span className="mt-1 block leading-relaxed">
+              Recorded separately from the residential address. This is where the
+              patient was during the consultation, which determines whose
+              prescribing rules apply. It is not printed on the prescription.
             </span>
           </label>
         </div>
