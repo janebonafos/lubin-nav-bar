@@ -81,6 +81,13 @@ export function EPrescriptionDocument({
       })
     : null;
   const signed = !!rx.finalisedAt;
+  const timeZone =
+    typeof Intl !== "undefined"
+      ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "")
+      : "";
+  /** Traceability identifier for this document, independent of the Rx number. */
+  const documentId = doc?.id || rx.documentId || null;
+  const rxNumber = doc ? doc.number : null;
   /** A signed prescription never prints "Required before signing": signing is
    *  blocked while credentials are incomplete, so missing values are omitted. */
   const printed = (value?: string) => {
@@ -168,26 +175,35 @@ export function EPrescriptionDocument({
                   alt="Lubin"
                   className="h-7 w-auto brightness-0 invert"
                 />
-                <p className="mt-2 text-[12px] text-white/70">
-                  {identity.clinicName || "Lubin care team"}
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
+                  Prescription
+                </p>
+                <p className="mt-1 text-[13px] text-white/80">
+                  {identity.clinicName.trim() || "Lubin care team"} ·{" "}
+                  {JURISDICTION_LABEL[country]}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
-                  E-prescription
+              <div className="sm:text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">
+                  Rx no.
                 </p>
-                <p className="mt-1 text-[15px] font-semibold">{dateLong}</p>
-                <p className="mt-1 font-mono text-[12px] text-white/70">
-                  {doc ? `Rx # ${doc.number}` : "Rx # assigned when signed"}
+                <p className="mt-1 font-mono text-[20px] font-bold leading-none tracking-tight">
+                  {rxNumber ?? "—"}
+                </p>
+                <p className="mt-2 text-[11.5px] text-white/70">
+                  {rxNumber ? `Date issued ${dateLong}` : "Assigned when signed"}
+                </p>
+                <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-white/55">
+                  Document ID {documentId ?? "pending"}
                 </p>
               </div>
             </div>
           </header>
 
           {/* Identity grid */}
-          <section className="grid gap-8 border-b border-[#EDEBF3] px-7 py-7 sm:grid-cols-2 sm:gap-12">
-            <div>
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+          <section className="grid gap-5 border-b border-[#EDEBF3] px-7 py-7 sm:grid-cols-2 sm:gap-6">
+            <div className="rounded-[16px] border border-[#EAE5F6] bg-[#FCFBFE] p-5">
+              <h2 className="border-b border-[#EAE5F6] pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Patient information
               </h2>
               <p className="mt-3 text-[18px] font-bold leading-tight text-[#2C2B4B]">
@@ -207,8 +223,8 @@ export function EPrescriptionDocument({
                 </p>
               )}
             </div>
-            <div>
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
+            <div className="rounded-[16px] border border-[#EAE5F6] bg-[#FCFBFE] p-5">
+              <h2 className="border-b border-[#EAE5F6] pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
                 Prescribing professional
               </h2>
               <p className="mt-3 text-[14px] font-bold text-[#2C2B4B]">
@@ -408,8 +424,8 @@ export function EPrescriptionDocument({
           </section>
 
           {/* Signature */}
-          <footer className="grid gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:grid-cols-[1fr_auto] sm:items-end">
-            <div className="max-w-sm space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+          <footer className="flex flex-col gap-6 border-t border-[#EDEBF3] px-7 py-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-[220px] flex-1 space-y-2 text-[11.5px] leading-relaxed text-[#6F6889]">
               <p>
                 Take this exactly as written. Questions or side effects — message your
                 prescriber in Lubin. Urgent help — contact local emergency services.
@@ -424,24 +440,30 @@ export function EPrescriptionDocument({
                 Lubin's prescribing verification.
               </p>
             </div>
-            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4 sm:min-w-[280px] sm:text-right">
+            <div className="rounded-[16px] border border-[#E4E1EC] bg-white px-5 py-4 sm:min-w-[300px] sm:text-right">
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8A7FB0]">
                 {rx.finalisedAt ? "Electronically signed by" : "Electronic signature"}
               </p>
               {signed ? (
                 <>
-                  <p className="mt-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+                  <p className="mt-2 border-b border-[#EDEBF3] pb-2 text-[14px] font-bold text-[#2C2B4B]">
                     {withDoctorTitle(
                       identity.fullName || rx.finalisedBy || providerName || "your prescriber",
                     )}
                     {identity.qualifications ? `, ${identity.qualifications}` : ""}
                   </p>
-                  <p className="mt-1 text-[12px] text-[#6F6889]">
-                    {signedStamp}
+                  <p className="mt-2 text-[12px] text-[#6F6889]">
+                    Signed {signedStamp}
+                    {timeZone ? ` (${timeZone})` : ""}
                   </p>
-                  {doc && (
-                    <p className="mt-1 font-mono text-[12px] text-[#6F6889]">
-                      Rx # {doc.number}
+                  {rxNumber && (
+                    <p className="mt-1 font-mono text-[12px] font-semibold text-[#2C2B4B]">
+                      Rx # {rxNumber}
+                    </p>
+                  )}
+                  {documentId && (
+                    <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#A79FC4]">
+                      Document ID {documentId}
                     </p>
                   )}
                   {rx.signature?.credentials && (
@@ -456,16 +478,24 @@ export function EPrescriptionDocument({
                   )}
                 </>
               ) : (
-                <p className="mt-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-                  This copy is not signed yet.
-                </p>
+                <>
+                  <p className="mt-2 border-b border-dashed border-[#D9D5E3] pb-6" />
+                  <p className="mt-2 text-[12.5px] font-semibold text-[#2C2B4B]">
+                    This copy is not signed yet.
+                  </p>
+                  <p className="mt-1 text-[11.5px] text-[#6F6889]">
+                    The prescriber's name, signing date and time, timezone and Rx
+                    number appear here once the prescription is signed.
+                  </p>
+                </>
               )}
             </div>
           </footer>
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#EDEBF3] bg-[#FCFBFE] px-7 py-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#A79FC4]">
             <span>Lubin — patient prescription copy</span>
-            <span>{doc ? `Rx # ${doc.number}` : "Rx # assigned when signed"}</span>
+            <span>{rxNumber ? `Rx # ${rxNumber}` : "Rx # assigned when signed"}</span>
+            <span>{documentId ? `Doc ${documentId}` : "Doc ID pending"}</span>
             <span>Page 1 of 1</span>
           </div>
         </article>
