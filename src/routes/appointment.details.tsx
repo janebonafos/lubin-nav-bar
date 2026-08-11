@@ -1255,41 +1255,41 @@ function DetailsPage() {
 
       {/* Confirm the appointment outcome */}
       <Dialog open={outcomeNoticeOpen && !!noticeCopy} onOpenChange={setOutcomeNoticeOpen}>
-        <DialogContent className="max-w-[452px] overflow-hidden p-0">
-          <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-5 py-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6E4FD3]">
-              {noticeSignedConflict && <Ban className="h-3.5 w-3.5" />}
+        <DialogContent className="max-w-[560px] overflow-hidden p-0">
+          <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-6 py-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-wider text-[#6E4FD3]">
+              {noticeSignedConflict && <Ban className="h-4 w-4" />}
               {noticeSignedConflict ? SIGNED_RX_MODAL.eyebrow : noticeCopy?.eyebrow}
             </span>
-            <DialogHeader className="mt-2.5 space-y-1 text-left">
-              <DialogTitle className="text-[16.5px] font-bold leading-snug text-[#2C2B4B]">
+            <DialogHeader className="mt-3 space-y-1.5 text-left">
+              <DialogTitle className="text-[19px] font-bold leading-snug text-[#2C2B4B]">
                 {noticeSignedConflict ? SIGNED_RX_MODAL.title : noticeCopy?.title}
               </DialogTitle>
-              <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
+              <DialogDescription className="text-[14.5px] leading-relaxed text-[#7E6BAF]">
                 {noticeSignedConflict
                   ? SIGNED_RX_MODAL.description
                   : noticeCopy?.primaryDescription}
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div className="px-5 py-4">
+          <div className="px-6 py-5">
             {!noticeSignedConflict && (
-              <p className="text-[12.5px] leading-relaxed text-[#7E6BAF]">
+              <p className="text-[14px] leading-relaxed text-[#7E6BAF]">
                 {noticeCopy?.secondaryDescription}
               </p>
             )}
             {noticeDraftWarning && (
-              <p className="mt-3 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#6B5327]">
+              <p className="mt-3.5 rounded-[14px] border border-[#EBD3A6] bg-[#FDF8EE] px-4 py-3.5 text-[14px] leading-relaxed text-[#6B5327]">
                 {UNSIGNED_DRAFT_WARNING}
               </p>
             )}
             {noticeOutcome === "completed" &&
               (rxRecordState.signed || rxRecordState.unsignedDraft) && (
-                <p className="mt-3 rounded-[14px] border border-[#DCCFF5] bg-[#F7F3FF] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#4A3A7A]">
+                <p className="mt-3.5 rounded-[14px] border border-[#DCCFF5] bg-[#F7F3FF] px-4 py-3.5 text-[14px] leading-relaxed text-[#4A3A7A]">
                   {RX_COMPLETED_RELEASE_NOTE}
                 </p>
               )}
-            <div className="mt-4 flex flex-wrap justify-end gap-2">
+            <div className="mt-5 flex flex-wrap justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -1298,7 +1298,7 @@ function DetailsPage() {
                   setDraftWarningFor(null);
                   setOutcomeNoticeOpen(false);
                 }}
-                className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
+                className="inline-flex h-11 items-center rounded-[12px] border border-[#EAE2F6] bg-white px-4.5 text-[14.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
               >
                 {noticeSignedConflict
                   ? SIGNED_RX_MODAL.secondaryButton
@@ -1315,7 +1315,7 @@ function DetailsPage() {
                   }
                   setOutcomeNoticeOpen(false);
                 }}
-                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                className="inline-flex h-11 items-center rounded-[12px] bg-[#6E4FD3] px-5 text-[14.5px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
                 {noticeSignedConflict ? SIGNED_RX_MODAL.primaryButton : noticeCopy?.primaryButton}
               </button>
