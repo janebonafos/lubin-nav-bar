@@ -46,7 +46,6 @@ export function SigningDialog({
   clientName,
   patientAgeYears,
   patientState,
-  onIdentityChange,
   onSigned,
   reviewState,
 }: {
@@ -58,13 +57,13 @@ export function SigningDialog({
   clientName?: string;
   patientAgeYears?: number | null;
   patientState?: string;
-  onIdentityChange: (next: PrescriberIdentity) => void;
+  /** Kept for API compatibility; the signing email is never edited here. */
+  onIdentityChange?: (next: PrescriberIdentity) => void;
   onSigned: (args: { method: SigningMethod; methodLabel: string; hash: string }) => void;
   /** Required review states, re-validated on the server before the code is issued. */
   reviewState: SigningReviewSnapshot;
 }) {
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
-  const controlled = controlledMedications(rx.medications);
   // Only PH medications that genuinely need the dangerous-drug pathway.
   const specialForm = requiresPhSpecialForm(rx.medications, country);
   const version = (rx.version ?? 0) + 1;
