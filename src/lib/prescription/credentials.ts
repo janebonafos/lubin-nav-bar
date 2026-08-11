@@ -13,6 +13,8 @@ export type PrescriberIdentity = {
   clinicName: string;
   clinicAddress: string;
   clinicContact: string;
+  /** Registered account email that receives the signing one-time code. */
+  signingEmail?: string;
   /** Philippines */
   prcNumber: string;
   ptrNumber: string;
@@ -49,6 +51,7 @@ export function emptyIdentity(): PrescriberIdentity {
     clinicName: "",
     clinicAddress: "",
     clinicContact: "",
+    signingEmail: "",
     prcNumber: "",
     ptrNumber: "",
     s2Number: "",

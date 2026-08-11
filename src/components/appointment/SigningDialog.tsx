@@ -1,13 +1,11 @@
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, ShieldCheck, AlertTriangle, Check, KeyRound } from "lucide-react";
+import { Lock, ShieldCheck, AlertTriangle, Check, KeyRound, Mail, Loader2 } from "lucide-react";
 import type { Prescription, RxCountry } from "@/lib/prescription/store";
 import {
   type PrescriberIdentity,
   credentialSummary,
-  hasSigningPassphrase,
-  setSigningPassphrase,
-  verifySigningPassphrase,
 } from "@/lib/prescription/credentials";
 import {
   prescribingAuthority,
@@ -15,11 +13,17 @@ import {
   formatHash,
   epcsReadiness,
   controlledMedications,
-  SIGNING_BUTTON_COPY,
   SIGNING_METHOD_LABEL,
   type SigningMethod,
 } from "@/lib/prescription/signing";
 import { FINAL_AUTHORISATION_STATEMENT } from "@/lib/prescription/reference";
+import { requestSigningOtp, verifySigningOtp } from "@/lib/prescription/signOtp.functions";
+import type { SigningReviewState } from "@/lib/prescription/signOtp.functions";
+
+export type SigningReviewSnapshot = Omit<
+  SigningReviewState,
+  "email" | "hash" | "version" | "jurisdiction" | "prescriberName"
+>;
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
   US: "United States",
@@ -44,6 +48,7 @@ export function SigningDialog({
   patientState,
   onIdentityChange,
   onSigned,
+  reviewState,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -55,6 +60,8 @@ export function SigningDialog({
   patientState?: string;
   onIdentityChange: (next: PrescriberIdentity) => void;
   onSigned: (args: { method: SigningMethod; methodLabel: string; hash: string }) => void;
+  /** Required review states, re-validated on the server before the code is issued. */
+  reviewState: SigningReviewSnapshot;
 }) {
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
   const controlled = controlledMedications(rx.medications);
@@ -80,46 +87,85 @@ export function SigningDialog({
   const epcs = epcsReadiness(identity);
   const isEpcs = authority.method === "epcs-two-factor";
 
-  const [passphrase, setPassphrase] = useState("");
-  const [newPassphrase, setNewPassphrase] = useState("");
   const [code, setCode] = useState("");
   const [attested, setAttested] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState(identity.signingEmail ?? "");
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [sent, setSent] = useState<{ masked: string; ttl: number; fallback?: string } | null>(null);
 
-  const passphraseSet = hasSigningPassphrase(identity);
+  const sendOtp = useServerFn(requestSigningOtp);
+  const verifyOtp = useServerFn(verifySigningOtp);
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const payload = (extra?: { code: string }) => ({
+    ...reviewState,
+    ...extra,
+    email: email.trim(),
+    hash,
+    version,
+    jurisdiction: country,
+    prescriberName: identity.fullName || undefined,
+  });
+
+  const requestCode = async () => {
+    setError(null);
+    if (!emailValid) {
+      setError("Add the email registered to your prescribing account.");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await sendOtp({ data: payload() });
+      if (!res.ok) {
+        setError(res.blockers[0] ?? "Some required review items are still outstanding.");
+        return;
+      }
+      if (identity.signingEmail !== email.trim()) {
+        onIdentityChange({ ...identity, signingEmail: email.trim() });
+      }
+      setSent({ masked: res.maskedEmail, ttl: res.ttlMinutes, fallback: res.fallbackCode });
+    } catch {
+      setError("The code could not be sent. Try again in a moment.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const codeValid = /^\d{6}$/.test(code.trim());
   const ready =
     authority.authorised &&
     attested &&
-    (passphraseSet ? passphrase.length > 0 : newPassphrase.length >= 8) &&
-    (!isEpcs || (epcs.ready && codeValid));
+    !!sent &&
+    codeValid &&
+    (!isEpcs || epcs.ready);
 
-  const sign = () => {
+  const sign = async () => {
     setError(null);
-    let workingIdentity = identity;
-    if (!passphraseSet) {
-      if (newPassphrase.length < 8) {
-        setError("Choose a signing passphrase of at least 8 characters.");
-        return;
-      }
-      workingIdentity = setSigningPassphrase(identity, newPassphrase);
-      onIdentityChange(workingIdentity);
-    } else if (!verifySigningPassphrase(identity, passphrase)) {
-      setError("That signing passphrase does not match. The prescription was not signed.");
-      return;
-    }
     if (isEpcs && !epcs.ready) {
       setError("EPCS signing is not available for this account.");
       return;
     }
-    const methodLabel = isEpcs
-      ? `${SIGNING_METHOD_LABEL["epcs-two-factor"]} (${epcs.provider})`
-      : SIGNING_METHOD_LABEL["password-reauth"];
-    setPassphrase("");
-    setNewPassphrase("");
-    setCode("");
-    setAttested(false);
-    onSigned({ method: authority.method, methodLabel, hash });
+    setVerifying(true);
+    try {
+      const res = await verifyOtp({ data: payload({ code: code.trim() }) });
+      if (!res.ok) {
+        setError(res.error ?? "That code could not be verified.");
+        return;
+      }
+      const methodLabel = isEpcs
+        ? `${SIGNING_METHOD_LABEL["epcs-two-factor"]} (${epcs.provider})`
+        : "Verified with a one-time code sent to the prescriber's registered email";
+      setCode("");
+      setAttested(false);
+      setSent(null);
+      onSigned({ method: authority.method, methodLabel, hash });
+    } catch {
+      setError("That code could not be verified. Try again.");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
@@ -215,34 +261,76 @@ export function SigningDialog({
             </ul>
           </section>
 
-          {/* Re-authentication */}
+          {/* Re-authentication with a one-time code sent to the registered email */}
           <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-              <KeyRound className="h-4 w-4 text-[#6E4FD3]" /> Re-authenticate to sign
+              <KeyRound className="h-4 w-4 text-[#6E4FD3]" /> Verify with a one-time code
             </p>
-            {passphraseSet ? (
-              <label className="mt-2.5 block text-[12px] font-medium text-[#5A4A8A]">
-                Your signing passphrase
-                <input
-                  type="password"
-                  value={passphrase}
-                  onChange={(e) => setPassphrase(e.target.value)}
-                  autoComplete="off"
-                  className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-                />
-              </label>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#5A4A8A]">
+              We send the code to the email registered to your prescribing account. It is valid once
+              and only for this version of the prescription.
+            </p>
+
+            {!sent ? (
+              <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-end">
+                <label className="flex-1 block text-[12px] font-medium text-[#5A4A8A]">
+                  Registered email
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    placeholder="you@clinic.com"
+                    className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={requestCode}
+                  disabled={sending || !emailValid}
+                  className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {sending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}
+                  Send code
+                </button>
+              </div>
             ) : (
-              <label className="mt-2.5 block text-[12px] font-medium text-[#5A4A8A]">
-                Create your signing passphrase (at least 8 characters). You will re-enter it every
-                time you sign.
-                <input
-                  type="password"
-                  value={newPassphrase}
-                  onChange={(e) => setNewPassphrase(e.target.value)}
-                  autoComplete="new-password"
-                  className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-                />
-              </label>
+              <div className="mt-2.5">
+                <label className="block text-[12px] font-medium text-[#5A4A8A]">
+                  6-digit code sent to {sent.masked}
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="000000"
+                    className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[15px] tracking-[0.34em] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+                  />
+                </label>
+                <div className="mt-1.5 flex flex-wrap items-center gap-3">
+                  <span className="text-[11.5px] text-[#6F6889]">
+                    Expires in {sent.ttl} minutes.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={requestCode}
+                    disabled={sending}
+                    className="text-[11.5px] font-semibold text-[#6E4FD3] hover:text-[#5A3EB8] disabled:opacity-45"
+                  >
+                    {sending ? "Sending…" : "Send a new code"}
+                  </button>
+                </div>
+                {sent.fallback && (
+                  <p className="mt-2 rounded-lg border border-[#F0D9A8] bg-[#FDF8EE] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6A20]">
+                    Email delivery is not configured in this environment, so the code is shown here
+                    for verification: <strong>{sent.fallback}</strong>
+                  </p>
+                )}
+              </div>
             )}
 
             {isEpcs && (
@@ -251,18 +339,7 @@ export function SigningDialog({
                   <ShieldCheck className="h-4 w-4" /> EPCS two-factor signing required
                 </p>
                 <p className="mt-1 text-[11.5px] leading-relaxed text-[#5C3B3B]">{epcs.detail}</p>
-                {epcs.ready ? (
-                  <label className="mt-2.5 block text-[12px] font-medium text-[#5C3B3B]">
-                    One-time code from your registered authenticator
-                    <input
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      inputMode="numeric"
-                      placeholder="6-digit code"
-                      className="mt-1 w-full rounded-lg border border-[#E7CFCF] bg-white px-3 py-2 text-[13px] tracking-[0.3em] text-[#2C2B4B] focus:border-[#9B4A4A] focus:outline-none"
-                    />
-                  </label>
-                ) : (
+                {!epcs.ready && (
                   <p className="mt-2 text-[11.5px] font-semibold leading-relaxed text-[#9B4A4A]">
                     This controlled-substance prescription cannot be signed in Lubin. Issue it
                     through your certified EPCS system — a confirmation here is not a DEA-compliant
@@ -306,12 +383,16 @@ export function SigningDialog({
             </button>
             <button
               type="button"
-              disabled={!ready}
+              disabled={!ready || verifying}
               onClick={sign}
               className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#6E4FD3] px-5 text-[13px] font-semibold text-white shadow-lg shadow-[#6E4FD3]/30 transition hover:bg-[#7C5FE0] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
             >
-              <Lock className="h-4 w-4" />
-              {isEpcs ? SIGNING_BUTTON_COPY.epcs : SIGNING_BUTTON_COPY.standard}
+              {verifying ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Lock className="h-4 w-4" />
+              )}
+              {verifying ? "Verifying…" : "Verify & sign"}
             </button>
           </div>
           <p className="pb-2 text-[11.5px] leading-relaxed text-[#6F6889]">
