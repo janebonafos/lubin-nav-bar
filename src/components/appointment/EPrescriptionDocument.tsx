@@ -146,8 +146,8 @@ export function EPrescriptionDocument({
             lines={[
               `Complete ${prescriberGaps.join(", ")} before signing.`,
               country === "PH"
-                ? "A Philippine prescription must print your clinic details, PRC and PTR numbers."
-                : "A United States prescription must print your practice address, state licence and NPI.",
+                ? "A Philippine prescription must print your professional address, contact details, PRC and PTR numbers. Complete these in your Lubin prescribing verification."
+                : "A United States prescription must print your professional address, contact details, state licence and NPI. Complete these in your Lubin prescribing verification.",
             ]}
           />
         )}
