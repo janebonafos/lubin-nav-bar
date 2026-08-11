@@ -23,6 +23,13 @@ import {
   VERIFICATION_STATUS_LABEL,
 } from "@/lib/prescription/useVerifiedPrescribing";
 import { loadPrescription, subscribePrescription } from "@/lib/prescription/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 import {
   encounterPrescribingBlock,
@@ -314,6 +321,9 @@ function DetailsPage() {
   // prescription exists, a confirm-once warning when an unsigned draft does.
   const [outcomeConflict, setOutcomeConflict] = useState<string | null>(null);
   const [draftWarningFor, setDraftWarningFor] = useState<Outcome | null>(null);
+  // Selecting a non-delivered outcome closes prescribing immediately, before the
+  // appointment is closed, so the provider cannot keep working on medication.
+  const [outcomeNoticeOpen, setOutcomeNoticeOpen] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
@@ -531,6 +541,12 @@ function DetailsPage() {
   // The recorded outcome decides whether this appointment is still a valid
   // prescribing encounter.
   const encounterBlock = encounterPrescribingBlock(recordedOutcome);
+  // A pending (selected but not yet recorded) outcome gates prescribing the same
+  // way a recorded one does; switching back to Completed restores the workflow.
+  const pendingBlock = recordedOutcome
+    ? null
+    : encounterPrescribingBlock(outcomeChoice ?? undefined);
+  const activeBlock = encounterBlock ?? pendingBlock;
   const rxServiceOnly = serviceSupportsPrescription(appt?.type, appt?.prescriptionEligible);
 
   // One source of truth for the card header: it can never say "Verified" while
@@ -567,7 +583,7 @@ function DetailsPage() {
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
-  const rxDone = !rxShown || !!encounterBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
+  const rxDone = !rxShown || !!activeBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
   // Prescribing is never gated on the optional shared summary. Access depends on
   // the appointment having occurred, verified prescribing authority, the required
@@ -1051,7 +1067,7 @@ function DetailsPage() {
                 }
                 done={rxDone}
                 checkBadge={rxDone}
-                pillLabel={encounterBlock ? "Not applicable" : rxStatus}
+                pillLabel={activeBlock ? "Not applicable" : rxStatus}
               >
                 <AiPrescription
                   appointmentId={appt.id}
@@ -1060,7 +1076,7 @@ function DetailsPage() {
                   appointmentLabel={appointmentLabel}
                   jurisdiction={rxCountry}
                   clinicalDocumentationReady={clinicalDocForRx}
-                  encounterBlock={encounterBlock}
+                  encounterBlock={activeBlock}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
               </SectionCard>
@@ -1134,6 +1150,11 @@ function DetailsPage() {
                               setOutcomeChoice(o.value);
                               setOutcomeConflict(null);
                               setDraftWarningFor(null);
+                              // Immediately reflect the prescribing consequence of
+                              // this outcome, and say so once in a modal.
+                              setOutcomeNoticeOpen(
+                                rxShown && !!encounterPrescribingBlock(o.value),
+                              );
                             }}
                             className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
                           />
@@ -1220,6 +1241,47 @@ function DetailsPage() {
 
         </div>
       </div>
+
+      {/* Prescribing not applicable for the selected outcome */}
+      <Dialog open={outcomeNoticeOpen && !!pendingBlock} onOpenChange={setOutcomeNoticeOpen}>
+        <DialogContent className="max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle className="text-[15px] font-bold text-[#2C2B4B]">
+              {pendingBlock?.title ?? "Prescribing is not applicable"}
+            </DialogTitle>
+            <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
+              {pendingBlock?.reason}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-[12.5px] leading-snug text-[#7E6BAF]">
+            The prescription step is now closed and marked{" "}
+            <span className="font-semibold text-[#3D2E6B]">Not applicable</span>. Select{" "}
+            <span className="font-semibold text-[#3D2E6B]">Completed</span> again if this
+            appointment was delivered — any prescription you already created becomes available.
+          </p>
+          <div className="mt-1 flex flex-wrap justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setOutcomeChoice("completed");
+                setOutcomeConflict(null);
+                setDraftWarningFor(null);
+                setOutcomeNoticeOpen(false);
+              }}
+              className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
+            >
+              Back to Completed
+            </button>
+            <button
+              type="button"
+              onClick={() => setOutcomeNoticeOpen(false)}
+              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+            >
+              Understood
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
