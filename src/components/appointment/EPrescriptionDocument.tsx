@@ -261,16 +261,16 @@ export function EPrescriptionDocument({
                 {prescriberName}
               </p>
               {credentialChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
                   {credentialChips.map((c) => (
                     <span
                       key={c.label}
-                      className="inline-flex items-baseline gap-1.5 rounded-[7px] border border-[#DCD2F4] bg-[#F6F2FF] px-2 py-1 print:border-[#B9ABE0] print:bg-transparent"
+                      className="inline-flex items-baseline gap-1.5"
                     >
                       <span className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-[#8A7FB0]">
                         {c.label}
                       </span>
-                      <span className="text-[12px] font-bold tabular-nums text-[#3D2E6B]">
+                      <span className="text-[12.5px] font-bold tabular-nums text-[#2C2B4B]">
                         {c.value}
                       </span>
                     </span>
