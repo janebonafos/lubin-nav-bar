@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, Building2, Check, Loader2, Search, User } from "lucide-react";
 import type { Prescription, RxCountry } from "@/lib/prescription/store";
 import { findPharmacy, pharmaciesFor, pharmacyLine } from "@/lib/prescription/pharmacies";
-import { DELIVERY_STATE_LABEL } from "@/lib/prescription/status";
 import { formatCheckedAt } from "@/lib/prescription/safety";
 
 /**
