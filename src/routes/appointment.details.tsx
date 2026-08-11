@@ -1061,12 +1061,12 @@ function DetailsPage() {
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
                 locked={rxLocked}
-                dimmed={!clinicalDocForRx}
+                dimmed={!clinicalDocForRx || !!activeBlock}
                 lockedNote={
                   !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
                 }
-                done={rxDone}
-                checkBadge={rxDone}
+                done={activeBlock ? false : rxDone}
+                checkBadge={activeBlock ? false : rxDone}
                 pillLabel={activeBlock ? "Not applicable" : rxStatus}
               >
                 <AiPrescription
