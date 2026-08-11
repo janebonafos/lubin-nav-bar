@@ -39,6 +39,8 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
+import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
+import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
 import ClientAppointmentsSection, {
   CLIENT_UPCOMING_COUNT,
 } from "@/components/profile/ClientAppointmentsSection";
@@ -133,6 +135,11 @@ function ProfilePage() {
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
   const navigate = useNavigate();
   const search = Route.useSearch();
+  // Only prescribing professions carry a prescription record.
+  const [canPrescribe, setCanPrescribe] = useState(false);
+  useEffect(() => {
+    setCanPrescribe(isPrescriber(getProviderProfession()));
+  }, []);
 
   // Allow deep-linking to a specific sidebar section (e.g. from payment-success).
   useEffect(() => {
@@ -436,6 +443,15 @@ function ProfilePage() {
           { key: "services", label: "Services & Offerings", icon: <Briefcase className="h-5 w-5" /> },
           { key: "calendar", label: "Calendar & Availability", icon: <CalendarDays className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
+          ...(canPrescribe
+            ? [
+                {
+                  key: "prescriptions" as Section,
+                  label: "Prescriptions",
+                  icon: <ClipboardList className="h-5 w-5" />,
+                },
+              ]
+            : []),
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
           { key: "verification", label: "Verification", icon: <ShieldCheck className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -1131,6 +1147,10 @@ function ProfilePage() {
 
     {activeSection === "appointments" && role === "client" && (
       <ClientAppointmentsSection />
+    )}
+
+    {activeSection === "prescriptions" && role === "provider" && (
+      <ProviderPrescriptionsSection />
     )}
 
     {activeSection === "payments" && role === "provider" && (
