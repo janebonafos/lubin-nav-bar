@@ -179,8 +179,8 @@ export function SigningDialog({
         <div className="space-y-3 px-5 py-4">
           {/* Uneditable prescription */}
           <section className="rounded-xl border border-[#E4E1EC] bg-white p-4">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8A7FB0]">
-              <Lock className="h-3.5 w-3.5" /> Prescription as it will be signed — no longer editable
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8A7FB0]">
+              Prescription as it will be signed — no longer editable
             </p>
             <ul className="mt-3 space-y-2.5">
               {meds.map((m) => (
@@ -372,7 +372,7 @@ export function SigningDialog({
               {verifying ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Lock className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4" />
               )}
               {verifying ? "Verifying…" : "Verify & sign"}
             </button>
