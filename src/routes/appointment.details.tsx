@@ -1051,7 +1051,7 @@ function DetailsPage() {
                 }
                 done={rxDone}
                 checkBadge={rxDone}
-                pillLabel={rxStatus}
+                pillLabel={encounterBlock ? "Not applicable" : rxStatus}
               >
                 <AiPrescription
                   appointmentId={appt.id}
@@ -1060,6 +1060,7 @@ function DetailsPage() {
                   appointmentLabel={appointmentLabel}
                   jurisdiction={rxCountry}
                   clinicalDocumentationReady={clinicalDocForRx}
+                  encounterBlock={encounterBlock}
                   onAddClinicalInfo={() => setOpenStep("session-notes")}
                 />
               </SectionCard>
