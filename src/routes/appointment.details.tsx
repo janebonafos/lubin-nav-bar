@@ -33,6 +33,8 @@ import {
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 import {
   encounterPrescribingBlock,
+  OUTCOME_COPY,
+  SIGNED_RX_MODAL,
   SIGNED_RX_CONFLICT,
   UNSIGNED_DRAFT_WARNING,
 } from "@/lib/prescription/encounter";
