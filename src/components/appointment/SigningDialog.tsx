@@ -351,9 +351,7 @@ export function SigningDialog({
             )}
 
             {error && (
-              <p className="mt-2 flex items-start gap-1.5 text-[12px] font-semibold text-[#9B4A4A]">
-                <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" /> {error}
-              </p>
+              <p className="mt-2 text-[12px] font-semibold text-[#6E4FD3]">{error}</p>
             )}
           </section>
 
