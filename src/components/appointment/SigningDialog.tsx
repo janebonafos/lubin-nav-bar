@@ -311,7 +311,7 @@ export function SigningDialog({
                 <button
                   type="button"
                   onClick={requestCode}
-                  disabled={sending || !emailValid}
+                  disabled={sending || !emailValid || !attested}
                   className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {sending ? (
@@ -380,7 +380,7 @@ export function SigningDialog({
             )}
           </section>
 
-          {controlled.length > 0 && country === "PH" && (
+          {specialForm.length > 0 && (
             <p className="rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6A20]">
               The electronic copy signed here accompanies the official special prescription form.
               The S2 form remains the legal instrument for a dangerous drug.
