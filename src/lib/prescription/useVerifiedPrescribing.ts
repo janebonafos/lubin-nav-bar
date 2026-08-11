@@ -3,7 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { getPrescribingVerification } from "./verification.functions";
 import type { VerifiedPrescriberRecord, VerificationStatus } from "./verification.server";
 import { isPrescriber, type RxCountry } from "./store";
-import type { PrescriberIdentity } from "./credentials";
+import { emptyIdentity, type PrescriberIdentity } from "./credentials";
+import { prescriberPrintGaps } from "./legal";
 
 export type { VerifiedPrescriberRecord, VerificationStatus };
 
@@ -102,6 +103,24 @@ export function prescribingGate(args: {
       outstanding: [
         `Add ${country === "PH" ? "Philippine" : "United States"} prescribing credentials to your Lubin verification`,
       ],
+    };
+  // Verified authority is not enough: everything that must be printed on a
+  // legal prescription has to already be on file, so a prescriber is never
+  // asked to fix their own details while issuing a prescription.
+  const printGaps = prescriberPrintGaps(
+    applyVerifiedRecord(emptyIdentity(), record).identity,
+    country,
+    false,
+  );
+  if (printGaps.length > 0)
+    return {
+      allowed: false,
+      status: record.status,
+      reason:
+        "Your verified prescriber details are incomplete, so a compliant prescription cannot be printed yet.",
+      outstanding: printGaps.map(
+        (label) => `Add ${label.toLowerCase()} to your Lubin prescribing verification`,
+      ),
     };
   return { allowed: true, status: "verified", outstanding: [] };
 }

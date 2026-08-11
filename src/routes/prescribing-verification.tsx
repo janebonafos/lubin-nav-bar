@@ -631,14 +631,14 @@ function StepBody({
     return (
       <div className="grid gap-4 sm:grid-cols-2">
         <Text
-          label="Practice or clinic name"
+          label="Practice / clinic name (optional)"
           value={app.clinicName}
           disabled={readOnly}
           onChange={(v) => set({ clinicName: v })}
           placeholder="Lubin Psychiatry — Makati"
         />
         <Text
-          label="Practice contact"
+          label="Professional contact"
           value={app.clinicContact}
           disabled={readOnly}
           onChange={(v) => set({ clinicContact: v })}
@@ -646,7 +646,7 @@ function StepBody({
         />
         <div className="sm:col-span-2">
           <Text
-            label="Practice address"
+            label="Professional / practice address"
             value={app.clinicAddress}
             disabled={readOnly}
             onChange={(v) => set({ clinicAddress: v })}
@@ -654,8 +654,9 @@ function StepBody({
           />
         </div>
         <p className="text-[12px] leading-relaxed text-[#6F6889] sm:col-span-2">
-          These details are printed on the prescription your client receives. Credential numbers are
-          not.
+          These details are printed on every prescription you issue, so they must be complete here.
+          Prescribing stays closed until they are on file — you will not be asked to fill them in
+          while issuing a prescription.
         </p>
       </div>
     );

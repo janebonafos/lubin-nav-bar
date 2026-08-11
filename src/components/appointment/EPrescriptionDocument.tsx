@@ -146,8 +146,8 @@ export function EPrescriptionDocument({
             lines={[
               `Complete ${prescriberGaps.join(", ")} before signing.`,
               country === "PH"
-                ? "A Philippine prescription must print your clinic details, PRC and PTR numbers."
-                : "A United States prescription must print your practice address, state licence and NPI.",
+                ? "A Philippine prescription must print your professional address, contact details, PRC and PTR numbers. Complete these in your Lubin prescribing verification."
+                : "A United States prescription must print your professional address, contact details, state licence and NPI. Complete these in your Lubin prescribing verification.",
             ]}
           />
         )}
@@ -318,9 +318,15 @@ export function EPrescriptionDocument({
               />
               {country === "PH" ? (
                 <>
-                  <Line label="Clinic" value={printed(identity.clinicName)} />
-                  <Line label="Clinic address" value={printed(identity.clinicAddress)} />
-                  <Line label="Contact" value={printed(identity.clinicContact)} />
+                  <Line
+                    label="Practice / clinic name"
+                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
+                  />
+                  <Line
+                    label="Professional / practice address"
+                    value={printed(identity.clinicAddress)}
+                  />
+                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
                   <Line label="PRC no." value={printed(identity.prcNumber)} />
                   <Line label="PTR no." value={printed(identity.ptrNumber)} />
                   {controlled && (
@@ -329,9 +335,15 @@ export function EPrescriptionDocument({
                 </>
               ) : (
                 <>
-                  <Line label="Practice" value={printed(identity.clinicName)} />
-                  <Line label="Practice address" value={printed(identity.clinicAddress)} />
-                  <Line label="Contact" value={printed(identity.clinicContact)} />
+                  <Line
+                    label="Practice / clinic name"
+                    value={identity.clinicName.trim() || (signed ? null : "Optional")}
+                  />
+                  <Line
+                    label="Professional / practice address"
+                    value={printed(identity.clinicAddress)}
+                  />
+                  <Line label="Professional contact" value={printed(identity.clinicContact)} />
                   <Line
                     label="State licence"
                     value={

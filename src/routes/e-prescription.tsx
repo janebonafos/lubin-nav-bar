@@ -4,6 +4,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EPrescriptionDocument } from "@/components/appointment/EPrescriptionDocument";
 import { loadPrescription, type Prescription, type RxCountry } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
+import {
+  applyVerifiedRecord,
+  useVerifiedPrescribing,
+} from "@/lib/prescription/useVerifiedPrescribing";
 
 type Search = {
   appointment: string;
@@ -47,6 +51,8 @@ function EPrescriptionPage() {
   const { appointment, country, client, provider, draft } = Route.useSearch();
   const [rx, setRx] = useState<Prescription | null>(null);
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
+  const verification = useVerifiedPrescribing(provider);
+  const record = verification.data;
 
   useEffect(() => {
     if (!appointment) return;
@@ -79,7 +85,7 @@ function EPrescriptionPage() {
         country={country ?? "PH"}
         clientName={client}
         providerName={provider}
-        identity={identity}
+        identity={applyVerifiedRecord(identity, record).identity}
         draft={draft}
       />
     </main>
