@@ -70,16 +70,25 @@ export function EPrescriptionDocument({
     month: "long",
     day: "numeric",
   });
-  const signedStamp = rx.finalisedAt
-    ? issued.toLocaleString(undefined, {
-        year: "numeric",
-        month: "long",
+  const signedDate = rx.finalisedAt
+    ? issued.toLocaleDateString(undefined, {
+        month: "short",
         day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZoneName: "short",
+        year: "numeric",
       })
     : null;
+  const signedTime = rx.finalisedAt
+    ? issued.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
+  const signedTz =
+    rx.finalisedAt && typeof Intl !== "undefined"
+      ? (Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+          .formatToParts(issued)
+          .find((p) => p.type === "timeZoneName")?.value ?? "")
+      : "";
   const signed = !!rx.finalisedAt;
   const timeZone =
     typeof Intl !== "undefined"
