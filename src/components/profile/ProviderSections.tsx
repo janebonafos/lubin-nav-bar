@@ -1561,12 +1561,20 @@ export function AppointmentsSection() {
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
 
-  // Sessions read as "Completed" only after the provider marks them completed.
+  // The pill reflects the recorded outcome, so an item inside the Completed tab
+  // never reads as "confirmed".
+  const OUTCOME_LABEL: Record<NonNullable<Appt["outcome"]>, string> = {
+    completed: "completed",
+    client_no_show: "client no-show",
+    provider_no_show: "provider no-show",
+    cancelled: "cancelled",
+    rescheduled: "rescheduled",
+  };
   const statusLabel = (a: Appt) =>
-    a.status === "completed" && !a.publishedFollowUp ? "confirmed" : a.status;
+    a.status === "completed" && a.outcome ? OUTCOME_LABEL[a.outcome] : a.status;
   const statusTone = (a: Appt) =>
-    a.status === "completed" && !a.publishedFollowUp
-      ? statusStyle.upcoming
+    a.status === "completed" && a.outcome && a.outcome !== "completed"
+      ? statusStyle.cancelled
       : statusStyle[a.status];
 
   if (loading) {
@@ -1576,9 +1584,21 @@ export function AppointmentsSection() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="This week" value="6" hint="3 confirmed · 3 pending" />
-        <StatCard label="Completed" value={String(counts.completed)} hint="Last 30 days" />
-        <StatCard label="No-show rate" value="2%" hint="Last 30 days" />
+        <StatCard
+          label="Upcoming"
+          value={String(counts.upcoming)}
+          hint={`${counts.all} total booking${counts.all === 1 ? "" : "s"}`}
+        />
+        <StatCard label="Completed" value={String(counts.completed)} hint="Closed appointments" />
+        <StatCard
+          label="No-shows"
+          value={String(
+            all.filter(
+              (a) => a.outcome === "client_no_show" || a.outcome === "provider_no_show",
+            ).length,
+          )}
+          hint="Recorded at close-out"
+        />
       </div>
 
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
@@ -2445,7 +2465,7 @@ export function ApptNotesBlock({
               {showSupporting && (
               <div className="space-y-4 border-t border-[#F0EAFB] p-3">
                 <p className="text-xs leading-relaxed text-[#7E6BAF]">
-                  Share files, web links, or a short note Anna can use between sessions or on her own. Everything here is optional.
+                  Share files, web links, or a short note {clientLabel} can use between sessions or on their own. Everything here is optional.
                 </p>
             {/* Files to share */}
             <div>
@@ -2577,7 +2597,7 @@ export function ApptNotesBlock({
                 )}
               </div>
               <p className="mt-0.5 text-[11px] text-[#A89BD0]">
-                Add any web link Anna may find useful: videos, articles, worksheets, apps, or files stored online.
+                Add any web link {clientLabel} may find useful: videos, articles, worksheets, apps, or files stored online.
               </p>
 
               <ul className="mt-2 space-y-2">
@@ -2705,7 +2725,7 @@ export function ApptNotesBlock({
                     autoFocus={isReopened("nextFocus")}
                     onChange={(e) => { setFuNextFocus(e.target.value); setFuDirty(true); }}
                     rows={2}
-                    placeholder="What Anna can practice or review between sessions."
+                    placeholder={`What ${clientLabel} can practice or review between sessions.`}
                     className={fieldClass("nextFocus")}
                   />
                   {isReopened("nextFocus") && (
@@ -2878,7 +2898,7 @@ export function ApptNotesBlock({
                 </button>
                 <button
                   type="button"
-                  disabled={!publishConfirmed || updatingShared}
+                  disabled={!publishConfirmed || updatingShared || !fuSummary.trim()}
                   onClick={() => {
                     if (updatingShared) return;
                     setUpdatingShared(true);

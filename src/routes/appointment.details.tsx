@@ -3,7 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, CalendarClock, Check, ChevronDown, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { ApptNotesBlock, type ApptLite } from "@/components/profile/ProviderSections";
+import {
+  ApptNotesBlock,
+  ApptPayoutStatus,
+  type ApptLite,
+} from "@/components/profile/ProviderSections";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
@@ -300,6 +304,7 @@ function DetailsPage() {
   // explicitly instead of silently skipping past the step.
   const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
   const [summaryAckChecked, setSummaryAckChecked] = useState(false);
+  const [outcomeChoice, setOutcomeChoice] = useState<Outcome | null>(null);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
@@ -870,10 +875,10 @@ function DetailsPage() {
                 description={`For your records only. Not shared with ${clientLabel}.`}
                 openOverride={openStep === "session-notes"}
                 onToggle={() => toggleStep("session-notes")}
-                done={privateNotesSaved && hasNotes}
-                checkBadge={privateNotesSaved && hasNotes}
+                done={step1Done}
+                checkBadge={step1Done}
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
-                requirementLabel="Required before prescribing"
+                requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
                 <>
                 <ApptNotesBlock
@@ -890,9 +895,9 @@ function DetailsPage() {
                 {!hasNotes && !acks.notes && (
                   <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
                     <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                      Nothing to record for this session? You can move on, but prescribing stays
-                      closed: a prescription needs clinical documentation supporting the medication
-                      decision.
+                      {rxShown
+                        ? "Nothing to record for this session? You can move on, but prescribing stays closed: a prescription needs clinical documentation supporting the medication decision."
+                        : "Nothing to record for this session? You can move on — just confirm it so the step is not left open by accident."}
                     </p>
                     <button
                       type="button"
@@ -903,6 +908,20 @@ function DetailsPage() {
                       className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
                     >
                       No private notes for this session
+                    </button>
+                  </div>
+                )}
+                {!hasNotes && acks.notes && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                    <p className="text-[13px] text-[#5A4A8A]">
+                      You recorded that there are no private notes for this session.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setAck({ notes: false })}
+                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      Undo
                     </button>
                   </div>
                 )}
@@ -927,7 +946,7 @@ function DetailsPage() {
                 pillLabel={
                   acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
                 }
-                requirementLabel="Decision required before prescribing"
+                requirementLabel={rxShown ? "Decision required before prescribing" : undefined}
               >
                 <>
                 <ApptNotesBlock
@@ -987,6 +1006,23 @@ function DetailsPage() {
                     </button>
                   </div>
                 )}
+                {!isPublished && acks.summary && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                    <p className="text-[13px] text-[#5A4A8A]">
+                      You decided not to send a written summary for this appointment.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAck({ summary: false });
+                        setSummaryAckChecked(false);
+                      }}
+                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      Undo
+                    </button>
+                  </div>
+                )}
                 </>
               </SectionCard>
             )}
@@ -1029,8 +1065,11 @@ function DetailsPage() {
                 {isCompleted ? (
                   <>
                     <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
-                      <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is marked as
-                      completed.
+                      <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is closed as{" "}
+                      {(
+                        OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
+                      ).toLowerCase()}
+                      .
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       Your appointments list has been updated with the new status and details.
@@ -1053,6 +1092,11 @@ function DetailsPage() {
                         Close
                       </button>
                     </div>
+                    {recordedOutcome !== "provider_no_show" && (
+                      <div className="mt-4">
+                        <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
+                      </div>
+                    )}
                   </>
                 ) : canCloseOut ? (
                   <>
@@ -1061,18 +1105,54 @@ function DetailsPage() {
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       You have gone through your notes, the client summary
-                      {rxAllowed ? " and the prescription step" : ""}. You can close this
-                      appointment now.
+                      {rxAllowed ? " and the prescription step" : ""}. Record what happened with
+                      this appointment to close it.
                     </p>
+                    <div className="mt-4 space-y-2">
+                      {OUTCOMES.map((o) => (
+                        <label
+                          key={o.value}
+                          className={`flex cursor-pointer items-start gap-3 rounded-[14px] border px-3.5 py-3 transition ${
+                            outcomeChoice === o.value
+                              ? "border-[#6E4FD3] bg-[#F7F3FF]"
+                              : "border-[#EAE2F6] bg-white hover:bg-[#FBF9FF]"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="appointment-outcome"
+                            value={o.value}
+                            checked={outcomeChoice === o.value}
+                            onChange={() => setOutcomeChoice(o.value)}
+                            className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-[13.5px] font-semibold text-[#2C2B4B]">
+                              {o.label}
+                            </span>
+                            <span className="mt-0.5 block text-[12.5px] leading-snug text-[#7E6BAF]">
+                              {o.consequence}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                     <button
                       type="button"
+                      disabled={!outcomeChoice}
                       onClick={() => {
-                        onChange({ status: "completed", outcome: "completed" });
-                        toast.success("Appointment marked as completed");
+                        if (!outcomeChoice) return;
+                        const label =
+                          OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
+                        onChange({
+                          status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
+                          outcome: outcomeChoice,
+                        });
+                        toast.success(`Appointment closed as ${label.toLowerCase()}`);
                       }}
-                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                      className="mt-3.5 inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
                     >
-                      Mark the appointment as completed
+                      Close this appointment
                     </button>
                   </>
                 ) : (
