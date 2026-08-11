@@ -1241,6 +1241,47 @@ function DetailsPage() {
 
         </div>
       </div>
+
+      {/* Prescribing not applicable for the selected outcome */}
+      <Dialog open={outcomeNoticeOpen && !!pendingBlock} onOpenChange={setOutcomeNoticeOpen}>
+        <DialogContent className="max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle className="text-[15px] font-bold text-[#2C2B4B]">
+              {pendingBlock?.title ?? "Prescribing is not applicable"}
+            </DialogTitle>
+            <DialogDescription className="text-[13px] leading-snug text-[#7E6BAF]">
+              {pendingBlock?.reason}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-[12.5px] leading-snug text-[#7E6BAF]">
+            The prescription step is now closed and marked{" "}
+            <span className="font-semibold text-[#3D2E6B]">Not applicable</span>. Select{" "}
+            <span className="font-semibold text-[#3D2E6B]">Completed</span> again if this
+            appointment was delivered — any prescription you already created becomes available.
+          </p>
+          <div className="mt-1 flex flex-wrap justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setOutcomeChoice("completed");
+                setOutcomeConflict(null);
+                setDraftWarningFor(null);
+                setOutcomeNoticeOpen(false);
+              }}
+              className="inline-flex h-9 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
+            >
+              Back to Completed
+            </button>
+            <button
+              type="button"
+              onClick={() => setOutcomeNoticeOpen(false)}
+              className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+            >
+              Understood
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
