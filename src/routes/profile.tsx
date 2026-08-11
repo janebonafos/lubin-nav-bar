@@ -477,6 +477,10 @@ function ProfilePage() {
       title: "Payments & Payouts",
       subtitle: "Track earnings and manage where your payouts land",
     },
+    prescriptions: {
+      title: "Prescriptions",
+      subtitle: "Patients you have issued prescriptions to",
+    },
     verification: {
       title: "Verification",
       subtitle: "Verify your credentials to unlock a verified badge",
