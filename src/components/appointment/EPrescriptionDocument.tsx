@@ -54,6 +54,7 @@ export function EPrescriptionDocument({
     info: rx.patientInfo,
     patientName: clientName,
     country,
+    controlled,
   });
   const prescriberName =
     [identity.fullName || providerName || "—", identity.qualifications]
@@ -247,11 +248,9 @@ export function EPrescriptionDocument({
                 DOB: {dob || "not recorded"}
                 {!sex && " · Sex not recorded"}
               </p>
-              {(country === "US" || address) && (
-                <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
-                  Address: {address || "not recorded"}
-                </p>
-              )}
+              <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
+                Address: {address || "not recorded"}
+              </p>
             </div>
             <div className="sm:border-l sm:border-[#F5F3F9] sm:pl-10">
               <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A79FC4]">
