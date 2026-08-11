@@ -17,6 +17,7 @@ import {
   type SigningMethod,
 } from "@/lib/prescription/signing";
 import { FINAL_AUTHORISATION_STATEMENT } from "@/lib/prescription/reference";
+import { requiresPhSpecialForm } from "@/lib/prescription/legal";
 import { requestSigningOtp, verifySigningOtp } from "@/lib/prescription/signOtp.functions";
 import type { SigningReviewState } from "@/lib/prescription/signOtp.functions";
 
@@ -65,6 +66,8 @@ export function SigningDialog({
 }) {
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
   const controlled = controlledMedications(rx.medications);
+  // Only PH medications that genuinely need the dangerous-drug pathway.
+  const specialForm = requiresPhSpecialForm(rx.medications, country);
   const version = (rx.version ?? 0) + 1;
 
   const authority = useMemo(
@@ -99,6 +102,7 @@ export function SigningDialog({
   const verifyOtp = useServerFn(verifySigningOtp);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const registeredEmail = (identity.signingEmail ?? "").trim();
   const payload = (extra?: { code: string }) => ({
     ...reviewState,
     ...extra,
@@ -222,12 +226,11 @@ export function SigningDialog({
               <Row label="Prescriber" value={identity.fullName || "—"} />
               <Row label="Credentials" value={credentialSummary(identity, country)} />
               <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
-              <Row label="Version" value={`v${version}`} />
-              <Row label="Document hash" value={formatHash(hash)} />
             </dl>
-            <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
-              The signature is bound to this hash. Any later edit voids the signature and returns
-              the prescription to clinical review at a new version.
+            <p className="mt-3 border-t border-[#F1EFF7] pt-2 text-[10.5px] leading-relaxed text-[#9A94AE]">
+              Audit record · version v{version} · document hash {formatHash(hash)}. The signature is
+              bound to this hash; any later edit voids it and returns the prescription to clinical
+              review at a new version.
             </p>
           </section>
 
@@ -261,7 +264,22 @@ export function SigningDialog({
             </ul>
           </section>
 
-          {/* Re-authentication with a one-time code sent to the registered email */}
+          {/* One clear sequence: final authorisation, then a one-time code. */}
+          <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+              <ShieldCheck className="h-4 w-4 text-[#6E4FD3]" /> Final authorization
+            </p>
+            <label className="mt-2 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
+              <input
+                type="checkbox"
+                checked={attested}
+                onChange={(e) => setAttested(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
+              />
+              <span>{FINAL_AUTHORISATION_STATEMENT}</span>
+            </label>
+          </section>
+
           <section className="rounded-xl border border-[#DCD2F4] bg-white p-4">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
               <KeyRound className="h-4 w-4 text-[#6E4FD3]" /> Verify with a one-time code
@@ -273,21 +291,30 @@ export function SigningDialog({
 
             {!sent ? (
               <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-end">
-                <label className="flex-1 block text-[12px] font-medium text-[#5A4A8A]">
-                  Registered email
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    placeholder="you@clinic.com"
-                    className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
-                  />
-                </label>
+                {registeredEmail ? (
+                  <div className="flex-1">
+                    <p className="text-[12px] font-medium text-[#5A4A8A]">Verified email</p>
+                    <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
+                      {maskEmail(registeredEmail)}
+                    </p>
+                  </div>
+                ) : (
+                  <label className="flex-1 block text-[12px] font-medium text-[#5A4A8A]">
+                    Registered email
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                      placeholder="you@clinic.com"
+                      className="mt-1 w-full rounded-lg border border-[#DEDAE8] bg-white px-3 py-2 text-[13px] text-[#2C2B4B] focus:border-[#6E4FD3] focus:outline-none focus:ring-2 focus:ring-[#6E4FD3]/20"
+                    />
+                  </label>
+                )}
                 <button
                   type="button"
                   onClick={requestCode}
-                  disabled={sending || !emailValid}
+                  disabled={sending || !emailValid || !attested}
                   className="inline-flex h-10 flex-none items-center gap-1.5 rounded-xl border border-[#DCD2F4] bg-[#F6F3FE] px-4 text-[12.5px] font-semibold text-[#5A3EB8] transition hover:bg-[#EFE9FC] disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {sending ? (
@@ -349,16 +376,6 @@ export function SigningDialog({
               </div>
             )}
 
-            <label className="mt-3 flex items-start gap-2.5 text-[12.5px] leading-relaxed text-[#2C2B4B]">
-              <input
-                type="checkbox"
-                checked={attested}
-                onChange={(e) => setAttested(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-none rounded border-[#D9D5E3] text-[#6E4FD3] focus:ring-[#6E4FD3]"
-              />
-              <span>{FINAL_AUTHORISATION_STATEMENT}</span>
-            </label>
-
             {error && (
               <p className="mt-2 flex items-start gap-1.5 text-[12px] font-semibold text-[#9B4A4A]">
                 <AlertTriangle className="mt-[1px] h-3.5 w-3.5 flex-none" /> {error}
@@ -366,7 +383,7 @@ export function SigningDialog({
             )}
           </section>
 
-          {controlled.length > 0 && country === "PH" && (
+          {specialForm.length > 0 && (
             <p className="rounded-xl border border-[#F0D9A8] bg-[#FDF8EE] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6A20]">
               The electronic copy signed here accompanies the official special prescription form.
               The S2 form remains the legal instrument for a dangerous drug.
@@ -403,6 +420,14 @@ export function SigningDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/** m•••••@clinic.com — enough for the prescriber to recognise, not to expose. */
+function maskEmail(value: string): string {
+  const [local, domain] = value.split("@");
+  if (!local || !domain) return value;
+  const head = local.slice(0, 1);
+  return `${head}${"•".repeat(Math.max(3, Math.min(6, local.length - 1)))}@${domain}`;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
