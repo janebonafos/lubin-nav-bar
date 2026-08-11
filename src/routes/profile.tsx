@@ -51,7 +51,17 @@ import {
 } from "@/components/profile/ProviderSections";
 
 const profileSearchSchema = z.object({
-  tab: z.enum(["profile", "appointments", "passport", "discovery", "share", "chat"]).optional(),
+  tab: z
+    .enum([
+      "profile",
+      "appointments",
+      "prescriptions",
+      "passport",
+      "discovery",
+      "share",
+      "chat",
+    ])
+    .optional(),
 });
 
 export const Route = createFileRoute("/profile")({
@@ -98,6 +108,7 @@ type Section =
   | "services"
   | "calendar"
   | "appointments"
+  | "prescriptions"
   | "payments"
   | "verification"
   | "passport"
@@ -174,6 +185,7 @@ function ProfilePage() {
       "provider",
       "calendar",
       "appointments",
+      "prescriptions",
       "payments",
       "verification",
       "chat",
