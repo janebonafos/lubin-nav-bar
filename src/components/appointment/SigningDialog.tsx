@@ -222,12 +222,11 @@ export function SigningDialog({
               <Row label="Prescriber" value={identity.fullName || "—"} />
               <Row label="Credentials" value={credentialSummary(identity, country)} />
               <Row label="Jurisdiction" value={JURISDICTION_LABEL[country]} />
-              <Row label="Version" value={`v${version}`} />
-              <Row label="Document hash" value={formatHash(hash)} />
             </dl>
-            <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
-              The signature is bound to this hash. Any later edit voids the signature and returns
-              the prescription to clinical review at a new version.
+            <p className="mt-3 border-t border-[#F1EFF7] pt-2 text-[10.5px] leading-relaxed text-[#9A94AE]">
+              Audit record · version v{version} · document hash {formatHash(hash)}. The signature is
+              bound to this hash; any later edit voids it and returns the prescription to clinical
+              review at a new version.
             </p>
           </section>
 
