@@ -5,7 +5,7 @@
 // credential stays unverified and blocks the signature.
 import type { Prescription, PrescriptionMedication, RxCountry } from "./store";
 import type { PrescriberIdentity } from "./credentials";
-import { patientLegalGaps } from "./legal";
+import { patientLegalGaps, prescriberPrintGaps, requiresPhSpecialForm } from "./legal";
 
 /** Stable, order-independent content hash of everything the signature covers.
  *  Any edit to a medication, direction or patient identity changes the hash,
@@ -133,6 +133,7 @@ export function prescribingAuthority(args: {
   const { rx, country, identity } = args;
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
   const controlled = controlledMedications(meds);
+  const specialForm = requiresPhSpecialForm(meds, country);
   const checks: AuthorityCheck[] = [];
 
   const has = (v?: string) => !!(v ?? "").trim();
@@ -157,6 +158,22 @@ export function prescribingAuthority(args: {
     blocking: true,
   });
 
+  // Prescriber details are rule driven, never a hard-coded universal list.
+  // Only the labels a jurisdiction actually requires are reported, and values
+  // already printed elsewhere are not repeated here.
+  const printGaps = prescriberPrintGaps(identity, country, controlled.length > 0);
+  const pushPrescriberDetails = () =>
+    checks.push({
+      key: "prescriber-print-details",
+      label: "Prescriber details required on an issued prescription",
+      ok: printGaps.length === 0,
+      detail:
+        printGaps.length === 0
+          ? `Every prescriber detail required in ${country === "PH" ? "the Philippines" : "the United States"} is on file.`
+          : `Still missing: ${printGaps.join(", ")}.`,
+      blocking: true,
+    });
+
   if (country === "PH") {
     checks.push({
       key: "ph-authority",
@@ -176,16 +193,7 @@ export function prescribingAuthority(args: {
       detail: has(identity.ptrNumber) ? `PTR ${identity.ptrNumber}.` : "No PTR number is on file.",
       blocking: true,
     });
-    checks.push({
-      key: "ph-clinic",
-      label: "Clinic name, address and contact information",
-      ok: has(identity.clinicName) && has(identity.clinicAddress) && has(identity.clinicContact),
-      detail:
-        has(identity.clinicName) && has(identity.clinicAddress) && has(identity.clinicContact)
-          ? `${identity.clinicName} · ${identity.clinicAddress} · ${identity.clinicContact}`
-          : "Clinic information printed on a Philippine prescription is incomplete.",
-      blocking: true,
-    });
+    pushPrescriberDetails();
     const gaps = genericPrescribingGaps(meds);
     checks.push({
       key: "ph-generic",
@@ -199,7 +207,7 @@ export function prescribingAuthority(args: {
             : `Add the generic name for ${gaps.join(", ")}. A Philippine prescription must be written generically.`,
       blocking: true,
     });
-    if (controlled.length > 0) {
+    if (specialForm.length > 0) {
       const auth = rx.controlledAuth ?? {};
       checks.push({
         key: "ph-s2",
@@ -209,7 +217,7 @@ export function prescribingAuthority(args: {
           ? "No S2 licence number is on file. A dangerous drug cannot be prescribed without it."
           : has(auth.s2SerialNumber)
             ? `S2 ${identity.s2Number} · official form serial ${auth.s2SerialNumber}.`
-            : `S2 ${identity.s2Number} on file. Record the serial number of the official special prescription form used for ${controlled.map((m) => m.genericName || m.name).join(", ")}.`,
+            : `S2 ${identity.s2Number} on file. Record the serial number of the official special prescription form used for ${specialForm.map((m) => m.genericName || m.name).join(", ")}.`,
         blocking: true,
       });
     }
@@ -237,16 +245,7 @@ export function prescribingAuthority(args: {
       detail: has(identity.npiNumber) ? `NPI ${identity.npiNumber}.` : "No NPI number is on file.",
       blocking: true,
     });
-    checks.push({
-      key: "us-practice",
-      label: "Practice name, address and contact information",
-      ok: has(identity.clinicName) && has(identity.clinicAddress) && has(identity.clinicContact),
-      detail:
-        has(identity.clinicName) && has(identity.clinicAddress) && has(identity.clinicContact)
-          ? `${identity.clinicName} · ${identity.clinicAddress} · ${identity.clinicContact}`
-          : "Practice information printed on the prescription is incomplete.",
-      blocking: true,
-    });
+    pushPrescriberDetails();
     if (state) {
       checks.push({
         key: "us-state-rules",
