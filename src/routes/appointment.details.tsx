@@ -946,7 +946,7 @@ function DetailsPage() {
                 pillLabel={
                   acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
                 }
-                requirementLabel="Decision required before prescribing"
+                requirementLabel={rxShown ? "Decision required before prescribing" : undefined}
               >
                 <>
                 <ApptNotesBlock
@@ -1003,6 +1003,23 @@ function DetailsPage() {
                       className="mt-3 inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       Confirm and continue
+                    </button>
+                  </div>
+                )}
+                {!isPublished && acks.summary && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                    <p className="text-[13px] text-[#5A4A8A]">
+                      You decided not to send a written summary for this appointment.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAck({ summary: false });
+                        setSummaryAckChecked(false);
+                      }}
+                      className="ml-auto inline-flex h-8 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                    >
+                      Undo
                     </button>
                   </div>
                 )}
