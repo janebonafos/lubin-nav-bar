@@ -1557,6 +1557,7 @@ export function AppointmentsSection() {
 
   const statusStyle = {
     upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
+    session_review: "bg-amber-100 text-amber-700",
     completed: "bg-[#E6F8F1] text-[#2D8E69]",
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
