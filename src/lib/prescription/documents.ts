@@ -143,6 +143,33 @@ export function findSignedPrescription(id: string): SignedPrescriptionDocument |
   return readAll().find((d) => d.id === id);
 }
 
+/** Encodes an issued document for transport in a URL, so opening the record in
+ *  a new tab always renders the signed prescription even when that tab cannot
+ *  read the same local record store. */
+export function encodeSignedPrescription(doc: SignedPrescriptionDocument): string {
+  try {
+    const json = JSON.stringify(doc);
+    if (typeof window === "undefined") return "";
+    return window.btoa(
+      String.fromCharCode(...new TextEncoder().encode(json)),
+    );
+  } catch {
+    return "";
+  }
+}
+
+export function decodeSignedPrescription(
+  encoded: string,
+): SignedPrescriptionDocument | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const bytes = Uint8Array.from(window.atob(encoded), (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as SignedPrescriptionDocument;
+  } catch {
+    return null;
+  }
+}
+
 /** Rebuilds a signed, immutable Prescription view from an issued document so
  *  the record can be rendered without depending on the local working draft. */
 export function prescriptionFromSignedDocument(
