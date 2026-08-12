@@ -991,6 +991,14 @@ function DetailsPage() {
                 onToggle={() => toggleStep("session-notes")}
                 done={step1Done}
                 checkBadge={step1Done}
+                locked={formLocked}
+                lockedNote={
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : undefined
+                }
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
                 requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
@@ -1050,8 +1058,14 @@ function DetailsPage() {
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished || !!acks.summary}
                 checkBadge={isPublished || !!acks.summary}
-                locked={step2Locked}
-                lockedNote="Finish step 1 first"
+                locked={step2Locked || formLocked}
+                lockedNote={
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : "Finish step 1 first"
+                }
                 pillLabel={
                   acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
                 }
@@ -1149,10 +1163,16 @@ function DetailsPage() {
                 description="A separate step from your clinical notes, available only to verified prescribers. Add medication only if clinically indicated, or record that none is needed."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
-                locked={rxLocked}
+                locked={rxLocked || formLocked}
                 dimmed={!clinicalDocForRx || !!activeBlock}
                 lockedNote={
-                  !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : !clinicalDocForRx
+                      ? "Prescribing unlocks once step 1 is complete"
+                      : undefined
                 }
                 done={activeBlock ? false : rxDone}
                 checkBadge={activeBlock ? false : rxDone}
