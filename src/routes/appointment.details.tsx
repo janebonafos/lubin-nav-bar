@@ -575,7 +575,7 @@ function DetailsPage() {
   // Confirmation modal state: the appointment outcome is the headline, the
   // prescription consequence is supporting information.
   const noticeOutcome = outcomeChoice ?? null;
-  const noticeCopy = noticeOutcome ? OUTCOME_COPY[noticeOutcome] : null;
+  const noticeCopy = noticeOutcome ? getOutcomeCopy(noticeOutcome, prescribingProfession) : null;
   const noticeBlocksRx = !!noticeOutcome && !!encounterPrescribingBlock(noticeOutcome);
   const noticeSignedConflict = noticeBlocksRx && rxRecordState.signed;
   const noticeDraftWarning = noticeBlocksRx && !rxRecordState.signed && rxRecordState.unsignedDraft;
