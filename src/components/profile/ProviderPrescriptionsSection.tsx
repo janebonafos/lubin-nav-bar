@@ -174,10 +174,6 @@ export default function ProviderPrescriptionsSection() {
           ))}
         </div>
       )}
-
-      {openDoc && (
-        <PrescriptionDocumentDialog doc={openDoc} onClose={() => setOpenDoc(null)} />
-      )}
     </section>
   );
 }
