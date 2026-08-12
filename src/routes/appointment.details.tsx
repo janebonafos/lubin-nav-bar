@@ -463,6 +463,21 @@ function DetailsPage() {
 
   const isCompleted = appt?.status === "completed";
   const isSessionReview = appt?.status === "session_review";
+  // 24-hour post-completion edit window.
+  const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
+  const closedAt = appt?.closedAt;
+  const editWindowEndsAt = closedAt ? closedAt + EDIT_WINDOW_MS : null;
+  const editWindowExpired = !!editWindowEndsAt && Date.now() > editWindowEndsAt;
+  // Read-only once closed, unless the provider reopens it inside the window.
+  const formLocked = isCompleted && (editWindowExpired || !editUnlocked);
+  const editWindowLabel = editWindowEndsAt
+    ? new Date(editWindowEndsAt).toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
