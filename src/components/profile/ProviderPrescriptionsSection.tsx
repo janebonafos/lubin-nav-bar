@@ -125,13 +125,6 @@ export default function ProviderPrescriptionsSection() {
                     </p>
                   </div>
                 </div>
-                <Link
-                  to="/appointment/details"
-                  search={{ id: group.docs[0]!.appointmentId }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#DCD4F0] px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F5F1FE]"
-                >
-                  Open session <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
               </div>
 
               <ul className="mt-4 space-y-3">
@@ -166,13 +159,14 @@ export default function ProviderPrescriptionsSection() {
                           </p>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setOpenDoc(doc)}
+                      <a
+                        href={prescriptionHref(doc)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                       >
                         View prescription
-                      </button>
+                      </a>
                     </div>
                   </li>
                 ))}
