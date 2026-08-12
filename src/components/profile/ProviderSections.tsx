@@ -1380,7 +1380,7 @@ export const UPCOMING_APPOINTMENTS_COUNT = 3;
 
 
 export function AppointmentsSection() {
-  const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
+  const [tab, setTab] = useState<"all" | "upcoming" | "session_review" | "completed" | "cancelled">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 5;
@@ -1397,7 +1397,7 @@ export function AppointmentsSection() {
     type: string;
     sessionFormat: "Individual" | "Group";
     mode: string;
-    status: "upcoming" | "completed" | "cancelled";
+    status: "upcoming" | "session_review" | "completed" | "cancelled";
     notes?: string;
     amount: string;
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
@@ -1441,7 +1441,7 @@ export function AppointmentsSection() {
       },
     },
     {
-      id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
+      id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "session_review",
       amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
       payoutStatus: "in_review",
     },
@@ -1546,6 +1546,7 @@ export function AppointmentsSection() {
   const counts = {
     all: all.length,
     upcoming: all.filter((a) => a.status === "upcoming").length,
+    session_review: all.filter((a) => a.status === "session_review").length,
     completed: all.filter((a) => a.status === "completed").length,
     cancelled: all.filter((a) => a.status === "cancelled").length,
   };
@@ -1557,6 +1558,7 @@ export function AppointmentsSection() {
 
   const statusStyle = {
     upcoming: "bg-[#E0D9F7] text-[#3D2E6B]",
+    session_review: "bg-amber-100 text-amber-700",
     completed: "bg-[#E6F8F1] text-[#2D8E69]",
     cancelled: "bg-rose-100 text-rose-700",
   } as const;
@@ -1570,8 +1572,11 @@ export function AppointmentsSection() {
     cancelled: "cancelled",
     rescheduled: "rescheduled",
   };
-  const statusLabel = (a: Appt) =>
-    a.status === "completed" && a.outcome ? OUTCOME_LABEL[a.outcome] : a.status;
+  const statusLabel = (a: Appt) => {
+    if (a.status === "session_review") return "session review";
+    if (a.status === "completed" && a.outcome) return OUTCOME_LABEL[a.outcome];
+    return a.status;
+  };
   const statusTone = (a: Appt) =>
     a.status === "completed" && a.outcome && a.outcome !== "completed"
       ? statusStyle.cancelled
@@ -1583,12 +1588,13 @@ export function AppointmentsSection() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Upcoming"
           value={String(counts.upcoming)}
           hint={`${counts.all} total booking${counts.all === 1 ? "" : "s"}`}
         />
+        <StatCard label="Session review" value={String(counts.session_review)} hint="Pending close-out" />
         <StatCard label="Completed" value={String(counts.completed)} hint="Closed appointments" />
         <StatCard
           label="No-shows"
@@ -1613,17 +1619,17 @@ export function AppointmentsSection() {
           </div>
           <p className="mt-1 text-sm text-[#7E6BAF]">Everything on your schedule.</p>
           <div className="mt-6 inline-flex gap-2 rounded-[10px] bg-[#F0EAFB] p-1">
-          {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
+          {(["all", "upcoming", "session_review", "completed", "cancelled"] as const).map((t) => (
             <button
               key={t}
               onClick={() => { setTab(t); setPage(1); setExpanded(null); }}
-              className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
+              className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium transition ${
                 tab === t
                   ? "bg-[#5B4796] text-white"
                   : "text-[#3D2E6B] hover:bg-[#A89BD0]/20"
               }`}
             >
-              {t}
+              {t === "session_review" ? "Session Review" : t.replace("_", " ")}
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
                   tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#3D2E6B]/60"
@@ -1702,7 +1708,7 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                  {a.status === "completed" ? (
+                  {a.status === "completed" || a.status === "session_review" ? (
                     <button
                       onClick={() => {
                         try {
@@ -1757,7 +1763,7 @@ export function AppointmentsSection() {
                       <DetailItem label="Session type" value={a.type} />
                       <DetailItem label="Session format" value={a.sessionFormat} />
                       <DetailItem label="Mode" value={a.mode} />
-                      <DetailItem label="Status" value={a.status} />
+                      <DetailItem label="Status" value={a.status === "session_review" ? "Session review" : a.status} />
                       <DetailItem label="Amount paid" value={a.amount} />
                       <DetailItem
                         label="Payment status"
@@ -1780,7 +1786,7 @@ export function AppointmentsSection() {
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     <div className="space-y-4">
-                    {(a.status === "completed" || a.notes) && (
+                    {(a.status === "completed" || a.status === "session_review" || a.notes) && (
                       <ApptNotesBlock
                         appt={a}
                         onChange={(patch) =>
@@ -1788,7 +1794,7 @@ export function AppointmentsSection() {
                         }
                       />
                     )}
-                    {a.status === "completed" && (
+                    {(a.status === "completed" || a.status === "session_review") && (
                       <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
                     )}
                     {a.status === "upcoming" && (
@@ -1934,7 +1940,7 @@ export function DetailItem({ label, value }: { label: string; value: React.React
 
 export type ApptLite = {
   id: string;
-  status: "upcoming" | "completed" | "cancelled";
+  status: "upcoming" | "session_review" | "completed" | "cancelled";
   outcome?:
     | "completed"
     | "client_no_show"

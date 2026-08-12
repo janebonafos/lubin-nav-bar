@@ -456,6 +456,7 @@ function DetailsPage() {
   useEffect(() => subscribeProviderShares(() => setShareTick((t) => t + 1)), []);
 
   const isCompleted = appt?.status === "completed";
+  const isSessionReview = appt?.status === "session_review";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
@@ -538,7 +539,7 @@ function DetailsPage() {
   // "Jun", "19", "2:00 PM". If parsing fails we fall back to "not past".
   const apptStart = useMemo(() => parseApptStart(appt), [appt]);
   const isPastStart = !!apptStart && apptStart.getTime() <= Date.now();
-  const showPostSession = isCompleted || (isPastStart && !isCancelled);
+  const showPostSession = isCompleted || isSessionReview || (isPastStart && !isCancelled);
 
   const recordedOutcome = appt?.outcome;
   // The recorded outcome decides whether this appointment is still a valid
