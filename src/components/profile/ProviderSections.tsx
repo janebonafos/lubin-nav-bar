@@ -1572,8 +1572,11 @@ export function AppointmentsSection() {
     cancelled: "cancelled",
     rescheduled: "rescheduled",
   };
-  const statusLabel = (a: Appt) =>
-    a.status === "completed" && a.outcome ? OUTCOME_LABEL[a.outcome] : a.status;
+  const statusLabel = (a: Appt) => {
+    if (a.status === "session_review") return "session review";
+    if (a.status === "completed" && a.outcome) return OUTCOME_LABEL[a.outcome];
+    return a.status;
+  };
   const statusTone = (a: Appt) =>
     a.status === "completed" && a.outcome && a.outcome !== "completed"
       ? statusStyle.cancelled
