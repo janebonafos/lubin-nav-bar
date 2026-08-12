@@ -3,6 +3,7 @@ import { Search, ShieldAlert } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
+  encodeSignedPrescription,
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
@@ -17,6 +18,8 @@ function prescriptionHref(doc: SignedPrescriptionDocument): string {
   });
   if (doc.patientName) params.set("client", doc.patientName);
   if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+  const encoded = encodeSignedPrescription(doc);
+  if (encoded) params.set("d", encoded);
   return `/e-prescription?${params.toString()}`;
 }
 
