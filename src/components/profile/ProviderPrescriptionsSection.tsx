@@ -33,7 +33,6 @@ type PatientGroup = {
 export default function ProviderPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
   const [query, setQuery] = useState("");
-  const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
