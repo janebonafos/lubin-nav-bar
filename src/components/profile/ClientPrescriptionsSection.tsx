@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { FileText, Pill, ShieldAlert, ExternalLink, Ban } from "lucide-react";
+import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
@@ -14,6 +15,7 @@ import {
  */
 export default function ClientPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
+  const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
 
   useEffect(() => {
     const read = () => setDocs(listSignedPrescriptions());
@@ -98,32 +100,25 @@ export default function ClientPrescriptionsSection() {
                   >
                     Session <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
-                  <a
-                    href={ePrescriptionHref(doc)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => setOpenDoc(doc)}
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                   >
                     <FileText className="h-3.5 w-3.5" /> View / download
-                  </a>
+                  </button>
                 </div>
               </div>
             </li>
           ))}
         </ul>
       )}
+
+      {openDoc && (
+        <PrescriptionDocumentDialog doc={openDoc} onClose={() => setOpenDoc(null)} />
+      )}
     </section>
   );
-}
-
-function ePrescriptionHref(doc: SignedPrescriptionDocument): string {
-  const params = new URLSearchParams({
-    appointment: doc.appointmentId,
-    country: doc.country,
-  });
-  if (doc.patientName) params.set("client", doc.patientName);
-  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
-  return `/e-prescription?${params.toString()}`;
 }
 
 function formatDate(at: number): string {
