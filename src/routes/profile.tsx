@@ -40,6 +40,7 @@ import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
+import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
 import {
   listSignedPrescriptions,
@@ -454,15 +455,11 @@ function ProfilePage() {
           { key: "services", label: "Services & Offerings", icon: <Briefcase className="h-5 w-5" /> },
           { key: "calendar", label: "Calendar & Availability", icon: <CalendarDays className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
-          ...(canPrescribe
-            ? [
-                {
-                  key: "prescriptions" as Section,
-                  label: "Prescriptions",
-                  icon: <ClipboardList className="h-5 w-5" />,
-                },
-              ]
-            : []),
+          {
+            key: "prescriptions" as Section,
+            label: "Prescriptions & Medications",
+            icon: <Pill className="h-5 w-5" />,
+          },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
           { key: "verification", label: "Verification", icon: <ShieldCheck className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -470,6 +467,7 @@ function ProfilePage() {
       : [
           { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
+          { key: "prescriptions", label: "My Prescriptions", icon: <Pill className="h-5 w-5" /> },
           { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
           { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
@@ -505,8 +503,11 @@ function ProfilePage() {
       subtitle: "Track earnings and manage where your payouts land",
     },
     prescriptions: {
-      title: "Prescriptions",
-      subtitle: "Patients you have issued prescriptions to",
+      title: role === "provider" ? "Prescriptions & Medications" : "My Prescriptions",
+      subtitle:
+        role === "provider"
+          ? "Patients you have issued prescriptions to"
+          : "View or download the prescriptions issued to you",
     },
     verification: {
       title: "Verification",
@@ -1162,6 +1163,10 @@ function ProfilePage() {
 
     {activeSection === "prescriptions" && role === "provider" && (
       <ProviderPrescriptionsSection />
+    )}
+
+    {activeSection === "prescriptions" && role === "client" && (
+      <ClientPrescriptionsSection />
     )}
 
     {activeSection === "payments" && role === "provider" && (
