@@ -1957,6 +1957,8 @@ export type ApptLite = {
     linkedTo?: string;
   }[];
   payoutStatus?: "pending_review" | "in_review" | "approved" | "paid";
+  /** When the appointment was closed out — starts the 24h edit window. */
+  closedAt?: number;
   followUp?: {
     summary?: string;
     homework?: string;

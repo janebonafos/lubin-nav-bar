@@ -327,6 +327,12 @@ function DetailsPage() {
   // Selecting a non-delivered outcome closes prescribing immediately, before the
   // appointment is closed, so the provider cannot keep working on medication.
   const [outcomeNoticeOpen, setOutcomeNoticeOpen] = useState(false);
+  // Post-completion editing: the form is read-only once the appointment is
+  // closed. A provider may reopen it for edits within 24 hours, but only after
+  // agreeing that the change is recorded on the clinical record.
+  const [editUnlocked, setEditUnlocked] = useState(false);
+  const [editConsentOpen, setEditConsentOpen] = useState(false);
+  const [editConsentChecked, setEditConsentChecked] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
@@ -457,6 +463,21 @@ function DetailsPage() {
 
   const isCompleted = appt?.status === "completed";
   const isSessionReview = appt?.status === "session_review";
+  // 24-hour post-completion edit window.
+  const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
+  const closedAt = appt?.closedAt;
+  const editWindowEndsAt = closedAt ? closedAt + EDIT_WINDOW_MS : null;
+  const editWindowExpired = !!editWindowEndsAt && Date.now() > editWindowEndsAt;
+  // Read-only once closed, unless the provider reopens it inside the window.
+  const formLocked = isCompleted && (editWindowExpired || !editUnlocked);
+  const editWindowLabel = editWindowEndsAt
+    ? new Date(editWindowEndsAt).toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : null;
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
@@ -845,6 +866,59 @@ function DetailsPage() {
             )}
 
             {/* Client-shared reference material — outside the numbered tasks */}
+            {isCompleted && (
+              <section
+                className={`rounded-[20px] border px-5 py-4 md:px-6 ${
+                  formLocked ? "border-[#EAE2F6] bg-white" : "border-[#D8C7F0] bg-[#F7F3FF]"
+                }`}
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-[14px] font-semibold text-[#2C2B4B]">
+                      {formLocked ? (
+                        <Lock className="h-4 w-4 text-[#A89BD0]" />
+                      ) : (
+                        <Check className="h-4 w-4 text-[#6E4FD3]" />
+                      )}
+                      {formLocked
+                        ? editWindowExpired
+                          ? "This post-appointment form can no longer be modified"
+                          : "This post-appointment form is read-only"
+                        : "Editing is open — changes are recorded on the clinical record"}
+                    </p>
+                    <p className="mt-1 max-w-2xl text-[13px] leading-snug text-[#7E6BAF]">
+                      {editWindowExpired
+                        ? `The 24-hour edit window closed on ${editWindowLabel}. Your notes, the client summary and any prescription decision stay part of the appointment record and cannot be changed.`
+                        : formLocked
+                          ? `The appointment is closed, so new post-session details cannot be entered. You can still correct information until ${editWindowLabel ?? "24 hours after closing"} — after that this form is locked permanently.`
+                          : `You can now edit the steps below. Editing closes ${editWindowLabel ? `on ${editWindowLabel}` : "24 hours after this appointment was closed"}.`}
+                    </p>
+                  </div>
+                  {!editWindowExpired && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (formLocked) {
+                          setEditConsentChecked(false);
+                          setEditConsentOpen(true);
+                        } else {
+                          setEditUnlocked(false);
+                          setOpenStep(null);
+                        }
+                      }}
+                      className={`inline-flex h-10 shrink-0 items-center rounded-[10px] px-4 text-[13px] font-semibold transition ${
+                        formLocked
+                          ? "bg-[#6E4FD3] text-white hover:bg-[#5A3EB8]"
+                          : "border border-[#D6CCEC] bg-white text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                      }`}
+                    >
+                      {formLocked ? "Edit post-appointment form" : "Finish editing"}
+                    </button>
+                  )}
+                </div>
+              </section>
+            )}
+
             <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
               <button
                 type="button"
@@ -917,6 +991,14 @@ function DetailsPage() {
                 onToggle={() => toggleStep("session-notes")}
                 done={step1Done}
                 checkBadge={step1Done}
+                locked={formLocked}
+                lockedNote={
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : undefined
+                }
                 pillLabel={acks.notes && !hasNotes ? "Nothing to add" : docStatus}
                 requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
@@ -976,8 +1058,14 @@ function DetailsPage() {
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished || !!acks.summary}
                 checkBadge={isPublished || !!acks.summary}
-                locked={step2Locked}
-                lockedNote="Finish step 1 first"
+                locked={step2Locked || formLocked}
+                lockedNote={
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : "Finish step 1 first"
+                }
                 pillLabel={
                   acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
                 }
@@ -1075,10 +1163,16 @@ function DetailsPage() {
                 description="A separate step from your clinical notes, available only to verified prescribers. Add medication only if clinically indicated, or record that none is needed."
                 openOverride={openStep === "prescriptions"}
                 onToggle={() => toggleStep("prescriptions")}
-                locked={rxLocked}
+                locked={rxLocked || formLocked}
                 dimmed={!clinicalDocForRx || !!activeBlock}
                 lockedNote={
-                  !clinicalDocForRx ? "Prescribing unlocks once step 1 is complete" : undefined
+                  formLocked
+                    ? editWindowExpired
+                      ? "Locked — the 24-hour edit window has closed"
+                      : "Read-only — reopen editing to make changes"
+                    : !clinicalDocForRx
+                      ? "Prescribing unlocks once step 1 is complete"
+                      : undefined
                 }
                 done={activeBlock ? false : rxDone}
                 checkBadge={activeBlock ? false : rxDone}
@@ -1230,6 +1324,7 @@ function DetailsPage() {
                         onChange({
                           status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
                           outcome: outcomeChoice,
+                          closedAt: Date.now(),
                         });
                         toast.success(`Appointment closed as ${label.toLowerCase()}`);
                       }}
@@ -1255,6 +1350,58 @@ function DetailsPage() {
       </div>
 
       {/* Confirm the appointment outcome */}
+      <Dialog open={editConsentOpen} onOpenChange={setEditConsentOpen}>
+        <DialogContent className="max-w-[560px] p-0 sm:max-w-[560px]">
+          <div className="px-7 py-6">
+            <DialogHeader className="space-y-2.5 text-left">
+              <DialogTitle className="text-[21px] font-semibold text-[#2C2B4B]">
+                Reopen this post-appointment form for editing?
+              </DialogTitle>
+              <DialogDescription className="text-[15px] leading-relaxed text-[#5A4A8A]">
+                This appointment is already closed. Any change you make now is recorded as an
+                amendment to the clinical record, and {clientLabel} may see an updated summary.
+                Editing is only possible for 24 hours after the appointment was closed
+                {editWindowLabel ? ` — until ${editWindowLabel}` : ""}. After that this form can no
+                longer be modified.
+              </DialogDescription>
+            </DialogHeader>
+            <label className="mt-5 flex cursor-pointer items-start gap-2.5 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] px-4 py-3 text-[14px] leading-snug text-[#3D2E6B]">
+              <input
+                type="checkbox"
+                checked={editConsentChecked}
+                onChange={(e) => setEditConsentChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+              />
+              <span>
+                I understand this edit will be made to a completed appointment and recorded on the
+                clinical record.
+              </span>
+            </label>
+            <div className="mt-6 flex flex-wrap justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setEditConsentOpen(false)}
+                className="inline-flex h-11 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-5 text-[15px] font-semibold text-[#3D2E6B] hover:bg-[#F7F3FF]"
+              >
+                Go back
+              </button>
+              <button
+                type="button"
+                disabled={!editConsentChecked}
+                onClick={() => {
+                  setEditUnlocked(true);
+                  setEditConsentOpen(false);
+                  toast.success("Editing reopened for this appointment");
+                }}
+                className="inline-flex h-11 items-center rounded-[10px] bg-[#6E4FD3] px-5 text-[15px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Agree and edit
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={outcomeNoticeOpen && !!noticeCopy} onOpenChange={setOutcomeNoticeOpen}>
         <DialogContent className="max-w-[680px] overflow-hidden p-0 sm:max-w-[680px]">
           <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-7 py-6">
