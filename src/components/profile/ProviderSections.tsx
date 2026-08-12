@@ -1441,7 +1441,7 @@ export function AppointmentsSection() {
       },
     },
     {
-      id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "completed",
+      id: "c2", client: "Maya Singh", day: "TUE", date: "18", month: "JUN", time: "9:00 AM", timezone: "PHT (GMT+8)", duration: "50 min", type: "Therapy", sessionFormat: "Individual", mode: "In-person", status: "session_review",
       amount: "₱2,500", paymentStatus: "Paid", promoCode: "SUMMER20",
       payoutStatus: "in_review",
     },
