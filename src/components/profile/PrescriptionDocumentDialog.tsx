@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Printer, ExternalLink, X, User, Ban, ShieldAlert } from "lucide-react";
+import { Printer, ExternalLink, X, Ban, ShieldAlert } from "lucide-react";
 
 import { EPrescriptionDocument } from "@/components/appointment/EPrescriptionDocument";
+import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
   loadPrescription,
   PREGNANCY_STATUS_LABEL,
@@ -149,9 +150,11 @@ function PatientRecordPanel({
       <div className="rounded-2xl border border-[#E3DBF5] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#EFE8FB] text-[#3D2E6B]">
-              <User className="h-4.5 w-4.5" />
-            </span>
+            <PatientAvatar
+              name={doc.patientName}
+              photoUrl={doc.patientPhotoUrl}
+              size={40}
+            />
             <div>
               <p className="text-[15px] font-bold text-[#3D2E6B]">
                 {doc.patientName || "Patient"}
