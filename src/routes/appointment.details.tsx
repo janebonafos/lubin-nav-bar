@@ -113,8 +113,6 @@ function getOutcomeOptions(isPrescriber: boolean): {
   ];
 }
 
-const OUTCOMES = getOutcomeOptions(true);
-
 export const Route = createFileRoute("/appointment/details")({
   validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
   component: DetailsPage,
