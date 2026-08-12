@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { ShieldAlert, ExternalLink, Ban, FileText } from "lucide-react";
+import { ShieldAlert, Ban, FileText } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import {
@@ -96,13 +95,6 @@ export default function ClientPrescriptionsSection() {
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-                  <Link
-                    to="/appointment/details"
-                    search={{ id: doc.appointmentId }}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-[#DCD4F0] px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F5F1FE]"
-                  >
-                    Session <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
                   <button
                     type="button"
                     onClick={() => setOpenDoc(doc)}
