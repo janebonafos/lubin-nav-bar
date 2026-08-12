@@ -1,7 +1,7 @@
 // A signed prescription is its own clinical document. It is stored in the
 // patient's medication / prescription record — never inside the session
 // summary — and is immutable once signed.
-import type { PrescriptionMedication, RxCountry } from "./store";
+import type { Prescription, PatientSafetyInfo, PrescriptionMedication, RxCountry } from "./store";
 import type { PrescriberIdentity } from "./credentials";
 import type { DeliveryMethod, DeliveryState } from "./status";
 
@@ -23,6 +23,15 @@ export type SignedPrescriptionDocument = {
   identity: PrescriberIdentity;
   medications: PrescriptionMedication[];
   controlled: boolean;
+  /** Immutable snapshot of the patient record as it stood at signing, so the
+   *  issued document always renders complete, independent of later drafts. */
+  patientInfo?: PatientSafetyInfo;
+  /** Signature metadata captured at signing. */
+  signature?: Prescription["signature"];
+  /** Content hash the signature is bound to. */
+  signedHash?: string;
+  /** Clinical notes / directions context carried with the issued document. */
+  clinicalNotes?: string;
   /** Expiry derived from the jurisdiction validity rule at the moment of
    *  signing. Undefined when no rule is configured. Immutable once signed:
    *  only delivery and void metadata may be patched afterwards. */
@@ -128,4 +137,50 @@ export function subscribePrescriptionDocuments(fn: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   window.addEventListener(CHANGE_EVENT, fn);
   return () => window.removeEventListener(CHANGE_EVENT, fn);
+}
+
+export function findSignedPrescription(id: string): SignedPrescriptionDocument | undefined {
+  return readAll().find((d) => d.id === id);
+}
+
+/** Rebuilds a signed, immutable Prescription view from an issued document so
+ *  the record can be rendered without depending on the local working draft. */
+export function prescriptionFromSignedDocument(
+  doc: SignedPrescriptionDocument,
+): Prescription {
+  return {
+    appointmentId: doc.appointmentId,
+    medications: doc.medications,
+    suggestions: [],
+    country: doc.country,
+    clinicalNotes: doc.clinicalNotes,
+    patientInfo: doc.patientInfo,
+    delivery: doc.delivery
+      ? {
+          method: doc.delivery.method,
+          state: doc.delivery.state,
+          destination: doc.delivery.destination,
+          at: doc.delivery.at,
+        }
+      : undefined,
+    signature: doc.signature ?? {
+      method: "credentialed-attestation",
+      at: doc.signedAt,
+      by: doc.signedBy,
+      credentials: "",
+      jurisdiction: doc.country,
+      version: doc.version,
+      methodLabel: doc.authenticationMethod,
+    },
+    signedHash: doc.signedHash,
+    version: doc.version,
+    documentId: doc.id,
+    voided: doc.voided,
+    finalisedAt: doc.signedAt,
+    finalisedBy: doc.signedBy,
+    legalAcknowledgedAt: doc.signedAt,
+    recordAttestedAt: doc.signedAt,
+    reviewedAt: doc.signedAt,
+    updatedAt: doc.signedAt,
+  } as Prescription;
 }
