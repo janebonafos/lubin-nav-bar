@@ -86,6 +86,8 @@ export function ensureSamplePrescriptionRecord() {
     legalAcknowledgedAt: signedAt,
     recordAttestedAt: signedAt,
     reviewedAt: signedAt,
+    finalisedAt: signedAt,
+    finalisedBy: identity.fullName,
     version: 1,
     signature: {
       method: "credentialed-attestation",
