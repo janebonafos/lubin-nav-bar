@@ -1762,7 +1762,7 @@ export function AppointmentsSection() {
                       <DetailItem label="Session type" value={a.type} />
                       <DetailItem label="Session format" value={a.sessionFormat} />
                       <DetailItem label="Mode" value={a.mode} />
-                      <DetailItem label="Status" value={a.status} />
+                      <DetailItem label="Status" value={a.status === "session_review" ? "Session review" : a.status} />
                       <DetailItem label="Amount paid" value={a.amount} />
                       <DetailItem
                         label="Payment status"
