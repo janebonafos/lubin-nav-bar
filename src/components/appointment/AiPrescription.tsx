@@ -766,6 +766,19 @@ export function AiPrescription({
       controlled,
       validUntil: validity.validUntil,
       validityLabel: validity.label,
+      patientInfo: rx.patientInfo,
+      clinicalNotes: rx.clinicalNotes,
+      signedHash: auth.hash,
+      signature: {
+        method: auth.method,
+        methodLabel: auth.methodLabel,
+        documentHash: auth.hash,
+        version,
+        at,
+        by: identity.fullName || providerName || "Prescriber",
+        credentials: credentialSummary(identity, country),
+        jurisdiction: country,
+      },
     });
     patch({
       finalisedAt: at,
