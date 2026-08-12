@@ -109,9 +109,17 @@ export default function ClientPrescriptionsSection() {
                     href={prescriptionHref(doc)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                    className="inline-flex h-9 items-center justify-center rounded-xl border border-[#DCD4F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
                   >
                     View
+                  </a>
+                  <a
+                    href={prescriptionHref(doc)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center justify-center rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                  >
+                    Download
                   </a>
                 </div>
               </div>
