@@ -9,7 +9,10 @@ import {
   type Prescription,
 } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
-import type { SignedPrescriptionDocument } from "@/lib/prescription/documents";
+import {
+  encodeSignedPrescription,
+  type SignedPrescriptionDocument,
+} from "@/lib/prescription/documents";
 
 /**
  * In-app viewer for a signed prescription file. Both the prescriber and the
