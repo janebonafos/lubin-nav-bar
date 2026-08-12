@@ -1216,26 +1216,8 @@ function DetailsPage() {
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       Your appointments list has been updated with the new status and details.
                     </p>
-                    <div className="mt-3.5 flex flex-wrap gap-2">
-                      <Link
-                        to="/provider/appointments"
-                        className="inline-flex h-10 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
-                      >
-                        Back to Appointments
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.history.length > 1) window.history.back();
-                          else window.location.assign("/provider/appointments");
-                        }}
-                        className="inline-flex h-10 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-4 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF]"
-                      >
-                        Close
-                      </button>
-                    </div>
                     {recordedOutcome !== "provider_no_show" && (
-                      <div className="mt-4">
+                      <div className="mt-3.5">
                         <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
                       </div>
                     )}
