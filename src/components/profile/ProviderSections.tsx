@@ -1785,7 +1785,7 @@ export function AppointmentsSection() {
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     <div className="space-y-4">
-                    {(a.status === "completed" || a.notes) && (
+                    {(a.status === "completed" || a.status === "session_review" || a.notes) && (
                       <ApptNotesBlock
                         appt={a}
                         onChange={(patch) =>
@@ -1793,7 +1793,7 @@ export function AppointmentsSection() {
                         }
                       />
                     )}
-                    {a.status === "completed" && (
+                    {(a.status === "completed" || a.status === "session_review") && (
                       <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
                     )}
                     {a.status === "upcoming" && (
