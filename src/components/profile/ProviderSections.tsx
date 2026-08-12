@@ -1588,12 +1588,13 @@ export function AppointmentsSection() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Upcoming"
           value={String(counts.upcoming)}
           hint={`${counts.all} total booking${counts.all === 1 ? "" : "s"}`}
         />
+        <StatCard label="Session review" value={String(counts.session_review)} hint="Pending close-out" />
         <StatCard label="Completed" value={String(counts.completed)} hint="Closed appointments" />
         <StatCard
           label="No-shows"
