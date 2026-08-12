@@ -1218,7 +1218,13 @@ function DetailsPage() {
                     </p>
                     {recordedOutcome !== "provider_no_show" && (
                       <div className="mt-3.5">
-                        <ApptPayoutStatus status={appt.payoutStatus ?? "pending_review"} />
+                        <ApptPayoutStatus
+                          status={
+                            appt.payoutStatus === "approved" || appt.payoutStatus === "paid"
+                              ? appt.payoutStatus
+                              : "pending_review"
+                          }
+                        />
                       </div>
                     )}
                   </>
