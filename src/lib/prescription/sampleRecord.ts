@@ -114,6 +114,8 @@ export function ensureSamplePrescriptionRecord() {
     identity,
     medications: [medication],
     controlled: false,
+    patientInfo: rx.patientInfo,
+    signature: rx.signature,
     validUntil: signedAt + 180 * 24 * 60 * 60 * 1000,
     validityLabel: "Valid until",
     delivery: {
