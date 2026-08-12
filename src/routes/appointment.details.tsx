@@ -456,6 +456,7 @@ function DetailsPage() {
   useEffect(() => subscribeProviderShares(() => setShareTick((t) => t + 1)), []);
 
   const isCompleted = appt?.status === "completed";
+  const isSessionReview = appt?.status === "session_review";
   const isCancelled = appt?.status === "cancelled";
   const hasNotes = !!(appt?.notes && appt.notes.trim().length > 0);
   const isPublished = !!appt?.publishedFollowUp;
