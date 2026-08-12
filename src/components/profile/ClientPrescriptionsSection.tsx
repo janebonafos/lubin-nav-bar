@@ -8,6 +8,7 @@ import {
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
+import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
 /**
  * Client-facing prescription record: every prescription issued to them,
@@ -19,6 +20,7 @@ export default function ClientPrescriptionsSection() {
   const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
 
   useEffect(() => {
+    ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
     read();
     return subscribePrescriptionDocuments(read);
