@@ -1350,6 +1350,58 @@ function DetailsPage() {
       </div>
 
       {/* Confirm the appointment outcome */}
+      <Dialog open={editConsentOpen} onOpenChange={setEditConsentOpen}>
+        <DialogContent className="max-w-[560px] p-0 sm:max-w-[560px]">
+          <div className="px-7 py-6">
+            <DialogHeader className="space-y-2.5 text-left">
+              <DialogTitle className="text-[21px] font-semibold text-[#2C2B4B]">
+                Reopen this post-appointment form for editing?
+              </DialogTitle>
+              <DialogDescription className="text-[15px] leading-relaxed text-[#5A4A8A]">
+                This appointment is already closed. Any change you make now is recorded as an
+                amendment to the clinical record, and {clientLabel} may see an updated summary.
+                Editing is only possible for 24 hours after the appointment was closed
+                {editWindowLabel ? ` — until ${editWindowLabel}` : ""}. After that this form can no
+                longer be modified.
+              </DialogDescription>
+            </DialogHeader>
+            <label className="mt-5 flex cursor-pointer items-start gap-2.5 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] px-4 py-3 text-[14px] leading-snug text-[#3D2E6B]">
+              <input
+                type="checkbox"
+                checked={editConsentChecked}
+                onChange={(e) => setEditConsentChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-[#6E4FD3]"
+              />
+              <span>
+                I understand this edit will be made to a completed appointment and recorded on the
+                clinical record.
+              </span>
+            </label>
+            <div className="mt-6 flex flex-wrap justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setEditConsentOpen(false)}
+                className="inline-flex h-11 items-center rounded-[10px] border border-[#EAE2F6] bg-white px-5 text-[15px] font-semibold text-[#3D2E6B] hover:bg-[#F7F3FF]"
+              >
+                Go back
+              </button>
+              <button
+                type="button"
+                disabled={!editConsentChecked}
+                onClick={() => {
+                  setEditUnlocked(true);
+                  setEditConsentOpen(false);
+                  toast.success("Editing reopened for this appointment");
+                }}
+                className="inline-flex h-11 items-center rounded-[10px] bg-[#6E4FD3] px-5 text-[15px] font-semibold text-white transition hover:bg-[#5A3EB8] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Agree and edit
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={outcomeNoticeOpen && !!noticeCopy} onOpenChange={setOutcomeNoticeOpen}>
         <DialogContent className="max-w-[680px] overflow-hidden p-0 sm:max-w-[680px]">
           <div className="border-b border-[#EFE7FA] bg-[#F7F3FF] px-7 py-6">
