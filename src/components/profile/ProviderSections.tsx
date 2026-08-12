@@ -3247,8 +3247,8 @@ export function ApptPayoutStatus({
 }) {
   const map = {
     pending_review: {
-      label: "Pending Lubin review",
-      desc: "We'll review session details before releasing your payout.",
+      label: "Payout for approval",
+      desc: "Submitted to the Lubin team for review. Your payout is approved once the review is completed.",
       tone: "bg-[#FDF3E7] text-[#8A5A1A] border-[#F6E0BD]",
       icon: <CalendarClock className="h-3.5 w-3.5" />,
     },
@@ -3259,7 +3259,7 @@ export function ApptPayoutStatus({
       icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
     },
     approved: {
-      label: "Approved for payout",
+      label: "Payout approved",
       desc: "Reviewed by the Lubin team. Earnings will be released on your next payout cycle.",
       tone: "bg-[#E8F1FB] text-[#1F3D72] border-[#C9D9F2]",
       icon: <ShieldCheck className="h-3.5 w-3.5" />,
