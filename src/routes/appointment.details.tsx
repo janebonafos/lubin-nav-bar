@@ -327,6 +327,12 @@ function DetailsPage() {
   // Selecting a non-delivered outcome closes prescribing immediately, before the
   // appointment is closed, so the provider cannot keep working on medication.
   const [outcomeNoticeOpen, setOutcomeNoticeOpen] = useState(false);
+  // Post-completion editing: the form is read-only once the appointment is
+  // closed. A provider may reopen it for edits within 24 hours, but only after
+  // agreeing that the change is recorded on the clinical record.
+  const [editUnlocked, setEditUnlocked] = useState(false);
+  const [editConsentOpen, setEditConsentOpen] = useState(false);
+  const [editConsentChecked, setEditConsentChecked] = useState(false);
   useEffect(() => subscribePrescription(() => setRxTick((t) => t + 1)), []);
 
   useEffect(() => {
