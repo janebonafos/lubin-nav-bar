@@ -1380,7 +1380,7 @@ export const UPCOMING_APPOINTMENTS_COUNT = 3;
 
 
 export function AppointmentsSection() {
-  const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
+  const [tab, setTab] = useState<"all" | "upcoming" | "session_review" | "completed" | "cancelled">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 5;
