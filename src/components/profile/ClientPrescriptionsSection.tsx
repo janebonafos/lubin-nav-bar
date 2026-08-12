@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { FileText, Pill, ShieldAlert, ExternalLink, Ban } from "lucide-react";
+import { ShieldAlert, ExternalLink, Ban, FileText } from "lucide-react";
+import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import {
   listSignedPrescriptions,
