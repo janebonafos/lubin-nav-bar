@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Search, ShieldAlert, ExternalLink } from "lucide-react";
+import { Search, ShieldAlert } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
-import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
   listSignedPrescriptions,
@@ -10,6 +8,16 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
+
+function prescriptionHref(doc: SignedPrescriptionDocument): string {
+  const params = new URLSearchParams({
+    appointment: doc.appointmentId,
+    country: doc.country,
+  });
+  if (doc.patientName) params.set("client", doc.patientName);
+  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+  return `/e-prescription?${params.toString()}`;
+}
 
 type PatientGroup = {
   patientName: string;
