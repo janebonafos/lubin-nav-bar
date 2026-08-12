@@ -1,13 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { ShieldAlert, Ban, FileText } from "lucide-react";
+import { ShieldAlert, Ban } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
-import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
+
+function prescriptionHref(doc: SignedPrescriptionDocument): string {
+  const params = new URLSearchParams({
+    appointment: doc.appointmentId,
+    country: doc.country,
+  });
+  if (doc.patientName) params.set("client", doc.patientName);
+  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+  return `/e-prescription?${params.toString()}`;
+}
 
 /**
  * Client-facing prescription record: every prescription issued to them,
