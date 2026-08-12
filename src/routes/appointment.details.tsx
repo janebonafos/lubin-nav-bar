@@ -33,7 +33,7 @@ import {
 import { prescriptionStatusLabel, deliveryComplete } from "@/lib/prescription/status";
 import {
   encounterPrescribingBlock,
-  OUTCOME_COPY,
+  getOutcomeCopy,
   SIGNED_RX_MODAL,
   SIGNED_RX_CONFLICT,
   UNSIGNED_DRAFT_WARNING,
@@ -69,42 +69,49 @@ type StoredAppt = ApptLite & {
 
 type Outcome = NonNullable<ApptLite["outcome"]>;
 
-const OUTCOMES: {
+function getOutcomeOptions(isPrescriber: boolean): {
   value: Outcome;
   label: string;
   consequence: string;
-}[] = [
-  {
-    value: "completed",
-    label: "Completed",
-    consequence:
-      "The clinical encounter took place and the visit is finished. Prescribing stays open, so a prescription created here can be signed, issued and received by the client.",
-  },
-  {
-    value: "client_no_show",
-    label: "Client no-show",
-    consequence:
-      "The client did not attend and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
-  },
-  {
-    value: "provider_no_show",
-    label: "Provider no-show",
-    consequence:
-      "The encounter did not take place because the provider was unavailable. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
-  },
-  {
-    value: "cancelled",
-    label: "Cancelled",
-    consequence:
-      "The appointment was cancelled and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it.",
-  },
-  {
-    value: "rescheduled",
-    label: "Rescheduled",
-    consequence:
-      "A new appointment will be scheduled instead. Any prescription created here is voided for this encounter, and prescribing can be completed again from the rescheduled appointment.",
-  },
-];
+}[] {
+  return [
+    {
+      value: "completed",
+      label: "Completed",
+      consequence: isPrescriber
+        ? "The clinical encounter took place and the visit is finished. Prescribing stays open, so a prescription created here can be signed, issued and received by the client."
+        : "The clinical encounter took place and the visit is finished. The session status will be updated to completed.",
+    },
+    {
+      value: "client_no_show",
+      label: "Client no-show",
+      consequence: isPrescriber
+        ? "The client did not attend and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it."
+        : "The client did not attend and no clinical encounter took place. The session status will be updated to client no-show.",
+    },
+    {
+      value: "provider_no_show",
+      label: "Provider no-show",
+      consequence: isPrescriber
+        ? "The encounter did not take place because the provider was unavailable. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it."
+        : "The encounter did not take place because the provider was unavailable. The session status will be updated to provider no-show.",
+    },
+    {
+      value: "cancelled",
+      label: "Cancelled",
+      consequence: isPrescriber
+        ? "The appointment was cancelled and no clinical encounter took place. The prescription step becomes Not applicable and any prescription created here is voided — the client will not receive it."
+        : "The appointment was cancelled and no clinical encounter took place. The session status will be updated to cancelled.",
+    },
+    {
+      value: "rescheduled",
+      label: "Rescheduled",
+      consequence: isPrescriber
+        ? "A new appointment will be scheduled instead. Any prescription created here is voided for this encounter, and prescribing can be completed again from the rescheduled appointment."
+        : "A new appointment will be scheduled instead. The session status will be updated to rescheduled.",
+    },
+  ];
+}
 
 export const Route = createFileRoute("/appointment/details")({
   validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
@@ -575,7 +582,9 @@ function DetailsPage() {
   // Confirmation modal state: the appointment outcome is the headline, the
   // prescription consequence is supporting information.
   const noticeOutcome = outcomeChoice ?? null;
-  const noticeCopy = noticeOutcome ? OUTCOME_COPY[noticeOutcome] : null;
+  const noticeCopy = noticeOutcome
+    ? getOutcomeCopy(noticeOutcome, isPrescriber(providerProfession || verification.data?.profession))
+    : null;
   const noticeBlocksRx = !!noticeOutcome && !!encounterPrescribingBlock(noticeOutcome);
   const noticeSignedConflict = noticeBlocksRx && rxRecordState.signed;
   const noticeDraftWarning = noticeBlocksRx && !rxRecordState.signed && rxRecordState.unsignedDraft;
@@ -615,6 +624,7 @@ function DetailsPage() {
   // psychiatrist or other prescribing profession ever sees the step. For
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
+  const outcomes = getOutcomeOptions(prescribingProfession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
   const rxDone = !rxShown || !!activeBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
@@ -662,7 +672,7 @@ function DetailsPage() {
     ? "Cancelled"
     : isPublished
       ? recordedOutcome
-        ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
+        ? (outcomes.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
         : "Completed"
       : showPostSession
         ? "Session ended · Notes pending"
@@ -1199,7 +1209,7 @@ function DetailsPage() {
                     <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
                       <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is closed as{" "}
                       {(
-                        OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
+                        outcomes.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
                       ).toLowerCase()}
                       .
                     </p>
@@ -1241,7 +1251,7 @@ function DetailsPage() {
                       this appointment to close it.
                     </p>
                     <div className="mt-4 space-y-2">
-                      {OUTCOMES.map((o) => (
+                      {outcomes.map((o) => (
                         <label
                           key={o.value}
                           className={`flex cursor-pointer items-start gap-3 rounded-[14px] border px-3.5 py-3 transition ${
@@ -1320,7 +1330,7 @@ function DetailsPage() {
                         setOutcomeConflict(null);
                         setDraftWarningFor(null);
                         const label =
-                          OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
+                          outcomes.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
                         onChange({
                           status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
                           outcome: outcomeChoice,

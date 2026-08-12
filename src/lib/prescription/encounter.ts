@@ -70,7 +70,7 @@ export type OutcomeCopy = {
   secondaryButton: string;
 };
 
-export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
+const PRESCRIBER_OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
   completed: {
     eyebrow: "APPOINTMENT COMPLETED",
     title: "Mark this appointment as completed?",
@@ -122,6 +122,69 @@ export const OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
     secondaryButton: "Go back",
   },
 };
+
+const NON_PRESCRIBER_OUTCOME_COPY: Record<AppointmentOutcome, OutcomeCopy> = {
+  completed: {
+    eyebrow: "APPOINTMENT COMPLETED",
+    title: "Mark this appointment as completed?",
+    primaryDescription:
+      "Use this when the scheduled clinical encounter took place and the visit is finished.",
+    secondaryDescription:
+      "Your clinical notes and the client summary from this encounter stay part of the appointment record. The session status will be updated to completed.",
+    primaryButton: "Mark as completed",
+    secondaryButton: "Go back",
+  },
+  client_no_show: {
+    eyebrow: "CLIENT DID NOT ATTEND",
+    title: "Mark this appointment as a client no-show?",
+    primaryDescription:
+      "Use this when the client did not attend and a clinical encounter did not take place.",
+    secondaryDescription:
+      "The session status will be updated to client no-show. The appointment will be recorded as not delivered.",
+    primaryButton: "Mark as client no-show",
+    secondaryButton: "Go back",
+  },
+  provider_no_show: {
+    eyebrow: "PROVIDER DID NOT ATTEND",
+    title: "Mark this appointment as a provider no-show?",
+    primaryDescription:
+      "Use this when the scheduled clinical encounter did not take place because the provider was unavailable.",
+    secondaryDescription:
+      "The session status will be updated to provider no-show. The appointment will be recorded as not delivered.",
+    primaryButton: "Mark as provider no-show",
+    secondaryButton: "Go back",
+  },
+  cancelled: {
+    eyebrow: "APPOINTMENT CANCELLED",
+    title: "Mark this appointment as cancelled?",
+    primaryDescription:
+      "Use this when the appointment was cancelled and the scheduled clinical encounter did not take place.",
+    secondaryDescription:
+      "The session status will be updated to cancelled. The appointment will be recorded as not delivered.",
+    primaryButton: "Mark as cancelled",
+    secondaryButton: "Go back",
+  },
+  rescheduled: {
+    eyebrow: "APPOINTMENT RESCHEDULED",
+    title: "Mark this appointment as rescheduled?",
+    primaryDescription:
+      "Use this when this appointment will not take place at the original date or time and a new appointment will be scheduled instead.",
+    secondaryDescription:
+      "The session status will be updated to rescheduled. A new appointment will be scheduled separately.",
+    primaryButton: "Mark as rescheduled",
+    secondaryButton: "Go back",
+  },
+};
+
+export const OUTCOME_COPY = PRESCRIBER_OUTCOME_COPY;
+
+export function getOutcomeCopy(
+  outcome: AppointmentOutcome,
+  isPrescriber: boolean,
+): OutcomeCopy {
+  return isPrescriber ? PRESCRIBER_OUTCOME_COPY[outcome] : NON_PRESCRIBER_OUTCOME_COPY[outcome];
+}
+
 
 export const SIGNED_RX_MODAL = {
   eyebrow: "SIGNED PRESCRIPTION EXISTS",
