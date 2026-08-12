@@ -41,7 +41,7 @@ export default function ClientPrescriptionsSection() {
 
       {sorted.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
-          <Pill className="mx-auto h-6 w-6 text-[#A89BD0]" />
+          <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
           <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
             No prescriptions yet
           </p>
