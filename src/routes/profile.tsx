@@ -27,6 +27,7 @@ import {
   ShieldCheck,
   Briefcase,
   LogOut,
+  Pill,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from "@tanstack/react-router";
