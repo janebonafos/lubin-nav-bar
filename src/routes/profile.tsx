@@ -41,6 +41,10 @@ import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
 import { getProviderProfession, isPrescriber } from "@/lib/prescription/store";
+import {
+  listSignedPrescriptions,
+  subscribePrescriptionDocuments,
+} from "@/lib/prescription/documents";
 import ClientAppointmentsSection, {
   CLIENT_UPCOMING_COUNT,
 } from "@/components/profile/ClientAppointmentsSection";
