@@ -13,6 +13,7 @@ function prescriptionHref(doc: SignedPrescriptionDocument): string {
   const params = new URLSearchParams({
     appointment: doc.appointmentId,
     country: doc.country,
+    doc: doc.id,
   });
   if (doc.patientName) params.set("client", doc.patientName);
   if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
