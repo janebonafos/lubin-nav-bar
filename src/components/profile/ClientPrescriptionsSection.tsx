@@ -25,7 +25,7 @@ function prescriptionHref(doc: SignedPrescriptionDocument): string {
  */
 export default function ClientPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
-  const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
+
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
