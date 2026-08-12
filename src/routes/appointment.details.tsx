@@ -866,6 +866,59 @@ function DetailsPage() {
             )}
 
             {/* Client-shared reference material — outside the numbered tasks */}
+            {isCompleted && (
+              <section
+                className={`rounded-[20px] border px-5 py-4 md:px-6 ${
+                  formLocked ? "border-[#EAE2F6] bg-white" : "border-[#D8C7F0] bg-[#F7F3FF]"
+                }`}
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-[14px] font-semibold text-[#2C2B4B]">
+                      {formLocked ? (
+                        <Lock className="h-4 w-4 text-[#A89BD0]" />
+                      ) : (
+                        <Check className="h-4 w-4 text-[#6E4FD3]" />
+                      )}
+                      {formLocked
+                        ? editWindowExpired
+                          ? "This post-appointment form can no longer be modified"
+                          : "This post-appointment form is read-only"
+                        : "Editing is open — changes are recorded on the clinical record"}
+                    </p>
+                    <p className="mt-1 max-w-2xl text-[13px] leading-snug text-[#7E6BAF]">
+                      {editWindowExpired
+                        ? `The 24-hour edit window closed on ${editWindowLabel}. Your notes, the client summary and any prescription decision stay part of the appointment record and cannot be changed.`
+                        : formLocked
+                          ? `The appointment is closed, so new post-session details cannot be entered. You can still correct information until ${editWindowLabel ?? "24 hours after closing"} — after that this form is locked permanently.`
+                          : `You can now edit the steps below. Editing closes ${editWindowLabel ? `on ${editWindowLabel}` : "24 hours after this appointment was closed"}.`}
+                    </p>
+                  </div>
+                  {!editWindowExpired && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (formLocked) {
+                          setEditConsentChecked(false);
+                          setEditConsentOpen(true);
+                        } else {
+                          setEditUnlocked(false);
+                          setOpenStep(null);
+                        }
+                      }}
+                      className={`inline-flex h-10 shrink-0 items-center rounded-[10px] px-4 text-[13px] font-semibold transition ${
+                        formLocked
+                          ? "bg-[#6E4FD3] text-white hover:bg-[#5A3EB8]"
+                          : "border border-[#D6CCEC] bg-white text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                      }`}
+                    >
+                      {formLocked ? "Edit post-appointment form" : "Finish editing"}
+                    </button>
+                  )}
+                </div>
+              </section>
+            )}
+
             <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
               <button
                 type="button"
