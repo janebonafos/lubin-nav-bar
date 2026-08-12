@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Pill, Search, ShieldAlert, ExternalLink, User } from "lucide-react";
+import { Pill, Search, ShieldAlert, ExternalLink, User, FileText } from "lucide-react";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
