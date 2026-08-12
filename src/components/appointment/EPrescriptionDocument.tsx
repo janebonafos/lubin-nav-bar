@@ -3,7 +3,10 @@ import logo from "@/assets/lubin-logo.svg";
 import type { Prescription, RxCountry } from "@/lib/prescription/store";
 import type { PrescriberIdentity } from "@/lib/prescription/credentials";
 import { patientAge } from "@/lib/prescription/safety";
-import { latestSignedPrescription } from "@/lib/prescription/documents";
+import {
+  latestSignedPrescription,
+  type SignedPrescriptionDocument,
+} from "@/lib/prescription/documents";
 import {
   formatDob,
   formatValidityDate,
@@ -34,6 +37,7 @@ export function EPrescriptionDocument({
   providerName,
   identity,
   draft,
+  document: documentRecord,
 }: {
   rx: Prescription;
   country: RxCountry;
@@ -42,13 +46,17 @@ export function EPrescriptionDocument({
   identity: PrescriberIdentity;
   /** True when shown before signing, so the copy is clearly a preview. */
   draft?: boolean;
+  /** Issued document to render from, when opening a record from the
+   *  prescription list rather than a live draft. */
+  document?: SignedPrescriptionDocument | null;
 }) {
   const issued = rx.finalisedAt ? new Date(rx.finalisedAt) : new Date();
   const meds = rx.medications.filter((m) => m.name.trim().length > 0);
   const age = patientAge(rx.patientInfo);
   const dob = formatDob(rx.patientInfo);
   const address = (rx.patientInfo?.address ?? "").trim();
-  const doc = rx.documentId ? latestSignedPrescription(rx.appointmentId) : null;
+  const doc =
+    documentRecord ?? (rx.documentId ? latestSignedPrescription(rx.appointmentId) : null);
   const controlled = meds.some((m) => m.controlled);
   /** Validity comes from the rules layer. Once signed it is the immutable value
    *  stored on the signed document, never recomputed. */
