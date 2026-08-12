@@ -1,13 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { ShieldAlert, Ban, FileText } from "lucide-react";
+import { ShieldAlert, Ban } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
-import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
+
+function prescriptionHref(doc: SignedPrescriptionDocument): string {
+  const params = new URLSearchParams({
+    appointment: doc.appointmentId,
+    country: doc.country,
+  });
+  if (doc.patientName) params.set("client", doc.patientName);
+  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+  return `/e-prescription?${params.toString()}`;
+}
 
 /**
  * Client-facing prescription record: every prescription issued to them,
@@ -16,7 +25,7 @@ import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord"
  */
 export default function ClientPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
-  const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
+
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -95,22 +104,19 @@ export default function ClientPrescriptionsSection() {
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-                  <button
-                    type="button"
-                    onClick={() => setOpenDoc(doc)}
+                  <a
+                    href={prescriptionHref(doc)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                   >
-                    <FileText className="h-3.5 w-3.5" /> View / download
-                  </button>
+                    View / download
+                  </a>
                 </div>
               </div>
             </li>
           ))}
         </ul>
-      )}
-
-      {openDoc && (
-        <PrescriptionDocumentDialog doc={openDoc} onClose={() => setOpenDoc(null)} />
       )}
     </section>
   );

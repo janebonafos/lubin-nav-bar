@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Search, ShieldAlert, ExternalLink } from "lucide-react";
+import { Search, ShieldAlert } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
-import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
   listSignedPrescriptions,
@@ -10,6 +8,16 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
+
+function prescriptionHref(doc: SignedPrescriptionDocument): string {
+  const params = new URLSearchParams({
+    appointment: doc.appointmentId,
+    country: doc.country,
+  });
+  if (doc.patientName) params.set("client", doc.patientName);
+  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+  return `/e-prescription?${params.toString()}`;
+}
 
 type PatientGroup = {
   patientName: string;
@@ -25,7 +33,6 @@ type PatientGroup = {
 export default function ProviderPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
   const [query, setQuery] = useState("");
-  const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -117,13 +124,6 @@ export default function ProviderPrescriptionsSection() {
                     </p>
                   </div>
                 </div>
-                <Link
-                  to="/appointment/details"
-                  search={{ id: group.docs[0]!.appointmentId }}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#DCD4F0] px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F5F1FE]"
-                >
-                  Open session <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
               </div>
 
               <ul className="mt-4 space-y-3">
@@ -158,13 +158,14 @@ export default function ProviderPrescriptionsSection() {
                           </p>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setOpenDoc(doc)}
+                      <a
+                        href={prescriptionHref(doc)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                       >
                         View prescription
-                      </button>
+                      </a>
                     </div>
                   </li>
                 ))}
@@ -172,10 +173,6 @@ export default function ProviderPrescriptionsSection() {
             </div>
           ))}
         </div>
-      )}
-
-      {openDoc && (
-        <PrescriptionDocumentDialog doc={openDoc} onClose={() => setOpenDoc(null)} />
       )}
     </section>
   );
