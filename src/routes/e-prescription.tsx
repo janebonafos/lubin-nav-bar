@@ -5,6 +5,11 @@ import { EPrescriptionDocument } from "@/components/appointment/EPrescriptionDoc
 import { loadPrescription, type Prescription, type RxCountry } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
+  findSignedPrescription,
+  prescriptionFromSignedDocument,
+  type SignedPrescriptionDocument,
+} from "@/lib/prescription/documents";
+import {
   applyVerifiedRecord,
   useVerifiedPrescribing,
 } from "@/lib/prescription/useVerifiedPrescribing";
@@ -15,6 +20,8 @@ type Search = {
   client?: string;
   provider?: string;
   draft?: boolean;
+  /** Issued document id — renders the signed record instead of the draft. */
+  doc?: string;
 };
 
 export const Route = createFileRoute("/e-prescription")({
@@ -24,6 +31,7 @@ export const Route = createFileRoute("/e-prescription")({
     client: search.client ? String(search.client) : undefined,
     provider: search.provider ? String(search.provider) : undefined,
     draft: search.draft === true || search.draft === "true",
+    doc: search.doc ? String(search.doc) : undefined,
   }),
   head: () => ({
     meta: [
@@ -48,19 +56,27 @@ export const Route = createFileRoute("/e-prescription")({
 });
 
 function EPrescriptionPage() {
-  const { appointment, country, client, provider, draft } = Route.useSearch();
+  const { appointment, country, client, provider, draft, doc } = Route.useSearch();
   const [rx, setRx] = useState<Prescription | null>(null);
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
+  const [record, setRecord] = useState<SignedPrescriptionDocument | null>(null);
   const verification = useVerifiedPrescribing(provider);
-  const record = verification.data;
+  const verified = verification.data;
 
   useEffect(() => {
+    const signed = doc ? (findSignedPrescription(doc) ?? null) : null;
+    setRecord(signed);
+    if (signed) {
+      setRx(prescriptionFromSignedDocument(signed));
+      setIdentity(signed.identity);
+      return;
+    }
     if (!appointment) return;
     setRx(loadPrescription(appointment));
     setIdentity(loadIdentity(provider));
-  }, [appointment, provider]);
+  }, [appointment, provider, doc]);
 
-  if (!appointment) {
+  if (!appointment && !doc) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#F3F0FA] px-6">
         <p className="text-[13.5px] text-[#6F6889]">
@@ -82,11 +98,12 @@ function EPrescriptionPage() {
     <main style={{ fontFamily: "Inter, sans-serif" }}>
       <EPrescriptionDocument
         rx={rx}
-        country={country ?? "PH"}
-        clientName={client}
-        providerName={provider}
-        identity={applyVerifiedRecord(identity, record).identity}
-        draft={draft}
+        country={record?.country ?? country ?? "PH"}
+        clientName={record?.patientName ?? client}
+        providerName={record?.signedBy ?? provider}
+        identity={record ? record.identity : applyVerifiedRecord(identity, verified).identity}
+        draft={record ? false : draft}
+        document={record}
       />
     </main>
   );
