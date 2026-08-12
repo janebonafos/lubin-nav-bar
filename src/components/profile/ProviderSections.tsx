@@ -1629,7 +1629,7 @@ export function AppointmentsSection() {
                   : "text-[#3D2E6B] hover:bg-[#A89BD0]/20"
               }`}
             >
-              {t === "session_review" ? "Session Review" : t.replace("_", " ")}
+              {t === "session_review" ? "session review" : t.replace("_", " ")}
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
                   tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#3D2E6B]/60"
