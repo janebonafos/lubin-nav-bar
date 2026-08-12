@@ -1251,6 +1251,7 @@ function DetailsPage() {
                         onChange({
                           status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
                           outcome: outcomeChoice,
+                          closedAt: Date.now(),
                         });
                         toast.success(`Appointment closed as ${label.toLowerCase()}`);
                       }}
