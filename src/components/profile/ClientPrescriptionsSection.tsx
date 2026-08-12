@@ -111,7 +111,7 @@ export default function ClientPrescriptionsSection() {
                     rel="noopener noreferrer"
                     className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                   >
-                    View / download
+                    View
                   </a>
                 </div>
               </div>
