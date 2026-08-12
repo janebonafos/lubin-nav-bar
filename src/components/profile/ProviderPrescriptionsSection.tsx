@@ -8,6 +8,7 @@ import {
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
+import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
 type PatientGroup = {
   patientName: string;
@@ -26,6 +27,7 @@ export default function ProviderPrescriptionsSection() {
   const [openDoc, setOpenDoc] = useState<SignedPrescriptionDocument | null>(null);
 
   useEffect(() => {
+    ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
     read();
     return subscribePrescriptionDocuments(read);
