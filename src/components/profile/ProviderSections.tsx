@@ -1618,17 +1618,17 @@ export function AppointmentsSection() {
           </div>
           <p className="mt-1 text-sm text-[#7E6BAF]">Everything on your schedule.</p>
           <div className="mt-6 inline-flex gap-2 rounded-[10px] bg-[#F0EAFB] p-1">
-          {(["all", "upcoming", "completed", "cancelled"] as const).map((t) => (
+          {(["all", "upcoming", "session_review", "completed", "cancelled"] as const).map((t) => (
             <button
               key={t}
               onClick={() => { setTab(t); setPage(1); setExpanded(null); }}
-              className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium capitalize transition ${
+              className={`inline-flex items-center gap-2 rounded-[8px] px-4 py-1.5 text-sm font-medium transition ${
                 tab === t
                   ? "bg-[#5B4796] text-white"
                   : "text-[#3D2E6B] hover:bg-[#A89BD0]/20"
               }`}
             >
-              {t}
+              {t === "session_review" ? "Session Review" : t.replace("_", " ")}
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
                   tab === t ? "bg-white/25 text-white" : "bg-white/70 text-[#3D2E6B]/60"
