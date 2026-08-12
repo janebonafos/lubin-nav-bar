@@ -11,6 +11,8 @@ export type SignedPrescriptionDocument = {
   number: string;
   appointmentId: string;
   patientName: string;
+  /** Optional patient photo URL; the avatar falls back to initials without it. */
+  patientPhotoUrl?: string;
   patientAgeYears?: number;
   patientSex?: string;
   country: RxCountry;
