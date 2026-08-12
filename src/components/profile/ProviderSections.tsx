@@ -1935,7 +1935,7 @@ export function DetailItem({ label, value }: { label: string; value: React.React
 
 export type ApptLite = {
   id: string;
-  status: "upcoming" | "completed" | "cancelled";
+  status: "upcoming" | "session_review" | "completed" | "cancelled";
   outcome?:
     | "completed"
     | "client_no_show"
