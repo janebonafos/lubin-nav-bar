@@ -626,6 +626,7 @@ function DetailsPage() {
   // psychiatrist or other prescribing profession ever sees the step. For
   // everyone else it does not exist — it is not shown as locked or unavailable.
   const prescribingProfession = isPrescriber(providerProfession || verification.data?.profession);
+  const outcomes = getOutcomeOptions(prescribingProfession);
   const rxShown = rxServiceOnly && showPostSession && prescribingProfession;
   const rxDone = !rxShown || !!activeBlock ? true : rxLifecycle.issued || rxLifecycle.skipped;
   const step2Locked = !step1Done;
@@ -673,7 +674,7 @@ function DetailsPage() {
     ? "Cancelled"
     : isPublished
       ? recordedOutcome
-        ? (OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
+        ? (outcomes.find((o) => o.value === recordedOutcome)?.label ?? "Completed")
         : "Completed"
       : showPostSession
         ? "Session ended · Notes pending"
@@ -1210,7 +1211,7 @@ function DetailsPage() {
                     <p className="flex items-center gap-2 text-[13.5px] font-semibold text-[#3D2E6B]">
                       <Check className="h-4 w-4 text-[#6E4FD3]" /> This appointment is closed as{" "}
                       {(
-                        OUTCOMES.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
+                        outcomes.find((o) => o.value === recordedOutcome)?.label ?? "Completed"
                       ).toLowerCase()}
                       .
                     </p>
@@ -1252,7 +1253,7 @@ function DetailsPage() {
                       this appointment to close it.
                     </p>
                     <div className="mt-4 space-y-2">
-                      {OUTCOMES.map((o) => (
+                      {outcomes.map((o) => (
                         <label
                           key={o.value}
                           className={`flex cursor-pointer items-start gap-3 rounded-[14px] border px-3.5 py-3 transition ${
@@ -1331,7 +1332,7 @@ function DetailsPage() {
                         setOutcomeConflict(null);
                         setDraftWarningFor(null);
                         const label =
-                          OUTCOMES.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
+                          outcomes.find((o) => o.value === outcomeChoice)?.label ?? "Completed";
                         onChange({
                           status: outcomeChoice === "cancelled" ? "cancelled" : "completed",
                           outcome: outcomeChoice,
