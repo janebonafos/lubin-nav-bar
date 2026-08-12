@@ -9,7 +9,10 @@ import {
   type Prescription,
 } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
-import type { SignedPrescriptionDocument } from "@/lib/prescription/documents";
+import {
+  encodeSignedPrescription,
+  type SignedPrescriptionDocument,
+} from "@/lib/prescription/documents";
 
 /**
  * In-app viewer for a signed prescription file. Both the prescriber and the
@@ -47,6 +50,8 @@ export default function PrescriptionDocumentDialog({
     });
     if (doc.patientName) params.set("client", doc.patientName);
     if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
+    const encoded = encodeSignedPrescription(doc);
+    if (encoded) params.set("d", encoded);
     return `/e-prescription?${params.toString()}`;
   })();
 
