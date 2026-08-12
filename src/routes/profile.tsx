@@ -135,10 +135,17 @@ function ProfilePage() {
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
   const navigate = useNavigate();
   const search = Route.useSearch();
-  // Only prescribing professions carry a prescription record.
+  // Prescribing professions carry a prescription record — and so does any
+  // provider who has already issued prescriptions.
   const [canPrescribe, setCanPrescribe] = useState(false);
   useEffect(() => {
-    setCanPrescribe(isPrescriber(getProviderProfession()));
+    const read = () =>
+      setCanPrescribe(
+        isPrescriber(getProviderProfession()) ||
+          listSignedPrescriptions().length > 0,
+      );
+    read();
+    return subscribePrescriptionDocuments(read);
   }, []);
 
   // Allow deep-linking to a specific sidebar section (e.g. from payment-success).
