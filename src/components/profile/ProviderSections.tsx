@@ -1397,7 +1397,7 @@ export function AppointmentsSection() {
     type: string;
     sessionFormat: "Individual" | "Group";
     mode: string;
-    status: "upcoming" | "completed" | "cancelled";
+    status: "upcoming" | "session_review" | "completed" | "cancelled";
     notes?: string;
     amount: string;
     paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
