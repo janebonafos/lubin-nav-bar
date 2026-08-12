@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, ShieldAlert, ExternalLink, User, FileText } from "lucide-react";
+import { Search, ShieldAlert, ExternalLink, FileText } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PrescriptionDocumentDialog from "@/components/profile/PrescriptionDocumentDialog";
+import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
@@ -100,9 +101,11 @@ export default function ProviderPrescriptionsSection() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#EFE8FB] text-[#3D2E6B]">
-                    <User className="h-4 w-4" />
-                  </span>
+                  <PatientAvatar
+                    name={group.patientName}
+                    photoUrl={group.docs[0]!.patientPhotoUrl}
+                    size={36}
+                  />
                   <div>
                     <p className="text-[14px] font-bold text-[#3D2E6B]">
                       {group.patientName}
