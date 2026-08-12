@@ -138,3 +138,49 @@ export function subscribePrescriptionDocuments(fn: () => void): () => void {
   window.addEventListener(CHANGE_EVENT, fn);
   return () => window.removeEventListener(CHANGE_EVENT, fn);
 }
+
+export function findSignedPrescription(id: string): SignedPrescriptionDocument | undefined {
+  return readAll().find((d) => d.id === id);
+}
+
+/** Rebuilds a signed, immutable Prescription view from an issued document so
+ *  the record can be rendered without depending on the local working draft. */
+export function prescriptionFromSignedDocument(
+  doc: SignedPrescriptionDocument,
+): Prescription {
+  return {
+    appointmentId: doc.appointmentId,
+    medications: doc.medications,
+    suggestions: [],
+    country: doc.country,
+    clinicalNotes: doc.clinicalNotes,
+    patientInfo: doc.patientInfo,
+    delivery: doc.delivery
+      ? {
+          method: doc.delivery.method,
+          state: doc.delivery.state,
+          destination: doc.delivery.destination,
+          at: doc.delivery.at,
+        }
+      : undefined,
+    signature: doc.signature ?? {
+      method: "credentialed-attestation",
+      at: doc.signedAt,
+      by: doc.signedBy,
+      credentials: "",
+      jurisdiction: doc.country,
+      version: doc.version,
+      methodLabel: doc.authenticationMethod,
+    },
+    signedHash: doc.signedHash,
+    version: doc.version,
+    documentId: doc.id,
+    voided: doc.voided,
+    finalisedAt: doc.signedAt,
+    finalisedBy: doc.signedBy,
+    legalAcknowledgedAt: doc.signedAt,
+    recordAttestedAt: doc.signedAt,
+    reviewedAt: doc.signedAt,
+    updatedAt: doc.signedAt,
+  } as Prescription;
+}
