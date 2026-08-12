@@ -5,6 +5,7 @@ import { EPrescriptionDocument } from "@/components/appointment/EPrescriptionDoc
 import { loadPrescription, type Prescription, type RxCountry } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
+  decodeSignedPrescription,
   findSignedPrescription,
   prescriptionFromSignedDocument,
   type SignedPrescriptionDocument,
@@ -22,6 +23,9 @@ type Search = {
   draft?: boolean;
   /** Issued document id — renders the signed record instead of the draft. */
   doc?: string;
+  /** Encoded issued document, so a new tab renders the signed record even when
+   *  it cannot read the local record store. */
+  d?: string;
 };
 
 export const Route = createFileRoute("/e-prescription")({
@@ -32,6 +36,7 @@ export const Route = createFileRoute("/e-prescription")({
     provider: search.provider ? String(search.provider) : undefined,
     draft: search.draft === true || search.draft === "true",
     doc: search.doc ? String(search.doc) : undefined,
+    d: search.d ? String(search.d) : undefined,
   }),
   head: () => ({
     meta: [
@@ -56,7 +61,7 @@ export const Route = createFileRoute("/e-prescription")({
 });
 
 function EPrescriptionPage() {
-  const { appointment, country, client, provider, draft, doc } = Route.useSearch();
+  const { appointment, country, client, provider, draft, doc, d } = Route.useSearch();
   const [rx, setRx] = useState<Prescription | null>(null);
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [record, setRecord] = useState<SignedPrescriptionDocument | null>(null);
@@ -64,7 +69,9 @@ function EPrescriptionPage() {
   const verified = verification.data;
 
   useEffect(() => {
-    const signed = doc ? (findSignedPrescription(doc) ?? null) : null;
+    const signed =
+      (doc ? (findSignedPrescription(doc) ?? null) : null) ??
+      (d ? decodeSignedPrescription(d) : null);
     setRecord(signed);
     if (signed) {
       setRx(prescriptionFromSignedDocument(signed));
@@ -74,9 +81,9 @@ function EPrescriptionPage() {
     if (!appointment) return;
     setRx(loadPrescription(appointment));
     setIdentity(loadIdentity(provider));
-  }, [appointment, provider, doc]);
+  }, [appointment, provider, doc, d]);
 
-  if (!appointment && !doc) {
+  if (!appointment && !doc && !d) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#F3F0FA] px-6">
         <p className="text-[13.5px] text-[#6F6889]">
