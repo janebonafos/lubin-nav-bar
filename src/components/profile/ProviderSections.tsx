@@ -1546,6 +1546,7 @@ export function AppointmentsSection() {
   const counts = {
     all: all.length,
     upcoming: all.filter((a) => a.status === "upcoming").length,
+    session_review: all.filter((a) => a.status === "session_review").length,
     completed: all.filter((a) => a.status === "completed").length,
     cancelled: all.filter((a) => a.status === "cancelled").length,
   };
