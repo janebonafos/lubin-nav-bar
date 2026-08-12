@@ -69,9 +69,9 @@ function EPrescriptionPage() {
   const verified = verification.data;
 
   useEffect(() => {
-    const signed =
-      (doc ? (findSignedPrescription(doc) ?? null) : null) ??
-      (d ? decodeSignedPrescription(d) : null);
+    let signed: SignedPrescriptionDocument | null = null;
+    if (doc) signed = findSignedPrescription(doc) ?? null;
+    if (!signed && d) signed = decodeSignedPrescription(d);
     setRecord(signed);
     if (signed) {
       setRx(prescriptionFromSignedDocument(signed));
