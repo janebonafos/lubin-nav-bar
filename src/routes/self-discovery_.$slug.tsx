@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
-  MessageCircle,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -33,6 +32,7 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
+import ResultInsights from "@/components/discovery/ResultInsights";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
@@ -945,7 +945,12 @@ function ResultView({
 
       </div>
 
-      <SupportCard crisis={isCrisisResult(assessment, attempt)} />
+      <ResultInsights assessment={assessment} attempt={attempt} />
+
+      <SupportCard
+        crisis={isCrisisResult(assessment, attempt)}
+        heavy={status.tone.includes("F4ECFB") || status.tone.includes("orange")}
+      />
 
       <div className="mt-5 rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
         <p className="text-[15px] font-semibold text-brand-purple-dark">
@@ -978,29 +983,6 @@ function ResultView({
             </button>
           </li>
           <li>
-            <div
-              aria-disabled
-              className="flex w-full items-center gap-4 rounded-xl p-3 opacity-60"
-            >
-              <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-                <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
-              </span>
-              <span className="flex-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-[14px] font-semibold text-brand-purple-dark">
-                    Talk through your results with AI
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-brand-lavender/80 px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-brand-purple">
-                    Coming soon
-                  </span>
-                </span>
-                <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
-                  Explore what your {dateLabel} results might mean for you
-                </span>
-              </span>
-            </div>
-          </li>
-          <li>
             <button
               type="button"
               onClick={handleShare}
@@ -1031,9 +1013,27 @@ function ResultView({
   );
 }
 
-function SupportCard({ crisis }: { crisis: boolean }) {
+function SupportCard({ crisis, heavy }: { crisis: boolean; heavy: boolean }) {
   const [open, setOpen] = useState(false);
   if (!crisis) {
+    if (!heavy) {
+      // Light / mild / moderate results: keep helplines reachable but almost
+      // invisible — one quiet line, no card, no urgency.
+      return (
+        <p className="mt-5 text-center text-[12px] leading-[1.6] text-brand-purple-dark/45">
+          If things ever feel like too much,{" "}
+          <a
+            href="https://findahelpline.com"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-brand-purple/70 underline-offset-2 hover:underline"
+          >
+            free helplines
+          </a>{" "}
+          are always there.
+        </p>
+      );
+    }
     // Positive / low-risk result: keep resources available but quiet — a
     // small, collapsible support footer rather than a prominent card.
     return (
