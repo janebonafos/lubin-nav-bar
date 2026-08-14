@@ -984,29 +984,6 @@ function ResultView({
             </button>
           </li>
           <li>
-            <div
-              aria-disabled
-              className="flex w-full items-center gap-4 rounded-xl p-3 opacity-60"
-            >
-              <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-                <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
-              </span>
-              <span className="flex-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-[14px] font-semibold text-brand-purple-dark">
-                    Talk through your results with AI
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-brand-lavender/80 px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-brand-purple">
-                    Coming soon
-                  </span>
-                </span>
-                <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
-                  Explore what your {dateLabel} results might mean for you
-                </span>
-              </span>
-            </div>
-          </li>
-          <li>
             <button
               type="button"
               onClick={handleShare}
