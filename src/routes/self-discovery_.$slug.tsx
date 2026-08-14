@@ -330,7 +330,11 @@ function Runner({ assessment }: { assessment: Assessment }) {
   return (
     <div className="min-h-screen bg-brand-lavender/60">
       <header className="px-4 pt-6">
-        <div className="mx-auto flex w-full max-w-[760px] items-center justify-between">
+        <div
+          className={`mx-auto flex w-full items-center justify-between ${
+            phase === "result" ? "max-w-5xl" : "max-w-[760px]"
+          }`}
+        >
           <Link
             to={backTo}
             className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-2 text-[13px] font-medium text-brand-purple-dark no-underline shadow-sm transition hover:bg-white"
@@ -350,7 +354,11 @@ function Runner({ assessment }: { assessment: Assessment }) {
       </header>
 
       <main className="px-4 pb-20 pt-6">
-        <div className="mx-auto w-full max-w-[760px]">
+        <div
+          className={`mx-auto w-full ${
+            phase === "result" ? "max-w-5xl" : "max-w-[760px]"
+          }`}
+        >
           {(phase === "intro" || phase === "questions") && (
             <IntroView
               assessment={assessment}
