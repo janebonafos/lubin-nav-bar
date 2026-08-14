@@ -168,7 +168,7 @@ function GaugeCard({
   const pct = Math.max(0, Math.min(100, (attempt.score / max) * 100));
 
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
+    <section className="h-full rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
       <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
         Your gauge
       </p>
