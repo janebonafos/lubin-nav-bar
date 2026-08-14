@@ -352,6 +352,41 @@ function computeIsCrisis(id: string, score: number, selfHarmFlag: boolean): bool
 
 export type ScoreRange = { from: number; to: number; label: string };
 
+export type ScoreBand = {
+  from: number;
+  to: number;
+  label: string;
+  tone: string;
+  explanation: string;
+};
+
+/**
+ * Same walk as getScoreRanges, but keeps the band tone + explanation so a
+ * gauge can render every band with its own colour and meaning.
+ */
+export function getScoreBands(
+  assessmentId: string,
+  maxScore: number,
+  lowerIsBetter: boolean,
+): ScoreBand[] {
+  if (!Number.isFinite(maxScore) || maxScore <= 0) return [];
+  const out: ScoreBand[] = [];
+  for (let s = 0; s <= maxScore; s++) {
+    const st = statusForId(assessmentId, s, maxScore, lowerIsBetter);
+    const last = out[out.length - 1];
+    if (last && last.label === st.label) last.to = s;
+    else
+      out.push({
+        from: s,
+        to: s,
+        label: st.label,
+        tone: st.tone,
+        explanation: st.explanation,
+      });
+  }
+  return out;
+}
+
 /**
  * Derives the interpretation ranges for an assessment from its own status
  * bands, so each tool shows its real scoring method rather than a shared
