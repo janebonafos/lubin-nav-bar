@@ -125,16 +125,24 @@ export default function ResultInsights({
 
   return (
     <div className="mt-5 space-y-5">
-      <GaugeCard
-        assessment={assessment}
-        attempt={attempt}
-        status={status}
-        bands={bands}
-        gaugeHint={insight?.gauge}
-      />
-      <AiReadCard loading={loading} insight={insight} status={status} />
-      <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
-      <BookingCard status={status} />
+      <div className="grid gap-5 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <GaugeCard
+            assessment={assessment}
+            attempt={attempt}
+            status={status}
+            bands={bands}
+            gaugeHint={insight?.gauge}
+          />
+        </div>
+        <div className="lg:col-span-5">
+          <AiReadCard loading={loading} insight={insight} status={status} />
+        </div>
+      </div>
+      <div className="grid items-start gap-5 lg:grid-cols-2">
+        <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
+        <BookingCard status={status} />
+      </div>
     </div>
   );
 }
@@ -273,16 +281,16 @@ function AiReadCard({
   status: AssessmentStatus;
 }) {
   return (
-    <section className="rounded-3xl bg-gradient-to-br from-white to-brand-lavender/40 p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.4)] ring-1 ring-brand-purple/10 md:p-8">
+    <section className="h-full rounded-3xl bg-gradient-to-br from-brand-purple to-brand-purple-dark p-6 text-white shadow-[0_24px_80px_-40px_rgba(61,46,107,0.6)] md:p-8">
       <div className="flex items-center gap-2">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/25">
           <Sparkles className="h-4 w-4" strokeWidth={2.2} />
         </span>
         <div>
-          <p className="text-[15px] font-semibold text-brand-purple-dark">
+          <p className="text-[15px] font-semibold text-white">
             What this means for you
           </p>
-          <p className="text-[12px] text-brand-purple-dark/55">
+          <p className="text-[12px] text-white/60">
             A gentle read from Lubin — not a diagnosis
           </p>
         </div>
@@ -290,36 +298,36 @@ function AiReadCard({
 
       {loading || !insight ? (
         <div className="mt-5 space-y-3" aria-busy="true">
-          <div className="h-3.5 w-11/12 animate-pulse rounded-full bg-brand-purple/10" />
-          <div className="h-3.5 w-10/12 animate-pulse rounded-full bg-brand-purple/10" />
-          <div className="h-3.5 w-8/12 animate-pulse rounded-full bg-brand-purple/10" />
-          <p className="pt-2 text-[12.5px] text-brand-purple-dark/50">
+          <div className="h-3.5 w-11/12 animate-pulse rounded-full bg-white/20" />
+          <div className="h-3.5 w-10/12 animate-pulse rounded-full bg-white/20" />
+          <div className="h-3.5 w-8/12 animate-pulse rounded-full bg-white/20" />
+          <p className="pt-2 text-[12.5px] text-white/60">
             Reading your {status.label.toLowerCase()} result…
           </p>
         </div>
       ) : (
         <>
-          <p className="mt-5 text-[15px] leading-[1.65] text-brand-purple-dark/90">
+          <p className="mt-5 text-[15px] leading-[1.65] text-white/90">
             {insight.meaning}
           </p>
 
-          <p className="mt-6 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
+          <p className="mt-6 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-white/65">
             Small things that could help
           </p>
           <ol className="mt-3 space-y-2.5">
             {insight.steps.map((s, i) => (
               <li
                 key={s.title}
-                className="flex items-start gap-3 rounded-2xl bg-white/80 px-4 py-3 ring-1 ring-brand-purple/10"
+                className="flex items-start gap-3 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/15"
               >
-                <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-brand-lavender/70 text-[11.5px] font-semibold text-brand-purple">
+                <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-white/20 text-[11.5px] font-semibold text-white">
                   {i + 1}
                 </span>
                 <span className="flex-1">
-                  <span className="block text-[13.5px] font-semibold text-brand-purple-dark">
+                  <span className="block text-[13.5px] font-semibold text-white">
                     {s.title}
                   </span>
-                  <span className="mt-0.5 block text-[12.5px] leading-[1.55] text-brand-purple-dark/65">
+                  <span className="mt-0.5 block text-[12.5px] leading-[1.55] text-white/70">
                     {s.detail}
                   </span>
                 </span>
@@ -327,7 +335,7 @@ function AiReadCard({
             ))}
           </ol>
 
-          <p className="mt-5 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
+          <p className="mt-5 text-[13.5px] leading-[1.6] text-white/75">
             {insight.encouragement}
           </p>
         </>
