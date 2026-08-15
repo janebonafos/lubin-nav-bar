@@ -572,7 +572,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
     return (
       <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark">
-          <Gift className="h-3.5 w-3.5" strokeWidth={2.3} />
           Included for you
         </span>
         <h2 className="mt-4 font-serif-display text-[22px] font-light italic text-brand-purple-dark">
@@ -589,7 +588,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
             onClick={() => claimFreeConsult()}
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
-            <CalendarCheck className="h-4 w-4" strokeWidth={2.2} />
             Talk to a provider — free
           </Link>
           <span className="text-[12.5px] text-brand-purple-dark/50">
