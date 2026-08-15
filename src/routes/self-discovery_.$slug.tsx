@@ -820,97 +820,64 @@ function ResultView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="mt-6"
+      className="mt-4"
     >
-      <div className="rounded-3xl bg-gradient-to-br from-white to-brand-lavender/40 p-8 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.45)] ring-1 ring-brand-purple/10 md:p-10">
-        <p className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
-          Thanks for checking in
-        </p>
-        <h1 className="mt-3 text-[28px] font-semibold leading-tight text-brand-purple-dark md:text-[32px]">
-          {assessment.name}
-        </h1>
-        <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-purple/70">
-          {assessment.clinicalName}
-        </p>
-
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold ring-1 ${status.tone}`}
-          >
-            Status: {status.label}
-          </span>
-          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[12px] font-medium text-brand-purple-dark/75 tabular-nums">
-            Score: {attempt.score} / {assessment.maxScore}
-          </span>
-        </div>
-        <p className="mt-3 text-[14px] leading-[1.6] text-brand-purple-dark/85">
-          {status.explanation}
-        </p>
-
-        <div className="mt-6 flex items-end gap-4">
-          <span className="text-[56px] font-semibold leading-none text-brand-purple-dark tabular-nums">
-            {attempt.score}
-          </span>
-          <span className="pb-2 text-[14px] text-brand-purple-dark/55">
-            out of {assessment.maxScore}
-            <span className="ml-2 text-[12px]">
-              {assessment.lowerIsBetter ? "(lower = lighter)" : "(higher = better)"}
-            </span>
-          </span>
-        </div>
-
-        <p className="mt-6 text-[17px] leading-[1.55] text-brand-purple-dark">
-          {attempt.summary}
-        </p>
-
-        <p className="mt-5 text-[13px] leading-[1.6] text-brand-purple-dark/55">
-          This isn't a diagnosis. It's a snapshot of one moment — and a useful
-          thing to bring into a conversation with someone you trust.
-        </p>
-      </div>
-
-      {/* Additional details — separate card so the original summary stays untouched */}
-      <div className="mt-5 rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[11.5px] font-semibold text-brand-purple-dark">
-            Completed
-          </span>
-          <span className="inline-flex items-center rounded-full bg-brand-lavender/70 px-3 py-1 text-[11.5px] font-medium text-brand-purple-dark/75">
-            {dateLabel} · {timeLabel}
-          </span>
-        </div>
-
-        <section className="mt-6">
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
-            What this means
-          </p>
-          <p className="mt-3 text-[14px] leading-[1.65] text-brand-purple-dark/85">
-            Your score of{" "}
-            <span className="font-semibold text-brand-purple-dark">
+      {/* Top result summary — editorial, borderless */}
+      <div className="relative pb-16">
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
+          <div className="max-w-lg">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
+              Clinical Reference: {assessment.clinicalName}
+            </p>
+            <h1 className="mt-4 font-serif-display text-4xl font-light leading-[1.05] text-brand-purple-dark md:text-6xl">
+              {assessment.name}
+            </h1>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center rounded-full border border-brand-purple/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark">
+                {status.label}
+              </span>
+              <span className="text-[12px] font-medium tabular-nums text-brand-purple-dark/50">
+                {attempt.score} / {assessment.maxScore}
+              </span>
+            </div>
+          </div>
+          <div className="text-left md:text-right">
+            <span className="font-serif-display text-6xl font-light text-brand-purple-dark md:text-7xl">
               {attempt.score}
-            </span>{" "}
-            out of {assessment.maxScore} reflects how you answered today — not
-            who you are.{" "}
-            {assessment.lowerIsBetter
-              ? "Lower numbers tend to suggest things are feeling lighter; higher numbers can mean more is sitting with you right now."
-              : "Higher numbers tend to point toward more steadiness; lower numbers can suggest this area could use some care."}{" "}
-            Patterns matter more than any single check — try this again in a
-            couple of weeks to see how things shift.
-          </p>
-        </section>
+            </span>
+            <span className="ml-2 text-[13px] font-medium uppercase tracking-widest text-brand-purple-dark/40">
+              / {assessment.maxScore}
+            </span>
+            <p className="mt-1 text-[12px] text-brand-purple-dark/50">
+              {dateLabel} · {timeLabel}
+            </p>
+          </div>
+        </div>
 
-        <section className="mt-6 rounded-2xl border border-brand-purple/10 bg-white p-5">
-          <p className="text-[15px] font-semibold text-brand-purple-dark">
-            What you answered
-          </p>
-          <p className="mt-1 text-[13px] text-brand-purple-dark/60">
-            Your responses from the latest attempt
-          </p>
+        <div className="mt-12 h-px w-full bg-brand-purple/10" />
+
+        <div className="mt-12 grid gap-12 md:grid-cols-12">
+          <div className="md:col-span-7">
+            <p className="font-serif-display text-xl font-light italic leading-relaxed text-brand-purple-dark md:text-2xl">
+              “{attempt.summary}”
+            </p>
+          </div>
+          <div className="md:col-span-5">
+            <p className="text-[14px] leading-[1.7] text-brand-purple-dark/70">
+              {status.explanation} This isn't a diagnosis — it's a snapshot of
+              this moment, and a useful thing to bring into a conversation with
+              someone you trust.
+            </p>
+          </div>
+        </div>
+
+        {/* Answer expander — minimal */}
+        <div className="mt-12">
           <button
             type="button"
             onClick={() => setShowAnswers((v) => !v)}
             aria-expanded={showAnswers}
-            className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
+            className="group inline-flex items-center gap-2 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
           >
             {showAnswers ? "Hide my answers" : "Show my answers"}
             <ChevronDown
@@ -919,7 +886,11 @@ function ResultView({
             />
           </button>
           {showAnswers && (
-            <ol className="mt-4 divide-y divide-brand-purple/10 border-t border-brand-purple/10">
+            <motion.ol
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-4 divide-y divide-brand-purple/10 border-t border-brand-purple/10"
+            >
               {assessment.questions.map((q, i) => {
                 const ans = attempt.answers[i];
                 const selIdx = attempt.selections?.[i];
@@ -947,10 +918,9 @@ function ResultView({
                   </li>
                 );
               })}
-            </ol>
+            </motion.ol>
           )}
-        </section>
-
+        </div>
       </div>
 
       <ResultInsights assessment={assessment} attempt={attempt} />
@@ -960,66 +930,38 @@ function ResultView({
         heavy={status.tone.includes("F4ECFB") || status.tone.includes("orange")}
       />
 
-      <div className="mt-5 rounded-3xl bg-white p-6 shadow-[0_24px_80px_-40px_rgba(126,107,175,0.35)] ring-1 ring-brand-purple/10 md:p-8">
-        <p className="text-[15px] font-semibold text-brand-purple-dark">
-          What you can do with this
-        </p>
-        <ul className="mt-4 space-y-1">
-          <li>
+      {/* Bottom utility actions */}
+      <div className="mt-16 border-t border-brand-purple/10 pt-8">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+          <p className="text-[13px] font-semibold text-brand-purple-dark">
+            What you can do with this
+          </p>
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => {
                 if (typeof window !== "undefined") window.location.reload();
               }}
-              className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition hover:bg-brand-lavender/30"
+              className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark transition hover:bg-brand-lavender/30"
             >
-              <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-                <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
-              </span>
-              <span className="flex-1">
-                <span className="block text-[14px] font-semibold text-brand-purple-dark">
-                  Take this check again
-                </span>
-                <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
-                  Creates a brand new attempt, your history stays intact
-                </span>
-              </span>
-              <ArrowRight
-                className="h-4 w-4 flex-none text-brand-purple/60 transition group-hover:translate-x-0.5 group-hover:text-brand-purple"
-                strokeWidth={2}
-              />
+              <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
+              Take this check again
             </button>
-          </li>
-          <li>
             <button
               type="button"
               onClick={handleShare}
-              className="group flex w-full items-center gap-4 rounded-xl p-3 text-left transition hover:bg-brand-lavender/30"
+              className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark transition hover:bg-brand-lavender/30"
             >
-              <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-                <Share2 className="h-4 w-4" strokeWidth={2.1} />
-              </span>
-              <span className="flex-1">
-                <span className="block text-[14px] font-semibold text-brand-purple-dark">
-                  Share these results with a provider
-                </span>
-                <span className="mt-0.5 block text-[12.5px] text-brand-purple-dark/60">
-                  {copied
-                    ? "Copied to clipboard"
-                    : `Your provider will see your completed ${assessment.name} results`}
-                </span>
-              </span>
-              <ArrowRight
-                className="h-4 w-4 flex-none text-brand-purple/60 transition group-hover:translate-x-0.5 group-hover:text-brand-purple"
-                strokeWidth={2}
-              />
+              <Share2 className="h-4 w-4" strokeWidth={2.1} />
+              {copied ? "Copied to clipboard" : "Share results"}
             </button>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
     </motion.section>
   );
 }
+
 
 function SupportCard({ crisis, heavy }: { crisis: boolean; heavy: boolean }) {
   const [open, setOpen] = useState(false);
