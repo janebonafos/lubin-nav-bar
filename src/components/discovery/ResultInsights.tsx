@@ -21,41 +21,7 @@ import {
   getFreeConsult,
   subscribeFreeConsult,
 } from "@/lib/consult/freeConsult";
-
-type Insight = {
-  meaning: string;
-  gauge: string;
-  steps: { title: string; detail: string }[];
-  encouragement: string;
-};
-
-function fallbackInsight(
-  assessment: Assessment,
-  status: AssessmentStatus,
-): Insight {
-  return {
-    meaning: `${status.explanation} This is a snapshot of the last little while — not a label, and not something you have to fix on your own.`,
-    gauge: assessment.lowerIsBetter
-      ? "On this scale, the further left you sit the lighter things tend to feel."
-      : "On this scale, the further right you sit the more supported things tend to feel.",
-    steps: [
-      {
-        title: "Name one thing that's heaviest",
-        detail: "Write a single sentence about what's taking the most from you lately.",
-      },
-      {
-        title: "Protect one small routine",
-        detail: "Pick one anchor — sleep, a walk, a meal, a message to a friend — and keep it this week.",
-      },
-      {
-        title: "Check in again in a couple of weeks",
-        detail: "Patterns tell you far more than any single result.",
-      },
-    ],
-    encouragement:
-      "You showed up and answered honestly — that's already the hard part. We'll keep looking at this with you.",
-  };
-}
+import { useResultInsight, type Insight } from "@/lib/patterns/useResultInsight";
 
 export default function ResultInsights({
   assessment,
@@ -79,50 +45,7 @@ export default function ResultInsights({
     [assessment],
   );
 
-  const [insight, setInsight] = useState<Insight | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    (async () => {
-      try {
-        const res = await fetch("/api/result-insight", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: assessment.name,
-            clinicalName: assessment.clinicalName,
-            score: attempt.score,
-            maxScore: assessment.maxScore,
-            band: status.label,
-            bandExplanation: status.explanation,
-            lowerIsBetter: assessment.lowerIsBetter,
-          }),
-        });
-        const data = (await res.json()) as Partial<Insight> & { error?: string };
-        if (cancelled) return;
-        if (!res.ok || !data.meaning || !Array.isArray(data.steps)) {
-          setInsight(fallbackInsight(assessment, status));
-        } else {
-          setInsight({
-            meaning: data.meaning,
-            gauge: data.gauge ?? fallbackInsight(assessment, status).gauge,
-            steps: data.steps.slice(0, 3),
-            encouragement:
-              data.encouragement ?? fallbackInsight(assessment, status).encouragement,
-          });
-        }
-      } catch {
-        if (!cancelled) setInsight(fallbackInsight(assessment, status));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [assessment, attempt.score, status]);
+  const { insight, loading } = useResultInsight(assessment, attempt.score, status);
 
   return (
     <div className="relative">
