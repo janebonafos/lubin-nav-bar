@@ -260,23 +260,6 @@ function PassportPage() {
     writeLS(CHECKINS_KEY, next);
   }
 
-  if (showIntro === null) {
-    return <div className="min-h-screen bg-brand-lavender" />;
-  }
-
-  if (showIntro) {
-    return (
-      <IntroScreen
-        onOpen={() => {
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem(INTRO_SEEN_KEY, "true");
-          }
-          setShowIntro(false);
-        }}
-      />
-    );
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-lavender via-brand-lavender to-[#EFEBFA]" style={{ fontFamily: "Inter, sans-serif" }}>
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-40 h-[480px] w-[480px] rounded-full bg-brand-purple/15 blur-[120px]" />
