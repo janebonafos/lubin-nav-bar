@@ -428,10 +428,8 @@ function Runner({ assessment }: { assessment: Assessment }) {
 }
 
 function RegisterNudge({
-  onClose,
   onRegister,
 }: {
-  onClose: () => void;
   onRegister: () => void;
 }) {
   return (
@@ -441,10 +439,7 @@ function RegisterNudge({
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[60] flex items-end justify-center p-4 md:items-center"
     >
-      <div
-        className="absolute inset-0 bg-brand-purple-dark/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-brand-purple-dark/40 backdrop-blur-sm" />
       <motion.div
         initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -452,8 +447,8 @@ function RegisterNudge({
         transition={{ duration: 0.25, ease: "easeOut" }}
         className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl md:p-7"
       >
-        <div className="inline-flex items-center gap-2 rounded-full bg-[#F4F0FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-          <ShieldCheck className="h-3 w-3" /> Save securely
+        <div className="inline-flex items-center rounded-full bg-[#F4F0FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+          Save securely
         </div>
         <h2 className="mt-3 text-xl font-semibold text-brand-purple-dark">
           Create an account to save your results
@@ -470,13 +465,6 @@ function RegisterNudge({
             className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-dark px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-dark"
           >
             Create free account <ArrowRight className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full px-5 py-2 text-xs text-brand-purple-dark/55 hover:text-brand-purple-dark/80"
-          >
-            Maybe later — keep on this device
           </button>
         </div>
       </motion.div>
