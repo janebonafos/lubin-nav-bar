@@ -150,7 +150,7 @@ export default function ResultInsights({
         <AiReadSection loading={loading} insight={insight} status={status} />
 
         {/* Talk through + Booking */}
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid items-stretch gap-4 lg:grid-cols-2">
           <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
           <BookingCard status={status} />
         </div>
