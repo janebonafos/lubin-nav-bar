@@ -32,7 +32,8 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
-import { getAssessmentStatus } from "@/lib/patterns/scoring";
+import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
+import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights from "@/components/discovery/ResultInsights";
 
 const ABOUT_COPY: Record<string, string> = {
