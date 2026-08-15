@@ -154,6 +154,7 @@ function PassportPage() {
   // Avoid SSR/client mismatch: start undecided, decide after mount.
   const [showIntro, setShowIntro] = useState<boolean | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const [returnTo, setReturnTo] = useState<string | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
   const [pendingShareCount, setPendingShareCount] = useState(0);
@@ -207,7 +208,16 @@ function PassportPage() {
     const auth = params.get("auth");
     if (auth === "signup" || auth === "signin") {
       setAuthMode(auth as AuthMode);
+      // Coming from another screen (e.g. assessment results): skip the
+      // onboarding intro and return the user to where they came from.
+      const from = params.get("from");
+      if (from && from.startsWith("/")) setReturnTo(from);
+      try {
+        window.localStorage.setItem(INTRO_SEEN_KEY, "true");
+      } catch {}
+      setShowIntro(false);
       params.delete("auth");
+      params.delete("from");
       const next = params.toString();
       window.history.replaceState(
         {},
