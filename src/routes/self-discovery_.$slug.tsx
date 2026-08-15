@@ -419,20 +419,24 @@ function Runner({ assessment }: { assessment: Assessment }) {
           <RegisterNudge
             onRegister={() => {
               setRegisterOpen(false);
-              navigate({
-                to: "/my-health-passport",
-                search: {
-                  auth: "signup",
-                  from:
-                    typeof window !== "undefined"
-                      ? window.location.pathname + window.location.search
-                      : undefined,
-                } as never,
-              });
+              // Stay on this results page — sign-up happens inline.
+              setAuthOpen(true);
             }}
           />
         )}
       </AnimatePresence>
+
+      <AuthModal
+        open={authOpen}
+        mode="signup"
+        onClose={() => setAuthOpen(false)}
+        onContinueWithGoogle={() => {
+          try {
+            window.localStorage.setItem("lubinai_guest_mode", "false");
+          } catch {}
+          setAuthOpen(false);
+        }}
+      />
     </div>
   );
 }
