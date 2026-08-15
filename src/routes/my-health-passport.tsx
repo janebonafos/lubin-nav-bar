@@ -419,7 +419,10 @@ function PassportPage() {
             writeLS(GUEST_KEY, false);
           } catch {}
           setAuthMode(null);
-          if (typeof window !== "undefined") window.location.reload();
+          if (typeof window !== "undefined") {
+            if (returnTo) window.location.href = returnTo;
+            else window.location.reload();
+          }
         }}
       />
 
