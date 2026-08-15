@@ -932,30 +932,31 @@ function ResultView({
 
       {/* Bottom utility actions */}
       <div className="mt-16 border-t border-brand-purple/10 pt-8">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-          <p className="text-[13px] font-semibold text-brand-purple-dark">
-            What you can do with this
-          </p>
-          <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               onClick={() => {
                 if (typeof window !== "undefined") window.location.reload();
               }}
-              className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark transition hover:bg-brand-lavender/30"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-brand-purple-dark/70 transition hover:bg-brand-lavender/40 hover:text-brand-purple-dark"
             >
               <RotateCcw className="h-4 w-4" strokeWidth={2.1} />
               Take this check again
             </button>
+            <span className="hidden h-3 w-px bg-brand-purple/15 sm:block" />
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-white px-4 py-2 text-[13px] font-medium text-brand-purple-dark transition hover:bg-brand-lavender/30"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-brand-purple-dark/70 transition hover:bg-brand-lavender/40 hover:text-brand-purple-dark"
             >
               <Share2 className="h-4 w-4" strokeWidth={2.1} />
               {copied ? "Copied to clipboard" : "Share results"}
             </button>
           </div>
+          <p className="text-[12px] text-brand-purple-dark/45">
+            Your results stay private unless you choose to share them.
+          </p>
         </div>
       </div>
     </motion.section>
