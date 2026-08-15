@@ -153,8 +153,6 @@ function PassportPage() {
   const [checkInActive, setCheckInActive] = useState(false);
   const [savePrompt, setSavePrompt] = useState<null | { kind: "checkin"; payload: CheckIn } | { kind: "assessment"; payload: Assessment }>(null);
   const [registerNudge, setRegisterNudge] = useState(false);
-  // Avoid SSR/client mismatch: start undecided, decide after mount.
-  const [showIntro, setShowIntro] = useState<boolean | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const [returnTo, setReturnTo] = useState<string | null>(null);
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
@@ -195,11 +193,6 @@ function PassportPage() {
     setCheckins(readLS<CheckIn[]>(CHECKINS_KEY, []));
     setAssessments(readLS<Assessment[]>(ASSESSMENTS_KEY, []));
     if (readLS<boolean | null>(GUEST_KEY, null) === null) writeLS(GUEST_KEY, true);
-    try {
-      setShowIntro(window.localStorage.getItem(INTRO_SEEN_KEY) !== "true");
-    } catch {
-      setShowIntro(false);
-    }
   }, []);
 
   // Deep-link: ?auth=signup opens the auth modal (used from other routes
@@ -214,10 +207,6 @@ function PassportPage() {
       // onboarding intro and return the user to where they came from.
       const from = params.get("from");
       if (from && from.startsWith("/")) setReturnTo(from);
-      try {
-        window.localStorage.setItem(INTRO_SEEN_KEY, "true");
-      } catch {}
-      setShowIntro(false);
       params.delete("auth");
       params.delete("from");
       const next = params.toString();
