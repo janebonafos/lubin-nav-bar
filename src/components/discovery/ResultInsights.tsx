@@ -4,12 +4,11 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUp,
-  CalendarCheck,
-  Gift,
   Loader2,
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import {
   getAssessmentStatus,
@@ -573,7 +572,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
     return (
       <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark">
-          <Gift className="h-3.5 w-3.5" strokeWidth={2.3} />
           Included for you
         </span>
         <h2 className="mt-4 font-serif-display text-[22px] font-light italic text-brand-purple-dark">
@@ -590,7 +588,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
             onClick={() => claimFreeConsult()}
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
-            <CalendarCheck className="h-4 w-4" strokeWidth={2.2} />
             Talk to a provider — free
           </Link>
           <span className="text-[12.5px] text-brand-purple-dark/50">
@@ -603,18 +600,13 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
-      <div className="flex items-center gap-3">
-        <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-          <CalendarCheck className="h-4 w-4" strokeWidth={2.1} />
-        </span>
-        <div>
-          <p className="text-[15px] font-semibold text-brand-purple-dark">
-            Book a session with a provider
-          </p>
-          <p className="text-[12.5px] text-brand-purple-dark/60">
-            You've already used your free consultation — here's how to keep going
-          </p>
-        </div>
+      <div>
+        <p className="text-[15px] font-semibold text-brand-purple-dark">
+          Book a session with a provider
+        </p>
+        <p className="text-[12.5px] text-brand-purple-dark/60">
+          You've already used your free consultation — here's how to keep going
+        </p>
       </div>
       <p className="mt-4 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
         Pick someone whose approach fits you, choose a time that works, and share
@@ -625,7 +617,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
         className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
       >
         Find a provider
-        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
       </Link>
     </section>
   );
