@@ -415,7 +415,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
       <AnimatePresence>
         {registerOpen && (
           <RegisterNudge
-            onClose={() => setRegisterOpen(false)}
             onRegister={() => {
               setRegisterOpen(false);
               navigate({ to: "/my-health-passport", search: { auth: "signup" } as never });
