@@ -493,7 +493,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
 
   if (!claimed) {
     return (
-      <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 md:p-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark">
           Included for you
         </span>
@@ -522,7 +522,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
   }
 
   return (
-    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 md:p-8">
       <div>
         <p className="text-[15px] font-semibold text-brand-purple-dark">
           Book a session with a provider
