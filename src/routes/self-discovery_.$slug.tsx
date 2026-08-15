@@ -1085,3 +1085,32 @@ function SupportCard({ crisis, heavy }: { crisis: boolean; heavy: boolean }) {
     </div>
   );
 }
+
+function HeroInsightRead({
+  assessment,
+  score,
+  status,
+}: {
+  assessment: Assessment;
+  score: number;
+  status: AssessmentStatus;
+}) {
+  const { insight, loading } = useResultInsight(assessment, score, status);
+  return (
+    <div className="mt-6">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
+        What this score means
+      </p>
+      {loading || !insight ? (
+        <div className="mt-3 space-y-2.5" aria-busy="true">
+          <div className="h-3 w-11/12 animate-pulse rounded-full bg-brand-lavender" />
+          <div className="h-3 w-9/12 animate-pulse rounded-full bg-brand-lavender" />
+        </div>
+      ) : (
+        <p className="mt-3 text-[15px] leading-[1.75] text-brand-purple-dark/80">
+          {insight.meaning}
+        </p>
+      )}
+    </div>
+  );
+}
