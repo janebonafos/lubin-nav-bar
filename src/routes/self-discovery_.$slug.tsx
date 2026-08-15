@@ -417,7 +417,16 @@ function Runner({ assessment }: { assessment: Assessment }) {
           <RegisterNudge
             onRegister={() => {
               setRegisterOpen(false);
-              navigate({ to: "/my-health-passport", search: { auth: "signup" } as never });
+              navigate({
+                to: "/my-health-passport",
+                search: {
+                  auth: "signup",
+                  from:
+                    typeof window !== "undefined"
+                      ? window.location.pathname + window.location.search
+                      : undefined,
+                } as never,
+              });
             }}
           />
         )}
