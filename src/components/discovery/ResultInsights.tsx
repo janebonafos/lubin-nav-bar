@@ -150,7 +150,7 @@ export default function ResultInsights({
         <AiReadSection loading={loading} insight={insight} status={status} />
 
         {/* Talk through + Booking */}
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid items-stretch gap-4 lg:grid-cols-2">
           <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
           <BookingCard status={status} />
         </div>
@@ -437,9 +437,9 @@ function TalkThroughCard({
   }
 
   return (
-    <section className="group relative overflow-hidden rounded-[2rem] bg-brand-purple-dark p-7 text-white shadow-[0_24px_80px_-40px_rgba(61,46,107,0.45)] md:p-8">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] bg-brand-purple-dark p-7 text-white shadow-[0_24px_80px_-40px_rgba(61,46,107,0.45)] md:p-8">
       <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-brand-purple/30 blur-2xl" />
-      <div className="relative">
+      <div className="relative flex flex-1 flex-col">
         <div className="flex items-start gap-3">
           <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/25">
             <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
@@ -451,14 +451,20 @@ function TalkThroughCard({
         </div>
 
         {!open && (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
-          >
-            Start talking
-            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </button>
+          <>
+            <p className="mt-4 max-w-[420px] text-[14px] leading-[1.65] text-white/70">
+              Bring any question about your result — what it means, what to watch
+              for, or what to try this week. Nothing is recorded or shared.
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
+            >
+              Start talking
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
+            </button>
+          </>
         )}
 
         {open && (
@@ -558,11 +564,14 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
     return subscribeFreeConsult(() => setClaimed(getFreeConsult().claimed));
   }, []);
 
-  if (!hydrated) return null;
+  if (!hydrated)
+    return (
+      <section className="h-full min-h-[220px] rounded-[2rem] border border-brand-purple/10 bg-white/50" />
+    );
 
   if (!claimed) {
     return (
-      <section className="relative overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
+      <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark">
           <Gift className="h-3.5 w-3.5" strokeWidth={2.3} />
           Yours to use
@@ -575,7 +584,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
           conversation with a verified professional — bring this result, or just
           bring yourself. No commitment afterwards.
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
           <Link
             to="/find-provider"
             onClick={() => claimFreeConsult()}
@@ -593,7 +602,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
   }
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
       <div className="flex items-center gap-3">
         <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
           <CalendarCheck className="h-4 w-4" strokeWidth={2.1} />
@@ -613,7 +622,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
       </p>
       <Link
         to="/find-provider"
-        className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+        className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
       >
         Find a provider
         <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
