@@ -31,6 +31,7 @@ import {
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
+import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import ResultInsights from "@/components/discovery/ResultInsights";
 
@@ -174,6 +175,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [completedAttempt, setCompletedAttempt] = useState<Attempt | null>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const breathingShownRef = useRef(false);
   const crisisShownRef = useRef(false);
   const startedAtRef = useRef<number>(Date.now());
@@ -417,20 +419,24 @@ function Runner({ assessment }: { assessment: Assessment }) {
           <RegisterNudge
             onRegister={() => {
               setRegisterOpen(false);
-              navigate({
-                to: "/my-health-passport",
-                search: {
-                  auth: "signup",
-                  from:
-                    typeof window !== "undefined"
-                      ? window.location.pathname + window.location.search
-                      : undefined,
-                } as never,
-              });
+              // Stay on this results page — sign-up happens inline.
+              setAuthOpen(true);
             }}
           />
         )}
       </AnimatePresence>
+
+      <AuthModal
+        open={authOpen}
+        mode="signup"
+        onClose={() => setAuthOpen(false)}
+        onContinueWithGoogle={() => {
+          try {
+            window.localStorage.setItem("lubinai_guest_mode", "false");
+          } catch {}
+          setAuthOpen(false);
+        }}
+      />
     </div>
   );
 }
