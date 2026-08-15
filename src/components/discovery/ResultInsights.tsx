@@ -4,12 +4,11 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUp,
-  CalendarCheck,
-  Gift,
   Loader2,
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import {
   getAssessmentStatus,
