@@ -600,18 +600,13 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 transition hover:bg-brand-lavender/30 md:p-8">
-      <div className="flex items-center gap-3">
-        <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-brand-lavender/70 text-brand-purple">
-          <CalendarCheck className="h-4 w-4" strokeWidth={2.1} />
-        </span>
-        <div>
-          <p className="text-[15px] font-semibold text-brand-purple-dark">
-            Book a session with a provider
-          </p>
-          <p className="text-[12.5px] text-brand-purple-dark/60">
-            You've already used your free consultation — here's how to keep going
-          </p>
-        </div>
+      <div>
+        <p className="text-[15px] font-semibold text-brand-purple-dark">
+          Book a session with a provider
+        </p>
+        <p className="text-[12.5px] text-brand-purple-dark/60">
+          You've already used your free consultation — here's how to keep going
+        </p>
       </div>
       <p className="mt-4 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
         Pick someone whose approach fits you, choose a time that works, and share
