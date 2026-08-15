@@ -617,7 +617,6 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
         className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
       >
         Find a provider
-        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
       </Link>
     </section>
   );
