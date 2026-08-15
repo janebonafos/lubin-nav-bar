@@ -863,6 +863,11 @@ function ResultView({
             <p className="font-serif-display text-xl font-light italic leading-relaxed text-brand-purple-dark md:text-2xl">
               “{attempt.summary}”
             </p>
+            <HeroInsightRead
+              assessment={assessment}
+              score={attempt.score}
+              status={status}
+            />
           </div>
           <div className="md:col-span-5">
             <p className="text-[14px] leading-[1.7] text-brand-purple-dark/70">
