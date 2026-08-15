@@ -175,6 +175,7 @@ function Runner({ assessment }: { assessment: Assessment }) {
   const [completedAttempt, setCompletedAttempt] = useState<Attempt | null>(null);
   const [crisisOpen, setCrisisOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const breathingShownRef = useRef(false);
   const crisisShownRef = useRef(false);
   const startedAtRef = useRef<number>(Date.now());
