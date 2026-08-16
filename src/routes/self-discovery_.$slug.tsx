@@ -940,11 +940,11 @@ function ResultView({
             <span className="hidden h-3 w-px bg-brand-purple/15 sm:block" />
             <button
               type="button"
-              onClick={handleShare}
+              onClick={() => setShareOpen(true)}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-brand-purple-dark/70 transition hover:bg-brand-lavender/40 hover:text-brand-purple-dark"
             >
               <Share2 className="h-4 w-4" strokeWidth={2.1} />
-              {copied ? "Copied to clipboard" : "Share results"}
+              Share results
             </button>
           </div>
           <p className="text-[12px] text-brand-purple-dark/45">
@@ -952,6 +952,24 @@ function ResultView({
           </p>
         </div>
       </div>
+
+      <ShareResultModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        draft={{
+          assessmentSlug: assessment.slug,
+          assessmentName: assessment.name,
+          clinicalName: assessment.clinicalName,
+          score: attempt.score,
+          maxScore: assessment.maxScore,
+          lowerIsBetter: assessment.lowerIsBetter,
+          statusLabel: status.label,
+          explanation: status.explanation,
+          summary: attempt.summary,
+          takenAt: attempt.takenAt,
+          answers: shareAnswers,
+        }}
+      />
     </motion.section>
   );
 }
