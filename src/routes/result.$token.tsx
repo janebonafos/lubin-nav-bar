@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { getScoreBands, type ScoreBand } from "@/lib/patterns/scoring";
 import {
   decodeSharedResult,
   getResultShare,
@@ -34,6 +36,12 @@ function SharedResultPage() {
   const { token } = Route.useParams();
   const { d } = Route.useSearch();
   const [record, setRecord] = useState<SharedResult | null | undefined>(undefined);
+
+  const bands = useMemo<ScoreBand[]>(() => {
+    if (!record) return [];
+    const id = ASSESSMENTS_BY_SLUG[record.assessmentSlug]?.id ?? record.assessmentSlug;
+    return getScoreBands(id, record.maxScore, record.lowerIsBetter);
+  }, [record]);
 
   useEffect(() => {
     const local = getResultShare(token);
@@ -113,6 +121,16 @@ function SharedResultPage() {
         <p className="mt-6 max-w-2xl text-[14px] leading-[1.7] text-brand-purple-dark/70">
           {record.explanation}
         </p>
+
+        {bands.length > 0 && (
+          <ScoreGuide
+            bands={bands}
+            score={record.score}
+            maxScore={record.maxScore}
+            clinicalName={record.clinicalName}
+            lowerIsBetter={record.lowerIsBetter}
+          />
+        )}
 
         {record.note && (
           <div className="mt-10 rounded-2xl bg-white p-5 ring-1 ring-brand-purple/10">
