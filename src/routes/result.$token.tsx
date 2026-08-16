@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { getScoreBands, type ScoreBand } from "@/lib/patterns/scoring";
 import {
   decodeSharedResult,
   getResultShare,
@@ -34,6 +36,12 @@ function SharedResultPage() {
   const { token } = Route.useParams();
   const { d } = Route.useSearch();
   const [record, setRecord] = useState<SharedResult | null | undefined>(undefined);
+
+  const bands = useMemo<ScoreBand[]>(() => {
+    if (!record) return [];
+    const id = ASSESSMENTS_BY_SLUG[record.assessmentSlug]?.id ?? record.assessmentSlug;
+    return getScoreBands(id, record.maxScore, record.lowerIsBetter);
+  }, [record]);
 
   useEffect(() => {
     const local = getResultShare(token);
@@ -114,6 +122,16 @@ function SharedResultPage() {
           {record.explanation}
         </p>
 
+        {bands.length > 0 && (
+          <ScoreGuide
+            bands={bands}
+            score={record.score}
+            maxScore={record.maxScore}
+            clinicalName={record.clinicalName}
+            lowerIsBetter={record.lowerIsBetter}
+          />
+        )}
+
         {record.note && (
           <div className="mt-10 rounded-2xl bg-white p-5 ring-1 ring-brand-purple/10">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/70">
@@ -165,5 +183,106 @@ function SharedResultPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function ScoreGuide({
+  bands,
+  score,
+  maxScore,
+  clinicalName,
+  lowerIsBetter,
+}: {
+  bands: ScoreBand[];
+  score: number;
+  maxScore: number;
+  clinicalName: string;
+  lowerIsBetter: boolean;
+}) {
+  const pct = maxScore > 0 ? Math.min(100, Math.max(0, (score / maxScore) * 100)) : 0;
+  const activeIndex = bands.findIndex((b) => score >= b.from && score <= b.to);
+
+  return (
+    <section className="mt-12 rounded-2xl bg-white p-6 ring-1 ring-brand-purple/10 print:ring-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/70">
+          Scoring guide · {clinicalName}
+        </h2>
+        <span className="text-[11.5px] text-brand-purple-dark/45">
+          {lowerIsBetter
+            ? "Reverse-scored: lower totals indicate greater difficulty"
+            : "Higher totals indicate greater difficulty"}
+        </span>
+      </div>
+
+      {/* Gauge */}
+      <div className="mt-6">
+        <div className="flex h-2 w-full overflow-hidden rounded-full">
+          {bands.map((b, i) => {
+            const width = ((b.to - b.from + 1) / (maxScore + 1)) * 100;
+            const isActive = i === activeIndex;
+            return (
+              <span
+                key={`${b.label}-${i}`}
+                title={`${b.label} · ${b.from}–${b.to}`}
+                style={{
+                  width: `${width}%`,
+                  opacity: isActive ? 1 : 0.18 + i * 0.06,
+                }}
+                className="block h-full bg-brand-purple"
+              />
+            );
+          })}
+        </div>
+        <div className="relative mt-2 h-6">
+          <div
+            className="absolute -translate-x-1/2 whitespace-nowrap text-[11.5px] font-semibold tabular-nums text-brand-purple-dark"
+            style={{ left: `${pct}%` }}
+          >
+            <span className="mx-auto mb-1 block h-2 w-px bg-brand-purple-dark/40" />
+            {score}
+          </div>
+          <span className="absolute right-0 top-3 text-[11px] text-brand-purple-dark/35 tabular-nums">
+            {maxScore}
+          </span>
+        </div>
+      </div>
+
+      {/* Band table */}
+      <ol className="mt-5 divide-y divide-brand-purple/10 border-t border-brand-purple/10">
+        {bands.map((b, i) => {
+          const isActive = i === activeIndex;
+          return (
+            <li
+              key={`${b.label}-row-${i}`}
+              className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 px-2 py-3 ${
+                isActive ? "rounded-lg bg-brand-lavender/40" : ""
+              }`}
+            >
+              <span className="w-16 flex-none text-[12.5px] font-semibold tabular-nums text-brand-purple-dark/70">
+                {b.from === b.to ? b.from : `${b.from}–${b.to}`}
+              </span>
+              <span
+                className={`w-40 flex-none text-[13px] ${
+                  isActive
+                    ? "font-semibold text-brand-purple-dark"
+                    : "font-medium text-brand-purple-dark/70"
+                }`}
+              >
+                {b.label}
+                {isActive && (
+                  <span className="ml-2 rounded-full bg-brand-purple px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white">
+                    This result
+                  </span>
+                )}
+              </span>
+              <span className="min-w-[12rem] flex-1 text-[12.5px] leading-relaxed text-brand-purple-dark/55">
+                {b.explanation}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
