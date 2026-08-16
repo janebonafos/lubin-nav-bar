@@ -106,7 +106,7 @@ function SharedResultPage() {
           </span>
           <span className="text-[12px] font-medium tabular-nums text-brand-purple-dark/50">
             {record.score} / {record.maxScore}{" "}
-            {record.lowerIsBetter ? "(lower = lighter)" : ""}
+            {record.lowerIsBetter ? "(lower = lighter)" : "(higher = better)"}
           </span>
           <span className="text-[12px] text-brand-purple-dark/45">
             Completed {dateLabel}
@@ -210,8 +210,8 @@ function ScoreGuide({
         </h2>
         <span className="text-[11.5px] text-brand-purple-dark/45">
           {lowerIsBetter
-            ? "Reverse-scored: lower totals indicate greater difficulty"
-            : "Higher totals indicate greater difficulty"}
+            ? "Higher totals indicate greater difficulty"
+            : "Reverse-scored: lower totals indicate greater difficulty"}
         </span>
       </div>
 
@@ -263,15 +263,15 @@ function ScoreGuide({
                 {b.from === b.to ? b.from : `${b.from}–${b.to}`}
               </span>
               <span
-                className={`w-40 flex-none text-[13px] ${
+                className={`flex w-44 flex-none flex-wrap items-center gap-2 text-[13px] ${
                   isActive
                     ? "font-semibold text-brand-purple-dark"
                     : "font-medium text-brand-purple-dark/70"
                 }`}
               >
-                {b.label}
+                <span>{b.label}</span>
                 {isActive && (
-                  <span className="ml-2 rounded-full bg-brand-purple px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white">
+                  <span className="whitespace-nowrap rounded-full bg-brand-purple px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white">
                     This result
                   </span>
                 )}
