@@ -765,7 +765,7 @@ function ResultView({
   assessment: Assessment;
   attempt: Attempt;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
     assessment.id === "phq-9" &&
@@ -789,33 +789,18 @@ function ResultView({
     minute: "2-digit",
   });
 
-  async function handleShare() {
-    const lines = [
-      `${assessment.name} (${assessment.clinicalName})`,
-      `Completed ${dateLabel} at ${timeLabel}`,
-      `Score: ${attempt.score} / ${assessment.maxScore} ${
-        assessment.lowerIsBetter ? "(lower = lighter)" : "(higher = better)"
-      }`,
-      "",
-      attempt.summary,
-    ].join("\n");
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: `${assessment.name} — my check-in`,
-          text: lines,
-        });
-        return;
-      }
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(lines);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2200);
-      }
-    } catch {
-      // user dismissed or share unavailable — silent
-    }
-  }
+  const shareAnswers = assessment.questions.map((q, i) => {
+    const ans = attempt.answers[i];
+    const selIdx = attempt.selections?.[i];
+    const opt =
+      typeof selIdx === "number" && q.options[selIdx]
+        ? q.options[selIdx]
+        : q.options.find((o) => o.value === ans);
+    return {
+      question: q.text,
+      answer: opt ? opt.label.replace(/^[^\p{L}\p{N}]+/u, "").trim() : "—",
+    };
+  });
 
   return (
     <motion.section
