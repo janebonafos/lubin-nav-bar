@@ -35,6 +35,7 @@ import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights from "@/components/discovery/ResultInsights";
+import ShareResultModal from "@/components/discovery/ShareResultModal";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
