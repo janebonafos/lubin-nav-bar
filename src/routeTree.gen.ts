@@ -30,6 +30,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as ResultTokenRouteImport } from './routes/result.$token'
 import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
@@ -152,6 +153,11 @@ const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultTokenRoute = ResultTokenRouteImport.update({
+  id: '/result/$token',
+  path: '/result/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProviderAppointmentsRoute = ProviderAppointmentsRouteImport.update({
   id: '/provider/appointments',
   path: '/provider/appointments',
@@ -269,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/result/$token': typeof ResultTokenRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/result/$token': typeof ResultTokenRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/result/$token': typeof ResultTokenRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/result/$token'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/result/$token'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -467,6 +478,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/result/$token'
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -506,6 +518,7 @@ export interface RootRouteChildren {
   PreviewPsychiatristSessionRoute: typeof PreviewPsychiatristSessionRoute
   ProviderIdRoute: typeof ProviderIdRoute
   ProviderAppointmentsRoute: typeof ProviderAppointmentsRoute
+  ResultTokenRoute: typeof ResultTokenRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
@@ -659,6 +672,13 @@ declare module '@tanstack/react-router' {
       path: '/self-discovery/$slug'
       fullPath: '/self-discovery/$slug'
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result/$token': {
+      id: '/result/$token'
+      path: '/result/$token'
+      fullPath: '/result/$token'
+      preLoaderRoute: typeof ResultTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/provider/appointments': {
@@ -820,6 +840,7 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewPsychiatristSessionRoute: PreviewPsychiatristSessionRoute,
   ProviderIdRoute: ProviderIdRoute,
   ProviderAppointmentsRoute: ProviderAppointmentsRoute,
+  ResultTokenRoute: ResultTokenRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,

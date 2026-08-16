@@ -35,6 +35,7 @@ import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights from "@/components/discovery/ResultInsights";
+import ShareResultModal from "@/components/discovery/ShareResultModal";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
@@ -765,7 +766,7 @@ function ResultView({
   assessment: Assessment;
   attempt: Attempt;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
     assessment.id === "phq-9" &&
@@ -789,33 +790,18 @@ function ResultView({
     minute: "2-digit",
   });
 
-  async function handleShare() {
-    const lines = [
-      `${assessment.name} (${assessment.clinicalName})`,
-      `Completed ${dateLabel} at ${timeLabel}`,
-      `Score: ${attempt.score} / ${assessment.maxScore} ${
-        assessment.lowerIsBetter ? "(lower = lighter)" : "(higher = better)"
-      }`,
-      "",
-      attempt.summary,
-    ].join("\n");
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: `${assessment.name} — my check-in`,
-          text: lines,
-        });
-        return;
-      }
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(lines);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2200);
-      }
-    } catch {
-      // user dismissed or share unavailable — silent
-    }
-  }
+  const shareAnswers = assessment.questions.map((q, i) => {
+    const ans = attempt.answers[i];
+    const selIdx = attempt.selections?.[i];
+    const opt =
+      typeof selIdx === "number" && q.options[selIdx]
+        ? q.options[selIdx]
+        : q.options.find((o) => o.value === ans);
+    return {
+      question: q.text,
+      answer: opt ? opt.label.replace(/^[^\p{L}\p{N}]+/u, "").trim() : "—",
+    };
+  });
 
   return (
     <motion.section
@@ -955,11 +941,11 @@ function ResultView({
             <span className="hidden h-3 w-px bg-brand-purple/15 sm:block" />
             <button
               type="button"
-              onClick={handleShare}
+              onClick={() => setShareOpen(true)}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-brand-purple-dark/70 transition hover:bg-brand-lavender/40 hover:text-brand-purple-dark"
             >
               <Share2 className="h-4 w-4" strokeWidth={2.1} />
-              {copied ? "Copied to clipboard" : "Share results"}
+              Share results
             </button>
           </div>
           <p className="text-[12px] text-brand-purple-dark/45">
@@ -967,6 +953,24 @@ function ResultView({
           </p>
         </div>
       </div>
+
+      <ShareResultModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        draft={{
+          assessmentSlug: assessment.slug,
+          assessmentName: assessment.name,
+          clinicalName: assessment.clinicalName,
+          score: attempt.score,
+          maxScore: assessment.maxScore,
+          lowerIsBetter: assessment.lowerIsBetter,
+          statusLabel: status.label,
+          explanation: status.explanation,
+          summary: attempt.summary,
+          takenAt: attempt.takenAt,
+          answers: shareAnswers,
+        }}
+      />
     </motion.section>
   );
 }
