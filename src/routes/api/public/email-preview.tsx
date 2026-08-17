@@ -23,8 +23,8 @@ export const Route = createFileRoute("/api/public/email-preview")({
         const headers: Record<string, string> = { "Content-Type": "text/html" };
         if (replyTo) {
           headers["Reply-To"] = replyTo;
-          headers["X-Reply-To"] = replyTo;
         }
+
 
 
         return new Response(html, { headers });
