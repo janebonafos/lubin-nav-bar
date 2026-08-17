@@ -202,17 +202,59 @@ export default function AppointmentMessageEmail({
               }}
             />
 
-            <Text style={{ margin: 0, color: colors.textMuted, fontSize: 13, lineHeight: 1.6 }}>
-              You can reply straight from your inbox — your reply goes back into this appointment
-              thread in Lubin.
-              {replyToAddress ? (
-                <>
-                  {" "}
-                  This appointment uses the private address{" "}
-                  <span style={{ color: colors.brandNavy, fontWeight: 600 }}>{replyToAddress}</span>.
-                </>
-              ) : null}{" "}
-              Personal email addresses are never shared between clients and providers.
+            <Section
+              style={{
+                border: `1px solid ${colors.lavenderBorder}`,
+                borderRadius: 16,
+                padding: 18,
+              }}
+            >
+              <Text
+                style={{
+                  margin: "0 0 8px",
+                  color: colors.brandPurple,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 1.2,
+                  textTransform: "uppercase",
+                }}
+              >
+                Reply by email
+              </Text>
+              <Text style={{ margin: 0, color: colors.brandNavy, fontSize: 14, lineHeight: 1.6 }}>
+                Just hit <strong>Reply</strong> in your inbox and write above the line below. Your
+                reply is added to this appointment thread in Lubin and the other person is notified
+                there and by email.
+                {replyToAddress ? (
+                  <>
+                    {" "}
+                    Replies go to the private address{" "}
+                    <span style={{ fontWeight: 600 }}>{replyToAddress}</span>.
+                  </>
+                ) : null}
+              </Text>
+              <Text
+                style={{
+                  margin: "14px 0 0",
+                  color: colors.textMuted,
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                Personal email addresses are never shared between clients and providers.
+              </Text>
+            </Section>
+
+            <Text
+              style={{
+                margin: "20px 0 0",
+                color: colors.textMuted,
+                fontSize: 12,
+                textAlign: "center",
+                letterSpacing: 0.4,
+              }}
+            >
+              ✂ — — — Write your reply above this line — — — ✂
             </Text>
           </Section>
 
