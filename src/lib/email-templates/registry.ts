@@ -3,6 +3,7 @@ import { template as bookingConfirmation } from "./booking-confirmation";
 import { template as bookingConfirmationClient } from "./booking-confirmation-client";
 import { template as prescriptionSigningOtp } from "./prescription-signing-otp";
 import { template as appointmentRescheduled } from "./appointment-rescheduled";
+import { template as appointmentCompleted } from "./appointment-completed";
 import AppointmentMessageEmail, {
   template as appointmentMessage,
 } from "./appointment-message";
@@ -24,6 +25,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "prescription-signing-otp": prescriptionSigningOtp,
   "appointment-message": appointmentMessage,
   "appointment-rescheduled": appointmentRescheduled,
+  "appointment-completed": appointmentCompleted,
   "appointment-message-sender-copy": {
     component: AppointmentMessageEmail,
     subject: "Copy of your message · Lubin appointment",
