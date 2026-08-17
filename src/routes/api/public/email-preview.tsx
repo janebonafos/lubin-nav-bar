@@ -14,17 +14,22 @@ export const Route = createFileRoute("/api/public/email-preview")({
         }
 
         const Component = entry.component;
-        const html = await render(
-          <Component {...(entry.previewData ?? {})} />,
-          {
-            pretty: true,
-          }
-        );
-
-        return new Response(html, {
-          headers: { "Content-Type": "text/html" },
+        const data = entry.previewData ?? {};
+        const html = await render(<Component {...data} />, {
+          pretty: true,
         });
+
+        const replyTo = typeof entry.replyTo === "function" ? entry.replyTo(data) : entry.replyTo;
+        const headers: Record<string, string> = { "Content-Type": "text/html" };
+        if (replyTo) {
+          headers["Reply-To"] = replyTo;
+        }
+
+
+
+        return new Response(html, { headers });
       },
     },
   },
 });
+
