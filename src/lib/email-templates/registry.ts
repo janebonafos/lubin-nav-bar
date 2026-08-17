@@ -13,8 +13,9 @@ export type TemplateEntry = {
   previewData?: Record<string, any>;
   to?: string | ((data: any) => string);
   /** Optional Reply-To header value for transactional sends. */
-  replyTo?: string | ((data: any) => string);
+  replyTo?: string | undefined | ((data: any) => string | undefined);
 };
+
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   "booking-confirmation": bookingConfirmation,
