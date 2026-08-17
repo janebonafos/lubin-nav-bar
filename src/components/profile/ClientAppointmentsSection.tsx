@@ -22,6 +22,7 @@ import {
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
+import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 
 type Appt = {
   id: string;
@@ -486,6 +487,17 @@ export default function ClientAppointmentsSection() {
                           revokeProviderGrant(a.id);
                         }}
                       />
+
+                      {a.status === "upcoming" && (
+                        <div className="mb-6">
+                          <AppointmentMessageThread
+                            appointmentId={a.id}
+                            role="client"
+                            selfName="You"
+                            otherName={a.provider}
+                          />
+                        </div>
+                      )}
 
                       {a.status === "upcoming" && (
                         <div className="space-y-2">
