@@ -1798,6 +1798,14 @@ export function AppointmentsSection() {
                       <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
                     )}
                     {a.status === "upcoming" && (
+                      <AppointmentMessageThread
+                        appointmentId={a.id}
+                        role="provider"
+                        selfName="You"
+                        otherName={a.client}
+                      />
+                    )}
+                    {a.status === "upcoming" && (
                       (() => {
                         const lock = locks[a.id];
                         const isLocked = Boolean(lock);
