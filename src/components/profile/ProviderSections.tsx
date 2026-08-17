@@ -2239,7 +2239,8 @@ export function ApptNotesBlock({
             </div>
           </button>
 
-          <div className="space-y-4 p-4">
+          {followUpOpen && (
+            <div className="space-y-4 p-4">
             <p className="text-[12px] leading-snug text-[#7E6BAF]">
               Only include what will be helpful for {clientLabel}. Optional
               sections can be left empty.
