@@ -4,15 +4,19 @@
 // back into this thread so personal email addresses are never exchanged.
 
 export type ThreadRole = "provider" | "client";
+/** Who wrote a message. "system" = automated Lubin notice (reschedule, cancel…). */
+export type MessageAuthor = ThreadRole | "system";
 
 export type AppointmentMessage = {
   id: string;
-  from: ThreadRole;
+  from: MessageAuthor;
   authorName: string;
   body: string;
   at: number;
   /** Masked relay recipients notified by email for this message. */
   notified: string[];
+  /** True for automated Lubin system notices. */
+  system?: boolean;
 };
 
 const KEY_PREFIX = "lubin:appt-thread:";
@@ -42,7 +46,7 @@ export function getThread(appointmentId: string): AppointmentMessage[] {
 
 export function sendMessage(
   appointmentId: string,
-  input: { from: ThreadRole; authorName: string; body: string },
+  input: { from: MessageAuthor; authorName: string; body: string; system?: boolean },
 ): AppointmentMessage {
   const message: AppointmentMessage = {
     id: `m${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
@@ -54,6 +58,7 @@ export function sendMessage(
       relayAddress(appointmentId, "client"),
       relayAddress(appointmentId, "provider"),
     ],
+    ...(input.system ? { system: true } : {}),
   };
   const next = [...getThread(appointmentId), message];
   try {
@@ -69,6 +74,39 @@ export function sendMessage(
     /* noop */
   }
   return message;
+}
+
+/**
+ * Automated Lubin notice posted into the thread so both parties see the same
+ * change history. Mirrored by email to the client and the provider — separate
+ * from the system confirmation email of the new schedule itself.
+ */
+export function postSystemMessage(appointmentId: string, body: string) {
+  return sendMessage(appointmentId, {
+    from: "system",
+    authorName: "Lubin",
+    body,
+    system: true,
+  });
+}
+
+export function rescheduleNotice(input: {
+  byRole: ThreadRole;
+  byName: string;
+  previousWhen?: string;
+  newWhen: string;
+  timezone?: string;
+  note?: string;
+}) {
+  const who = input.byRole === "provider" ? `${input.byName} (provider)` : input.byName;
+  const lines = [
+    `Appointment rescheduled by ${who}.`,
+    input.previousWhen ? `Previous time: ${input.previousWhen}` : null,
+    `New time: ${input.newWhen}${input.timezone ? ` (${input.timezone})` : ""}`,
+    input.note ? `Note: ${input.note}` : null,
+    "A confirmation email with the new schedule has been sent to both of you.",
+  ].filter(Boolean);
+  return lines.join("\n");
 }
 
 export function subscribeThread(appointmentId: string, handler: () => void) {

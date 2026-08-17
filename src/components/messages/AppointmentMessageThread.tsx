@@ -40,7 +40,7 @@ export default function AppointmentMessageThread({
   }, [open, messages.length]);
 
   const myRelay = useMemo(() => relayAddress(appointmentId, role), [appointmentId, role]);
-  const unreadFromOther = messages.filter((m) => m.from !== role).length;
+  const unreadFromOther = messages.filter((m) => m.from !== role && !m.system).length;
 
   const submit = () => {
     const body = draft.trim();
@@ -103,6 +103,23 @@ export default function AppointmentMessageThread({
           ) : (
             <ul className="mb-4 max-h-80 space-y-3 overflow-y-auto pr-1">
               {messages.map((m) => {
+                if (m.system) {
+                  return (
+                    <li key={m.id} className="flex justify-center">
+                      <div className="w-full rounded-[12px] border border-dashed border-[#D9CFF2] bg-[#FBF9FF] px-4 py-3 text-center">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                          Lubin update · {formatMessageTime(m.at)}
+                        </p>
+                        <p className="mt-1.5 whitespace-pre-line text-xs leading-relaxed text-[#3D2E6B]">
+                          {m.body}
+                        </p>
+                        <p className="mt-2 text-[10px] text-[#A89BD0]">
+                          Emailed to client and provider
+                        </p>
+                      </div>
+                    </li>
+                  );
+                }
                 const mine = m.from === role;
                 return (
                   <li key={m.id} className={mine ? "flex justify-end" : "flex justify-start"}>
