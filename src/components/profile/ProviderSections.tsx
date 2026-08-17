@@ -2209,7 +2209,12 @@ export function ApptNotesBlock({
       {/* ============ Client Follow-up (visible to client) ============ */}
       {showFollowup && (
         <div className="overflow-hidden rounded-[20px] border border-[#EEE6FA] bg-white shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
-          <div className="flex items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setFollowUpOpen((v) => !v)}
+            aria-expanded={followUpOpen}
+            className="flex w-full items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3 text-left"
+          >
             <div className="min-w-0">
               <p className="text-sm font-bold text-[#3D2E6B]">
                 Session summary {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
@@ -2218,16 +2223,21 @@ export function ApptNotesBlock({
                 Nothing here is shared until you mark it as done below.
               </p>
             </div>
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                isPublished
-                  ? "bg-[#3D2E6B] text-white"
-                  : "bg-white/80 text-[#3D2E6B]"
-              }`}
-            >
-              {isPublished ? "Done" : "Draft · Not shared"}
-            </span>
-          </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                  isPublished
+                    ? "bg-[#3D2E6B] text-white"
+                    : "bg-white/80 text-[#3D2E6B]"
+                }`}
+              >
+                {isPublished ? "Done" : "Draft · Not shared"}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-[#7E6BAF] transition-transform ${followUpOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+          </button>
 
           <div className="space-y-4 p-4">
             <p className="text-[12px] leading-snug text-[#7E6BAF]">
