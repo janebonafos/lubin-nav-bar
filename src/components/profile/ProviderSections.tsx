@@ -2957,6 +2957,8 @@ export function ApptNotesBlock({
             )}
 
           </div>
+          )}
+
         </div>
 
       )}
