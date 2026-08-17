@@ -47,6 +47,7 @@ import { Route as ApiGeneratePrescriptionRouteImport } from './routes/api/genera
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
+import { Route as ApiPublicAppointmentMessageInboundRouteImport } from './routes/api/public/appointment-message-inbound'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -240,6 +241,12 @@ const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
   path: '/api/public/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAppointmentMessageInboundRoute =
+  ApiPublicAppointmentMessageInboundRouteImport.update({
+    id: '/api/public/appointment-message-inbound',
+    path: '/api/public/appointment-message-inbound',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -319,6 +327,7 @@ export interface FileRoutesByTo {
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRoutesById {
@@ -360,6 +369,7 @@ export interface FileRoutesById {
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
+  '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
   '/api/public/email-preview': typeof ApiPublicEmailPreviewRoute
 }
 export interface FileRouteTypes {
@@ -402,6 +412,7 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/appointment-message-inbound'
     | '/api/public/email-preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/appointment-message-inbound'
     | '/api/public/email-preview'
   id:
     | '__root__'
@@ -482,6 +494,7 @@ export interface FileRouteTypes {
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
+    | '/api/public/appointment-message-inbound'
     | '/api/public/email-preview'
   fileRoutesById: FileRoutesById
 }
@@ -522,6 +535,7 @@ export interface RootRouteChildren {
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
+  ApiPublicAppointmentMessageInboundRoute: typeof ApiPublicAppointmentMessageInboundRoute
   ApiPublicEmailPreviewRoute: typeof ApiPublicEmailPreviewRoute
 }
 
@@ -793,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/appointment-message-inbound': {
+      id: '/api/public/appointment-message-inbound'
+      path: '/api/public/appointment-message-inbound'
+      fullPath: '/api/public/appointment-message-inbound'
+      preLoaderRoute: typeof ApiPublicAppointmentMessageInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -844,6 +865,8 @@ const rootRouteChildren: RootRouteChildren = {
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
+  ApiPublicAppointmentMessageInboundRoute:
+    ApiPublicAppointmentMessageInboundRoute,
   ApiPublicEmailPreviewRoute: ApiPublicEmailPreviewRoute,
 }
 export const routeTree = rootRouteImport
