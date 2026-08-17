@@ -2016,6 +2016,8 @@ export function ApptNotesBlock({
   const [publishPreview, setPublishPreview] = useState(false);
   const [publishConfirmed, setPublishConfirmed] = useState(false);
   const [followUpOpen, setFollowUpOpen] = useState(true);
+  const [privateNotesOpen, setPrivateNotesOpen] = useState(true);
+
   const clientLabel = (clientName || (appt as ApptLite & { client?: string }).client || "your client").split(" ")[0];
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
@@ -2966,62 +2968,92 @@ export function ApptNotesBlock({
       {/* ============ Private Notes (provider only) ============ */}
 
       {showPrivate && (
-      <div className="rounded-[20px] border border-[#EEE6FA] bg-white p-5 shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5">
-            <Lock className="h-3 w-3 text-[#A89BD0]" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-              Private clinician notes <span className="text-[#A89BD0]/70">· never shared</span>
-            </p>
-          </div>
-        </div>
-        <p className="mt-1 text-[11px] italic text-[#A89BD0]">
-          Only visible to you. Capture presenting concerns, observations, plan
-          items, and reflections. Never sent to {clientLabel}.
-        </p>
-        {!editing ? (
-          <div className="mt-2 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
-              {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
-            </p>
-            <button
-              onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
-              className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
-            >
-              {appt.notes ? "Edit" : "Add clinical notes"}
-            </button>
-
-          </div>
-        ) : (
-          <div className="mt-2 space-y-2">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={4}
-              className="w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
-              placeholder={"Session observations, progress notes, clinical/coaching reflections, follow-up reminders, treatment considerations, topics to revisit…"}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => { setEditing(false); setDraft(appt.notes ?? ""); }}
-                className="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
-              >
-                Cancel
-              </button>
-              {draft.trim() !== (appt.notes ?? "").trim() && draft.trim().length > 0 && (
-                <button
-                  onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); onPrivateNotesSaved?.(true); }}
-                  className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
-                >
-                  Save notes
-                </button>
-              )}
-
+      <div className="overflow-hidden rounded-[20px] border border-[#EEE6FA] bg-white shadow-[0_10px_30px_-18px_rgba(61,46,107,0.25)]">
+        <button
+          type="button"
+          onClick={() => setPrivateNotesOpen((v) => !v)}
+          aria-expanded={privateNotesOpen}
+          className="flex w-full items-center justify-between gap-3 border-b border-[#F0EAFB] bg-gradient-to-r from-[#F7F1FF] to-[#EFE6FB] px-4 py-3 text-left"
+        >
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Lock className="h-3 w-3 shrink-0 text-[#A89BD0]" />
+            <div>
+              <p className="text-sm font-bold text-[#3D2E6B]">
+                Private clinician notes
+              </p>
+              <p className="text-[11px] text-[#7E6BAF]">
+                Only visible to you · never shared with {clientLabel}.
+              </p>
             </div>
           </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                appt.notes
+                  ? "bg-[#3D2E6B] text-white"
+                  : "bg-white/80 text-[#3D2E6B]"
+              }`}
+            >
+              {appt.notes ? "Saved" : "Empty"}
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-[#7E6BAF] transition-transform ${privateNotesOpen ? "rotate-180" : ""}`}
+            />
+          </div>
+        </button>
+
+        {privateNotesOpen && (
+        <div className="p-5">
+          <p className="text-[11px] italic text-[#A89BD0]">
+            Capture presenting concerns, observations, plan items, and reflections.
+            Never sent to {clientLabel}.
+          </p>
+          {!editing ? (
+            <div className="mt-2 rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#3D2E6B]">
+                {appt.notes || <span className="text-[#A89BD0] italic">No private notes yet. Capture observations, reflections, or things to revisit next time.</span>}
+              </p>
+              <button
+                onClick={() => { setDraft(appt.notes ?? ""); setEditing(true); onPrivateNotesSaved?.(false); }}
+                className="mt-2 rounded-[8px] border border-[#D6CCEC] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+              >
+                {appt.notes ? "Edit" : "Add clinical notes"}
+              </button>
+
+            </div>
+          ) : (
+            <div className="mt-2 space-y-2">
+              <textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={4}
+                className="w-full rounded-[10px] border border-[#E5DCF5] bg-[#FBF9FF] p-3 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0] focus:border-[#7E6BAF]"
+                placeholder={"Session observations, progress notes, clinical/coaching reflections, follow-up reminders, treatment considerations, topics to revisit…"}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => { setEditing(false); setDraft(appt.notes ?? ""); }}
+                  className="rounded-[8px] px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] hover:text-[#3D2E6B]"
+                >
+                  Cancel
+                </button>
+                {draft.trim() !== (appt.notes ?? "").trim() && draft.trim().length > 0 && (
+                  <button
+                    onClick={() => { onChange({ notes: draft.trim() || undefined }); setEditing(false); onPrivateNotesSaved?.(true); }}
+                    className="rounded-[8px] bg-[#3D2E6B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2C2B4B]"
+                  >
+                    Save notes
+                  </button>
+                )}
+
+              </div>
+            </div>
+          )}
+        </div>
         )}
       </div>
       )}
+
 
     </div>
   );
