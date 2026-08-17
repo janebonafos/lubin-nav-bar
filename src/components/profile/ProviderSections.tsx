@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
+import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
@@ -1796,6 +1797,14 @@ export function AppointmentsSection() {
                     )}
                     {(a.status === "completed" || a.status === "session_review") && (
                       <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
+                    )}
+                    {a.status === "upcoming" && (
+                      <AppointmentMessageThread
+                        appointmentId={a.id}
+                        role="provider"
+                        selfName="You"
+                        otherName={a.client}
+                      />
                     )}
                     {a.status === "upcoming" && (
                       (() => {
