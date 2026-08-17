@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
+import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
