@@ -12,6 +12,8 @@ export type TemplateEntry = {
   displayName?: string;
   previewData?: Record<string, any>;
   to?: string | ((data: any) => string);
+  /** Optional Reply-To header value for transactional sends. */
+  replyTo?: string | ((data: any) => string);
 };
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
@@ -37,5 +39,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
       replyToAddress: "provider-cu1@messages.lubin.care",
       supportEmail: "support@lubin.care",
     },
+    replyTo: (data) => data.replyToAddress,
   },
 };
+
