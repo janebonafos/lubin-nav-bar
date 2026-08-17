@@ -2016,6 +2016,8 @@ export function ApptNotesBlock({
   const [publishPreview, setPublishPreview] = useState(false);
   const [publishConfirmed, setPublishConfirmed] = useState(false);
   const [followUpOpen, setFollowUpOpen] = useState(true);
+  const [privateNotesOpen, setPrivateNotesOpen] = useState(true);
+
   const clientLabel = (clientName || (appt as ApptLite & { client?: string }).client || "your client").split(" ")[0];
   const [docTitle, setDocTitle] = useState("");
   const [docDescription, setDocDescription] = useState("");
