@@ -153,10 +153,24 @@ export default function AppointmentMessageThread({
             className="mt-1.5 w-full resize-y rounded-[10px] border border-[#EAE7F5] bg-white px-3 py-2.5 text-sm text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#A89BD0] focus:outline-none focus:ring-2 focus:ring-[#E0D9F7]"
           />
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[11px] text-[#7E6BAF]">
-              Your Lubin address for this appointment:{" "}
-              <span className="font-medium text-[#3D2E6B]">{myRelay}</span>
-            </p>
+            <div className="text-[11px] text-[#7E6BAF]">
+              <p>
+                Your Lubin address for this appointment:{" "}
+                <span className="font-medium text-[#3D2E6B]">{myRelay}</span>
+              </p>
+              <a
+                href={`/email-preview?template=${
+                  role === "provider"
+                    ? "appointment-message-sender-copy"
+                    : "appointment-message"
+                }`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-block font-medium text-[#5B4796] underline underline-offset-2"
+              >
+                Preview the email notification
+              </a>
+            </div>
             <button
               type="button"
               onClick={submit}
