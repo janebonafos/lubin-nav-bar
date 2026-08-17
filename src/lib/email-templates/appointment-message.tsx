@@ -56,11 +56,9 @@ export default function AppointmentMessageEmail({
   supportEmail,
 }: AppointmentMessageEmailProps) {
   const isOwnCopy = authorRole === recipientRole;
-  const label = (
-    <>
-      {isOwnCopy ? "Your message was sent" : `New message from ${authorName}`}
-    </>
-  );
+  const label = isOwnCopy ? "Your message was sent" : `New message from ${authorName}`;
+
+  const replyMailto = replyToAddress ? `mailto:${replyToAddress}` : undefined;
 
   return (
     <Html lang="en" dir="ltr">
@@ -135,8 +133,8 @@ export default function AppointmentMessageEmail({
             )}
             <Text style={{ margin: "0 0 18px", color: colors.textMuted, fontSize: 15, lineHeight: 1.5 }}>
               {isOwnCopy
-                ? "Here is a copy of the message now attached to your appointment in Lubin. Replies will arrive in the same thread."
-                : `${authorName} sent you a message about this appointment. It is also saved in the appointment thread in Lubin.`}
+                ? "Here is a copy of the message you sent. It is also saved in the appointment thread in Lubin."
+                : `${authorName} sent you a message about this appointment. You can reply in Lubin or directly from your email inbox.`}
             </Text>
 
             <Section
@@ -194,68 +192,114 @@ export default function AppointmentMessageEmail({
               </Button>
             )}
 
-            <Hr
-              style={{
-                border: "none",
-                borderTop: `1px solid ${colors.lavenderBorder}`,
-                margin: "24px 0",
-              }}
-            />
+            {!isOwnCopy && (
+              <>
+                <Hr
+                  style={{
+                    border: "none",
+                    borderTop: `1px solid ${colors.lavenderBorder}`,
+                    margin: "24px 0",
+                  }}
+                />
 
-            <Section
-              style={{
-                border: `1px solid ${colors.lavenderBorder}`,
-                borderRadius: 16,
-                padding: 18,
-              }}
-            >
+                <Section
+                  style={{
+                    border: `1px solid ${colors.lavenderBorder}`,
+                    borderRadius: 16,
+                    padding: 20,
+                  }}
+                >
+                  <Text
+                    style={{
+                      margin: "0 0 10px",
+                      color: colors.brandPurple,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: 1.2,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Reply by email
+                  </Text>
+
+                  <Text
+                    style={{
+                      margin: 0,
+                      color: colors.brandNavy,
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    You can reply directly from your email app. Your response will be added to the same Lubin thread and the other person will be notified.
+                  </Text>
+
+                  <Section style={{ marginTop: 16 }}>
+                    <Step number={1}>Open your email app and tap Reply.</Step>
+                    <Step number={2}>Write your message above the line at the bottom of this email.</Step>
+                    <Step number={3}>Send. Your reply goes to the private Lubin address below.</Step>
+                  </Section>
+
+                  {replyMailto && (
+                    <Button
+                      href={replyMailto}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        boxSizing: "border-box",
+                        backgroundColor: colors.white,
+                        color: colors.brandDark,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        textAlign: "center",
+                        textDecoration: "none",
+                        borderRadius: 12,
+                        border: `1px solid ${colors.lavenderBorder}`,
+                        padding: "12px 18px",
+                        marginTop: 16,
+                      }}
+                    >
+                      Reply to {replyToAddress}
+                    </Button>
+                  )}
+
+                  <Text
+                    style={{
+                      margin: "14px 0 0",
+                      color: colors.textMuted,
+                      fontSize: 12,
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    Personal email addresses are never shared between clients and providers.
+                  </Text>
+                </Section>
+
+                <Text
+                  style={{
+                    margin: "22px 0 0",
+                    color: colors.textMuted,
+                    fontSize: 12,
+                    textAlign: "center",
+                    letterSpacing: 0.4,
+                  }}
+                >
+                  ✂ — — — Write your reply above this line — — — ✂
+                </Text>
+              </>
+            )}
+
+            {isOwnCopy && (
               <Text
                 style={{
-                  margin: "0 0 8px",
-                  color: colors.brandPurple,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: 1.2,
-                  textTransform: "uppercase",
-                }}
-              >
-                Reply by email
-              </Text>
-              <Text style={{ margin: 0, color: colors.brandNavy, fontSize: 14, lineHeight: 1.6 }}>
-                Just hit <strong>Reply</strong> in your inbox and write above the line below. Your
-                reply is added to this appointment thread in Lubin and the other person is notified
-                there and by email.
-                {replyToAddress ? (
-                  <>
-                    {" "}
-                    Replies go to the private address{" "}
-                    <span style={{ fontWeight: 600 }}>{replyToAddress}</span>.
-                  </>
-                ) : null}
-              </Text>
-              <Text
-                style={{
-                  margin: "14px 0 0",
+                  margin: "20px 0 0",
                   color: colors.textMuted,
                   fontSize: 12,
                   lineHeight: 1.6,
                 }}
               >
-                Personal email addresses are never shared between clients and providers.
+                This is a copy of your message. To continue the conversation, open the appointment thread in Lubin.
               </Text>
-            </Section>
-
-            <Text
-              style={{
-                margin: "20px 0 0",
-                color: colors.textMuted,
-                fontSize: 12,
-                textAlign: "center",
-                letterSpacing: 0.4,
-              }}
-            >
-              ✂ — — — Write your reply above this line — — — ✂
-            </Text>
+            )}
           </Section>
 
           <Section style={{ marginTop: 24, textAlign: "center" }}>
@@ -283,6 +327,42 @@ export default function AppointmentMessageEmail({
   );
 }
 
+function Step({ number, children }: { number: number; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "table", marginBottom: 10 }}>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          backgroundColor: colors.brandDark,
+          color: colors.white,
+          fontSize: 12,
+          fontWeight: 700,
+          marginRight: 10,
+        }}
+      >
+        {number}
+      </span>
+      <Text
+        style={{
+          display: "table-cell",
+          verticalAlign: "middle",
+          margin: 0,
+          color: colors.brandNavy,
+          fontSize: 14,
+          lineHeight: 1.5,
+        }}
+      >
+        {children}
+      </Text>
+    </div>
+  );
+}
+
 export const template = {
   component: AppointmentMessageEmail,
   subject: (data: AppointmentMessageEmailProps) =>
@@ -304,4 +384,5 @@ export const template = {
     replyToAddress: "client-cu1@messages.lubin.care",
     supportEmail: "support@lubin.care",
   },
+  replyTo: (data: AppointmentMessageEmailProps) => data.replyToAddress,
 } satisfies TemplateEntry;
