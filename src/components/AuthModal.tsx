@@ -98,6 +98,11 @@ export default function AuthModal({
 
   const handleSelectRole = (role: UserRole) => {
     setSelectedRole(role);
+    if (role !== "client") {
+      setOnBehalf(false);
+      setRelationship("");
+      setPersonName("");
+    }
     onSelectRole?.(role);
   };
 
@@ -209,6 +214,68 @@ export default function AuthModal({
               );
             })}
           </div>
+
+        {showProxyOption && (
+          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={onBehalf}
+                onChange={(e) => setOnBehalf(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[#7E6BAF]"
+              />
+              <span>
+                <span className="block text-[14px] font-semibold text-[#1F1B2E]">
+                  I'm signing up on behalf of someone else
+                </span>
+                <span className="mt-0.5 block text-[12.5px] leading-snug text-[#5A4E8A]">
+                  For a parent, child, partner or someone you care for. You'll manage the account and can invite them later.
+                </span>
+              </span>
+            </label>
+
+            {onBehalf && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Your relationship
+                  </span>
+                  <select
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
+                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none focus:border-[#7E6BAF]"
+                  >
+                    <option value="">Select…</option>
+                    <option value="parent">Parent or guardian</option>
+                    <option value="child">Adult child</option>
+                    <option value="partner">Partner or spouse</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="caregiver">Caregiver or support worker</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Their first name
+                  </span>
+                  <input
+                    type="text"
+                    value={personName}
+                    maxLength={60}
+                    onChange={(e) => setPersonName(e.target.value)}
+                    placeholder="e.g. Anna"
+                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                  />
+                </label>
+                {proxyIncomplete && (
+                  <p className="sm:col-span-2 text-[12px] text-[#7E6BAF]">
+                    Add your relationship and their first name to continue.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {canShowAuthMethods && (
         <>
