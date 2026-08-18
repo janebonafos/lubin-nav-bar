@@ -305,14 +305,14 @@ export default function AuthModal({
         <div className="mt-4 flex flex-col gap-2.5">
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("google");
-              onContinueWithGoogle?.(selectedRole);
+              onContinueWithGoogle?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -326,14 +326,14 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("linkedin");
-              onContinueWithLinkedIn?.(selectedRole);
+              onContinueWithLinkedIn?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -347,14 +347,14 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("facebook");
-              onContinueWithFacebook?.(selectedRole);
+              onContinueWithFacebook?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -378,13 +378,13 @@ export default function AuthModal({
 
         <button
           type="button"
-          disabled={loadingProvider !== null}
+          disabled={blocked}
           onClick={() => {
-            if (!selectedRole) return;
-            onContinueWithEmail?.(selectedRole);
+            if (!selectedRole || proxyIncomplete) return;
+            onContinueWithEmail?.(selectedRole, proxyPayload);
           }}
           className={`group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition-all ${
-            loadingProvider === null
+            !blocked
               ? "hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.55)]"
               : "opacity-70 cursor-not-allowed"
           }`}
