@@ -4,6 +4,11 @@ import { X, Mail, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
 
+export type ProxySignup = {
+  relationship: string;
+  personName: string;
+};
+
 interface AuthModalProps {
   open: boolean;
   mode?: AuthMode;
@@ -11,10 +16,10 @@ interface AuthModalProps {
   brandName?: string;
   termsHref?: string;
   privacyHref?: string;
-  onContinueWithGoogle?: (role?: UserRole) => void;
-  onContinueWithLinkedIn?: (role?: UserRole) => void;
-  onContinueWithFacebook?: (role?: UserRole) => void;
-  onContinueWithEmail?: (role?: UserRole) => void;
+  onContinueWithGoogle?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithLinkedIn?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithFacebook?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithEmail?: (role?: UserRole, proxy?: ProxySignup | null) => void;
   onSwitchMode?: (mode: AuthMode) => void;
   onSelectRole?: (role: UserRole) => void;
 }
@@ -62,6 +67,9 @@ export default function AuthModal({
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
+  const [onBehalf, setOnBehalf] = useState(false);
+  const [relationship, setRelationship] = useState("");
+  const [personName, setPersonName] = useState("");
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
@@ -69,6 +77,9 @@ export default function AuthModal({
     if (!open) {
       setSelectedRole(null);
       setLoadingProvider(null);
+      setOnBehalf(false);
+      setRelationship("");
+      setPersonName("");
       return;
     }
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -87,6 +98,11 @@ export default function AuthModal({
 
   const handleSelectRole = (role: UserRole) => {
     setSelectedRole(role);
+    if (role !== "client") {
+      setOnBehalf(false);
+      setRelationship("");
+      setPersonName("");
+    }
     onSelectRole?.(role);
   };
 
@@ -106,12 +122,14 @@ export default function AuthModal({
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
+  const showProxyOption = isSignup && selectedRole === "client";
+  const proxyIncomplete = showProxyOption && onBehalf && (!relationship || personName.trim().length < 2);
+  const proxyPayload: ProxySignup | null =
+    showProxyOption && onBehalf && !proxyIncomplete
+      ? { relationship, personName: personName.trim() }
+      : null;
   const canShowAuthMethods = selectedRole !== null;
-
-  const safeContinue = (cb?: (role?: UserRole) => void) => {
-    if (!selectedRole) return; // never route without an explicit role
-    cb?.(selectedRole);
-  };
+  const blocked = loadingProvider !== null || proxyIncomplete;
 
   return (
     <div
@@ -197,6 +215,68 @@ export default function AuthModal({
             })}
           </div>
 
+        {showProxyOption && (
+          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={onBehalf}
+                onChange={(e) => setOnBehalf(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[#7E6BAF]"
+              />
+              <span>
+                <span className="block text-[14px] font-semibold text-[#1F1B2E]">
+                  I'm signing up on behalf of someone else
+                </span>
+                <span className="mt-0.5 block text-[12.5px] leading-snug text-[#5A4E8A]">
+                  For a parent, child, partner or someone you care for. You'll manage the account and can invite them later.
+                </span>
+              </span>
+            </label>
+
+            {onBehalf && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Your relationship
+                  </span>
+                  <select
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
+                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none focus:border-[#7E6BAF]"
+                  >
+                    <option value="">Select…</option>
+                    <option value="parent">Parent or guardian</option>
+                    <option value="child">Adult child</option>
+                    <option value="partner">Partner or spouse</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="caregiver">Caregiver or support worker</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Their first name
+                  </span>
+                  <input
+                    type="text"
+                    value={personName}
+                    maxLength={60}
+                    onChange={(e) => setPersonName(e.target.value)}
+                    placeholder="e.g. Anna"
+                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                  />
+                </label>
+                {proxyIncomplete && (
+                  <p className="sm:col-span-2 text-[12px] text-[#7E6BAF]">
+                    Add your relationship and their first name to continue.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {canShowAuthMethods && (
         <>
         <button
@@ -225,14 +305,14 @@ export default function AuthModal({
         <div className="mt-4 flex flex-col gap-2.5">
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("google");
-              onContinueWithGoogle?.(selectedRole);
+              onContinueWithGoogle?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -246,14 +326,14 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("linkedin");
-              onContinueWithLinkedIn?.(selectedRole);
+              onContinueWithLinkedIn?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -267,14 +347,14 @@ export default function AuthModal({
           </button>
           <button
             type="button"
-            disabled={loadingProvider !== null}
+            disabled={blocked}
             onClick={() => {
-              if (!selectedRole) return;
+              if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("facebook");
-              onContinueWithFacebook?.(selectedRole);
+              onContinueWithFacebook?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              loadingProvider === null
+              !blocked
                 ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
                 : "opacity-60 cursor-not-allowed"
             }`}
@@ -298,13 +378,13 @@ export default function AuthModal({
 
         <button
           type="button"
-          disabled={loadingProvider !== null}
+          disabled={blocked}
           onClick={() => {
-            if (!selectedRole) return;
-            onContinueWithEmail?.(selectedRole);
+            if (!selectedRole || proxyIncomplete) return;
+            onContinueWithEmail?.(selectedRole, proxyPayload);
           }}
           className={`group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition-all ${
-            loadingProvider === null
+            !blocked
               ? "hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.55)]"
               : "opacity-70 cursor-not-allowed"
           }`}

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import AuthModal, { type UserRole } from "@/components/AuthModal";
+import AuthModal, { type ProxySignup, type UserRole } from "@/components/AuthModal";
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -29,7 +29,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const redirect = search.redirect || "/profile";
 
-  const completeAuth = (role?: UserRole) => {
+  const completeAuth = (role?: UserRole, proxy?: ProxySignup | null) => {
     if (role !== "client" && role !== "provider") {
       console.warn("Auth completed without an explicit role; aborting navigation.");
       return;
@@ -38,6 +38,11 @@ function AuthPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("lubin.userRole", role);
         window.localStorage.setItem("lubin.signedIn", "1");
+        if (proxy) {
+          window.localStorage.setItem("lubin.proxySignup", JSON.stringify(proxy));
+        } else {
+          window.localStorage.removeItem("lubin.proxySignup");
+        }
         if (!window.localStorage.getItem("lubin.userName")) {
           const fallbackName = role === "provider" ? "Dr. Provider" : "Guest User";
           window.localStorage.setItem("lubin.userName", fallbackName);
