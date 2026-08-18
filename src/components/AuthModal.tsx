@@ -4,6 +4,11 @@ import { X, Mail, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
 
+export type ProxySignup = {
+  relationship: string;
+  personName: string;
+};
+
 interface AuthModalProps {
   open: boolean;
   mode?: AuthMode;
@@ -11,10 +16,10 @@ interface AuthModalProps {
   brandName?: string;
   termsHref?: string;
   privacyHref?: string;
-  onContinueWithGoogle?: (role?: UserRole) => void;
-  onContinueWithLinkedIn?: (role?: UserRole) => void;
-  onContinueWithFacebook?: (role?: UserRole) => void;
-  onContinueWithEmail?: (role?: UserRole) => void;
+  onContinueWithGoogle?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithLinkedIn?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithFacebook?: (role?: UserRole, proxy?: ProxySignup | null) => void;
+  onContinueWithEmail?: (role?: UserRole, proxy?: ProxySignup | null) => void;
   onSwitchMode?: (mode: AuthMode) => void;
   onSelectRole?: (role: UserRole) => void;
 }
@@ -62,6 +67,9 @@ export default function AuthModal({
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
+  const [onBehalf, setOnBehalf] = useState(false);
+  const [relationship, setRelationship] = useState("");
+  const [personName, setPersonName] = useState("");
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
@@ -69,6 +77,9 @@ export default function AuthModal({
     if (!open) {
       setSelectedRole(null);
       setLoadingProvider(null);
+      setOnBehalf(false);
+      setRelationship("");
+      setPersonName("");
       return;
     }
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -106,12 +117,14 @@ export default function AuthModal({
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
+  const showProxyOption = isSignup && selectedRole === "client";
+  const proxyIncomplete = showProxyOption && onBehalf && (!relationship || personName.trim().length < 2);
+  const proxyPayload: ProxySignup | null =
+    showProxyOption && onBehalf && !proxyIncomplete
+      ? { relationship, personName: personName.trim() }
+      : null;
   const canShowAuthMethods = selectedRole !== null;
-
-  const safeContinue = (cb?: (role?: UserRole) => void) => {
-    if (!selectedRole) return; // never route without an explicit role
-    cb?.(selectedRole);
-  };
+  const blocked = loadingProvider !== null || proxyIncomplete;
 
   return (
     <div
