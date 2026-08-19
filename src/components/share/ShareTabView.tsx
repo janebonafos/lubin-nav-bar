@@ -49,7 +49,6 @@ export default function ShareTabView({
   onAutoOpenHandled?: () => void;
 }) {
   const [range, setRange] = useState<RangeKey>("30d");
-  const [consentOpen, setConsentOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [confirmed, setConfirmed] = useState<{
     includedKeys: string[];
@@ -428,9 +427,34 @@ export default function ShareTabView({
             </p>
           </aside>
 
-          {/* Actions (always visible; share button shows active state when panel is open) */}
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+          {/* Choose what to share — always visible, no extra click needed */}
+          {!optionsOpen && (
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-[#ECE7F6]" />
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#A29EB6]">
+                <Share2 className="h-3 w-3" />
+                Choose what to share
+              </p>
+              <div className="h-px flex-1 bg-[#ECE7F6]" />
+            </div>
+          )}
+
+          {!optionsOpen && (
+            <ShareConsentModal
+              open={true}
+              summary={summary}
+              onRangeChange={setRange}
+              onConfirm={(r) => {
+                requireAccount(() => {
+                  setConfirmed(r);
+                  setOptionsOpen(true);
+                });
+              }}
+            />
+          )}
+
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-center">
               <button
                 type="button"
                 onClick={() => requireAccount(() => window.print())}
@@ -439,29 +463,6 @@ export default function ShareTabView({
                 <Download className="h-4 w-4" />
                 Download Summary
               </button>
-              <button
-                type="button"
-                aria-expanded={consentOpen || optionsOpen}
-                onClick={() => {
-                  if (consentOpen || optionsOpen) {
-                    setConsentOpen(false);
-                    setOptionsOpen(false);
-                    setConfirmed(null);
-                  } else {
-                    requireAccount(() => setConsentOpen(true));
-                  }
-                }}
-                className={`inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-semibold transition-all ${
-                  consentOpen || optionsOpen
-                    ? "border-2 border-[#7C69BA] bg-white text-[#7C69BA] shadow-sm"
-                    : "bg-[#7C69BA] text-white shadow-[0_14px_28px_-10px_rgba(124,105,186,0.55)] hover:-translate-y-0.5 hover:bg-[#6857A3]"
-                }`}
-              >
-                <Share2 className="h-4 w-4" />
-                {consentOpen || optionsOpen
-                  ? "Preparing share…"
-                  : "Share summary"}
-              </button>
             </div>
             <p className="text-center text-[11px] italic text-[#A29EB6]">
               This summary helps you reflect and share context. It is not a
@@ -469,23 +470,12 @@ export default function ShareTabView({
             </p>
           </div>
 
-          {consentOpen && (
-            <ShareConsentModal
-              open={consentOpen}
-              summary={summary}
-              onConfirm={(r) => {
-                setConfirmed(r);
-                setConsentOpen(false);
-                setOptionsOpen(true);
-              }}
-            />
-          )}
           {optionsOpen && confirmed && (
             <ShareOptionsModal
               open={optionsOpen}
               onBack={() => {
                 setOptionsOpen(false);
-                setConsentOpen(true);
+                setConfirmed(null);
               }}
               onClose={() => {
                 setOptionsOpen(false);
