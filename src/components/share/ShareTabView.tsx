@@ -49,7 +49,6 @@ export default function ShareTabView({
   onAutoOpenHandled?: () => void;
 }) {
   const [range, setRange] = useState<RangeKey>("30d");
-  const [consentOpen, setConsentOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [confirmed, setConfirmed] = useState<{
     includedKeys: string[];
