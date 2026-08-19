@@ -267,7 +267,7 @@ function LinkView({
       <p className="mt-5 text-xs text-[#5A4A8A]">
         Want the full details?{" "}
         <a
-          href="/privacy-policy"
+          href="/privacy"
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
