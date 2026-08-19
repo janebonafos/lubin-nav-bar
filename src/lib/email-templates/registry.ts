@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { template as bookingConfirmation } from "./booking-confirmation";
 import { template as bookingConfirmationClient } from "./booking-confirmation-client";
 import { template as prescriptionSigningOtp } from "./prescription-signing-otp";
+import { template as assessmentResultShared } from "./assessment-result-shared";
 import AppointmentRescheduledEmail, {
   template as appointmentRescheduled,
 } from "./appointment-rescheduled";
