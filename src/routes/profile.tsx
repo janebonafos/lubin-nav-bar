@@ -44,6 +44,8 @@ import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescript
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import ClientAppointmentsSection, {
   CLIENT_UPCOMING_COUNT,
+  getClientUpcomingAppointments,
+  type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
 import {
   CalendarAvailabilitySection,
@@ -308,6 +310,12 @@ function ProfilePage() {
     inProgress: { name: string; slug: string; answered: number; total: number }[];
     attempts: Attempt[];
   }>({ completed: 0, inProgress: [], attempts: [] });
+  const [upcomingAppointments, setUpcomingAppointments] = useState<
+    ClientUpcomingAppointment[]
+  >([]);
+  useEffect(() => {
+    setUpcomingAppointments(getClientUpcomingAppointments());
+  }, []);
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -1175,6 +1183,7 @@ function ProfilePage() {
                 onRequestSignup={() => {}}
                 onStartCheckin={() => setCheckInActive(true)}
                 sharerName={profile.fullName.trim() || "You"}
+                upcomingAppointments={upcomingAppointments}
               />
             )}
 
