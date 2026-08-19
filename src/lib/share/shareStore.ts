@@ -98,5 +98,34 @@ export function revokeShare(token: string): void {
 export function buildShareUrl(token: string): string {
   const origin =
     typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/share/${token}`;
+  const payload = readStore()[token];
+  const encoded = payload ? encodeSharePayload(payload) : "";
+  return `${origin}/share/${token}${encoded ? `?d=${encoded}` : ""}`;
+}
+
+// Encode the payload into the link so a share opened in another browser,
+// tab context, or in-app webview still renders (localStorage isn't shared).
+export function encodeSharePayload(payload: SharePayload): string {
+  if (typeof window === "undefined") return "";
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let bin = "";
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return window.btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function decodeSharePayload(encoded: string): SharePayload | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const padded = encoded.replace(/-/g, "+").replace(/_/g, "/");
+    const bin = window.atob(padded + "=".repeat((4 - (padded.length % 4)) % 4));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    if (!parsed || typeof parsed !== "object") return null;
+    const payload = parsed as SharePayload;
+    if (payload.revoked) return null;
+    if (payload.expiresAt < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
 }
