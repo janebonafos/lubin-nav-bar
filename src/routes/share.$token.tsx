@@ -1,12 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getShare, type SharePayload } from "@/lib/share/shareStore";
+import {
+  getShare,
+  decodeSharePayload,
+  type SharePayload,
+} from "@/lib/share/shareStore";
 import { buildSummary } from "@/lib/share/summary";
 import TherapistReport from "@/components/share/reports/TherapistReport";
 import TrustedContactReport from "@/components/share/reports/TrustedContactReport";
 
 export const Route = createFileRoute("/share/$token")({
   component: SharePage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    d: typeof search.d === "string" ? search.d : undefined,
+  }),
   head: () => ({
     meta: [{ title: "Shared summary — Lubin" }],
   }),
@@ -14,13 +21,15 @@ export const Route = createFileRoute("/share/$token")({
 
 function SharePage() {
   const { token } = Route.useParams();
+  const { d } = Route.useSearch();
   const [payload, setPayload] = useState<SharePayload | null | undefined>(undefined);
   const [pinInput, setPinInput] = useState("");
   const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
-    setPayload(getShare(token));
-  }, [token]);
+    const local = getShare(token);
+    setPayload(local ?? (d ? decodeSharePayload(d) : null));
+  }, [token, d]);
 
   if (payload === undefined) {
     return <div className="min-h-screen bg-[#FAF8FD]" />;
