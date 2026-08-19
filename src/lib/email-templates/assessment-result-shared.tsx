@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -50,8 +49,10 @@ export interface AssessmentResultSharedProps {
   summary?: string;
   /** Optional note left by the sender. */
   senderNote?: string;
-  /** Link to view the full result on Lubin. */
-  resultLink?: string;
+  /** Filename of the attached PDF result. */
+  attachmentName?: string;
+  /** Approximate size label of the attached PDF, e.g. "182 KB". */
+  attachmentSize?: string;
   /** When the assessment was taken. */
   takenAt?: string;
   /** Expiry label for the share link. */
@@ -70,9 +71,9 @@ export default function AssessmentResultSharedEmail({
   explanation,
   summary,
   senderNote,
-  resultLink,
+  attachmentName,
+  attachmentSize,
   takenAt,
-  expiresAt,
   supportEmail,
 }: AssessmentResultSharedProps) {
   const showScore = typeof score === "number" && typeof maxScore === "number";
@@ -296,27 +297,57 @@ export default function AssessmentResultSharedEmail({
               </Section>
             )}
 
-            {resultLink && (
-              <Button
-                href={resultLink}
+            <Section
+              style={{
+                border: `1px solid ${colors.lavenderBorder}`,
+                backgroundColor: colors.lavender,
+                borderRadius: 14,
+                padding: "14px 16px",
+                marginBottom: 12,
+              }}
+            >
+              <Text
                 style={{
-                  display: "block",
-                  width: "100%",
-                  boxSizing: "border-box",
-                  backgroundColor: colors.brandDark,
-                  color: colors.white,
-                  fontSize: 15,
-                  fontWeight: 600,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  borderRadius: 14,
-                  padding: "14px 24px",
-                  marginBottom: 12,
+                  margin: 0,
+                  color: colors.textMuted,
+                  fontSize: 11,
+                  letterSpacing: 1,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
                 }}
               >
-                View the full result on Lubin
-              </Button>
-            )}
+                Attached to this email
+              </Text>
+              <Text
+                style={{
+                  margin: "6px 0 0",
+                  color: colors.brandNavy,
+                  fontSize: 15,
+                  fontWeight: 600,
+                }}
+              >
+                {attachmentName ?? "lubin-assessment-result.pdf"}
+                {attachmentSize ? (
+                  <span style={{ color: colors.textMuted, fontWeight: 400 }}>
+                    {" "}
+                    · PDF{attachmentSize ? ` · ${attachmentSize}` : ""}
+                  </span>
+                ) : (
+                  <span style={{ color: colors.textMuted, fontWeight: 400 }}> · PDF</span>
+                )}
+              </Text>
+              <Text
+                style={{
+                  margin: "6px 0 0",
+                  color: colors.textMuted,
+                  fontSize: 13,
+                  lineHeight: "1.5",
+                }}
+              >
+                The full result, including the scoring guide, is attached as a PDF you can download,
+                print, or save to the patient record.
+              </Text>
+            </Section>
 
             <Text
               style={{
@@ -327,7 +358,7 @@ export default function AssessmentResultSharedEmail({
                 textAlign: "center",
               }}
             >
-              This link is private and expires{expiresAt ? ` on ${expiresAt}` : " after 30 days"}.
+              Please keep this attachment confidential — it contains personal health information.
             </Text>
           </Section>
 
@@ -417,7 +448,8 @@ export const template = {
       "This score suggests a few low mood signs that are worth paying attention to. Many people in this range feel okay most of the time but notice occasional dips in energy, sleep, or motivation.",
     summary: "",
     senderNote: "I wanted you to see this before our next session. Nothing urgent, just context.",
-    resultLink: "https://lubin.care/result/abc123?d=encoded",
+    attachmentName: "lubin-mood-check-phq9-aug-19-2026.pdf",
+    attachmentSize: "182 KB",
     takenAt: "Aug 19, 2026",
     expiresAt: "Sep 18, 2026",
     supportEmail: "support@lubin.care",
