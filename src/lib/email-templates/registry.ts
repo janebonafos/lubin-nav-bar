@@ -29,6 +29,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "booking-confirmation": bookingConfirmation,
   "booking-confirmation-client": bookingConfirmationClient,
   "prescription-signing-otp": prescriptionSigningOtp,
+  "assessment-result-shared": assessmentResultShared,
   "appointment-message": appointmentMessage,
   "appointment-rescheduled": appointmentRescheduled,
   "appointment-rescheduled-provider": {
