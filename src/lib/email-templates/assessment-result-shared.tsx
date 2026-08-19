@@ -74,7 +74,6 @@ export default function AssessmentResultSharedEmail({
   attachmentName,
   attachmentSize,
   takenAt,
-  expiresAt,
   supportEmail,
 }: AssessmentResultSharedProps) {
   const showScore = typeof score === "number" && typeof maxScore === "number";
