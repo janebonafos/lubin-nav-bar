@@ -374,7 +374,7 @@ export function TalkThroughCard({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
+              className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
             >
               Ask Lubin AI
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
