@@ -374,7 +374,7 @@ export function TalkThroughCard({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
+              className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5 hover:bg-white/90"
             >
               Ask Lubin AI
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -500,7 +500,7 @@ export function BookingCard({ status }: { status: AssessmentStatus }) {
           <Link
             to="/find-provider"
             onClick={() => claimFreeConsult()}
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
           >
             Talk to a real provider — free
           </Link>
