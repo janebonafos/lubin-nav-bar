@@ -34,7 +34,7 @@ import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
-import ResultInsights from "@/components/discovery/ResultInsights";
+import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import ShareResultModal from "@/components/discovery/ShareResultModal";
 
 const ABOUT_COPY: Record<string, string> = {
@@ -844,6 +844,12 @@ function ResultView({
         </div>
 
         <div className="mt-12 h-px w-full bg-brand-purple/10" />
+
+        {/* Above-the-fold CTAs: AI chat + real provider consult */}
+        <div className="mt-10 grid items-stretch gap-4 md:grid-cols-2">
+          <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
+          <BookingCard status={status} />
+        </div>
 
         <div className="mt-12 grid gap-12 md:grid-cols-12">
           <div className="md:col-span-7">

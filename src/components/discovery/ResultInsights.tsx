@@ -70,12 +70,6 @@ export default function ResultInsights({
 
         {/* AI read */}
         <AiReadSection loading={loading} insight={insight} status={status} />
-
-        {/* Talk through + Booking */}
-        <div className="grid items-stretch gap-4 lg:grid-cols-2">
-          <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
-          <BookingCard status={status} />
-        </div>
       </motion.div>
     </div>
   );
@@ -266,7 +260,7 @@ function AiReadSection({
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-function TalkThroughCard({
+export function TalkThroughCard({
   assessment,
   attempt,
   status,
@@ -367,23 +361,24 @@ function TalkThroughCard({
             <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
           </span>
           <div>
-            <p className="text-[16px] font-semibold text-white">Talk through your results</p>
-            <p className="text-[12px] text-white/60">Ask anything — private, and at your pace</p>
+            <p className="text-[16px] font-semibold text-white">Talk through your results with Lubin AI</p>
+            <p className="text-[12px] text-white/60">Private AI chat — no one else sees this</p>
           </div>
         </div>
 
         {!open && (
           <>
             <p className="mt-4 max-w-[420px] text-[14px] leading-[1.65] text-white/70">
-              Bring any question about your result — what it means, what to watch
-              for, or what to try this week. Nothing is recorded or shared.
+              Ask Lubin AI anything about your result — what it means, what to
+              watch for, or what to try this week. Nothing you say here is recorded
+              or shared with a provider.
             </p>
             <button
               type="button"
               onClick={() => setOpen(true)}
               className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
             >
-              Start talking
+              Ask Lubin AI
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
             </button>
           </>
@@ -476,7 +471,7 @@ function TalkThroughCard({
 // Booking
 // ============================================================
 
-function BookingCard({ status }: { status: AssessmentStatus }) {
+export function BookingCard({ status }: { status: AssessmentStatus }) {
   const [claimed, setClaimed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -498,12 +493,10 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
           Included for you
         </span>
         <h2 className="mt-4 font-serif-display text-[22px] font-light italic text-brand-purple-dark">
-          Discuss this with a real provider — 30 minutes, free
+          Talk to a real provider — 30 minutes, free
         </h2>
         <p className="mt-2 max-w-[520px] text-[14px] leading-[1.65] text-brand-purple-dark/70">
-          Your free 30-minute consultation is still available. It's a relaxed
-          conversation with a verified professional — bring this result, or just
-          bring yourself. No commitment afterwards.
+          Your free consultation is with a verified mental health professional, not AI. It's a relaxed conversation — bring this result, or just bring yourself. No commitment afterwards.
         </p>
         <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
           <Link
@@ -511,7 +504,7 @@ function BookingCard({ status }: { status: AssessmentStatus }) {
             onClick={() => claimFreeConsult()}
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
-            Talk to a provider — free
+            Talk to a real provider — free
           </Link>
           <span className="text-[12.5px] text-brand-purple-dark/50">
             One-time · {status.isCrisis ? "priority slots available" : "usually within a few days"}
