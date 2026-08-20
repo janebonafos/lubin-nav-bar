@@ -851,23 +851,30 @@ function ResultView({
           <BookingCard status={status} />
         </div>
 
-        <div className="mt-8 grid gap-10 md:grid-cols-12">
-          <div className="md:col-span-7">
-            <p className="font-serif-display text-lg font-light italic leading-relaxed text-brand-purple-dark md:text-xl">
-              “{attempt.summary}”
-            </p>
-            <HeroInsightRead
-              assessment={assessment}
-              score={attempt.score}
-              status={status}
-            />
-          </div>
-          <div className="md:col-span-5">
-            <p className="text-[14px] leading-[1.7] text-brand-purple-dark/70">
-              {status.explanation} This isn't a diagnosis — it's a snapshot of
-              this moment, and a useful thing to bring into a conversation with
-              someone you trust.
-            </p>
+        <div className="mt-8">
+          <p className="font-serif-display text-lg font-light italic leading-relaxed text-brand-purple-dark md:text-xl">
+            “{attempt.summary}”
+          </p>
+          <div className="mt-8 grid gap-10 md:grid-cols-12">
+            <div className="md:col-span-7">
+              <HeroInsightRead
+                assessment={assessment}
+                score={attempt.score}
+                status={status}
+              />
+            </div>
+            <div className="md:col-span-5">
+              <div className="mt-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
+                  About this result
+                </p>
+                <p className="mt-3 text-[14px] leading-[1.7] text-brand-purple-dark/70">
+                  {status.explanation} This isn't a diagnosis — it's a snapshot of
+                  this moment, and a useful thing to bring into a conversation with
+                  someone you trust.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
