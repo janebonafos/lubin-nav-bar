@@ -558,12 +558,13 @@ function AssessmentCard({
   assessment: Assessment;
   onStartOver: () => void;
 }) {
-  const latest =
-    typeof window === "undefined" ? null : getLatestAttempt(assessment.id);
-  const daysLeft = cooldownDaysRemaining(assessment.id, latest);
-  const inCooldown = daysLeft > 0;
-  const inProgress =
-    typeof window === "undefined" ? null : loadInProgress(assessment.id);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const latest = mounted ? getLatestAttempt(assessment.id) : null;
+  const daysLeft = mounted ? cooldownDaysRemaining(assessment.id, latest) : 0;
+  const inCooldown = mounted && daysLeft > 0;
+  const inProgress = mounted ? loadInProgress(assessment.id) : null;
   const answeredCount = inProgress
     ? inProgress.answers.filter((v) => v !== null).length
     : 0;
@@ -572,10 +573,9 @@ function AssessmentCard({
   const pct = hasInProgress
     ? Math.round((answeredCount / assessment.questions.length) * 100)
     : 0;
-  const allAttempts =
-    typeof window === "undefined" ? [] : getAttemptsFor(assessment.id);
-  const trend = computeTrend(assessment, allAttempts);
-  const hasCompleted = allAttempts.length > 0;
+  const allAttempts = mounted ? getAttemptsFor(assessment.id) : [];
+  const trend = mounted ? computeTrend(assessment, allAttempts) : null;
+  const hasCompleted = mounted && allAttempts.length > 0;
   const ctaLabel = hasInProgress
     ? "Continue assessment"
     : hasCompleted
