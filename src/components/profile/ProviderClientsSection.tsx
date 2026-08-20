@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ClipboardCopy,
   Search,
-  ShieldAlert,
   UserPlus,
   Users,
   X,
