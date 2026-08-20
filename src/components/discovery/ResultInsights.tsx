@@ -481,30 +481,30 @@ export function BookingCard({ status }: { status: AssessmentStatus }) {
 
   if (!hydrated)
     return (
-      <section className="h-full min-h-[220px] rounded-[2rem] border border-brand-purple/10 bg-white/50" />
+      <section className="h-full min-h-[180px] rounded-[2rem] border border-brand-purple/10 bg-white/50" />
     );
 
   if (!claimed) {
     return (
-    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 md:p-8">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark">
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-5 md:p-6">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-lavender px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-purple-dark">
           Included for you
         </span>
-        <h2 className="mt-4 font-serif-display text-[22px] font-light italic text-brand-purple-dark">
+        <h2 className="mt-3 font-serif-display text-[18px] font-light italic text-brand-purple-dark">
           Talk to a real provider — 30 minutes, free
         </h2>
-        <p className="mt-2 max-w-[520px] text-[14px] leading-[1.65] text-brand-purple-dark/70">
-          Your free consultation is with a verified mental health professional, not AI. It's a relaxed conversation — bring this result, or just bring yourself. No commitment afterwards.
+        <p className="mt-2 max-w-[520px] text-[13px] leading-[1.55] text-brand-purple-dark/70">
+          Your free consultation is with a verified mental health professional, not AI. No commitment afterwards.
         </p>
-        <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
+        <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
           <Link
             to="/find-provider"
             onClick={() => claimFreeConsult()}
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
           >
             Talk to a real provider — free
           </Link>
-          <span className="text-[12.5px] text-brand-purple-dark/50">
+          <span className="text-[11.5px] text-brand-purple-dark/50">
             One-time · {status.isCrisis ? "priority slots available" : "usually within a few days"}
           </span>
         </div>
@@ -513,22 +513,22 @@ export function BookingCard({ status }: { status: AssessmentStatus }) {
   }
 
   return (
-    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-7 md:p-8">
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-brand-purple/15 bg-white p-5 md:p-6">
       <div>
-        <p className="text-[15px] font-semibold text-brand-purple-dark">
+        <p className="text-[14px] font-semibold text-brand-purple-dark">
           Book a session with a provider
         </p>
-        <p className="text-[12.5px] text-brand-purple-dark/60">
+        <p className="text-[12px] text-brand-purple-dark/60">
           You've already used your free consultation — here's how to keep going
         </p>
       </div>
-      <p className="mt-4 text-[13.5px] leading-[1.6] text-brand-purple-dark/70">
+      <p className="mt-3 text-[13px] leading-[1.55] text-brand-purple-dark/70">
         Pick someone whose approach fits you, choose a time that works, and share
-        this result with them if you'd like. You stay in control of what's shared.
+        this result with them if you'd like.
       </p>
       <Link
         to="/find-provider"
-        className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+        className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
       >
         Find a provider
       </Link>
