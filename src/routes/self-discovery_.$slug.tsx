@@ -812,16 +812,16 @@ function ResultView({
       className="mt-4"
     >
       {/* Top result summary — editorial, borderless */}
-      <div className="relative pb-16">
-        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
+      <div className="relative pb-10">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-lg">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
               Clinical Reference: {assessment.clinicalName}
             </p>
-            <h1 className="mt-4 font-serif-display text-4xl font-light leading-[1.05] text-brand-purple-dark md:text-6xl">
+            <h1 className="mt-3 font-serif-display text-4xl font-light leading-[1.05] text-brand-purple-dark md:text-5xl">
               {assessment.name}
             </h1>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center rounded-full border border-brand-purple/15 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark">
                 {status.label}
               </span>
@@ -831,7 +831,7 @@ function ResultView({
             </div>
           </div>
           <div className="text-left md:text-right">
-            <span className="font-serif-display text-6xl font-light text-brand-purple-dark md:text-7xl">
+            <span className="font-serif-display text-5xl font-light text-brand-purple-dark md:text-6xl">
               {attempt.score}
             </span>
             <span className="ml-2 text-[13px] font-medium uppercase tracking-widest text-brand-purple-dark/40">
@@ -843,17 +843,17 @@ function ResultView({
           </div>
         </div>
 
-        <div className="mt-12 h-px w-full bg-brand-purple/10" />
+        <div className="mt-8 h-px w-full bg-brand-purple/10" />
 
         {/* Above-the-fold CTAs: AI chat + real provider consult */}
-        <div className="mt-10 grid items-stretch gap-4 md:grid-cols-2">
+        <div className="mt-6 grid items-stretch gap-3 md:grid-cols-2">
           <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
           <BookingCard status={status} />
         </div>
 
-        <div className="mt-12 grid gap-12 md:grid-cols-12">
+        <div className="mt-8 grid gap-10 md:grid-cols-12">
           <div className="md:col-span-7">
-            <p className="font-serif-display text-xl font-light italic leading-relaxed text-brand-purple-dark md:text-2xl">
+            <p className="font-serif-display text-lg font-light italic leading-relaxed text-brand-purple-dark md:text-xl">
               “{attempt.summary}”
             </p>
             <HeroInsightRead
