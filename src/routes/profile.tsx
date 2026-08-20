@@ -41,6 +41,7 @@ import { Overview, Progress } from "@/routes/my-health-passport";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
+import ProviderClientsSection from "@/components/profile/ProviderClientsSection";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import ClientAppointmentsSection, {
   CLIENT_UPCOMING_COUNT,
@@ -61,6 +62,7 @@ const profileSearchSchema = z.object({
       "profile",
       "appointments",
       "prescriptions",
+      "clients",
       "passport",
       "discovery",
       "share",
@@ -114,6 +116,7 @@ type Section =
   | "calendar"
   | "appointments"
   | "prescriptions"
+  | "clients"
   | "payments"
   | "verification"
   | "passport"
@@ -451,6 +454,7 @@ function ProfilePage() {
             label: "Prescriptions & Medications",
             icon: <Pill className="h-5 w-5" />,
           },
+          { key: "clients" as Section, label: "Clients", icon: <Users className="h-5 w-5" /> },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
           { key: "verification", label: "Verification", icon: <ShieldCheck className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -499,6 +503,10 @@ function ProfilePage() {
         role === "provider"
           ? "Patients you have issued prescriptions to"
           : "View or download the prescriptions issued to you",
+    },
+    clients: {
+      title: "Clients",
+      subtitle: "Client records, shared health passports, and prescription history",
     },
     verification: {
       title: "Verification",
@@ -1158,6 +1166,10 @@ function ProfilePage() {
 
     {activeSection === "prescriptions" && role === "client" && (
       <ClientPrescriptionsSection />
+    )}
+
+    {activeSection === "clients" && role === "provider" && (
+      <ProviderClientsSection />
     )}
 
     {activeSection === "payments" && role === "provider" && (
