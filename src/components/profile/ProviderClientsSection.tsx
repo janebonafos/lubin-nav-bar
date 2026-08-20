@@ -77,6 +77,14 @@ function entryList(
   return "Not documented";
 }
 
+const SEX_LABEL: Record<NonNullable<PatientSafetyInfo["sex"]>, string> = {
+  female: "Female",
+  male: "Male",
+  intersex: "Intersex",
+  "prefer-not-to-say": "Prefer not to say",
+  "not-documented": "Not documented",
+};
+
 const inputCls =
   "h-10 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
 
@@ -115,7 +123,7 @@ function NewClientForm({
 }) {
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
-  const [sex, setSex] = useState("");
+  const [sex, setSex] = useState<NonNullable<PatientSafetyInfo["sex"]>>("not-documented");
   const [address, setAddress] = useState("");
   const [allergies, setAllergies] = useState("");
   const [conditions, setConditions] = useState("");
@@ -134,7 +142,7 @@ function NewClientForm({
       ...emptyInfo(),
       dob: dob || undefined,
       ageYears: age,
-      sex: sex || undefined,
+      sex,
       address: address.trim() || undefined,
       allergyEntries: noteEntries(allergies),
       allergyState: allergies.trim() ? "documented" : "not-documented",
@@ -205,14 +213,16 @@ function NewClientForm({
           <select
             id="nc-sex"
             value={sex}
-            onChange={(e) => setSex(e.target.value)}
+            onChange={(e) =>
+              setSex(e.target.value as NonNullable<PatientSafetyInfo["sex"]>)
+            }
             className={`${inputCls} mt-1`}
           >
-            <option value="">Not documented</option>
-            <option value="Female">Female</option>
-            <option value="Male">Male</option>
-            <option value="Intersex">Intersex</option>
-            <option value="Prefer not to say">Prefer not to say</option>
+            <option value="not-documented">Not documented</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="intersex">Intersex</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
           </select>
         </div>
         <div className="sm:col-span-2">
@@ -377,7 +387,7 @@ export default function ProviderClientsSection() {
     const lines = [
       `Client: ${active.fullName}`,
       `Date of birth: ${active.info.dob ?? "—"}${active.info.ageYears ? ` (${active.info.ageYears} years)` : ""}`,
-      `Sex: ${active.info.sex ?? "not documented"}`,
+      `Sex: ${SEX_LABEL[active.info.sex ?? "not-documented"]}`,
       `Address: ${active.info.address ?? "—"}`,
       `Allergies: ${entryList(active.info.allergyState, active.info.allergyEntries)}`,
       `Conditions: ${entryList(active.info.conditionState, active.info.conditionEntries)}`,
@@ -449,7 +459,9 @@ export default function ProviderClientsSection() {
             </div>
             <div>
               <dt className={label}>Sex</dt>
-              <dd className="text-[#3D2E6B]">{active.info.sex || "Not documented"}</dd>
+              <dd className="text-[#3D2E6B]">
+                {SEX_LABEL[active.info.sex ?? "not-documented"]}
+              </dd>
             </div>
             <div className="sm:col-span-2">
               <dt className={label}>Address</dt>
