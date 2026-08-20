@@ -2,7 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, X, ShieldCheck, AlertTriangle } from "lucide-react";
 
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
-import { genRxId, type PrescriptionMedication, type RxCountry } from "@/lib/prescription/store";
+import { genRxId, type PatientSafetyInfo, type PrescriptionMedication, type RxCountry } from "@/lib/prescription/store";
+
+type PatientSex = NonNullable<PatientSafetyInfo["sex"]>;
+
+const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
+  { value: "not-documented", label: "Not documented" },
+  { value: "female", label: "Female" },
+  { value: "male", label: "Male" },
+  { value: "intersex", label: "Intersex" },
+  { value: "prefer-not-to-say", label: "Prefer not to say" },
+];
 import {
   formatValidityDate,
   prescriberPrintGaps,
@@ -71,7 +81,7 @@ export default function IssuePrescriptionDialog({
   const [country, setCountry] = useState<RxCountry>("PH");
   const [patientName, setPatientName] = useState("");
   const [dob, setDob] = useState("");
-  const [sex, setSex] = useState("");
+  const [sex, setSex] = useState<PatientSex>("not-documented");
   const [address, setAddress] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
@@ -143,7 +153,7 @@ export default function IssuePrescriptionDialog({
       appointmentId: `direct_${signedAt}`,
       patientName: patientName.trim(),
       patientAgeYears: ageYears,
-      patientSex: sex.trim() || undefined,
+      patientSex: sex,
       country,
       version: 1,
       signedAt,
@@ -174,7 +184,7 @@ export default function IssuePrescriptionDialog({
         bipolarHistory: "not-documented",
         dob,
         ageYears,
-        sex: sex.trim() || undefined,
+        sex,
         address: address.trim() || undefined,
         updatedAt: signedAt,
       },
@@ -200,7 +210,7 @@ export default function IssuePrescriptionDialog({
     setIssuing(false);
     setPatientName("");
     setDob("");
-    setSex("");
+    setSex("not-documented");
     setAddress("");
     setDiagnosis("");
     setNotes("");
@@ -280,13 +290,18 @@ export default function IssuePrescriptionDialog({
               </div>
               <div>
                 <label className={label} htmlFor="rx-sex">Sex</label>
-                <input
+                <select
                   id="rx-sex"
                   className={`${field} mt-1.5`}
                   value={sex}
-                  onChange={(e) => setSex(e.target.value)}
-                  placeholder="female / male"
-                />
+                  onChange={(e) => setSex(e.target.value as PatientSex)}
+                >
+                  {SEX_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={label} htmlFor="rx-address">Address</label>
