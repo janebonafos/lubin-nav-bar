@@ -149,7 +149,7 @@ export default function ProviderClientsSection() {
       `Allergies: ${entryList(active.info.allergyState, active.info.allergyEntries)}`,
       `Conditions: ${entryList(active.info.conditionState, active.info.conditionEntries)}`,
       `Current medications: ${entryList(active.info.medicationState, active.info.medicationEntries)}`,
-      `Pregnancy status: ${PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus]}`,
+      `Pregnancy status: ${PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus ?? "not-documented"]}`,
       "",
       "Shared assessments:",
       ...(passportItems.length
@@ -259,7 +259,7 @@ export default function ProviderClientsSection() {
             <div>
               <dt className={label}>Pregnancy / breastfeeding</dt>
               <dd className="text-[#4B4468]">
-                {PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus]}
+                {PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus ?? "not-documented"]}
               </dd>
             </div>
           </dl>
