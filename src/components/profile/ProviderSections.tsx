@@ -1860,8 +1860,10 @@ export function AppointmentsSection() {
                                 disabled={isLocked}
                                 className="inline-flex items-center gap-2 rounded-[8px] border border-[#CDBFEC] bg-[#F4EEFE] px-6 py-2.5 text-sm font-medium text-[#3D2E6B] transition-colors hover:bg-[#EBE2FB] disabled:cursor-not-allowed disabled:opacity-50"
                               >
+                              <>
                                 <CheckCircle2 className="h-4 w-4" />
-                                Record outcome
+                                Mark session status
+                              </>
                               </button>
                               <button
                                 onClick={() => open(rescheduleHref, "reschedule")}
