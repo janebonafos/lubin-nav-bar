@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, ShieldAlert } from "lucide-react";
+import { Plus, Search, ShieldAlert } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
+import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
 import {
   encodeSignedPrescription,
   listSignedPrescriptions,
@@ -37,6 +38,7 @@ type PatientGroup = {
 export default function ProviderPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
   const [query, setQuery] = useState("");
+  const [issuing, setIssuing] = useState(false);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -77,16 +79,31 @@ export default function ProviderPrescriptionsSection() {
             are part of the patient record and cannot be edited.
           </p>
         </div>
-        <div className="relative w-full sm:w-[280px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search patient, Rx no. or medication"
-            className="h-10 w-full rounded-xl border border-[#E3DBF5] bg-white pl-9 pr-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
-          />
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <div className="relative w-full sm:w-[280px]">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search patient, Rx no. or medication"
+              className="h-10 w-full rounded-xl border border-[#E3DBF5] bg-white pl-9 pr-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setIssuing(true)}
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            <Plus className="h-4 w-4" /> New prescription
+          </button>
         </div>
       </div>
+
+      <IssuePrescriptionDialog
+        open={issuing}
+        onClose={() => setIssuing(false)}
+        onIssued={() => setDocs(listSignedPrescriptions())}
+      />
 
       {docs.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
@@ -98,6 +115,13 @@ export default function ProviderPrescriptionsSection() {
             Prescriptions you sign after a session appear here with the patient,
             medications, and Rx number.
           </p>
+          <button
+            type="button"
+            onClick={() => setIssuing(true)}
+            className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            <Plus className="h-4 w-4" /> Issue a prescription
+          </button>
         </div>
       ) : groups.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
