@@ -7,11 +7,15 @@ import {
   Pill,
   Search,
   ShieldAlert,
+  UserPlus,
   Users,
+  X,
 } from "lucide-react";
 
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
+  createPatientRecord,
+  emptyInfo,
   listPatientRecords,
   subscribePatientRecords,
   type PatientRecordView,
@@ -29,6 +33,7 @@ import {
   INFO_STATUS_LABEL,
   PREGNANCY_STATUS_LABEL,
   type PatientSafetyInfo,
+  type PregnancyStatus,
 } from "@/lib/prescription/store";
 
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
@@ -72,6 +77,243 @@ function entryList(
   return "Not documented";
 }
 
+const SEX_LABEL: Record<NonNullable<PatientSafetyInfo["sex"]>, string> = {
+  female: "Female",
+  male: "Male",
+  intersex: "Intersex",
+  "prefer-not-to-say": "Prefer not to say",
+  "not-documented": "Not documented",
+};
+
+const inputCls =
+  "h-10 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
+
+function ageFromDob(dob: string): number | undefined {
+  if (!dob) return undefined;
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return undefined;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
+  return age >= 0 && age < 130 ? age : undefined;
+}
+
+function noteEntries(text: string, source: "provider" = "provider") {
+  const items = text
+    .split(/[,\n;]/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  return items.map((name, i) => ({
+    id: `e_${Date.now()}_${i}`,
+    name,
+    status: "active" as const,
+    source,
+    updatedAt: Date.now(),
+  }));
+}
+
+/** Create a client record before or outside an appointment. */
+function NewClientForm({
+  onCancel,
+  onCreated,
+}: {
+  onCancel: () => void;
+  onCreated: (id: string) => void;
+}) {
+  const [fullName, setFullName] = useState("");
+  const [dob, setDob] = useState("");
+  const [sex, setSex] = useState<NonNullable<PatientSafetyInfo["sex"]>>("not-documented");
+  const [address, setAddress] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [conditions, setConditions] = useState("");
+  const [medications, setMedications] = useState("");
+  const [pregnancy, setPregnancy] = useState<PregnancyStatus>("not-documented");
+  const [error, setError] = useState("");
+
+  const age = ageFromDob(dob);
+
+  function submit() {
+    if (fullName.trim().length < 2) {
+      setError("Enter the client's full legal name.");
+      return;
+    }
+    const info: PatientSafetyInfo = {
+      ...emptyInfo(),
+      dob: dob || undefined,
+      ageYears: age,
+      sex,
+      address: address.trim() || undefined,
+      allergyEntries: noteEntries(allergies),
+      allergyState: allergies.trim() ? "documented" : "not-documented",
+      conditionEntries: noteEntries(conditions),
+      conditionState: conditions.trim() ? "documented" : "not-documented",
+      medicationEntries: noteEntries(medications),
+      medicationState: medications.trim() ? "documented" : "not-documented",
+      pregnancyStatus: pregnancy,
+    };
+    const record = createPatientRecord({ fullName, info });
+    onCreated(record.id);
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-[#D8C7F0] bg-white p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h4 className="text-[14px] font-bold text-[#3D2E6B]">New client record</h4>
+          <p className="mt-1 text-[12.5px] text-[#6F6889]">
+            Only the name is required — you can document the rest later or during a session.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label="Cancel"
+          className="rounded-full p-1.5 text-[#8A7FB0] transition hover:bg-[#F4F0FC]"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="nc-name">
+            Full legal name
+          </label>
+          <input
+            id="nc-name"
+            value={fullName}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              setError("");
+            }}
+            placeholder="e.g. Maria Santos"
+            className={`${inputCls} mt-1`}
+          />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-dob">
+            Date of birth
+          </label>
+          <input
+            id="nc-dob"
+            type="date"
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            className={`${inputCls} mt-1`}
+          />
+          <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
+            {age !== undefined ? `Age ${age}` : "Age is calculated automatically"}
+          </p>
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-sex">
+            Sex
+          </label>
+          <select
+            id="nc-sex"
+            value={sex}
+            onChange={(e) =>
+              setSex(e.target.value as NonNullable<PatientSafetyInfo["sex"]>)
+            }
+            className={`${inputCls} mt-1`}
+          >
+            <option value="not-documented">Not documented</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="intersex">Intersex</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="nc-address">
+            Address
+          </label>
+          <input
+            id="nc-address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Street, city, province / state"
+            className={`${inputCls} mt-1`}
+          />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-allergies">
+            Allergies
+          </label>
+          <input
+            id="nc-allergies"
+            value={allergies}
+            onChange={(e) => setAllergies(e.target.value)}
+            placeholder="Separate with commas"
+            className={`${inputCls} mt-1`}
+          />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-conditions">
+            Conditions
+          </label>
+          <input
+            id="nc-conditions"
+            value={conditions}
+            onChange={(e) => setConditions(e.target.value)}
+            placeholder="Separate with commas"
+            className={`${inputCls} mt-1`}
+          />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-meds">
+            Current medications
+          </label>
+          <input
+            id="nc-meds"
+            value={medications}
+            onChange={(e) => setMedications(e.target.value)}
+            placeholder="Separate with commas"
+            className={`${inputCls} mt-1`}
+          />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-preg">
+            Pregnancy / breastfeeding
+          </label>
+          <select
+            id="nc-preg"
+            value={pregnancy}
+            onChange={(e) => setPregnancy(e.target.value as PregnancyStatus)}
+            className={`${inputCls} mt-1`}
+          >
+            {(Object.keys(PREGNANCY_STATUS_LABEL) as PregnancyStatus[]).map((k) => (
+              <option key={k} value={k}>
+                {PREGNANCY_STATUS_LABEL[k]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {error && <p className="mt-3 text-[12.5px] font-semibold text-[#B4453C]">{error}</p>}
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={submit}
+          className="inline-flex h-11 items-center rounded-xl bg-[#3D2E6B] px-5 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
+        >
+          Create client record
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex h-11 items-center rounded-xl border border-[#D8C7F0] bg-white px-5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Clients the provider has a record for: identity, clinical profile, the health
  * passport information the client shared, and the prescriptions issued to them.
@@ -82,6 +324,7 @@ export default function ProviderClientsSection() {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -144,7 +387,7 @@ export default function ProviderClientsSection() {
     const lines = [
       `Client: ${active.fullName}`,
       `Date of birth: ${active.info.dob ?? "—"}${active.info.ageYears ? ` (${active.info.ageYears} years)` : ""}`,
-      `Sex: ${active.info.sex ?? "not documented"}`,
+      `Sex: ${SEX_LABEL[active.info.sex ?? "not-documented"]}`,
       `Address: ${active.info.address ?? "—"}`,
       `Allergies: ${entryList(active.info.allergyState, active.info.allergyEntries)}`,
       `Conditions: ${entryList(active.info.conditionState, active.info.conditionEntries)}`,
@@ -216,7 +459,9 @@ export default function ProviderClientsSection() {
             </div>
             <div>
               <dt className={label}>Sex</dt>
-              <dd className="text-[#3D2E6B]">{active.info.sex || "Not documented"}</dd>
+              <dd className="text-[#3D2E6B]">
+                {SEX_LABEL[active.info.sex ?? "not-documented"]}
+              </dd>
             </div>
             <div className="sm:col-span-2">
               <dt className={label}>Address</dt>
@@ -383,7 +628,15 @@ export default function ProviderClientsSection() {
             prescription history.
           </p>
         </div>
-        <div className="relative w-full sm:w-[280px]">
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setAdding((v) => !v)}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            <UserPlus className="h-4 w-4" /> Add client
+          </button>
+          <div className="relative w-full sm:w-[260px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
           <input
             value={query}
@@ -391,17 +644,36 @@ export default function ProviderClientsSection() {
             placeholder="Search clients"
             className="h-10 w-full rounded-xl border border-[#E3DBF5] bg-white pl-9 pr-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
           />
+          </div>
         </div>
       </div>
+
+      {adding && (
+        <NewClientForm
+          onCancel={() => setAdding(false)}
+          onCreated={(id) => {
+            setAdding(false);
+            setRecords(listPatientRecords());
+            setOpenId(id);
+          }}
+        />
+      )}
 
       {records.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
           <Users className="mx-auto h-7 w-7 text-[#A89BD0]" />
           <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">No clients yet</p>
           <p className="mt-1 text-[12.5px] text-[#6F6889]">
-            A client record appears here after their first session or the first
-            prescription you issue.
+            Add a client manually, or a record appears here after their first session or
+            the first prescription you issue.
           </p>
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            <UserPlus className="h-4 w-4" /> Add client
+          </button>
         </div>
       ) : filtered.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">No clients match “{query}”.</p>
