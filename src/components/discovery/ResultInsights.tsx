@@ -353,30 +353,28 @@ export function TalkThroughCard({
   }
 
   return (
-    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] bg-brand-purple-dark p-7 text-white shadow-[0_24px_80px_-40px_rgba(61,46,107,0.45)] md:p-8">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] bg-brand-purple-dark p-5 text-white shadow-[0_16px_48px_-28px_rgba(61,46,107,0.45)] md:p-6">
       <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-brand-purple/30 blur-2xl" />
       <div className="relative flex flex-1 flex-col">
         <div className="flex items-start gap-3">
-          <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/25">
-            <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
+          <span className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/25">
+            <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.1} />
           </span>
           <div>
-            <p className="text-[16px] font-semibold text-white">Talk through your results with Lubin AI</p>
-            <p className="text-[12px] text-white/60">Private AI chat — no one else sees this</p>
+            <p className="text-[14px] font-semibold text-white">Talk through with Lubin AI</p>
+            <p className="text-[11px] text-white/60">Private AI chat — no one else sees this</p>
           </div>
         </div>
 
         {!open && (
           <>
-            <p className="mt-4 max-w-[420px] text-[14px] leading-[1.65] text-white/70">
-              Ask Lubin AI anything about your result — what it means, what to
-              watch for, or what to try this week. Nothing you say here is recorded
-              or shared with a provider.
+            <p className="mt-3 max-w-[420px] text-[13px] leading-[1.55] text-white/70">
+              Ask what your score means, what to watch for, or what to try this week. Nothing is recorded or shared with a provider.
             </p>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
+              className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-brand-purple-dark no-underline transition hover:-translate-y-0.5"
             >
               Ask Lubin AI
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -385,10 +383,10 @@ export function TalkThroughCard({
         )}
 
         {open && (
-          <div className="mt-5">
+          <div className="mt-4">
             <div
               ref={scrollRef}
-              className="max-h-[240px] space-y-3 overflow-y-auto rounded-2xl bg-white/10 p-4 ring-1 ring-white/15"
+              className="max-h-[200px] space-y-3 overflow-y-auto rounded-2xl bg-white/10 p-3 ring-1 ring-white/15"
             >
               {messages.map((m, i) => (
                 <div
@@ -396,10 +394,10 @@ export function TalkThroughCard({
                   className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <p
-                    className={`max-w-[88%] whitespace-pre-wrap text-[13.5px] leading-[1.6] ${
+                    className={`max-w-[88%] whitespace-pre-wrap text-[13px] leading-[1.55] ${
                       m.role === "user"
-                        ? "rounded-[18px_18px_4px_18px] bg-white px-4 py-2.5 text-brand-purple-dark"
-                        : "rounded-[18px_18px_18px_4px] bg-white/15 px-4 py-2.5 text-white"
+                        ? "rounded-[16px_16px_4px_16px] bg-white px-3 py-2 text-brand-purple-dark"
+                        : "rounded-[16px_16px_16px_4px] bg-white/15 px-3 py-2 text-white"
                     }`}
                   >
                     {m.content ||
@@ -413,14 +411,14 @@ export function TalkThroughCard({
               ))}
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {STARTERS.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => send(s)}
                   disabled={streaming}
-                  className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[12px] font-medium text-white transition hover:bg-white/20 disabled:opacity-50"
+                  className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white transition hover:bg-white/20 disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -432,7 +430,7 @@ export function TalkThroughCard({
                 e.preventDefault();
                 send(input);
               }}
-              className="mt-3 flex items-end gap-2"
+              className="mt-2 flex items-end gap-2"
             >
               <textarea
                 rows={1}
@@ -445,13 +443,13 @@ export function TalkThroughCard({
                   }
                 }}
                 placeholder="Type what's on your mind…"
-                className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-[13.5px] text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/15"
+                className="max-h-28 min-h-[40px] flex-1 resize-none rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-[13px] text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/15"
               />
               <button
                 type="submit"
                 disabled={streaming || !input.trim()}
                 aria-label="Send message"
-                className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-full bg-white text-brand-purple-dark transition hover:bg-white/90 disabled:opacity-40"
+                className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full bg-white text-brand-purple-dark transition hover:bg-white/90 disabled:opacity-40"
               >
                 {streaming ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
