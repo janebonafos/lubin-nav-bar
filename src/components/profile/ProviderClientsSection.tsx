@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
+  ChevronDown,
   ClipboardCopy,
-  FileText,
-  HeartPulse,
-  Pill,
   Search,
   ShieldAlert,
   UserPlus,
@@ -27,7 +25,7 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
-import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { ASSESSMENTS_BY_SLUG, GROUP_LABELS } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import {
   INFO_STATUS_LABEL,
@@ -371,6 +369,8 @@ export default function ProviderClientsSection() {
           : null;
       return {
         id: a.id,
+        assessmentId: a.assessmentId,
+        group: meta?.group ?? "core",
         name: meta?.name ?? a.assessmentName,
         clinicalName: meta?.clinicalName,
         score: a.score,
@@ -381,6 +381,25 @@ export default function ProviderClientsSection() {
       };
     });
   }, [active]);
+
+  /** One row per assessment tool (latest result), bucketed by category so the
+   *  provider reads four short lists instead of one endless attempt log. */
+  const passportGroups = useMemo(() => {
+    const byTool = new Map<string, { latest: typeof passportItems[number]; count: number }>();
+    for (const item of [...passportItems].sort((a, b) => b.takenAt - a.takenAt)) {
+      const found = byTool.get(item.assessmentId);
+      if (found) found.count += 1;
+      else byTool.set(item.assessmentId, { latest: item, count: 1 });
+    }
+    const groups = (Object.keys(GROUP_LABELS) as (keyof typeof GROUP_LABELS)[]).map((key) => ({
+      key,
+      title: GROUP_LABELS[key].title,
+      rows: [...byTool.values()]
+        .filter((r) => r.latest.group === key)
+        .sort((a, b) => b.latest.takenAt - a.latest.takenAt),
+    }));
+    return groups.filter((g) => g.rows.length > 0);
+  }, [passportItems]);
 
   function copySummary() {
     if (!active) return;
@@ -479,9 +498,7 @@ export default function ProviderClientsSection() {
         </div>
 
         <div className={card}>
-          <h4 className="flex items-center gap-2 text-[13.5px] font-bold text-[#3D2E6B]">
-            <FileText className="h-4 w-4" /> Clinical profile
-          </h4>
+          <h4 className="text-[13.5px] font-bold text-[#3D2E6B]">Clinical profile</h4>
           <dl className="mt-3 space-y-3 text-[12.5px]">
             <div>
               <dt className={label}>Allergies</dt>
@@ -511,8 +528,8 @@ export default function ProviderClientsSection() {
         </div>
 
         <div className={card}>
-          <h4 className="flex items-center gap-2 text-[13.5px] font-bold text-[#3D2E6B]">
-            <HeartPulse className="h-4 w-4" /> Health passport shared with you
+          <h4 className="text-[13.5px] font-bold text-[#3D2E6B]">
+            Health passport shared with you
           </h4>
           {active.passport ? (
             <>
@@ -533,35 +550,59 @@ export default function ProviderClientsSection() {
                   {active.passport.insight}
                 </p>
               )}
-              {passportItems.length > 0 && (
-                <ul className="mt-4 space-y-2">
-                  {passportItems.map((p) => (
-                    <li
-                      key={p.id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
+              {passportGroups.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {passportGroups.map((group, gi) => (
+                    <details
+                      key={group.key}
+                      open={gi === 0}
+                      className="group rounded-xl border border-[#EDEBF3] bg-[#FBFAFE]"
                     >
-                      <span className="min-w-0">
-                        <span className="block text-[13px] font-semibold text-[#3D2E6B]">
-                          {p.name}
-                          {p.clinicalName ? ` · ${p.clinicalName}` : ""}
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+                        <span className="text-[13px] font-bold text-[#3D2E6B]">
+                          {group.title}
                         </span>
-                        <span className="block text-[11.5px] text-[#8A7FB0]">
-                          Taken {formatDate(p.takenAt)}
+                        <span className="flex items-center gap-2">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[#7E6BAF]">
+                            {group.rows.length} assessment{group.rows.length === 1 ? "" : "s"}
+                          </span>
+                          <ChevronDown className="h-4 w-4 text-[#8A7FB0] transition group-open:rotate-180" />
                         </span>
-                      </span>
-                      <span className="flex items-center gap-2">
-                        {p.isCrisis && (
-                          <ShieldAlert className="h-3.5 w-3.5 text-[#6B4E10]" aria-label="Safety response flagged" />
-                        )}
-                        <span className="rounded-full bg-[#EFE9FB] px-2.5 py-1 text-[11.5px] font-semibold text-[#3D2E6B]">
-                          {p.score}
-                          {p.maxScore ? `/${p.maxScore}` : ""}
-                          {p.statusLabel ? ` · ${p.statusLabel}` : ""}
-                        </span>
-                      </span>
-                    </li>
+                      </summary>
+                      <ul className="space-y-2 px-4 pb-4">
+                        {group.rows.map(({ latest: p, count }) => (
+                          <li
+                            key={p.assessmentId}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-4 py-3"
+                          >
+                            <span className="min-w-0">
+                              <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+                                {p.name}
+                                {p.clinicalName ? ` · ${p.clinicalName}` : ""}
+                              </span>
+                              <span className="block text-[11.5px] text-[#8A7FB0]">
+                                Latest {formatDate(p.takenAt)}
+                                {count > 1 ? ` · ${count} results shared` : ""}
+                              </span>
+                            </span>
+                            <span className="flex items-center gap-2">
+                              {p.isCrisis && (
+                                <span className="rounded-full bg-[#FBF1D8] px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10]">
+                                  Safety response flagged
+                                </span>
+                              )}
+                              <span className="rounded-full bg-[#EFE9FB] px-2.5 py-1 text-[11.5px] font-semibold text-[#3D2E6B]">
+                                {p.score}
+                                {p.maxScore ? `/${p.maxScore}` : ""}
+                                {p.statusLabel ? ` · ${p.statusLabel}` : ""}
+                              </span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
                   ))}
-                </ul>
+                </div>
               )}
             </>
           ) : (
@@ -573,9 +614,7 @@ export default function ProviderClientsSection() {
         </div>
 
         <div className={card}>
-          <h4 className="flex items-center gap-2 text-[13.5px] font-bold text-[#3D2E6B]">
-            <Pill className="h-4 w-4" /> Prescription history
-          </h4>
+          <h4 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescription history</h4>
           {activeDocs.length === 0 ? (
             <p className="mt-3 text-[12.5px] text-[#6F6889]">
               No prescriptions issued to this client yet.
