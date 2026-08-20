@@ -1,8 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, X, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  FileText,
+  Plus,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  UserPlus,
+  X,
+} from "lucide-react";
 
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
-import { genRxId, type PatientSafetyInfo, type PrescriptionMedication, type RxCountry } from "@/lib/prescription/store";
+import {
+  genRxId,
+  type PatientSafetyInfo,
+  type PrescriptionMedication,
+  type RxCountry,
+} from "@/lib/prescription/store";
+import {
+  formatValidityDate,
+  prescriberPrintGaps,
+  prescriptionValidity,
+} from "@/lib/prescription/legal";
+import {
+  saveSignedPrescription,
+  type SignedPrescriptionDocument,
+} from "@/lib/prescription/documents";
+import {
+  createPatientRecord,
+  emptyInfo,
+  listPatientRecords,
+  updatePatientRecord,
+  type PatientRecordView,
+} from "@/lib/prescription/patientRecords";
+import { detectJurisdiction, JURISDICTION_REQUIREMENTS } from "@/lib/prescription/jurisdiction";
+import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { getAssessmentStatus } from "@/lib/patterns/scoring";
+import PatientAvatar from "@/components/profile/PatientAvatar";
 
 type PatientSex = NonNullable<PatientSafetyInfo["sex"]>;
 
@@ -13,12 +49,6 @@ const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
   { value: "intersex", label: "Intersex" },
   { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
-import {
-  formatValidityDate,
-  prescriberPrintGaps,
-  prescriptionValidity,
-} from "@/lib/prescription/legal";
-import { saveSignedPrescription, type SignedPrescriptionDocument } from "@/lib/prescription/documents";
 
 type MedForm = {
   id: string;
@@ -31,6 +61,23 @@ type MedForm = {
   quantity: string;
   refills: string;
   instructions: string;
+  warnings?: string;
+  rationale?: string;
+  availabilityNote?: string;
+};
+
+type AiMedication = {
+  name: string;
+  genericName?: string;
+  dose: string;
+  route?: string;
+  frequency: string;
+  duration?: string;
+  indication?: string;
+  instructions: string;
+  warnings?: string;
+  rationale?: string;
+  availabilityNote?: string;
 };
 
 function emptyMed(): MedForm {
@@ -61,12 +108,15 @@ function ageFromDob(dob: string): number | undefined {
 
 const field =
   "h-10 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
-const label = "text-[11.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
+const area =
+  "w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
+const label = "text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
+const cardCls = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
 
 /**
- * Direct issuing flow: the prescriber writes a prescription outside a session,
- * signs it with their on-file credentials, and it lands in the prescription
- * record as an immutable signed document.
+ * Direct issuing flow: pick or create the patient record, let AI assist with a
+ * suggested regimen (from the shared health passport when there is a record, or
+ * from the case the prescriber describes when there is not), then sign.
  */
 export default function IssuePrescriptionDialog({
   open,
@@ -79,20 +129,40 @@ export default function IssuePrescriptionDialog({
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
+  const [detected, setDetected] = useState<{ country: RxCountry | null; source: string }>({
+    country: null,
+    source: "",
+  });
+  const [manualCountry, setManualCountry] = useState(false);
+
+  const [records, setRecords] = useState<PatientRecordView[]>([]);
+  const [patientQuery, setPatientQuery] = useState("");
+  const [selected, setSelected] = useState<PatientRecordView | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
+
   const [patientName, setPatientName] = useState("");
   const [dob, setDob] = useState("");
   const [sex, setSex] = useState<PatientSex>("not-documented");
   const [address, setAddress] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
+  const [caseNotes, setCaseNotes] = useState("");
   const [notes, setNotes] = useState("");
+
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
+  const [suggestions, setSuggestions] = useState<AiMedication[]>([]);
+  const [aiNote, setAiNote] = useState("");
+  const [aiError, setAiError] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
   const [authorised, setAuthorised] = useState(false);
-  const [issuing, setIssuing] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setIdentity(loadIdentity());
-  }, [open]);
+    setRecords(listPatientRecords());
+    const found = detectJurisdiction();
+    setDetected(found);
+    if (found.country && !manualCountry) setCountry(found.country);
+  }, [open, manualCountry]);
 
   const ageYears = ageFromDob(dob);
   const validity = useMemo(
@@ -104,26 +174,191 @@ export default function IssuePrescriptionDialog({
     [identity, country],
   );
 
+  const filteredRecords = useMemo(() => {
+    const q = patientQuery.trim().toLowerCase();
+    const list = q
+      ? records.filter((r) => r.fullName.toLowerCase().includes(q))
+      : records;
+    return list.slice(0, 6);
+  }, [records, patientQuery]);
+
+  const passportItems = useMemo(() => {
+    const attempts = selected?.passport?.attemptsInRange ?? [];
+    return attempts.slice(0, 8).map((a) => {
+      const meta = Object.values(ASSESSMENTS_BY_SLUG).find((x) => x.id === a.assessmentId);
+      const maxScore = meta?.maxScore ?? 0;
+      const status =
+        maxScore > 0
+          ? getAssessmentStatus(a.assessmentId, a.score, maxScore, !!meta?.lowerIsBetter)
+          : null;
+      return {
+        id: a.id,
+        name: meta?.name ?? a.assessmentName,
+        clinicalName: meta?.clinicalName,
+        score: a.score,
+        maxScore,
+        statusLabel: status?.label,
+      };
+    });
+  }, [selected]);
+
   const readyMeds = meds.filter(
     (m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim(),
   );
-  const gaps: string[] = [];
-  if (!patientName.trim()) gaps.push("Patient full name");
-  if (!dob) gaps.push("Patient date of birth");
-  if (country === "PH" && !address.trim()) gaps.push("Patient address");
-  if (readyMeds.length === 0) gaps.push("At least one medication with dose and frequency");
-  const canIssue =
-    gaps.length === 0 && identityGaps.length === 0 && authorised && !issuing;
 
-  if (!open) return null;
+  const patientGaps: string[] = [];
+  if (!patientName.trim()) patientGaps.push("Patient full name");
+  if (!dob) patientGaps.push("Date of birth");
+  if (country === "PH" && sex === "not-documented") patientGaps.push("Sex");
+  if (!address.trim()) patientGaps.push("Patient address");
 
-  const patch = (id: string, key: keyof MedForm, value: string) =>
-    setMeds((cur) => cur.map((m) => (m.id === id ? { ...m, [key]: value } : m)));
+  const gaps = [...patientGaps];
+  if (readyMeds.length === 0)
+    gaps.push("One medication with generic name, dose and frequency");
+
+  const canIssue = gaps.length === 0 && identityGaps.length === 0 && authorised;
+
+  function selectRecord(record: PatientRecordView) {
+    setSelected(record);
+    setCreatingNew(false);
+    setPatientName(record.fullName);
+    setDob(record.info.dob ?? "");
+    setSex((record.info.sex as PatientSex) ?? "not-documented");
+    setAddress(record.info.address ?? "");
+    setSuggestions([]);
+    setAiNote("");
+  }
+
+  function startNewPatient() {
+    setSelected(null);
+    setCreatingNew(true);
+    setPatientName(patientQuery.trim());
+    setDob("");
+    setSex("not-documented");
+    setAddress("");
+    setSuggestions([]);
+    setAiNote("");
+  }
+
+  function resetAll() {
+    setSelected(null);
+    setCreatingNew(false);
+    setPatientQuery("");
+    setPatientName("");
+    setDob("");
+    setSex("not-documented");
+    setAddress("");
+    setDiagnosis("");
+    setCaseNotes("");
+    setNotes("");
+    setMeds([emptyMed()]);
+    setSuggestions([]);
+    setAiNote("");
+    setAiError("");
+    setAuthorised(false);
+  }
+
+  async function generateSuggestions() {
+    setAiLoading(true);
+    setAiError("");
+    setAiNote("");
+    try {
+      const res = await fetch("/api/generate-prescription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          country,
+          patientContext: {
+            firstName: patientName.split(" ")[0] || undefined,
+            age: ageYears,
+            sex: sex === "not-documented" ? undefined : sex,
+          },
+          presenting: diagnosis || caseNotes,
+          observations: caseNotes,
+          plan: notes,
+          includedAssessments: passportItems.map((p) => ({
+            name: p.name,
+            clinicalName: p.clinicalName,
+            score: p.score,
+            statusLabel: p.statusLabel,
+          })),
+          currentMedications: (selected?.pastMedications ?? []).slice(0, 5).map((m) => ({
+            name: m.genericName || m.name,
+            dose: m.dose,
+            frequency: m.frequency,
+          })),
+          allergies:
+            selected?.info.allergyEntries?.map((a) => a.name).join(", ") || undefined,
+        }),
+      });
+      const data = (await res.json()) as {
+        medications?: AiMedication[];
+        clinicalNotes?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setAiError(data.error || "Could not prepare suggestions right now.");
+        return;
+      }
+      setSuggestions(data.medications ?? []);
+      setAiNote(data.clinicalNotes ?? "");
+    } catch {
+      setAiError("Could not reach the suggestion service.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  function addSuggestion(s: AiMedication) {
+    const next: MedForm = {
+      id: genRxId(),
+      genericName: s.genericName || s.name,
+      brandName: s.genericName && s.name !== s.genericName ? s.name : "",
+      strength: "",
+      dose: s.dose,
+      frequency: s.frequency,
+      duration: s.duration ?? "",
+      quantity: "",
+      refills: "",
+      instructions: s.instructions,
+      warnings: s.warnings,
+      rationale: s.rationale,
+      availabilityNote: s.availabilityNote,
+    };
+    setMeds((cur) => {
+      const blankOnly =
+        cur.length === 1 && !cur[0]!.genericName.trim() && !cur[0]!.dose.trim();
+      return blankOnly ? [next] : [...cur, next];
+    });
+    if (!diagnosis.trim() && s.indication) setDiagnosis(s.indication);
+  }
 
   function issue() {
     if (!identity || !canIssue) return;
-    setIssuing(true);
     const signedAt = Date.now();
+    const appointmentId = `direct_${signedAt}`;
+    const info: PatientSafetyInfo = {
+      ...(selected?.info ?? emptyInfo()),
+      conditionState: diagnosis.trim() ? "documented" : (selected?.info.conditionState ?? "not-documented"),
+      conditionEntries: diagnosis.trim()
+        ? [
+            {
+              id: genRxId(),
+              name: diagnosis.trim(),
+              status: "active",
+              source: "provider",
+              updatedAt: signedAt,
+            },
+            ...(selected?.info.conditionEntries ?? []),
+          ]
+        : (selected?.info.conditionEntries ?? []),
+      dob,
+      ageYears,
+      sex,
+      address: address.trim(),
+      updatedAt: signedAt,
+    };
+
     const medications: PrescriptionMedication[] = readyMeds.map((m) => ({
       id: m.id,
       name: m.brandName.trim() || m.genericName.trim(),
@@ -137,6 +372,7 @@ export default function IssuePrescriptionDialog({
       refills: m.refills.trim() || undefined,
       indication: diagnosis.trim() || undefined,
       instructions: m.instructions.trim(),
+      warnings: m.warnings,
       origin: "manual",
       controlled: false,
       approved: true,
@@ -147,10 +383,16 @@ export default function IssuePrescriptionDialog({
     const credentials =
       country === "PH"
         ? `PRC ${identity.prcNumber} · PTR ${identity.ptrNumber}`
-        : `NPI ${identity.npiNumber} · Licence ${identity.licenseNumber} (${identity.licenseState})`;
+        : `NPI ${identity.npiNumber} · Licence ${identity.licenseNumber}${identity.licenseState ? ` (${identity.licenseState})` : ""}`;
+
+    if (selected && !selected.id.startsWith("doc_")) {
+      updatePatientRecord(selected.id, { info, appointmentId });
+    } else if (!selected) {
+      createPatientRecord({ fullName: patientName.trim(), info, appointmentId });
+    }
 
     const doc = saveSignedPrescription({
-      appointmentId: `direct_${signedAt}`,
+      appointmentId,
       patientName: patientName.trim(),
       patientAgeYears: ageYears,
       patientSex: sex,
@@ -162,32 +404,8 @@ export default function IssuePrescriptionDialog({
       identity,
       medications,
       controlled: false,
-      clinicalNotes: notes.trim() || undefined,
-      patientInfo: {
-        allergyState: "not-documented",
-        allergyEntries: [],
-        conditionState: diagnosis.trim() ? "documented" : "not-documented",
-        conditionEntries: diagnosis.trim()
-          ? [
-              {
-                id: genRxId(),
-                name: diagnosis.trim(),
-                status: "active",
-                source: "provider",
-                updatedAt: signedAt,
-              },
-            ]
-          : [],
-        medicationState: "not-documented",
-        medicationEntries: [],
-        pregnancyStatus: "not-applicable",
-        bipolarHistory: "not-documented",
-        dob,
-        ageYears,
-        sex,
-        address: address.trim() || undefined,
-        updatedAt: signedAt,
-      },
+      clinicalNotes: notes.trim() || caseNotes.trim() || undefined,
+      patientInfo: info,
       signature: {
         method: "credentialed-attestation",
         at: signedAt,
@@ -207,28 +425,27 @@ export default function IssuePrescriptionDialog({
       },
     });
 
-    setIssuing(false);
-    setPatientName("");
-    setDob("");
-    setSex("not-documented");
-    setAddress("");
-    setDiagnosis("");
-    setNotes("");
-    setMeds([emptyMed()]);
-    setAuthorised(false);
+    resetAll();
     onIssued?.(doc);
     onClose();
   }
 
+  if (!open) return null;
+
+  const patch = (id: string, key: keyof MedForm, value: string) =>
+    setMeds((cur) => cur.map((m) => (m.id === id ? { ...m, [key]: value } : m)));
+
+  const hasPatient = !!patientName.trim() || creatingNew || !!selected;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#1B1330]/50 p-4 backdrop-blur-sm sm:p-8">
-      <div className="w-full max-w-3xl rounded-2xl border border-[#E3DBF5] bg-white shadow-2xl">
-        <header className="flex items-start justify-between gap-4 border-b border-[#EDEBF3] px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1B1330]/50 p-3 backdrop-blur-sm sm:p-6">
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#EDEBF3] bg-white px-6 py-5">
           <div>
             <h2 className="text-[16px] font-bold text-[#3D2E6B]">New prescription</h2>
             <p className="mt-1 text-[12.5px] text-[#6F6889]">
-              Write and sign a prescription directly. It is added to your
-              prescription record and cannot be edited once signed.
+              Pick or create the patient record, review the suggested regimen, then sign.
+              A signed prescription cannot be edited.
             </p>
           </div>
           <button
@@ -241,278 +458,490 @@ export default function IssuePrescriptionDialog({
           </button>
         </header>
 
-        <div className="space-y-6 px-6 py-6">
-          <div>
-            <p className={label}>Jurisdiction</p>
-            <div className="mt-2 inline-flex rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-1">
-              {(["PH", "US"] as RxCountry[]).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCountry(c)}
-                  className={`h-9 rounded-lg px-4 text-[12.5px] font-semibold transition ${
-                    country === c
-                      ? "bg-[#3D2E6B] text-white"
-                      : "text-[#6F6889] hover:text-[#3D2E6B]"
-                  }`}
-                >
-                  {c === "PH" ? "Philippines" : "United States"}
-                </button>
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
+          {/* Jurisdiction */}
+          <section className={cardCls}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing jurisdiction</h3>
+                <p className="mt-1 text-[12px] text-[#6F6889]">
+                  {manualCountry
+                    ? "Set manually — this overrides the detected location."
+                    : detected.country
+                      ? `Detected from your location${detected.source ? ` (${detected.source})` : ""}.`
+                      : "We could not detect your location — confirm the jurisdiction before signing."}
+                </p>
+              </div>
+              <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-1">
+                {(["PH", "US"] as RxCountry[]).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      setCountry(c);
+                      setManualCountry(true);
+                    }}
+                    className={`h-9 rounded-lg px-4 text-[12.5px] font-semibold transition ${
+                      country === c
+                        ? "bg-[#3D2E6B] text-white"
+                        : "text-[#6F6889] hover:text-[#3D2E6B]"
+                    }`}
+                  >
+                    {c === "PH" ? "Philippines" : "United States"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <ul className="mt-4 grid gap-1.5 sm:grid-cols-2">
+              {JURISDICTION_REQUIREMENTS[country].map((req) => (
+                <li key={req} className="flex items-start gap-2 text-[12px] text-[#4B4468]">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
+                  {req}
+                </li>
               ))}
-            </div>
-          </div>
-
-          <section className="rounded-2xl border border-[#E3DBF5]/70 bg-[#FBF9FF]/70 p-5">
-            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Patient</h3>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className={label} htmlFor="rx-patient">Full name</label>
-                <input
-                  id="rx-patient"
-                  className={`${field} mt-1.5`}
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  placeholder="e.g. Anna Reyes"
-                />
-              </div>
-              <div>
-                <label className={label} htmlFor="rx-dob">Date of birth</label>
-                <input
-                  id="rx-dob"
-                  type="date"
-                  className={`${field} mt-1.5`}
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                />
-                {ageYears !== undefined && (
-                  <p className="mt-1 text-[11.5px] text-[#8A7FB0]">{ageYears} years old</p>
-                )}
-              </div>
-              <div>
-                <label className={label} htmlFor="rx-sex">Sex</label>
-                <select
-                  id="rx-sex"
-                  className={`${field} mt-1.5`}
-                  value={sex}
-                  onChange={(e) => setSex(e.target.value as PatientSex)}
-                >
-                  {SEX_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={label} htmlFor="rx-address">Address</label>
-                <input
-                  id="rx-address"
-                  className={`${field} mt-1.5`}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Street, city"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className={label} htmlFor="rx-dx">Diagnosis / indication</label>
-                <input
-                  id="rx-dx"
-                  className={`${field} mt-1.5`}
-                  value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="e.g. Moderate depressive episode"
-                />
-              </div>
-            </div>
+            </ul>
           </section>
 
-          <section>
-            <div className="flex items-center justify-between">
-              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Medications</h3>
+          {/* Patient */}
+          <section className={cardCls}>
+            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">1 · Patient</h3>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="relative min-w-[220px] flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+                <input
+                  value={patientQuery}
+                  onChange={(e) => setPatientQuery(e.target.value)}
+                  placeholder="Search your patient records"
+                  className={`${field} pl-9`}
+                />
+              </div>
               <button
                 type="button"
-                onClick={() => setMeds((cur) => [...cur, emptyMed()])}
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                onClick={startNewPatient}
+                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
               >
-                <Plus className="h-3.5 w-3.5" /> Add medication
+                <UserPlus className="h-4 w-4" /> New patient
               </button>
             </div>
-            <div className="mt-3 space-y-4">
-              {meds.map((m, i) => (
-                <div
-                  key={m.id}
-                  className="rounded-2xl border border-[#EDEBF3] bg-white p-5"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] font-bold uppercase tracking-wide text-[#8A7FB0]">
-                      Medication {i + 1}
-                    </p>
-                    {meds.length > 1 && (
-                      <button
-                        type="button"
-                        aria-label={`Remove medication ${i + 1}`}
-                        onClick={() => setMeds((cur) => cur.filter((x) => x.id !== m.id))}
-                        className="rounded-lg p-1.5 text-[#A89BD0] transition hover:bg-[#FDF2F2] hover:text-[#B4483F]"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className={label}>Generic name</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.genericName}
-                        onChange={(e) => patch(m.id, "genericName", e.target.value)}
-                        placeholder="e.g. Sertraline hydrochloride"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Brand (optional)</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.brandName}
-                        onChange={(e) => patch(m.id, "brandName", e.target.value)}
-                        placeholder="e.g. Zoloft"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Strength / form</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.strength}
-                        onChange={(e) => patch(m.id, "strength", e.target.value)}
-                        placeholder="50 mg tablet"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Dose</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.dose}
-                        onChange={(e) => patch(m.id, "dose", e.target.value)}
-                        placeholder="50 mg"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Frequency</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.frequency}
-                        onChange={(e) => patch(m.id, "frequency", e.target.value)}
-                        placeholder="Once daily in the morning"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Duration</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.duration}
-                        onChange={(e) => patch(m.id, "duration", e.target.value)}
-                        placeholder="4 weeks, then review"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Quantity to dispense</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.quantity}
-                        onChange={(e) => patch(m.id, "quantity", e.target.value)}
-                        placeholder="30 tablets"
-                      />
-                    </div>
-                    <div>
-                      <label className={label}>Refills</label>
-                      <input
-                        className={`${field} mt-1.5`}
-                        value={m.refills}
-                        onChange={(e) => patch(m.id, "refills", e.target.value)}
-                        placeholder="No refills"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className={label}>Directions for the patient</label>
-                      <textarea
-                        rows={3}
-                        className="mt-1.5 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
-                        value={m.instructions}
-                        onChange={(e) => patch(m.id, "instructions", e.target.value)}
-                        placeholder="Take one tablet each morning with food. Do not stop suddenly."
-                      />
-                    </div>
-                  </div>
+
+            {!selected && !creatingNew && (
+              <div className="mt-3 space-y-2">
+                {filteredRecords.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-[#DCD4F0] bg-[#FBFAFE] px-4 py-4 text-[12.5px] text-[#6F6889]">
+                    No record found. Create a new patient record to prescribe for a
+                    first-time client.
+                  </p>
+                ) : (
+                  filteredRecords.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => selectRecord(r)}
+                      className="flex w-full items-center gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#C9BCE9]"
+                    >
+                      <PatientAvatar name={r.fullName} size={34} />
+                      <span className="min-w-0">
+                        <span className="block text-[13.5px] font-semibold text-[#3D2E6B]">
+                          {r.fullName}
+                        </span>
+                        <span className="block text-[11.5px] text-[#8A7FB0]">
+                          {r.prescriptionCount} prescription
+                          {r.prescriptionCount === 1 ? "" : "s"}
+                          {r.passport ? " · health passport shared" : " · no shared passport"}
+                        </span>
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+
+            {hasPatient && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className={label} htmlFor="rx-patient">Full name</label>
+                  <input
+                    id="rx-patient"
+                    className={`${field} mt-1.5`}
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                    placeholder="e.g. Anna Reyes"
+                  />
                 </div>
-              ))}
-            </div>
-            <p className="mt-3 text-[11.5px] text-[#8A7FB0]">
-              Controlled and dangerous-drug prescriptions are not issued here —
-              they follow the restricted workflow inside the session.
-            </p>
-          </section>
+                <div>
+                  <label className={label} htmlFor="rx-dob">Date of birth</label>
+                  <input
+                    id="rx-dob"
+                    type="date"
+                    className={`${field} mt-1.5`}
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                  {ageYears !== undefined && (
+                    <p className="mt-1 text-[11.5px] text-[#8A7FB0]">{ageYears} years old</p>
+                  )}
+                </div>
+                <div>
+                  <label className={label} htmlFor="rx-sex">Sex</label>
+                  <select
+                    id="rx-sex"
+                    className={`${field} mt-1.5`}
+                    value={sex}
+                    onChange={(e) => setSex(e.target.value as PatientSex)}
+                  >
+                    {SEX_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={label} htmlFor="rx-address">Address</label>
+                  <input
+                    id="rx-address"
+                    className={`${field} mt-1.5`}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Street, city"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={label} htmlFor="rx-dx">Diagnosis / indication</label>
+                  <input
+                    id="rx-dx"
+                    className={`${field} mt-1.5`}
+                    value={diagnosis}
+                    onChange={(e) => setDiagnosis(e.target.value)}
+                    placeholder="e.g. Moderate depressive episode"
+                  />
+                </div>
+              </div>
+            )}
 
-          <section>
-            <label className={label} htmlFor="rx-notes">Clinical notes (optional)</label>
-            <textarea
-              id="rx-notes"
-              rows={3}
-              className="mt-1.5 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Context carried with the issued prescription."
-            />
-          </section>
-
-          <section className="rounded-2xl border border-[#E3DBF5]/70 bg-[#FBF9FF]/70 p-5">
-            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescriber on this document</h3>
-            <dl className="mt-3 grid gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
-              <div>
-                <dt className={label}>Name</dt>
-                <dd className="text-[#3D2E6B]">{identity?.fullName || "—"}</dd>
+            {selected && (
+              <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
+                  <FileText className="h-4 w-4" /> Record pulled for {selected.fullName}
+                </p>
+                {passportItems.length > 0 ? (
+                  <ul className="mt-2 space-y-1">
+                    {passportItems.map((p) => (
+                      <li key={p.id} className="text-[12px] text-[#4B4468]">
+                        {p.name}
+                        {p.clinicalName ? ` (${p.clinicalName})` : ""} — {p.score}
+                        {p.maxScore ? `/${p.maxScore}` : ""}
+                        {p.statusLabel ? ` · ${p.statusLabel}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-[12px] text-[#6F6889]">
+                    No health passport information shared. Describe the case below and
+                    suggestions will be based on that instead.
+                  </p>
+                )}
+                {selected.pastMedications.length > 0 && (
+                  <p className="mt-2 text-[12px] text-[#6F6889]">
+                    Previously prescribed:{" "}
+                    {selected.pastMedications
+                      .slice(0, 4)
+                      .map((m) => m.genericName || m.name)
+                      .join(", ")}
+                  </p>
+                )}
               </div>
-              <div>
-                <dt className={label}>Practice / clinic</dt>
-                <dd className="text-[#3D2E6B]">{identity?.clinicName || "—"}</dd>
-              </div>
-              <div>
-                <dt className={label}>{country === "PH" ? "PRC / PTR" : "NPI / Licence"}</dt>
-                <dd className="text-[#3D2E6B]">
-                  {country === "PH"
-                    ? `${identity?.prcNumber || "—"} / ${identity?.ptrNumber || "—"}`
-                    : `${identity?.npiNumber || "—"} / ${identity?.licenseNumber || "—"}`}
-                </dd>
-              </div>
-              <div>
-                <dt className={label}>{validity.label}</dt>
-                <dd className="text-[#3D2E6B]">
-                  {validity.validUntil ? formatValidityDate(validity.validUntil) : "Not configured"}
-                </dd>
-              </div>
-            </dl>
-            {identityGaps.length > 0 && (
-              <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                Complete your prescriber details before signing: {identityGaps.join(", ")}.
-              </p>
             )}
           </section>
 
-          <label className="flex items-start gap-3 rounded-2xl border border-[#E3DBF5] bg-white p-4">
-            <input
-              type="checkbox"
-              checked={authorised}
-              onChange={(e) => setAuthorised(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-[#C9BCE9] text-[#3D2E6B]"
-            />
-            <span className="text-[12.5px] text-[#4B4468]">
-              I confirm I assessed this patient, the medication and directions above
-              are clinically appropriate, and I am signing this prescription under my
-              own professional licence.
-            </span>
-          </label>
+          {/* Case + AI */}
+          {hasPatient && (
+            <section className={cardCls}>
+              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                2 · Case and suggested regimen
+              </h3>
+              <p className="mt-1 text-[12px] text-[#6F6889]">
+                {passportItems.length > 0
+                  ? "Suggestions are prepared from the shared health passport and anything you add here."
+                  : "Describe the case and suggestions will be prepared from what you enter."}
+              </p>
+              <textarea
+                rows={3}
+                className={`${area} mt-3`}
+                value={caseNotes}
+                onChange={(e) => setCaseNotes(e.target.value)}
+                placeholder="Presenting concerns, duration, findings, what you have already tried…"
+              />
+              <button
+                type="button"
+                onClick={generateSuggestions}
+                disabled={aiLoading || (!caseNotes.trim() && passportItems.length === 0)}
+                className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                <Sparkles className="h-4 w-4" />
+                {aiLoading ? "Preparing suggestions…" : "Generate suggested medication"}
+              </button>
+              {aiError && (
+                <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
+                  {aiError}
+                </p>
+              )}
+              {aiNote && (
+                <p className="mt-3 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] text-[#6B4E10]">
+                  {aiNote}
+                </p>
+              )}
+              {suggestions.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-[11.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                    Suggestions for your review — nothing is prescribed until you sign
+                  </p>
+                  {suggestions.map((s, i) => (
+                    <div
+                      key={`${s.name}-${i}`}
+                      className="rounded-xl border border-[#E9E2F8] bg-[#FBFAFE] p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[13.5px] font-bold text-[#3D2E6B]">
+                            {s.genericName || s.name}
+                            {s.genericName && s.name !== s.genericName ? ` (${s.name})` : ""}
+                          </p>
+                          <p className="mt-1 text-[12.5px] text-[#4B4468]">
+                            {s.dose} · {s.frequency}
+                            {s.duration ? ` · ${s.duration}` : ""}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addSuggestion(s)}
+                          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Add to prescription
+                        </button>
+                      </div>
+                      {s.rationale && (
+                        <p className="mt-2 text-[12px] text-[#6F6889]">
+                          <span className="font-semibold text-[#3D2E6B]">Why: </span>
+                          {s.rationale}
+                        </p>
+                      )}
+                      {s.instructions && (
+                        <p className="mt-1.5 text-[12px] text-[#6F6889]">
+                          <span className="font-semibold text-[#3D2E6B]">Directions: </span>
+                          {s.instructions}
+                        </p>
+                      )}
+                      {s.warnings && (
+                        <p className="mt-1.5 text-[12px] text-[#6F6889]">
+                          <span className="font-semibold text-[#3D2E6B]">Counsel on: </span>
+                          {s.warnings}
+                        </p>
+                      )}
+                      {s.availabilityNote && (
+                        <p className="mt-1.5 text-[12px] text-[#8A7FB0]">{s.availabilityNote}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Medications */}
+          {hasPatient && (
+            <section className={cardCls}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                  3 · Medications on this prescription
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setMeds((cur) => [...cur, emptyMed()])}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add medication
+                </button>
+              </div>
+              <div className="mt-3 space-y-4">
+                {meds.map((m, i) => (
+                  <div key={m.id} className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+                        Medication {i + 1}
+                      </p>
+                      {meds.length > 1 && (
+                        <button
+                          type="button"
+                          aria-label={`Remove medication ${i + 1}`}
+                          onClick={() => setMeds((cur) => cur.filter((x) => x.id !== m.id))}
+                          className="rounded-lg p-1.5 text-[#A89BD0] transition hover:bg-[#FDF2F2] hover:text-[#B4483F]"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className={label}>Generic name</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.genericName}
+                          onChange={(e) => patch(m.id, "genericName", e.target.value)}
+                          placeholder="e.g. Sertraline hydrochloride"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Brand (optional)</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.brandName}
+                          onChange={(e) => patch(m.id, "brandName", e.target.value)}
+                          placeholder="e.g. Zoloft"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Strength / form</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.strength}
+                          onChange={(e) => patch(m.id, "strength", e.target.value)}
+                          placeholder="50 mg tablet"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Dose</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.dose}
+                          onChange={(e) => patch(m.id, "dose", e.target.value)}
+                          placeholder="50 mg"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Frequency</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.frequency}
+                          onChange={(e) => patch(m.id, "frequency", e.target.value)}
+                          placeholder="Once daily in the morning"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Duration</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.duration}
+                          onChange={(e) => patch(m.id, "duration", e.target.value)}
+                          placeholder="4 weeks, then review"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Quantity to dispense</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.quantity}
+                          onChange={(e) => patch(m.id, "quantity", e.target.value)}
+                          placeholder="30 tablets"
+                        />
+                      </div>
+                      <div>
+                        <label className={label}>Refills</label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.refills}
+                          onChange={(e) => patch(m.id, "refills", e.target.value)}
+                          placeholder="No refills"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className={label}>Directions for the patient</label>
+                        <textarea
+                          rows={3}
+                          className={`${area} mt-1.5`}
+                          value={m.instructions}
+                          onChange={(e) => patch(m.id, "instructions", e.target.value)}
+                          placeholder="Take one tablet each morning with food. Do not stop suddenly."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-[11.5px] text-[#8A7FB0]">
+                Controlled and dangerous-drug prescriptions are not issued here — they
+                follow the restricted workflow inside the session.
+              </p>
+            </section>
+          )}
+
+          {/* Prescriber + authorisation */}
+          {hasPatient && (
+            <section className={cardCls}>
+              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                4 · Prescriber and signature
+              </h3>
+              <dl className="mt-3 grid gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
+                <div>
+                  <dt className={label}>Name</dt>
+                  <dd className="text-[#3D2E6B]">{identity?.fullName || "—"}</dd>
+                </div>
+                <div>
+                  <dt className={label}>Practice / clinic</dt>
+                  <dd className="text-[#3D2E6B]">{identity?.clinicName || "—"}</dd>
+                </div>
+                <div>
+                  <dt className={label}>{country === "PH" ? "PRC / PTR" : "NPI / Licence"}</dt>
+                  <dd className="text-[#3D2E6B]">
+                    {country === "PH"
+                      ? `${identity?.prcNumber || "—"} / ${identity?.ptrNumber || "—"}`
+                      : `${identity?.npiNumber || "—"} / ${identity?.licenseNumber || "—"}`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className={label}>{validity.label}</dt>
+                  <dd className="text-[#3D2E6B]">
+                    {validity.validUntil
+                      ? formatValidityDate(validity.validUntil)
+                      : "Not configured"}
+                  </dd>
+                </div>
+              </dl>
+              {identityGaps.length > 0 && (
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  Complete your prescriber details before signing: {identityGaps.join(", ")}.
+                </p>
+              )}
+              <label className={label + " mt-4 block"} htmlFor="rx-notes">
+                Clinical notes carried with the prescription (optional)
+              </label>
+              <textarea
+                id="rx-notes"
+                rows={2}
+                className={`${area} mt-1.5`}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Follow-up plan, monitoring, review date…"
+              />
+              <label className="mt-4 flex items-start gap-3 rounded-xl border border-[#E3DBF5] bg-[#FBFAFE] p-4">
+                <input
+                  type="checkbox"
+                  checked={authorised}
+                  onChange={(e) => setAuthorised(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-[#C9BCE9] text-[#3D2E6B]"
+                />
+                <span className="text-[12.5px] text-[#4B4468]">
+                  I assessed this patient, the medication and directions above are
+                  clinically appropriate, and I am signing this prescription under my own
+                  professional licence.
+                </span>
+              </label>
+            </section>
+          )}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] px-6 py-5">
+        <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
           <p className="text-[11.5px] text-[#8A7FB0]">
             {gaps.length > 0 ? `Still needed: ${gaps.join(" · ")}` : "Ready to sign."}
           </p>
