@@ -528,7 +528,7 @@ export function BookingCard({ status }: { status: AssessmentStatus }) {
       </p>
       <Link
         to="/find-provider"
-        className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:bg-brand-purple-dark"
+        className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
       >
         Find a provider
       </Link>
