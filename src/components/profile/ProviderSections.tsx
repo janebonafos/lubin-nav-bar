@@ -19,7 +19,6 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Upload,
-  FileText,
   AlertCircle,
   CalendarClock,
   User,
