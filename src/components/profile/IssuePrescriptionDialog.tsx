@@ -129,7 +129,10 @@ export default function IssuePrescriptionDialog({
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
-  const [detectedSource, setDetectedSource] = useState("");
+  const [detected, setDetected] = useState<{ country: RxCountry | null; source: string }>({
+    country: null,
+    source: "",
+  });
   const [manualCountry, setManualCountry] = useState(false);
 
   const [records, setRecords] = useState<PatientRecordView[]>([]);
@@ -156,9 +159,9 @@ export default function IssuePrescriptionDialog({
     if (!open) return;
     setIdentity(loadIdentity());
     setRecords(listPatientRecords());
-    const detected = detectJurisdiction();
-    setDetectedSource(detected.source);
-    if (detected.country && !manualCountry) setCountry(detected.country);
+    const found = detectJurisdiction();
+    setDetected(found);
+    if (found.country && !manualCountry) setCountry(found.country);
   }, [open, manualCountry]);
 
   const ageYears = ageFromDob(dob);
@@ -463,10 +466,10 @@ export default function IssuePrescriptionDialog({
                 <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing jurisdiction</h3>
                 <p className="mt-1 text-[12px] text-[#6F6889]">
                   {manualCountry
-                    ? "Set manually."
-                    : detectedSource
-                      ? `Detected from your location (${detectedSource}).`
-                      : "Could not detect your location — confirm the jurisdiction."}
+                    ? "Set manually — this overrides the detected location."
+                    : detected.country
+                      ? `Detected from your location${detected.source ? ` (${detected.source})` : ""}.`
+                      : "We could not detect your location — confirm the jurisdiction before signing."}
                 </p>
               </div>
               <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-1">
