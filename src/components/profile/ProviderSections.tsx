@@ -1786,6 +1786,12 @@ export function AppointmentsSection() {
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     <div className="space-y-4">
+                    <ProviderIntakeAnswers
+                      appointmentId={a.id}
+                      providerName="You"
+                      clientName={a.client}
+                    />
+
                     {(a.status === "completed" || a.status === "session_review" || a.notes) && (
                       <ApptNotesBlock
                         appt={a}
