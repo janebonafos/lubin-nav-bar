@@ -19,8 +19,6 @@ import {
  * Props:
  * - allowDismiss: lets the client close the card (default true). Set to false
  *   when you want the card to stay visible on important pages.
- * - showPreview: renders a short "what we're asking" preview so the client
- *   knows what topics are covered before expanding the form.
  */
 
 export default function IntakeRequestCard({
@@ -30,7 +28,6 @@ export default function IntakeRequestCard({
   variant = "card",
   defaultOpen = false,
   allowDismiss = true,
-  showPreview = false,
 }: {
   appointmentId: string;
   providerName: string;
@@ -38,7 +35,6 @@ export default function IntakeRequestCard({
   variant?: "card" | "inline";
   defaultOpen?: boolean;
   allowDismiss?: boolean;
-  showPreview?: boolean;
 }) {
 
   const [tick, setTick] = useState(0);
@@ -86,18 +82,6 @@ export default function IntakeRequestCard({
               ? `Your notes are with ${providerLabel}${sessionLabel ? ` for ${sessionLabel}` : ""}. You can update them any time before you meet.`
               : `So your session can focus on what you actually came for, ${providerLabel} would like a quick picture of your goals, recent changes, and anything relevant to your care. It's only about ${progress.minutes} minutes — and you can skip anything you'd rather talk about in person.`}
           </p>
-          {showPreview && !progress.complete && progress.templates.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {progress.templates.map((t) => (
-                <span
-                  key={t.id}
-                  className="inline-flex items-center rounded-full border border-[#D8C7F0] bg-[#F5F0FB] px-2.5 py-1 text-[11px] font-medium text-[#5B4796]"
-                >
-                  {t.label}
-                </span>
-              ))}
-            </div>
-          )}
 
           {progress.answered > 0 && !progress.complete && (
             <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
