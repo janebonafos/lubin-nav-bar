@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
+import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
@@ -291,7 +291,7 @@ export default function AuthModal({
         </button>
         {isSignup && (
           <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
-            By continuing with Google, LinkedIn, Facebook or email, you agree to {brandName}'s{" "}
+            By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
             <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
               Terms
             </a>{" "}
@@ -368,36 +368,10 @@ export default function AuthModal({
           </button>
         </div>
 
-        <div className="my-5 flex items-center gap-3">
-          <div className="h-px flex-1 bg-[#E6DFF4]" />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7E6BAF]">
-            or
-          </span>
-          <div className="h-px flex-1 bg-[#E6DFF4]" />
-        </div>
-
-        <button
-          type="button"
-          disabled={blocked}
-          onClick={() => {
-            if (!selectedRole || proxyIncomplete) return;
-            onContinueWithEmail?.(selectedRole, proxyPayload);
-          }}
-          className={`group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#A89BD0] to-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(126,107,175,0.55)] transition-all ${
-            !blocked
-              ? "hover:-translate-y-0.5 hover:from-[#7E6BAF] hover:to-[#5A4E8A] hover:shadow-[0_14px_30px_-8px_rgba(61,46,107,0.55)]"
-              : "opacity-70 cursor-not-allowed"
-          }`}
-        >
-          <Mail className="h-4 w-4" />
-          {emailLabel}
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </button>
-
         </>
         )}
 
-        <p className="mt-3 text-center text-[13px] text-[#5A4E8A]">
+        <p className="mt-4 text-center text-[13px] text-[#5A4E8A]">
           {footerPrompt}{" "}
           <button
             type="button"
