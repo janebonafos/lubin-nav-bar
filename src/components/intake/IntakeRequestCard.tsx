@@ -125,7 +125,7 @@ export default function IntakeRequestCard({
           ) : progress.answered > 0 ? (
             <>Continue</>
           ) : (
-            <>Prepare for my session</>
+            <>Fill in my intake form</>
           )}
         </button>
         {!open && progress.prefilled > 0 && (
@@ -257,7 +257,7 @@ function FieldRow({
           <button
             onClick={() => {
               commit(state.prefill!.value);
-              toast.success("Added to your session prep");
+              toast.success("Added to your intake form");
             }}
             className="mt-2 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
           >
