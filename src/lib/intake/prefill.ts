@@ -81,7 +81,7 @@ export function buildIntakePrefill(): Record<string, PrefillValue> {
   if (attempts.length) {
     const recent = attempts.slice(-3).reverse();
     const names = recent
-      .map((a) => ASSESSMENTS.find((x) => x.id === a.assessmentId)?.shortName ?? a.assessmentId)
+      .map((a) => ASSESSMENTS.find((x) => x.id === a.assessmentId)?.name ?? a.assessmentId)
       .filter(Boolean);
     if (names.length) {
       out["__assessments"] = {
