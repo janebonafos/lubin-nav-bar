@@ -1,10 +1,21 @@
-// Session prep templates. Providers pick from this library — there is no
-// custom question builder — so the client always sees familiar, short asks.
+// Client intake form library. Providers pick from this set — there is no custom
+// question builder — so clients always see familiar, short, standard asks.
+//
+// Sections follow what therapists, psychologists and psychiatrists normally
+// collect at intake: client identification, contact and emergency details,
+// presenting concern, clinical background, and consent/billing admin.
 //
 // Nothing here is ever a hard requirement: the client can confirm a prefilled
 // answer, write their own, or say they'd rather talk about it in the session.
 
-export type IntakeFieldType = "long-text" | "short-text" | "choice" | "ack";
+export type IntakeFieldType =
+  | "long-text"
+  | "short-text"
+  | "date"
+  | "tel"
+  | "email"
+  | "choice"
+  | "ack";
 
 export type IntakeField = {
   id: string;
@@ -17,9 +28,18 @@ export type IntakeField = {
   prefill?: "recent-mood" | "recent-themes" | "recent-assessments" | "sleep-energy";
 };
 
+/** Grouping used in the provider's intake form builder. */
+export type IntakeGroup =
+  | "Client identification"
+  | "Contact & emergency"
+  | "Reason for care"
+  | "Clinical background"
+  | "Consent & admin";
+
 export type IntakeTemplate = {
   id: string;
   label: string;
+  group: IntakeGroup;
   /** Why it helps — shown to the client, in their language. */
   why: string;
   /** Rough time to answer, shown as reassurance. */
@@ -29,8 +49,123 @@ export type IntakeTemplate = {
 
 export const INTAKE_TEMPLATES: IntakeTemplate[] = [
   {
+    id: "identity",
+    label: "Client details",
+    group: "Client identification",
+    why: "Standard details every clinician records — your name as it appears on your ID, your date of birth, and how you'd like to be addressed.",
+    minutes: 1,
+    fields: [
+      {
+        id: "identity.fullName",
+        label: "Full legal name",
+        help: "As it appears on your ID — needed for clinical records and any prescription.",
+        type: "short-text",
+        placeholder: "First, middle, last",
+      },
+      {
+        id: "identity.preferredName",
+        label: "Preferred name",
+        type: "short-text",
+        placeholder: "What you'd like to be called",
+      },
+      {
+        id: "identity.dob",
+        label: "Date of birth",
+        type: "date",
+      },
+      {
+        id: "identity.pronouns",
+        label: "Pronouns",
+        type: "short-text",
+        placeholder: "e.g. she/her — optional",
+      },
+      {
+        id: "identity.gender",
+        label: "Sex / gender recorded for clinical purposes",
+        type: "short-text",
+        placeholder: "However you'd like it recorded",
+      },
+    ],
+  },
+  {
+    id: "contact",
+    label: "Contact and address",
+    group: "Contact & emergency",
+    why: "So your provider can reach you about your session and knows which region's rules apply to your care.",
+    minutes: 1,
+    fields: [
+      {
+        id: "contact.phone",
+        label: "Mobile number",
+        type: "tel",
+        placeholder: "+63 9XX XXX XXXX",
+      },
+      {
+        id: "contact.email",
+        label: "Best email for you",
+        type: "email",
+        placeholder: "you@email.com",
+      },
+      {
+        id: "contact.address",
+        label: "Address (city and country is enough)",
+        type: "short-text",
+        placeholder: "City, country",
+      },
+    ],
+  },
+  {
+    id: "emergency",
+    label: "Emergency contact",
+    group: "Contact & emergency",
+    why: "Standard practice in therapy and psychiatry — only used if there's a serious concern for your safety.",
+    minutes: 1,
+    fields: [
+      {
+        id: "emergency.name",
+        label: "Who should be contacted in an emergency?",
+        type: "short-text",
+        placeholder: "Name",
+      },
+      {
+        id: "emergency.relationship",
+        label: "Their relationship to you",
+        type: "short-text",
+        placeholder: "e.g. partner, parent, friend",
+      },
+      {
+        id: "emergency.phone",
+        label: "Their contact number",
+        type: "tel",
+        placeholder: "+63 9XX XXX XXXX",
+      },
+    ],
+  },
+  {
+    id: "presenting",
+    label: "What brings you in",
+    group: "Reason for care",
+    why: "The short version of what you're dealing with, so no one has to start from zero.",
+    minutes: 1,
+    fields: [
+      {
+        id: "presenting.concern",
+        label: "What's the main thing you'd like help with?",
+        type: "long-text",
+        placeholder: "In your own words — a sentence or two is plenty.",
+      },
+      {
+        id: "presenting.duration",
+        label: "How long has this been going on?",
+        type: "choice",
+        options: ["Less than a month", "1–6 months", "6–12 months", "Over a year", "On and off for years"],
+      },
+    ],
+  },
+  {
     id: "goals",
     label: "Your goals for this session",
+    group: "Reason for care",
     why: "So your provider can start with what matters to you instead of asking you to explain from scratch.",
     minutes: 1,
     fields: [
@@ -45,6 +180,7 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
   {
     id: "recent",
     label: "What's been going on lately",
+    group: "Clinical background",
     why: "Gives your provider the short version of the last few weeks before you meet.",
     minutes: 1,
     fields: [
@@ -67,6 +203,7 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
   {
     id: "medication",
     label: "Current medication and supplements",
+    group: "Clinical background",
     why: "Keeps your provider from having to ask through the list during your time together.",
     minutes: 1,
     fields: [
@@ -81,7 +218,8 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
   },
   {
     id: "history",
-    label: "Relevant medical history",
+    label: "Medical and mental health history",
+    group: "Clinical background",
     why: "Helps your provider work safely from the first minute.",
     minutes: 2,
     fields: [
@@ -97,11 +235,47 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         type: "short-text",
         placeholder: "e.g. penicillin — or \"none known\"",
       },
+      {
+        id: "history.family",
+        label: "Anything similar in your family?",
+        help: "Common question in psychiatry — skip it if you'd rather talk it through.",
+        type: "short-text",
+        placeholder: "e.g. a parent treated for depression",
+      },
+    ],
+  },
+  {
+    id: "care-team",
+    label: "Current and previous care",
+    group: "Clinical background",
+    why: "So your provider can work alongside anyone else already supporting you, instead of duplicating it.",
+    minutes: 1,
+    fields: [
+      {
+        id: "care.previous",
+        label: "Have you had therapy or psychiatric care before?",
+        type: "choice",
+        options: ["No, this is my first time", "Yes, in the past", "Yes, currently"],
+      },
+      {
+        id: "care.clinicians",
+        label: "Anyone currently involved in your care?",
+        help: "A doctor, therapist or psychiatrist — names aren't required.",
+        type: "short-text",
+        placeholder: "e.g. my GP manages my thyroid medication",
+      },
+      {
+        id: "care.referral",
+        label: "Were you referred by someone?",
+        type: "short-text",
+        placeholder: "Name or \"found you myself\"",
+      },
     ],
   },
   {
     id: "sleep",
     label: "Sleep, energy, appetite",
+    group: "Clinical background",
     why: "These three tell your provider a lot quickly — and you may have logged some already.",
     minutes: 1,
     fields: [
@@ -128,8 +302,30 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
     ],
   },
   {
+    id: "insurance",
+    label: "Billing and insurance",
+    group: "Consent & admin",
+    why: "Only needed if you plan to claim your session — otherwise skip it.",
+    minutes: 1,
+    fields: [
+      {
+        id: "insurance.provider",
+        label: "Insurance or HMO provider",
+        type: "short-text",
+        placeholder: "e.g. Maxicare — or \"paying myself\"",
+      },
+      {
+        id: "insurance.member",
+        label: "Member or policy number",
+        type: "short-text",
+        placeholder: "Optional",
+      },
+    ],
+  },
+  {
     id: "consent",
     label: "Consent and practice policies",
+    group: "Consent & admin",
     why: "A quick read now means nothing to sign while your session clock is running.",
     minutes: 1,
     fields: [
@@ -143,9 +339,24 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
   },
 ];
 
+export const INTAKE_GROUPS: IntakeGroup[] = [
+  "Client identification",
+  "Contact & emergency",
+  "Reason for care",
+  "Clinical background",
+  "Consent & admin",
+];
+
 export function templateById(id: string): IntakeTemplate | undefined {
   return INTAKE_TEMPLATES.find((t) => t.id === id);
 }
 
 /** Sensible starting set for a provider who hasn't chosen yet. */
-export const DEFAULT_TEMPLATE_IDS = ["goals", "recent", "medication"];
+export const DEFAULT_TEMPLATE_IDS = [
+  "identity",
+  "contact",
+  "emergency",
+  "presenting",
+  "goals",
+  "medication",
+];
