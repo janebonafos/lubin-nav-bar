@@ -43,6 +43,7 @@ import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
 import ProviderClientsSection from "@/components/profile/ProviderClientsSection";
+import SessionPrepSection from "@/components/profile/SessionPrepSection";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import ClientAppointmentsSection, {
   CLIENT_UPCOMING_COUNT,
@@ -118,6 +119,7 @@ type Section =
   | "appointments"
   | "prescriptions"
   | "clients"
+  | "prep"
   | "payments"
   | "verification"
   | "passport"
@@ -456,6 +458,11 @@ function ProfilePage() {
             icon: <Pill className="h-5 w-5" />,
           },
           { key: "clients" as Section, label: "Clients", icon: <Users className="h-5 w-5" /> },
+          {
+            key: "prep" as Section,
+            label: "Session Prep",
+            icon: <ClipboardList className="h-5 w-5" />,
+          },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
           { key: "verification", label: "Verification", icon: <ShieldCheck className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -508,6 +515,10 @@ function ProfilePage() {
     clients: {
       title: "Clients",
       subtitle: "Client records, shared health passports, and prescription history",
+    },
+    prep: {
+      title: "Session Prep",
+      subtitle: "Choose what clients can share before a session",
     },
     verification: {
       title: "Verification",
@@ -1171,6 +1182,10 @@ function ProfilePage() {
 
     {activeSection === "clients" && role === "provider" && (
       <ProviderClientsSection />
+    )}
+
+    {activeSection === "prep" && role === "provider" && (
+      <SessionPrepSection />
     )}
 
     {activeSection === "payments" && role === "provider" && (
