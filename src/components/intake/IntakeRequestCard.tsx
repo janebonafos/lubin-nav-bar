@@ -163,6 +163,9 @@ export default function IntakeRequestCard({
               </div>
             </div>
           ))}
+
+          <MeasuresBlock providerName={providerName} providerLabel={providerLabel} />
+
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => {
