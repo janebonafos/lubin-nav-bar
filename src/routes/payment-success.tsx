@@ -422,6 +422,16 @@ function PaymentSuccessPage() {
             )}
 
             {/* Subtle guest account option — placed low on the page, not in the header */}
+            {provider && (
+              <div className="mt-5">
+                <IntakeRequestCard
+                  appointmentId={appointmentId}
+                  providerName={providerShortName}
+                  sessionLabel={service?.title}
+                />
+              </div>
+            )}
+
             <div className="mt-5">
               <GuestAccountPrompt
                 email={search.email}
