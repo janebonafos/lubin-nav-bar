@@ -19,6 +19,8 @@ export type ProviderRequest = {
   templateIds: string[];
   /** Subset the provider flagged as most useful — stronger copy, never blocking. */
   importantIds: string[];
+  /** Individual questions the provider turned off — they never reach the client. */
+  excludedFieldIds?: string[];
 };
 
 export type IntakeResponse = {
