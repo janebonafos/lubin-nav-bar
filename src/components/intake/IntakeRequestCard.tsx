@@ -184,6 +184,8 @@ function FieldRow({
 }) {
   const { field } = state;
   const [draft, setDraft] = useState(state.answer);
+  const [savedAt, setSavedAt] = useState(0);
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     setDraft(state.answer);
@@ -192,11 +194,45 @@ function FieldRow({
   const commit = (value: string) => {
     setDraft(value);
     setAnswer(appointmentId, field.id, value);
+    setDirty(false);
+    setSavedAt(Date.now());
   };
 
+  // Autosave shortly after typing stops, so nothing depends on losing focus.
+  useEffect(() => {
+    if (!dirty) return;
+    const t = window.setTimeout(() => {
+      setAnswer(appointmentId, field.id, draft);
+      setDirty(false);
+      setSavedAt(Date.now());
+    }, 700);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, dirty]);
+
+  const onType = (value: string) => {
+    setDraft(value);
+    setDirty(true);
+  };
+
+  const status = dirty
+    ? { text: "Saving…", tone: "text-[#A89BD0]" }
+    : savedAt
+      ? { text: "Saved", tone: "text-[#2D8E69]" }
+      : state.answered
+        ? { text: "Shared with your provider", tone: "text-[#2D8E69]" }
+        : null;
+
   return (
-    <div className={state.skipped && !state.answered ? "opacity-60" : ""}>
-      <label className="block text-sm font-medium text-[#3D2E6B]">{field.label}</label>
+    <div className={state.skipped ? "opacity-90" : ""}>
+      <div className="flex items-start justify-between gap-3">
+        <label className="block text-sm font-medium text-[#3D2E6B]">{field.label}</label>
+        {status && (
+          <span className={`shrink-0 text-[11px] font-semibold ${status.tone}`}>
+            {status.text}
+          </span>
+        )}
+      </div>
       {field.help && <p className="mt-0.5 text-xs text-[#7E6BAF]">{field.help}</p>}
 
       {state.prefill && !state.answered && (
@@ -206,7 +242,10 @@ function FieldRow({
           </p>
           <p className="mt-1 text-sm text-[#3D2E6B]">{state.prefill.value}</p>
           <button
-            onClick={() => commit(state.prefill!.value)}
+            onClick={() => {
+              commit(state.prefill!.value);
+              toast.success("Added to your session prep");
+            }}
             className="mt-2 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
           >
             <Check className="h-3 w-3" /> Looks right — use this
@@ -219,7 +258,10 @@ function FieldRow({
           <input
             type="checkbox"
             checked={draft === "acknowledged"}
-            onChange={(e) => commit(e.target.checked ? "acknowledged" : "")}
+            onChange={(e) => {
+              commit(e.target.checked ? "acknowledged" : "");
+              toast.success(e.target.checked ? "Saved" : "Removed");
+            }}
             className="mt-0.5 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
           />
           <span>Yes, I've read it</span>
@@ -229,7 +271,11 @@ function FieldRow({
           {(field.options ?? []).map((opt) => (
             <button
               key={opt}
-              onClick={() => commit(draft === opt ? "" : opt)}
+              onClick={() => {
+                const next = draft === opt ? "" : opt;
+                commit(next);
+                toast.success(next ? `Saved: ${next}` : "Answer cleared");
+              }}
               className={`rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition ${
                 draft === opt
                   ? "border-[#5B4796] bg-[#5B4796] text-white"
@@ -243,16 +289,16 @@ function FieldRow({
       ) : field.type === "short-text" ? (
         <input
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => commit(draft)}
+          onChange={(e) => onType(e.target.value)}
+          onBlur={() => dirty && commit(draft)}
           placeholder={field.placeholder}
           className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
         />
       ) : (
         <textarea
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => commit(draft)}
+          onChange={(e) => onType(e.target.value)}
+          onBlur={() => dirty && commit(draft)}
           rows={3}
           placeholder={field.placeholder}
           className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm leading-relaxed text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
@@ -261,13 +307,27 @@ function FieldRow({
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <button
-          onClick={() => toggleSkip(appointmentId, field.id)}
+          onClick={() => {
+            toggleSkip(appointmentId, field.id);
+            setSavedAt(Date.now());
+            setDirty(false);
+            toast.success(
+              state.skipped
+                ? "Cleared — you can write your own answer"
+                : "Noted — your provider will bring this up in the session",
+            );
+          }}
           className="text-xs font-medium text-[#7E6BAF] underline-offset-4 transition hover:text-[#3D2E6B] hover:underline"
         >
           {state.skipped
             ? "Actually, I'll answer this"
             : "I'd rather talk about this in person"}
         </button>
+        {state.skipped && (
+          <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
+            Will discuss in session
+          </span>
+        )}
         {state.fromPassport && (
           <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
             <Sparkles className="h-3 w-3" /> From Health Passport
@@ -277,3 +337,4 @@ function FieldRow({
     </div>
   );
 }
+
