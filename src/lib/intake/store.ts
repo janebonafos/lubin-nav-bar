@@ -21,6 +21,8 @@ export type ProviderRequest = {
   importantIds: string[];
   /** Individual questions the provider turned off — they never reach the client. */
   excludedFieldIds?: string[];
+  /** Extra questions the provider wrote, keyed by the section they belong to. */
+  customFields?: Record<string, IntakeField[]>;
 };
 
 export type IntakeResponse = {
@@ -94,13 +96,55 @@ export function saveProviderRequest(providerName: string, request: ProviderReque
   write(PROVIDER_KEY, all);
 }
 
+/** Every question in a section, including any the provider wrote themselves. */
+export function allFieldsFor(
+  template: IntakeTemplate,
+  request: ProviderRequest,
+): IntakeField[] {
+  return [...template.fields, ...(request.customFields?.[template.id] ?? [])];
+}
+
 /** Questions actually asked for a template, minus anything the provider turned off. */
 export function activeFields(
   template: IntakeTemplate,
   request: ProviderRequest,
 ): IntakeField[] {
   const off = request.excludedFieldIds ?? [];
-  return template.fields.filter((f) => !off.includes(f.id));
+  return allFieldsFor(template, request).filter((f) => !off.includes(f.id));
+}
+
+/** Provider-authored question added to a section. */
+export function addCustomField(
+  providerName: string,
+  templateId: string,
+  label: string,
+  type: IntakeField["type"] = "long-text",
+): void {
+  const request = getProviderRequest(providerName);
+  const custom = { ...(request.customFields ?? {}) };
+  const list = [...(custom[templateId] ?? [])];
+  list.push({
+    id: `${templateId}.custom.${Date.now().toString(36)}`,
+    label: label.trim(),
+    type,
+  });
+  custom[templateId] = list;
+  saveProviderRequest(providerName, { ...request, customFields: custom });
+}
+
+export function removeCustomField(
+  providerName: string,
+  templateId: string,
+  fieldId: string,
+): void {
+  const request = getProviderRequest(providerName);
+  const custom = { ...(request.customFields ?? {}) };
+  custom[templateId] = (custom[templateId] ?? []).filter((f) => f.id !== fieldId);
+  saveProviderRequest(providerName, {
+    ...request,
+    customFields: custom,
+    excludedFieldIds: (request.excludedFieldIds ?? []).filter((f) => f !== fieldId),
+  });
 }
 
 export function templatesFor(providerName: string): IntakeTemplate[] {
