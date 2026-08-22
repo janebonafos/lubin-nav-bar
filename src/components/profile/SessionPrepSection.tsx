@@ -128,57 +128,99 @@ export default function SessionPrepSection({
                 {items.map((t, idx) => {
                   const on = request.templateIds.includes(t.id);
                   const important = request.importantIds.includes(t.id);
+                  const activeCount = t.fields.filter(
+                    (f) => !excluded.includes(f.id),
+                  ).length;
                   return (
                     <li
                       key={t.id}
-                      className={`flex flex-wrap items-start gap-4 p-6 ${
+                      className={`p-6 ${
                         idx !== items.length - 1 ? "border-b border-[#F0EAFB]" : ""
                       } ${on ? "bg-[#FDFCFF]" : ""}`}
                     >
-                      <label className="flex flex-1 min-w-[240px] items-start gap-3">
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          onChange={() => toggle(t.id)}
-                          className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
-                        />
-                        <span>
-                          <span className="block text-sm font-semibold text-[#3D2E6B]">
-                            {t.label}
+                      <div className="flex flex-wrap items-start gap-4">
+                        <label className="flex flex-1 min-w-[240px] items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={on}
+                            onChange={() => toggle(t.id)}
+                            className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
+                          />
+                          <span>
+                            <span className="block text-sm font-semibold text-[#3D2E6B]">
+                              {t.label}
+                            </span>
+                            <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                              {t.why}
+                            </span>
+                            <span className="mt-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                              {on ? activeCount : t.fields.length} of {t.fields.length}{" "}
+                              question{t.fields.length === 1 ? "" : "s"} · about{" "}
+                              {t.minutes} min
+                            </span>
                           </span>
-                          <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
-                            {t.why}
-                          </span>
-                          <span className="mt-1.5 flex flex-wrap gap-1.5">
-                            {t.fields.map((f) => (
-                              <span
-                                key={f.id}
-                                className="rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-semibold text-[#5B4796]"
-                              >
-                                {f.label.length > 42
-                                  ? `${f.label.slice(0, 42)}…`
-                                  : f.label}
-                              </span>
-                            ))}
-                          </span>
-                          <span className="mt-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                            {t.fields.length} question{t.fields.length === 1 ? "" : "s"} ·
-                            about {t.minutes} min
-                          </span>
-                        </span>
-                      </label>
-                      <button
-                        disabled={!on}
-                        onClick={() => toggleImportant(t.id)}
-                        className={`inline-flex items-center gap-1.5 rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                          important
-                            ? "border-[#5B4796] bg-[#5B4796] text-white"
-                            : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
-                        }`}
-                      >
-                        <Star className="h-3.5 w-3.5" />
-                        {important ? "Priority" : "Mark as priority"}
-                      </button>
+                        </label>
+                        <button
+                          disabled={!on}
+                          onClick={() => toggleImportant(t.id)}
+                          className={`inline-flex items-center gap-1.5 rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                            important
+                              ? "border-[#5B4796] bg-[#5B4796] text-white"
+                              : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
+                          }`}
+                        >
+                          <Star className="h-3.5 w-3.5" />
+                          {important ? "Priority" : "Mark as priority"}
+                        </button>
+                      </div>
+
+                      {on && (
+                        <div className="mt-4 rounded-[12px] border border-[#F0EAFB] bg-white">
+                          <p className="border-b border-[#F0EAFB] px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                            Questions the client will see — untick anything you
+                            don't need
+                          </p>
+                          <ul className="divide-y divide-[#F6F2FE]">
+                            {t.fields.map((f) => {
+                              const fieldOn = !excluded.includes(f.id);
+                              return (
+                                <li key={f.id}>
+                                  <label className="flex cursor-pointer items-start gap-3 px-4 py-3 transition hover:bg-[#FBF9FF]">
+                                    <input
+                                      type="checkbox"
+                                      checked={fieldOn}
+                                      onChange={() => toggleField(f.id)}
+                                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D8C7F0] accent-[#5B4796]"
+                                    />
+                                    <span className="min-w-0">
+                                      <span
+                                        className={`block text-sm leading-snug ${
+                                          fieldOn
+                                            ? "font-medium text-[#3D2E6B]"
+                                            : "text-[#A89BD0] line-through"
+                                        }`}
+                                      >
+                                        {f.label}
+                                      </span>
+                                      {f.help && (
+                                        <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                                          {f.help}
+                                        </span>
+                                      )}
+                                    </span>
+                                  </label>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                          {activeCount === 0 && (
+                            <p className="border-t border-[#F0EAFB] px-4 py-2.5 text-xs text-[#8A5A12]">
+                              Every question here is off, so this section won't be
+                              shown to clients.
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </li>
                   );
                 })}
