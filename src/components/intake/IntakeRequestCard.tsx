@@ -133,6 +133,9 @@ export default function IntakeRequestCard({
             onClick={() => {
               applyAllPrefill(appointmentId, providerName);
               setOpen(true);
+              toast.success(
+                `${progress.prefilled} answer${progress.prefilled === 1 ? "" : "s"} added from your Health Passport`,
+              );
             }}
             className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
           >
@@ -162,11 +165,19 @@ export default function IntakeRequestCard({
           ))}
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                toast.success(
+                  progress.complete
+                    ? `Everything is shared with ${providerLabel}`
+                    : `Saved — ${progress.answered} of ${progress.total} shared with ${providerLabel}`,
+                );
+              }}
               className="rounded-[12px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
             >
               Done for now
             </button>
+
             <p className="text-xs text-[#7E6BAF]">
               Saved as you type — you can come back and change anything.
             </p>
