@@ -301,6 +301,42 @@ export default function BookingConfirmationClientEmail({
               )}
             </Section>
 
+            {/* Optional session prep — encouragement, never a requirement */}
+            <Section
+              style={{
+                border: `1px solid ${colors.lavender}`,
+                borderRadius: 16,
+                padding: 20,
+                marginBottom: 24,
+              }}
+            >
+              <Text
+                style={{
+                  margin: 0,
+                  color: colors.brandNavy,
+                  fontSize: 15,
+                  fontWeight: 600,
+                }}
+              >
+                Want your session to start where it matters?
+              </Text>
+              <Text
+                style={{
+                  margin: "6px 0 0",
+                  color: colors.textMuted,
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                }}
+              >
+                In your Lubin appointment you can share a few notes ahead of time — most of
+                it is already filled in from your Health Passport, so it usually takes about
+                a minute. Your provider reads it before you meet instead of asking during
+                your session. It's completely optional, and you can leave anything for the
+                conversation.
+              </Text>
+            </Section>
+
+
             {/* CTAs */}
             {meetingLink && (
               <Button
