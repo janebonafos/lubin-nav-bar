@@ -10,7 +10,6 @@ import {
   ArrowRight,
   CalendarPlus,
   ArrowLeft,
-  Share2,
   Pencil,
   Lock,
 } from "lucide-react";
