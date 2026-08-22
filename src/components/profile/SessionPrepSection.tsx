@@ -42,6 +42,8 @@ export default function SessionPrepSection({
   const [saved, setSaved] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSection, setPreviewSection] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
