@@ -10,6 +10,7 @@ import AppointmentCancelledEmail, {
   template as appointmentCancelled,
 } from "./appointment-cancelled";
 import { template as appointmentCompleted } from "./appointment-completed";
+import { template as sessionPrepRequest } from "./session-prep-request";
 import AppointmentMessageEmail, {
   template as appointmentMessage,
 } from "./appointment-message";
@@ -78,6 +79,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
     },
   },
   "appointment-completed": appointmentCompleted,
+  "session-prep-request": sessionPrepRequest,
   "appointment-message-sender-copy": {
     component: AppointmentMessageEmail,
     subject: "Copy of your message · Lubin appointment",
