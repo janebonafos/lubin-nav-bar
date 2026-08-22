@@ -25,6 +25,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import ClientFormPreview from "@/components/profile/ClientFormPreview";
+import StandardMeasuresPanel from "@/components/profile/StandardMeasuresPanel";
 
 /**
  * Provider-side: build the client intake form — the standard details clinicians
