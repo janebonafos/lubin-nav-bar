@@ -29,13 +29,21 @@ export default function ClientFormPreview({
   const total = sections.reduce((sum, s) => sum + s.fields.length, 0);
   const minutes = sections.reduce((sum, s) => sum + s.template.minutes, 0);
 
-  if (sections.length === 0) {
+  // Standard measures only make sense in the whole-form preview.
+  const measures = templateId
+    ? []
+    : STANDARD_MEASURES.filter((m) =>
+        (request.measureIds ?? []).includes(m.id),
+      );
+
+  if (sections.length === 0 && measures.length === 0) {
     return (
       <p className="rounded-[12px] bg-[#FFF4E5] px-3 py-2 text-xs text-[#8A5A12]">
         Nothing is ticked yet, so clients won't see a form.
       </p>
     );
   }
+
 
   return (
     <div className="space-y-4">
