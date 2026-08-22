@@ -15,7 +15,14 @@ import {
  * The client-facing session prep card. Optional by design: it leads with what
  * is already filled in from the Health Passport, explains what the client gets
  * out of it, and can always be closed.
+ *
+ * Props:
+ * - allowDismiss: lets the client close the card (default true). Set to false
+ *   when you want the card to stay visible on important pages.
+ * - showPreview: renders a short "what we're asking" preview so the client
+ *   knows what topics are covered before expanding the form.
  */
+
 export default function IntakeRequestCard({
   appointmentId,
   providerName,
