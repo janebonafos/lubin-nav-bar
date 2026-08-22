@@ -475,6 +475,17 @@ export default function ClientAppointmentsSection() {
                         </div>
                       )}
 
+                      {a.status === "upcoming" && (
+                        <div className="mb-6">
+                          <IntakeRequestCard
+                            appointmentId={a.id}
+                            providerName={a.provider}
+                            sessionLabel={`${a.month} ${a.date} · ${a.time}`}
+                          />
+                        </div>
+                      )}
+
+
                       <SharingRow
                         appointmentId={a.id}
                         providerName={a.provider}
