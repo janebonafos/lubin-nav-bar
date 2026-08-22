@@ -46,9 +46,12 @@ export default function SessionPrepSection({
     window.setTimeout(() => setSaved(false), 1800);
   };
 
+  const excluded = request.excludedFieldIds ?? [];
+
   const toggle = (id: string) => {
     const on = request.templateIds.includes(id);
     update({
+      ...request,
       templateIds: on
         ? request.templateIds.filter((t) => t !== id)
         : [...request.templateIds, id],
@@ -60,16 +63,28 @@ export default function SessionPrepSection({
 
   const toggleImportant = (id: string) => {
     update({
-      templateIds: request.templateIds,
+      ...request,
       importantIds: request.importantIds.includes(id)
         ? request.importantIds.filter((t) => t !== id)
         : [...request.importantIds, id],
     });
   };
 
+  const toggleField = (fieldId: string) => {
+    update({
+      ...request,
+      excludedFieldIds: excluded.includes(fieldId)
+        ? excluded.filter((f) => f !== fieldId)
+        : [...excluded, fieldId],
+    });
+  };
+
   const questionCount = ALL_TEMPLATES.filter((t) =>
     request.templateIds.includes(t.id),
-  ).reduce((sum, t) => sum + t.fields.length, 0);
+  ).reduce(
+    (sum, t) => sum + t.fields.filter((f) => !excluded.includes(f.id)).length,
+    0,
+  );
 
   return (
     <div className="space-y-6">
