@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, ChevronUp, Sparkles, X } from "lucide-react";
+import { Check, ChevronUp, Sparkles, X } from "lucide-react";
 
 import {
   applyAllPrefill,
