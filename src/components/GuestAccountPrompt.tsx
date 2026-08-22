@@ -77,7 +77,7 @@ export default function GuestAccountPrompt({
                 <button
                   type="button"
                   onClick={openSignup}
-                  className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-dark px-3 py-1.5 text-[11.5px] font-semibold text-white shadow-[0_4px_12px_-4px_rgba(124,113,176,0.5)] transition-all hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-3 py-1.5 text-[11.5px] font-semibold text-white shadow-[0_4px_12px_-4px_rgba(124,113,176,0.5)] transition-all hover:-translate-y-0.5"
                 >
                   Create account
                 </button>

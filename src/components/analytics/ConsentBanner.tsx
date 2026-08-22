@@ -38,13 +38,13 @@ export function ConsentBanner() {
       <div className="mt-3 flex flex-wrap justify-end gap-2">
         <button
           onClick={deny}
-          className="rounded-full border border-[#E3DBF5] px-4 py-1.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
+          className="rounded-xl border border-[#E3DBF5] px-4 py-1.5 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#F4EEFC]"
         >
           No thanks
         </button>
         <button
           onClick={grant}
-          className="rounded-full bg-[#7E6BAF] px-4 py-1.5 text-[13px] font-semibold text-white shadow-md shadow-[#A89BD0]/40 hover:bg-[#3D2E6B]"
+          className="rounded-xl bg-[#7E6BAF] px-4 py-1.5 text-[13px] font-semibold text-white shadow-md shadow-[#A89BD0]/40 hover:bg-[#3D2E6B]"
         >
           Allow analytics
         </button>
