@@ -183,7 +183,7 @@ export default function IntakeRequestCard({
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setOpen(false)}
-              className="rounded-[8px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
+              className="rounded-[12px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
             >
               Done for now
             </button>
