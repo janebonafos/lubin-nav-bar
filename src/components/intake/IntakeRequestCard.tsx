@@ -4,7 +4,6 @@ import { Check, ChevronUp, Sparkles } from "lucide-react";
 import {
   applyAllPrefill,
   buildIntakeProgress,
-  dismissRequest,
   setAnswer,
   subscribeIntake,
   toggleSkip,
@@ -17,8 +16,9 @@ import {
  * out of it, and can always be closed.
  *
  * Props:
- * - allowDismiss: lets the client close the card (default true). Set to false
- *   when you want the card to stay visible on important pages.
+ * - phase: "before" (ahead of the session) or "live" (session is happening or
+ *   just wrapped up) — in "live" the client can still fill this in so the
+ *   provider can capture it during the conversation.
  */
 
 export default function IntakeRequestCard({
@@ -27,14 +27,14 @@ export default function IntakeRequestCard({
   sessionLabel,
   variant = "card",
   defaultOpen = false,
-  allowDismiss = true,
+  phase = "before",
 }: {
   appointmentId: string;
   providerName: string;
   sessionLabel?: string;
   variant?: "card" | "inline";
   defaultOpen?: boolean;
-  allowDismiss?: boolean;
+  phase?: "before" | "live";
 }) {
 
   const [tick, setTick] = useState(0);
@@ -53,34 +53,45 @@ export default function IntakeRequestCard({
   );
 
   if (!progress || progress.total === 0) return null;
-  if (!open && progress.response.dismissedAt && !progress.importantOpen) return null;
 
   const firstName = providerName.replace(/^(Dr\.|Coach|Ms\.|Mr\.)\s+/i, "").split(" ")[0];
   const providerLabel = /^(Dr\.|Coach)/i.test(providerName)
     ? `${providerName.split(" ")[0]} ${firstName}`
     : firstName;
 
-  const shell =
-    variant === "inline"
-      ? "rounded-[12px] border border-[#D8C7F0] bg-[#FBF9FF] p-5"
-      : "rounded-[12px] border border-[#D8C7F0] bg-white p-5 shadow-[0_8px_24px_-12px_rgba(61,46,107,0.10)]";
+  const highlight = !progress.complete;
+  const shell = [
+    "rounded-[12px] p-5",
+    variant === "inline" ? "bg-[#FBF9FF]" : "bg-white shadow-[0_8px_24px_-12px_rgba(61,46,107,0.10)]",
+    highlight
+      ? "border border-[#B79BE8] ring-1 ring-[#E4D8F7] border-l-4 border-l-[#5B4796]"
+      : "border border-[#D8C7F0]",
+  ].join(" ");
 
   return (
     <section className={shell}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-            Optional · about {progress.minutes} min
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+            {progress.complete
+              ? "Shared with your provider"
+              : phase === "live"
+                ? `Session in progress · about ${progress.minutes} min`
+                : `Before your session · about ${progress.minutes} min`}
           </p>
           <h3 className="mt-1 text-base font-semibold text-[#3D2E6B]">
             {progress.complete
               ? `${providerLabel} has what they need`
-              : `Help ${providerLabel} prepare for your session`}
+              : phase === "live"
+                ? `You can still share this with ${providerLabel}`
+                : `Help ${providerLabel} prepare for your session`}
           </h3>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
             {progress.complete
               ? `Your notes are with ${providerLabel}${sessionLabel ? ` for ${sessionLabel}` : ""}. You can update them any time before you meet.`
-              : `So your session can focus on what you actually came for, ${providerLabel} would like a quick picture of your goals, recent changes, and anything relevant to your care. It's only about ${progress.minutes} minutes — and you can skip anything you'd rather talk about in person.`}
+              : phase === "live"
+                ? `Your session is underway. If you didn't get to this beforehand, you can fill it in now — ${providerLabel} sees your answers straight away and can go through them with you.`
+                : `So your session can focus on what you actually came for, ${providerLabel} needs a quick picture of your goals, recent changes, and anything relevant to your care. It takes about ${progress.minutes} minutes and helps you get the most out of your time together.`}
           </p>
 
           {progress.answered > 0 && !progress.complete && (
@@ -124,14 +135,6 @@ export default function IntakeRequestCard({
             className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
           >
             <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" /> Use my Health Passport
-          </button>
-        )}
-        {allowDismiss && !open && !progress.complete && (
-          <button
-            onClick={() => dismissRequest(appointmentId)}
-            className="text-sm font-medium text-[#7E6BAF] underline-offset-4 transition hover:text-[#3D2E6B] hover:underline"
-          >
-            Not now
           </button>
         )}
       </div>

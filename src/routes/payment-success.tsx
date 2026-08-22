@@ -330,7 +330,6 @@ function PaymentSuccessPage() {
                   appointmentId={appointmentId}
                   providerName={providerShortName}
                   sessionLabel={service?.title}
-                  allowDismiss={false}
                 />
               </div>
             )}

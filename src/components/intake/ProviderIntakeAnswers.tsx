@@ -48,6 +48,7 @@ export default function ProviderIntakeAnswers({
             {progress.answered} of {progress.total} shared
             {progress.open > 0 ? ` · ${progress.open} still open — ask in session` : " · nothing outstanding"}
             {progress.skipped > 0 ? ` · ${progress.skipped} saved for the conversation` : ""}
+            {" · updates arrive here live, including during the session"}
           </span>
         </span>
         {open ? (
