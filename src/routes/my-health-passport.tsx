@@ -65,6 +65,7 @@ import {
   getClientUpcomingAppointments,
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
+import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import {
   getProviderGrant,
   subscribeProviderShares,
