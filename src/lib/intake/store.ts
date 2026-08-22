@@ -21,6 +21,8 @@ export type ProviderRequest = {
   importantIds: string[];
   /** Individual questions the provider turned off — they never reach the client. */
   excludedFieldIds?: string[];
+  /** Extra questions the provider wrote, keyed by the section they belong to. */
+  customFields?: Record<string, IntakeField[]>;
 };
 
 export type IntakeResponse = {
