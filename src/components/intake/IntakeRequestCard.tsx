@@ -30,6 +30,7 @@ export default function IntakeRequestCard({
   variant = "card",
   defaultOpen = false,
   allowDismiss = true,
+  showPreview = true,
 }: {
   appointmentId: string;
   providerName: string;
@@ -37,7 +38,9 @@ export default function IntakeRequestCard({
   variant?: "card" | "inline";
   defaultOpen?: boolean;
   allowDismiss?: boolean;
+  showPreview?: boolean;
 }) {
+
   const [tick, setTick] = useState(0);
   const [open, setOpen] = useState(defaultOpen);
   const [mounted, setMounted] = useState(false);
