@@ -229,7 +229,7 @@ function FieldRow({
           <p className="mt-1 text-sm text-[#3D2E6B]">{state.prefill.value}</p>
           <button
             onClick={() => commit(state.prefill!.value)}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-[8px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
           >
             <Check className="h-3 w-3" /> Looks right — use this
           </button>
@@ -252,7 +252,7 @@ function FieldRow({
             <button
               key={opt}
               onClick={() => commit(draft === opt ? "" : opt)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition ${
                 draft === opt
                   ? "border-[#5B4796] bg-[#5B4796] text-white"
                   : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
