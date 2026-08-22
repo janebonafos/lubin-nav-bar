@@ -23,6 +23,7 @@ import {
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 
 type Appt = {
   id: string;
