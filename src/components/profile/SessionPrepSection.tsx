@@ -8,11 +8,14 @@ import {
   subscribeIntake,
   type ProviderRequest,
 } from "@/lib/intake/store";
+import { INTAKE_GROUPS, type IntakeGroup } from "@/lib/intake/templates";
 
 /**
- * Provider-side: choose which prep templates clients are invited to fill in
- * before a session. Nothing here blocks a booking — it only shapes an optional
- * invitation the client sees where they already are.
+ * Provider-side: build the client intake form — the standard details clinicians
+ * collect before a first session (identification, contact and emergency
+ * details, reason for care, clinical background, consent and billing).
+ * Nothing here blocks a booking; it shapes one short form the client sees where
+ * they already are, prefilled from their Health Passport where possible.
  */
 export default function SessionPrepSection({
   providerName = "You",
@@ -64,16 +67,22 @@ export default function SessionPrepSection({
     });
   };
 
+  const questionCount = ALL_TEMPLATES.filter((t) =>
+    request.templateIds.includes(t.id),
+  ).reduce((sum, t) => sum + t.fields.length, 0);
+
   return (
     <div className="space-y-6">
       <section className="rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-[#3D2E6B]">Session prep requests</h2>
+        <h2 className="text-xl font-semibold text-[#3D2E6B]">Client intake form</h2>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
-          Pick what you'd like clients to share before you meet. Clients see one short,
-          optional card — prefilled from their Health Passport where possible — on their
-          booking confirmation, their appointment and in their Health Passport. It never
-          blocks booking or joining, and anything left open shows up in your session view
-          so you can ask it live.
+          Choose the intake details you need before you meet — the same things
+          normally recorded at a first therapy, psychology or psychiatric visit:
+          the client's full name and date of birth, contact and emergency
+          details, what brings them in, medication and history, plus consent and
+          billing. Clients see it as one short form, prefilled from their Health
+          Passport where possible. It never blocks booking or joining, and
+          anything left open shows up in your session view so you can ask it live.
         </p>
         {saved && (
           <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
@@ -84,58 +93,84 @@ export default function SessionPrepSection({
 
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="border-b border-[#F0EAFB] p-6">
-          <p className="text-sm font-semibold text-[#3D2E6B]">Prep template library</p>
+          <p className="text-sm font-semibold text-[#3D2E6B]">Intake sections</p>
           <p className="mt-1 text-xs text-[#7E6BAF]">
-            {request.templateIds.length} selected · shown to clients as one card
+            {request.templateIds.length} section
+            {request.templateIds.length === 1 ? "" : "s"} · {questionCount} question
+            {questionCount === 1 ? "" : "s"} · shown to clients as one form
           </p>
         </div>
-        <ul>
-          {ALL_TEMPLATES.map((t, idx) => {
-            const on = request.templateIds.includes(t.id);
-            const important = request.importantIds.includes(t.id);
-            return (
-              <li
-                key={t.id}
-                className={`flex flex-wrap items-start gap-4 p-6 ${
-                  idx !== ALL_TEMPLATES.length - 1 ? "border-b border-[#F0EAFB]" : ""
-                } ${on ? "bg-[#FBF9FF]" : ""}`}
-              >
-                <label className="flex flex-1 min-w-[240px] items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={on}
-                    onChange={() => toggle(t.id)}
-                    className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
-                  />
-                  <span>
-                    <span className="block text-sm font-semibold text-[#3D2E6B]">
-                      {t.label}
-                    </span>
-                    <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
-                      {t.why}
-                    </span>
-                    <span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                      {t.fields.length} question{t.fields.length === 1 ? "" : "s"} · about{" "}
-                      {t.minutes} min
-                    </span>
-                  </span>
-                </label>
-                <button
-                  disabled={!on}
-                  onClick={() => toggleImportant(t.id)}
-                  className={`inline-flex items-center gap-1.5 rounded-[8px] border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                    important
-                      ? "border-[#5B4796] bg-[#5B4796] text-white"
-                      : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
-                  }`}
-                >
-                  <Star className="h-3.5 w-3.5" />
-                  {important ? "Most useful" : "Mark most useful"}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+
+        {INTAKE_GROUPS.map((group: IntakeGroup) => {
+          const items = ALL_TEMPLATES.filter((t) => t.group === group);
+          if (items.length === 0) return null;
+          return (
+            <div key={group} className="border-b border-[#F0EAFB] last:border-b-0">
+              <p className="bg-[#FBF9FF] px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                {group}
+              </p>
+              <ul>
+                {items.map((t, idx) => {
+                  const on = request.templateIds.includes(t.id);
+                  const important = request.importantIds.includes(t.id);
+                  return (
+                    <li
+                      key={t.id}
+                      className={`flex flex-wrap items-start gap-4 p-6 ${
+                        idx !== items.length - 1 ? "border-b border-[#F0EAFB]" : ""
+                      } ${on ? "bg-[#FDFCFF]" : ""}`}
+                    >
+                      <label className="flex flex-1 min-w-[240px] items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() => toggle(t.id)}
+                          className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
+                        />
+                        <span>
+                          <span className="block text-sm font-semibold text-[#3D2E6B]">
+                            {t.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                            {t.why}
+                          </span>
+                          <span className="mt-1.5 flex flex-wrap gap-1.5">
+                            {t.fields.map((f) => (
+                              <span
+                                key={f.id}
+                                className="rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-semibold text-[#5B4796]"
+                              >
+                                {f.label.length > 42
+                                  ? `${f.label.slice(0, 42)}…`
+                                  : f.label}
+                              </span>
+                            ))}
+                          </span>
+                          <span className="mt-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                            {t.fields.length} question{t.fields.length === 1 ? "" : "s"} ·
+                            about {t.minutes} min
+                          </span>
+                        </span>
+                      </label>
+                      <button
+                        disabled={!on}
+                        onClick={() => toggleImportant(t.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                          important
+                            ? "border-[#5B4796] bg-[#5B4796] text-white"
+                            : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
+                        }`}
+                      >
+                        <Star className="h-3.5 w-3.5" />
+                        {important ? "Priority" : "Mark as priority"}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </section>
     </div>
   );
