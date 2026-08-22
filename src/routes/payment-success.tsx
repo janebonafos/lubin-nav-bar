@@ -331,7 +331,6 @@ function PaymentSuccessPage() {
                   providerName={providerShortName}
                   sessionLabel={service?.title}
                   allowDismiss={false}
-                  showPreview={false}
                 />
               </div>
             )}
