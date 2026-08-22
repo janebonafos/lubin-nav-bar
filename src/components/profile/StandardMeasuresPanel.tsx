@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Eye, Search } from "lucide-react";
+import { Check, CheckCircle2, Circle, Eye, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -146,83 +146,151 @@ export default function StandardMeasuresPanel({
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle className="text-[#3D2E6B]">Standard measures</SheetTitle>
-            <SheetDescription className="text-[#7E6BAF]">
-              Grouped by what they tell you. Notes show where each one is
-              standard practice, so you can match your accreditation or funder
-              requirements.
-            </SheetDescription>
-          </SheetHeader>
+        <SheetContent className="flex w-full flex-col overflow-hidden p-0 sm:max-w-lg">
+          <div className="flex-1 overflow-y-auto px-6 pt-6">
+            <SheetHeader className="space-y-1 text-left">
+              <SheetTitle className="text-[#3D2E6B]">Choose measures</SheetTitle>
+              <SheetDescription className="text-[#7E6BAF]">
+                Tap the cards to add or remove questionnaires. Lubin-guided checks
+                are completed by clients; the rest are recorded in session.
+              </SheetDescription>
+            </SheetHeader>
 
-          <div className="mt-4 flex items-center gap-2 rounded-[12px] border border-[#D8C7F0] px-3 py-2">
-            <Search className="h-4 w-4 shrink-0 text-[#A89BD0]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search CORE-10, WSAS, trauma…"
-              className="min-w-0 flex-1 text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0]"
-            />
-          </div>
+            <div className="mt-4 flex items-center gap-2 rounded-[12px] border border-[#D8C7F0] px-3 py-2">
+              <Search className="h-4 w-4 shrink-0 text-[#A89BD0]" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search CORE-10, WSAS, trauma…"
+                className="min-w-0 flex-1 bg-transparent text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0]"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="rounded-full p-1 text-[#A89BD0] hover:bg-[#F0EAFB] hover:text-[#3D2E6B]"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
 
-          <div className="mt-4 space-y-5">
-            {MEASURE_PURPOSES.map((purpose) => {
-              const items = matches(purpose);
-              if (items.length === 0) return null;
-              return (
-                <div key={purpose}>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                    {purpose}
-                  </p>
-                  <ul className="mt-2 divide-y divide-[#F6F2FE] rounded-[12px] border border-[#F0EAFB]">
-                    {items.map((m) => {
-                      const on = selected.includes(m.id);
-                      return (
-                        <li key={m.id} className="px-3 py-3">
-                          <label className="flex cursor-pointer items-start gap-3">
-                            <input
-                              type="checkbox"
-                              checked={on}
-                              onChange={() => toggle(m.id)}
-                              className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D8C7F0] accent-[#5B4796]"
-                            />
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-[#3D2E6B]">
-                                {m.code}
+            {selected.length > 0 && (
+              <div className="mt-5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                  Selected ({selected.length})
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {chosen.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => toggle(m.id)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#5B4796] bg-[#F0EAFB] px-3 py-1 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#E2D8F5]"
+                    >
+                      <Check className="h-3 w-3" />
+                      {m.code}
+                      <X className="ml-0.5 h-3 w-3 text-[#7E6BAF]" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 space-y-6 pb-6">
+              {MEASURE_PURPOSES.map((purpose) => {
+                const items = matches(purpose);
+                if (items.length === 0) return null;
+                const selectedInGroup = items.filter((m) =>
+                  selected.includes(m.id),
+                ).length;
+                return (
+                  <div key={purpose}>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                        {purpose}
+                      </p>
+                      {selectedInGroup > 0 && (
+                        <span className="text-[10px] font-bold text-[#5B4796]">
+                          {selectedInGroup} selected
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {items.map((m) => {
+                        const on = selected.includes(m.id);
+                        return (
+                          <button
+                            key={m.id}
+                            onClick={() => toggle(m.id)}
+                            className={`group flex w-full items-start gap-3 rounded-[12px] border p-3 text-left transition ${
+                              on
+                                ? "border-[#5B4796] bg-[#F0EAFB] shadow-sm"
+                                : "border-[#EAE7F5] bg-white hover:border-[#D8C7F0] hover:bg-[#FDFCFF]"
+                            }`}
+                          >
+                            <span
+                              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                                on
+                                  ? "border-[#5B4796] bg-[#5B4796] text-white"
+                                  : "border-[#D8C7F0] bg-white text-transparent group-hover:border-[#5B4796]"
+                              }`}
+                            >
+                              <Check className="h-3 w-3" strokeWidth={3} />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-2">
+                                <span className="block text-sm font-semibold text-[#3D2E6B]">
+                                  {m.code}
+                                </span>
+                                {m.slug ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69]">
+                                    <CheckCircle2 className="h-3 w-3" /> In Lubin
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                                    In session
+                                  </span>
+                                )}
                               </span>
-                              <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                              <span className="mt-1 block text-xs leading-relaxed text-[#7E6BAF]">
                                 {m.name} — {m.use}
                               </span>
-                              <span className="mt-1 block text-[11px] leading-relaxed text-[#A89BD0]">
+                              <span className="mt-1.5 block text-[11px] leading-relaxed text-[#A89BD0]">
                                 {m.standard}
                               </span>
-                              <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              <span className="mt-2 flex flex-wrap items-center gap-1.5">
                                 <Tag>{m.items} items</Tag>
                                 <Tag>about {m.minutes} min</Tag>
                                 <Tag>{CADENCE_LABEL[m.cadence]}</Tag>
-                                {m.slug ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69]">
-                                    <Check className="h-3 w-3" /> In Lubin
-                                  </span>
-                                ) : (
-                                  <Tag>Recorded in session</Tag>
-                                )}
                               </span>
                               {m.licence && (
-                                <span className="mt-1.5 block text-[11px] text-[#8A5A12]">
+                                <span className="mt-2 block text-[11px] text-[#8A5A12]">
                                   {m.licence}
                                 </span>
                               )}
                             </span>
-                          </label>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-[#F0EAFB] bg-[#FBF9FF] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-[#3D2E6B]">
+                <span className="font-semibold">{selected.length}</span> measure
+                {selected.length === 1 ? "" : "s"} selected
+              </p>
+              <button
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#5B4796] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4A3A82]"
+              >
+                <Check className="h-4 w-4" /> Done
+              </button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
