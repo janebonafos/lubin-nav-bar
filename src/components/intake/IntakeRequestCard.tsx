@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronUp, Sparkles, X } from "lucide-react";
+import { Check, ChevronUp, Sparkles } from "lucide-react";
 
 import {
   applyAllPrefill,
@@ -30,7 +30,7 @@ export default function IntakeRequestCard({
   variant = "card",
   defaultOpen = false,
   allowDismiss = true,
-  showPreview = true,
+  showPreview = false,
 }: {
   appointmentId: string;
   providerName: string;
@@ -112,15 +112,6 @@ export default function IntakeRequestCard({
             </p>
           )}
         </div>
-        {allowDismiss && !open && !progress.complete && (
-          <button
-            onClick={() => dismissRequest(appointmentId)}
-            aria-label="Not now"
-            className="rounded-full p-1.5 text-[#A89BD0] transition hover:bg-[#F0EAFB] hover:text-[#5B4796]"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
