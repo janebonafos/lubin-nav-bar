@@ -67,9 +67,16 @@ export default function ProviderIntakeAnswers({
               </p>
               <p className="mt-1 text-sm font-medium text-[#3D2E6B]">{f.field.label}</p>
               {f.answered ? (
-                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-[#3D2E6B]">
-                  {f.field.type === "ack" ? "Acknowledged" : f.answer}
-                </p>
+                <>
+                  <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-[#3D2E6B]">
+                    {f.field.type === "ack" ? "Acknowledged" : f.answer}
+                  </p>
+                  {f.skipped && (
+                    <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
+                      Wants to talk about this in session
+                    </span>
+                  )}
+                </>
               ) : (
                 <p className="mt-1 text-sm text-[#7E6BAF]">
                   {f.skipped
@@ -77,6 +84,7 @@ export default function ProviderIntakeAnswers({
                     : "Not shared yet — worth asking during the session."}
                 </p>
               )}
+
               {f.fromPassport && (
                 <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
                   <Sparkles className="h-3 w-3" /> Confirmed from Health Passport
