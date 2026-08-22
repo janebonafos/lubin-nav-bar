@@ -23,6 +23,8 @@ export type ProviderRequest = {
   excludedFieldIds?: string[];
   /** Extra questions the provider wrote, keyed by the section they belong to. */
   customFields?: Record<string, IntakeField[]>;
+  /** Standard clinical measures (CORE-10, PHQ-9, WSAS…) this provider collects. */
+  measureIds?: string[];
 };
 
 export type IntakeResponse = {
