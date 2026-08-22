@@ -118,7 +118,6 @@ export default function AuthModal({
   const subtitle = isSignup
     ? "Tell us how you want to use Lubin so we can tailor the experience for you."
     : "Tell us who's signing in so we can take you to the right place.";
-  const emailLabel = isSignup ? "Sign up with email" : "Sign in with email";
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
