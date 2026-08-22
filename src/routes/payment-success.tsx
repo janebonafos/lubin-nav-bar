@@ -324,7 +324,20 @@ function PaymentSuccessPage() {
               </div>
             </dl>
 
-            {/* Health Passport sharing — placed above "What happens next" */}
+            {/* Session prep — surfaced first so it's seen right away */}
+            {provider && (
+              <div className="mt-5">
+                <IntakeRequestCard
+                  appointmentId={appointmentId}
+                  providerName={providerShortName}
+                  sessionLabel={service?.title}
+                  allowDismiss={false}
+                  showPreview
+                />
+              </div>
+            )}
+
+            {/* Health Passport sharing — placed below session prep */}
             {grant ? (
               <section className="mt-5 overflow-hidden rounded-2xl border border-[#7E6BAF]/20 bg-white shadow-sm">
                 <div className="p-4">
