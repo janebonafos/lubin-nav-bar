@@ -68,15 +68,20 @@ export function subscribeIntake(fn: () => void): () => void {
 }
 
 export function providerKeyFor(providerName: string): string {
-  return providerName.trim().toLowerCase().replace(/\s+/g, "-");
+  const key = providerName.trim().toLowerCase().replace(/\s+/g, "-");
+  // The signed-in provider edits one shared selection.
+  return key === "you" || key === "" ? SELF_KEY : key;
 }
+
+const SELF_KEY = "self";
 
 export function getProviderRequest(providerName: string): ProviderRequest {
   const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
-  const found = all[providerKeyFor(providerName)];
+  const found = all[providerKeyFor(providerName)] ?? all[SELF_KEY];
   if (found) return found;
   return { templateIds: [...DEFAULT_TEMPLATE_IDS], importantIds: ["goals"] };
 }
+
 
 export function saveProviderRequest(providerName: string, request: ProviderRequest) {
   const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
