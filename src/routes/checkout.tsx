@@ -125,6 +125,52 @@ function CheckoutPage() {
     }
   }, []);
 
+  // Reuse an already-connected account so returning users skip typing.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const savedEmail = window.localStorage.getItem("lubin.userEmail");
+      const savedName = window.localStorage.getItem("lubin.userName") ?? "";
+      if (savedEmail) {
+        setGoogleAccount({ name: savedName || savedEmail.split("@")[0], email: savedEmail });
+        setEmail(savedEmail);
+        setName((n) => n || savedName);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const connectGoogle = () => {
+    const nextEmail = googleInput.trim().toLowerCase();
+    if (!/.+@.+\..+/.test(nextEmail)) return;
+    const derived = nextEmail
+      .split("@")[0]
+      .replace(/[._-]+/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    const displayName = name.trim() || derived;
+    setGoogleAccount({ name: displayName, email: nextEmail });
+    setEmail(nextEmail);
+    setName(displayName);
+    setGooglePicker(false);
+    setGoogleInput("");
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("lubin.userEmail", nextEmail);
+        window.localStorage.setItem("lubin.userName", displayName);
+        window.localStorage.setItem("lubin.signedIn", "1");
+        if (!window.localStorage.getItem("lubin.userRole")) {
+          window.localStorage.setItem("lubin.userRole", "client");
+        }
+        window.dispatchEvent(new Event("lubin:auth-change"));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+
+
   // Build a summary snapshot for the modal (uses local check-ins if available,
   // otherwise falls back to the mock so the user can preview categories).
   const shareSummary = useMemo(() => {
