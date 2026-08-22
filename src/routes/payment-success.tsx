@@ -435,8 +435,6 @@ function PaymentSuccessPage() {
               </section>
             )}
 
-
-
             <div className="mt-5">
               <GuestAccountPrompt
                 email={search.email}
