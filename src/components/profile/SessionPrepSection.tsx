@@ -232,6 +232,9 @@ export default function SessionPrepSection({
         })}
       </section>
 
+      <StandardMeasuresPanel providerName={providerName} />
+
+
       <Sheet open={Boolean(editing)} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-md">
           {editingTemplate && editing && (
