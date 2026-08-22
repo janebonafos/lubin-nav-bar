@@ -79,7 +79,10 @@ export function getProviderRequest(providerName: string): ProviderRequest {
   const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
   const found = all[providerKeyFor(providerName)] ?? all[SELF_KEY];
   if (found) return found;
-  return { templateIds: [...DEFAULT_TEMPLATE_IDS], importantIds: ["goals"] };
+  return {
+    templateIds: [...DEFAULT_TEMPLATE_IDS],
+    importantIds: ["identity", "presenting"],
+  };
 }
 
 

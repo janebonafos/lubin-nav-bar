@@ -131,7 +131,7 @@ export const template = {
     data?.providerName
       ? `Optional: help ${data.providerName} prepare for your session`
       : "Optional: help your provider prepare for your session",
-  displayName: "Session prep request (client)",
+  displayName: "Intake form request (client)",
   previewData: {
     clientName: "Anna",
     providerName: "Dr. Camille",
