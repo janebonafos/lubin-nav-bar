@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Plus, Star, Trash2 } from "lucide-react";
+import { Check, Eye, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
