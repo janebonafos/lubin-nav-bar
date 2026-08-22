@@ -1,5 +1,6 @@
 import { activeFields, type ProviderRequest } from "@/lib/intake/store";
 import { templateById, type IntakeField } from "@/lib/intake/templates";
+import { CADENCE_LABEL, STANDARD_MEASURES } from "@/lib/intake/measures";
 
 /**
  * Read-only replica of what the client sees, so providers can check the exact
