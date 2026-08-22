@@ -119,13 +119,27 @@ export function setAnswer(appointmentId: string, fieldId: string, value: string)
   });
 }
 
+/** Text stored (and shared with the provider) when a client prefers to talk. */
+export const PREFER_IN_PERSON_TEXT = "I'd rather talk about this in person.";
+
 export function toggleSkip(appointmentId: string, fieldId: string) {
   const current = getResponse(appointmentId);
-  const skipped = current.skipped.includes(fieldId)
-    ? current.skipped.filter((s) => s !== fieldId)
-    : [...current.skipped, fieldId];
-  saveResponse(appointmentId, { skipped });
+  const isSkipped = current.skipped.includes(fieldId);
+  const values = { ...current.values };
+  if (isSkipped) {
+    // Undo: clear the placeholder answer so the client can write their own.
+    if (values[fieldId] === PREFER_IN_PERSON_TEXT) delete values[fieldId];
+  } else {
+    values[fieldId] = PREFER_IN_PERSON_TEXT;
+  }
+  saveResponse(appointmentId, {
+    values,
+    skipped: isSkipped
+      ? current.skipped.filter((s) => s !== fieldId)
+      : [...current.skipped, fieldId],
+  });
 }
+
 
 export function dismissRequest(appointmentId: string) {
   saveResponse(appointmentId, { dismissedAt: Date.now() });
