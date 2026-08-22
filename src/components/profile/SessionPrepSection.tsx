@@ -88,28 +88,22 @@ export default function SessionPrepSection({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[12px] border border-[#EAE7F5] bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-[#3D2E6B]">Client intake form</h2>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
-          Choose the intake details you need before you meet — the same things
-          normally recorded at a first therapy, psychology or psychiatric visit:
-          the client's full name and date of birth, contact and emergency
-          details, what brings them in, medication and history, plus consent and
-          billing. Clients see it as one short form, prefilled from their Health
-          Passport where possible. It never blocks booking or joining, and
-          anything left open shows up in your session view so you can ask it live.
-        </p>
-        {saved && (
-          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
-            <Check className="h-3 w-3" /> Saved
-          </p>
-        )}
-      </section>
-
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="border-b border-[#F0EAFB] p-6">
-          <p className="text-sm font-semibold text-[#3D2E6B]">Intake sections</p>
-          <p className="mt-1 text-xs text-[#7E6BAF]">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
+              Clients see everything you tick below as one short form, prefilled
+              from their Health Passport where possible. It never blocks booking
+              or joining, and anything left open shows up in your session view so
+              you can ask it live.
+            </p>
+            {saved && (
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
+                <Check className="h-3 w-3" /> Saved
+              </p>
+            )}
+          </div>
+          <p className="mt-3 text-xs text-[#7E6BAF]">
             {request.templateIds.length} section
             {request.templateIds.length === 1 ? "" : "s"} · {questionCount} question
             {questionCount === 1 ? "" : "s"} · shown to clients as one form
