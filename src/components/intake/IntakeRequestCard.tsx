@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronUp, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 
 import {
   applyAllPrefill,
   buildIntakeProgress,
+  measuresFor,
   setAnswer,
   subscribeIntake,
   toggleSkip,
   type IntakeProgress,
 } from "@/lib/intake/store";
+import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { getLatestAttempt } from "@/lib/patterns/storage";
 
 /**
  * The client-facing session prep card. Optional by design: it leads with what
@@ -163,6 +167,9 @@ export default function IntakeRequestCard({
               </div>
             </div>
           ))}
+
+          <MeasuresBlock providerName={providerName} providerLabel={providerLabel} />
+
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => {
@@ -187,6 +194,87 @@ export default function IntakeRequestCard({
     </section>
   );
 }
+
+/**
+ * The standard check-ins this provider tracks (CORE-10, PHQ-9, WSAS…). Ones
+ * Lubin runs as guided checks link straight through and score into the Health
+ * Passport; the rest are simply flagged as something the clinician will cover.
+ */
+function MeasuresBlock({
+  providerName,
+  providerLabel,
+}: {
+  providerName: string;
+  providerLabel: string;
+}) {
+  const measures = measuresFor(providerName);
+  if (measures.length === 0) return null;
+
+  const inApp = measures.filter((m) => m.slug);
+  const inSession = measures.filter((m) => !m.slug);
+
+  return (
+    <div className="rounded-[10px] border border-[#EAE7F5] bg-white p-4">
+      <p className="text-sm font-semibold text-[#3D2E6B]">
+        A few short check-ins
+      </p>
+      <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
+        {providerLabel} tracks progress with the same short questionnaires used
+        across the field. Completely optional before you meet — they take a
+        minute or two each, and your scores stay in your Health Passport.
+      </p>
+
+      {inApp.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {inApp.map((m) => {
+            const assessment = m.slug ? ASSESSMENTS_BY_SLUG[m.slug] : undefined;
+            const done = assessment ? getLatestAttempt(assessment.id) : null;
+            return (
+              <li
+                key={m.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-[#EAE7F5] bg-[#FDFCFF] p-3"
+              >
+                <div className="min-w-[200px] flex-1">
+                  <p className="text-sm font-medium text-[#3D2E6B]">
+                    {assessment?.name ?? m.code}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
+                    {m.clientBlurb}
+                  </p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                    {m.code} · {m.items} questions · about {m.minutes} min
+                  </p>
+                </div>
+                {done ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
+                    <Check className="h-3 w-3" /> Already done
+                  </span>
+                ) : (
+                  <Link
+                    to="/self-discovery/$slug"
+                    params={{ slug: m.slug! }}
+                    className="rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+                  >
+                    Take it now
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {inSession.length > 0 && (
+        <p className="mt-3 text-xs leading-relaxed text-[#7E6BAF]">
+          {providerLabel} may also go through{" "}
+          {inSession.map((m) => m.code).join(", ")} with you during the session —
+          nothing to do beforehand.
+        </p>
+      )}
+    </div>
+  );
+}
+
 
 function FieldRow({
   appointmentId,

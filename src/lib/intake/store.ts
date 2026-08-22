@@ -9,6 +9,11 @@ import {
   type IntakeTemplate,
 } from "./templates";
 import { buildIntakePrefill, type PrefillValue } from "./prefill";
+import {
+  DEFAULT_MEASURE_IDS,
+  STANDARD_MEASURES,
+  type StandardMeasure,
+} from "./measures";
 
 const PROVIDER_KEY = "lubin.intake.providerTemplates.v1";
 const RESPONSE_KEY = "lubin.intake.responses.v1";
@@ -23,6 +28,8 @@ export type ProviderRequest = {
   excludedFieldIds?: string[];
   /** Extra questions the provider wrote, keyed by the section they belong to. */
   customFields?: Record<string, IntakeField[]>;
+  /** Standard clinical measures (CORE-10, PHQ-9, WSAS…) this provider collects. */
+  measureIds?: string[];
 };
 
 export type IntakeResponse = {
@@ -82,11 +89,18 @@ const SELF_KEY = "self";
 export function getProviderRequest(providerName: string): ProviderRequest {
   const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
   const found = all[providerKeyFor(providerName)] ?? all[SELF_KEY];
-  if (found) return found;
+  if (found) return { measureIds: [...DEFAULT_MEASURE_IDS], ...found };
   return {
     templateIds: [...DEFAULT_TEMPLATE_IDS],
     importantIds: ["identity", "presenting"],
+    measureIds: [...DEFAULT_MEASURE_IDS],
   };
+}
+
+/** Standard measures this provider collects, in library order. */
+export function measuresFor(providerName: string): StandardMeasure[] {
+  const ids = getProviderRequest(providerName).measureIds ?? [];
+  return STANDARD_MEASURES.filter((m) => ids.includes(m.id));
 }
 
 
