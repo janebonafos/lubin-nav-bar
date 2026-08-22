@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, PROVIDERS, currencySymbol } from "@/lib/providers";
 import GuestAccountPrompt from "@/components/GuestAccountPrompt";
+import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 
 import {
   bookingKeyFor,
@@ -422,6 +423,16 @@ function PaymentSuccessPage() {
             )}
 
             {/* Subtle guest account option — placed low on the page, not in the header */}
+            {provider && (
+              <div className="mt-5">
+                <IntakeRequestCard
+                  appointmentId={appointmentId}
+                  providerName={providerShortName}
+                  sessionLabel={service?.title}
+                />
+              </div>
+            )}
+
             <div className="mt-5">
               <GuestAccountPrompt
                 email={search.email}

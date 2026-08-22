@@ -23,6 +23,7 @@ import {
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 
 type Appt = {
   id: string;
@@ -473,6 +474,17 @@ export default function ClientAppointmentsSection() {
                           </p>
                         </div>
                       )}
+
+                      {a.status === "upcoming" && (
+                        <div className="mb-6">
+                          <IntakeRequestCard
+                            appointmentId={a.id}
+                            providerName={a.provider}
+                            sessionLabel={`${a.month} ${a.date} · ${a.time}`}
+                          />
+                        </div>
+                      )}
+
 
                       <SharingRow
                         appointmentId={a.id}

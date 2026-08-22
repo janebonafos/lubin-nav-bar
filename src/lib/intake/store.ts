@@ -1,0 +1,220 @@
+// One source of truth for provider session-prep requests and the client's
+// answers, so the same state can surface at checkout, on the appointment card
+// and inside the Health Passport without ever duplicating the ask.
+import {
+  DEFAULT_TEMPLATE_IDS,
+  INTAKE_TEMPLATES,
+  templateById,
+  type IntakeField,
+  type IntakeTemplate,
+} from "./templates";
+import { buildIntakePrefill, type PrefillValue } from "./prefill";
+
+const PROVIDER_KEY = "lubin.intake.providerTemplates.v1";
+const RESPONSE_KEY = "lubin.intake.responses.v1";
+const CHANGE_EVENT = "lubin-intake-change";
+
+export type ProviderRequest = {
+  /** Templates this provider asks for. */
+  templateIds: string[];
+  /** Subset the provider flagged as most useful — stronger copy, never blocking. */
+  importantIds: string[];
+};
+
+export type IntakeResponse = {
+  /** Answers the client confirmed or wrote. */
+  values: Record<string, string>;
+  /** Fields the client chose to talk about in person instead. */
+  skipped: string[];
+  /** Client closed the card; we nudge once more later, never repeatedly. */
+  dismissedAt?: number;
+  nudgedAt?: number;
+  updatedAt: number;
+};
+
+function emit() {
+  if (typeof window === "undefined") return;
+  try {
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  } catch {
+    /* noop */
+  }
+}
+
+function read<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write<T>(key: string, value: T) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+    emit();
+  } catch {
+    /* noop */
+  }
+}
+
+export function subscribeIntake(fn: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(CHANGE_EVENT, fn);
+  return () => window.removeEventListener(CHANGE_EVENT, fn);
+}
+
+export function providerKeyFor(providerName: string): string {
+  const key = providerName.trim().toLowerCase().replace(/\s+/g, "-");
+  // The signed-in provider edits one shared selection.
+  return key === "you" || key === "" ? SELF_KEY : key;
+}
+
+const SELF_KEY = "self";
+
+export function getProviderRequest(providerName: string): ProviderRequest {
+  const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
+  const found = all[providerKeyFor(providerName)] ?? all[SELF_KEY];
+  if (found) return found;
+  return { templateIds: [...DEFAULT_TEMPLATE_IDS], importantIds: ["goals"] };
+}
+
+
+export function saveProviderRequest(providerName: string, request: ProviderRequest) {
+  const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
+  all[providerKeyFor(providerName)] = request;
+  write(PROVIDER_KEY, all);
+}
+
+export function templatesFor(providerName: string): IntakeTemplate[] {
+  const req = getProviderRequest(providerName);
+  return req.templateIds
+    .map((id) => templateById(id))
+    .filter((t): t is IntakeTemplate => Boolean(t));
+}
+
+export function getResponse(appointmentId: string): IntakeResponse {
+  const all = read<Record<string, IntakeResponse>>(RESPONSE_KEY, {});
+  return all[appointmentId] ?? { values: {}, skipped: [], updatedAt: 0 };
+}
+
+export function saveResponse(appointmentId: string, patch: Partial<IntakeResponse>) {
+  const all = read<Record<string, IntakeResponse>>(RESPONSE_KEY, {});
+  const current = all[appointmentId] ?? { values: {}, skipped: [], updatedAt: 0 };
+  all[appointmentId] = { ...current, ...patch, updatedAt: Date.now() };
+  write(RESPONSE_KEY, all);
+}
+
+export function setAnswer(appointmentId: string, fieldId: string, value: string) {
+  const current = getResponse(appointmentId);
+  const values = { ...current.values };
+  if (value.trim()) values[fieldId] = value;
+  else delete values[fieldId];
+  saveResponse(appointmentId, {
+    values,
+    skipped: current.skipped.filter((s) => s !== fieldId),
+  });
+}
+
+export function toggleSkip(appointmentId: string, fieldId: string) {
+  const current = getResponse(appointmentId);
+  const skipped = current.skipped.includes(fieldId)
+    ? current.skipped.filter((s) => s !== fieldId)
+    : [...current.skipped, fieldId];
+  saveResponse(appointmentId, { skipped });
+}
+
+export function dismissRequest(appointmentId: string) {
+  saveResponse(appointmentId, { dismissedAt: Date.now() });
+}
+
+export function reopenRequest(appointmentId: string) {
+  saveResponse(appointmentId, { dismissedAt: undefined });
+}
+
+export type IntakeFieldState = {
+  field: IntakeField;
+  template: IntakeTemplate;
+  answer: string;
+  /** Suggested value from the Health Passport, when we have one. */
+  prefill?: PrefillValue;
+  /** True when the answer came from confirming a prefill. */
+  fromPassport: boolean;
+  skipped: boolean;
+  answered: boolean;
+};
+
+export type IntakeProgress = {
+  templates: IntakeTemplate[];
+  fields: IntakeFieldState[];
+  total: number;
+  answered: number;
+  prefilled: number;
+  open: number;
+  skipped: number;
+  complete: boolean;
+  importantOpen: boolean;
+  minutes: number;
+  response: IntakeResponse;
+};
+
+export function buildIntakeProgress(
+  appointmentId: string,
+  providerName: string,
+): IntakeProgress {
+  const templates = templatesFor(providerName);
+  const importantIds = getProviderRequest(providerName).importantIds;
+  const response = getResponse(appointmentId);
+  const prefill = buildIntakePrefill();
+
+  const fields: IntakeFieldState[] = [];
+  for (const template of templates) {
+    for (const field of template.fields) {
+      const suggestion = field.prefill ? prefill[field.id] : undefined;
+      const answer = response.values[field.id] ?? "";
+      fields.push({
+        field,
+        template,
+        answer,
+        prefill: suggestion,
+        fromPassport: Boolean(suggestion && answer === suggestion.value),
+        skipped: response.skipped.includes(field.id),
+        answered: Boolean(answer.trim()),
+      });
+    }
+  }
+
+  const answered = fields.filter((f) => f.answered).length;
+  const skipped = fields.filter((f) => f.skipped && !f.answered).length;
+  const open = fields.length - answered - skipped;
+  return {
+    templates,
+    fields,
+    total: fields.length,
+    answered,
+    prefilled: fields.filter((f) => f.prefill && !f.answered).length,
+    open,
+    skipped,
+    complete: open === 0,
+    importantOpen: fields.some(
+      (f) => importantIds.includes(f.template.id) && !f.answered && !f.skipped,
+    ),
+    minutes: Math.max(1, templates.reduce((s, t) => s + t.minutes, 0)),
+    response,
+  };
+}
+
+/** Accept every available Health Passport suggestion in one tap. */
+export function applyAllPrefill(appointmentId: string, providerName: string) {
+  const progress = buildIntakeProgress(appointmentId, providerName);
+  const values = { ...progress.response.values };
+  for (const f of progress.fields) {
+    if (f.prefill && !values[f.field.id]) values[f.field.id] = f.prefill.value;
+  }
+  saveResponse(appointmentId, { values });
+}
+
+export const ALL_TEMPLATES = INTAKE_TEMPLATES;

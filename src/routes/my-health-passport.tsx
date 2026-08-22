@@ -65,6 +65,7 @@ import {
   getClientUpcomingAppointments,
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
+import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import {
   getProviderGrant,
   subscribeProviderShares,
@@ -314,6 +315,20 @@ function PassportPage() {
             );
           })}
         </div>
+
+        {/* Gentle session prep nudges — same request as the appointment card */}
+        {tab !== "share" && upcomingAppointments.length > 0 && (
+          <div className="mt-8 space-y-4">
+            {upcomingAppointments.map((appt) => (
+              <IntakeRequestCard
+                key={appt.id}
+                appointmentId={appt.id}
+                providerName={appt.providerName}
+                sessionLabel={appt.fullLabel}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Tab content */}
         <div className="mt-8">

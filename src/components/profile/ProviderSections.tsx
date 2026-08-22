@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
 import {
   publishAppointmentEvent,
   subscribeAppointmentEvents,
@@ -1786,6 +1787,12 @@ export function AppointmentsSection() {
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     <div className="space-y-4">
+                    <ProviderIntakeAnswers
+                      appointmentId={a.id}
+                      providerName="You"
+                      clientName={a.client}
+                    />
+
                     {(a.status === "completed" || a.status === "session_review" || a.notes) && (
                       <ApptNotesBlock
                         appt={a}
