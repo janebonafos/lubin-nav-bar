@@ -279,7 +279,80 @@ function CheckoutPage() {
               We'll send your session details and receipt to the email below.
             </p>
 
+            {/* Google account — skip typing, reuse an existing account */}
+            {googleAccount ? (
+              <div className="mt-5 flex items-center gap-3 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm">
+                  <GoogleGlyph className="h-4.5 w-4.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[13.5px] font-semibold text-slate-900">
+                    {googleAccount.name}
+                  </p>
+                  <p className="truncate text-[12.5px] text-slate-500">{googleAccount.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGoogleAccount(null);
+                    setGooglePicker(false);
+                    setEmail("");
+                  }}
+                  className="ml-auto shrink-0 text-[12.5px] font-semibold text-brand-purple hover:underline"
+                >
+                  Use another email
+                </button>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => setGooglePicker((v) => !v)}
+                  className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13.5px] font-semibold text-slate-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-md active:translate-y-0"
+                >
+                  <GoogleGlyph className="h-4.5 w-4.5" />
+                  Continue with Google
+                </button>
+                {googlePicker && (
+                  <div className="mt-2.5 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
+                    <p className="text-[12.5px] font-semibold text-slate-700">
+                      Which Google account should we use?
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                      <input
+                        type="email"
+                        value={googleInput}
+                        onChange={(e) => setGoogleInput(e.target.value)}
+                        placeholder="you@gmail.com"
+                        className="flex-1 rounded-xl border border-[#E9E6FA] bg-white px-3.5 py-2.5 text-[14px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={connectGoogle}
+                        disabled={!/.+@.+\..+/.test(googleInput)}
+                        className="rounded-xl bg-brand-purple px-4 py-2.5 text-[13.5px] font-semibold text-white transition-all enabled:hover:-translate-y-0.5 disabled:opacity-50"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                    <p className="mt-2 text-[12px] text-slate-500">
+                      We'll use this to create or sign in to your Lubin account and send your
+                      receipt.
+                    </p>
+                  </div>
+                )}
+                <div className="my-4 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-[#E9E6FA]" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    or enter details
+                  </span>
+                  <div className="h-px flex-1 bg-[#E9E6FA]" />
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 space-y-4">
+
               <div>
                 <label className="text-[12px] font-semibold text-slate-700">Full name</label>
                 <input
