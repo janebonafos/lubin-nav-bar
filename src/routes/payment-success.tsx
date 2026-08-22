@@ -429,9 +429,11 @@ function PaymentSuccessPage() {
                   appointmentId={appointmentId}
                   providerName={providerShortName}
                   sessionLabel={service?.title}
+                  allowDismiss={false}
                 />
               </div>
             )}
+
 
             <div className="mt-5">
               <GuestAccountPrompt
