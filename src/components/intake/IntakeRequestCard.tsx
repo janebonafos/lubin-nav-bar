@@ -76,24 +76,24 @@ export default function IntakeRequestCard({
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
             {progress.complete
-              ? "Shared with your provider"
+              ? "Intake form · shared with your provider"
               : phase === "live"
-                ? `Session in progress · about ${progress.minutes} min`
-                : `Before your session · about ${progress.minutes} min`}
+                ? `Intake form · session in progress · about ${progress.minutes} min`
+                : `Intake form · before your session · about ${progress.minutes} min`}
           </p>
           <h3 className="mt-1 text-base font-semibold text-[#3D2E6B]">
             {progress.complete
               ? `${providerLabel} has what they need`
               : phase === "live"
                 ? `You can still share this with ${providerLabel}`
-                : `Help ${providerLabel} prepare for your session`}
+                : `Your intake form for ${providerLabel}`}
           </h3>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
             {progress.complete
-              ? `Your notes are with ${providerLabel}${sessionLabel ? ` for ${sessionLabel}` : ""}. You can update them any time before you meet.`
+              ? `Your intake details are with ${providerLabel}${sessionLabel ? ` for ${sessionLabel}` : ""}. You can update them any time before you meet.`
               : phase === "live"
                 ? `Your session is underway. If you didn't get to this beforehand, you can fill it in now — ${providerLabel} sees your answers straight away and can go through them with you.`
-                : `So your session can focus on what you actually came for, ${providerLabel} needs a quick picture of your goals, recent changes, and anything relevant to your care. It takes about ${progress.minutes} minutes and helps you get the most out of your time together.`}
+                : `These are the details every clinician records before a first session — your name and date of birth, how to reach you, who to contact in an emergency, and what brings you in. It takes about ${progress.minutes} minutes, and your session can then focus on you instead of paperwork.`}
           </p>
 
           {progress.answered > 0 && !progress.complete && (
