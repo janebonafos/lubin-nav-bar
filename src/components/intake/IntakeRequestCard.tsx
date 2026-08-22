@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronUp, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 
 import {
   applyAllPrefill,
   buildIntakeProgress,
+  measuresFor,
   setAnswer,
   subscribeIntake,
   toggleSkip,
   type IntakeProgress,
 } from "@/lib/intake/store";
+import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
+import { getLatestAttempt } from "@/lib/patterns/storage";
 
 /**
  * The client-facing session prep card. Optional by design: it leads with what
