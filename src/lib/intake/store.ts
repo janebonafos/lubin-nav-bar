@@ -84,11 +84,18 @@ const SELF_KEY = "self";
 export function getProviderRequest(providerName: string): ProviderRequest {
   const all = read<Record<string, ProviderRequest>>(PROVIDER_KEY, {});
   const found = all[providerKeyFor(providerName)] ?? all[SELF_KEY];
-  if (found) return found;
+  if (found) return { measureIds: [...DEFAULT_MEASURE_IDS], ...found };
   return {
     templateIds: [...DEFAULT_TEMPLATE_IDS],
     importantIds: ["identity", "presenting"],
+    measureIds: [...DEFAULT_MEASURE_IDS],
   };
+}
+
+/** Standard measures this provider collects, in library order. */
+export function measuresFor(providerName: string): StandardMeasure[] {
+  const ids = getProviderRequest(providerName).measureIds ?? [];
+  return STANDARD_MEASURES.filter((m) => ids.includes(m.id));
 }
 
 
