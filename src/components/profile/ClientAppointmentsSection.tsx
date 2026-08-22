@@ -475,12 +475,14 @@ export default function ClientAppointmentsSection() {
                         </div>
                       )}
 
-                      {a.status === "upcoming" && (
+                      {(a.status === "upcoming" ||
+                        (a.status === "completed" && !a.publishedFollowUp)) && (
                         <div className="mb-6">
                           <IntakeRequestCard
                             appointmentId={a.id}
                             providerName={a.provider}
                             sessionLabel={`${a.month} ${a.date} · ${a.time}`}
+                            phase={a.status === "upcoming" ? "before" : "live"}
                           />
                         </div>
                       )}
