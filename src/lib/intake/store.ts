@@ -94,11 +94,22 @@ export function saveProviderRequest(providerName: string, request: ProviderReque
   write(PROVIDER_KEY, all);
 }
 
+/** Questions actually asked for a template, minus anything the provider turned off. */
+export function activeFields(
+  template: IntakeTemplate,
+  request: ProviderRequest,
+): IntakeField[] {
+  const off = request.excludedFieldIds ?? [];
+  return template.fields.filter((f) => !off.includes(f.id));
+}
+
 export function templatesFor(providerName: string): IntakeTemplate[] {
   const req = getProviderRequest(providerName);
   return req.templateIds
     .map((id) => templateById(id))
-    .filter((t): t is IntakeTemplate => Boolean(t));
+    .filter((t): t is IntakeTemplate => Boolean(t))
+    .map((t) => ({ ...t, fields: activeFields(t, req) }))
+    .filter((t) => t.fields.length > 0);
 }
 
 export function getResponse(appointmentId: string): IntakeResponse {
