@@ -460,7 +460,7 @@ function ProfilePage() {
           { key: "clients" as Section, label: "Clients", icon: <Users className="h-5 w-5" /> },
           {
             key: "prep" as Section,
-            label: "Session Prep",
+            label: "Client Intake Forms",
             icon: <ClipboardList className="h-5 w-5" />,
           },
           { key: "payments", label: "Payments & Payouts", icon: <Wallet className="h-5 w-5" /> },
@@ -517,8 +517,8 @@ function ProfilePage() {
       subtitle: "Client records, shared health passports, and prescription history",
     },
     prep: {
-      title: "Session Prep",
-      subtitle: "Choose what clients can share before a session",
+      title: "Client Intake Forms",
+      subtitle: "Choose the intake details clients are asked for before a session",
     },
     verification: {
       title: "Verification",

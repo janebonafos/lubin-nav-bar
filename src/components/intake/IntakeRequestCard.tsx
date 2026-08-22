@@ -299,8 +299,20 @@ function FieldRow({
             </button>
           ))}
         </div>
-      ) : field.type === "short-text" ? (
+      ) : field.type === "short-text" ||
+        field.type === "date" ||
+        field.type === "tel" ||
+        field.type === "email" ? (
         <input
+          type={
+            field.type === "date"
+              ? "date"
+              : field.type === "tel"
+                ? "tel"
+                : field.type === "email"
+                  ? "email"
+                  : "text"
+          }
           value={draft}
           onChange={(e) => onType(e.target.value)}
           onBlur={() => dirty && commit(draft)}

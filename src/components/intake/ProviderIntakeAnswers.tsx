@@ -42,7 +42,7 @@ export default function ProviderIntakeAnswers({
       >
         <span>
           <span className="block text-sm font-semibold text-[#3D2E6B]">
-            Session prep from {first}
+            Intake form from {first}
           </span>
           <span className="mt-0.5 block text-xs text-[#7E6BAF]">
             {progress.answered} of {progress.total} shared
