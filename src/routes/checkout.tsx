@@ -98,6 +98,10 @@ function CheckoutPage() {
   const [shareRange, setShareRange] = useState<RangeKey>("30d");
   const [pending, setPending] = useState<PendingShare | null>(null);
   const [consent, setConsent] = useState(false);
+  const [googleAccount, setGoogleAccount] = useState<{ name: string; email: string } | null>(null);
+  const [googlePicker, setGooglePicker] = useState(false);
+  const [googleInput, setGoogleInput] = useState("");
+
   const [localCheckins, setLocalCheckins] = useState<
     { id: string; mood: number; note: string; date: string }[]
   >([]);
