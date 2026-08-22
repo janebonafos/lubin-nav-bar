@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, ChevronUp, Sparkles, X } from "lucide-react";
+import { Check, ChevronUp, Sparkles, X } from "lucide-react";
 
 import {
   applyAllPrefill,
@@ -126,24 +126,18 @@ export default function IntakeRequestCard({
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
+          className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
         >
           {open ? (
             <>
               Hide <ChevronUp className="h-3.5 w-3.5" />
             </>
           ) : progress.complete ? (
-            <>
-              Review what you shared <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Review what you shared</>
           ) : progress.answered > 0 ? (
-            <>
-              Continue <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Continue</>
           ) : (
-            <>
-              Take a look <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Prepare for my session</>
           )}
         </button>
         {!open && progress.prefilled > 0 && (
@@ -152,7 +146,7 @@ export default function IntakeRequestCard({
               applyAllPrefill(appointmentId, providerName);
               setOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+            className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
           >
             <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" /> Use my Health Passport
           </button>
@@ -189,7 +183,7 @@ export default function IntakeRequestCard({
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setOpen(false)}
-              className="rounded-[8px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
+              className="rounded-[12px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
             >
               Done for now
             </button>
@@ -235,7 +229,7 @@ function FieldRow({
           <p className="mt-1 text-sm text-[#3D2E6B]">{state.prefill.value}</p>
           <button
             onClick={() => commit(state.prefill!.value)}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-[8px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
           >
             <Check className="h-3 w-3" /> Looks right — use this
           </button>
@@ -258,7 +252,7 @@ function FieldRow({
             <button
               key={opt}
               onClick={() => commit(draft === opt ? "" : opt)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition ${
                 draft === opt
                   ? "border-[#5B4796] bg-[#5B4796] text-white"
                   : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"

@@ -10,7 +10,6 @@ import {
   ArrowRight,
   CalendarPlus,
   ArrowLeft,
-  Share2,
   Pencil,
   Lock,
 } from "lucide-react";
@@ -332,7 +331,7 @@ function PaymentSuccessPage() {
                   providerName={providerShortName}
                   sessionLabel={service?.title}
                   allowDismiss={false}
-                  showPreview
+                  showPreview={false}
                 />
               </div>
             )}
@@ -407,8 +406,8 @@ function PaymentSuccessPage() {
               </section>
             ) : (
               <section className="mt-6 rounded-2xl border border-[#D3C8EE] bg-[#F7F4FC] p-4">
-                <p className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
-                  <Share2 className="h-3 w-3" /> Health Passport
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#7E6BAF]">
+                  Health Passport
                 </p>
                 <h3 className="mt-1.5 text-[15px] font-semibold text-slate-900">
                   Share your Health Passport with {providerShortName}?
@@ -421,7 +420,7 @@ function PaymentSuccessPage() {
                   <button
                     type="button"
                     onClick={() => setShareOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
                   >
                     Choose what to share
                   </button>
