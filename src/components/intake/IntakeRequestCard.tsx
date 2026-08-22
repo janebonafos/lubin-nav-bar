@@ -126,24 +126,18 @@ export default function IntakeRequestCard({
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#3D2E6B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
+          className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2C2B4B]"
         >
           {open ? (
             <>
               Hide <ChevronUp className="h-3.5 w-3.5" />
             </>
           ) : progress.complete ? (
-            <>
-              Review what you shared <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Review what you shared</>
           ) : progress.answered > 0 ? (
-            <>
-              Continue <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Continue</>
           ) : (
-            <>
-              Take a look <ChevronDown className="h-3.5 w-3.5" />
-            </>
+            <>Prepare for my session</>
           )}
         </button>
         {!open && progress.prefilled > 0 && (
@@ -152,7 +146,7 @@ export default function IntakeRequestCard({
               applyAllPrefill(appointmentId, providerName);
               setOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+            className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
           >
             <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" /> Use my Health Passport
           </button>
