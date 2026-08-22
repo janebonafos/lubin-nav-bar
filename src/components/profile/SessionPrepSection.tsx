@@ -1,21 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Star } from "lucide-react";
+import { Check, Plus, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   ALL_TEMPLATES,
+  addCustomField,
+  allFieldsFor,
   getProviderRequest,
+  removeCustomField,
   saveProviderRequest,
   subscribeIntake,
   type ProviderRequest,
 } from "@/lib/intake/store";
-import { INTAKE_GROUPS, type IntakeGroup } from "@/lib/intake/templates";
+import {
+  INTAKE_GROUPS,
+  templateById,
+  type IntakeGroup,
+} from "@/lib/intake/templates";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 /**
  * Provider-side: build the client intake form — the standard details clinicians
  * collect before a first session (identification, contact and emergency
  * details, reason for care, clinical background, consent and billing).
- * Nothing here blocks a booking; it shapes one short form the client sees where
- * they already are, prefilled from their Health Passport where possible.
+ * Sections are picked here; the exact questions in a section — including any the
+ * provider writes themselves — are edited in a side drawer to keep this list short.
  */
 export default function SessionPrepSection({
   providerName = "You",
@@ -25,6 +40,8 @@ export default function SessionPrepSection({
   const [tick, setTick] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -47,6 +64,14 @@ export default function SessionPrepSection({
   };
 
   const excluded = request.excludedFieldIds ?? [];
+
+  const fieldsOf = (templateId: string) => {
+    const template = templateById(templateId);
+    return template ? allFieldsFor(template, request) : [];
+  };
+
+  const activeCountOf = (templateId: string) =>
+    fieldsOf(templateId).filter((f) => !excluded.includes(f.id)).length;
 
   const toggle = (id: string) => {
     const on = request.templateIds.includes(id);
@@ -79,12 +104,22 @@ export default function SessionPrepSection({
     });
   };
 
-  const questionCount = ALL_TEMPLATES.filter((t) =>
-    request.templateIds.includes(t.id),
-  ).reduce(
-    (sum, t) => sum + t.fields.filter((f) => !excluded.includes(f.id)).length,
+  const questionCount = request.templateIds.reduce(
+    (sum, id) => sum + activeCountOf(id),
     0,
   );
+
+  const editingTemplate = editing ? templateById(editing) : undefined;
+  const customIds = new Set(
+    (editing ? request.customFields?.[editing] ?? [] : []).map((f) => f.id),
+  );
+
+  const addQuestion = () => {
+    if (!editing || !draft.trim()) return;
+    addCustomField(providerName, editing, draft);
+    setDraft("");
+    toast.success("Question added to this section");
+  };
 
   return (
     <div className="space-y-6">
@@ -122,38 +157,47 @@ export default function SessionPrepSection({
                 {items.map((t, idx) => {
                   const on = request.templateIds.includes(t.id);
                   const important = request.importantIds.includes(t.id);
-                  const activeCount = t.fields.filter(
-                    (f) => !excluded.includes(f.id),
-                  ).length;
+                  const total = fieldsOf(t.id).length;
+                  const active = activeCountOf(t.id);
                   return (
                     <li
                       key={t.id}
-                      className={`p-6 ${
+                      className={`flex flex-wrap items-start gap-3 p-6 ${
                         idx !== items.length - 1 ? "border-b border-[#F0EAFB]" : ""
                       } ${on ? "bg-[#FDFCFF]" : ""}`}
                     >
-                      <div className="flex flex-wrap items-start gap-4">
-                        <label className="flex flex-1 min-w-[240px] items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={on}
-                            onChange={() => toggle(t.id)}
-                            className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
-                          />
-                          <span>
-                            <span className="block text-sm font-semibold text-[#3D2E6B]">
-                              {t.label}
-                            </span>
-                            <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
-                              {t.why}
-                            </span>
-                            <span className="mt-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                              {on ? activeCount : t.fields.length} of {t.fields.length}{" "}
-                              question{t.fields.length === 1 ? "" : "s"} · about{" "}
-                              {t.minutes} min
-                            </span>
+                      <label className="flex flex-1 min-w-[240px] items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() => toggle(t.id)}
+                          className="mt-1 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
+                        />
+                        <span>
+                          <span className="block text-sm font-semibold text-[#3D2E6B]">
+                            {t.label}
                           </span>
-                        </label>
+                          <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                            {t.why}
+                          </span>
+                          <span className="mt-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                            {on ? `${active} of ${total}` : total} question
+                            {total === 1 ? "" : "s"} · about {t.minutes} min
+                          </span>
+                        </span>
+                      </label>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          disabled={!on}
+                          onClick={() => {
+                            setEditing(t.id);
+                            setDraft("");
+                          }}
+                          className="rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Edit questions
+                        </button>
                         <button
                           disabled={!on}
                           onClick={() => toggleImportant(t.id)}
@@ -167,54 +211,6 @@ export default function SessionPrepSection({
                           {important ? "Priority" : "Mark as priority"}
                         </button>
                       </div>
-
-                      {on && (
-                        <div className="mt-4 rounded-[12px] border border-[#F0EAFB] bg-white">
-                          <p className="border-b border-[#F0EAFB] px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                            Questions the client will see — untick anything you
-                            don't need
-                          </p>
-                          <ul className="divide-y divide-[#F6F2FE]">
-                            {t.fields.map((f) => {
-                              const fieldOn = !excluded.includes(f.id);
-                              return (
-                                <li key={f.id}>
-                                  <label className="flex cursor-pointer items-start gap-3 px-4 py-3 transition hover:bg-[#FBF9FF]">
-                                    <input
-                                      type="checkbox"
-                                      checked={fieldOn}
-                                      onChange={() => toggleField(f.id)}
-                                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D8C7F0] accent-[#5B4796]"
-                                    />
-                                    <span className="min-w-0">
-                                      <span
-                                        className={`block text-sm leading-snug ${
-                                          fieldOn
-                                            ? "font-medium text-[#3D2E6B]"
-                                            : "text-[#A89BD0] line-through"
-                                        }`}
-                                      >
-                                        {f.label}
-                                      </span>
-                                      {f.help && (
-                                        <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
-                                          {f.help}
-                                        </span>
-                                      )}
-                                    </span>
-                                  </label>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                          {activeCount === 0 && (
-                            <p className="border-t border-[#F0EAFB] px-4 py-2.5 text-xs text-[#8A5A12]">
-                              Every question here is off, so this section won't be
-                              shown to clients.
-                            </p>
-                          )}
-                        </div>
-                      )}
                     </li>
                   );
                 })}
@@ -223,6 +219,110 @@ export default function SessionPrepSection({
           );
         })}
       </section>
+
+      <Sheet open={Boolean(editing)} onOpenChange={(o) => !o && setEditing(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+          {editingTemplate && editing && (
+            <>
+              <SheetHeader>
+                <SheetTitle className="text-[#3D2E6B]">
+                  {editingTemplate.label}
+                </SheetTitle>
+                <SheetDescription className="text-[#7E6BAF]">
+                  Untick anything you don't need, or add your own question. Changes
+                  save as you go and apply to every client form.
+                </SheetDescription>
+              </SheetHeader>
+
+              <ul className="mt-6 divide-y divide-[#F6F2FE] rounded-[12px] border border-[#F0EAFB]">
+                {fieldsOf(editing).map((f) => {
+                  const fieldOn = !excluded.includes(f.id);
+                  return (
+                    <li key={f.id} className="flex items-start gap-2 px-3 py-3">
+                      <label className="flex flex-1 cursor-pointer items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={fieldOn}
+                          onChange={() => toggleField(f.id)}
+                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D8C7F0] accent-[#5B4796]"
+                        />
+                        <span className="min-w-0">
+                          <span
+                            className={`block text-sm leading-snug ${
+                              fieldOn
+                                ? "font-medium text-[#3D2E6B]"
+                                : "text-[#A89BD0] line-through"
+                            }`}
+                          >
+                            {f.label}
+                          </span>
+                          {f.help && (
+                            <span className="mt-0.5 block text-xs leading-relaxed text-[#7E6BAF]">
+                              {f.help}
+                            </span>
+                          )}
+                          {customIds.has(f.id) && (
+                            <span className="mt-1 inline-block rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                              Your question
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                      {customIds.has(f.id) && (
+                        <button
+                          onClick={() => {
+                            removeCustomField(providerName, editing, f.id);
+                            toast.success("Question removed");
+                          }}
+                          aria-label="Remove question"
+                          className="mt-0.5 rounded-[12px] p-1.5 text-[#A89BD0] transition hover:bg-[#F0EAFB] hover:text-[#5B4796]"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {activeCountOf(editing) === 0 && (
+                <p className="mt-3 rounded-[12px] bg-[#FFF4E5] px-3 py-2 text-xs text-[#8A5A12]">
+                  Every question here is off, so this section won't be shown to
+                  clients.
+                </p>
+              )}
+
+              <div className="mt-6 rounded-[12px] border border-[#F0EAFB] p-3">
+                <p className="text-xs font-semibold text-[#3D2E6B]">
+                  Add your own question
+                </p>
+                <p className="mt-0.5 text-xs text-[#7E6BAF]">
+                  Clients answer it in their own words, and can say they'd rather
+                  talk it through in session.
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addQuestion();
+                    }}
+                    placeholder="e.g. Have you used our platform before?"
+                    className="min-w-0 flex-1 rounded-[12px] border border-[#D8C7F0] px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#5B4796]"
+                  />
+                  <button
+                    onClick={addQuestion}
+                    disabled={!draft.trim()}
+                    className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#5B4796] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#4A3A7D] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
