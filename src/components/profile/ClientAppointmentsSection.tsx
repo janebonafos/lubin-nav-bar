@@ -24,6 +24,7 @@ import {
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
+import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
 
 type Appt = {
   id: string;
@@ -186,6 +187,22 @@ export default function ClientAppointmentsSection() {
     return subscribeProviderShares(refresh);
   }, []);
 
+  // Which appointments still need something from the client (session prep).
+  const [intakeOpen, setIntakeOpen] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const refresh = () => {
+      const next: Record<string, number> = {};
+      for (const a of seed) {
+        if (a.status === "cancelled") continue;
+        const p = buildIntakeProgress(a.id, a.provider);
+        if (p.total > 0 && !p.complete) next[a.id] = p.total - p.answered - p.skipped;
+      }
+      setIntakeOpen(next);
+    };
+    refresh();
+    return subscribeIntake(refresh);
+  }, []);
+
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 400);
     return () => window.clearTimeout(t);
@@ -343,12 +360,18 @@ export default function ClientAppointmentsSection() {
                 publishAppointmentEvent({ type: "lock", id: a.id, action });
                 window.open(href, "_blank", "noopener,noreferrer");
               };
+              const openIntake = intakeOpen[a.id] ?? 0;
+              const needsAction =
+                openIntake > 0 &&
+                (a.status === "upcoming" || (a.status === "completed" && !a.publishedFollowUp));
               return (
                 <li
                   key={a.id}
                   className={`${
                     isExpanded ? "bg-[#FBF9FF]" : "hover:bg-[#FBF9FF]"
-                  } ${!isLast ? "border-b border-[#F0EAFB]" : ""} transition-colors`}
+                  } ${!isLast ? "border-b border-[#F0EAFB]" : ""} ${
+                    needsAction ? "border-l-4 border-l-[#5B4796] bg-[#FBF9FF]" : ""
+                  } transition-colors`}
                 >
                   <div className="flex flex-wrap items-center gap-6 p-6 sm:flex-nowrap">
                     <div
@@ -382,6 +405,14 @@ export default function ClientAppointmentsSection() {
                           >
                             {statusLabel(a)}
                           </span>
+                          {needsAction && (
+                            <span
+                              title={`${openIntake} session prep question${openIntake === 1 ? "" : "s"} still to answer`}
+                              className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]"
+                            >
+                              Action needed
+                            </span>
+                          )}
                           {grants[a.id] && (
                             <span
                               title={`${grants[a.id]!.includedKeys.length} item${grants[a.id]!.includedKeys.length === 1 ? "" : "s"} shared with ${a.provider}`}
