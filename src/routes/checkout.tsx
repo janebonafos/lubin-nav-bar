@@ -76,6 +76,18 @@ export const Route = createFileRoute("/checkout")({
   ),
 });
 
+function GoogleGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="#EA4335"
+        d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.06-1.1-.16-1.6H12z"
+      />
+    </svg>
+  );
+}
+
+
 function CheckoutPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
@@ -98,6 +110,10 @@ function CheckoutPage() {
   const [shareRange, setShareRange] = useState<RangeKey>("30d");
   const [pending, setPending] = useState<PendingShare | null>(null);
   const [consent, setConsent] = useState(false);
+  const [googleAccount, setGoogleAccount] = useState<{ name: string; email: string } | null>(null);
+  const [googlePicker, setGooglePicker] = useState(false);
+  const [googleInput, setGoogleInput] = useState("");
+
   const [localCheckins, setLocalCheckins] = useState<
     { id: string; mood: number; note: string; date: string }[]
   >([]);
@@ -120,6 +136,52 @@ function CheckoutPage() {
       /* ignore */
     }
   }, []);
+
+  // Reuse an already-connected account so returning users skip typing.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const savedEmail = window.localStorage.getItem("lubin.userEmail");
+      const savedName = window.localStorage.getItem("lubin.userName") ?? "";
+      if (savedEmail) {
+        setGoogleAccount({ name: savedName || savedEmail.split("@")[0], email: savedEmail });
+        setEmail(savedEmail);
+        setName((n) => n || savedName);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const connectGoogle = () => {
+    const nextEmail = googleInput.trim().toLowerCase();
+    if (!/.+@.+\..+/.test(nextEmail)) return;
+    const derived = nextEmail
+      .split("@")[0]
+      .replace(/[._-]+/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    const displayName = name.trim() || derived;
+    setGoogleAccount({ name: displayName, email: nextEmail });
+    setEmail(nextEmail);
+    setName(displayName);
+    setGooglePicker(false);
+    setGoogleInput("");
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("lubin.userEmail", nextEmail);
+        window.localStorage.setItem("lubin.userName", displayName);
+        window.localStorage.setItem("lubin.signedIn", "1");
+        if (!window.localStorage.getItem("lubin.userRole")) {
+          window.localStorage.setItem("lubin.userRole", "client");
+        }
+        window.dispatchEvent(new Event("lubin:auth-change"));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+
 
   // Build a summary snapshot for the modal (uses local check-ins if available,
   // otherwise falls back to the mock so the user can preview categories).
@@ -279,7 +341,80 @@ function CheckoutPage() {
               We'll send your session details and receipt to the email below.
             </p>
 
+            {/* Google account — skip typing, reuse an existing account */}
+            {googleAccount ? (
+              <div className="mt-5 flex items-center gap-3 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm">
+                  <GoogleGlyph className="h-4.5 w-4.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[13.5px] font-semibold text-slate-900">
+                    {googleAccount.name}
+                  </p>
+                  <p className="truncate text-[12.5px] text-slate-500">{googleAccount.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGoogleAccount(null);
+                    setGooglePicker(false);
+                    setEmail("");
+                  }}
+                  className="ml-auto shrink-0 text-[12.5px] font-semibold text-brand-purple hover:underline"
+                >
+                  Use another email
+                </button>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => setGooglePicker((v) => !v)}
+                  className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13.5px] font-semibold text-slate-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-md active:translate-y-0"
+                >
+                  <GoogleGlyph className="h-4.5 w-4.5" />
+                  Continue with Google
+                </button>
+                {googlePicker && (
+                  <div className="mt-2.5 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
+                    <p className="text-[12.5px] font-semibold text-slate-700">
+                      Which Google account should we use?
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                      <input
+                        type="email"
+                        value={googleInput}
+                        onChange={(e) => setGoogleInput(e.target.value)}
+                        placeholder="you@gmail.com"
+                        className="flex-1 rounded-xl border border-[#E9E6FA] bg-white px-3.5 py-2.5 text-[14px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={connectGoogle}
+                        disabled={!/.+@.+\..+/.test(googleInput)}
+                        className="rounded-xl bg-brand-purple px-4 py-2.5 text-[13.5px] font-semibold text-white transition-all enabled:hover:-translate-y-0.5 disabled:opacity-50"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                    <p className="mt-2 text-[12px] text-slate-500">
+                      We'll use this to create or sign in to your Lubin account and send your
+                      receipt.
+                    </p>
+                  </div>
+                )}
+                <div className="my-4 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-[#E9E6FA]" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    or enter details
+                  </span>
+                  <div className="h-px flex-1 bg-[#E9E6FA]" />
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 space-y-4">
+
               <div>
                 <label className="text-[12px] font-semibold text-slate-700">Full name</label>
                 <input
