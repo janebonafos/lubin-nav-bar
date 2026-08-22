@@ -82,10 +82,43 @@ export default function ClientFormPreview({
         </div>
       ))}
 
+      {measures.length > 0 && (
+        <div className="rounded-[12px] border border-[#EAE7F5] bg-white p-4">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+            Short check-ins
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[#3D2E6B]">
+            A few standard check-ins
+          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
+            The same short questionnaires clinicians use everywhere, so progress
+            can be seen over time. Tap to complete, or leave them for the session.
+          </p>
+          <ul className="mt-3 space-y-2">
+            {measures.map((m) => (
+              <li
+                key={m.id}
+                className="rounded-[8px] border border-[#EAE7F5] bg-[#FDFCFF] p-3"
+              >
+                <p className="text-sm font-medium text-[#3D2E6B]">
+                  {m.clientBlurb}
+                </p>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                  {m.code} · {m.items} questions · about {m.minutes} min ·{" "}
+                  {CADENCE_LABEL[m.cadence]}
+                  {!m.slug && " · your clinician will go through this with you"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <p className="text-center text-[11px] text-[#A89BD0]">
         Preview only — nothing here is saved.
       </p>
     </div>
+
   );
 }
 
