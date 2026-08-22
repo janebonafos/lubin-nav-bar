@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Plus, Star, Trash2 } from "lucide-react";
+import { Check, Eye, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -24,6 +24,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import ClientFormPreview from "@/components/profile/ClientFormPreview";
 
 /**
  * Provider-side: build the client intake form — the standard details clinicians
@@ -42,6 +43,8 @@ export default function SessionPrepSection({
   const [saved, setSaved] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSection, setPreviewSection] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -138,12 +141,21 @@ export default function SessionPrepSection({
               </p>
             )}
           </div>
-          <p className="mt-3 text-xs text-[#7E6BAF]">
-            {request.templateIds.length} section
-            {request.templateIds.length === 1 ? "" : "s"} · {questionCount} question
-            {questionCount === 1 ? "" : "s"} · shown to clients as one form
-          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-[#7E6BAF]">
+              {request.templateIds.length} section
+              {request.templateIds.length === 1 ? "" : "s"} · {questionCount} question
+              {questionCount === 1 ? "" : "s"} · shown to clients as one form
+            </p>
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+            >
+              <Eye className="h-3.5 w-3.5" /> Preview client form
+            </button>
+          </div>
         </div>
+
 
         {INTAKE_GROUPS.map((group: IntakeGroup) => {
           const items = ALL_TEMPLATES.filter((t) => t.group === group);
@@ -319,10 +331,52 @@ export default function SessionPrepSection({
                   </button>
                 </div>
               </div>
+
+              <button
+                onClick={() => {
+                  setPreviewSection(editing);
+                  setPreviewOpen(true);
+                }}
+                className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-2 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+              >
+                <Eye className="h-3.5 w-3.5" /> Preview this section as a client
+              </button>
             </>
           )}
+        </SheetContent>
+      </Sheet>
+
+      <Sheet
+        open={previewOpen}
+        onOpenChange={(o) => {
+          setPreviewOpen(o);
+          if (!o) setPreviewSection(null);
+        }}
+      >
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto bg-[#FDFCFF] sm:max-w-lg"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-[#3D2E6B]">
+              How clients will see this
+            </SheetTitle>
+            <SheetDescription className="text-[#7E6BAF]">
+              Exactly the questions, wording and order your clients get after
+              booking. Nothing here is editable or saved.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-6">
+            <ClientFormPreview
+              request={request}
+              providerLabel={providerName}
+              templateId={previewSection ?? undefined}
+            />
+          </div>
         </SheetContent>
       </Sheet>
     </div>
   );
 }
+
