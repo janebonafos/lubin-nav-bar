@@ -365,7 +365,7 @@ export function getServicesForProvider(p: Provider): Service[] {
     `${compacted} · ${p.availableHours}`,
     `${compacted} · ${p.availableHours}`,
   ];
-  return base.map((focus, i) => {
+  return [...free, ...base.map((focus, i) => {
     const t = templates[i % templates.length];
     const isGroupCapable = t.format === "Both";
     return {
