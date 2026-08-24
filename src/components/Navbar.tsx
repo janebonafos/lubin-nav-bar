@@ -455,8 +455,22 @@ export default function Navbar() {
             </button>
           )}
           <a
+            href="/find-provider"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-3.5 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple 2xl:px-4"
+          >
+            Find a provider
+          </a>
+          <button
+            type="button"
+            onClick={openChatWaitlist}
+            className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-4 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] 2xl:px-5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
+          >
+            Talk to Lubin
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
+          </button>
+          <a
             href={`/provider/${FREE_CONSULT_PROVIDER_ID}#services`}
-            className="group relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-3.5 py-2 2xl:px-4 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(61,46,107,0.7)]"
+            className="group relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-3.5 py-2 2xl:px-4 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(61,46,107,0.7)] active:scale-95"
           >
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
@@ -467,21 +481,7 @@ export default function Navbar() {
               Free
             </span>
           </a>
-          <a
-            href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-3.5 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple 2xl:px-4"
-          >
-            Find a provider
-          </a>
 
-          <button
-            type="button"
-            onClick={openChatWaitlist}
-            className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-4 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] 2xl:px-5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
-          >
-            Talk to Lubin
-            <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
-          </button>
           {signedIn && (
             <div className="relative" ref={userMenuRef}>
               <button
@@ -670,23 +670,6 @@ export default function Navbar() {
             )}
             <li>
               <a
-                href={`/provider/${FREE_CONSULT_PROVIDER_ID}#services`}
-                onClick={() => setOpen(false)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] active:scale-95"
-              >
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8FE3C4]" />
-                </span>
-                Free 30-min consult
-                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                  Free
-                </span>
-              </a>
-            </li>
-            <li>
-
-              <a
                 href="/find-provider"
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/30 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
@@ -707,6 +690,23 @@ export default function Navbar() {
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
               </button>
             </li>
+            <li>
+              <a
+                href={`/provider/${FREE_CONSULT_PROVIDER_ID}#services`}
+                onClick={() => setOpen(false)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] active:scale-95"
+              >
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8FE3C4]" />
+                </span>
+                Free 30-min consult
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                  Free
+                </span>
+              </a>
+            </li>
+
           </ul>
         </div>
       )}
