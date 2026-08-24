@@ -19,6 +19,8 @@ import { CalendarDays } from "lucide-react";
 import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
 import { openChatWaitlist } from "@/components/ChatWaitlistModal";
+import { FREE_CONSULT_PROVIDER_ID } from "@/lib/providers";
+
 
 interface NavLinkItem {
   label: string;
