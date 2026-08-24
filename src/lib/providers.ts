@@ -385,8 +385,9 @@ export function getServicesForProvider(p: Provider): Service[] {
           }
         : {}),
     };
-  });
+  })];
 }
+
 
 export function getProviderById(id: string): Provider | undefined {
   return PROVIDERS.find((p) => p.id === id);
