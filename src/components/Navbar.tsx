@@ -384,15 +384,15 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 2xl:gap-5 2xl:pl-8 2xl:pr-6"
+        className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 rounded-full border border-white/40 bg-white/70 pl-6 pr-5 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-8 md:pr-5 md:py-2 2xl:gap-6 2xl:pl-10 2xl:pr-7"
       >
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center min-[1400px]:mr-2 2xl:mr-5" aria-label="Lubin home">
+        <Link to="/" className="flex shrink-0 items-center min-[1400px]:mr-3 2xl:mr-6" aria-label="Lubin home">
           <img src={lubinLogo} alt="Lubin" className="h-6 w-auto min-[1400px]:h-5 2xl:h-7" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden min-[1400px]:flex min-w-0 flex-1 items-center justify-end gap-3 2xl:gap-6">
+        <ul className="hidden min-[1400px]:flex min-w-0 flex-1 items-center justify-end gap-5 2xl:gap-8">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -411,7 +411,7 @@ export default function Navbar() {
             return (
               <li
                 key={link.href}
-                className="relative shrink-0 last:mr-2 2xl:last:mr-4"
+                className="relative shrink-0 last:mr-4 2xl:last:mr-8"
                 onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
@@ -444,7 +444,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden min-[1400px]:flex shrink-0 items-center gap-1.5 2xl:gap-2">
+        <div className="hidden min-[1400px]:flex shrink-0 items-center gap-3 2xl:gap-4">
           {!signedIn && (
             <button
               type="button"
@@ -479,13 +479,13 @@ export default function Navbar() {
           </a>
 
           {signedIn && (
-            <div className="relative" ref={userMenuRef}>
+            <div className="relative ml-2" ref={userMenuRef}>
               <button
                 type="button"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
-                className="relative ml-1 inline-flex items-center justify-center rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white"
+                className="relative inline-flex items-center justify-center rounded-full border border-brand-purple/20 bg-white/70 p-1 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/50 hover:bg-white"
                 title={displayName}
                 aria-label={displayName}
               >
