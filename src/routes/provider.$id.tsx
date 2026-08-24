@@ -63,7 +63,10 @@ function ymd(d: Date): string {
 
 function getServiceAvailability(service: Service): ServiceAvailability {
   const h = hashString(service.id);
-  const hasSlots = h % 4 !== 0;
+  // The free intro consult always keeps open slots so the navbar CTA never
+  // lands on an empty services list.
+  const hasSlots = service.price === 0 ? true : h % 4 !== 0;
+
   if (!hasSlots) {
     return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
   }
@@ -81,8 +84,14 @@ function getServiceAvailability(service: Service): ServiceAvailability {
     }
   }
   if (!firstDate) {
+    if (service.price === 0) {
+      const today = new Date();
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      return { hasSlots: true, nextDate: d, times, availableDates: new Set([ymd(d)]) };
+    }
     return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
   }
+
   return { hasSlots: true, nextDate: firstDate, times, availableDates: dates };
 }
 
@@ -526,11 +535,12 @@ function ServiceCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
+  const isFree = service.price === 0;
   const availLabel = availability.hasSlots && availability.nextDate
     ? `Next available: ${formatNextAvailable(availability.nextDate, availability.times[0])}`
     : "No times available";
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+    <article className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)] ${isFree ? "border-brand-purple/50 ring-2 ring-brand-purple/20" : "border-[#E9E6FA] hover:border-brand-purple/30"}`}>
       {/* Gradient header band */}
       <div className="relative h-2 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple" />
       <div
@@ -539,9 +549,19 @@ function ServiceCard({
       />
 
       <div className="flex flex-1 flex-col p-6">
+        {isFree && (
+          <span className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-[#3D2E6B] to-[#7E6BAF] px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#8FE3C4]" />
+            </span>
+            Free · No commitment
+          </span>
+        )}
         <h3 className="text-[20px] font-bold leading-snug text-slate-900">
           {service.title}
         </h3>
+
 
         <div className="flex flex-1 flex-col">
           <p
@@ -617,12 +637,19 @@ function ServiceCard({
         <div className="mt-5 grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Starting at
+              {isFree ? "Your cost" : "Starting at"}
             </span>
-            <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
-              ₱{service.price.toLocaleString()}
-              <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
-            </p>
+            {isFree ? (
+              <p className="whitespace-nowrap text-[20px] font-bold leading-none text-brand-purple">
+                Free
+                <span className="ml-1 text-[12px] font-normal text-slate-400">/30 min</span>
+              </p>
+            ) : (
+              <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
+                ₱{service.price.toLocaleString()}
+                <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -630,8 +657,9 @@ function ServiceCard({
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
           >
             <Calendar className="h-3.5 w-3.5" />
-            Book
+            {isFree ? "Book free" : "Book"}
           </button>
+
         </div>
       </div>
     </article>

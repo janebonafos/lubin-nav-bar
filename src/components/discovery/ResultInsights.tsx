@@ -498,7 +498,10 @@ export function BookingCard({ status }: { status: AssessmentStatus }) {
         </p>
         <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
           <Link
-            to="/find-provider"
+            to="/provider/$id"
+            params={{ id: "1" }}
+            hash="services"
+
             onClick={() => claimFreeConsult()}
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-purple-dark"
           >
