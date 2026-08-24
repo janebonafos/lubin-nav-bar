@@ -466,7 +466,6 @@ export default function Navbar() {
             className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-4 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] 2xl:px-5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
           >
             Talk to Lubin
-            <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
           </button>
           <a
             href={`/provider/${FREE_CONSULT_PROVIDER_ID}#services`}
@@ -477,9 +476,6 @@ export default function Navbar() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8FE3C4]" />
             </span>
             Free 30-min consult
-            <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-              Free
-            </span>
           </a>
 
           {signedIn && (
@@ -687,7 +683,6 @@ export default function Navbar() {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)]"
               >
                 Talk to Lubin
-                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
               </button>
             </li>
             <li>
@@ -701,9 +696,6 @@ export default function Navbar() {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8FE3C4]" />
                 </span>
                 Free 30-min consult
-                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                  Free
-                </span>
               </a>
             </li>
 
