@@ -388,7 +388,7 @@ export default function Navbar() {
       >
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center min-[1400px]:mr-2 2xl:mr-5" aria-label="Lubin home">
-          <img src={lubinLogo} alt="Lubin" className="h-6 w-auto lg:h-7" />
+          <img src={lubinLogo} alt="Lubin" className="h-6 w-auto min-[1400px]:h-5 2xl:h-7" />
         </Link>
 
         {/* Desktop nav links */}
