@@ -526,11 +526,12 @@ function ServiceCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const shouldClamp = service.description.length > 140;
+  const isFree = service.price === 0;
   const availLabel = availability.hasSlots && availability.nextDate
     ? `Next available: ${formatNextAvailable(availability.nextDate, availability.times[0])}`
     : "No times available";
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E9E6FA] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)]">
+    <article className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_-20px_rgba(124,113,176,0.4)] ${isFree ? "border-brand-purple/50 ring-2 ring-brand-purple/20" : "border-[#E9E6FA] hover:border-brand-purple/30"}`}>
       {/* Gradient header band */}
       <div className="relative h-2 bg-gradient-to-r from-brand-purple via-brand-purple-accent to-brand-purple" />
       <div
@@ -539,9 +540,19 @@ function ServiceCard({
       />
 
       <div className="flex flex-1 flex-col p-6">
+        {isFree && (
+          <span className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-[#3D2E6B] to-[#7E6BAF] px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#8FE3C4]" />
+            </span>
+            Free · No commitment
+          </span>
+        )}
         <h3 className="text-[20px] font-bold leading-snug text-slate-900">
           {service.title}
         </h3>
+
 
         <div className="flex flex-1 flex-col">
           <p
