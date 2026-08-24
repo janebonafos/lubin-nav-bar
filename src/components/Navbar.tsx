@@ -458,7 +458,7 @@ export default function Navbar() {
             href="/find-provider"
             className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-3.5 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple 2xl:px-4"
           >
-            Find a provider
+            Find support
           </a>
           <button
             type="button"
@@ -670,7 +670,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full items-center justify-center rounded-full border border-brand-purple/30 bg-white px-5 py-2.5 text-sm font-medium text-brand-purple-dark"
               >
-                Find Service Provider
+                Find support
               </a>
             </li>
             <li>
