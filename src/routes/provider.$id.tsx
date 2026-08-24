@@ -628,12 +628,19 @@ function ServiceCard({
         <div className="mt-5 grid grid-cols-[1fr_auto] items-center gap-3 border-t border-dashed border-[#E9E6FA] pt-5">
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Starting at
+              {isFree ? "Your cost" : "Starting at"}
             </span>
-            <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
-              ₱{service.price.toLocaleString()}
-              <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
-            </p>
+            {isFree ? (
+              <p className="whitespace-nowrap text-[20px] font-bold leading-none text-brand-purple">
+                Free
+                <span className="ml-1 text-[12px] font-normal text-slate-400">/30 min</span>
+              </p>
+            ) : (
+              <p className="whitespace-nowrap text-[20px] font-bold leading-none text-slate-900">
+                ₱{service.price.toLocaleString()}
+                <span className="ml-1 text-[12px] font-normal text-slate-400">/session</span>
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -641,8 +648,9 @@ function ServiceCard({
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_-8px_rgba(124,113,176,0.6)] transition-all hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(124,113,176,0.85)] hover:ring-2 hover:ring-white/40 active:scale-95"
           >
             <Calendar className="h-3.5 w-3.5" />
-            Book
+            {isFree ? "Book free" : "Book"}
           </button>
+
         </div>
       </div>
     </article>
