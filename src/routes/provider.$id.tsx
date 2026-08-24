@@ -84,8 +84,14 @@ function getServiceAvailability(service: Service): ServiceAvailability {
     }
   }
   if (!firstDate) {
+    if (service.price === 0) {
+      const today = new Date();
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      return { hasSlots: true, nextDate: d, times, availableDates: new Set([ymd(d)]) };
+    }
     return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
   }
+
   return { hasSlots: true, nextDate: firstDate, times, availableDates: dates };
 }
 
