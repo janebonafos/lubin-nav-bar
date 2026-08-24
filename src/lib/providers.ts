@@ -302,11 +302,35 @@ export function compactDays(days: string[]): string {
 }
 
 /**
+ * The provider who hosts Lubin's free 30-minute intro consultation.
+ * The navbar CTA and result pages point here.
+ */
+export const FREE_CONSULT_PROVIDER_ID = "1";
+export const FREE_CONSULT_SERVICE_ID = "free-consult-30";
+
+export function freeConsultService(p: Provider): Service {
+  const days = compactDays(p.availableDays.map((d) => dayLabels[d]));
+  return {
+    id: FREE_CONSULT_SERVICE_ID,
+    title: "Free 30-Minute Consultation",
+    description:
+      "A no-cost, no-commitment 30-minute conversation with a verified mental health professional. Talk through what's going on, ask questions, and find out what kind of support fits you — you decide what happens next.",
+    sessionType: "One on One Session",
+    duration: "30 minutes",
+    price: 0,
+    format: "Individual",
+    schedule: `${days} · ${p.availableHours}`,
+  };
+}
+
+/**
  * Build a default set of services for a provider based on their specialties.
  * Used as a fallback when a provider hasn't authored explicit services yet.
  */
 export function getServicesForProvider(p: Provider): Service[] {
-  if (p.services && p.services.length) return p.services;
+  const free = p.id === FREE_CONSULT_PROVIDER_ID ? [freeConsultService(p)] : [];
+  if (p.services && p.services.length) return [...free, ...p.services];
+
   const base = p.tags.slice(0, 3);
   const templates = [
     {
