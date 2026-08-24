@@ -384,15 +384,15 @@ export default function Navbar() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 xl:gap-5 2xl:gap-6 2xl:pl-8 2xl:pr-6"
+        className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 overflow-hidden rounded-full border border-white/40 bg-white/70 pl-5 pr-4 py-2 shadow-[0_8px_32px_0_rgba(126,107,175,0.10)] backdrop-blur-xl md:pl-7 md:pr-4 md:py-2 2xl:gap-5 2xl:pl-8 2xl:pr-6"
       >
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center min-[1400px]:mr-6 2xl:mr-8" aria-label="Lubin home">
+        <Link to="/" className="flex shrink-0 items-center min-[1400px]:mr-2 2xl:mr-5" aria-label="Lubin home">
           <img src={lubinLogo} alt="Lubin" className="h-6 w-auto lg:h-7" />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden min-[1400px]:flex min-w-0 flex-1 items-center justify-end gap-4 2xl:gap-7">
+        <ul className="hidden min-[1400px]:flex min-w-0 flex-1 items-center justify-end gap-3 2xl:gap-6">
           {NAV_LINKS.map((link) => {
             if (!link.dropdown) {
               return (
@@ -411,7 +411,7 @@ export default function Navbar() {
             return (
               <li
                 key={link.href}
-                className="relative shrink-0 last:mr-5 2xl:last:mr-6"
+                className="relative shrink-0 last:mr-2 2xl:last:mr-4"
                 onMouseEnter={() => openDropdown(link.href)}
                 onMouseLeave={scheduleClose}
               >
@@ -444,7 +444,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTAs */}
-        <div className="hidden min-[1400px]:flex shrink-0 items-center gap-2">
+        <div className="hidden min-[1400px]:flex shrink-0 items-center gap-1.5 2xl:gap-2">
           {!signedIn && (
             <button
               type="button"
@@ -456,7 +456,7 @@ export default function Navbar() {
           )}
           <a
             href={`/provider/${FREE_CONSULT_PROVIDER_ID}#services`}
-            className="group relative ml-3 inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-4 py-2 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(61,46,107,0.7)]"
+            className="group relative inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#3D2E6B] via-[#5B4A8E] to-[#7E6BAF] px-3.5 py-2 2xl:px-4 text-sm font-semibold text-white no-underline shadow-[0_8px_20px_-6px_rgba(61,46,107,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(61,46,107,0.7)]"
           >
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8FE3C4] opacity-75" />
@@ -469,15 +469,15 @@ export default function Navbar() {
           </a>
           <a
             href="/find-provider"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-4 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-purple/30 bg-white/60 px-3.5 py-2 text-sm font-medium text-brand-purple-dark transition-all duration-300 hover:border-brand-purple/60 hover:bg-white hover:text-brand-purple 2xl:px-4"
           >
-            Find Service Provider
+            Find a provider
           </a>
 
           <button
             type="button"
             onClick={openChatWaitlist}
-            className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-5 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-4 py-2 text-sm font-semibold tracking-wide text-white no-underline shadow-[0_8px_20px_-6px_rgba(126,107,175,0.55)] 2xl:px-5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-purple-dark hover:shadow-[0_12px_24px_-8px_rgba(61,46,107,0.55)] active:scale-95"
           >
             Talk to Lubin
             <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Soon</span>
