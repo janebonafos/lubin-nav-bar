@@ -63,7 +63,10 @@ function ymd(d: Date): string {
 
 function getServiceAvailability(service: Service): ServiceAvailability {
   const h = hashString(service.id);
-  const hasSlots = h % 4 !== 0;
+  // The free intro consult always keeps open slots so the navbar CTA never
+  // lands on an empty services list.
+  const hasSlots = service.price === 0 ? true : h % 4 !== 0;
+
   if (!hasSlots) {
     return { hasSlots: false, nextDate: null, times: [], availableDates: new Set() };
   }
