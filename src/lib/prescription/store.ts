@@ -149,6 +149,20 @@ export type PatientSafetyInfo = {
   /** Bipolar or mania history screening result. */
   bipolarHistory?: HistoryState;
   bipolarDetail?: string;
+  /** How the client prefers to be addressed — never replaces the legal name. */
+  preferredName?: string;
+  pronouns?: string;
+  /** Contact details the practice keeps on file. */
+  phone?: string;
+  email?: string;
+  /** Emergency / next-of-kin contact, e.g. "Ana Santos (sister) 0917…". */
+  emergencyContact?: string;
+  /** Referral source or how the client reached the practice. */
+  referralSource?: string;
+  /** Anything else the provider needs on record. */
+  providerNotes?: string;
+  /** Provider-defined details this practice records for its own clients. */
+  customFields?: { id: string; label: string; value: string }[];
   updatedAt?: number;
 };
 
