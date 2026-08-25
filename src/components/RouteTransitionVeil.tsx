@@ -1,5 +1,5 @@
 import { useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Lightweight global loading veil shown while a route navigation is in
