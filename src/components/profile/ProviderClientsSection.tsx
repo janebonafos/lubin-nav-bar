@@ -128,7 +128,32 @@ function NewClientForm({
   const [pregnancy, setPregnancy] = useState<PregnancyStatus>("not-documented");
   const [error, setError] = useState("");
 
+  // Optional details beyond the standard intake set.
+  const [showMore, setShowMore] = useState(false);
+  const [preferredName, setPreferredName] = useState("");
+  const [pronouns, setPronouns] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [referralSource, setReferralSource] = useState("");
+  const [providerNotes, setProviderNotes] = useState("");
+  const [customFields, setCustomFields] = useState<
+    { id: string; label: string; value: string }[]
+  >([]);
+
   const age = ageFromDob(dob);
+
+  function addCustom() {
+    setShowMore(true);
+    setCustomFields((list) => [
+      ...list,
+      { id: `cf_${Date.now().toString(36)}_${list.length}`, label: "", value: "" },
+    ]);
+  }
+
+  function patchCustom(id: string, patch: Partial<{ label: string; value: string }>) {
+    setCustomFields((list) => list.map((f) => (f.id === id ? { ...f, ...patch } : f)));
+  }
 
   function submit() {
     if (fullName.trim().length < 2) {
@@ -148,6 +173,16 @@ function NewClientForm({
       medicationEntries: noteEntries(medications),
       medicationState: medications.trim() ? "documented" : "not-documented",
       pregnancyStatus: pregnancy,
+      preferredName: preferredName.trim() || undefined,
+      pronouns: pronouns.trim() || undefined,
+      phone: phone.trim() || undefined,
+      email: email.trim() || undefined,
+      emergencyContact: emergencyContact.trim() || undefined,
+      referralSource: referralSource.trim() || undefined,
+      providerNotes: providerNotes.trim() || undefined,
+      customFields: customFields
+        .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
+        .filter((f) => f.label && f.value),
     };
     const record = createPatientRecord({ fullName, info });
     onCreated(record.id);
