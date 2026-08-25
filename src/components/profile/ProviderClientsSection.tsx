@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ClipboardCopy,
+  Plus,
   Search,
   UserPlus,
   Users,
