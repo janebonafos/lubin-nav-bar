@@ -1,4 +1,4 @@
-import { useRouterState } from "@tanstack/react-router";
+import { useRouter, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import PageSkeleton from "@/components/PageSkeleton";
 
@@ -14,12 +14,15 @@ export default function RouteTransitionVeil() {
   const location = useRouterState({ select: (s) => s.location.href });
   const [show, setShow] = useState(false);
   const hideAt = useRef(0);
+  const router = useRouter();
 
   // Show instantly on any in-app link click, even if the route resolves fast,
-  // so the click always produces visible feedback.
+  // so the click always produces visible feedback. Plain <a href="/..."> links
+  // (not rendered through <Link>) are also routed client-side here so they
+  // never trigger a full page reload — which would bypass this loader.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const anchor = (e.target as HTMLElement | null)?.closest?.("a");
       if (!anchor) return;
       const href = anchor.getAttribute("href");
@@ -30,16 +33,26 @@ export default function RouteTransitionVeil() {
         href.startsWith("#") ||
         href.startsWith("mailto:") ||
         href.startsWith("tel:") ||
-        /^https?:\/\//i.test(href)
+        !href.startsWith("/") ||
+        /^\/\//.test(href)
       )
         return;
       if (href === window.location.pathname + window.location.search) return;
+
+      // Bubble phase: if a <Link> already handled it, defaultPrevented is set.
+      // Otherwise take over so navigation stays client-side.
+      if (!e.defaultPrevented) {
+        e.preventDefault();
+        void router.navigate({ to: href, resetScroll: true });
+      }
+
       hideAt.current = Date.now() + 550;
       setShow(true);
     };
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, []);
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [router]);
+
 
   useEffect(() => {
     if (isNavigating) {
