@@ -10,15 +10,47 @@ export default function RouteTransitionVeil() {
   const isNavigating = useRouterState({
     select: (s) => s.status === "pending" || s.isLoading || s.isTransitioning,
   });
+  const location = useRouterState({ select: (s) => s.location.href });
   const [show, setShow] = useState(false);
+  const hideAt = useRef(0);
+
+  // Show instantly on any in-app link click, even if the route resolves fast,
+  // so the click always produces visible feedback.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (
+        !href ||
+        anchor.target === "_blank" ||
+        anchor.hasAttribute("download") ||
+        href.startsWith("#") ||
+        href.startsWith("mailto:") ||
+        href.startsWith("tel:") ||
+        /^https?:\/\//i.test(href)
+      )
+        return;
+      if (href === window.location.pathname + window.location.search) return;
+      hideAt.current = Date.now() + 550;
+      setShow(true);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   useEffect(() => {
     if (isNavigating) {
-      const t = setTimeout(() => setShow(true), 60);
-      return () => clearTimeout(t);
+      hideAt.current = Math.max(hideAt.current, Date.now() + 400);
+      setShow(true);
+      return;
     }
-    setShow(false);
-  }, [isNavigating]);
+    const remaining = Math.max(0, hideAt.current - Date.now());
+    const t = setTimeout(() => setShow(false), remaining);
+    return () => clearTimeout(t);
+  }, [isNavigating, location]);
+
 
   return (
     <div
