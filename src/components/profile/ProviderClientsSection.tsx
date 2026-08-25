@@ -637,6 +637,42 @@ export default function ProviderClientsSection() {
               <dd className="text-[#3D2E6B]">{formatDate(active.lastIssuedAt)}</dd>
             </div>
           </dl>
+
+          {(() => {
+            const extras: { label: string; value: string }[] = [
+              { label: "Preferred name", value: active.info.preferredName ?? "" },
+              { label: "Pronouns", value: active.info.pronouns ?? "" },
+              { label: "Phone", value: active.info.phone ?? "" },
+              { label: "Email", value: active.info.email ?? "" },
+              { label: "Emergency contact", value: active.info.emergencyContact ?? "" },
+              { label: "Referral source", value: active.info.referralSource ?? "" },
+              ...(active.info.customFields ?? []).map((f) => ({
+                label: f.label,
+                value: f.value,
+              })),
+            ].filter((e) => e.value.trim());
+            if (extras.length === 0 && !active.info.providerNotes) return null;
+            return (
+              <div className="mt-5 border-t border-[#EDEBF3] pt-4">
+                <dl className="grid gap-x-6 gap-y-3 text-[12.5px] sm:grid-cols-2">
+                  {extras.map((e) => (
+                    <div key={e.label}>
+                      <dt className={label}>{e.label}</dt>
+                      <dd className="text-[#3D2E6B]">{e.value}</dd>
+                    </div>
+                  ))}
+                  {active.info.providerNotes && (
+                    <div className="sm:col-span-2">
+                      <dt className={label}>Other notes</dt>
+                      <dd className="whitespace-pre-line text-[#3D2E6B]">
+                        {active.info.providerNotes}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            );
+          })()}
         </div>
 
         <div className={card}>
