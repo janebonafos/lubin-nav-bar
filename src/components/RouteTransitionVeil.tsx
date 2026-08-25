@@ -1,5 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import PageSkeleton from "@/components/PageSkeleton";
 
 /**
  * Lightweight global loading veil shown while a route navigation is in
