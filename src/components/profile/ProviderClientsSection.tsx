@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ClipboardCopy,
+  Plus,
   Search,
   UserPlus,
   Users,
@@ -128,7 +129,32 @@ function NewClientForm({
   const [pregnancy, setPregnancy] = useState<PregnancyStatus>("not-documented");
   const [error, setError] = useState("");
 
+  // Optional details beyond the standard intake set.
+  const [showMore, setShowMore] = useState(false);
+  const [preferredName, setPreferredName] = useState("");
+  const [pronouns, setPronouns] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [referralSource, setReferralSource] = useState("");
+  const [providerNotes, setProviderNotes] = useState("");
+  const [customFields, setCustomFields] = useState<
+    { id: string; label: string; value: string }[]
+  >([]);
+
   const age = ageFromDob(dob);
+
+  function addCustom() {
+    setShowMore(true);
+    setCustomFields((list) => [
+      ...list,
+      { id: `cf_${Date.now().toString(36)}_${list.length}`, label: "", value: "" },
+    ]);
+  }
+
+  function patchCustom(id: string, patch: Partial<{ label: string; value: string }>) {
+    setCustomFields((list) => list.map((f) => (f.id === id ? { ...f, ...patch } : f)));
+  }
 
   function submit() {
     if (fullName.trim().length < 2) {
@@ -148,6 +174,16 @@ function NewClientForm({
       medicationEntries: noteEntries(medications),
       medicationState: medications.trim() ? "documented" : "not-documented",
       pregnancyStatus: pregnancy,
+      preferredName: preferredName.trim() || undefined,
+      pronouns: pronouns.trim() || undefined,
+      phone: phone.trim() || undefined,
+      email: email.trim() || undefined,
+      emergencyContact: emergencyContact.trim() || undefined,
+      referralSource: referralSource.trim() || undefined,
+      providerNotes: providerNotes.trim() || undefined,
+      customFields: customFields
+        .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
+        .filter((f) => f.label && f.value),
     };
     const record = createPatientRecord({ fullName, info });
     onCreated(record.id);
@@ -287,6 +323,113 @@ function NewClientForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="mt-5 rounded-xl border border-[#EDE7FA] bg-[#FBFAFE] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[13px] font-bold text-[#3D2E6B]">More details</p>
+            <p className="mt-0.5 text-[12px] text-[#6F6889]">
+              The fields above are the usual set clinicians record. Add anything else your
+              practice keeps on file — all optional.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-white/60"
+          >
+            {showMore ? "Hide" : "Add more details"}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition ${showMore ? "rotate-180" : ""}`}
+            />
+          </button>
+        </div>
+
+        {showMore && (
+          <div className="mt-4 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  ["Preferred name", preferredName, setPreferredName, "What they like to be called"],
+                  ["Pronouns", pronouns, setPronouns, "e.g. she/her"],
+                  ["Phone", phone, setPhone, "Mobile or landline"],
+                  ["Email", email, setEmail, "name@example.com"],
+                  [
+                    "Emergency contact",
+                    emergencyContact,
+                    setEmergencyContact,
+                    "Name, relationship, number",
+                  ],
+                  ["Referral source", referralSource, setReferralSource, "Who referred them"],
+                ] as const
+              ).map(([lbl, value, set, placeholder]) => (
+                <div key={lbl}>
+                  <label className={label}>{lbl}</label>
+                  <input
+                    value={value}
+                    onChange={(e) => set(e.target.value)}
+                    placeholder={placeholder}
+                    className={`${inputCls} mt-1`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <label className={label} htmlFor="nc-notes">
+                Other notes
+              </label>
+              <textarea
+                id="nc-notes"
+                value={providerNotes}
+                onChange={(e) => setProviderNotes(e.target.value)}
+                rows={3}
+                placeholder="Anything else you want on this record"
+                className="mt-1 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
+              />
+            </div>
+
+            {customFields.length > 0 && (
+              <div className="space-y-2">
+                {customFields.map((f) => (
+                  <div key={f.id} className="flex flex-wrap items-center gap-2">
+                    <input
+                      value={f.label}
+                      onChange={(e) => patchCustom(f.id, { label: e.target.value })}
+                      placeholder="Detail name"
+                      className={`${inputCls} sm:w-[200px]`}
+                    />
+                    <input
+                      value={f.value}
+                      onChange={(e) => patchCustom(f.id, { value: e.target.value })}
+                      placeholder="Value"
+                      className={`${inputCls} flex-1`}
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove detail"
+                      onClick={() =>
+                        setCustomFields((list) => list.filter((x) => x.id !== f.id))
+                      }
+                      className="rounded-full p-1.5 text-[#8A7FB0] transition hover:bg-[#F4F0FC]"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={addCustom}
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-dashed border-[#C9B6EC] bg-white px-3.5 text-[12.5px] font-semibold text-[#5B4A93] transition hover:bg-white/60"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add your own field
+            </button>
+          </div>
+        )}
       </div>
 
       {error && <p className="mt-3 text-[12.5px] font-semibold text-[#B4453C]">{error}</p>}
@@ -494,6 +637,42 @@ export default function ProviderClientsSection() {
               <dd className="text-[#3D2E6B]">{formatDate(active.lastIssuedAt)}</dd>
             </div>
           </dl>
+
+          {(() => {
+            const extras: { label: string; value: string }[] = [
+              { label: "Preferred name", value: active.info.preferredName ?? "" },
+              { label: "Pronouns", value: active.info.pronouns ?? "" },
+              { label: "Phone", value: active.info.phone ?? "" },
+              { label: "Email", value: active.info.email ?? "" },
+              { label: "Emergency contact", value: active.info.emergencyContact ?? "" },
+              { label: "Referral source", value: active.info.referralSource ?? "" },
+              ...(active.info.customFields ?? []).map((f) => ({
+                label: f.label,
+                value: f.value,
+              })),
+            ].filter((e) => e.value.trim());
+            if (extras.length === 0 && !active.info.providerNotes) return null;
+            return (
+              <div className="mt-5 border-t border-[#EDEBF3] pt-4">
+                <dl className="grid gap-x-6 gap-y-3 text-[12.5px] sm:grid-cols-2">
+                  {extras.map((e) => (
+                    <div key={e.label}>
+                      <dt className={label}>{e.label}</dt>
+                      <dd className="text-[#3D2E6B]">{e.value}</dd>
+                    </div>
+                  ))}
+                  {active.info.providerNotes && (
+                    <div className="sm:col-span-2">
+                      <dt className={label}>Other notes</dt>
+                      <dd className="whitespace-pre-line text-[#3D2E6B]">
+                        {active.info.providerNotes}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            );
+          })()}
         </div>
 
         <div className={card}>
