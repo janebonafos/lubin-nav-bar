@@ -12,8 +12,8 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: PageSkeleton,
-    defaultPendingMs: 150,
-    defaultPendingMinMs: 400,
+    defaultPendingMs: 80,
+    defaultPendingMinMs: 300,
   });
 
   return router;
