@@ -55,27 +55,17 @@ export default function RouteTransitionVeil() {
   return (
     <div
       aria-hidden={!show}
-      role={show ? "status" : undefined}
-      className="pointer-events-none fixed inset-0 z-[9998] flex items-center justify-center"
+      className="fixed inset-0 z-[9998] overflow-hidden"
       style={{
         opacity: show ? 1 : 0,
-        transition: "opacity 180ms ease",
-        backgroundColor: show ? "rgba(250, 248, 253, 0.55)" : "transparent",
-        backdropFilter: show ? "blur(1.5px)" : "none",
+        pointerEvents: show ? "auto" : "none",
+        transition: "opacity 160ms ease",
       }}
     >
-      <div
-        className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow-[0_10px_30px_-12px_rgba(126,107,175,0.55)] ring-1 ring-[#ECE7F6]"
-        style={{
-          transform: show ? "translateY(0) scale(1)" : "translateY(6px) scale(0.96)",
-          transition: "transform 180ms ease",
-        }}
-      >
-        <span className="relative flex h-4 w-4">
-          <span className="absolute inset-0 animate-spin rounded-full border-2 border-[#EAE7F5] border-t-[#7E6BAF]" />
-        </span>
-        <span className="text-xs font-semibold text-[#5A4A8A]">Loading…</span>
+      <div className="h-full w-full overflow-hidden bg-[#FBFAFF]">
+        <PageSkeleton />
       </div>
     </div>
   );
 }
+
