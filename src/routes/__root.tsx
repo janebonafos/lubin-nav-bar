@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import ChatWaitlistModal from "@/components/ChatWaitlistModal";
+import RouteTransitionVeil from "@/components/RouteTransitionVeil";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 
