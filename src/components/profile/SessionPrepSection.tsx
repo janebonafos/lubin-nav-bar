@@ -97,14 +97,6 @@ export default function SessionPrepSection({
     });
   };
 
-  const toggleImportant = (id: string) => {
-    update({
-      ...request,
-      importantIds: request.importantIds.includes(id)
-        ? request.importantIds.filter((t) => t !== id)
-        : [...request.importantIds, id],
-    });
-  };
 
   const toggleField = (fieldId: string) => {
     update({
@@ -208,7 +200,6 @@ export default function SessionPrepSection({
               <ul>
                 {items.map((t, idx) => {
                   const on = request.templateIds.includes(t.id);
-                  const important = request.importantIds.includes(t.id);
                   const total = fieldsOf(t.id).length;
                   const active = activeCountOf(t.id);
                   return (
@@ -218,7 +209,7 @@ export default function SessionPrepSection({
                         idx !== items.length - 1 ? "border-b border-[#F0EAFB]" : ""
                       } ${on ? "bg-[#FDFCFF]" : ""}`}
                     >
-                      <label className="flex flex-1 min-w-[240px] items-start gap-3">
+                      <label className="flex min-w-[240px] flex-1 items-start gap-3">
                         <input
                           type="checkbox"
                           checked={on}
@@ -239,30 +230,16 @@ export default function SessionPrepSection({
                         </span>
                       </label>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          disabled={!on}
-                          onClick={() => {
-                            setEditing(t.id);
-                            setDraft("");
-                          }}
-                          className="rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          Edit questions
-                        </button>
-                        <button
-                          disabled={!on}
-                          onClick={() => toggleImportant(t.id)}
-                          className={`inline-flex items-center gap-1.5 rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                            important
-                              ? "border-[#5B4796] bg-[#5B4796] text-white"
-                              : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
-                          }`}
-                        >
-                          <Star className="h-3.5 w-3.5" />
-                          {important ? "Priority" : "Mark as priority"}
-                        </button>
-                      </div>
+                      <button
+                        disabled={!on}
+                        onClick={() => {
+                          setEditing(t.id);
+                          setDraft("");
+                        }}
+                        className="rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Edit questions
+                      </button>
                     </li>
                   );
                 })}
