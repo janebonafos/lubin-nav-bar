@@ -91,9 +91,6 @@ export default function SessionPrepSection({
       templateIds: on
         ? request.templateIds.filter((t) => t !== id)
         : [...request.templateIds, id],
-      importantIds: on
-        ? request.importantIds.filter((t) => t !== id)
-        : request.importantIds,
     });
   };
 
