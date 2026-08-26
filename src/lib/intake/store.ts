@@ -22,8 +22,6 @@ const CHANGE_EVENT = "lubin-intake-change";
 export type ProviderRequest = {
   /** Templates this provider asks for. */
   templateIds: string[];
-  /** Subset the provider flagged as most useful — stronger copy, never blocking. */
-  importantIds: string[];
   /** Individual questions the provider turned off — they never reach the client. */
   excludedFieldIds?: string[];
   /** Extra questions the provider wrote, keyed by the section they belong to. */
@@ -92,7 +90,6 @@ export function getProviderRequest(providerName: string): ProviderRequest {
   if (found) return { measureIds: [...DEFAULT_MEASURE_IDS], ...found };
   return {
     templateIds: [...DEFAULT_TEMPLATE_IDS],
-    importantIds: ["identity", "presenting"],
     measureIds: [...DEFAULT_MEASURE_IDS],
   };
 }
@@ -244,7 +241,6 @@ export type IntakeProgress = {
   open: number;
   skipped: number;
   complete: boolean;
-  importantOpen: boolean;
   minutes: number;
   response: IntakeResponse;
 };
@@ -254,7 +250,6 @@ export function buildIntakeProgress(
   providerName: string,
 ): IntakeProgress {
   const templates = templatesFor(providerName);
-  const importantIds = getProviderRequest(providerName).importantIds;
   const response = getResponse(appointmentId);
   const prefill = buildIntakePrefill();
 
@@ -287,9 +282,6 @@ export function buildIntakeProgress(
     open,
     skipped,
     complete: open === 0,
-    importantOpen: fields.some(
-      (f) => importantIds.includes(f.template.id) && !f.answered && !f.skipped,
-    ),
     minutes: Math.max(1, templates.reduce((s, t) => s + t.minutes, 0)),
     response,
   };
