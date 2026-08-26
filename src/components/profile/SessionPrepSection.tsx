@@ -163,6 +163,38 @@ export default function SessionPrepSection({
               <Eye className="h-3.5 w-3.5" /> Preview client form
             </button>
           </div>
+
+          <div className="mt-4 rounded-[12px] border border-[#EAE7F5] bg-[#FBF9FF] p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+              Where the client's answers appear
+            </p>
+            <ul className="mt-2.5 space-y-2.5">
+              <li className="flex items-start gap-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] bg-[#F0EAFB] text-[#5B4796]">
+                  <CalendarClock className="h-3.5 w-3.5" />
+                </span>
+                <p className="text-xs leading-relaxed text-[#6F6889]">
+                  <span className="font-semibold text-[#3D2E6B]">
+                    On the booked appointment.
+                  </span>{" "}
+                  Answers are attached to the client's upcoming session, so you
+                  can read them before or during the appointment.
+                </p>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] bg-[#F0EAFB] text-[#5B4796]">
+                  <FolderOpen className="h-3.5 w-3.5" />
+                </span>
+                <p className="text-xs leading-relaxed text-[#6F6889]">
+                  <span className="font-semibold text-[#3D2E6B]">
+                    Under the client's record.
+                  </span>{" "}
+                  The same answers are saved to that client's profile in your
+                  Clients tab, so you can find them again anytime.
+                </p>
+              </li>
+            </ul>
+          </div>
         </div>
 
 
