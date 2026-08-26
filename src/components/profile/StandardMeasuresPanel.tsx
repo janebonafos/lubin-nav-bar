@@ -48,7 +48,7 @@ export default function StandardMeasuresPanel({
     () =>
       mounted
         ? getProviderRequest(providerName)
-        : { templateIds: [], importantIds: [], measureIds: [] },
+        : { templateIds: [], measureIds: [] },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [providerName, mounted, tick],
   );
