@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Eye, Plus, Star, Trash2 } from "lucide-react";
+import {
+  CalendarClock,
+  Check,
+  Eye,
+  FolderOpen,
+  Plus,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
