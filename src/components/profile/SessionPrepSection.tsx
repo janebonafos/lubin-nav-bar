@@ -63,7 +63,7 @@ export default function SessionPrepSection({
     () =>
       mounted
         ? getProviderRequest(providerName)
-        : { templateIds: [], importantIds: [] },
+        : { templateIds: [] },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [providerName, mounted, tick],
   );
