@@ -1791,16 +1791,6 @@ export function AppointmentsSection() {
                       appointmentId={a.id}
                       providerName="You"
                       clientName={a.client}
-                      summary={{
-                        client: a.client,
-                        when: `${a.month} ${a.date} · ${a.time} · ${a.timezone}`,
-                        duration: a.duration,
-                        type: a.type,
-                        mode: a.mode,
-                        status: a.status === "session_review" ? "Session review" : a.status,
-                        amount: a.amount,
-                        paymentStatus: a.paymentStatus,
-                      }}
                     />
 
                     {(a.status === "completed" || a.status === "session_review" || a.notes) && (
