@@ -438,8 +438,8 @@ export default function IssuePrescriptionDialog({
   const hasPatient = !!patientName.trim() || creatingNew || !!selected;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1B1330]/50 p-3 backdrop-blur-sm sm:p-6">
-      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-[#1B1330]/50 p-3 pt-20 backdrop-blur-sm sm:p-6 sm:pt-24">
+      <div className="flex max-h-[calc(100vh-6rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl sm:max-h-[calc(100vh-7rem)]">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#EDEBF3] bg-white px-6 py-5">
           <div>
             <h2 className="text-[16px] font-bold text-[#3D2E6B]">New prescription</h2>
