@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, FileText, Calendar, Clock, User, Video, BadgeDollarSign } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, FileText } from "lucide-react";
 
 import {
   Sheet,
@@ -11,42 +11,25 @@ import {
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
 import type { IntakeFieldState } from "@/lib/intake/store";
 
-type Filter = "all" | "answered" | "open";
-
-type SessionSummary = {
-  client: string;
-  when: string;
-  duration: string;
-  type: string;
-  mode: string;
-  status: string;
-  amount?: string;
-  paymentStatus?: string;
-};
-
 /**
  * Provider-side read of what the client shared ahead of the session.
  *
  * The inline card is intentionally compact so it never pushes the session
  * summary off-screen. The full intake form opens in a side drawer where the
- * provider can review answers, filter by shared/open items, and see the
- * session summary at a glance.
+ * provider can review answers grouped by section.
  */
 export default function ProviderIntakeAnswers({
   appointmentId,
   providerName,
   clientName,
-  summary,
 }: {
   appointmentId: string;
   providerName: string;
   clientName?: string;
-  summary?: SessionSummary;
 }) {
   const [tick, setTick] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [filter, setFilter] = useState<Filter>("answered");
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -62,20 +45,13 @@ export default function ProviderIntakeAnswers({
 
   const groups = useMemo(() => {
     if (!progress) return [];
-    const visible = progress.fields.filter((f) =>
-      filter === "answered"
-        ? f.answered || f.skipped
-        : filter === "open"
-          ? !f.answered
-          : true,
-    );
     const bySection = new Map<string, IntakeFieldState[]>();
-    for (const f of visible) {
+    for (const f of progress.fields) {
       const key = f.template.label;
       bySection.set(key, [...(bySection.get(key) ?? []), f]);
     }
     return [...bySection.entries()];
-  }, [progress, filter]);
+  }, [progress]);
 
   if (!progress || progress.total === 0) return null;
   const first = (clientName ?? "Your client").split(" ")[0];
@@ -87,12 +63,6 @@ export default function ProviderIntakeAnswers({
       else next.add(label);
       return next;
     });
-
-  const tabs: { id: Filter; label: string; count: number }[] = [
-    { id: "answered", label: "Shared", count: progress.answered + progress.skipped },
-    { id: "open", label: "Still to ask", count: progress.open },
-    { id: "all", label: "All", count: progress.total },
-  ];
 
   const answeredPct = Math.round((progress.answered / progress.total) * 100);
 
@@ -152,53 +122,11 @@ export default function ProviderIntakeAnswers({
           </SheetHeader>
 
           <div className="flex h-[calc(100vh-88px)] flex-col">
-            {/* Session summary */}
-            {summary && (
-              <div className="border-b border-[#F0EAFB] bg-[#FBF9FF] p-5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-                  Session summary
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                  <SummaryItem icon={User} label="Client" value={summary.client} />
-                  <SummaryItem icon={Calendar} label="When" value={summary.when} />
-                  <SummaryItem icon={Clock} label="Duration" value={summary.duration} />
-                  <SummaryItem icon={Video} label="Mode" value={summary.mode} />
-                  <SummaryItem icon={FileText} label="Type" value={summary.type} />
-                  <SummaryItem
-                    icon={BadgeDollarSign}
-                    label="Amount"
-                    value={summary.amount ?? "—"}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Filter tabs */}
-            <div className="sticky top-0 z-10 flex gap-1 border-b border-[#F0EAFB] bg-white px-5 py-3">
-              {tabs.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setFilter(t.id)}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                    filter === t.id
-                      ? "bg-[#3D2E6B] text-white"
-                      : "bg-[#F0EAFB] text-[#5B4796] hover:bg-[#E6DCF7]"
-                  }`}
-                >
-                  {t.label} · {t.count}
-                </button>
-              ))}
-            </div>
-
             {/* Scrollable form content */}
             <div className="flex-1 overflow-y-auto p-5">
               {groups.length === 0 ? (
                 <p className="text-sm text-[#7E6BAF]">
-                  {filter === "answered"
-                    ? `${first} hasn't shared anything yet — answers appear here live.`
-                    : filter === "open"
-                      ? "Nothing outstanding — everything has been shared."
-                      : "No questions on this form."}
+                  {first} hasn&apos;t shared anything yet — answers appear here live.
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -274,25 +202,5 @@ export default function ProviderIntakeAnswers({
         </SheetContent>
       </Sheet>
     </>
-  );
-}
-
-function SummaryItem({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-2">
-      <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A89BD0]" />
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
-        <p className="text-sm font-medium text-[#3D2E6B]">{value}</p>
-      </div>
-    </div>
   );
 }
