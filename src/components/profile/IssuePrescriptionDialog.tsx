@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   FileText,
-  Info,
+  HelpCircle,
   Plus,
   Search,
   ShieldCheck,
