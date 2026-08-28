@@ -62,23 +62,25 @@ export function DeliveryStep({
         stays unchanged whichever route you choose.
       </p>
 
-      <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => setSelected(selected ?? results[0]?.id ?? null)}
-          className={`rounded-xl border px-3.5 py-3 text-left transition ${
-            chosen === "pharmacy" || selected
-              ? "border-[#6E4FD3] bg-[#F6F3FE]"
-              : "border-[#E4E1EC] bg-white hover:bg-[#FAF7FE]"
-          }`}
-        >
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
-            <Building2 className="h-4 w-4 text-[#6E4FD3]" /> Send to pharmacy
-          </p>
-          <p className="mt-0.5 text-[12px] leading-snug text-[#5A4A8A]">
-            Transmit to a verified pharmacy branch from the directory.
-          </p>
-        </button>
+      <div className={`mt-3 grid grid-cols-1 gap-2.5 ${country === "PH" ? "" : "sm:grid-cols-2"}`}>
+        {country !== "PH" && (
+          <button
+            type="button"
+            onClick={() => setSelected(selected ?? results[0]?.id ?? null)}
+            className={`rounded-xl border px-3.5 py-3 text-left transition ${
+              chosen === "pharmacy" || selected
+                ? "border-[#6E4FD3] bg-[#F6F3FE]"
+                : "border-[#E4E1EC] bg-white hover:bg-[#FAF7FE]"
+            }`}
+          >
+            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#2C2B4B]">
+              <Building2 className="h-4 w-4 text-[#6E4FD3]" /> Send to pharmacy
+            </p>
+            <p className="mt-0.5 text-[12px] leading-snug text-[#5A4A8A]">
+              Transmit to a verified pharmacy branch from the directory.
+            </p>
+          </button>
+        )}
         <button
           type="button"
           onClick={onGiveToPatient}
