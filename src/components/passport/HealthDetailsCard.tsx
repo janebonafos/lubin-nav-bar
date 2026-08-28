@@ -549,7 +549,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
       <div className="flex flex-col gap-12">
         {/* Live card preview — compact and centered above the sections */}
-        <div className="mx-auto w-full max-w-xl">
+        <div className="mx-auto w-full max-w-lg">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/40">
