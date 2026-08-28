@@ -361,13 +361,15 @@ function PassportPage() {
             />
           )}
           {tab === "details" && (
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-5xl">
               <div className="mb-6 flex items-center gap-3">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
                   <UserCircle className="h-5 w-5" />
                 </span>
                 <div>
-                  <h2 className="text-xl font-bold text-brand-purple-dark">About you</h2>
+                  <h2 className="text-xl font-bold text-brand-purple-dark">
+                    {detailsName ? `About ${detailsName}` : "About you"}
+                  </h2>
                   <p className="text-sm text-brand-purple-dark/60">
                     Health details you choose to keep — shared only when you say yes.
                   </p>
