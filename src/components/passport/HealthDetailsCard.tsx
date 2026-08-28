@@ -226,9 +226,6 @@ function TagsInput({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2">
-  return (
-    <div>
       <p className="mb-2 text-[12px] text-brand-purple-dark/45">
         Select all that apply{exclusive ? "" : ""} — you can pick more than one.
       </p>
