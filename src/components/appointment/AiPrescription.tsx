@@ -13,7 +13,6 @@ import {
   X,
   ShieldCheck,
   Eye,
-  Sparkles,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
