@@ -58,6 +58,16 @@ function CardLine({ label, value }: { label: string; value?: string }) {
   );
 }
 
+function formatDob(value: string): string {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function PassportCard({
   details,
   filled,
@@ -71,7 +81,9 @@ function PassportCard({
 }) {
   const name =
     details["identity.preferredName"] || details["identity.fullName"] || ownerName || "";
-  const age = ageFrom(details["identity.dob"] ?? "");
+  const dob = details["identity.dob"] ?? "";
+  const age = ageFrom(dob);
+
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
   return (
@@ -101,8 +113,11 @@ function PassportCard({
             {name || "Your name"}
           </h3>
           <p className="mt-1 text-[12px] text-white/55">
-            {age ? `${age} yrs` : "Add the basics to start your card"}
+            {dob
+              ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
+              : "Add the basics to start your card"}
           </p>
+
 
           <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
             <div>
