@@ -2265,7 +2265,16 @@ function MedicationEditor({
     const done = snap ? snap.recorded : !!live?.recorded;
     const value = done ? (snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds)) : "";
     return (
-      <li key={key} className={open ? "bg-[#FBFAFE]" : "transition hover:bg-[#FBFAFE]"}>
+      <li
+        key={key}
+        className={
+          open
+            ? "bg-[#FBFAFE]"
+            : done
+              ? "bg-[#F3FBF7] transition hover:bg-[#EBF7F1]"
+              : "transition hover:bg-[#FBFAFE]"
+        }
+      >
         <button
           type="button"
           aria-expanded={open}
@@ -2283,8 +2292,16 @@ function MedicationEditor({
           className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
         >
           <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
-              {done && <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />}
+            <span
+              className={`flex items-center gap-1.5 text-[13.5px] font-semibold ${
+                done ? "text-[#1F7A57]" : "text-[#2C2B4B]"
+              }`}
+            >
+              {done && (
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1F7A57] text-white">
+                  <Check className="h-2.5 w-2.5" />
+                </span>
+              )}
               <span className="truncate">{infoLabel(key)}</span>
             </span>
             {done && value && (
