@@ -66,6 +66,7 @@ import {
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
+import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import {
   getProviderGrant,
   subscribeProviderShares,
