@@ -190,12 +190,15 @@ function TagsInput({
   onChange: (v: string) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const [showOther, setShowOther] = useState(false);
   const items = parseItems(value);
   const maxItems = field.maxItems ?? 10;
   const maxItemLength = field.maxItemLength ?? 40;
   const exclusive = field.exclusiveOption;
   const exclusiveOn = Boolean(exclusive && items.length === 1 && items[0] === exclusive);
   const full = items.length >= maxItems;
+  const custom = items.filter((i) => !(field.options ?? []).includes(i));
+  const otherOpen = showOther || custom.length > 0;
 
   const commit = (next: string[]) => {
     const unique: string[] = [];
