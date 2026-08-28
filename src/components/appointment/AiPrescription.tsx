@@ -2572,28 +2572,39 @@ function MedicationEditor({
                 </button>
               </div>
 
-              {!safetyResolved && outstandingLabels.length > 0 && (
+              {!safetyResolved && (
                 <div className="mt-3 border-t border-[#DCD2F4]/70 pt-3">
                   <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B82A8]">
-                    Still needed
+                    Standard information for every prescription
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-1.5">
-                    {outstandingLabels.slice(0, 4).map((label) => (
-                      <li
-                        key={label}
-                        className="rounded-full bg-white px-2.5 py-1 text-[12px] font-medium text-[#5A3EB8] ring-1 ring-[#DCD2F4]"
-                      >
-                        {label}
-                      </li>
-                    ))}
-                    {outstandingLabels.length > 4 && (
-                      <li className="rounded-full px-2.5 py-1 text-[12px] font-medium text-[#6F6889]">
-                        +{outstandingLabels.length - 4} more
-                      </li>
-                    )}
+                    {STANDARD_INFO_CHECKLIST.map((item) => {
+                      const done = infoList.find((i) => i.key === item.key)?.recorded ?? false;
+                      return (
+                        <li
+                          key={item.key}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium ring-1 ${
+                            done
+                              ? "bg-[#F1F7F4] text-[#1F7A57] ring-[#CFE9DD]"
+                              : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
+                          }`}
+                        >
+                          {done ? (
+                            <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          ) : (
+                            <span
+                              aria-hidden="true"
+                              className="h-1.5 w-1.5 rounded-full bg-[#A796DE]"
+                            />
+                          )}
+                          {item.label}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
+
 
               {!safetyResolved && medicationReviewOnly && medicationReviewRemainder && (
                 <p className="mt-3 border-t border-[#DCD2F4]/70 pt-3 text-[12px] leading-relaxed text-[#5A3EB8]">
