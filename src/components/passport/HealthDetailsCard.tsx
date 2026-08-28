@@ -101,8 +101,11 @@ function PassportCard({
             {name || "Your name"}
           </h3>
           <p className="mt-1 text-[12px] text-white/55">
-            {age ? `${age} yrs` : "Add the basics to start your card"}
+            {dob
+              ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
+              : "Add the basics to start your card"}
           </p>
+
 
           <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
             <div>
