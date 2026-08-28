@@ -236,6 +236,19 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         placeholder: "e.g. penicillin — or \"none known\"",
       },
       {
+        id: "history.pregnancy",
+        label: "Are you pregnant, breastfeeding or trying to conceive?",
+        help: "Only asked because it changes what is safe to prescribe.",
+        type: "choice",
+        options: [
+          "None of these apply",
+          "I'm pregnant",
+          "I'm breastfeeding",
+          "Trying to conceive",
+          "Prefer not to say",
+        ],
+      },
+      {
         id: "history.family",
         label: "Anything similar in your family?",
         help: "Common question in psychiatry — skip it if you'd rather talk it through.",
