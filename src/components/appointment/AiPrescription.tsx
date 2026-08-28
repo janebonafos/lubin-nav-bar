@@ -13,7 +13,6 @@ import {
   X,
   ShieldCheck,
   Eye,
-  Sparkles,
 } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import {
@@ -1248,8 +1247,8 @@ export function AiPrescription({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <h3 className="text-[14px] font-semibold text-[#2C2B4B]">AI suggestions ready</h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
-                <Sparkles className="h-3 w-3" /> AI-generated
+              <span className="inline-flex items-center rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
+                AI-generated
               </span>
             </div>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -1260,9 +1259,8 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => setShowSuggestions(true)}
-                className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                <Sparkles className="h-3.5 w-3.5" />
                 Show AI suggestions
               </button>
               <button
@@ -1294,8 +1292,8 @@ export function AiPrescription({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
-                <Sparkles className="h-3 w-3" /> AI-assisted
+              <span className="inline-flex items-center rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
+                AI-assisted
               </span>
             </div>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
@@ -1307,9 +1305,8 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => void generate({ mode: "suggest" })}
-                className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                <Sparkles className="h-3.5 w-3.5" />
                 Generate AI suggestions
               </button>
               <button
@@ -1746,9 +1743,8 @@ export function AiPrescription({
           <button
             type="button"
             onClick={() => void generate({ mode: "suggest" })}
-            className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
           >
-            <Sparkles className="h-3.5 w-3.5" />
             Generate AI suggestions
           </button>
         )}
@@ -1756,9 +1752,8 @@ export function AiPrescription({
           <button
             type="button"
             onClick={() => setShowSuggestions(true)}
-            className="inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
+            className="inline-flex h-9 items-center rounded-[10px] border border-[#D9D5E3] bg-white px-3.5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F5FB]"
           >
-            <Sparkles className="h-3.5 w-3.5" />
             Show AI suggestions
           </button>
         )}
