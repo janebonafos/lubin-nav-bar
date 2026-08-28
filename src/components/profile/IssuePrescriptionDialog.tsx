@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   FileText,
   HelpCircle,
+  Info,
   Plus,
   Search,
   ShieldCheck,
@@ -93,8 +94,24 @@ function emptyMed(): MedForm {
     duration: "",
     quantity: "",
     refills: "",
+    followUp: "",
     instructions: "",
   };
+}
+
+function FieldHint({ text }: { text: string }) {
+  return (
+    <span className="group/hint relative ml-1 inline-flex align-middle">
+      <Info
+        className="h-3.5 w-3.5 cursor-help text-[#A89BD0]"
+        tabIndex={0}
+        aria-label={text}
+      />
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 hidden w-56 -translate-x-1/2 rounded-lg bg-[#2C2250] px-2.5 py-2 text-[11.5px] font-normal leading-snug text-white shadow-lg group-hover/hint:block group-focus-within/hint:block">
+        {text}
+      </span>
+    </span>
+  );
 }
 
 function ageFromDob(dob: string): number | undefined {
@@ -318,6 +335,7 @@ export default function IssuePrescriptionDialog({
       duration: s.duration ?? "",
       quantity: "",
       refills: "",
+      followUp: "",
       instructions: s.instructions,
       warnings: s.warnings,
       rationale: s.rationale,
@@ -368,6 +386,7 @@ export default function IssuePrescriptionDialog({
       duration: m.duration.trim() || undefined,
       quantity: m.quantity.trim() || undefined,
       refills: m.refills.trim() || undefined,
+      followUp: m.followUp.trim() || undefined,
       indication: diagnosis.trim() || undefined,
       instructions: m.instructions.trim(),
       warnings: m.warnings,
