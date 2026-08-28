@@ -347,7 +347,7 @@ function FieldInput({
           {field.help}
         </span>
       )}
-    </label>
+    </Wrapper>
   );
 }
 
