@@ -2487,9 +2487,9 @@ function MedicationEditor({
         )}
       </section>
 
-      {/* 2 — Patient safety review — compact summary only; details live in the drawer */}
+      {/* 2 — Safety review — compact summary only; details live in the drawer */}
       <section>
-        <SectionHeading>Patient safety review</SectionHeading>
+        <SectionHeading>Safety review</SectionHeading>
         {!hasName ? (
           <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
             Choose a medication above to see the patient information and safety items this
@@ -2504,7 +2504,7 @@ function MedicationEditor({
             >
               <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-[#2C2B4B]">Patient safety review</p>
+                  <p className="text-[14px] font-semibold text-[#2C2B4B]">Safety review</p>
                   <p
                     className={`mt-0.5 text-[12.5px] font-semibold ${
                       safetyResolved ? "text-[#1F7A57]" : "text-[#5A3EB8]"
