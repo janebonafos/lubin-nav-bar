@@ -283,7 +283,9 @@ function FieldInput({
           <Check className="h-3.5 w-3.5 text-emerald-600" aria-label="Saved" />
         ) : null}
       </span>
-      {field.type === "long-text" ? (
+      {field.type === "tags" ? (
+        <TagsInput field={field} value={value} onChange={onChange} />
+      ) : field.type === "long-text" ? (
         <textarea
           rows={3}
           value={value}
