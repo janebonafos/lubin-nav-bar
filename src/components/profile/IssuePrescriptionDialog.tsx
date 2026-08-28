@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   Check,
@@ -437,7 +438,9 @@ export default function IssuePrescriptionDialog({
 
   const hasPatient = !!patientName.trim() || creatingNew || !!selected;
 
-  return (
+  // Portal to <body>: profile cards use backdrop-blur, which would otherwise
+  // trap this fixed overlay inside the card instead of covering the viewport.
+  const drawer = (
     <div className="fixed inset-0 z-[70] flex justify-end bg-[#1B1330]/50 backdrop-blur-sm">
       <div className="flex h-full w-full max-w-xl flex-col overflow-hidden border-l border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#EDEBF3] bg-white px-6 py-5">
@@ -1005,4 +1008,7 @@ export default function IssuePrescriptionDialog({
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(drawer, document.body);
 }
