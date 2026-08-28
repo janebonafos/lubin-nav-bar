@@ -256,25 +256,49 @@ export default function AuthModal({
             </label>
 
             {onBehalf && (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
-                    Your relationship
+              <div className="mt-4 space-y-3">
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Your relationship to them
                   </span>
-                  <select
-                    value={relationship}
-                    onChange={(e) => setRelationship(e.target.value)}
-                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none focus:border-[#7E6BAF]"
-                  >
-                    <option value="">Select…</option>
-                    <option value="parent">Parent or guardian</option>
-                    <option value="child">Adult child</option>
-                    <option value="partner">Partner or spouse</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="caregiver">Caregiver or support worker</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
+                  <div className="flex flex-wrap gap-2">
+                    {PROXY_RELATIONSHIPS.map((opt) => {
+                      const active = relationship === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setRelationship(opt.value)}
+                          aria-pressed={active}
+                          className={`rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${
+                            active
+                              ? "border-[#7E6BAF] bg-[#EAE7F5] text-[#3D2E6B]"
+                              : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5]"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {relationship === "other" && (
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                      How are you related?
+                    </span>
+                    <input
+                      type="text"
+                      value={relationshipOther}
+                      maxLength={60}
+                      onChange={(e) => setRelationshipOther(e.target.value)}
+                      placeholder="e.g. Family friend"
+                      className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                    />
+                  </label>
+                )}
+
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
                     Their first name
@@ -288,13 +312,20 @@ export default function AuthModal({
                     className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
                   />
                 </label>
-                {proxyIncomplete && (
-                  <p className="sm:col-span-2 text-[12px] text-[#7E6BAF]">
-                    Add your relationship and their first name to continue.
+
+                {proxyIncomplete ? (
+                  <p className="text-[12px] text-[#7E6BAF]">
+                    Pick your relationship and add their first name to continue.
+                  </p>
+                ) : (
+                  <p className="text-[12px] text-[#5A4E8A]">
+                    We'll set the passport up for {personName.trim()} and note that you're their{" "}
+                    {(relationship === "other" ? relationshipOther.trim() : relationshipLabel(relationship)).toLowerCase()}.
                   </p>
                 )}
               </div>
             )}
+
           </div>
         )}
 
