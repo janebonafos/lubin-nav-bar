@@ -210,13 +210,14 @@ export default function AuthModal({
                   type="button"
                   onClick={() => handleSelectRole(opt.role)}
                   aria-pressed={active}
-                  className={`group flex items-center gap-4 rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] ${
+                  className={`group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] sm:gap-4 sm:p-5 ${
                     active
                       ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
                       : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
                   }`}
                 >
-                  <div>
+                  <div className="min-w-0">
+
                     <span className={`block text-[15px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
                       {opt.title}
                     </span>
