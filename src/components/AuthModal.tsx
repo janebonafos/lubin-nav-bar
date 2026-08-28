@@ -108,6 +108,7 @@ export default function AuthModal({
     if (role !== "client") {
       setOnBehalf(false);
       setRelationship("");
+      setRelationshipOther("");
       setPersonName("");
     }
     onSelectRole?.(role);
@@ -129,13 +130,27 @@ export default function AuthModal({
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
   const showProxyOption = isSignup && selectedRole === "client";
-  const proxyIncomplete = showProxyOption && onBehalf && (!relationship || personName.trim().length < 2);
+  const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
+  const proxyIncomplete =
+    showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
   const proxyPayload: ProxySignup | null =
     showProxyOption && onBehalf && !proxyIncomplete
-      ? { relationship, personName: personName.trim() }
+      ? {
+          relationship,
+          relationshipLabel: relationshipLabel(relationship),
+          ...(relationship === "other" ? { relationshipOther: relationshipOther.trim() } : {}),
+          personName: personName.trim(),
+        }
       : null;
   const canShowAuthMethods = selectedRole !== null;
   const blocked = loadingProvider !== null || proxyIncomplete;
+
+  /** Persist the relationship for every signup entry point, not just /auth. */
+  const persistProxy = () => {
+    if (!isSignup || selectedRole !== "client") return;
+    saveProxySignup(proxyPayload);
+  };
+
 
   return (
     <div
