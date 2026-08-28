@@ -292,6 +292,7 @@ function FieldInput({
         <textarea
           rows={3}
           value={value}
+          maxLength={field.maxLength ?? 240}
           placeholder={field.placeholder}
           onChange={(e) => onChange(e.target.value)}
           className={`${base} resize-none`}
