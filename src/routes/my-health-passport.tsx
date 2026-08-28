@@ -129,7 +129,7 @@ const MOODS = [
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
-  const [tab, setTab] = useState<"overview" | "progress" | "share">(
+  const [tab, setTab] = useState<"overview" | "progress" | "share" | "details">(
     search.tab ?? "overview",
   );
   const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
