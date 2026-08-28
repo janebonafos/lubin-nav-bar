@@ -158,9 +158,8 @@ export default function IssuePrescriptionDialog({
     setIdentity(loadIdentity());
     setRecords(listPatientRecords());
     const found = detectJurisdiction();
-    setDetected(found);
-    if (found.country && !manualCountry) setCountry(found.country);
-  }, [open, manualCountry]);
+    if (found.country) setCountry(found.country);
+  }, [open]);
 
   const ageYears = ageFromDob(dob);
   const validity = useMemo(
