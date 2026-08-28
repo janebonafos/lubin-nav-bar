@@ -214,7 +214,7 @@ function FieldInput({
 
 /* ---------------------------------- main ---------------------------------- */
 
-export default function HealthDetailsCard() {
+export default function HealthDetailsCard({ showHeader = true }: { showHeader?: boolean }) {
   const [details, setDetails] = useState<HealthDetails>({});
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [proxyName, setProxyName] = useState<string | null>(null);
@@ -244,18 +244,20 @@ export default function HealthDetailsCard() {
   return (
     <section className="w-full">
       {/* header */}
-      <div className="mb-8">
-        <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple">
-          Optional · yours to keep
-        </span>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-purple-dark">
-          {heading}
-        </h2>
-        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-brand-purple-dark/60">
-          Fill in as much or as little as you like. Everything you add builds {whose} card — and
-          fills in a provider's questions once you book and say yes.
-        </p>
-      </div>
+      {showHeader && (
+        <div className="mb-8">
+          <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+            Optional · yours to keep
+          </span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-purple-dark">
+            {heading}
+          </h2>
+          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-brand-purple-dark/60">
+            Fill in as much or as little as you like. Everything you add builds {whose} card — and
+            fills in a provider's questions once you book and say yes.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Live card preview */}
