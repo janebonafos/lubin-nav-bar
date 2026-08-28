@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   AlertTriangle,
-  Check,
   FileText,
   Plus,
   Search,
@@ -36,7 +35,7 @@ import {
   updatePatientRecord,
   type PatientRecordView,
 } from "@/lib/prescription/patientRecords";
-import { detectJurisdiction, JURISDICTION_REQUIREMENTS } from "@/lib/prescription/jurisdiction";
+import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
@@ -129,12 +128,9 @@ export default function IssuePrescriptionDialog({
   onIssued?: (doc: SignedPrescriptionDocument) => void;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
+  // Jurisdiction is derived automatically from the prescriber's location —
+  // the platform applies the correct PH/US rules without asking the provider.
   const [country, setCountry] = useState<RxCountry>("PH");
-  const [detected, setDetected] = useState<{ country: RxCountry | null; source: string }>({
-    country: null,
-    source: "",
-  });
-  const [manualCountry, setManualCountry] = useState(false);
 
   const [records, setRecords] = useState<PatientRecordView[]>([]);
   const [patientQuery, setPatientQuery] = useState("");
@@ -161,9 +157,8 @@ export default function IssuePrescriptionDialog({
     setIdentity(loadIdentity());
     setRecords(listPatientRecords());
     const found = detectJurisdiction();
-    setDetected(found);
-    if (found.country && !manualCountry) setCountry(found.country);
-  }, [open, manualCountry]);
+    if (found.country) setCountry(found.country);
+  }, [open]);
 
   const ageYears = ageFromDob(dob);
   const validity = useMemo(
@@ -462,48 +457,8 @@ export default function IssuePrescriptionDialog({
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
-          {/* Jurisdiction */}
-          <section className={cardCls}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing jurisdiction</h3>
-                <p className="mt-1 text-[12px] text-[#6F6889]">
-                  {manualCountry
-                    ? "Set manually — this overrides the detected location."
-                    : detected.country
-                      ? `Detected from your location${detected.source ? ` (${detected.source})` : ""}.`
-                      : "We could not detect your location — confirm the jurisdiction before signing."}
-                </p>
-              </div>
-              <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-1">
-                {(["PH", "US"] as RxCountry[]).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => {
-                      setCountry(c);
-                      setManualCountry(true);
-                    }}
-                    className={`h-9 rounded-lg px-4 text-[12.5px] font-semibold transition ${
-                      country === c
-                        ? "bg-[#3D2E6B] text-white"
-                        : "text-[#6F6889] hover:text-[#3D2E6B]"
-                    }`}
-                  >
-                    {c === "PH" ? "Philippines" : "United States"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <ul className="mt-4 grid gap-1.5 sm:grid-cols-2">
-              {JURISDICTION_REQUIREMENTS[country].map((req) => (
-                <li key={req} className="flex items-start gap-2 text-[12px] text-[#4B4468]">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
-                  {req}
-                </li>
-              ))}
-            </ul>
-          </section>
+          {/* Jurisdiction is applied automatically from the prescriber's
+              detected location — no UI needed here. */}
 
           {/* Patient */}
           <section className={cardCls}>
