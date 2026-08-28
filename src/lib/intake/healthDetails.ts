@@ -13,9 +13,22 @@ export type HealthDetailField = {
   id: string;
   label: string;
   help?: string;
-  type: "short-text" | "long-text" | "date" | "tel" | "email" | "choice";
+  /**
+   * "tags" keeps answers structured: the client picks from suggestions or adds
+   * short entries (one item each), stored as a comma-separated list so a
+   * clinician sees discrete items rather than a paragraph to interpret.
+   */
+  type: "short-text" | "long-text" | "date" | "tel" | "email" | "choice" | "tags";
   placeholder?: string;
   options?: string[];
+  /** For "tags": an option that clears every other selection (e.g. "None"). */
+  exclusiveOption?: string;
+  /** For "tags": max characters per added item. */
+  maxItemLength?: number;
+  /** For "tags": max number of items. */
+  maxItems?: number;
+  /** For text inputs: hard character cap. */
+  maxLength?: number;
 };
 
 export type HealthDetailGroup = {
