@@ -2845,44 +2845,47 @@ function MedicationEditor({
                                 </span>
                               )}
                             </span>
-                            <StatusChip
-                              level={
-                                reviewed
-                                  ? "complete"
-                                  : needsAck
-                                    ? "review"
-                                    : missingInfo
-                                      ? "unavailable"
-                                      : "no-issue"
-                              }
-                            />
-                            {needsAck && !reviewed && (
+                            <div className="flex flex-wrap items-center gap-2 sm:contents">
+                              <StatusChip
+                                level={
+                                  reviewed
+                                    ? "complete"
+                                    : needsAck
+                                      ? "review"
+                                      : missingInfo
+                                        ? "unavailable"
+                                        : "no-issue"
+                                }
+                              />
+                              {needsAck && !reviewed && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    onMarkCheckReviewed(k);
+                                    toast.success(`${label} marked as reviewed`);
+                                  }}
+                                  className="inline-flex h-8 items-center rounded-[9px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#7C5FE0]"
+                                >
+                                  Review &amp; acknowledge
+                                </button>
+                              )}
                               <button
                                 type="button"
+                                aria-expanded={open}
                                 onClick={() => {
-                                  onMarkCheckReviewed(k);
-                                  toast.success(`${label} marked as reviewed`);
+                                  setOpenInfoKey(null);
+                                  setOpenCheckKey(open ? null : k);
                                 }}
-                                className="inline-flex h-8 items-center rounded-[9px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#7C5FE0]"
+                                className="ml-auto inline-flex items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8] sm:ml-0 sm:w-[80px]"
                               >
-                                Review & acknowledge
+                                {open ? "Hide" : "Details"}
+                                <ChevronDown
+                                  className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+                                />
                               </button>
-                            )}
-                            <button
-                              type="button"
-                              aria-expanded={open}
-                              onClick={() => {
-                                setOpenInfoKey(null);
-                                setOpenCheckKey(open ? null : k);
-                              }}
-                              className="inline-flex w-[80px] items-center justify-end gap-1 text-[11.5px] font-bold uppercase tracking-tight text-[#6E4FD3] transition hover:text-[#5A3EB8]"
-                            >
-                              {open ? "Hide" : "Details"}
-                              <ChevronDown
-                                className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
-                              />
-                            </button>
+                            </div>
                           </div>
+
                           {open && (
                             <ul className="px-4 pb-3">
                               <CheckRow
