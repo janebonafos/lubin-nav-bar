@@ -227,6 +227,12 @@ function TagsInput({
   return (
     <div>
       <div className="flex flex-wrap gap-2">
+  return (
+    <div>
+      <p className="mb-2 text-[12px] text-brand-purple-dark/45">
+        Select all that apply{exclusive ? "" : ""} — you can pick more than one.
+      </p>
+      <div className="flex flex-wrap gap-2">
         {(field.options ?? []).map((opt) => {
           const active = items.includes(opt);
           return (
@@ -244,37 +250,51 @@ function TagsInput({
             </button>
           );
         })}
+
+        {!exclusiveOn && !full && (
+          <button
+            type="button"
+            onClick={() => setShowOther((v) => !v)}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
+              otherOpen
+                ? "bg-brand-purple/15 text-brand-purple-dark ring-1 ring-brand-purple/30"
+                : "bg-white text-brand-purple-dark/70 ring-1 ring-dashed ring-brand-purple/25 hover:ring-brand-purple/45"
+            }`}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Other
+          </button>
+        )}
       </div>
 
       {/* custom entries the client added */}
-      {items.some((i) => !(field.options ?? []).includes(i)) && (
+      {custom.length > 0 && (
         <div className="mt-2.5 flex flex-wrap gap-2">
-          {items
-            .filter((i) => !(field.options ?? []).includes(i))
-            .map((i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
+          {custom.map((i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
+            >
+              {i}
+              <button
+                type="button"
+                aria-label={`Remove ${i}`}
+                onClick={() => commit(items.filter((x) => x !== i))}
+                className="text-brand-purple-dark/40 transition hover:text-brand-purple-dark"
               >
-                {i}
-                <button
-                  type="button"
-                  aria-label={`Remove ${i}`}
-                  onClick={() => commit(items.filter((x) => x !== i))}
-                  className="text-brand-purple-dark/40 transition hover:text-brand-purple-dark"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </span>
-            ))}
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
         </div>
       )}
 
-      {!exclusiveOn && !full && (
+      {otherOpen && !exclusiveOn && !full && (
         <div className="mt-3 flex gap-2">
           <input
             value={draft}
             maxLength={maxItemLength}
+            autoFocus={showOther && custom.length === 0}
             placeholder={field.placeholder ?? "Add one item"}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
@@ -299,6 +319,7 @@ function TagsInput({
     </div>
   );
 }
+
 
 /**
  * Medications kept structured: one row per medicine with a type, a name and a
