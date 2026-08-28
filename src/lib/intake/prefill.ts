@@ -92,5 +92,13 @@ export function buildIntakePrefill(): Record<string, PrefillValue> {
     }
   }
 
+  // Health details the client volunteered in their Health Passport take
+  // precedence — they typed these themselves.
+  const details = loadHealthDetails();
+  for (const [fieldId, value] of Object.entries(details)) {
+    if (!value?.trim()) continue;
+    out[fieldId] = { value, source: "your Health Passport details" };
+  }
+
   return out;
 }
