@@ -33,6 +33,7 @@ import {
   Zap,
   Compass,
   Leaf,
+  UserCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
@@ -77,7 +78,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["overview", "progress", "share"]).optional(),
+      tab: z.enum(["overview", "progress", "share", "details"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -129,7 +130,7 @@ const MOODS = [
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
-  const [tab, setTab] = useState<"overview" | "progress" | "share">(
+  const [tab, setTab] = useState<"overview" | "progress" | "share" | "details">(
     search.tab ?? "overview",
   );
   const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
@@ -280,6 +281,7 @@ function PassportPage() {
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
+            ["details", "About you"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
             const showDot = key === "progress" && hasInProgress;
@@ -318,7 +320,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "share" && upcomingAppointments.length > 0 && (
+        {tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -328,13 +330,6 @@ function PassportPage() {
                 sessionLabel={appt.fullLabel}
               />
             ))}
-          </div>
-        )}
-
-        {/* No appointment yet? Health details still live here, up front. */}
-        {tab === "overview" && upcomingAppointments.length === 0 && (
-          <div className="mt-8">
-            <HealthDetailsCard />
           </div>
         )}
 
@@ -351,11 +346,6 @@ function PassportPage() {
               onAfterSave={() => setRegisterNudge(true)}
             />
           )}
-          {tab === "overview" && upcomingAppointments.length > 0 && (
-            <div className="mt-8">
-              <HealthDetailsCard />
-            </div>
-          )}
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />
           )}
@@ -369,6 +359,22 @@ function PassportPage() {
               autoOpenAppointmentId={autoOpenAppointmentId}
               onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
             />
+          )}
+          {tab === "details" && (
+            <div className="mx-auto max-w-3xl">
+              <div className="mb-6 flex items-center gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
+                  <UserCircle className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-xl font-bold text-brand-purple-dark">About you</h2>
+                  <p className="text-sm text-brand-purple-dark/60">
+                    Health details you choose to keep — shared only when you say yes.
+                  </p>
+                </div>
+              </div>
+              <HealthDetailsCard />
+            </div>
           )}
         </div>
 
