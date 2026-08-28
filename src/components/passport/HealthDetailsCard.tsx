@@ -528,7 +528,9 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                         <div
                           key={field.id}
                           className={
-                            field.type === "long-text" || field.type === "choice"
+                            field.type === "long-text" ||
+                            field.type === "choice" ||
+                            field.type === "tags"
                               ? "sm:col-span-2"
                               : ""
                           }
