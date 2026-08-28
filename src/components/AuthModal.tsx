@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
+import {
+  PROXY_RELATIONSHIPS,
+  relationshipLabel,
+  saveProxySignup,
+  type ProxySignup,
+} from "@/lib/proxySignup";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
 
-export type ProxySignup = {
-  relationship: string;
-  personName: string;
-};
+export type { ProxySignup };
+
 
 interface AuthModalProps {
   open: boolean;
