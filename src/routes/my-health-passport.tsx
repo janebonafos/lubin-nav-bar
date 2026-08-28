@@ -383,7 +383,7 @@ function PassportPage() {
                 <p className="text-sm text-brand-purple-dark/70">
                   {detailsName
                     ? `You registered as ${detailsName}'s ${proxyRelationship ?? "carer"}, so everything here is kept in ${detailsName}'s name and answers providers' questions on their behalf.`
-                    : "You registered as the person receiving care, so these details are yours. If you're helping someone else, you can invite them or hand over management below."}
+                    : "You registered as the person receiving care, so these details belong to you and help providers understand your health."}
                 </p>
               </div>
 
