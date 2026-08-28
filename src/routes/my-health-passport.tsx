@@ -382,12 +382,12 @@ function PassportPage() {
                 </span>
                 <div>
                   <h2 className="text-xl font-bold text-brand-purple-dark">
-                    {detailsName ? `About ${detailsName}` : "About you"}
+                    {detailsName ? `${detailsName}'s health card` : "Your health card"}
                   </h2>
                   <p className="text-sm text-brand-purple-dark/60">
                     {detailsName
-                      ? `Health details you keep for ${detailsName} — shared only when you say yes.`
-                      : "Health details you choose to keep — shared only when you say yes."}
+                      ? `Details you keep for ${detailsName} — shared only when you say yes.`
+                      : "Details you choose to keep — shared only when you say yes."}
                   </p>
                 </div>
               </div>
