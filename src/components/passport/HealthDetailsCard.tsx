@@ -452,7 +452,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
               }}
               className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
             >
-              {progress.filled > 0 ? "Continue building the card" : "Start the card"}
+              {progress.filled > 0 ? "Continue your health card" : "Start your health card"}
             </button>
           )}
         </div>
