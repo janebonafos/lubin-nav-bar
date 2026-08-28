@@ -2403,6 +2403,7 @@ function MedicationEditor({
                   value={med.strength ?? ""}
                   options={catalogue.forms}
                   onChange={(v) => edit({ strength: v })}
+                  hint="The dose form and strength as it will be dispensed, e.g. 50 mg film-coated tablet."
                 />
               ) : (
                 <Field
@@ -2410,11 +2411,18 @@ function MedicationEditor({
                   value={med.strength ?? ""}
                   onChange={(v) => edit({ strength: v })}
                   placeholder="Strength and formulation as dispensed"
+                  hint="The dose form and strength as it will be dispensed, e.g. 50 mg film-coated tablet."
                 />
               )}
             </div>
             <div className="md:col-span-3">
-              <Field label="Dose" value={med.dose} onChange={(v) => edit({ dose: v })} required />
+              <Field
+                label="Dose"
+                value={med.dose}
+                onChange={(v) => edit({ dose: v })}
+                required
+                hint="Amount per administration, e.g. 50 mg, 1 tablet, or 5 mL."
+              />
             </div>
             <div className="md:col-span-2">
               {catalogue ? (
@@ -2423,6 +2431,7 @@ function MedicationEditor({
                   value={med.route ?? ""}
                   options={catalogue.routes}
                   onChange={(v) => edit({ route: v })}
+                  hint="How the medication enters the body, e.g. oral, sublingual, topical, IM, or IV."
                 />
               ) : (
                 <Field
@@ -2430,6 +2439,7 @@ function MedicationEditor({
                   value={med.route ?? ""}
                   onChange={(v) => edit({ route: v })}
                   placeholder="Route of administration"
+                  hint="How the medication enters the body, e.g. oral, sublingual, topical, IM, or IV."
                 />
               )}
             </div>
@@ -2440,6 +2450,7 @@ function MedicationEditor({
                 onChange={(v) => edit({ frequency: v })}
                 required
                 placeholder="How often it is taken"
+                hint="How often the patient takes it, e.g. once daily, twice daily, or PRN."
               />
             </div>
             <div className="md:col-span-2">
@@ -2448,6 +2459,7 @@ function MedicationEditor({
                 value={med.duration ?? ""}
                 onChange={(v) => edit({ duration: v })}
                 placeholder="How long to continue"
+                hint="How long the patient should continue, e.g. 4 weeks, 30 days, or until finished."
               />
             </div>
             <div className="md:col-span-3">
@@ -2456,6 +2468,7 @@ function MedicationEditor({
                 value={med.quantity ?? ""}
                 onChange={(v) => edit({ quantity: v })}
                 placeholder="Total amount to dispense"
+                hint="Total amount to dispense, e.g. 30 tablets or 1 bottle/60 mL."
               />
             </div>
             <div className="md:col-span-3">
@@ -2464,6 +2477,7 @@ function MedicationEditor({
                 value={med.refills ?? ""}
                 onChange={(v) => edit({ refills: v })}
                 placeholder="Number of refills, or none"
+                hint="Number of times the prescription may be refilled without a new order."
               />
             </div>
             <div className="md:col-span-6">
@@ -2472,6 +2486,7 @@ function MedicationEditor({
                 value={med.indication ?? ""}
                 onChange={(v) => edit({ indication: v })}
                 placeholder="Why this is being prescribed"
+                hint="The clinical reason for the medication, e.g. moderate depressive symptoms with anxiety."
               />
             </div>
             <div className="md:col-span-6">
@@ -2481,6 +2496,7 @@ function MedicationEditor({
                 onChange={(v) => edit({ instructions: v })}
                 required
                 placeholder="How to take it, when, what to do if a dose is missed"
+                hint="Plain-language directions for the patient, including when/how to take it and what to do if a dose is missed."
               />
             </div>
           </div>
@@ -3219,15 +3235,20 @@ function SelectField({
   value,
   options,
   onChange,
+  hint,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  hint?: string;
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[12px] font-medium text-[#5A4A8A]">{label}</span>
+      <span className="mb-1 flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
+        {label}
+        {hint && <FieldHint text={hint} />}
+      </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -3241,6 +3262,14 @@ function SelectField({
         ))}
       </select>
     </label>
+  );
+}
+
+function FieldHint({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-flex cursor-help align-middle" title={text}>
+      <Info className="h-3.5 w-3.5 text-[#9C96AF] transition-colors group-hover:text-[#6E4FD3]" />
+    </span>
   );
 }
 
@@ -3596,6 +3625,7 @@ function Field({
   onChange,
   placeholder,
   required,
+  hint,
 }: {
   id?: string;
   label: string;
@@ -3603,12 +3633,14 @@ function Field({
   onChange: (v: string) => void;
   placeholder?: string;
   required?: boolean;
+  hint?: string;
 }) {
   return (
     <div>
-      <label htmlFor={id} className="text-[12px] font-medium text-[#5A4A8A]">
+      <label htmlFor={id} className="flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
+        {hint && <FieldHint text={hint} />}
       </label>
       <input
         id={id}
@@ -3627,18 +3659,21 @@ function FieldArea({
   onChange,
   placeholder,
   required,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   required?: boolean;
+  hint?: string;
 }) {
   return (
     <div>
-      <label className="text-[12px] font-medium text-[#5A4A8A]">
+      <label className="flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
+        {hint && <FieldHint text={hint} />}
       </label>
       <textarea
         value={value}
