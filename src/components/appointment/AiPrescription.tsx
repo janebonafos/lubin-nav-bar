@@ -1248,8 +1248,8 @@ export function AiPrescription({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <h3 className="text-[14px] font-semibold text-[#2C2B4B]">AI suggestions ready</h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
-                <Sparkles className="h-3 w-3" /> AI-generated
+              <span className="inline-flex items-center rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
+                AI-generated
               </span>
             </div>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
