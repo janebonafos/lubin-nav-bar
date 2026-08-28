@@ -66,6 +66,7 @@ import {
   type ClientUpcomingAppointment,
 } from "@/components/profile/ClientAppointmentsSection";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
+import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import {
   getProviderGrant,
   subscribeProviderShares,
@@ -342,6 +343,11 @@ function PassportPage() {
               isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
               onAfterSave={() => setRegisterNudge(true)}
             />
+          )}
+          {tab === "overview" && (
+            <div className="mt-8">
+              <HealthDetailsCard />
+            </div>
           )}
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />

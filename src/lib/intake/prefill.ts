@@ -2,6 +2,7 @@
 // so the client only confirms or fills the gaps.
 import { loadAttempts } from "@/lib/patterns/storage";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { loadHealthDetails } from "./healthDetails";
 
 export type PrefillValue = { value: string; source: string };
 
@@ -89,6 +90,14 @@ export function buildIntakePrefill(): Record<string, PrefillValue> {
         source: "completed in your Health Passport",
       };
     }
+  }
+
+  // Health details the client volunteered in their Health Passport take
+  // precedence — they typed these themselves.
+  const details = loadHealthDetails();
+  for (const [fieldId, value] of Object.entries(details)) {
+    if (!value?.trim()) continue;
+    out[fieldId] = { value, source: "your Health Passport details" };
   }
 
   return out;
