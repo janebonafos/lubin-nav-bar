@@ -441,6 +441,14 @@ export function EPrescriptionDocument({
                             {m.indication}
                           </span>
                         )}
+                        {m.followUp && (
+                          <span>
+                            <span className="font-bold uppercase tracking-[0.1em] text-[#A79FC4]">
+                              Follow-up:{" "}
+                            </span>
+                            {m.followUp}
+                          </span>
+                        )}
                       </div>
                     </div>
 
