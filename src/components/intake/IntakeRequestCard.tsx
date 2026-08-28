@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronUp, Sparkles } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -46,6 +46,8 @@ export default function IntakeRequestCard({
   const [tick, setTick] = useState(0);
   const [open, setOpen] = useState(defaultOpen);
   const [mounted, setMounted] = useState(false);
+  // One section open at a time so the form never feels like a wall of fields.
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -149,28 +151,83 @@ export default function IntakeRequestCard({
       </div>
 
       {open && (
-        <div className="mt-5 space-y-4 border-t border-[#EAE7F5] pt-5">
-          {progress.templates.map((template) => (
-            <div key={template.id} className="rounded-[10px] border border-[#EAE7F5] bg-white p-4">
-              <p className="text-sm font-semibold text-[#3D2E6B]">{template.label}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">{template.why}</p>
-              <div className="mt-4 space-y-4">
-                {progress.fields
-                  .filter((f) => f.template.id === template.id)
-                  .map((state) => (
-                    <FieldRow
-                      key={state.field.id}
-                      appointmentId={appointmentId}
-                      state={state}
+        <div className="mt-5 border-t border-[#EAE7F5] pt-4">
+          {/* Section steps — answer in any order, tap a header to open it. */}
+          <div className="space-y-2">
+            {progress.templates.map((template, idx) => {
+              const fields = progress.fields.filter((f) => f.template.id === template.id);
+              const done = fields.filter((f) => f.answered || f.skipped).length;
+              const complete = fields.length > 0 && done === fields.length;
+              const isOpen = openSection === template.id;
+              return (
+                <div
+                  key={template.id}
+                  className={`overflow-hidden rounded-[10px] border transition ${
+                    isOpen ? "border-[#D8C7F0] bg-white" : "border-[#EAE7F5] bg-[#FDFCFF]"
+                  }`}
+                >
+                  <button
+                    onClick={() => setOpenSection(isOpen ? null : template.id)}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FBF9FF]"
+                  >
+                    <span
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                        complete
+                          ? "bg-[#E6F8F1] text-[#2D8E69]"
+                          : "bg-[#F0EAFB] text-[#7E6BAF]"
+                      }`}
+                    >
+                      {complete ? <Check className="h-3.5 w-3.5" /> : idx + 1}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-[#3D2E6B]">
+                        {template.label}
+                      </span>
+                      {!isOpen && (
+                        <span className="block text-xs text-[#7E6BAF]">
+                          {complete
+                            ? "Done"
+                            : done > 0
+                              ? `${done} of ${fields.length} answered`
+                              : `About ${template.minutes} min`}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 text-[#A89BD0] transition-transform ${isOpen ? "rotate-180" : ""}`}
                     />
-                  ))}
-              </div>
-            </div>
-          ))}
+                  </button>
+
+                  {isOpen && (
+                    <div className="border-t border-[#EAE7F5] px-4 py-4">
+                      <p className="text-xs leading-relaxed text-[#7E6BAF]">{template.why}</p>
+                      <div className="mt-3 space-y-4">
+                        {fields.map((state) => (
+                          <FieldRow
+                            key={state.field.id}
+                            appointmentId={appointmentId}
+                            state={state}
+                          />
+                        ))}
+                      </div>
+                      {idx < progress.templates.length - 1 && (
+                        <button
+                          onClick={() => setOpenSection(progress.templates[idx + 1].id)}
+                          className="mt-4 inline-flex items-center gap-1.5 rounded-[12px] bg-[#3D2E6B] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#2C2B4B]"
+                        >
+                          Next: {progress.templates[idx + 1].label}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
           <MeasuresBlock providerName={providerName} providerLabel={providerLabel} />
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={() => {
                 setOpen(false);
@@ -408,14 +465,37 @@ function FieldRow({
           className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
         />
       ) : (
-        <textarea
-          value={draft}
-          onChange={(e) => onType(e.target.value)}
-          onBlur={() => dirty && commit(draft)}
-          rows={3}
-          placeholder={field.placeholder}
-          className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm leading-relaxed text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
-        />
+        <div className="mt-2">
+          {/* One-tap starters — fills the box so most people never type at all. */}
+          {field.suggestions && field.suggestions.length > 0 && !state.prefill && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {field.suggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    commit(s);
+                    toast.success("Saved — tap the text to fine-tune it");
+                  }}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                    draft === s
+                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                      : "border-[#D8C7F0] bg-[#FBF9FF] text-[#3D2E6B] hover:bg-[#F0EAFB]"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+          <textarea
+            value={draft}
+            onChange={(e) => onType(e.target.value)}
+            onBlur={() => dirty && commit(draft)}
+            rows={2}
+            placeholder={field.placeholder}
+            className="w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm leading-relaxed text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
+          />
+        </div>
       )}
 
       <div className="mt-2 flex flex-wrap items-center gap-3">

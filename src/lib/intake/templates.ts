@@ -24,6 +24,8 @@ export type IntakeField = {
   type: IntakeFieldType;
   placeholder?: string;
   options?: string[];
+  /** One-tap starter answers for free-text fields — tap to fill, edit freely. */
+  suggestions?: string[];
   /** Which Health Passport signal can prefill this field, if any. */
   prefill?: "recent-mood" | "recent-themes" | "recent-assessments" | "sleep-energy";
 };
@@ -153,6 +155,14 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         label: "What's the main thing you'd like help with?",
         type: "long-text",
         placeholder: "In your own words — a sentence or two is plenty.",
+        suggestions: [
+          "Anxiety or constant worry",
+          "Low mood or depression",
+          "Trouble sleeping",
+          "Stress and burnout",
+          "Relationship difficulties",
+          "Grief or loss",
+        ],
       },
       {
         id: "presenting.duration",
@@ -174,6 +184,14 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         label: "What would you like to get out of this session?",
         type: "long-text",
         placeholder: "Even a sentence helps — e.g. \"I want help sleeping again.\"",
+        suggestions: [
+          "Understand what I'm going through",
+          "Get practical coping tools",
+          "Talk it through with someone",
+          "Get a diagnosis or assessment",
+          "Review or start medication",
+          "Just need someone to listen",
+        ],
       },
     ],
   },
@@ -190,6 +208,13 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         type: "long-text",
         prefill: "recent-mood",
         placeholder: "A few words is enough.",
+        suggestions: [
+          "Mostly okay, some hard days",
+          "Pretty difficult",
+          "Up and down",
+          "Better than before",
+          "About the same as usual",
+        ],
       },
       {
         id: "recent.themes",
@@ -213,6 +238,7 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         help: "Include supplements. \"None\" is a perfectly good answer.",
         type: "long-text",
         placeholder: "Name and dose if you know it.",
+        suggestions: ["None right now", "Only supplements or vitamins"],
       },
     ],
   },
@@ -228,6 +254,11 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
         label: "Any conditions or past care that feels relevant?",
         type: "long-text",
         placeholder: "Only what you're comfortable sharing.",
+        suggestions: [
+          "Nothing that feels relevant",
+          "I've had therapy before",
+          "I have a physical health condition",
+        ],
       },
       {
         id: "history.allergies",
