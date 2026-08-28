@@ -237,11 +237,11 @@ export default function AuthModal({
           </div>
 
         {showProxyOption && (
-          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-4">
-            <span className="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
+            <span className="mb-2 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
               Who is this account for?
             </span>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2">
               {([
                 {
                   value: false,
