@@ -582,9 +582,15 @@ export default function IssuePrescriptionDialog({
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
                   />
-                  {ageYears !== undefined && (
-                    <p className="mt-1 text-[11.5px] text-[#8A7FB0]">{ageYears} years old</p>
-                  )}
+                </div>
+                <div>
+                  <label className={label} htmlFor="rx-age">Age</label>
+                  <div
+                    id="rx-age"
+                    className={`${field} mt-1.5 flex items-center ${ageYears === undefined ? "text-[#A89BD0]" : "text-[#3D2E6B]"}`}
+                  >
+                    {ageYears !== undefined ? `${ageYears} years old` : "—"}
+                  </div>
                 </div>
                 <div>
                   <label className={label} htmlFor="rx-sex">Sex</label>
@@ -601,7 +607,7 @@ export default function IssuePrescriptionDialog({
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className={label} htmlFor="rx-address">Address</label>
                   <input
                     id="rx-address"
