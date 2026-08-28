@@ -3267,8 +3267,14 @@ function SelectField({
 
 function FieldHint({ text }: { text: string }) {
   return (
-    <span className="group relative inline-flex cursor-help align-middle" title={text}>
-      <Info className="h-3.5 w-3.5 text-[#9C96AF] transition-colors group-hover:text-[#6E4FD3]" />
+    <span className="group relative inline-flex cursor-help align-middle" tabIndex={0} aria-label={text}>
+      <Info className="h-3.5 w-3.5 text-[#9C96AF] transition-colors group-hover:text-[#6E4FD3] group-focus:text-[#6E4FD3]" />
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 w-56 -translate-x-1/2 rounded-xl border border-[#E8E3F4] bg-white px-3 py-2 text-left text-[11.5px] font-normal leading-snug text-[#4A4262] opacity-0 shadow-lg shadow-[#6E4FD3]/10 transition-opacity duration-150 group-hover:opacity-100 group-focus:opacity-100"
+      >
+        {text}
+      </span>
     </span>
   );
 }
