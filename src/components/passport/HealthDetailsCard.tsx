@@ -18,7 +18,7 @@ import {
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
-  "about-you": "Name, birthday, pronouns",
+  "about-you": "Name and date of birth",
   "reach-you": "Phone, email, where you are",
   "safety-net": "One person, used only in an emergency",
   health: "Allergies, current meds, anything relevant",
