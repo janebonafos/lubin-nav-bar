@@ -73,6 +73,7 @@ export default function AuthModal({
   const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
   const [onBehalf, setOnBehalf] = useState(false);
   const [relationship, setRelationship] = useState("");
+  const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
@@ -83,9 +84,11 @@ export default function AuthModal({
       setLoadingProvider(null);
       setOnBehalf(false);
       setRelationship("");
+      setRelationshipOther("");
       setPersonName("");
       return;
     }
+
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
