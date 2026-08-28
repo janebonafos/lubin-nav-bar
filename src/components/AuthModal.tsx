@@ -147,7 +147,7 @@ export default function AuthModal({
 
   /** Persist the relationship for every signup entry point, not just /auth. */
   const persistProxy = () => {
-    if (!isSignup || selectedRole !== "client") return;
+    if (selectedRole !== "client") return;
     saveProxySignup(proxyPayload);
   };
 
