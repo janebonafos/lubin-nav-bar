@@ -18,7 +18,7 @@ export type HealthDetailField = {
    * short entries (one item each), stored as a comma-separated list so a
    * clinician sees discrete items rather than a paragraph to interpret.
    */
-  type: "short-text" | "long-text" | "date" | "tel" | "email" | "choice" | "tags";
+  type: "short-text" | "long-text" | "date" | "tel" | "email" | "choice" | "tags" | "meds";
   placeholder?: string;
   options?: string[];
   /** For "tags": an option that clears every other selection (e.g. "None"). */
@@ -78,8 +78,8 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
       {
         id: "medication.list",
         label: "Anything you take right now",
-        help: "Tap what applies, or add one item at a time — name and dose is plenty.",
-        type: "tags",
+        help: "Pick a type, then add the name and dose. Add a row for each medication.",
+        type: "meds",
         placeholder: "e.g. Sertraline 50mg",
         exclusiveOption: "Nothing right now",
         options: [

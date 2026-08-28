@@ -263,6 +263,148 @@ function TagsInput({
   );
 }
 
+/**
+ * Medications kept structured: one row per medicine with a type, a name and a
+ * dose, so a clinician reads discrete entries instead of a paragraph. Stored as
+ * "Type — Name dose" rows joined by "; ".
+ */
+type MedRow = { type: string; name: string; dose: string };
+
+function parseMeds(value: string): MedRow[] {
+  return value
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [rawType, rest] = entry.includes("—") ? entry.split("—") : ["", entry];
+      const detail = (rest ?? "").trim();
+      const lastSpace = detail.lastIndexOf(" ");
+      const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+      return {
+        type: rawType.trim(),
+        name: looksDosed && lastSpace > 0 ? detail.slice(0, lastSpace).trim() : detail,
+        dose: looksDosed && lastSpace > 0 ? detail.slice(lastSpace + 1).trim() : "",
+      };
+    });
+}
+
+function serializeMeds(rows: MedRow[]): string {
+  return rows
+    .map((r) => {
+      const detail = [r.name.trim(), r.dose.trim()].filter(Boolean).join(" ");
+      const type = r.type.trim();
+      if (!detail && !type) return "";
+      return type ? `${type} — ${detail || "not specified"}` : detail;
+    })
+    .filter(Boolean)
+    .join("; ");
+}
+
+function MedsInput({
+  field,
+  value,
+  onChange,
+}: {
+  field: HealthDetailField;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const none = field.exclusiveOption ?? "Nothing right now";
+  const takingNone = value.trim() === none;
+  const rows = takingNone ? [] : parseMeds(value);
+  const types = (field.options ?? []).filter((o) => o !== none);
+  const maxRows = field.maxItems ?? 10;
+
+  const commit = (next: MedRow[]) => onChange(serializeMeds(next));
+  const update = (i: number, patch: Partial<MedRow>) =>
+    commit(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => onChange(takingNone ? "" : none)}
+        className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
+          takingNone
+            ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
+            : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
+        }`}
+      >
+        {none}
+      </button>
+
+      {!takingNone && (
+        <div className="mt-3 space-y-3">
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-brand-purple/15 bg-white p-3 shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {types.map((t) => {
+                    const active = row.type === t;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => update(i, { type: active ? "" : t })}
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                          active
+                            ? "bg-brand-purple text-white"
+                            : "bg-brand-purple/5 text-brand-purple-dark/60 ring-1 ring-brand-purple/12 hover:ring-brand-purple/30"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  aria-label={`Remove medication ${i + 1}`}
+                  onClick={() => commit(rows.filter((_, idx) => idx !== i))}
+                  className="mt-0.5 shrink-0 text-brand-purple-dark/35 transition hover:text-brand-purple-dark"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-2.5 grid gap-2 sm:grid-cols-[1.6fr_1fr]">
+                <input
+                  value={row.name}
+                  maxLength={field.maxItemLength ?? 40}
+                  placeholder="Medicine name (e.g. Sertraline)"
+                  onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
+                  className="min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+                />
+                <input
+                  value={row.dose}
+                  maxLength={20}
+                  placeholder="Dose (e.g. 50mg daily)"
+                  onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
+                  className="min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+                />
+              </div>
+            </div>
+          ))}
+
+          {rows.length < maxRows && (
+            <button
+              type="button"
+              onClick={() => commit([...rows, { type: "", name: "", dose: "" }])}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {rows.length ? "Add another medication" : "Add a medication"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FieldInput({
   field,
   value,
@@ -276,7 +418,7 @@ function FieldInput({
     "w-full rounded-xl border border-brand-purple/15 bg-white px-3.5 py-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
 
   const Wrapper: "label" | "div" =
-    field.type === "tags" || field.type === "choice" ? "div" : "label";
+    field.type === "tags" || field.type === "choice" || field.type === "meds" ? "div" : "label";
 
   return (
     <Wrapper className="block">
@@ -286,7 +428,9 @@ function FieldInput({
           <Check className="h-3.5 w-3.5 text-brand-purple" aria-label="Saved" />
         ) : null}
       </span>
-      {field.type === "tags" ? (
+      {field.type === "meds" ? (
+        <MedsInput field={field} value={value} onChange={onChange} />
+      ) : field.type === "tags" ? (
         <TagsInput field={field} value={value} onChange={onChange} />
       ) : field.type === "long-text" ? (
         <textarea
