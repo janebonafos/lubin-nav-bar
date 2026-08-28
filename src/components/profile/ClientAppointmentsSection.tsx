@@ -104,6 +104,26 @@ const seed: Appt[] = [
       "We explored after-hours boundaries and practiced a kinder decline script. Continue the daily wins journal and the breathing exercise before bed.",
   },
   {
+    id: "cc2",
+    provider: "Dr. Reyes Mendoza",
+    specialty: "Psychiatrist",
+    day: "THU",
+    date: "27",
+    month: "AUG",
+    time: "5:00 PM",
+    timezone: "PHT (GMT+8)",
+    duration: "30 min",
+    type: "Psychiatry consultation (post-assessment review)",
+    sessionFormat: "Individual",
+    mode: "Video",
+    status: "completed",
+    amount: "₱3,200",
+    paymentStatus: "Paid",
+    followUp:
+      "We went through your assessment results together and agreed on a plan to start treatment, with a review in two weeks.",
+  },
+
+  {
     id: "cx1",
     provider: "Dr. Reyes Mendoza",
     specialty: "Psychiatrist",
