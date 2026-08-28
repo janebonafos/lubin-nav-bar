@@ -677,15 +677,42 @@ export default function IssuePrescriptionDialog({
                 onChange={(e) => setCaseNotes(e.target.value)}
                 placeholder="Presenting concerns, duration, findings, what you have already tried…"
               />
-              <button
-                type="button"
-                onClick={generateSuggestions}
-                disabled={aiLoading || (!caseNotes.trim() && passportItems.length === 0)}
-                className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF] disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                <Sparkles className="h-4 w-4" />
-                {aiLoading ? "Preparing suggestions…" : "Generate suggested medication"}
-              </button>
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={generateSuggestions}
+                  disabled={aiLoading || (!caseNotes.trim() && passportItems.length === 0)}
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FF] disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {aiLoading ? "Preparing suggestions…" : "Generate suggested medication"}
+                </button>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="How AI suggestions work"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E3DBF5] bg-white text-[#7E6BAF] transition hover:bg-[#F7F3FF] hover:text-[#3D2E6B]"
+                      >
+                        <Info className="h-4 w-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="bottom"
+                      sideOffset={6}
+                      className="max-w-[260px] bg-[#3D2E6B] text-[#FBF9FF]"
+                    >
+                      <p className="text-[12px] leading-relaxed">
+                        Lubin uses the patient’s shared health passport, your case notes,
+                        and current medications to draft evidence-based options. It does
+                        not prescribe — you review, edit, and sign before anything is
+                        issued.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               {aiError && (
                 <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
                   {aiError}
