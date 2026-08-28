@@ -550,18 +550,6 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
       <div className="flex flex-col gap-12">
         {/* Live card preview — compact and centered above the sections */}
         <div className="mx-auto w-full max-w-lg">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/40">
-                Live preview
-              </p>
-              <p className="text-[13px] text-brand-purple-dark/55">Updates as you type.</p>
-            </div>
-            <span className="rounded-full border border-brand-purple/15 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-              Draft saved
-            </span>
-          </div>
-
           <PassportCard
             details={details}
             filled={progress.filled}
