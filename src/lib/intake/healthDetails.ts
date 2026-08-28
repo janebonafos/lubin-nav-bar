@@ -48,7 +48,6 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
       { id: "identity.fullName", label: "Full name", type: "short-text", placeholder: "First, middle, last" },
       { id: "identity.preferredName", label: "Preferred name", type: "short-text", placeholder: "What you'd like to be called" },
       { id: "identity.dob", label: "Date of birth", type: "date" },
-      { id: "identity.pronouns", label: "Pronouns", type: "short-text", placeholder: "Optional" },
     ],
   },
   {
