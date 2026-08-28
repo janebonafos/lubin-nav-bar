@@ -71,7 +71,9 @@ function PassportCard({
 }) {
   const name =
     details["identity.preferredName"] || details["identity.fullName"] || ownerName || "";
-  const age = ageFrom(details["identity.dob"] ?? "");
+  const dob = details["identity.dob"] ?? "";
+  const age = ageFrom(dob);
+
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
   return (
