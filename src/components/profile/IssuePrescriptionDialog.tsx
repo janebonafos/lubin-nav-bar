@@ -1008,4 +1008,7 @@ export default function IssuePrescriptionDialog({
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(drawer, document.body);
 }
