@@ -31,6 +31,7 @@ import {
   type StructuredKey,
 } from "@/lib/prescription/safety";
 import { MEDICATION_CATALOGUE } from "@/lib/prescription/catalogue";
+import { sharedIntakeInfo } from "@/lib/prescription/intakeImport";
 
 const SUGGESTIONS: Record<StructuredKey, string[]> = {
   allergies: [
@@ -177,7 +178,7 @@ export function PatientInfoForm({
                 <button
                   type="button"
                   onClick={() => stage(item.patch)}
-                  className="inline-flex h-8 items-center rounded-[10px] bg-[#1F7A57] px-3 text-[12px] font-semibold text-white transition hover:bg-[#23good]"
+                  className="inline-flex h-8 items-center rounded-[10px] bg-[#1F7A57] px-3 text-[12px] font-semibold text-white transition hover:bg-[#26906A]"
                 >
                   Use this answer
                 </button>
