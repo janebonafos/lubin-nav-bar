@@ -344,6 +344,11 @@ function PassportPage() {
               onAfterSave={() => setRegisterNudge(true)}
             />
           )}
+          {tab === "overview" && (
+            <div className="mt-8">
+              <HealthDetailsCard />
+            </div>
+          )}
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />
           )}
