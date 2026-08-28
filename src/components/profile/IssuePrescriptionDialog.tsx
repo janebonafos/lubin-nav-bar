@@ -462,48 +462,8 @@ export default function IssuePrescriptionDialog({
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
-          {/* Jurisdiction */}
-          <section className={cardCls}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing jurisdiction</h3>
-                <p className="mt-1 text-[12px] text-[#6F6889]">
-                  {manualCountry
-                    ? "Set manually — this overrides the detected location."
-                    : detected.country
-                      ? `Detected from your location${detected.source ? ` (${detected.source})` : ""}.`
-                      : "We could not detect your location — confirm the jurisdiction before signing."}
-                </p>
-              </div>
-              <div className="inline-flex rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] p-1">
-                {(["PH", "US"] as RxCountry[]).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => {
-                      setCountry(c);
-                      setManualCountry(true);
-                    }}
-                    className={`h-9 rounded-lg px-4 text-[12.5px] font-semibold transition ${
-                      country === c
-                        ? "bg-[#3D2E6B] text-white"
-                        : "text-[#6F6889] hover:text-[#3D2E6B]"
-                    }`}
-                  >
-                    {c === "PH" ? "Philippines" : "United States"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <ul className="mt-4 grid gap-1.5 sm:grid-cols-2">
-              {JURISDICTION_REQUIREMENTS[country].map((req) => (
-                <li key={req} className="flex items-start gap-2 text-[12px] text-[#4B4468]">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7E6BAF]" />
-                  {req}
-                </li>
-              ))}
-            </ul>
-          </section>
+          {/* Jurisdiction is applied automatically from the prescriber's
+              detected location — no UI needed here. */}
 
           {/* Patient */}
           <section className={cardCls}>
