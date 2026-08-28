@@ -68,6 +68,7 @@ import {
 } from "@/components/profile/ClientAppointmentsSection";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
+import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
@@ -381,8 +382,12 @@ function PassportPage() {
                 </div>
               </div>
               <HealthDetailsCard />
+              <div className="mt-8">
+                <CaregiverAccessCard ownerLabel={detailsName ?? "you"} />
+              </div>
             </div>
           )}
+
         </div>
 
         {/* Mobile registration CTA — hidden on Share tab which has its own in-card CTA */}
