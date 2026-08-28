@@ -1131,16 +1131,16 @@ function ProfilePage() {
 
             {activeSection === "passport" && role === "client" && (
               <>
-                <Overview
-                  today={todayLabel}
-                  checkins={passportData.checkins as never}
-                  onLogMood={() => setCheckInActive(true)}
-                  checkInActive={checkInActive}
-                  onCloseCheckIn={() => setCheckInActive(false)}
-                  isGuest={false}
-                />
+                <HealthDetailsCard />
                 <div className="mt-8">
-                  <HealthDetailsCard />
+                  <Overview
+                    today={todayLabel}
+                    checkins={passportData.checkins as never}
+                    onLogMood={() => setCheckInActive(true)}
+                    checkInActive={checkInActive}
+                    onCloseCheckIn={() => setCheckInActive(false)}
+                    isGuest={false}
+                  />
                 </div>
               </>
             )}

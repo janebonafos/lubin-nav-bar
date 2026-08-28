@@ -292,10 +292,10 @@ function PassportPage() {
         {/* Tabs */}
         <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
           {([
+            ["details", detailsName ? `${detailsName}'s card` : "Health card"],
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
-            ["details", detailsName ? `About ${detailsName}` : "About you"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
             const showDot = key === "progress" && hasInProgress;
@@ -382,12 +382,12 @@ function PassportPage() {
                 </span>
                 <div>
                   <h2 className="text-xl font-bold text-brand-purple-dark">
-                    {detailsName ? `About ${detailsName}` : "About you"}
+                    {detailsName ? `${detailsName}'s health card` : "Your health card"}
                   </h2>
                   <p className="text-sm text-brand-purple-dark/60">
                     {detailsName
-                      ? `Health details you keep for ${detailsName} — shared only when you say yes.`
-                      : "Health details you choose to keep — shared only when you say yes."}
+                      ? `Details you keep for ${detailsName} — shared only when you say yes.`
+                      : "Details you choose to keep — shared only when you say yes."}
                   </p>
                 </div>
               </div>

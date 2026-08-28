@@ -1,17 +1,16 @@
-// Optional health details in the Health Passport. Framed as something the
-// client does for themselves — never a task, never a requirement. Anything
-// added here quietly prefills what a provider asks after booking. When the
-// account was created on someone's behalf (guardian), copy adapts to name
-// the person instead of saying "you".
+// Optional health details in the Health Passport, framed as building a health
+// ID card: as the client fills sections in, the card on the left fills in live
+// so progress is obvious at a glance. Nothing here is required and nothing is
+// shared until they book someone and say yes. When the account was created on
+// someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
-  ChevronDown,
+  ChevronRight,
   HeartPulse,
   Lock,
   Mail,
   PhoneCall,
-  Plus,
   Stethoscope,
   User,
 } from "lucide-react";
@@ -27,23 +26,131 @@ import {
 } from "@/lib/intake/healthDetails";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
-const GROUP_META: Record<
-  string,
-  { icon: typeof User; blurb: string; featured?: boolean }
-> = {
-  "about-you": { icon: User, blurb: "Name, birthday, pronouns — the basics you fill in every time." },
-  "reach-you": { icon: Mail, blurb: "How providers send reminders and follow-ups." },
-  "safety-net": {
-    icon: PhoneCall,
-    blurb: "Only ever used if there's a serious concern for safety.",
-    featured: true,
-  },
-  health: {
-    icon: HeartPulse,
-    blurb: "Allergies, current meds and conditions — what keeps prescribing safe.",
-  },
-  care: { icon: Stethoscope, blurb: "Past or current care, so no one starts from zero." },
+const GROUP_ICON: Record<string, typeof User> = {
+  "about-you": User,
+  "reach-you": Mail,
+  "safety-net": PhoneCall,
+  health: HeartPulse,
+  care: Stethoscope,
 };
+
+const GROUP_BLURB: Record<string, string> = {
+  "about-you": "Name, birthday, pronouns",
+  "reach-you": "Phone, email, where you are",
+  "safety-net": "One person, used only in an emergency",
+  health: "Allergies, current meds, anything relevant",
+  care: "Any care you already have",
+};
+
+function ageFrom(dob: string): string | null {
+  if (!dob) return null;
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
+  return age >= 0 && age < 130 ? String(age) : null;
+}
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "—";
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+}
+
+/* ---------------------------------- card ---------------------------------- */
+
+function CardLine({ label, value }: { label: string; value?: string }) {
+  const filled = Boolean(value && value.trim());
+  return (
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">{label}</p>
+      {filled ? (
+        <p className="mt-0.5 truncate text-[13px] font-medium text-white">{value}</p>
+      ) : (
+        <span className="mt-1.5 block h-[7px] w-full max-w-[110px] rounded-full bg-white/15" />
+      )}
+    </div>
+  );
+}
+
+function PassportCard({
+  details,
+  filled,
+  total,
+  ownerName,
+}: {
+  details: HealthDetails;
+  filled: number;
+  total: number;
+  ownerName: string | null;
+}) {
+  const name =
+    details["identity.preferredName"] || details["identity.fullName"] || ownerName || "";
+  const age = ageFrom(details["identity.dob"] ?? "");
+  const pct = total ? Math.round((filled / total) * 100) : 0;
+
+  return (
+    <div className="rounded-[26px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple p-5 shadow-[0_24px_60px_-28px_rgba(61,46,107,0.75)] sm:p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
+            Lubin health card
+          </p>
+          <p className="mt-1 text-[11px] text-white/45">Yours to keep · shared only with consent</p>
+        </div>
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/12 text-white">
+          <HeartPulse className="h-4.5 w-4.5" />
+        </span>
+      </div>
+
+      <div className="mt-5 flex items-center gap-3.5">
+        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-lg font-bold text-white ring-1 ring-white/15">
+          {initialsOf(name)}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-lg font-semibold text-white">
+            {name || "Your name"}
+          </p>
+          <p className="mt-0.5 text-[12px] text-white/55">
+            {[age ? `${age} yrs` : null, details["identity.pronouns"]]
+              .filter(Boolean)
+              .join(" · ") || "Add the basics to start your card"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3.5 border-t border-white/12 pt-4">
+        <CardLine label="Mobile" value={details["contact.phone"]} />
+        <CardLine label="Location" value={details["contact.address"]} />
+        <CardLine label="Emergency contact" value={details["emergency.name"]} />
+        <CardLine label="Their number" value={details["emergency.phone"]} />
+        <div className="col-span-2">
+          <CardLine label="Allergies" value={details["history.allergies"]} />
+        </div>
+        <div className="col-span-2">
+          <CardLine label="Current medication" value={details["medication.list"]} />
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+          <span>Card complete</span>
+          <span>{pct}%</span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/12">
+          <div
+            className="h-full rounded-full bg-white transition-all duration-500"
+            style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- inputs --------------------------------- */
 
 function FieldInput({
   field,
@@ -119,6 +226,8 @@ function FieldInput({
   );
 }
 
+/* ---------------------------------- main ---------------------------------- */
+
 export default function HealthDetailsCard() {
   const [details, setDetails] = useState<HealthDetails>({});
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -131,8 +240,6 @@ export default function HealthDetailsCard() {
   }, []);
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
-  const started = progress.filled > 0;
-  const activeGroup = HEALTH_DETAIL_GROUPS.find((g) => g.id === openGroup) ?? null;
 
   const update = (fieldId: string, value: string) => {
     setDetails((prev) => {
@@ -144,157 +251,169 @@ export default function HealthDetailsCard() {
     setHealthDetail(fieldId, value);
   };
 
-  const heading = proxyName
-    ? `Add ${proxyName}'s details you'd rather not repeat`
-    : "Add health details you'd rather not repeat";
+  const who = proxyName ?? "you";
+  const heading = proxyName ? `${proxyName}'s health card` : "Your health card";
   const intro = proxyName
-    ? `Nothing here is required and nothing is shared until you book someone for ${proxyName} and say yes. Whatever you add fills in the provider's questions for you — so the session starts with what matters, not paperwork.`
-    : "Nothing here is required and nothing is shared until you book someone and say yes. When you do, whatever you've added fills in their questions for you — so your session starts with what you came for, not paperwork.";
+    ? `Fill in as much or as little as you like. Everything you add builds ${proxyName}'s card — and fills in a provider's questions once you book and say yes.`
+    : "Fill in as much or as little as you like. Everything you add builds your card — and fills in a provider's questions once you book and say yes.";
 
   return (
     <section className="overflow-hidden rounded-[32px] border border-brand-purple/12 bg-white shadow-[0_18px_50px_-32px_rgba(61,46,107,0.5)]">
-      {/* Header */}
-      <div className="flex flex-col gap-6 px-6 pt-7 sm:px-9 sm:pt-9 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 max-w-xl">
-          <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
-            Optional · yours to keep
-          </span>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-brand-purple-dark sm:text-[28px]">
-            {heading}
-          </h2>
-          <p className="mt-2.5 text-sm leading-relaxed text-brand-purple-dark/65">{intro}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() =>
-            setOpenGroup((v) => (v ? null : HEALTH_DETAIL_GROUPS[0].id))
-          }
-          className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-12px_rgba(126,107,175,0.9)] transition hover:brightness-105"
-        >
-          {openGroup ? "Done for now" : started ? "Keep adding" : "Add details"}
-          {openGroup ? null : <Plus className="h-4 w-4" />}
-        </button>
+      <div className="border-b border-brand-purple/10 px-6 pb-6 pt-7 sm:px-8">
+        <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+          Optional · yours to keep
+        </span>
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-brand-purple-dark sm:text-[26px]">
+          {heading}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65">{intro}</p>
       </div>
 
-      {/* Bento grid */}
-      <div className="grid gap-4 px-6 py-7 sm:grid-cols-2 sm:px-9 lg:grid-cols-3">
-        {HEALTH_DETAIL_GROUPS.map((group, i) => {
-          const meta = GROUP_META[group.id] ?? { icon: User, blurb: group.why };
-          const Icon = meta.icon;
-          const filled = groupFilledCount(group, details);
-          const total = group.fields.length;
-          const expanded = openGroup === group.id;
-          const wide = i === 0 || i === 3;
-          const featured = meta.featured && filled === 0;
-          return (
-            <button
-              key={group.id}
-              type="button"
-              onClick={() => setOpenGroup(expanded ? null : group.id)}
-              className={`group relative flex flex-col justify-between rounded-3xl border p-5 text-left transition sm:p-6 ${
-                wide ? "lg:col-span-2" : ""
-              } ${
-                featured
-                  ? "border-brand-purple/60 bg-brand-purple text-white shadow-[0_16px_36px_-18px_rgba(126,107,175,0.8)]"
-                  : expanded
-                    ? "border-brand-purple/45 bg-[#FAF7FE] ring-2 ring-brand-purple/15"
-                    : "border-brand-purple/12 bg-[#FAF7FE]/70 hover:border-brand-purple/30 hover:bg-[#FAF7FE]"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span
-                  className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl ${
-                    featured
-                      ? "bg-white/15 text-white"
-                      : "bg-white text-brand-purple ring-1 ring-brand-purple/15"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                    filled > 0
-                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/15"
-                      : featured
-                        ? "bg-white/15 text-white/90"
-                        : "bg-white text-brand-purple-dark/55 ring-1 ring-brand-purple/12"
-                  }`}
-                >
-                  {filled > 0 ? `${filled}/${total} added` : featured ? "Essential" : `${total} fields`}
-                </span>
-              </div>
-              <div className="mt-5">
-                <p
-                  className={`text-[15px] font-semibold ${
-                    featured ? "text-white" : "text-brand-purple-dark"
-                  }`}
-                >
-                  {group.label}
-                </p>
-                <p
-                  className={`mt-1 text-[12.5px] leading-relaxed ${
-                    featured ? "text-white/75" : "text-brand-purple-dark/55"
-                  }`}
-                >
-                  {meta.blurb}
-                </p>
-              </div>
-              <ChevronDown
-                className={`absolute bottom-5 right-5 h-4 w-4 transition-transform ${
-                  featured ? "text-white/60" : "text-brand-purple-dark/35"
-                } ${expanded ? "rotate-180" : ""}`}
-              />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Editor for the active group */}
-      {activeGroup && (
-        <div className="border-t border-brand-purple/10 bg-[#FAF7FE]/60 px-6 py-6 sm:px-9 sm:py-7">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-brand-purple-dark">{activeGroup.label}</p>
-              <p className="mt-0.5 text-[12.5px] leading-relaxed text-brand-purple-dark/55">
-                {activeGroup.why}
-              </p>
-            </div>
-            <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-600/15">
-              {groupFilledCount(activeGroup, details)}/{activeGroup.fields.length} saved
-            </span>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {activeGroup.fields.map((field) => (
-              <div
-                key={field.id}
-                className={field.type === "long-text" || field.type === "choice" ? "sm:col-span-2" : ""}
-              >
-                <FieldInput
-                  field={field}
-                  value={details[field.id] ?? ""}
-                  onChange={(v) => update(field.id, v)}
-                />
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-[12px] leading-relaxed text-brand-purple-dark/50">
-            Saved as you type. Skip anything you'd rather talk through with a person.
+      <div className="grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+        {/* Live card */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <PassportCard
+            details={details}
+            filled={progress.filled}
+            total={progress.total}
+            ownerName={proxyName}
+          />
+          <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-brand-purple-dark/55">
+            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
+            Stored for {who} only. Nothing leaves the passport until you share it with a provider
+            you've booked.
           </p>
         </div>
-      )}
 
-      {/* Footer */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-brand-purple/10 px-6 py-4 text-[12px] text-brand-purple-dark/60 sm:px-9">
-        <span className="inline-flex items-center gap-1.5">
-          <Lock className="h-3.5 w-3.5 text-brand-purple" />
-          Stored for {proxyName ? `${proxyName}` : "you"} only — you choose who ever sees it
-        </span>
-        {started && (
-          <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
-            <Check className="h-3.5 w-3.5" />
-            {progress.filled} detail{progress.filled === 1 ? "" : "s"} saved
-          </span>
-        )}
+        {/* Sections */}
+        <div className="space-y-3">
+          {HEALTH_DETAIL_GROUPS.map((group, i) => {
+            const Icon = GROUP_ICON[group.id] ?? User;
+            const filled = groupFilledCount(group, details);
+            const total = group.fields.length;
+            const complete = filled === total;
+            const open = openGroup === group.id;
+            return (
+              <div
+                key={group.id}
+                className={`overflow-hidden rounded-2xl border transition ${
+                  open
+                    ? "border-brand-purple/40 bg-[#FAF7FE] ring-1 ring-brand-purple/10"
+                    : complete
+                      ? "border-emerald-600/20 bg-[#F4FBF7]"
+                      : "border-brand-purple/12 bg-white hover:border-brand-purple/30"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenGroup(open ? null : group.id)}
+                  aria-expanded={open}
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
+                >
+                  <span
+                    className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[12px] font-bold ${
+                      complete
+                        ? "bg-emerald-600 text-white"
+                        : "bg-brand-purple/10 text-brand-purple"
+                    }`}
+                  >
+                    {complete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-[14.5px] font-semibold text-brand-purple-dark">
+                        {i + 1}. {group.label}
+                      </span>
+                    </span>
+                    <span className="mt-0.5 block truncate text-[12.5px] text-brand-purple-dark/55">
+                      {GROUP_BLURB[group.id] ?? group.why}
+                    </span>
+                  </span>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                      complete
+                        ? "bg-emerald-600/10 text-emerald-700"
+                        : filled > 0
+                          ? "bg-brand-purple/10 text-brand-purple"
+                          : "bg-brand-purple/[0.06] text-brand-purple-dark/50"
+                    }`}
+                  >
+                    {complete ? "Complete" : filled > 0 ? `${filled}/${total} added` : "Not added"}
+                  </span>
+                  <ChevronRight
+                    className={`h-4 w-4 shrink-0 text-brand-purple-dark/35 transition-transform ${
+                      open ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+
+                {open && (
+                  <div className="border-t border-brand-purple/10 px-4 py-5 sm:px-5">
+                    <p className="mb-4 text-[12.5px] leading-relaxed text-brand-purple-dark/60">
+                      {group.why}
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {group.fields.map((field) => (
+                        <div
+                          key={field.id}
+                          className={
+                            field.type === "long-text" || field.type === "choice"
+                              ? "sm:col-span-2"
+                              : ""
+                          }
+                        >
+                          <FieldInput
+                            field={field}
+                            value={details[field.id] ?? ""}
+                            onChange={(v) => update(field.id, v)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-[12px] text-brand-purple-dark/50">
+                        Saved as you type. Skip anything you'd rather say in person.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setOpenGroup(null)}
+                          className="rounded-xl px-3 py-2 text-[13px] font-semibold text-brand-purple-dark/60 transition hover:text-brand-purple-dark"
+                        >
+                          Close
+                        </button>
+                        {i < HEALTH_DETAIL_GROUPS.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setOpenGroup(HEALTH_DETAIL_GROUPS[i + 1].id)}
+                            className="rounded-xl bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white transition hover:brightness-105"
+                          >
+                            Next section
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {!openGroup && (
+            <button
+              type="button"
+              onClick={() => {
+                const next =
+                  HEALTH_DETAIL_GROUPS.find((g) => groupFilledCount(g, details) === 0) ??
+                  HEALTH_DETAIL_GROUPS[0];
+                setOpenGroup(next.id);
+              }}
+              className="w-full rounded-2xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105"
+            >
+              {progress.filled > 0 ? "Continue building the card" : "Start the card"}
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );
