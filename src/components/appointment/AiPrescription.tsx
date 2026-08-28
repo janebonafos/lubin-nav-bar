@@ -3609,6 +3609,7 @@ function Field({
   onChange,
   placeholder,
   required,
+  hint,
 }: {
   id?: string;
   label: string;
@@ -3616,12 +3617,14 @@ function Field({
   onChange: (v: string) => void;
   placeholder?: string;
   required?: boolean;
+  hint?: string;
 }) {
   return (
     <div>
-      <label htmlFor={id} className="text-[12px] font-medium text-[#5A4A8A]">
+      <label htmlFor={id} className="flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
+        {hint && <FieldHint text={hint} />}
       </label>
       <input
         id={id}
@@ -3640,18 +3643,21 @@ function FieldArea({
   onChange,
   placeholder,
   required,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   required?: boolean;
+  hint?: string;
 }) {
   return (
     <div>
-      <label className="text-[12px] font-medium text-[#5A4A8A]">
+      <label className="flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
         {label}
         {required && <span className="ml-0.5 text-[#B4534F]">*</span>}
+        {hint && <FieldHint text={hint} />}
       </label>
       <textarea
         value={value}
