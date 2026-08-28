@@ -310,7 +310,7 @@ export default function AuthModal({
 
                 {relationship === "other" && (
                   <label className="block">
-                    <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
                       How are you related?
                     </span>
                     <input
@@ -319,13 +319,13 @@ export default function AuthModal({
                       maxLength={60}
                       onChange={(e) => setRelationshipOther(e.target.value)}
                       placeholder="e.g. Family friend"
-                      className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                      className="w-full rounded-lg border border-[#E6DFF4] bg-white px-3 py-2 text-[13.5px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
                     />
                   </label>
                 )}
 
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                  <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
                     Their first name
                   </span>
                   <input
@@ -334,16 +334,16 @@ export default function AuthModal({
                     maxLength={60}
                     onChange={(e) => setPersonName(e.target.value)}
                     placeholder="e.g. Anna"
-                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                    className="w-full rounded-lg border border-[#E6DFF4] bg-white px-3 py-2 text-[13.5px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
                   />
                 </label>
 
                 {proxyIncomplete ? (
-                  <p className="text-[12px] text-[#7E6BAF]">
+                  <p className="text-[11.5px] text-[#7E6BAF]">
                     Pick your relationship and add their first name to continue.
                   </p>
                 ) : (
-                  <p className="text-[12px] text-[#5A4E8A]">
+                  <p className="text-[11.5px] text-[#5A4E8A]">
                     We'll set the passport up for {personName.trim()} and note that you're their{" "}
                     {(relationship === "other" ? relationshipOther.trim() : relationshipLabel(relationship)).toLowerCase()}.
                   </p>
