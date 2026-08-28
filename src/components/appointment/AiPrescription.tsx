@@ -2343,6 +2343,11 @@ function MedicationEditor({
       <section>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <SectionHeading>Medication details</SectionHeading>
+          {(med.origin === "ai" || med.origin === "ai-option") && (
+            <span className="inline-flex items-center rounded-full bg-[#F1ECFD] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
+              Suggested by AI
+            </span>
+          )}
           <button
             type="button"
             onClick={() => setMedOpen((v) => !v)}
@@ -2355,6 +2360,24 @@ function MedicationEditor({
             />
           </button>
         </div>
+        {(med.origin === "ai" || med.origin === "ai-option") && (
+          <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-[#FAF8FF] px-4 py-3.5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1ECFD]">
+                <span className="text-[13px] font-semibold text-[#6E4FD3]">AI</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                  This medication was suggested by Lubin&apos;s AI
+                </p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+                  It is a starting option based on the visit context, not a final prescription. Review
+                  every field, adjust as needed, or replace it with a different medication.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {!medOpen && (
           <p className="mt-2 text-[13px] font-semibold text-[#2C2B4B]">
             {medSummary || "No medication details recorded yet"}
