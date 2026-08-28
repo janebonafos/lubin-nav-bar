@@ -2818,8 +2818,9 @@ function MedicationEditor({
                       const headline = checkHeadline(med.checks?.[k]);
                       return (
                         <li key={k} className={open ? "bg-[#FBFAFE]" : "hover:bg-[#FBFAFE]"}>
-                          <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left">
-                            <span className="min-w-0 flex-1">
+                          <div className="flex w-full flex-col gap-2 px-4 py-3 text-left sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
+                            <span className="min-w-[180px] flex-1">
+
                               <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
                                 {reviewed && (
                                   <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
