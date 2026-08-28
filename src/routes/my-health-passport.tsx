@@ -33,7 +33,6 @@ import {
   Zap,
   Compass,
   Leaf,
-  UserCircle,
 } from "lucide-react";
 import {
   Tooltip as UITooltip,
@@ -376,22 +375,6 @@ function PassportPage() {
           )}
           {tab === "details" && (
             <div className="mx-auto max-w-5xl">
-              <div className="mb-6 flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
-                  <UserCircle className="h-5 w-5" />
-                </span>
-                <div>
-                  <h2 className="text-xl font-bold text-brand-purple-dark">
-                    {detailsName ? `${detailsName}'s health card` : "Your health card"}
-                  </h2>
-                  <p className="text-sm text-brand-purple-dark/60">
-                    {detailsName
-                      ? `Details you keep for ${detailsName} — shared only when you say yes.`
-                      : "Details you choose to keep — shared only when you say yes."}
-                  </p>
-                </div>
-              </div>
-
               {/* Who this passport belongs to — set at registration */}
               <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.06] px-4 py-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
