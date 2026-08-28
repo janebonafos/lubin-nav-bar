@@ -275,8 +275,11 @@ function FieldInput({
   const base =
     "w-full rounded-xl border border-brand-purple/15 bg-white px-3.5 py-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
 
+  const Wrapper: "label" | "div" =
+    field.type === "tags" || field.type === "choice" ? "div" : "label";
+
   return (
-    <label className="block">
+    <Wrapper className="block">
       <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
         {value.trim() ? (
