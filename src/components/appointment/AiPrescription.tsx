@@ -2490,6 +2490,15 @@ function MedicationEditor({
               />
             </div>
             <div className="md:col-span-6">
+              <Field
+                label="Follow-up needed"
+                value={med.followUp ?? ""}
+                onChange={(v) => edit({ followUp: v })}
+                placeholder="When should this be reviewed again? e.g. Review in 4 weeks"
+                hint="When the patient should be seen or reviewed again before continuing or changing this medication. Leave blank if no follow-up is required."
+              />
+            </div>
+            <div className="md:col-span-6">
               <FieldArea
                 label="Patient instructions"
                 value={med.instructions}
