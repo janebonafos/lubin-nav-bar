@@ -4,16 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import {
-  Check,
-  ChevronRight,
-  HeartPulse,
-  Lock,
-  Mail,
-  PhoneCall,
-  Stethoscope,
-  User,
-} from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
@@ -25,14 +16,6 @@ import {
   type HealthDetails,
 } from "@/lib/intake/healthDetails";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
-
-const GROUP_ICON: Record<string, typeof User> = {
-  "about-you": User,
-  "reach-you": Mail,
-  "safety-net": PhoneCall,
-  health: HeartPulse,
-  care: Stethoscope,
-};
 
 const GROUP_BLURB: Record<string, string> = {
   "about-you": "Name, birthday, pronouns",
@@ -55,7 +38,7 @@ function ageFrom(dob: string): string | null {
 
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "—";
+  if (!parts.length) return "";
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
@@ -65,11 +48,11 @@ function CardLine({ label, value }: { label: string; value?: string }) {
   const filled = Boolean(value && value.trim());
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">{label}</p>
+      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">{label}</p>
       {filled ? (
-        <p className="mt-0.5 truncate text-[13px] font-medium text-white">{value}</p>
+        <p className="mt-0.5 truncate text-[12px] font-medium text-white/90">{value}</p>
       ) : (
-        <span className="mt-1.5 block h-[7px] w-full max-w-[110px] rounded-full bg-white/15" />
+        <span className="mt-1.5 block h-[6px] w-full max-w-[100px] rounded-full bg-white/10" />
       )}
     </div>
   );
@@ -92,59 +75,62 @@ function PassportCard({
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
   return (
-    <div className="rounded-[26px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple p-5 shadow-[0_24px_60px_-28px_rgba(61,46,107,0.75)] sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
-            Lubin health card
-          </p>
-          <p className="mt-1 text-[11px] text-white/45">Yours to keep · shared only with consent</p>
-        </div>
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/12 text-white">
-          <HeartPulse className="h-4.5 w-4.5" />
-        </span>
-      </div>
+    <div className="relative aspect-[1.58/1] w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]">
+      {/* soft glow */}
+      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple-accent/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
 
-      <div className="mt-5 flex items-center gap-3.5">
-        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-lg font-bold text-white ring-1 ring-white/15">
-          {initialsOf(name)}
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-lg font-semibold text-white">
+      <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-7">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black italic uppercase tracking-tight">Lubin</p>
+            <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/55">
+              Health Network
+            </p>
+          </div>
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
+            <div className="h-2.5 w-2.5 rounded-full bg-white/80" />
+          </div>
+        </div>
+
+        <div className="mt-auto">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+            Cardholder
+          </p>
+          <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
             {name || "Your name"}
+          </h3>
+          <p className="mt-1 text-[12px] text-white/55">
+            {age ? `${age} yrs` : "Add the basics to start your card"}
           </p>
-          <p className="mt-0.5 text-[12px] text-white/55">
-            {[age ? `${age} yrs` : null, details["identity.pronouns"]]
-              .filter(Boolean)
-              .join(" · ") || "Add the basics to start your card"}
-          </p>
+
+          <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
+            <div>
+              <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                Mobile
+              </p>
+              <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                {details["contact.phone"] || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                Location
+              </p>
+              <p className="mt-0.5 truncate font-mono text-[11px] tracking-wider text-white/80">
+                {details["contact.address"] || "—"}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3.5 border-t border-white/12 pt-4">
-        <CardLine label="Mobile" value={details["contact.phone"]} />
-        <CardLine label="Location" value={details["contact.address"]} />
-        <CardLine label="Emergency contact" value={details["emergency.name"]} />
-        <CardLine label="Their number" value={details["emergency.phone"]} />
-        <div className="col-span-2">
-          <CardLine label="Allergies" value={details["history.allergies"]} />
-        </div>
-        <div className="col-span-2">
-          <CardLine label="Current medication" value={details["medication.list"]} />
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-          <span>Card complete</span>
-          <span>{pct}%</span>
-        </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/12">
-          <div
-            className="h-full rounded-full bg-white transition-all duration-500"
-            style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
-          />
-        </div>
+      {/* progress band */}
+      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
+        <div
+          className="h-full bg-brand-purple-accent transition-all duration-500"
+          style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
+        />
       </div>
     </div>
   );
@@ -162,11 +148,11 @@ function FieldInput({
   onChange: (v: string) => void;
 }) {
   const base =
-    "w-full rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
+    "w-full rounded-xl border border-brand-purple/15 bg-white px-3.5 py-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
 
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-center gap-1.5 text-[13px] font-medium text-brand-purple-dark/80">
+      <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
         {value.trim() ? (
           <Check className="h-3.5 w-3.5 text-emerald-600" aria-label="Saved" />
@@ -189,7 +175,7 @@ function FieldInput({
                 key={opt}
                 type="button"
                 onClick={() => onChange(active ? "" : opt)}
-                className={`rounded-full px-3 py-1.5 text-[13px] font-medium transition ${
+                className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
                   active
                     ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
                     : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
@@ -218,7 +204,7 @@ function FieldInput({
         />
       )}
       {field.help && (
-        <span className="mt-1.5 block text-[12px] leading-relaxed text-brand-purple-dark/50">
+        <span className="mt-2 block text-[12px] leading-relaxed text-brand-purple-dark/50">
           {field.help}
         </span>
       )}
@@ -252,104 +238,148 @@ export default function HealthDetailsCard() {
   };
 
   const who = proxyName ?? "you";
+  const whose = proxyName ? `${proxyName}'s` : "your";
   const heading = proxyName ? `${proxyName}'s health card` : "Your health card";
-  const intro = proxyName
-    ? `Fill in as much or as little as you like. Everything you add builds ${proxyName}'s card — and fills in a provider's questions once you book and say yes.`
-    : "Fill in as much or as little as you like. Everything you add builds your card — and fills in a provider's questions once you book and say yes.";
 
   return (
-    <section className="overflow-hidden rounded-[32px] border border-brand-purple/12 bg-white shadow-[0_18px_50px_-32px_rgba(61,46,107,0.5)]">
-      <div className="border-b border-brand-purple/10 px-6 pb-6 pt-7 sm:px-8">
-        <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+    <section className="w-full">
+      {/* header */}
+      <div className="mb-8">
+        <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple">
           Optional · yours to keep
         </span>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-brand-purple-dark sm:text-[26px]">
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-purple-dark">
           {heading}
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65">{intro}</p>
+        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-brand-purple-dark/60">
+          Fill in as much or as little as you like. Everything you add builds {whose} card — and
+          fills in a provider's questions once you book and say yes.
+        </p>
       </div>
 
-      <div className="grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        {/* Live card */}
+      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
+        {/* Live card preview */}
         <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/40">
+                Live preview
+              </p>
+              <p className="text-[13px] text-brand-purple-dark/55">Updates as you type.</p>
+            </div>
+            <span className="rounded-full border border-brand-purple/15 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
+              Draft saved
+            </span>
+          </div>
+
           <PassportCard
             details={details}
             filled={progress.filled}
             total={progress.total}
             ownerName={proxyName}
           />
-          <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-brand-purple-dark/55">
-            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
-            Stored for {who} only. Nothing leaves the passport until you share it with a provider
-            you've booked.
-          </p>
+
+          <div className="mt-6 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-brand-purple-dark">Privacy</span>
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-600">
+                Active
+              </span>
+            </div>
+            <p className="mt-2 text-[13px] leading-relaxed text-brand-purple-dark/55">
+              Stored for {who} only. Nothing leaves the passport until you share it with a provider
+              you've booked.
+            </p>
+          </div>
         </div>
 
-        {/* Sections */}
-        <div className="space-y-3">
+        {/* Editable sections */}
+        <div className="flex flex-col gap-3">
           {HEALTH_DETAIL_GROUPS.map((group, i) => {
-            const Icon = GROUP_ICON[group.id] ?? User;
             const filled = groupFilledCount(group, details);
             const total = group.fields.length;
-            const complete = filled === total;
+            const complete = filled === total && total > 0;
             const open = openGroup === group.id;
+            const started = filled > 0;
+
             return (
               <div
                 key={group.id}
-                className={`overflow-hidden rounded-2xl border transition ${
+                className={`overflow-hidden rounded-2xl border-2 bg-white transition-all ${
                   open
-                    ? "border-brand-purple/40 bg-[#FAF7FE] ring-1 ring-brand-purple/10"
+                    ? "border-brand-purple/40 shadow-sm"
                     : complete
-                      ? "border-emerald-600/20 bg-[#F4FBF7]"
-                      : "border-brand-purple/12 bg-white hover:border-brand-purple/30"
+                      ? "border-emerald-100 bg-[#F4FBF7]"
+                      : started
+                        ? "border-brand-purple/20 hover:border-brand-purple/40"
+                        : "border-transparent shadow-sm hover:border-brand-purple/20"
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => setOpenGroup(open ? null : group.id)}
                   aria-expanded={open}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
                 >
-                  <span
-                    className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[12px] font-bold ${
-                      complete
-                        ? "bg-emerald-600 text-white"
-                        : "bg-brand-purple/10 text-brand-purple"
-                    }`}
-                  >
-                    {complete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate text-[14.5px] font-semibold text-brand-purple-dark">
-                        {i + 1}. {group.label}
+                  <div className="flex items-center gap-5">
+                    <span
+                      className={`font-mono text-[15px] font-bold transition-colors ${
+                        open
+                          ? "text-brand-purple"
+                          : complete
+                            ? "text-emerald-600"
+                            : started
+                              ? "text-brand-purple/70"
+                              : "text-brand-purple-dark/20"
+                      }`}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <h4
+                        className={`text-[15px] font-bold leading-tight ${
+                          open
+                            ? "text-brand-purple-dark"
+                            : complete
+                              ? "text-brand-purple-dark"
+                              : "text-brand-purple-dark"
+                        }`}
+                      >
+                        {group.label}
+                      </h4>
+                      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/50">
+                        {GROUP_BLURB[group.id] ?? group.why}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-3">
+                    {complete ? (
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase text-emerald-700">
+                        Complete
                       </span>
-                    </span>
-                    <span className="mt-0.5 block truncate text-[12.5px] text-brand-purple-dark/55">
-                      {GROUP_BLURB[group.id] ?? group.why}
-                    </span>
-                  </span>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                      complete
-                        ? "bg-emerald-600/10 text-emerald-700"
-                        : filled > 0
-                          ? "bg-brand-purple/10 text-brand-purple"
-                          : "bg-brand-purple/[0.06] text-brand-purple-dark/50"
-                    }`}
-                  >
-                    {complete ? "Complete" : filled > 0 ? `${filled}/${total} added` : "Not added"}
-                  </span>
-                  <ChevronRight
-                    className={`h-4 w-4 shrink-0 text-brand-purple-dark/35 transition-transform ${
-                      open ? "rotate-90" : ""
-                    }`}
-                  />
+                    ) : started ? (
+                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
+                        {filled}/{total}
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-brand-purple/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple-dark/40">
+                        Not added
+                      </span>
+                    )}
+                    {open ? (
+                      <span className="h-2 w-2 rounded-full bg-brand-purple" />
+                    ) : (
+                      <span className="text-[18px] font-light text-brand-purple-dark/25 transition group-hover:text-brand-purple/60">
+                        →
+                      </span>
+                    )}
+                  </div>
                 </button>
 
                 {open && (
-                  <div className="border-t border-brand-purple/10 px-4 py-5 sm:px-5">
-                    <p className="mb-4 text-[12.5px] leading-relaxed text-brand-purple-dark/60">
+                  <div className="border-t border-brand-purple/10 px-5 pb-6 pt-4 sm:px-6">
+                    <p className="mb-5 text-[13px] leading-relaxed text-brand-purple-dark/60">
                       {group.why}
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -370,8 +400,9 @@ export default function HealthDetailsCard() {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-[12px] text-brand-purple-dark/50">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-brand-purple/10 pt-4">
+                      <p className="flex items-center gap-1.5 text-[12px] text-brand-purple-dark/50">
+                        <Lock className="h-3 w-3" />
                         Saved as you type. Skip anything you'd rather say in person.
                       </p>
                       <div className="flex gap-2">
@@ -408,7 +439,7 @@ export default function HealthDetailsCard() {
                   HEALTH_DETAIL_GROUPS[0];
                 setOpenGroup(next.id);
               }}
-              className="w-full rounded-2xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105"
+              className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
             >
               {progress.filled > 0 ? "Continue building the card" : "Start the card"}
             </button>
