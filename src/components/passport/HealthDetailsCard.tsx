@@ -548,9 +548,9 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
       )}
 
       <div className="flex flex-col gap-12">
-        {/* Live card preview — full-width above the sections */}
-        <div className="mx-auto w-full max-w-3xl">
-          <div className="mb-5 flex items-center justify-between">
+        {/* Live card preview — compact and centered above the sections */}
+        <div className="mx-auto w-full max-w-lg">
+          <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/40">
                 Live preview
@@ -569,7 +569,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
             ownerName={proxyName}
           />
 
-          <div className="mt-6 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+          <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-brand-purple-dark">Privacy</span>
               <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
