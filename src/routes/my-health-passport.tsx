@@ -159,10 +159,18 @@ function PassportPage() {
   const [registerNudge, setRegisterNudge] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const [returnTo, setReturnTo] = useState<string | null>(null);
+  const proxySignup = useMemo(() => loadProxySignup(), []);
   const detailsName = useMemo(
-    () => proxyFirstName(loadProxySignup()),
-    [],
+    () => proxyFirstName(proxySignup),
+    [proxySignup],
   );
+  const proxyRelationship = proxySignup
+    ? (proxySignup.relationship === "other" && proxySignup.relationshipOther
+        ? proxySignup.relationshipOther
+        : proxySignup.relationshipLabel ?? proxySignup.relationship
+      ).toLowerCase()
+    : null;
+
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
   const [pendingShareCount, setPendingShareCount] = useState(0);
