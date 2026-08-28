@@ -166,7 +166,7 @@ export default function AuthModal({
         onClick={onClose}
         className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
       />
-      <div className="relative w-full max-w-[460px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
+      <div className="relative w-full max-w-[560px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
         <button
           type="button"
           onClick={onClose}
