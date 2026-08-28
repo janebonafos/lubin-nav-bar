@@ -693,7 +693,7 @@ export default function IssuePrescriptionDialog({
                       <button
                         type="button"
                         aria-label="How AI suggestions work"
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#E3DBF5] bg-white text-[#7E6BAF] transition hover:bg-[#F7F3FF] hover:text-[#3D2E6B]"
+                        className="inline-flex items-center justify-center text-[#9E94B5] transition hover:text-[#3D2E6B] focus:outline-none"
                       >
                         <Info className="h-4 w-4" />
                       </button>
