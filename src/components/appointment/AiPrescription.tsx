@@ -3412,6 +3412,7 @@ function FinalReviewBody({
               </p>
               <p className="mt-0.5 text-[12.5px] text-[#5A4A8A]">
                 Quantity: {m.quantity || "—"} · Refills: {m.refills || "—"}
+                {m.followUp?.trim() ? ` · Follow-up: ${m.followUp.trim()}` : ""}
               </p>
               <p className="mt-1 text-[12.5px] leading-relaxed text-[#3D2E6B]">
                 {m.instructions || "No patient instructions recorded."}
