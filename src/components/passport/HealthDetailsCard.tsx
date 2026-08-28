@@ -58,6 +58,16 @@ function CardLine({ label, value }: { label: string; value?: string }) {
   );
 }
 
+function formatDob(value: string): string {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function PassportCard({
   details,
   filled,
