@@ -2530,44 +2530,30 @@ function MedicationEditor({
                 safetyResolved ? "border-[#CFE9DD] bg-[#F6FBF8]" : "border-[#DCD2F4] bg-[#F6F3FE]"
               }`}
             >
-              <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-[#2C2B4B]">Safety review</p>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3">
+                <div className="min-w-0">
                   <p
-                    className={`mt-0.5 text-[12.5px] font-semibold ${
-                      safetyResolved ? "text-[#1F7A57]" : "text-[#5A3EB8]"
+                    className={`text-[15px] font-semibold ${
+                      safetyResolved ? "text-[#1F7A57]" : "text-[#2C2B4B]"
                     }`}
                   >
                     {safetyResolved ? (
-                      <span className="inline-flex items-center gap-1">
-                        Ready for verification <Check className="h-3.5 w-3.5" />
+                      <span className="inline-flex items-center gap-1.5">
+                        <Check className="h-4 w-4" /> Ready for verification
                       </span>
                     ) : (
                       countText
                     )}
                   </p>
-                  {!safetyResolved && countBreakdown && (
-                    <p className="mt-0.5 text-[12px] text-[#6F6889]">{countBreakdown}</p>
-                  )}
-                  <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-[#6F6889]">
                     {safetyResolved
                       ? "Required information and safety acknowledgements are complete."
                       : reviewRan && reviewStale(med, patientInfo)
-                        ? "The patient information changed after the last safety review. Open the review and run the safety checks again to continue."
+                        ? "Patient information changed — run the safety checks again."
                         : medicationReviewOnly
-                          ? "Patient information is complete. Complete the medication review to unlock the final review."
-                          : "Complete the required patient information and review the flagged safety items before verification."}
+                          ? "Patient information is complete. Finish the medication review to unlock the final review."
+                          : "Add the required patient information, then review the flagged items."}
                   </p>
-                  {medicationReviewOnly && medicationReviewRemainder && (
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#5A3EB8]">
-                      Remaining: {medicationReviewRemainder}
-                    </p>
-                  )}
-                  {!safetyResolved && outstandingNames && (
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      {outstandingNames} still needed before this medication can be verified.
-                    </p>
-                  )}
                 </div>
                 <button
                   type="button"
@@ -2585,6 +2571,35 @@ function MedicationEditor({
                   <span aria-hidden="true">&rarr;</span>
                 </button>
               </div>
+
+              {!safetyResolved && outstandingLabels.length > 0 && (
+                <div className="mt-3 border-t border-[#DCD2F4]/70 pt-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B82A8]">
+                    Still needed
+                  </p>
+                  <ul className="mt-2 flex flex-wrap gap-1.5">
+                    {outstandingLabels.slice(0, 4).map((label) => (
+                      <li
+                        key={label}
+                        className="rounded-full bg-white px-2.5 py-1 text-[12px] font-medium text-[#5A3EB8] ring-1 ring-[#DCD2F4]"
+                      >
+                        {label}
+                      </li>
+                    ))}
+                    {outstandingLabels.length > 4 && (
+                      <li className="rounded-full px-2.5 py-1 text-[12px] font-medium text-[#6F6889]">
+                        +{outstandingLabels.length - 4} more
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              {!safetyResolved && medicationReviewOnly && medicationReviewRemainder && (
+                <p className="mt-3 border-t border-[#DCD2F4]/70 pt-3 text-[12px] leading-relaxed text-[#5A3EB8]">
+                  Remaining: {medicationReviewRemainder}
+                </p>
+              )}
             </div>
 
             {/* Supporting links — plain, clearly secondary */}
