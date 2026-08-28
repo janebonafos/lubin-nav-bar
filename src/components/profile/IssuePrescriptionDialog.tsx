@@ -12,12 +12,6 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
