@@ -1992,7 +1992,20 @@ function ReferenceButton({ hasName, onClick }: { hasName: boolean; onClick: () =
   );
 }
 
+/** Fixed, self-contained checklist of the information a prescription always
+ *  needs. Static on purpose: it never depends on an external record to render. */
+const STANDARD_INFO_CHECKLIST: { key: InfoKey; label: string }[] = [
+  { key: "allergies", label: "Allergies" },
+  { key: "currentMedications", label: "Current medications" },
+  { key: "conditions", label: "Medical conditions" },
+  { key: "bipolarHistory", label: "Mania / bipolar history" },
+  { key: "age", label: "Date of birth" },
+  { key: "pregnancy", label: "Pregnancy / breastfeeding" },
+  { key: "labs", label: "Labs / organ function" },
+];
+
 /** Single source of truth for "N actions remaining" and its breakdown.
+
  *  Every surface (header count, drawer, sticky footer, Medical profile tab
  *  badge) reads from here so the numbers always reconcile exactly. */
 function actionCounts(args: {
