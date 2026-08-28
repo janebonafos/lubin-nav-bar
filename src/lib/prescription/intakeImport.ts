@@ -27,7 +27,7 @@ function isNone(text: string): boolean {
 
 function entry(name: string) {
   return {
-    id: genRxId("pi"),
+    id: genRxId(),
     name: name.trim(),
     status: "active" as const,
     source: "passport" as const,
