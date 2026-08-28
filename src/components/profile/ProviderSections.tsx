@@ -1466,6 +1466,14 @@ export function AppointmentsSection() {
       payoutStatus: "pending_review",
       outcome: "completed",
     },
+    {
+      id: "c5", client: "Sofia Chen", day: "FRI", date: "29", month: "AUG", time: "10:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry consultation (post-assessment review)", sessionFormat: "Individual", mode: "Video", status: "session_review",
+      notes: "Post-assessment session review — GAD-7 severe, PHQ-9 moderate-severe. Discussed medication options and safety plan.",
+      amount: "₱3,200", paymentStatus: "Paid",
+      prescriptionEligible: true,
+      payoutStatus: "pending_review",
+      outcome: "completed",
+    },
 
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
