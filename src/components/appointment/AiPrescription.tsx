@@ -2222,10 +2222,8 @@ function MedicationEditor({
   const countBreakdown = counts.breakdown;
   /** One shared "nothing left" state for the summary card, drawer and footer. */
   const safetyResolved = requiredCount === 0 && reviewsRemaining === 0 && totalActions === 0;
-  const outstandingNames = requiredOutstanding
-    .map((i) => infoLabel(i.key))
-    .join(" and ")
-    .trim();
+  const outstandingLabels = requiredOutstanding.map((i) => infoLabel(i.key));
+  const outstandingNames = outstandingLabels.join(" and ").trim();
   const captureInfoSnapshot = () =>
     {
       setFrozenInfoOrder(infoList.map((i) => i.key));
