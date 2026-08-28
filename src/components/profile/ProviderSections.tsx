@@ -1474,6 +1474,14 @@ export function AppointmentsSection() {
       payoutStatus: "pending_review",
       outcome: "completed",
     },
+    {
+      id: "c6", client: "Ethan Ramos", day: "SAT", date: "30", month: "AUG", time: "2:00 PM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry consultation (post-assessment review)", sessionFormat: "Individual", mode: "Video", status: "session_review",
+      notes: "Post-assessment session review — PHQ-9 moderate, GAD-7 moderate. First psychiatric consultation, no current medication. Patient is open to starting treatment if clinically indicated.",
+      amount: "₱3,200", paymentStatus: "Paid",
+      prescriptionEligible: true,
+      payoutStatus: "pending_review",
+      outcome: "completed",
+    },
 
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
