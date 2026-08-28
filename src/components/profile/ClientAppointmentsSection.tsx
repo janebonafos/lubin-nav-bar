@@ -141,6 +141,25 @@ const seed: Appt[] = [
     followUp:
       "We reviewed your assessment results and discussed a medication plan. A prescription may be issued after this review if clinically appropriate.",
   },
+  {
+    id: "cc4",
+    provider: "Dr. Reyes Mendoza",
+    specialty: "Psychiatrist",
+    day: "SAT",
+    date: "30",
+    month: "AUG",
+    time: "2:00 PM",
+    timezone: "PHT (GMT+8)",
+    duration: "30 min",
+    type: "Psychiatry consultation (post-assessment review)",
+    sessionFormat: "Individual",
+    mode: "Video",
+    status: "completed",
+    amount: "₱3,200",
+    paymentStatus: "Paid",
+    followUp:
+      "We went through your assessment results together. A prescription may be started if clinically appropriate, with a follow-up review in two weeks.",
+  },
 
   {
     id: "cx1",
