@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, Lock } from "lucide-react";
+import { CalendarDays, Check, Lock, Plus, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
@@ -138,6 +138,131 @@ function PassportCard({
 
 /* --------------------------------- inputs --------------------------------- */
 
+function parseItems(value: string): string[] {
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/** Structured list input: suggestions first, short custom entries second. */
+function TagsInput({
+  field,
+  value,
+  onChange,
+}: {
+  field: HealthDetailField;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  const items = parseItems(value);
+  const maxItems = field.maxItems ?? 10;
+  const maxItemLength = field.maxItemLength ?? 40;
+  const exclusive = field.exclusiveOption;
+  const exclusiveOn = Boolean(exclusive && items.length === 1 && items[0] === exclusive);
+  const full = items.length >= maxItems;
+
+  const commit = (next: string[]) => {
+    const unique: string[] = [];
+    next.forEach((i) => {
+      const clean = i.replace(/,/g, " ").trim().slice(0, maxItemLength);
+      if (clean && !unique.some((u) => u.toLowerCase() === clean.toLowerCase())) unique.push(clean);
+    });
+    onChange(unique.slice(0, maxItems).join(", "));
+  };
+
+  const toggle = (opt: string) => {
+    if (exclusive && opt === exclusive) {
+      commit(exclusiveOn ? [] : [exclusive]);
+      return;
+    }
+    const without = items.filter((i) => i !== exclusive);
+    commit(without.includes(opt) ? without.filter((i) => i !== opt) : [...without, opt]);
+  };
+
+  const addDraft = () => {
+    if (!draft.trim()) return;
+    commit([...items.filter((i) => i !== exclusive), draft]);
+    setDraft("");
+  };
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {(field.options ?? []).map((opt) => {
+          const active = items.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`rounded-full px-3 py-1.5 text-[13px] font-medium transition ${
+                active
+                  ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
+                  : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* custom entries the client added */}
+      {items.some((i) => !(field.options ?? []).includes(i)) && (
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {items
+            .filter((i) => !(field.options ?? []).includes(i))
+            .map((i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
+              >
+                {i}
+                <button
+                  type="button"
+                  aria-label={`Remove ${i}`}
+                  onClick={() => commit(items.filter((x) => x !== i))}
+                  className="text-brand-purple-dark/40 transition hover:text-brand-purple-dark"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            ))}
+        </div>
+      )}
+
+      {!exclusiveOn && !full && (
+        <div className="mt-3 flex gap-2">
+          <input
+            value={draft}
+            maxLength={maxItemLength}
+            placeholder={field.placeholder ?? "Add one item"}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addDraft();
+              }
+            }}
+            className="min-w-0 flex-1 rounded-xl border border-brand-purple/15 bg-white px-3.5 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+          />
+          <button
+            type="button"
+            onClick={addDraft}
+            disabled={!draft.trim()}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20 disabled:opacity-40"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FieldInput({
   field,
   value,
@@ -150,18 +275,24 @@ function FieldInput({
   const base =
     "w-full rounded-xl border border-brand-purple/15 bg-white px-3.5 py-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
 
+  const Wrapper: "label" | "div" =
+    field.type === "tags" || field.type === "choice" ? "div" : "label";
+
   return (
-    <label className="block">
+    <Wrapper className="block">
       <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
         {value.trim() ? (
           <Check className="h-3.5 w-3.5 text-emerald-600" aria-label="Saved" />
         ) : null}
       </span>
-      {field.type === "long-text" ? (
+      {field.type === "tags" ? (
+        <TagsInput field={field} value={value} onChange={onChange} />
+      ) : field.type === "long-text" ? (
         <textarea
           rows={3}
           value={value}
+          maxLength={field.maxLength ?? 240}
           placeholder={field.placeholder}
           onChange={(e) => onChange(e.target.value)}
           className={`${base} resize-none`}
@@ -217,7 +348,7 @@ function FieldInput({
           {field.help}
         </span>
       )}
-    </label>
+    </Wrapper>
   );
 }
 
@@ -398,7 +529,9 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                         <div
                           key={field.id}
                           className={
-                            field.type === "long-text" || field.type === "choice"
+                            field.type === "long-text" ||
+                            field.type === "choice" ||
+                            field.type === "tags"
                               ? "sm:col-span-2"
                               : ""
                           }
