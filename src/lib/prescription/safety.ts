@@ -215,7 +215,10 @@ function structuredText(info: PatientSafetyInfo | undefined, key: StructuredKey)
  *  explicit "none known" statement. "Not documented" is not enough. */
 function structuredRecorded(info: PatientSafetyInfo | undefined, key: StructuredKey): boolean {
   if (entriesFor(info, key).length > 0) return true;
-  if (info?.[STATE_FIELD[key]] === "none-known") return true;
+  // An explicit clinician decision — "none known" or "not documented" — is a
+  // recorded answer. Only an untouched field stays outstanding.
+  const state = info?.[STATE_FIELD[key]];
+  if (state === "none-known" || state === "not-documented") return true;
   const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
   return !!legacy && legacy.trim().length > 0;
 }
@@ -645,7 +648,9 @@ export function infoItems(
     requirement: infoRequirement(med, key),
     recorded: infoRecorded(key, info, visitMedications),
   }));
-  return [...items.filter((i) => !i.recorded), ...items.filter((i) => i.recorded)];
+  // Canonical order only: a row must never jump to the bottom of the list when
+  // the clinician records it.
+  return items;
 }
 
 /** Short human-readable value of what is on record, for the completed row. */
@@ -660,6 +665,8 @@ export function infoRecordedSummary(
     case "currentMedications": {
       const state = docStateFor(info, key);
       if (state === "none-known") return "None known";
+      if (state === "not-documented" && !entriesFor(info, key).length)
+        return "Not documented at this visit";
       const names = entriesFor(info, key)
         .map((e) => e.name.trim())
         .filter(Boolean);
