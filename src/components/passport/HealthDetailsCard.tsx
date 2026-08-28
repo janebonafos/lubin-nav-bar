@@ -426,11 +426,8 @@ function FieldInput({
 
   return (
     <Wrapper className="block">
-      <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
+      <span className="mb-2 block text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
-        {value.trim() ? (
-          <Check className="h-3.5 w-3.5 text-brand-purple" aria-label="Saved" />
-        ) : null}
       </span>
       {field.type === "meds" ? (
         <MedsInput field={field} value={value} onChange={onChange} />
