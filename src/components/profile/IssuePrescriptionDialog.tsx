@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   FileText,
-  Info,
+  HelpCircle,
   Plus,
   Search,
   ShieldCheck,
@@ -677,7 +677,7 @@ export default function IssuePrescriptionDialog({
                 onChange={(e) => setCaseNotes(e.target.value)}
                 placeholder="Presenting concerns, duration, findings, what you have already tried…"
               />
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={generateSuggestions}
@@ -693,15 +693,16 @@ export default function IssuePrescriptionDialog({
                       <button
                         type="button"
                         aria-label="How AI suggestions work"
-                        className="inline-flex items-center justify-center text-[#9E94B5] transition hover:text-[#3D2E6B] focus:outline-none"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#E3DCF5] bg-[#FAF8FF] px-3 py-1.5 text-[11.5px] font-medium text-[#6B5B8D] transition hover:border-[#CFC4EA] hover:bg-[#F3EEFD] hover:text-[#3D2E6B] focus:outline-none"
                       >
-                        <Info className="h-4 w-4" />
+                        <HelpCircle className="h-3.5 w-3.5" />
+                        How does this work?
                       </button>
                     </TooltipTrigger>
                     <TooltipContent
                       side="bottom"
                       sideOffset={6}
-                      className="max-w-[260px] bg-[#3D2E6B] text-[#FBF9FF]"
+                      className="max-w-[280px] bg-[#3D2E6B] text-[#FBF9FF]"
                     >
                       <p className="text-[12px] leading-relaxed">
                         Lubin uses the patient’s shared health passport, your case notes,
