@@ -3219,15 +3219,20 @@ function SelectField({
   value,
   options,
   onChange,
+  hint,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  hint?: string;
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[12px] font-medium text-[#5A4A8A]">{label}</span>
+      <span className="mb-1 flex items-center gap-1 text-[12px] font-medium text-[#5A4A8A]">
+        {label}
+        {hint && <FieldHint text={hint} />}
+      </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -3241,6 +3246,14 @@ function SelectField({
         ))}
       </select>
     </label>
+  );
+}
+
+function FieldHint({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-flex cursor-help align-middle" title={text}>
+      <Info className="h-3.5 w-3.5 text-[#9C96AF] transition-colors group-hover:text-[#6E4FD3]" />
+    </span>
   );
 }
 
