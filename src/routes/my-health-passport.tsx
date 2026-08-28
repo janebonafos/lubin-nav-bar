@@ -286,7 +286,7 @@ function PassportPage() {
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
-            ["details", "About you"],
+            ["details", detailsName ? `About ${detailsName}` : "About you"],
           ] as const).map(([key, label]) => {
             const active = tab === key;
             const showDot = key === "progress" && hasInProgress;
