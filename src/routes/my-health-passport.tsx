@@ -331,6 +331,13 @@ function PassportPage() {
           </div>
         )}
 
+        {/* No appointment yet? Health details still live here, up front. */}
+        {tab === "overview" && upcomingAppointments.length === 0 && (
+          <div className="mt-8">
+            <HealthDetailsCard />
+          </div>
+        )}
+
         {/* Tab content */}
         <div className="mt-8">
           {tab === "overview" && (
@@ -344,7 +351,7 @@ function PassportPage() {
               onAfterSave={() => setRegisterNudge(true)}
             />
           )}
-          {tab === "overview" && (
+          {tab === "overview" && upcomingAppointments.length > 0 && (
             <div className="mt-8">
               <HealthDetailsCard />
             </div>
