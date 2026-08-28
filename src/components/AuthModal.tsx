@@ -238,22 +238,47 @@ export default function AuthModal({
 
         {showProxyOption && (
           <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-4">
-            <label className="flex cursor-pointer items-start gap-3">
-              <input
-                type="checkbox"
-                checked={onBehalf}
-                onChange={(e) => setOnBehalf(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-[#7E6BAF]"
-              />
-              <span>
-                <span className="block text-[14px] font-semibold text-[#1F1B2E]">
-                  I'm signing up on behalf of someone else
-                </span>
-                <span className="mt-0.5 block text-[12.5px] leading-snug text-[#5A4E8A]">
-                  For a parent, child, partner or someone you care for. You'll manage the account and can invite them later.
-                </span>
-              </span>
-            </label>
+            <span className="mb-2.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+              Who is this account for?
+            </span>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([
+                {
+                  value: false,
+                  title: "It's for me",
+                  desc: isSignup ? "I'm the one seeking support" : "I manage my own care",
+                },
+                {
+                  value: true,
+                  title: "For someone else",
+                  desc: "I'm a parent, partner or caregiver",
+                },
+              ]).map((opt) => {
+                const active = onBehalf === opt.value;
+                return (
+                  <button
+                    key={String(opt.value)}
+                    type="button"
+                    onClick={() => setOnBehalf(opt.value)}
+                    aria-pressed={active}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      active
+                        ? "border-[#7E6BAF] bg-[#EAE7F5] ring-1 ring-[#7E6BAF]/30"
+                        : "border-[#E6DFF4] bg-white hover:border-[#C9BEE5]"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#1F1B2E]">
+                      {opt.title}
+                      {active && <Check className="h-3.5 w-3.5 text-[#7E6BAF]" />}
+                    </span>
+                    <span className="mt-0.5 block text-[12px] leading-snug text-[#5A4E8A]">
+                      {opt.desc}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
 
             {onBehalf && (
               <div className="mt-4 space-y-3">
