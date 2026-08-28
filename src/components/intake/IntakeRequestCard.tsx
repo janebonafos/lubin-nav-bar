@@ -465,14 +465,37 @@ function FieldRow({
           className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
         />
       ) : (
-        <textarea
-          value={draft}
-          onChange={(e) => onType(e.target.value)}
-          onBlur={() => dirty && commit(draft)}
-          rows={3}
-          placeholder={field.placeholder}
-          className="mt-2 w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm leading-relaxed text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
-        />
+        <div className="mt-2">
+          {/* One-tap starters — fills the box so most people never type at all. */}
+          {field.suggestions && field.suggestions.length > 0 && !state.prefill && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {field.suggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    commit(s);
+                    toast.success("Saved — tap the text to fine-tune it");
+                  }}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                    draft === s
+                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                      : "border-[#D8C7F0] bg-[#FBF9FF] text-[#3D2E6B] hover:bg-[#F0EAFB]"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+          <textarea
+            value={draft}
+            onChange={(e) => onType(e.target.value)}
+            onBlur={() => dirty && commit(draft)}
+            rows={2}
+            placeholder={field.placeholder}
+            className="w-full rounded-[8px] border border-[#EAE7F5] bg-white px-3 py-2 text-sm leading-relaxed text-[#3D2E6B] outline-none transition placeholder:text-[#A89BD0] focus:border-[#A89BD0]"
+          />
+        </div>
       )}
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
