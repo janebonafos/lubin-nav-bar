@@ -438,8 +438,8 @@ export default function IssuePrescriptionDialog({
   const hasPatient = !!patientName.trim() || creatingNew || !!selected;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-[#1B1330]/50 p-3 pt-20 backdrop-blur-sm sm:p-6 sm:pt-24">
-      <div className="flex max-h-[calc(100vh-6rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl sm:max-h-[calc(100vh-7rem)]">
+    <div className="fixed inset-0 z-[70] flex justify-end bg-[#1B1330]/50 backdrop-blur-sm">
+      <div className="flex h-full w-full max-w-xl flex-col overflow-hidden border-l border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#EDEBF3] bg-white px-6 py-5">
           <div>
             <h2 className="text-[16px] font-bold text-[#3D2E6B]">New prescription</h2>
@@ -504,35 +504,35 @@ export default function IssuePrescriptionDialog({
 
           {/* Patient */}
           <section className={cardCls}>
-            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">1 · Patient</h3>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <div className="relative min-w-[220px] flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
-                <input
-                  value={patientQuery}
-                  onChange={(e) => setPatientQuery(e.target.value)}
-                  placeholder="Search your patient records"
-                  className={`${field} pl-9`}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={startNewPatient}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-              >
-                <UserPlus className="h-4 w-4" /> New patient
-              </button>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">1 · Patient</h3>
+              {selected && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelected(null);
+                    setPatientQuery("");
+                  }}
+                  className="text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+                >
+                  Change patient
+                </button>
+              )}
             </div>
 
             {!selected && !creatingNew && (
-              <div className="mt-3 space-y-2">
-                {filteredRecords.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-[#DCD4F0] bg-[#FBFAFE] px-4 py-4 text-[12.5px] text-[#6F6889]">
-                    No record found. Create a new patient record to prescribe for a
-                    first-time client.
-                  </p>
-                ) : (
-                  filteredRecords.map((r) => (
+              <>
+                <div className="relative mt-3">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+                  <input
+                    value={patientQuery}
+                    onChange={(e) => setPatientQuery(e.target.value)}
+                    placeholder="Search your patient records by name"
+                    className={`${field} pl-9`}
+                  />
+                </div>
+                <div className="mt-3 space-y-2">
+                  {filteredRecords.map((r) => (
                     <button
                       key={r.id}
                       type="button"
@@ -551,8 +551,47 @@ export default function IssuePrescriptionDialog({
                         </span>
                       </span>
                     </button>
-                  ))
-                )}
+                  ))}
+                  {patientQuery.trim() && filteredRecords.length === 0 && (
+                    <p className="px-1 text-[12.5px] text-[#6F6889]">
+                      No patient named “{patientQuery.trim()}” in your records yet.
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={startNewPatient}
+                    className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3 text-left transition hover:border-[#7E6BAF] hover:bg-[#F1EBFF]"
+                  >
+                    <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
+                      <UserPlus className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+                        {patientQuery.trim()
+                          ? `Create “${patientQuery.trim()}” as a new patient`
+                          : "New patient — create a record"}
+                      </span>
+                      <span className="block text-[11.5px] text-[#8A7FB0]">
+                        For a first-time client who isn’t in your records yet
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
+
+            {creatingNew && !selected && (
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3">
+                <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
+                  <UserPlus className="h-4 w-4" /> New patient record — fill in the details below
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCreatingNew(false)}
+                  className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+                >
+                  Back to search
+                </button>
               </div>
             )}
 
