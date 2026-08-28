@@ -63,8 +63,14 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
   {
     id: "safety-net",
     label: "Someone to call",
-    why: "Only ever used if there's a serious concern for your safety.",
+    why: "Only ever used if there's a serious concern for your safety. It's okay if you don't have someone right now.",
     fields: [
+      {
+        id: "emergency.none",
+        label: "Do you have someone we can call in an emergency?",
+        type: "choice",
+        options: ["No one right now", "Yes, I have someone"],
+      },
       { id: "emergency.name", label: "Emergency contact", type: "short-text", placeholder: "Name" },
       { id: "emergency.relationship", label: "Their relationship to you", type: "short-text", placeholder: "e.g. partner, parent" },
       { id: "emergency.phone", label: "Their number", type: "tel", placeholder: "+63 9XX XXX XXXX" },

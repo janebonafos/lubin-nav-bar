@@ -20,10 +20,29 @@ import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 const GROUP_BLURB: Record<string, string> = {
   "about-you": "Name and date of birth",
   "reach-you": "Phone, email, where you are",
-  "safety-net": "One person, used only in an emergency",
+  "safety-net": "One person in an emergency — or choose no one",
   health: "Allergies, current meds, anything relevant",
   care: "Any care you already have",
 };
+
+const SAFETY_NET_FIELDS = ["emergency.name", "emergency.relationship", "emergency.phone"];
+const SAFETY_NET_NONE = "No one right now";
+
+function safetyNetHasNone(details: HealthDetails): boolean {
+  return details["emergency.none"] === SAFETY_NET_NONE;
+}
+
+function safetyNetContactFilled(details: HealthDetails): boolean {
+  return SAFETY_NET_FIELDS.every((id) => details[id]?.trim());
+}
+
+function safetyNetComplete(details: HealthDetails): boolean {
+  return safetyNetHasNone(details) || safetyNetContactFilled(details);
+}
+
+function safetyNetStarted(details: HealthDetails): boolean {
+  return safetyNetHasNone(details) || SAFETY_NET_FIELDS.some((id) => details[id]?.trim());
+}
 
 function ageFrom(dob: string): string | null {
   if (!dob) return null;
@@ -524,6 +543,65 @@ function FieldInput({
   );
 }
 
+/* ------------------------------- safety net ------------------------------- */
+
+function SafetyNetFields({
+  details,
+  update,
+}: {
+  details: HealthDetails;
+  update: (id: string, value: string) => void;
+}) {
+  const hasNone = safetyNetHasNone(details);
+
+  const setChoice = (val: string) => {
+    if (val === SAFETY_NET_NONE) {
+      update("emergency.none", val);
+      SAFETY_NET_FIELDS.forEach((id) => update(id, ""));
+    } else if (val) {
+      update("emergency.none", val);
+    } else {
+      update("emergency.none", "");
+    }
+  };
+
+  const noneField: HealthDetailField = {
+    id: "emergency.none",
+    label: "Do you have someone we can call in an emergency?",
+    type: "choice",
+    options: [SAFETY_NET_NONE, "Yes, I have someone"],
+  };
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <FieldInput
+          field={noneField}
+          value={details["emergency.none"] ?? ""}
+          onChange={setChoice}
+        />
+      </div>
+      {hasNone ? (
+        <div className="sm:col-span-2 rounded-2xl border border-brand-purple/10 bg-brand-purple/5 p-4">
+          <p className="text-[13px] leading-relaxed text-brand-purple-dark/70">
+            That's completely okay. You can still book a session, and if a provider ever needs
+            to reach someone, they'll talk to you first.
+          </p>
+        </div>
+      ) : (
+        SAFETY_NET_FIELDS.map((id) => {
+          const field = HEALTH_DETAIL_GROUPS.flatMap((g) => g.fields).find((f) => f.id === id)!;
+          return (
+            <div key={id} className={id === "emergency.name" ? "sm:col-span-2" : ""}>
+              <FieldInput field={field} value={details[id] ?? ""} onChange={(v) => update(id, v)} />
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
 /* ---------------------------------- main ---------------------------------- */
 
 export default function HealthDetailsCard({ showHeader = true }: { showHeader?: boolean }) {
@@ -598,11 +676,16 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
         {/* Editable sections */}
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
           {HEALTH_DETAIL_GROUPS.map((group, i) => {
-            const filled = groupFilledCount(group, details);
-            const total = group.fields.length;
-            const complete = filled === total && total > 0;
+            const isSafety = group.id === "safety-net";
+            const filled = isSafety
+              ? safetyNetComplete(details)
+                ? 3
+                : SAFETY_NET_FIELDS.filter((id) => details[id]?.trim()).length
+              : groupFilledCount(group, details);
+            const total = isSafety ? 3 : group.fields.length;
+            const complete = isSafety ? safetyNetComplete(details) : filled === total && total > 0;
             const open = openGroup === group.id;
-            const started = filled > 0;
+            const started = isSafety ? safetyNetStarted(details) : filled > 0;
 
             return (
               <div
@@ -623,7 +706,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                   aria-expanded={open}
                   className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
                 >
-                  <div className="flex items-center gap-5">
+                  <div className="flex min-w-0 items-center gap-5">
                     <span
                       className={`font-mono text-[15px] font-bold transition-colors ${
                         open
@@ -637,9 +720,9 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <div>
+                    <div className="min-w-0">
                       <h4
-                        className={`text-[15px] font-bold leading-tight ${
+                        className={`truncate text-[15px] font-bold leading-tight ${
                           open
                             ? "text-brand-purple-dark"
                             : complete
@@ -649,7 +732,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                       >
                         {group.label}
                       </h4>
-                      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/50">
+                      <p className="mt-0.5 truncate text-[12.5px] text-brand-purple-dark/50">
                         {GROUP_BLURB[group.id] ?? group.why}
                       </p>
                     </div>
@@ -684,26 +767,30 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                     <p className="mb-5 text-[13px] leading-relaxed text-brand-purple-dark/60">
                       {group.why}
                     </p>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {group.fields.map((field) => (
-                        <div
-                          key={field.id}
-                          className={
-                            field.type === "long-text" ||
-                            field.type === "choice" ||
-                            field.type === "tags"
-                              ? "sm:col-span-2"
-                              : ""
-                          }
-                        >
-                          <FieldInput
-                            field={field}
-                            value={details[field.id] ?? ""}
-                            onChange={(v) => update(field.id, v)}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    {isSafety ? (
+                      <SafetyNetFields details={details} update={update} />
+                    ) : (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {group.fields.map((field) => (
+                          <div
+                            key={field.id}
+                            className={
+                              field.type === "long-text" ||
+                              field.type === "choice" ||
+                              field.type === "tags"
+                                ? "sm:col-span-2"
+                                : ""
+                            }
+                          >
+                            <FieldInput
+                              field={field}
+                              value={details[field.id] ?? ""}
+                              onChange={(v) => update(field.id, v)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-brand-purple/10 pt-4">
                       <p className="flex items-center gap-1.5 text-[12px] text-brand-purple-dark/50">
                         <Lock className="h-3 w-3" />
