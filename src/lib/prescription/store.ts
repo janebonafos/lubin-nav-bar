@@ -255,6 +255,7 @@ export type PrescriptionMedication = {
   refills?: string; // e.g. "1 refill"
   indication?: string; // why it's being prescribed
   instructions: string; // patient-facing guidance
+  followUp?: string; // when the patient should be reviewed again, e.g. "Review in 4 weeks"
   warnings?: string; // side effects / red flags
   rationale?: string; // why AI suggested this, from the visit context
   availabilityNote?: string; // country-specific availability / regulatory note
