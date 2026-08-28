@@ -107,6 +107,8 @@ export function PatientInfoForm({
   onChange,
   onSave,
   relevanceFor,
+  appointmentId,
+  clientName,
 }: {
   keys: InfoKey[];
   info?: PatientSafetyInfo;
@@ -114,6 +116,9 @@ export function PatientInfoForm({
   onSave: () => void;
   /** Medication-specific reason shown under an item, so nothing looks universal. */
   relevanceFor?: (key: InfoKey) => string;
+  /** Used to surface what the client already shared in their intake form. */
+  appointmentId?: string;
+  clientName?: string;
 }) {
   const [saved, setSaved] = useState<number | null>(null);
   /** Nothing is written to the patient record while the provider types. Edits
