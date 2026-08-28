@@ -256,7 +256,7 @@ export function buildIntakeProgress(
   const fields: IntakeFieldState[] = [];
   for (const template of templates) {
     for (const field of template.fields) {
-      const suggestion = field.prefill ? prefill[field.id] : undefined;
+      const suggestion = prefill[field.id];
       const answer = response.values[field.id] ?? "";
       fields.push({
         field,
