@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   FileText,
+  Info,
   Plus,
   Search,
   ShieldCheck,
@@ -11,6 +12,12 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
