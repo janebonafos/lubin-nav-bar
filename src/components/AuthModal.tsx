@@ -261,17 +261,17 @@ export default function AuthModal({
                     type="button"
                     onClick={() => setOnBehalf(opt.value)}
                     aria-pressed={active}
-                    className={`rounded-xl border p-3 text-left transition ${
+                    className={`rounded-xl border px-3 py-2.5 text-left transition ${
                       active
                         ? "border-[#7E6BAF] bg-[#EAE7F5] ring-1 ring-[#7E6BAF]/30"
                         : "border-[#E6DFF4] bg-white hover:border-[#C9BEE5]"
                     }`}
                   >
-                    <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#1F1B2E]">
+                    <span className="flex items-center gap-1 text-[13px] font-semibold text-[#1F1B2E]">
                       {opt.title}
                       {active && <Check className="h-3.5 w-3.5 text-[#7E6BAF]" />}
                     </span>
-                    <span className="mt-0.5 block text-[12px] leading-snug text-[#5A4E8A]">
+                    <span className="mt-0.5 block text-[11.5px] leading-snug text-[#5A4E8A]">
                       {opt.desc}
                     </span>
                   </button>
@@ -281,12 +281,12 @@ export default function AuthModal({
 
 
             {onBehalf && (
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2.5">
                 <div>
-                  <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                  <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
                     Your relationship to them
                   </span>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {PROXY_RELATIONSHIPS.map((opt) => {
                       const active = relationship === opt.value;
                       return (
@@ -295,7 +295,7 @@ export default function AuthModal({
                           type="button"
                           onClick={() => setRelationship(opt.value)}
                           aria-pressed={active}
-                          className={`rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${
+                          className={`rounded-full border px-2.5 py-1 text-[12px] font-medium transition ${
                             active
                               ? "border-[#7E6BAF] bg-[#EAE7F5] text-[#3D2E6B]"
                               : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5]"
