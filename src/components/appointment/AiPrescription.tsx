@@ -2076,9 +2076,9 @@ function SafetyReviewDrawer({
       <aside
         role="dialog"
         aria-label="Patient information and safety"
-        className="relative flex h-full w-full flex-col bg-white shadow-2xl md:max-w-[540px]"
+        className="relative flex h-dvh max-h-dvh w-full flex-col bg-white shadow-2xl md:max-w-[540px]"
       >
-        <header className="flex items-start gap-3 border-b border-[#ECE7F6] bg-[#FAF7FE] px-5 py-4">
+        <header className="shrink-0 flex items-start gap-3 border-b border-[#ECE7F6] bg-[#FAF7FE] px-5 py-4">
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-base font-semibold text-[#3D2E6B]">
               {clientName || "Client"}
@@ -2095,7 +2095,7 @@ function SafetyReviewDrawer({
             <X className="h-4 w-4" />
           </button>
         </header>
-        <div className="flex gap-1 border-b border-[#ECE7F6] px-5" role="tablist">
+        <div className="shrink-0 flex gap-1 border-b border-[#ECE7F6] px-5" role="tablist">
           {(
             [
               { id: "safety", label: "Safety review" },
@@ -2128,8 +2128,8 @@ function SafetyReviewDrawer({
             </button>
           ))}
         </div>
-        <div className="flex-1 overflow-auto px-5 py-4">{children}</div>
-        <div className="flex flex-wrap items-center gap-3 border-t border-[#ECE7F6] bg-[#FBFAFE] px-5 py-3.5">
+        <div className="min-h-0 flex-1 overflow-auto px-5 py-4">{children}</div>
+        <div className="shrink-0 flex flex-wrap items-center gap-3 border-t border-[#ECE7F6] bg-[#FBFAFE] px-5 py-3.5">
           {footer}
         </div>
       </aside>
