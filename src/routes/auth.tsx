@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import AuthModal, { type ProxySignup, type UserRole } from "@/components/AuthModal";
+import AuthModal, { type UserRole } from "@/components/AuthModal";
+import { saveProxySignup, type ProxySignup } from "@/lib/proxySignup";
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -38,11 +39,7 @@ function AuthPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("lubin.userRole", role);
         window.localStorage.setItem("lubin.signedIn", "1");
-        if (proxy) {
-          window.localStorage.setItem("lubin.proxySignup", JSON.stringify(proxy));
-        } else {
-          window.localStorage.removeItem("lubin.proxySignup");
-        }
+        saveProxySignup(role === "client" ? proxy ?? null : null);
         if (!window.localStorage.getItem("lubin.userName")) {
           const fallbackName = role === "provider" ? "Dr. Provider" : "Guest User";
           window.localStorage.setItem("lubin.userName", fallbackName);

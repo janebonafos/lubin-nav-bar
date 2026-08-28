@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
+import {
+  PROXY_RELATIONSHIPS,
+  relationshipLabel,
+  saveProxySignup,
+  type ProxySignup,
+} from "@/lib/proxySignup";
 
 export type AuthMode = "signup" | "signin";
 export type UserRole = "client" | "provider";
 
-export type ProxySignup = {
-  relationship: string;
-  personName: string;
-};
+export type { ProxySignup };
+
 
 interface AuthModalProps {
   open: boolean;
@@ -69,6 +73,7 @@ export default function AuthModal({
   const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
   const [onBehalf, setOnBehalf] = useState(false);
   const [relationship, setRelationship] = useState("");
+  const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
@@ -79,9 +84,11 @@ export default function AuthModal({
       setLoadingProvider(null);
       setOnBehalf(false);
       setRelationship("");
+      setRelationshipOther("");
       setPersonName("");
       return;
     }
+
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -101,6 +108,7 @@ export default function AuthModal({
     if (role !== "client") {
       setOnBehalf(false);
       setRelationship("");
+      setRelationshipOther("");
       setPersonName("");
     }
     onSelectRole?.(role);
@@ -122,13 +130,27 @@ export default function AuthModal({
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
   const showProxyOption = isSignup && selectedRole === "client";
-  const proxyIncomplete = showProxyOption && onBehalf && (!relationship || personName.trim().length < 2);
+  const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
+  const proxyIncomplete =
+    showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
   const proxyPayload: ProxySignup | null =
     showProxyOption && onBehalf && !proxyIncomplete
-      ? { relationship, personName: personName.trim() }
+      ? {
+          relationship,
+          relationshipLabel: relationshipLabel(relationship),
+          ...(relationship === "other" ? { relationshipOther: relationshipOther.trim() } : {}),
+          personName: personName.trim(),
+        }
       : null;
   const canShowAuthMethods = selectedRole !== null;
   const blocked = loadingProvider !== null || proxyIncomplete;
+
+  /** Persist the relationship for every signup entry point, not just /auth. */
+  const persistProxy = () => {
+    if (!isSignup || selectedRole !== "client") return;
+    saveProxySignup(proxyPayload);
+  };
+
 
   return (
     <div
@@ -234,25 +256,49 @@ export default function AuthModal({
             </label>
 
             {onBehalf && (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
-                    Your relationship
+              <div className="mt-4 space-y-3">
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                    Your relationship to them
                   </span>
-                  <select
-                    value={relationship}
-                    onChange={(e) => setRelationship(e.target.value)}
-                    className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none focus:border-[#7E6BAF]"
-                  >
-                    <option value="">Select…</option>
-                    <option value="parent">Parent or guardian</option>
-                    <option value="child">Adult child</option>
-                    <option value="partner">Partner or spouse</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="caregiver">Caregiver or support worker</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
+                  <div className="flex flex-wrap gap-2">
+                    {PROXY_RELATIONSHIPS.map((opt) => {
+                      const active = relationship === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setRelationship(opt.value)}
+                          aria-pressed={active}
+                          className={`rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${
+                            active
+                              ? "border-[#7E6BAF] bg-[#EAE7F5] text-[#3D2E6B]"
+                              : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5]"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {relationship === "other" && (
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                      How are you related?
+                    </span>
+                    <input
+                      type="text"
+                      value={relationshipOther}
+                      maxLength={60}
+                      onChange={(e) => setRelationshipOther(e.target.value)}
+                      placeholder="e.g. Family friend"
+                      className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                    />
+                  </label>
+                )}
+
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
                     Their first name
@@ -266,13 +312,20 @@ export default function AuthModal({
                     className="w-full rounded-xl border border-[#E6DFF4] bg-white px-3 py-2.5 text-[14px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
                   />
                 </label>
-                {proxyIncomplete && (
-                  <p className="sm:col-span-2 text-[12px] text-[#7E6BAF]">
-                    Add your relationship and their first name to continue.
+
+                {proxyIncomplete ? (
+                  <p className="text-[12px] text-[#7E6BAF]">
+                    Pick your relationship and add their first name to continue.
+                  </p>
+                ) : (
+                  <p className="text-[12px] text-[#5A4E8A]">
+                    We'll set the passport up for {personName.trim()} and note that you're their{" "}
+                    {(relationship === "other" ? relationshipOther.trim() : relationshipLabel(relationship)).toLowerCase()}.
                   </p>
                 )}
               </div>
             )}
+
           </div>
         )}
 
@@ -308,6 +361,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("google");
+              persistProxy();
               onContinueWithGoogle?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
@@ -329,6 +383,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("linkedin");
+              persistProxy();
               onContinueWithLinkedIn?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
@@ -350,6 +405,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("facebook");
+              persistProxy();
               onContinueWithFacebook?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
