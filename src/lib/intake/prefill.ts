@@ -2,6 +2,7 @@
 // so the client only confirms or fills the gaps.
 import { loadAttempts } from "@/lib/patterns/storage";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
+import { loadHealthDetails } from "./healthDetails";
 
 export type PrefillValue = { value: string; source: string };
 
