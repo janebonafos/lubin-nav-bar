@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, Lock, Plus, X } from "lucide-react";
+import { CalendarDays, Lock, Plus, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
@@ -318,93 +318,105 @@ function MedsInput({
   const commit = (next: MedRow[]) => onChange(serializeMeds(next));
   const update = (i: number, patch: Partial<MedRow>) =>
     commit(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  const addRow = () => {
+    if (takingNone) {
+      onChange(serializeMeds([{ type: "", name: "", dose: "" }]));
+    } else {
+      commit([...rows, { type: "", name: "", dose: "" }]);
+    }
+  };
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={() => onChange(takingNone ? "" : none)}
-        className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
-          takingNone
-            ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
-            : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
-        }`}
-      >
-        {none}
-      </button>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(takingNone ? "" : none)}
+          className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
+            takingNone
+              ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
+              : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
+          }`}
+        >
+          {none}
+        </button>
+        {!takingNone && rows.length === 0 && (
+          <span className="text-[12px] text-brand-purple-dark/50">
+            Tap "Add a medication" to list what you take.
+          </span>
+        )}
+      </div>
 
-      {!takingNone && (
-        <div className="mt-3 space-y-3">
-          {rows.map((row, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-brand-purple/12 bg-white p-3 shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-mono text-[11px] font-bold tracking-[0.18em] text-brand-purple/60">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <button
-                  type="button"
-                  aria-label={`Remove medication ${i + 1}`}
-                  onClick={() => commit(rows.filter((_, idx) => idx !== i))}
-                  className="shrink-0 text-brand-purple-dark/30 transition hover:text-brand-purple-dark"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+      <div className="space-y-3">
+        {rows.map((row, i) => (
+          <div
+            key={i}
+            className="rounded-2xl border border-brand-purple/12 bg-white p-3 shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-mono text-[11px] font-bold tracking-[0.18em] text-brand-purple/60">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <button
+                type="button"
+                aria-label={`Remove medication ${i + 1}`}
+                onClick={() => commit(rows.filter((_, idx) => idx !== i))}
+                className="shrink-0 text-brand-purple-dark/30 transition hover:text-brand-purple-dark"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <input
+                value={row.name}
+                maxLength={field.maxItemLength ?? 40}
+                placeholder="Medicine name"
+                onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
+                className="w-full min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+              />
+              <div className="grid grid-cols-2 gap-2">
                 <input
-                  value={row.name}
-                  maxLength={field.maxItemLength ?? 40}
-                  placeholder="Medicine name"
-                  onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
-                  className="w-full min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+                  value={row.dose}
+                  maxLength={20}
+                  placeholder="Dose"
+                  onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
+                  className="min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
                 />
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    value={row.dose}
-                    maxLength={20}
-                    placeholder="Dose"
-                    onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
-                    className="min-w-0 rounded-xl border border-brand-purple/15 bg-white px-3 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
-                  />
-                  <select
-                    value={row.type}
-                    onChange={(e) => update(i, { type: e.target.value })}
-                    className={`min-w-0 appearance-none rounded-xl border border-brand-purple/15 bg-white bg-[length:14px] bg-[right_0.7rem_center] bg-no-repeat px-3 py-2.5 pr-8 text-sm outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15 ${
-                      row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
-                    }`}
-                    style={{
-                      backgroundImage:
-                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237E6BAF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
-                    }}
-                  >
-                    <option value="">Type</option>
-                    {types.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={row.type}
+                  onChange={(e) => update(i, { type: e.target.value })}
+                  className={`min-w-0 appearance-none rounded-xl border border-brand-purple/15 bg-white bg-[length:14px] bg-[right_0.7rem_center] bg-no-repeat px-3 py-2.5 pr-8 text-sm outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15 ${
+                    row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
+                  }`}
+                  style={{
+                    backgroundImage:
+                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237E6BAF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+                  }}
+                >
+                  <option value="">Type</option>
+                  {types.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
 
-          {rows.length < maxRows && (
-            <button
-              type="button"
-              onClick={() => commit([...rows, { type: "", name: "", dose: "" }])}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {rows.length ? "Add another medication" : "Add a medication"}
-            </button>
-          )}
-        </div>
-      )}
+        {rows.length < maxRows && (
+          <button
+            type="button"
+            onClick={addRow}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {rows.length ? "Add another medication" : "Add a medication"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -426,11 +438,8 @@ function FieldInput({
 
   return (
     <Wrapper className="block">
-      <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
+      <span className="mb-2 block text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
-        {value.trim() ? (
-          <Check className="h-3.5 w-3.5 text-brand-purple" aria-label="Saved" />
-        ) : null}
       </span>
       {field.type === "meds" ? (
         <MedsInput field={field} value={value} onChange={onChange} />
