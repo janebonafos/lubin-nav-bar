@@ -1206,11 +1206,21 @@ export function AiPrescription({
         {header}
         {error && <ErrorNote text={error} />}
         {busy ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
-            <Loader2 className="h-4 w-4 animate-spin text-[#6E4FD3]" />
-            <p className="text-[13px] text-[#3D2E6B]">
-              Preparing options from the recorded clinical information…
-            </p>
+          <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
+            <div className="flex items-start gap-3">
+              <Loader2 className="mt-0.5 h-4 w-4 animate-spin text-[#6E4FD3]" />
+              <div>
+                <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                  AI is reviewing the visit context…
+                </p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[#5A4A8A]">
+                  It pulls from the recorded presenting concerns, session observations, clinician
+                  plan, assessment results, medications, allergies, and profile. It then matches
+                  these against standard first-line options for this jurisdiction — producing
+                  suggestions, not a final prescription.
+                </p>
+              </div>
+            </div>
           </div>
         ) : blankMed ? (
           <div className="rounded-xl border border-[#E4E1EC] bg-white px-4 py-4">
