@@ -160,7 +160,7 @@ export default function ProviderPrescriptionsSection() {
                     key={doc.id}
                     className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
                   >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <div className="min-w-0">
                         <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
                           {doc.number}
@@ -190,7 +190,7 @@ export default function ProviderPrescriptionsSection() {
                         href={prescriptionHref(doc)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                        className="inline-flex h-9 shrink-0 items-center justify-center self-start rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                       >
                         View prescription
                       </a>
