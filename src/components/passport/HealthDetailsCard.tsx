@@ -283,7 +283,7 @@ function FieldInput({
       <span className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-brand-purple-dark/85">
         {field.label}
         {value.trim() ? (
-          <Check className="h-3.5 w-3.5 text-emerald-600" aria-label="Saved" />
+          <Check className="h-3.5 w-3.5 text-brand-purple" aria-label="Saved" />
         ) : null}
       </span>
       {field.type === "tags" ? (
@@ -424,7 +424,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
           <div className="mt-6 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-brand-purple-dark">Privacy</span>
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-600">
+              <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
                 Active
               </span>
             </div>
@@ -451,7 +451,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                   open
                     ? "border-brand-purple/40 shadow-sm"
                     : complete
-                      ? "border-emerald-100 bg-[#F4FBF7]"
+                      ? "border-brand-purple/20 bg-brand-purple/5"
                       : started
                         ? "border-brand-purple/20 hover:border-brand-purple/40"
                         : "border-transparent shadow-sm hover:border-brand-purple/20"
@@ -469,7 +469,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                         open
                           ? "text-brand-purple"
                           : complete
-                            ? "text-emerald-600"
+                            ? "text-brand-purple"
                             : started
                               ? "text-brand-purple/70"
                               : "text-brand-purple-dark/20"
@@ -497,7 +497,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
                   <div className="flex shrink-0 items-center gap-3">
                     {complete ? (
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase text-emerald-700">
+                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
                         Complete
                       </span>
                     ) : started ? (
