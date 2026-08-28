@@ -39,6 +39,7 @@ import type { Attempt } from "@/lib/patterns/types";
 import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
+import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
@@ -1128,16 +1129,20 @@ function ProfilePage() {
               </>
             )}
 
-            {activeSection === "passport" && (
-              role === "client" &&
-              <Overview
-                today={todayLabel}
-                checkins={passportData.checkins as never}
-                onLogMood={() => setCheckInActive(true)}
-                checkInActive={checkInActive}
-                onCloseCheckIn={() => setCheckInActive(false)}
-                isGuest={false}
-              />
+            {activeSection === "passport" && role === "client" && (
+              <>
+                <Overview
+                  today={todayLabel}
+                  checkins={passportData.checkins as never}
+                  onLogMood={() => setCheckInActive(true)}
+                  checkInActive={checkInActive}
+                  onCloseCheckIn={() => setCheckInActive(false)}
+                  isGuest={false}
+                />
+                <div className="mt-8">
+                  <HealthDetailsCard />
+                </div>
+              </>
             )}
 
             {activeSection === "provider" && role === "provider" && (
