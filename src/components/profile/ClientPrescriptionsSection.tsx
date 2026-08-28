@@ -71,7 +71,7 @@ export default function ClientPrescriptionsSection() {
               key={doc.id}
               className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                 <div className="min-w-0">
                   <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
                     {doc.number}
@@ -107,7 +107,7 @@ export default function ClientPrescriptionsSection() {
                     )}
                   </div>
                 </div>
-                <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                <div className="flex shrink-0 flex-col items-stretch gap-2 self-start sm:flex-row sm:items-center">
                   <a
                     href={prescriptionHref(doc)}
                     target="_blank"
