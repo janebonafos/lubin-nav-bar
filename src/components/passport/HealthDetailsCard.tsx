@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import { Check, Lock } from "lucide-react";
+import { CalendarDays, Check, Lock } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
@@ -186,16 +186,24 @@ function FieldInput({
             );
           })}
         </div>
+      ) : field.type === "date" ? (
+        <div className="relative">
+          <input
+            type="date"
+            value={value}
+            max={new Date().toISOString().slice(0, 10)}
+            min="1900-01-01"
+            onChange={(e) => onChange(e.target.value)}
+            className={`${base} appearance-none pr-10 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-date-and-time-value]:text-left ${
+              value ? "" : "text-brand-purple-dark/35"
+            }`}
+          />
+          <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple/60" />
+        </div>
       ) : (
         <input
           type={
-            field.type === "date"
-              ? "date"
-              : field.type === "tel"
-                ? "tel"
-                : field.type === "email"
-                  ? "email"
-                  : "text"
+            field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"
           }
           value={value}
           placeholder={field.placeholder}
@@ -203,6 +211,7 @@ function FieldInput({
           className={base}
         />
       )}
+
       {field.help && (
         <span className="mt-2 block text-[12px] leading-relaxed text-brand-purple-dark/50">
           {field.help}
