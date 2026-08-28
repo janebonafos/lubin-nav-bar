@@ -1566,8 +1566,8 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => setSafetyOpen(true)}
-                title={`Patient safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
-                aria-label={`Patient safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
+                title={`Safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
+                aria-label={`Safety review — ${totalActions} action${totalActions === 1 ? "" : "s"} remaining`}
                 className={`relative ml-auto inline-flex h-9 items-center gap-1.5 rounded-[10px] border px-3 text-[12.5px] font-semibold transition ${
                   totalActions > 0
                     ? "border-[#DCD2F4] bg-[#F6F3FE] text-[#5A3EB8] hover:bg-[#EFE9FC]"
@@ -1575,11 +1575,12 @@ export function AiPrescription({
                 }`}
               >
                 <ShieldCheck className="h-4 w-4" />
-                Patient safety
-                {totalActions > 0 && (
-                  <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#6E4FD3] px-1 text-[11px] font-bold text-white">
-                    {totalActions}
-                  </span>
+                {totalActions > 0 ? (
+                  <>
+                    {totalActions} safety check{totalActions === 1 ? "" : "s"} to review
+                  </>
+                ) : (
+                  <>Safety checks complete</>
                 )}
               </button>
             ) : (
@@ -1588,7 +1589,7 @@ export function AiPrescription({
                 className="ml-auto inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-[10px] border border-[#EDEAF4] bg-[#FAF9FD] px-3 text-[12.5px] font-semibold text-[#A29CB8]"
               >
                 <ShieldCheck className="h-4 w-4" />
-                Patient safety
+                Safety checks
               </span>
             )}
           </div>
@@ -2486,9 +2487,9 @@ function MedicationEditor({
         )}
       </section>
 
-      {/* 2 — Patient safety review — compact summary only; details live in the drawer */}
+      {/* 2 — Safety review — compact summary only; details live in the drawer */}
       <section>
-        <SectionHeading>Patient safety review</SectionHeading>
+        <SectionHeading>Safety review</SectionHeading>
         {!hasName ? (
           <p className="mt-2 text-[12.5px] leading-relaxed text-[#5A4A8A]">
             Choose a medication above to see the patient information and safety items this
@@ -2503,7 +2504,7 @@ function MedicationEditor({
             >
               <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-[#2C2B4B]">Patient safety review</p>
+                  <p className="text-[14px] font-semibold text-[#2C2B4B]">Safety review</p>
                   <p
                     className={`mt-0.5 text-[12.5px] font-semibold ${
                       safetyResolved ? "text-[#1F7A57]" : "text-[#5A3EB8]"
