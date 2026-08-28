@@ -418,7 +418,7 @@ function FieldInput({
     "w-full rounded-xl border border-brand-purple/15 bg-white px-3.5 py-3 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15";
 
   const Wrapper: "label" | "div" =
-    field.type === "tags" || field.type === "choice" ? "div" : "label";
+    field.type === "tags" || field.type === "choice" || field.type === "meds" ? "div" : "label";
 
   return (
     <Wrapper className="block">
@@ -428,7 +428,9 @@ function FieldInput({
           <Check className="h-3.5 w-3.5 text-brand-purple" aria-label="Saved" />
         ) : null}
       </span>
-      {field.type === "tags" ? (
+      {field.type === "meds" ? (
+        <MedsInput field={field} value={value} onChange={onChange} />
+      ) : field.type === "tags" ? (
         <TagsInput field={field} value={value} onChange={onChange} />
       ) : field.type === "long-text" ? (
         <textarea
