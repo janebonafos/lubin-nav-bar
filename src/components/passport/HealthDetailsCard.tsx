@@ -80,7 +80,7 @@ function PassportCard({
   ownerName: string | null;
 }) {
   const name =
-    details["identity.preferredName"] || details["identity.fullName"] || ownerName || "";
+    details["identity.fullName"] || details["identity.preferredName"] || ownerName || "";
   const dob = details["identity.dob"] ?? "";
   const age = ageFrom(dob);
 
