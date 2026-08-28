@@ -212,20 +212,20 @@ export default function AuthModal({
                   aria-pressed={active}
                   className={`group flex items-center gap-4 rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] ${
                     active
-                      ? "border-[#7E6BAF] bg-white shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] ring-2 ring-[#7E6BAF]/30"
-                      : "border-[#E6DFF4] bg-white hover:border-[#C9BEE5]"
+                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                      : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
                   }`}
                 >
                   <div>
-                    <span className="block text-[15px] font-semibold text-[#1F1B2E]">
+                    <span className={`block text-[15px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
                       {opt.title}
                     </span>
-                    <span className="mt-0.5 block text-[13px] leading-snug text-[#5A4E8A]">
+                    <span className={`mt-0.5 block text-[13px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
                       {opt.desc}
                     </span>
                   </div>
                   {active ? (
-                    <span className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7E6BAF] text-white">
+                    <span className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[#7E6BAF]">
                       <Check className="h-3.5 w-3.5" />
                     </span>
                   ) : (
@@ -263,15 +263,15 @@ export default function AuthModal({
                     aria-pressed={active}
                     className={`rounded-xl border px-3 py-2.5 text-left transition ${
                       active
-                        ? "border-[#7E6BAF] bg-[#EAE7F5] ring-1 ring-[#7E6BAF]/30"
-                        : "border-[#E6DFF4] bg-white hover:border-[#C9BEE5]"
+                        ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                        : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
                     }`}
                   >
-                    <span className="flex items-center gap-1 text-[13px] font-semibold text-[#1F1B2E]">
+                    <span className={`flex items-center gap-1 text-[13px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
                       {opt.title}
-                      {active && <Check className="h-3.5 w-3.5 text-[#7E6BAF]" />}
+                      {active && <Check className="h-3.5 w-3.5 text-white" />}
                     </span>
-                    <span className="mt-0.5 block text-[11.5px] leading-snug text-[#5A4E8A]">
+                    <span className={`mt-0.5 block text-[11.5px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
                       {opt.desc}
                     </span>
                   </button>
