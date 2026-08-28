@@ -1286,18 +1286,25 @@ export function AiPrescription({
             <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F2FB]">
               <img src={rxIcon.url} alt="" aria-hidden="true" className="h-5 w-5 opacity-50" />
             </div>
-            <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <h3 className="text-[14px] font-semibold text-[#2C2B4B]">No prescription prepared</h3>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#F1ECFD] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6E4FD3]">
+                <Sparkles className="h-3 w-3" /> AI-assisted
+              </span>
+            </div>
             <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[#5A4A8A]">
-              You can ask for AI suggestions to consider, add a medication yourself, or record that
-              no prescription is needed. Nothing is prescribed until you review and verify it.
+              You can ask Lubin&apos;s AI to suggest medication options to consider, add a medication
+              yourself, or record that no prescription is needed. Nothing is prescribed until you
+              review and verify it.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={() => void generate({ mode: "suggest" })}
-                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                Review medication options
+                <Sparkles className="h-3.5 w-3.5" />
+                Generate AI suggestions
               </button>
               <button
                 type="button"
@@ -1316,8 +1323,8 @@ export function AiPrescription({
             </div>
             <p className="mx-auto mt-3 max-w-md text-[11.5px] leading-relaxed text-[#7E6BAF]">
               <Info className="inline h-3.5 w-3.5 align-text-bottom" aria-hidden="true" /> AI
-              suggestions are generated from the visit notes and assessments. They are not
-              prescriptions — the clinician must review, verify, and explicitly choose to add any
+              suggestions are generated from this visit&apos;s recorded notes and assessments. They are
+              not prescriptions — the clinician must review, verify, and explicitly choose to add any
               option to the draft.
             </p>
           </div>
