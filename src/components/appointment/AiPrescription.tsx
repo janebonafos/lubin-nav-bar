@@ -2371,21 +2371,14 @@ function MedicationEditor({
           </button>
         </div>
         {(med.origin === "ai" || med.origin === "ai-option") && (
-          <div className="mt-3 rounded-xl border border-[#E4E1EC] bg-[#FAF8FF] px-4 py-3.5">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1ECFD]">
-                <span className="text-[13px] font-semibold text-[#6E4FD3]">AI</span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-[#2C2B4B]">
-                  This medication was suggested by Lubin&apos;s AI
-                </p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
-                  It is a starting option based on the visit context, not a final prescription. Review
-                  every field, adjust as needed, or replace it with a different medication.
-                </p>
-              </div>
-            </div>
+          <div className="mt-3 rounded-lg border-l-[3px] border-l-[#6E4FD3] border border-[#E4E1EC] bg-[#FAF8FF] px-4 py-3">
+            <p className="text-[13px] font-semibold text-[#2C2B4B]">
+              Suggested by Lubin&apos;s AI
+            </p>
+            <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
+              A starting option based on the visit context, not a final prescription. Review every
+              field, adjust as needed, or replace it with a different medication.
+            </p>
           </div>
         )}
         {!medOpen && (
