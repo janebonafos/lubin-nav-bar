@@ -68,6 +68,7 @@ import {
 } from "@/components/profile/ClientAppointmentsSection";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
+import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
