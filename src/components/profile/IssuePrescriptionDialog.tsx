@@ -546,9 +546,10 @@ export default function IssuePrescriptionDialog({
                 <button
                   type="button"
                   onClick={() => setCreatingNew(false)}
-                  className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+                  aria-label="Close new patient form"
+                  className="shrink-0 rounded-lg p-2 text-[#7E6BAF] transition hover:bg-[#EDE8FA] hover:text-[#3D2E6B]"
                 >
-                  Back to search
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             )}
