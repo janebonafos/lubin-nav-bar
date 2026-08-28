@@ -61,6 +61,7 @@ type MedForm = {
   duration: string;
   quantity: string;
   refills: string;
+  followUp: string;
   instructions: string;
   warnings?: string;
   rationale?: string;
