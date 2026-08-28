@@ -547,10 +547,10 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
         </div>
       )}
 
-      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
-        {/* Live card preview */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="mb-4 flex items-center justify-between">
+      <div className="flex flex-col gap-12">
+        {/* Live card preview — full-width above the sections */}
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="mb-5 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-purple-dark/40">
                 Live preview
@@ -584,7 +584,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
         </div>
 
         {/* Editable sections */}
-        <div className="flex flex-col gap-3">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
           {HEALTH_DETAIL_GROUPS.map((group, i) => {
             const filled = groupFilledCount(group, details);
             const total = group.fields.length;
