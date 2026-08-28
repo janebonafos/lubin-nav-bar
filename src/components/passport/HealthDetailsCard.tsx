@@ -20,10 +20,29 @@ import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 const GROUP_BLURB: Record<string, string> = {
   "about-you": "Name and date of birth",
   "reach-you": "Phone, email, where you are",
-  "safety-net": "One person, used only in an emergency",
+  "safety-net": "One person in an emergency — or choose no one",
   health: "Allergies, current meds, anything relevant",
   care: "Any care you already have",
 };
+
+const SAFETY_NET_FIELDS = ["emergency.name", "emergency.relationship", "emergency.phone"];
+const SAFETY_NET_NONE = "No one right now";
+
+function safetyNetHasNone(details: HealthDetails): boolean {
+  return details["emergency.none"] === SAFETY_NET_NONE;
+}
+
+function safetyNetContactFilled(details: HealthDetails): boolean {
+  return SAFETY_NET_FIELDS.every((id) => details[id]?.trim());
+}
+
+function safetyNetComplete(details: HealthDetails): boolean {
+  return safetyNetHasNone(details) || safetyNetContactFilled(details);
+}
+
+function safetyNetStarted(details: HealthDetails): boolean {
+  return safetyNetHasNone(details) || SAFETY_NET_FIELDS.some((id) => details[id]?.trim());
+}
 
 function ageFrom(dob: string): string | null {
   if (!dob) return null;
