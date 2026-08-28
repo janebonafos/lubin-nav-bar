@@ -820,7 +820,10 @@ export default function IssuePrescriptionDialog({
                     </div>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className={label}>Generic name</label>
+                        <label className={label}>
+                          Generic name
+                          <FieldHint text="The active ingredient as written on the prescription, e.g. Sertraline hydrochloride." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.genericName}
@@ -829,7 +832,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Brand (optional)</label>
+                        <label className={label}>
+                          Brand (optional)
+                          <FieldHint text="Only needed if a specific brand must be dispensed instead of the generic." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.brandName}
@@ -838,7 +844,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Strength / form</label>
+                        <label className={label}>
+                          Strength / form
+                          <FieldHint text="Strength per unit and the formulation, e.g. 50 mg film-coated tablet or 20 mg/mL solution." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.strength}
@@ -847,7 +856,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Dose</label>
+                        <label className={label}>
+                          Dose
+                          <FieldHint text="How much the patient takes at one time, e.g. 50 mg or 1 tablet." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.dose}
@@ -856,7 +868,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Frequency</label>
+                        <label className={label}>
+                          Frequency
+                          <FieldHint text="How often and when it is taken, e.g. once daily in the morning, or twice daily with meals." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.frequency}
@@ -865,7 +880,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Duration</label>
+                        <label className={label}>
+                          Duration
+                          <FieldHint text="How long the patient should continue, e.g. 4 weeks, 30 days, or until finished." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.duration}
@@ -874,7 +892,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Quantity to dispense</label>
+                        <label className={label}>
+                          Quantity to dispense
+                          <FieldHint text="Total amount to dispense, e.g. 30 tablets or 1 bottle/60 mL." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.quantity}
@@ -883,7 +904,10 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div>
-                        <label className={label}>Refills</label>
+                        <label className={label}>
+                          Refills
+                          <FieldHint text="Number of times the prescription may be refilled without a new order." />
+                        </label>
                         <input
                           className={`${field} mt-1.5`}
                           value={m.refills}
@@ -892,7 +916,22 @@ export default function IssuePrescriptionDialog({
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className={label}>Directions for the patient</label>
+                        <label className={label}>
+                          Follow-up needed
+                          <FieldHint text="When the patient should be seen or reviewed again before continuing or changing this medication. Leave blank if no follow-up is required." />
+                        </label>
+                        <input
+                          className={`${field} mt-1.5`}
+                          value={m.followUp}
+                          onChange={(e) => patch(m.id, "followUp", e.target.value)}
+                          placeholder="Review in 4 weeks before continuing"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className={label}>
+                          Directions for the patient
+                          <FieldHint text="Plain-language directions for the patient, including when/how to take it and what to do if a dose is missed." />
+                        </label>
                         <textarea
                           rows={3}
                           className={`${area} mt-1.5`}
