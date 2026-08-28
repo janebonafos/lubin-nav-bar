@@ -543,6 +543,65 @@ function FieldInput({
   );
 }
 
+/* ------------------------------- safety net ------------------------------- */
+
+function SafetyNetFields({
+  details,
+  update,
+}: {
+  details: HealthDetails;
+  update: (id: string, value: string) => void;
+}) {
+  const hasNone = safetyNetHasNone(details);
+
+  const setChoice = (val: string) => {
+    if (val === SAFETY_NET_NONE) {
+      update("emergency.none", val);
+      SAFETY_NET_FIELDS.forEach((id) => update(id, ""));
+    } else if (val) {
+      update("emergency.none", val);
+    } else {
+      update("emergency.none", "");
+    }
+  };
+
+  const noneField: HealthDetailField = {
+    id: "emergency.none",
+    label: "Do you have someone we can call in an emergency?",
+    type: "choice",
+    options: [SAFETY_NET_NONE, "Yes, I have someone"],
+  };
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <FieldInput
+          field={noneField}
+          value={details["emergency.none"] ?? ""}
+          onChange={setChoice}
+        />
+      </div>
+      {hasNone ? (
+        <div className="sm:col-span-2 rounded-2xl border border-brand-purple/10 bg-brand-purple/5 p-4">
+          <p className="text-[13px] leading-relaxed text-brand-purple-dark/70">
+            That's completely okay. You can still book a session, and if a provider ever needs
+            to reach someone, they'll talk to you first.
+          </p>
+        </div>
+      ) : (
+        SAFETY_NET_FIELDS.map((id) => {
+          const field = HEALTH_DETAIL_GROUPS.flatMap((g) => g.fields).find((f) => f.id === id)!;
+          return (
+            <div key={id} className={id === "emergency.name" ? "sm:col-span-2" : ""}>
+              <FieldInput field={field} value={details[id] ?? ""} onChange={(v) => update(id, v)} />
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
 /* ---------------------------------- main ---------------------------------- */
 
 export default function HealthDetailsCard({ showHeader = true }: { showHeader?: boolean }) {
