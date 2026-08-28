@@ -70,7 +70,7 @@ export default function IntakeRequestCard({
     "rounded-[12px] p-5",
     variant === "inline" ? "bg-[#FBF9FF]" : "bg-white shadow-[0_8px_24px_-12px_rgba(61,46,107,0.10)]",
     highlight
-      ? "border border-[#B79BE8] ring-1 ring-[#E4D8F7] border-l-4 border-l-[#5B4796]"
+      ? "border border-[#D8C7F0] ring-1 ring-[#EAE7F5] border-l-4 border-l-[#7E6BAF]"
       : "border border-[#D8C7F0]",
   ].join(" ");
 
@@ -78,7 +78,7 @@ export default function IntakeRequestCard({
     <section className={shell}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
             {progress.complete
               ? "Intake form · shared with your provider"
               : phase === "live"
@@ -107,7 +107,7 @@ export default function IntakeRequestCard({
             </p>
           )}
           {progress.answered === 0 && progress.prefilled > 0 && (
-            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-2.5 py-1 text-[11px] font-semibold text-[#5B4796]">
+            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-2.5 py-1 text-[11px] font-semibold text-[#7E6BAF]">
               <Sparkles className="h-3 w-3" /> {progress.prefilled} answer
               {progress.prefilled === 1 ? "" : "s"} ready from your Health Passport
             </p>
@@ -363,7 +363,7 @@ function FieldRow({
               commit(e.target.checked ? "acknowledged" : "");
               toast.success(e.target.checked ? "Saved" : "Removed");
             }}
-            className="mt-0.5 h-4 w-4 rounded border-[#D8C7F0] accent-[#5B4796]"
+            className="mt-0.5 h-4 w-4 rounded border-[#D8C7F0] accent-[#7E6BAF]"
           />
           <span>Yes, I've read it</span>
         </label>
@@ -379,7 +379,7 @@ function FieldRow({
               }}
               className={`rounded-[12px] border px-3 py-1.5 text-xs font-semibold transition ${
                 draft === opt
-                  ? "border-[#5B4796] bg-[#5B4796] text-white"
+                  ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                   : "border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#F0EAFB]"
               }`}
             >
@@ -442,7 +442,7 @@ function FieldRow({
           </span>
         )}
         {state.fromPassport && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
             <Sparkles className="h-3 w-3" /> From Health Passport
           </span>
         )}
