@@ -381,8 +381,12 @@ function PassportPage() {
                 </div>
               </div>
               <HealthDetailsCard />
+              <div className="mt-8">
+                <CaregiverAccessCard ownerLabel={detailsName ?? "you"} />
+              </div>
             </div>
           )}
+
         </div>
 
         {/* Mobile registration CTA — hidden on Share tab which has its own in-card CTA */}
