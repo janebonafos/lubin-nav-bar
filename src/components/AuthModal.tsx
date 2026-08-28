@@ -129,7 +129,7 @@ export default function AuthModal({
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
-  const showProxyOption = isSignup && selectedRole === "client";
+  const showProxyOption = selectedRole === "client";
   const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
   const proxyIncomplete =
     showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
