@@ -1260,9 +1260,8 @@ export function AiPrescription({
               <button
                 type="button"
                 onClick={() => setShowSuggestions(true)}
-                className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
+                className="inline-flex h-9 items-center rounded-[10px] bg-[#6E4FD3] px-4 text-[13px] font-semibold text-white transition hover:bg-[#5A3EB8]"
               >
-                <Sparkles className="h-3.5 w-3.5" />
                 Show AI suggestions
               </button>
               <button
