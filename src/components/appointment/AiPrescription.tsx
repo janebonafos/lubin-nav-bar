@@ -1595,6 +1595,7 @@ export function AiPrescription({
           </div>
           <MedicationEditor
             med={reviewMed}
+            appointmentId={appointmentId}
             country={country}
             patientInfo={rx.patientInfo}
             visitMeds={visitMeds}
@@ -2125,6 +2126,7 @@ function SafetyReviewDrawer({
 
 function MedicationEditor({
   med,
+  appointmentId,
   country,
   patientInfo,
   visitMeds,
@@ -2141,6 +2143,7 @@ function MedicationEditor({
   onSafetyOpenChange,
 }: {
   med: PrescriptionMedication;
+  appointmentId: string;
   country: RxCountry;
   patientInfo?: PatientSafetyInfo;
   visitMeds?: MedicationEntry[];
@@ -2291,6 +2294,8 @@ function MedicationEditor({
             <PatientInfoForm
               keys={[key]}
               info={patientInfo}
+              appointmentId={appointmentId}
+              clientName={clientName}
               onChange={onPatientInfo}
               onSave={() => confirmInfoSaved(key, !!snap?.recorded)}
               relevanceFor={(k) => infoRelevance(med, k)}
