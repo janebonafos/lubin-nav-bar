@@ -281,12 +281,12 @@ export default function AuthModal({
 
 
             {onBehalf && (
-              <div className="mt-3 space-y-2.5">
-                <div>
-                  <span className="mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+              <div className="mt-3 space-y-3">
+                <div className="rounded-2xl border border-[#7E6BAF]/10 bg-[#FAF9FC] p-4">
+                  <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
                     Your relationship to them
                   </span>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {PROXY_RELATIONSHIPS.map((opt) => {
                       const active = relationship === opt.value;
                       return (
@@ -295,10 +295,10 @@ export default function AuthModal({
                           type="button"
                           onClick={() => setRelationship(opt.value)}
                           aria-pressed={active}
-                          className={`w-full rounded-full border px-2 py-1.5 text-center text-[11.5px] font-medium leading-tight transition ${
+                          className={`flex items-center px-4 py-3.5 text-left text-[13.5px] font-medium leading-snug transition-all ${
                             active
-                              ? "border-[#7E6BAF] bg-[#EAE7F5] text-[#3D2E6B]"
-                              : "border-[#E6DFF4] bg-white text-[#5A4E8A] hover:border-[#C9BEE5]"
+                              ? "rounded-xl border border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                              : "rounded-xl border border-[#E9E4F1] bg-white text-[#7E6BAF] hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
                           }`}
                         >
                           {opt.label}
