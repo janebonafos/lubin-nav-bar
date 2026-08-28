@@ -12,12 +12,6 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
@@ -668,7 +662,27 @@ export default function IssuePrescriptionDialog({
           {/* Case + AI */}
           {hasPatient && (
             <section className={cardCls}>
-              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+              <div className="rounded-xl border border-[#E3DBF5] bg-[#F8F6FF] p-4">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
+                    <HelpCircle className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-[12.5px] font-bold text-[#3D2E6B]">
+                      How does this work?
+                    </p>
+                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#5B4B8A]">
+                      Lubin drafts medication suggestions from the patient’s shared health
+                      passport, current medications, allergies, and the case notes you
+                      enter below. The AI is assistive only — it does not diagnose or
+                      prescribe. You remain in control: review every suggestion, edit
+                      doses and duration, and sign the prescription before it is issued.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="mt-5 text-[13.5px] font-bold text-[#3D2E6B]">
                 2 · Case and suggested regimen
               </h3>
               <p className="mt-1 text-[12px] text-[#6F6889]">
@@ -693,32 +707,6 @@ export default function IssuePrescriptionDialog({
                   <Sparkles className="h-4 w-4" />
                   {aiLoading ? "Preparing suggestions…" : "Generate suggested medication"}
                 </button>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="How AI suggestions work"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-[#E3DCF5] bg-[#FAF8FF] px-3 py-1.5 text-[11.5px] font-medium text-[#6B5B8D] transition hover:border-[#CFC4EA] hover:bg-[#F3EEFD] hover:text-[#3D2E6B] focus:outline-none"
-                      >
-                        <HelpCircle className="h-3.5 w-3.5" />
-                        How does this work?
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="bottom"
-                      sideOffset={6}
-                      className="max-w-[280px] bg-[#3D2E6B] text-[#FBF9FF]"
-                    >
-                      <p className="text-[12px] leading-relaxed">
-                        Lubin uses the patient’s shared health passport, your case notes,
-                        and current medications to draft evidence-based options. It does
-                        not prescribe — you review, edit, and sign before anything is
-                        issued.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
               {aiError && (
                 <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
