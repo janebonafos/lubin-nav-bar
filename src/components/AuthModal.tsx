@@ -361,6 +361,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("google");
+              persistProxy();
               onContinueWithGoogle?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
@@ -382,6 +383,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("linkedin");
+              persistProxy();
               onContinueWithLinkedIn?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
@@ -403,6 +405,7 @@ export default function AuthModal({
             onClick={() => {
               if (!selectedRole || proxyIncomplete) return;
               setLoadingProvider("facebook");
+              persistProxy();
               onContinueWithFacebook?.(selectedRole, proxyPayload);
             }}
             className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
