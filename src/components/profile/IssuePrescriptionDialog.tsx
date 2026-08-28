@@ -36,7 +36,7 @@ import {
   updatePatientRecord,
   type PatientRecordView,
 } from "@/lib/prescription/patientRecords";
-import { detectJurisdiction, JURISDICTION_REQUIREMENTS } from "@/lib/prescription/jurisdiction";
+import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
@@ -129,12 +129,9 @@ export default function IssuePrescriptionDialog({
   onIssued?: (doc: SignedPrescriptionDocument) => void;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
+  // Jurisdiction is derived automatically from the prescriber's location —
+  // the platform applies the correct PH/US rules without asking the provider.
   const [country, setCountry] = useState<RxCountry>("PH");
-  const [detected, setDetected] = useState<{ country: RxCountry | null; source: string }>({
-    country: null,
-    source: "",
-  });
-  const [manualCountry, setManualCountry] = useState(false);
 
   const [records, setRecords] = useState<PatientRecordView[]>([]);
   const [patientQuery, setPatientQuery] = useState("");
