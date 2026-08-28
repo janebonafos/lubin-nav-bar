@@ -159,10 +159,18 @@ function PassportPage() {
   const [registerNudge, setRegisterNudge] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const [returnTo, setReturnTo] = useState<string | null>(null);
+  const proxySignup = useMemo(() => loadProxySignup(), []);
   const detailsName = useMemo(
-    () => proxyFirstName(loadProxySignup()),
-    [],
+    () => proxyFirstName(proxySignup),
+    [proxySignup],
   );
+  const proxyRelationship = proxySignup
+    ? (proxySignup.relationship === "other" && proxySignup.relationshipOther
+        ? proxySignup.relationshipOther
+        : proxySignup.relationshipLabel ?? proxySignup.relationship
+      ).toLowerCase()
+    : null;
+
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
   const [pendingShareCount, setPendingShareCount] = useState(0);
@@ -377,14 +385,30 @@ function PassportPage() {
                     {detailsName ? `About ${detailsName}` : "About you"}
                   </h2>
                   <p className="text-sm text-brand-purple-dark/60">
-                    Health details you choose to keep — shared only when you say yes.
+                    {detailsName
+                      ? `Health details you keep for ${detailsName} — shared only when you say yes.`
+                      : "Health details you choose to keep — shared only when you say yes."}
                   </p>
                 </div>
               </div>
+
+              {/* Who this passport belongs to — set at registration */}
+              <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.06] px-4 py-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                  {detailsName ? "Managing for someone" : "This is your passport"}
+                </span>
+                <p className="text-sm text-brand-purple-dark/70">
+                  {detailsName
+                    ? `You registered as ${detailsName}'s ${proxyRelationship ?? "carer"}, so everything here is kept in ${detailsName}'s name and answers providers' questions on their behalf.`
+                    : "You registered as the person receiving care, so these details are yours. If you're helping someone else, you can invite them or hand over management below."}
+                </p>
+              </div>
+
               <HealthDetailsCard />
               <div className="mt-8">
                 <CaregiverAccessCard ownerLabel={detailsName ?? "you"} />
               </div>
+
             </div>
           )}
 
