@@ -55,7 +55,7 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
     label: "How to reach you",
     why: "Used for your session reminders — never shared outside a provider you book.",
     fields: [
-      { id: "contact.phone", label: "Mobile number", type: "tel", placeholder: "+63 9XX XXX XXXX" },
+      { id: "contact.phone", label: "Mobile number", type: "tel", placeholder: "912 345 6789" },
       { id: "contact.email", label: "Best email", type: "email", placeholder: "you@email.com" },
       { id: "contact.address", label: "City and country", type: "short-text", placeholder: "City, country" },
     ],
@@ -73,7 +73,7 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
       },
       { id: "emergency.name", label: "Emergency contact", type: "short-text", placeholder: "Name" },
       { id: "emergency.relationship", label: "Their relationship to you", type: "short-text", placeholder: "e.g. partner, parent" },
-      { id: "emergency.phone", label: "Their number", type: "tel", placeholder: "+63 9XX XXX XXXX" },
+      { id: "emergency.phone", label: "Their number", type: "tel", placeholder: "912 345 6789" },
     ],
   },
   {

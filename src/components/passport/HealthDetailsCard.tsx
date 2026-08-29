@@ -172,6 +172,101 @@ function PassportCard({
 
 /* --------------------------------- inputs --------------------------------- */
 
+/* ------------------------------ phone input ------------------------------- */
+
+/** Dial codes for the regions Lubin serves, plus common others. */
+const COUNTRY_CODES: { code: string; label: string }[] = [
+  { code: "+63", label: "Philippines" },
+  { code: "+1", label: "United States / Canada" },
+  { code: "+44", label: "United Kingdom" },
+  { code: "+61", label: "Australia" },
+  { code: "+65", label: "Singapore" },
+  { code: "+81", label: "Japan" },
+  { code: "+82", label: "South Korea" },
+  { code: "+852", label: "Hong Kong" },
+  { code: "+971", label: "UAE" },
+  { code: "+966", label: "Saudi Arabia" },
+  { code: "+49", label: "Germany" },
+  { code: "+33", label: "France" },
+  { code: "+34", label: "Spain" },
+  { code: "+39", label: "Italy" },
+  { code: "+31", label: "Netherlands" },
+  { code: "+64", label: "New Zealand" },
+  { code: "+91", label: "India" },
+  { code: "+62", label: "Indonesia" },
+  { code: "+60", label: "Malaysia" },
+  { code: "+66", label: "Thailand" },
+  { code: "+84", label: "Vietnam" },
+];
+
+/** Split a stored "+63 912 345 6789" style value into dial code + local part. */
+function splitPhone(value: string): { code: string; local: string } {
+  const match = value.match(/^(\+\d{1,3})\s*(.*)$/);
+  if (match) return { code: match[1], local: match[2] };
+  return { code: "+63", local: value };
+}
+
+function PhoneInput({
+  value,
+  onChange,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className: string;
+}) {
+  const parsed = splitPhone(value);
+  // Keep the chosen dial code in local state so changing it before typing a
+  // number (when the stored value is still empty) isn't lost.
+  const [chosenCode, setChosenCode] = useState(parsed.code);
+  const code = parsed.local ? parsed.code : chosenCode;
+  const local = parsed.local;
+  const known = COUNTRY_CODES.some((c) => c.code === code);
+
+  const commit = (nextCode: string, nextLocal: string) => {
+    const trimmed = nextLocal.trim();
+    onChange(trimmed ? `${nextCode} ${trimmed}` : "");
+  };
+
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row">
+      <select
+        value={known ? code : "other"}
+        onChange={(e) => {
+          const next = e.target.value === "other" ? "+" : e.target.value;
+          setChosenCode(next);
+          commit(next, local);
+        }}
+        aria-label="Country code"
+        className={`${className.replace("w-full", "w-full sm:w-44")} shrink-0 cursor-pointer appearance-none pr-7`}
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%237e6baf' stroke-width='1.5' stroke-linecap='round'/></svg>\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.7rem center",
+        }}
+      >
+        {COUNTRY_CODES.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.label} ({c.code})
+          </option>
+        ))}
+        {!known && code.startsWith("+") && (
+          <option value="other">Other ({code})</option>
+        )}
+      </select>
+      <input
+        type="tel"
+        inputMode="tel"
+        value={local}
+        placeholder="912 345 6789"
+        onChange={(e) => commit(known ? code : "+", e.target.value.replace(/[^\d\s()+-]/g, ""))}
+        className={`${className} min-w-0 flex-1`}
+      />
+    </div>
+  );
+}
+
 function parseItems(value: string): string[] {
   return value
     .split(",")
@@ -557,11 +652,11 @@ function FieldInput({
           />
           <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple/60" />
         </div>
+      ) : field.type === "tel" ? (
+        <PhoneInput value={value} onChange={onChange} className={base} />
       ) : (
         <input
-          type={
-            field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"
-          }
+          type={field.type === "email" ? "email" : "text"}
           value={value}
           placeholder={field.placeholder}
           onChange={(e) => onChange(e.target.value)}
