@@ -545,12 +545,12 @@ function MedsInput({
                   maxLength={20}
                   placeholder="Dose"
                   onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
-                  className="h-12 w-2/5 min-w-0 rounded-xl border border-transparent bg-brand-purple/[0.05] px-4 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
+                  className="h-12 min-w-0 flex-1 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
                 />
                 <select
                   value={row.type}
                   onChange={(e) => update(i, { type: e.target.value })}
-                  className={`h-12 min-w-0 flex-1 appearance-none rounded-xl border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
+                  className={`h-12 min-w-0 flex-1 cursor-pointer appearance-none rounded-[12px] border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
                     row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
                   }`}
                   style={{
