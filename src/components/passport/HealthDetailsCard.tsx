@@ -334,7 +334,7 @@ function TagsInput({
               onClick={() => toggle(opt)}
               aria-pressed={active}
               title={active ? `Remove ${opt}` : `Select ${opt}`}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
+              className={`inline-flex items-center gap-1.5 rounded-[12px] px-3 py-1.5 text-[13px] font-medium transition ${
                 active
                   ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
                   : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
@@ -350,7 +350,7 @@ function TagsInput({
           <button
             type="button"
             onClick={() => setShowOther((v) => !v)}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
+            className={`inline-flex items-center gap-1.5 rounded-[12px] px-3 py-1.5 text-[13px] font-medium transition ${
               otherOpen
                 ? "bg-brand-purple/15 text-brand-purple-dark ring-1 ring-brand-purple/30"
                 : "bg-white text-brand-purple-dark/70 ring-1 ring-dashed ring-brand-purple/25 hover:ring-brand-purple/45"
@@ -368,7 +368,7 @@ function TagsInput({
           {custom.map((i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
+              className="inline-flex items-center gap-1.5 rounded-[12px] bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
             >
               {i}
               <button
@@ -398,13 +398,13 @@ function TagsInput({
                 addDraft();
               }
             }}
-            className="min-w-0 flex-1 rounded-xl border border-brand-purple/15 bg-white px-3.5 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
+            className="min-w-0 flex-1 rounded-[12px] border border-brand-purple/15 bg-white px-3.5 py-2.5 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:border-brand-purple/40 focus:ring-2 focus:ring-brand-purple/15"
           />
           <button
             type="button"
             onClick={addDraft}
             disabled={!draft.trim()}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20 disabled:opacity-40"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-[12px] bg-brand-purple/10 px-3.5 py-2.5 text-[13px] font-semibold text-brand-purple transition hover:bg-brand-purple/20 disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" />
             Add
