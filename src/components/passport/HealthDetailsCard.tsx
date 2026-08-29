@@ -248,7 +248,7 @@ function PhoneInput({
       >
         {COUNTRY_CODES.map((c) => (
           <option key={c.code} value={c.code}>
-            <span className="sm:hidden">{c.code}</span> {c.label} ({c.code})
+            {c.label} ({c.code})
           </option>
         ))}
         {!known && code.startsWith("+") && (
