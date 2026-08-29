@@ -215,7 +215,12 @@ function PhoneInput({
   onChange: (v: string) => void;
   className: string;
 }) {
-  const { code, local } = splitPhone(value);
+  const parsed = splitPhone(value);
+  // Keep the chosen dial code in local state so changing it before typing a
+  // number (when the stored value is still empty) isn't lost.
+  const [chosenCode, setChosenCode] = useState(parsed.code);
+  const code = parsed.local ? parsed.code : chosenCode;
+  const local = parsed.local;
   const known = COUNTRY_CODES.some((c) => c.code === code);
 
   const commit = (nextCode: string, nextLocal: string) => {
@@ -229,6 +234,7 @@ function PhoneInput({
         value={known ? code : "other"}
         onChange={(e) => {
           const next = e.target.value === "other" ? "+" : e.target.value;
+          setChosenCode(next);
           commit(next, local);
         }}
         aria-label="Country code"
