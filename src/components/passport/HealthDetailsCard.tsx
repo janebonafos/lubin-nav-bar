@@ -172,6 +172,95 @@ function PassportCard({
 
 /* --------------------------------- inputs --------------------------------- */
 
+/* ------------------------------ phone input ------------------------------- */
+
+/** Dial codes for the regions Lubin serves, plus common others. */
+const COUNTRY_CODES: { code: string; label: string }[] = [
+  { code: "+63", label: "Philippines" },
+  { code: "+1", label: "United States / Canada" },
+  { code: "+44", label: "United Kingdom" },
+  { code: "+61", label: "Australia" },
+  { code: "+65", label: "Singapore" },
+  { code: "+81", label: "Japan" },
+  { code: "+82", label: "South Korea" },
+  { code: "+852", label: "Hong Kong" },
+  { code: "+971", label: "UAE" },
+  { code: "+966", label: "Saudi Arabia" },
+  { code: "+49", label: "Germany" },
+  { code: "+33", label: "France" },
+  { code: "+34", label: "Spain" },
+  { code: "+39", label: "Italy" },
+  { code: "+31", label: "Netherlands" },
+  { code: "+64", label: "New Zealand" },
+  { code: "+91", label: "India" },
+  { code: "+62", label: "Indonesia" },
+  { code: "+60", label: "Malaysia" },
+  { code: "+66", label: "Thailand" },
+  { code: "+84", label: "Vietnam" },
+];
+
+/** Split a stored "+63 912 345 6789" style value into dial code + local part. */
+function splitPhone(value: string): { code: string; local: string } {
+  const match = value.match(/^(\+\d{1,3})\s*(.*)$/);
+  if (match) return { code: match[1], local: match[2] };
+  return { code: "+63", local: value };
+}
+
+function PhoneInput({
+  value,
+  onChange,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className: string;
+}) {
+  const { code, local } = splitPhone(value);
+  const known = COUNTRY_CODES.some((c) => c.code === code);
+
+  const commit = (nextCode: string, nextLocal: string) => {
+    const trimmed = nextLocal.trim();
+    onChange(trimmed ? `${nextCode} ${trimmed}` : "");
+  };
+
+  return (
+    <div className="flex gap-2">
+      <select
+        value={known ? code : "other"}
+        onChange={(e) => {
+          const next = e.target.value === "other" ? "+" : e.target.value;
+          commit(next, local);
+        }}
+        aria-label="Country code"
+        className={`${className} w-auto shrink-0 cursor-pointer appearance-none pr-7 sm:w-40`}
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%237e6baf' stroke-width='1.5' stroke-linecap='round'/></svg>\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.7rem center",
+        }}
+      >
+        {COUNTRY_CODES.map((c) => (
+          <option key={c.code} value={c.code}>
+            <span className="sm:hidden">{c.code}</span> {c.label} ({c.code})
+          </option>
+        ))}
+        {!known && code.startsWith("+") && (
+          <option value="other">Other ({code})</option>
+        )}
+      </select>
+      <input
+        type="tel"
+        inputMode="tel"
+        value={local}
+        placeholder="912 345 6789"
+        onChange={(e) => commit(known ? code : "+", e.target.value.replace(/[^\d\s()-]/g, ""))}
+        className={`${className} min-w-0 flex-1`}
+      />
+    </div>
+  );
+}
+
 function parseItems(value: string): string[] {
   return value
     .split(",")
