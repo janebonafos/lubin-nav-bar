@@ -557,11 +557,11 @@ function FieldInput({
           />
           <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-purple/60" />
         </div>
+      ) : field.type === "tel" ? (
+        <PhoneInput value={value} onChange={onChange} className={base} />
       ) : (
         <input
-          type={
-            field.type === "tel" ? "tel" : field.type === "email" ? "email" : "text"
-          }
+          type={field.type === "email" ? "email" : "text"}
           value={value}
           placeholder={field.placeholder}
           onChange={(e) => onChange(e.target.value)}
