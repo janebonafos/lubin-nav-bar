@@ -260,7 +260,7 @@ function PhoneInput({
         inputMode="tel"
         value={local}
         placeholder="912 345 6789"
-        onChange={(e) => commit(known ? code : "+", e.target.value.replace(/[^\d\s()-]/g, ""))}
+        onChange={(e) => commit(known ? code : "+", e.target.value.replace(/[^\d\s()+-]/g, ""))}
         className={`${className} min-w-0 flex-1`}
       />
     </div>
