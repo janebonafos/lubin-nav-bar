@@ -671,7 +671,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
       {/* header */}
       {showHeader && (
         <div className="mb-8">
-          <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+          <span className="inline-flex items-center rounded-xl bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple">
             Optional · yours to keep
           </span>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-purple-dark">
@@ -697,7 +697,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
           <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-brand-purple-dark">Privacy</span>
-              <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
+              <span className="rounded-xl bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
                 Active
               </span>
             </div>
@@ -775,15 +775,15 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
                   <div className="flex shrink-0 items-center gap-3">
                     {complete ? (
-                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
+                      <span className="rounded-xl bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
                         Complete
                       </span>
                     ) : started ? (
-                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
+                      <span className="rounded-xl bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple">
                         {filled}/{total}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-brand-purple/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple-dark/40">
+                      <span className="rounded-xl bg-brand-purple/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase text-brand-purple-dark/40">
                         Not added
                       </span>
                     )}
