@@ -237,13 +237,16 @@ function TagsInput({
               key={opt}
               type="button"
               onClick={() => toggle(opt)}
-              className={`rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
+              aria-pressed={active}
+              title={active ? `Remove ${opt}` : `Select ${opt}`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-medium transition ${
                 active
                   ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
                   : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
               }`}
             >
               {opt}
+              {active && <X className="h-3.5 w-3.5 opacity-80" aria-hidden />}
             </button>
           );
         })}
@@ -366,19 +369,30 @@ function MedsInput({
 }) {
   const none = field.exclusiveOption ?? "Nothing right now";
   const takingNone = value.trim() === none;
-  const rows = takingNone ? [] : parseMeds(value);
   const types = (field.options ?? []).filter((o) => o !== none);
   const maxRows = field.maxItems ?? 10;
 
-  const commit = (next: MedRow[]) => onChange(serializeMeds(next));
+  // Rows live in local state so a freshly added (still empty) row renders
+  // immediately — serializing would otherwise drop it and the row vanished.
+  const [rows, setRows] = useState<MedRow[]>(() => (takingNone ? [] : parseMeds(value)));
+
+  useEffect(() => {
+    const parsed = takingNone ? [] : parseMeds(value);
+    // Resync only when the stored value actually differs from local rows,
+    // so typing in a row isn't clobbered by the subscription round-trip.
+    if (serializeMeds(parsed) !== serializeMeds(rows)) setRows(parsed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, takingNone]);
+
+  const commit = (next: MedRow[]) => {
+    setRows(next);
+    onChange(serializeMeds(next));
+  };
   const update = (i: number, patch: Partial<MedRow>) =>
     commit(rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
   const addRow = () => {
-    if (takingNone) {
-      onChange(serializeMeds([{ type: "", name: "", dose: "" }]));
-    } else {
-      commit([...rows, { type: "", name: "", dose: "" }]);
-    }
+    if (takingNone) onChange("");
+    commit([...rows, { type: "", name: "", dose: "" }]);
   };
 
   return (
