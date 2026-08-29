@@ -229,7 +229,7 @@ function PhoneInput({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col gap-2 sm:flex-row">
       <select
         value={known ? code : "other"}
         onChange={(e) => {
@@ -238,7 +238,7 @@ function PhoneInput({
           commit(next, local);
         }}
         aria-label="Country code"
-        className={`${className} w-auto shrink-0 cursor-pointer appearance-none pr-7 sm:w-40`}
+        className={`${className.replace("w-full", "w-full sm:w-44")} shrink-0 cursor-pointer appearance-none pr-7`}
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%237e6baf' stroke-width='1.5' stroke-linecap='round'/></svg>\")",
