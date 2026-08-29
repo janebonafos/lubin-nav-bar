@@ -496,7 +496,7 @@ function MedsInput({
         <button
           type="button"
           onClick={() => onChange(takingNone ? "" : none)}
-          className={`rounded-xl px-3.5 py-1.5 text-[13px] font-medium transition ${
+          className={`rounded-[12px] px-3.5 py-1.5 text-[13px] font-medium transition ${
             takingNone
               ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
               : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
@@ -515,7 +515,7 @@ function MedsInput({
         {rows.map((row, i) => (
           <div
             key={i}
-            className="overflow-hidden rounded-xl border border-brand-purple/20 bg-white shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
+            className="overflow-hidden rounded-[12px] border border-brand-purple/20 bg-white shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
           >
             <div className="flex items-center justify-between border-b border-brand-purple/10 bg-brand-purple/[0.05] px-4 py-2.5">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">
@@ -537,7 +537,7 @@ function MedsInput({
                 maxLength={field.maxItemLength ?? 40}
                 placeholder="Medicine name"
                 onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
-                className="h-12 w-full min-w-0 rounded-xl border border-transparent bg-brand-purple/[0.05] px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
+                className="h-12 w-full min-w-0 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
               />
               <div className="flex gap-3">
                 <input
@@ -574,7 +574,7 @@ function MedsInput({
           <button
             type="button"
             onClick={addRow}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple/10 py-3 text-[13.5px] font-semibold text-brand-purple transition hover:bg-brand-purple hover:text-white active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-[12px] bg-brand-purple/10 py-3 text-[13.5px] font-semibold text-brand-purple transition hover:bg-brand-purple hover:text-white active:scale-[0.99]"
           >
             <Plus className="h-4 w-4" strokeWidth={2.5} />
             {rows.length ? "Add another medication" : "Add a medication"}
