@@ -80,6 +80,7 @@ export default function ShareConsentModal({
   providerContext?: ProviderContext;
   initialIncluded?: string[];
   initialAttemptIds?: string[];
+  initialHealthFieldIds?: string[];
   mode?: "share" | "update";
   onRevoke?: () => void;
   confirmLabelOverride?: string;
@@ -138,6 +139,22 @@ export default function ShareConsentModal({
   }, [initialAttemptIds, allAttemptIds]);
   const [selectedAttemptIds, setSelectedAttemptIds] =
     useState<string[]>(defaultAttemptIds);
+
+  // Per-field control over which Health Passport details are shared.
+  const healthGroups = useMemo(() => sharedHealthDetails(), []);
+  const allHealthFieldIds = useMemo(
+    () => healthGroups.flatMap((g) => g.items.map((it) => it.id)),
+    [healthGroups],
+  );
+  const defaultHealthFieldIds = useMemo(() => {
+    if (initialHealthFieldIds) {
+      const set = new Set(allHealthFieldIds);
+      return initialHealthFieldIds.filter((id) => set.has(id));
+    }
+    return allHealthFieldIds;
+  }, [initialHealthFieldIds, allHealthFieldIds]);
+  const [selectedHealthFieldIds, setSelectedHealthFieldIds] =
+    useState<string[]>(defaultHealthFieldIds);
 
   useEffect(() => {
     if (open) {
