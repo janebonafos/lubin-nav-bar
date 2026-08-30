@@ -1256,7 +1256,15 @@ function Step3({
         keys: ["health"],
         body: (
           <div className="space-y-2">
-            {sharedHealthDetails().map((g) => (
+            {healthGroups
+              .map((g) => ({
+                ...g,
+                items: g.items.filter((it) =>
+                  selectedHealthFieldIds.includes(it.id),
+                ),
+              }))
+              .filter((g) => g.items.length > 0)
+              .map((g) => (
               <div
                 key={g.group}
                 className="rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-[#ECE7F6]"
