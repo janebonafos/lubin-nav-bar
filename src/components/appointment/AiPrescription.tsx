@@ -2273,6 +2273,14 @@ function MedicationEditor({
     const live = infoList.find((i) => i.key === key);
     const done = snap ? snap.recorded : !!live?.recorded;
     const value = done ? (snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds)) : "";
+    const shared = sharedSources[key];
+    /** The record and the client's current health card no longer say the same
+     *  thing — surfaced so the provider works from up-to-date information. */
+    const drifted =
+      !!shared &&
+      done &&
+      !!value &&
+      !value.toLowerCase().includes(shared.value.trim().toLowerCase().slice(0, 24));
     return (
       <li
         key={key}
