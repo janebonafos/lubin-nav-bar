@@ -59,6 +59,7 @@ import {
   patientAge,
 } from "@/lib/prescription/safety";
 import { sharedSourceMap, type SharedSourceItem } from "@/lib/prescription/intakeImport";
+import { getProviderGrant } from "@/lib/share/providerShareStore";
 import { findPharmacy, pharmacyLine } from "@/lib/prescription/pharmacies";
 import {
   prescriptionStatus,
