@@ -1482,6 +1482,19 @@ export function AppointmentsSection() {
       payoutStatus: "pending_review",
       outcome: "completed",
     },
+    {
+      id: "c7", client: "Anna Reyes", day: "SUN", date: "29", month: "AUG", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry follow-up (medication review)", sessionFormat: "Individual", mode: "Video", status: "completed",
+      notes: "Reviewed mood, sleep and anxiety. Agreed to start an SSRI with a review in four weeks.",
+      amount: "₱3,200", paymentStatus: "Paid",
+      prescriptionEligible: true,
+      payoutStatus: "approved",
+      outcome: "completed",
+      followUp: {
+        summary: "We agreed to start a daily medication and review how you're doing in four weeks. Your prescription is in your prescriptions tab.",
+        nextFocus: "Check tolerability, sleep and mood at the four-week review.",
+      },
+    },
+
 
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
   ];
