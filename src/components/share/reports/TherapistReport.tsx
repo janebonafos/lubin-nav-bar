@@ -9,11 +9,13 @@ export default function TherapistReport({
   includedKeys,
   recipient,
   sharerName = "A Lubin user",
+  healthFieldIds,
 }: {
   summary: SummaryData;
   includedKeys: string[];
   recipient: RecipientId;
   sharerName?: string;
+  healthFieldIds?: string[];
 }) {
   const recipientName = recipientLabel(recipient).replace(/^My /i, "");
   return (
@@ -66,7 +68,7 @@ export default function TherapistReport({
         </button>
       </div>
 
-      <div className="mt-5">{renderIncluded(summary, includedKeys)}</div>
+      <div className="mt-5">{renderIncluded(summary, includedKeys, { healthFieldIds })}</div>
 
       <PrivacyFooter includedKeys={includedKeys} />
     </article>

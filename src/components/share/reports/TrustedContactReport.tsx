@@ -6,10 +6,12 @@ export default function TrustedContactReport({
   summary,
   includedKeys,
   sharerName = "They",
+  healthFieldIds,
 }: {
   summary: SummaryData;
   includedKeys: string[];
   sharerName?: string;
+  healthFieldIds?: string[];
 }) {
   return (
     <article className="mx-auto max-w-2xl px-5 py-10">
@@ -42,7 +44,7 @@ export default function TrustedContactReport({
         </button>
       </div>
 
-      <div className="mt-3">{renderIncluded(summary, includedKeys)}</div>
+      <div className="mt-3">{renderIncluded(summary, includedKeys, { healthFieldIds })}</div>
 
       <PrivacyFooter includedKeys={includedKeys} />
     </article>
