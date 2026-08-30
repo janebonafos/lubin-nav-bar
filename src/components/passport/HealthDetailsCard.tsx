@@ -89,6 +89,63 @@ function formatDob(value: string): string {
   });
 }
 
+function CardBack({ details }: { details: HealthDetails }) {
+  const sections = HEALTH_DETAIL_GROUPS.map((group) => ({
+    label: group.label,
+    rows: group.fields
+      .map((f) => ({ label: f.label, value: (details[f.id] ?? "").trim() }))
+      .filter((r) => r.value.length > 0)
+      .map((r) => ({
+        label: r.label,
+        values: r.value.includes(";") ? r.value.split(";").map((s) => s.trim()) : [r.value],
+      })),
+  })).filter((s) => s.rows.length > 0);
+
+  return (
+    <div className="flex h-full flex-col p-6 text-white sm:p-7">
+      <div className="flex items-baseline justify-between">
+        <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+          Everything on this card
+        </p>
+        <p className="text-[10px] uppercase tracking-[0.16em] text-white/40">Tap to flip back</p>
+      </div>
+
+      <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 text-left">
+        {sections.length === 0 ? (
+          <p className="text-[12.5px] leading-relaxed text-white/60">
+            Nothing added yet. Anything you fill in below shows up here, so you can always see
+            exactly what a provider would see.
+          </p>
+        ) : (
+          sections.map((s) => (
+            <div key={s.label}>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                {s.label}
+              </p>
+              <div className="mt-1.5 space-y-1.5">
+                {s.rows.map((r) => (
+                  <div key={r.label} className="flex gap-3">
+                    <span className="w-[38%] shrink-0 text-[11px] leading-snug text-white/45">
+                      {r.label}
+                    </span>
+                    <span className="flex-1 space-y-0.5 text-[11.5px] leading-snug text-white/85">
+                      {r.values.map((v, i) => (
+                        <span key={i} className="block">
+                          {v}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PassportCard({
   details,
   filled,
@@ -100,6 +157,7 @@ function PassportCard({
   total: number;
   ownerName: string | null;
 }) {
+  const [flipped, setFlipped] = useState(false);
   const name =
     details["identity.fullName"] || details["identity.preferredName"] || ownerName || "";
   const dob = details["identity.dob"] ?? "";
@@ -108,69 +166,100 @@ function PassportCard({
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
   return (
-    <div className="relative aspect-[1.58/1] w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]">
-      {/* soft glow */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple-accent/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
+    <div className="[perspective:1400px]">
+      <button
+        type="button"
+        onClick={() => setFlipped((v) => !v)}
+        aria-label={flipped ? "Show card front" : "Show everything on this card"}
+        className="relative block aspect-[1.58/1] w-full text-left transition-transform duration-700 [transform-style:preserve-3d]"
+        style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
+      >
+        {/* front */}
+        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)] [backface-visibility:hidden]">
+          {/* soft glow */}
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple-accent/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
 
-      <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-7">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-black italic uppercase tracking-tight">Lubin</p>
-            <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/55">
-              Health Network
-            </p>
+          <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-7">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black italic uppercase tracking-tight">Lubin</p>
+                <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/55">
+                  Health Network
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15">
+                <RotateCw className="h-3 w-3" />
+                See details
+              </span>
+            </div>
+
+            <div className="mt-auto">
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+                Cardholder
+              </p>
+              <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+                {name || "Your name"}
+              </h3>
+              <p className="mt-1 text-[12px] text-white/55">
+                {dob
+                  ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
+                  : "Add the basics to start your card"}
+              </p>
+
+              <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
+                <div>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                    Mobile
+                  </p>
+                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                    {details["contact.phone"] || "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                    Location
+                  </p>
+                  <p className="mt-0.5 truncate font-mono text-[11px] tracking-wider text-white/80">
+                    {details["contact.address"] || "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
-            <div className="h-2.5 w-2.5 rounded-full bg-white/80" />
+
+          {/* progress band */}
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
+            <div
+              className="h-full bg-brand-purple-accent transition-all duration-500"
+              style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
+            />
           </div>
         </div>
 
-        <div className="mt-auto">
-          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
-            Cardholder
-          </p>
-          <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
-            {name || "Your name"}
-          </h3>
-          <p className="mt-1 text-[12px] text-white/55">
-            {dob
-              ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
-              : "Add the basics to start your card"}
-          </p>
-
-
-          <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
-            <div>
-              <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                Mobile
-              </p>
-              <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                {details["contact.phone"] || "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                Location
-              </p>
-              <p className="mt-0.5 truncate font-mono text-[11px] tracking-wider text-white/80">
-                {details["contact.address"] || "—"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* progress band */}
-      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
+        {/* back */}
         <div
-          className="h-full bg-brand-purple-accent transition-all duration-500"
-          style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
-        />
-      </div>
+          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)] [backface-visibility:hidden]"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <CardBack details={details} />
+        </div>
+      </button>
+
+      <p className="mt-3 text-center text-[12px] text-brand-purple-dark/50">
+        {filled} of {total} details added ·{" "}
+        <button
+          type="button"
+          onClick={() => setFlipped((v) => !v)}
+          className="font-semibold text-brand-purple underline-offset-2 hover:underline"
+        >
+          {flipped ? "Back to card" : "See everything you've added"}
+        </button>
+      </p>
     </div>
   );
 }
+
 
 /* --------------------------------- inputs --------------------------------- */
 
