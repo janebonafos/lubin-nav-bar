@@ -231,7 +231,7 @@ function activeStructuredText(info: PatientSafetyInfo | undefined, key: Structur
 function entrySourceSummary(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
   const entries = entriesFor(info, key);
   if (!entries.length) return "";
-  const shared = entries.filter((e) => e.source === "passport" || e.source === "intake").length;
+  const shared = entries.filter((e) => e.source === "passport").length;
   const mine = entries.length - shared;
   const parts: string[] = [];
   if (shared) parts.push(`${shared} shared by the patient`);
