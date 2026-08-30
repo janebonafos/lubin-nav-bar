@@ -773,11 +773,16 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
   const [details, setDetails] = useState<HealthDetails>({});
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [proxyName, setProxyName] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
     setDetails(loadHealthDetails());
     setProxyName(proxyFirstName(loadProxySignup()));
-    return subscribeHealthDetails(() => setDetails(loadHealthDetails()));
+    setAgreed(loadHealthAgreement());
+    return subscribeHealthDetails(() => {
+      setDetails(loadHealthDetails());
+      setAgreed(loadHealthAgreement());
+    });
   }, []);
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
