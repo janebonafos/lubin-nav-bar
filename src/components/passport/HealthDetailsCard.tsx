@@ -787,6 +787,16 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
 
+  const allComplete = useMemo(
+    () =>
+      HEALTH_DETAIL_GROUPS.every((g) =>
+        g.id === "safety-net"
+          ? safetyNetComplete(details)
+          : groupFilledCount(g, details) === g.fields.length && g.fields.length > 0,
+      ),
+    [details],
+  );
+
   const update = (fieldId: string, value: string) => {
     setDetails((prev) => {
       const next = { ...prev };
@@ -983,7 +993,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                           >
                             Next section
                           </button>
-                        ) : (
+                        ) : allComplete ? (
                           <button
                             type="button"
                             onClick={() => setOpenGroup(null)}
@@ -996,10 +1006,18 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                           >
                             Done
                           </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setOpenGroup(null)}
+                            className="rounded-xl bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white transition hover:brightness-105"
+                          >
+                            Done
+                          </button>
                         )}
                       </div>
                     </div>
-                    {i === HEALTH_DETAIL_GROUPS.length - 1 && (
+                    {i === HEALTH_DETAIL_GROUPS.length - 1 && allComplete && (
                       <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.04] p-4">
                         <input
                           type="checkbox"
@@ -1025,12 +1043,6 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
           {!openGroup &&
             (() => {
-              const allComplete = HEALTH_DETAIL_GROUPS.every((g) =>
-                g.id === "safety-net"
-                  ? safetyNetComplete(details)
-                  : groupFilledCount(g, details) === g.fields.length && g.fields.length > 0,
-              );
-
               if (allComplete && agreed) {
                 return (
                   <div className="mt-2 flex items-center gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
