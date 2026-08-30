@@ -2638,49 +2638,78 @@ function MedicationEditor({
                 </button>
               </div>
 
-              {!safetyResolved && (
-                <div className="mt-3 border-t border-[#DCD2F4]/70 pt-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B82A8]">
-                    Standard information for every prescription
-                  </p>
-                  <ul className="mt-2 flex flex-wrap gap-1.5">
-                    {STANDARD_INFO_CHECKLIST.map((item) => {
-                      const done = infoList.find((i) => i.key === item.key)?.recorded ?? false;
-                      const shared = sharedSources[item.key];
-                      return (
-                        <li
-                          key={item.key}
-                          className={`inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-1 text-[12px] font-medium ring-1 ${
-                            done
-                              ? "bg-[#F3F0FB] text-[#6E4FD3] ring-[#E5DEF5]"
-                              : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
-                          }`}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              done ? "bg-[#6E4FD3]" : "bg-[#A796DE]"
+              {!safetyResolved && (() => {
+                const rows = STANDARD_INFO_CHECKLIST.map((item) => ({
+                  item,
+                  done: infoList.find((i) => i.key === item.key)?.recorded ?? false,
+                  shared: sharedSources[item.key],
+                }));
+                const recorded = rows.filter((r) => r.done);
+                const missing = rows.filter((r) => !r.done);
+                const Group = ({
+                  title,
+                  hint,
+                  entries,
+                  tone,
+                }: {
+                  title: string;
+                  hint: string;
+                  entries: typeof rows;
+                  tone: "done" | "todo";
+                }) =>
+                  entries.length === 0 ? null : (
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#8B82A8]">
+                        {title} ({entries.length})
+                      </p>
+                      <p className="mt-0.5 text-[11.5px] text-[#6F6889]">{hint}</p>
+                      <ul className="mt-1.5 flex flex-wrap gap-1.5">
+                        {entries.map(({ item, shared }) => (
+                          <li
+                            key={item.key}
+                            className={`inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-1 text-[12px] font-medium ring-1 ${
+                              tone === "done"
+                                ? "bg-[#F3F0FB] text-[#3D2E6B] ring-[#E5DEF5]"
+                                : "bg-white text-[#6F6889] ring-[#E4E0EE]"
                             }`}
-                          />
-                          {item.label}
-                          {shared && (
-                            <span className="rounded-[12px] bg-white/70 px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#5A4A8A] ring-1 ring-[#DCD2F4]">
-                              {shared.source === "passport"
-                                ? "Shared from health card"
-                                : "Shared in intake"}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
-                    {sharedCount > 0
-                      ? `${clientName || "The client"} chose to share ${sharedCount} of these with you — from their health card or intake form. Nothing else is pulled from anywhere: anything unlabelled is blank until you document it.`
-                      : `${clientName || "The client"} hasn't shared any of these yet, so nothing has been filled in. Document what comes up in the session.`}
-                  </p>
-                </div>
-              )}
+                          >
+                            {tone === "done" ? (
+                              <Check aria-hidden="true" className="h-3.5 w-3.5 text-[#6E4FD3]" />
+                            ) : (
+                              <span
+                                aria-hidden="true"
+                                className="h-1.5 w-1.5 rounded-full bg-[#C6BFD8]"
+                              />
+                            )}
+                            {item.label}
+                            {tone === "done" && shared && (
+                              <span className="text-[10.5px] font-semibold text-[#8B82A8]">
+                                {shared.source === "passport" ? "· from health card" : "· from intake"}
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                return (
+                  <div className="mt-3 space-y-3 border-t border-[#DCD2F4]/70 pt-3">
+                    <Group
+                      title="Already on file"
+                      hint={`Shared by ${clientName || "the client"} — review before you prescribe.`}
+                      entries={recorded}
+                      tone="done"
+                    />
+                    <Group
+                      title="Still needed"
+                      hint="Blank until you document it in this session."
+                      entries={missing}
+                      tone="todo"
+                    />
+                  </div>
+                );
+              })()}
+
 
 
               {!safetyResolved && medicationReviewOnly && medicationReviewRemainder && (
