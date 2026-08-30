@@ -58,6 +58,7 @@ import {
   checkSafetyClass,
   patientAge,
 } from "@/lib/prescription/safety";
+import { sharedSourceMap, type SharedSourceItem } from "@/lib/prescription/intakeImport";
 import { findPharmacy, pharmacyLine } from "@/lib/prescription/pharmacies";
 import {
   prescriptionStatus,
@@ -2199,6 +2200,14 @@ function MedicationEditor({
     () => infoItems(med, patientInfo, visitMeds),
     [med, patientInfo, visitMeds],
   );
+  /** What the client themselves shared for this appointment, per check. Used to
+   *  state plainly that the answer came from the client — never pulled silently
+   *  from anywhere else — and to compare it with their current health card. */
+  const sharedSources = useMemo<Record<string, SharedSourceItem>>(
+    () => (appointmentId ? sharedSourceMap(appointmentId) : {}),
+    [appointmentId, patientInfo],
+  );
+  const sharedCount = Object.keys(sharedSources).length;
   const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
   const requiredOutstanding = outstanding.filter((i) => i.requirement === "required");
   const reviewOutstanding = outstanding.filter((i) => i.requirement !== "required");
@@ -2264,6 +2273,14 @@ function MedicationEditor({
     const live = infoList.find((i) => i.key === key);
     const done = snap ? snap.recorded : !!live?.recorded;
     const value = done ? (snap?.value ?? infoRecordedSummary(key, patientInfo, visitMeds)) : "";
+    const shared = sharedSources[key];
+    /** The record and the client's current health card no longer say the same
+     *  thing — surfaced so the provider works from up-to-date information. */
+    const drifted =
+      !!shared &&
+      done &&
+      !!value &&
+      !value.toLowerCase().includes(shared.value.trim().toLowerCase().slice(0, 24));
     return (
       <li
         key={key}
@@ -2306,6 +2323,22 @@ function MedicationEditor({
             </span>
             {done && value && (
               <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
+            )}
+            {shared && (
+              <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                  {shared.source === "passport"
+                    ? `Shared by ${clientName || "the client"} · health card`
+                    : `Shared by ${clientName || "the client"} · intake form`}
+                </span>
+                <span className="text-[11px] text-[#6F6889]">“{shared.value}”</span>
+              </span>
+            )}
+            {drifted && (
+              <span className="mt-1 block text-[11px] leading-relaxed text-[#8A6A20]">
+                Their health card now says something different from what&rsquo;s on the record —
+                check it before prescribing.
+              </span>
             )}
           </span>
           <StatusChip level={done ? "complete" : requirement} />
@@ -2610,10 +2643,11 @@ function MedicationEditor({
                   <ul className="mt-2 flex flex-wrap gap-1.5">
                     {STANDARD_INFO_CHECKLIST.map((item) => {
                       const done = infoList.find((i) => i.key === item.key)?.recorded ?? false;
+                      const shared = sharedSources[item.key];
                       return (
                         <li
                           key={item.key}
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium ring-1 ${
+                          className={`inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-1 text-[12px] font-medium ring-1 ${
                             done
                               ? "bg-[#F1F7F4] text-[#1F7A57] ring-[#CFE9DD]"
                               : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
@@ -2626,10 +2660,22 @@ function MedicationEditor({
                             }`}
                           />
                           {item.label}
+                          {shared && (
+                            <span className="rounded-[12px] bg-white/70 px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#5A4A8A] ring-1 ring-[#DCD2F4]">
+                              {shared.source === "passport"
+                                ? "Shared from health card"
+                                : "Shared in intake"}
+                            </span>
+                          )}
                         </li>
                       );
                     })}
                   </ul>
+                  <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+                    {sharedCount > 0
+                      ? `${clientName || "The client"} chose to share ${sharedCount} of these with you — from their health card or intake form. Nothing else is pulled from anywhere: anything unlabelled is blank until you document it.`
+                      : `${clientName || "The client"} hasn't shared any of these yet, so nothing has been filled in. Document what comes up in the session.`}
+                  </p>
                 </div>
               )}
 
