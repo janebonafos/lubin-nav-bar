@@ -285,6 +285,7 @@ export default function IssuePrescriptionDialog({
     setAiLoading(true);
     setAiError("");
     setAiNote("");
+    setMissingInfo([]);
     try {
       const res = await fetch("/api/generate-prescription", {
         method: "POST",
