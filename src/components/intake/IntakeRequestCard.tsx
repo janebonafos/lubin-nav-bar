@@ -110,7 +110,7 @@ export default function IntakeRequestCard({
           )}
           {progress.answered === 0 && progress.prefilled > 0 && (
             <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#F0EAFB] px-2.5 py-1 text-[11px] font-semibold text-[#7E6BAF]">
-              <Sparkles className="h-3 w-3" /> {progress.prefilled} answer
+              {progress.prefilled} answer
               {progress.prefilled === 1 ? "" : "s"} ready from your Health Passport
             </p>
           )}
@@ -145,7 +145,7 @@ export default function IntakeRequestCard({
             }}
             className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
           >
-            <Sparkles className="h-3.5 w-3.5 text-[#7E6BAF]" /> Use my Health Passport
+            Use my Health Passport
           </button>
         )}
       </div>
