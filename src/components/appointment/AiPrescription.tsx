@@ -58,6 +58,7 @@ import {
   checkSafetyClass,
   patientAge,
 } from "@/lib/prescription/safety";
+import { sharedSourceMap, type SharedSourceItem } from "@/lib/prescription/intakeImport";
 import { findPharmacy, pharmacyLine } from "@/lib/prescription/pharmacies";
 import {
   prescriptionStatus,
