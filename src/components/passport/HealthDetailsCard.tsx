@@ -430,13 +430,24 @@ function parseMeds(value: string): MedRow[] {
     .filter(Boolean)
     .map((entry) => {
       const [rawType, rest] = entry.includes("—") ? entry.split("—") : ["", entry];
-      const detail = (rest ?? "").trim();
-      const lastSpace = detail.lastIndexOf(" ");
-      const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+      const typeRaw = rawType.trim();
+      // "Other (Antihistamine)" splits into base type + specifier.
+      const otherMatch = typeRaw.match(/^Other\s*\((.+)\)$/i);
       return {
-        type: rawType.trim(),
-        name: looksDosed && lastSpace > 0 ? detail.slice(0, lastSpace).trim() : detail,
-        dose: looksDosed && lastSpace > 0 ? detail.slice(lastSpace + 1).trim() : "",
+        type: otherMatch ? "Other" : typeRaw,
+        otherType: otherMatch ? otherMatch[1].trim() : "",
+        name: (() => {
+          const detail = (rest ?? "").trim();
+          const lastSpace = detail.lastIndexOf(" ");
+          const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+          return looksDosed && lastSpace > 0 ? detail.slice(0, lastSpace).trim() : detail;
+        })(),
+        dose: (() => {
+          const detail = (rest ?? "").trim();
+          const lastSpace = detail.lastIndexOf(" ");
+          const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+          return looksDosed && lastSpace > 0 ? detail.slice(lastSpace + 1).trim() : "";
+        })(),
       };
     });
 }
