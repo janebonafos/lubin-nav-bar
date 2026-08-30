@@ -211,6 +211,35 @@ function structuredText(info: PatientSafetyInfo | undefined, key: StructuredKey)
   return [entries, legacy ?? ""].filter((v) => v && v.trim()).join(", ");
 }
 
+/** Same as `structuredText`, but ignores entries the record marks as resolved. */
+function activeStructuredText(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
+  const entries = entriesFor(info, key)
+    .filter((e) => e.status !== "resolved")
+    .map((e) =>
+      [e.name, e.strength, e.dose, e.frequency, e.route, e.reaction, e.detail]
+        .filter(Boolean)
+        .join(" "),
+    )
+    .join(", ");
+  const legacy = key === "currentMedications" ? info?.currentMedications : info?.[key];
+  return [entries, legacy ?? ""].filter((v) => v && v.trim()).join(", ");
+}
+
+/** Plain-language provenance for a structured category, so the provider can
+ *  see whether each recorded item came from the patient or from their own
+ *  documentation. Nothing here is inferred — it reads the entry sources. */
+function entrySourceSummary(info: PatientSafetyInfo | undefined, key: StructuredKey): string {
+  const entries = entriesFor(info, key);
+  if (!entries.length) return "";
+  const shared = entries.filter((e) => e.source === "passport" || e.source === "intake").length;
+  const mine = entries.length - shared;
+  const parts: string[] = [];
+  if (shared) parts.push(`${shared} shared by the patient`);
+  if (mine) parts.push(`${mine} documented by you in this record`);
+  return parts.join(", ");
+}
+
+
 /** A structured category counts as recorded when it has entries or an
  *  explicit "none known" statement. "Not documented" is not enough. */
 function structuredRecorded(info: PatientSafetyInfo | undefined, key: StructuredKey): boolean {
