@@ -272,7 +272,7 @@ async function buildSignable(admin: any, draftId: string, providerUserId: string
     });
   }
 
-  const structured = items.map((row: Json) => toStructured(row));
+  const structured: StructuredRxItem[] = (items as Json[]).map((row) => toStructured(row));
   const { data: verification } = await admin
     .from("provider_verifications")
     .select("*")
