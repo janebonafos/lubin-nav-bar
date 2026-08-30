@@ -243,6 +243,8 @@ export default function IssuePrescriptionDialog({
     setSex((record.info.sex as PatientSex) ?? "not-documented");
     setAddress(record.info.address ?? "");
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
   }
 
@@ -254,6 +256,8 @@ export default function IssuePrescriptionDialog({
     setSex("not-documented");
     setAddress("");
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
   }
 
@@ -270,6 +274,8 @@ export default function IssuePrescriptionDialog({
     setNotes("");
     setMeds([emptyMed()]);
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
     setAiError("");
     setAuthorised(false);
@@ -310,6 +316,7 @@ export default function IssuePrescriptionDialog({
       });
       const data = (await res.json()) as {
         medications?: AiMedication[];
+        missingInfo?: string[];
         clinicalNotes?: string;
         error?: string;
       };
@@ -318,6 +325,8 @@ export default function IssuePrescriptionDialog({
         return;
       }
       setSuggestions(data.medications ?? []);
+      setMissingInfo(data.missingInfo ?? []);
+      setAddedSuggestions([]);
       setAiNote(data.clinicalNotes ?? "");
     } catch {
       setAiError("Could not reach the suggestion service.");
