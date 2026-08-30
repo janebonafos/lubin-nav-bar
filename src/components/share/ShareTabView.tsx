@@ -619,6 +619,9 @@ function ViewSharedSheet({
               {grant.includedKeys.map((k) => (
                 <li key={k} className="text-[13px]">
                   • {INCLUDE_OPTIONS.find((o) => o.key === k)?.label ?? k}
+                  {k === "health" && grant.healthFieldIds
+                    ? ` — ${grant.healthFieldIds.length} detail${grant.healthFieldIds.length === 1 ? "" : "s"} selected`
+                    : ""}
                 </li>
               ))}
             </ul>
