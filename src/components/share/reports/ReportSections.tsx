@@ -245,16 +245,49 @@ export function NarrativeSection({ summary }: { summary: SummaryData }) {
   );
 }
 
-export function PrivacyFooter() {
+export function NotesSection({ summary }: { summary: SummaryData }) {
+  const notes = summary.checkinsInRange.filter((c) => (c.note ?? "").trim().length > 0);
+  if (notes.length === 0) return null;
+  return (
+    <SectionShell eyebrow="Written notes" icon={<Sparkles className="h-3.5 w-3.5" />}>
+      <ul className="space-y-2">
+        {notes.map((c) => (
+          <li
+            key={c.id}
+            className="rounded-xl bg-[#FAF8FD] p-3 text-[13px] leading-relaxed text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7E6BAF]">
+              {new Date(c.date).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+            <p className="mt-1">{c.note}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[11px] text-[#5A4A8A]">
+        Shared because the user chose to include their own written notes.
+      </p>
+    </SectionShell>
+  );
+}
+
+export function PrivacyFooter({ includedKeys }: { includedKeys?: string[] } = {}) {
+  const notesShared = includedKeys?.includes("notes");
   return (
     <footer className="mt-8 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-center">
       <div className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
         <Lock className="h-3 w-3" /> User-owned · Voluntarily shared
       </div>
       <p className="mx-auto mt-3 max-w-xl text-[11px] leading-relaxed text-[#5A4A8A]">
-        Self-reported. Not a clinical diagnosis. Private chat conversations and
-        personal notes are never shared. The recipient sees only the sections the
-        user selected.
+        Self-reported. Not a clinical diagnosis. Private chat conversations are
+        never shared.{" "}
+        {notesShared
+          ? "Written check-in notes appear here only because the user chose to include them."
+          : "Written check-in notes were not included."}{" "}
+        The recipient sees only the sections the user selected.
       </p>
     </footer>
   );
@@ -266,6 +299,8 @@ export function renderIncluded(summary: SummaryData, includedKeys: string[]) {
     <div className="space-y-4">
       {has("mood") && <MoodPatternsSection summary={summary} />}
       {has("assessments") && <AssessmentsSection summary={summary} />}
+      {has("themes") && <KeyTopicsSection summary={summary} />}
+      {has("notes") && <NotesSection summary={summary} />}
     </div>
   );
 }
