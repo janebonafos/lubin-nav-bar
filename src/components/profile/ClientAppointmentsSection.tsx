@@ -160,6 +160,26 @@ const seed: Appt[] = [
     followUp:
       "We went through your assessment results together. A prescription may be started if clinically appropriate, with a follow-up review in two weeks.",
   },
+  {
+    id: "cc5",
+    provider: "Dr. Maria Santos",
+    specialty: "Psychiatrist",
+    day: "SUN",
+    date: "29",
+    month: "AUG",
+    time: "11:00 AM",
+    timezone: "PHT (GMT+8)",
+    duration: "30 min",
+    type: "Psychiatry follow-up (medication review)",
+    sessionFormat: "Individual",
+    mode: "Video",
+    status: "completed",
+    amount: "₱3,200",
+    paymentStatus: "Paid",
+    followUp:
+      "We agreed to start a daily medication and review how you're doing in four weeks. Your prescription is saved in My prescriptions.",
+  },
+
 
   {
     id: "cx1",
