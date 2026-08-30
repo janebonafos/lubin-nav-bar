@@ -104,7 +104,7 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
       },
       {
         id: "contact.email",
-        label: "Best email for you",
+        label: "Email",
         type: "email",
         placeholder: "you@email.com",
       },
