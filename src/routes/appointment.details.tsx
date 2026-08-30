@@ -12,6 +12,8 @@ import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { DevPatientDataToggle } from "@/components/appointment/DevPatientDataToggle";
+import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
+
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import {
   isPrescriber,
@@ -1053,7 +1055,24 @@ function DetailsPage() {
                       </p>
                     </div>
                   )}
+                  {prescribingProfession && (
+                    <div className="mt-4">
+                      <SoapNotesPanel
+                        recordKey={`appt:${appt.id}`}
+                        defaultOpen={false}
+                        context={() => ({
+                          country: rxCountry,
+                          patientContext: {
+                            firstName: appt.client?.split(" ")[0] || undefined,
+                          },
+                          caseNotes: appt.notes || undefined,
+                          presenting: appt.notes || undefined,
+                        })}
+                      />
+                    </div>
+                  )}
                 </>
+
               </SectionCard>
             )}
 

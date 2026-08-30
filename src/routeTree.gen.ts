@@ -42,6 +42,7 @@ import { Route as AppointmentCancelRouteImport } from './routes/appointment.canc
 import { Route as ApiResultInsightRouteImport } from './routes/api/result-insight'
 import { Route as ApiMedicationReferenceRouteImport } from './routes/api/medication-reference'
 import { Route as ApiGenerateVisitSummaryRouteImport } from './routes/api/generate-visit-summary'
+import { Route as ApiGenerateSoapRouteImport } from './routes/api/generate-soap'
 import { Route as ApiGenerateProviderBriefRouteImport } from './routes/api/generate-provider-brief'
 import { Route as ApiGeneratePrescriptionRouteImport } from './routes/api/generate-prescription'
 import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
@@ -215,6 +216,11 @@ const ApiGenerateVisitSummaryRoute = ApiGenerateVisitSummaryRouteImport.update({
   path: '/api/generate-visit-summary',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateSoapRoute = ApiGenerateSoapRouteImport.update({
+  id: '/api/generate-soap',
+  path: '/api/generate-soap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenerateProviderBriefRoute =
   ApiGenerateProviderBriefRouteImport.update({
     id: '/api/generate-provider-brief',
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
+  '/api/generate-soap': typeof ApiGenerateSoapRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/api/result-insight': typeof ApiResultInsightRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByTo {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
+  '/api/generate-soap': typeof ApiGenerateSoapRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/api/result-insight': typeof ApiResultInsightRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/api/enhance-profile': typeof ApiEnhanceProfileRoute
   '/api/generate-prescription': typeof ApiGeneratePrescriptionRoute
   '/api/generate-provider-brief': typeof ApiGenerateProviderBriefRoute
+  '/api/generate-soap': typeof ApiGenerateSoapRoute
   '/api/generate-visit-summary': typeof ApiGenerateVisitSummaryRoute
   '/api/medication-reference': typeof ApiMedicationReferenceRoute
   '/api/result-insight': typeof ApiResultInsightRoute
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
+    | '/api/generate-soap'
     | '/api/generate-visit-summary'
     | '/api/medication-reference'
     | '/api/result-insight'
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
+    | '/api/generate-soap'
     | '/api/generate-visit-summary'
     | '/api/medication-reference'
     | '/api/result-insight'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/api/enhance-profile'
     | '/api/generate-prescription'
     | '/api/generate-provider-brief'
+    | '/api/generate-soap'
     | '/api/generate-visit-summary'
     | '/api/medication-reference'
     | '/api/result-insight'
@@ -521,6 +533,7 @@ export interface RootRouteChildren {
   ApiEnhanceProfileRoute: typeof ApiEnhanceProfileRoute
   ApiGeneratePrescriptionRoute: typeof ApiGeneratePrescriptionRoute
   ApiGenerateProviderBriefRoute: typeof ApiGenerateProviderBriefRoute
+  ApiGenerateSoapRoute: typeof ApiGenerateSoapRoute
   ApiGenerateVisitSummaryRoute: typeof ApiGenerateVisitSummaryRoute
   ApiMedicationReferenceRoute: typeof ApiMedicationReferenceRoute
   ApiResultInsightRoute: typeof ApiResultInsightRoute
@@ -772,6 +785,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenerateVisitSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-soap': {
+      id: '/api/generate-soap'
+      path: '/api/generate-soap'
+      fullPath: '/api/generate-soap'
+      preLoaderRoute: typeof ApiGenerateSoapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/generate-provider-brief': {
       id: '/api/generate-provider-brief'
       path: '/api/generate-provider-brief'
@@ -851,6 +871,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEnhanceProfileRoute: ApiEnhanceProfileRoute,
   ApiGeneratePrescriptionRoute: ApiGeneratePrescriptionRoute,
   ApiGenerateProviderBriefRoute: ApiGenerateProviderBriefRoute,
+  ApiGenerateSoapRoute: ApiGenerateSoapRoute,
   ApiGenerateVisitSummaryRoute: ApiGenerateVisitSummaryRoute,
   ApiMedicationReferenceRoute: ApiMedicationReferenceRoute,
   ApiResultInsightRoute: ApiResultInsightRoute,
