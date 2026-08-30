@@ -105,15 +105,24 @@ function CardBack({ details }: { details: HealthDetails }) {
   })).filter((s) => s.rows.length > 0);
 
   return (
-    <div className="flex h-full flex-col p-6 text-white sm:p-7">
-      <div className="flex items-baseline justify-between">
-        <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+    <div className="relative flex h-full flex-col text-white">
+      {/* header stays pinned above the scrollable answers */}
+      <div className="flex items-baseline justify-between bg-brand-purple-dark/95 px-6 pb-2.5 pt-5 sm:px-7">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
           Everything on this card
         </p>
         <p className="text-[10px] uppercase tracking-[0.16em] text-white/40">Tap to flip back</p>
       </div>
 
-      <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 text-left">
+      <div
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6 pt-3 text-left sm:px-7"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, transparent 0, black 10px, black calc(100% - 14px), transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0, black 10px, black calc(100% - 14px), transparent 100%)",
+        }}
+      >
         {sections.length === 0 ? (
           <p className="text-[12.5px] leading-relaxed text-white/60">
             Nothing added yet. Anything you fill in below shows up here, so you can always see
@@ -122,25 +131,31 @@ function CardBack({ details }: { details: HealthDetails }) {
         ) : (
           sections.map((s) => (
             <div key={s.label}>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/40">
+              <p className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/40">
                 {s.label}
+                <span className="h-px flex-1 bg-white/10" aria-hidden />
               </p>
-              <div className="mt-1.5 space-y-1.5">
+              <dl className="mt-2 space-y-2">
                 {s.rows.map((r) => (
                   <div key={r.label} className="flex gap-3">
-                    <span className="w-[38%] shrink-0 text-[11px] leading-snug text-white/45">
+                    <dt className="w-[38%] shrink-0 text-[10.5px] font-medium normal-case leading-snug text-white/55">
                       {r.label}
-                    </span>
-                    <span className="flex-1 space-y-0.5 text-[11.5px] leading-snug text-white/85">
-                      {r.values.map((v, i) => (
-                        <span key={i} className="block">
-                          {v}
+                    </dt>
+                    <dd className="flex-1 space-y-0.5 text-[11.5px] font-medium leading-snug text-white/90">
+                      {r.values.slice(0, 4).map((v, i) => (
+                        <span key={i} className="block break-words">
+                          {v.length > 90 ? `${v.slice(0, 90).trimEnd()}…` : v}
                         </span>
                       ))}
-                    </span>
+                      {r.values.length > 4 && (
+                        <span className="block text-[10px] text-white/45">
+                          +{r.values.length - 4} more
+                        </span>
+                      )}
+                    </dd>
                   </div>
                 ))}
-              </div>
+              </dl>
             </div>
           ))
         )}
