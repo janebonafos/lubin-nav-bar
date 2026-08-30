@@ -14,7 +14,9 @@ import {
   X,
 } from "lucide-react";
 
+import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
+
 import {
   genRxId,
   type PatientSafetyInfo,
