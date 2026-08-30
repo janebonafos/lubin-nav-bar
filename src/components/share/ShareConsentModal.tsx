@@ -1253,8 +1253,10 @@ function Step3({
               </span>
               <span className="leading-relaxed">
                 I have reviewed the information above and agree to share it with{" "}
-                <strong>{providerContext.providerName}</strong> for this appointment.
-                I understand that I can change or revoke access.
+                <strong>{providerContext.providerName}</strong> for this appointment. I understand
+                that any medication, allergy, and health condition details I include may be used by
+                my provider to prescribe and treat me safely. I can change or revoke access at any
+                time.
               </span>
             </button>
           );
@@ -1281,6 +1283,7 @@ function Step3({
         <ul className="mt-3 space-y-2 text-[#5A4A8A]">
           <li>• You've reviewed what's included</li>
           <li>• You're sharing this voluntarily</li>
+          <li>• Any medication, allergy, or health condition details you include may be used by your provider to prescribe and treat you safely</li>
           <li>• This is not a clinical diagnosis</li>
         </ul>
         <p className="mt-4 text-xs text-[#5A4A8A]">
