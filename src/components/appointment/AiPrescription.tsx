@@ -2857,6 +2857,14 @@ function MedicationEditor({
                         outstandingNames ? ` — ${outstandingNames}` : ""
                       }`}
                 </p>
+                <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#6F6889]">
+                  {sharedCount > 0
+                    ? `Where this comes from: ${clientName || "the client"} shared ${sharedCount} item${
+                        sharedCount === 1 ? "" : "s"
+                      } for this appointment — each one is labelled with its source. Anything unlabelled stays blank until you document it.`
+                    : `Where this comes from: ${clientName || "the client"} hasn't shared health details for this appointment, so nothing is prefilled. Everything here is what you document yourself.`}
+                </p>
+
               </div>
 
               {stableCheckKeys.length > 0 && (
@@ -2907,13 +2915,19 @@ function MedicationEditor({
                               )}
                               {(() => {
                                 const prov = checkProvenance(k, sharedSources, clientName);
-                                if (!prov) return null;
                                 return (
-                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
-                                    {prov.label}
+                                  <span
+                                    className={`mt-1 inline-flex items-center rounded-[12px] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide ${
+                                      prov
+                                        ? "bg-[#F3FBF7] text-[#1F5C46] ring-1 ring-[#CFE7DD]"
+                                        : "bg-[#F5F3FB] text-[#6F6889] ring-1 ring-[#E4DEF5]"
+                                    }`}
+                                  >
+                                    {prov ? prov.label : "From your record · not client-shared"}
                                   </span>
                                 );
                               })()}
+
                             </span>
 
                             <div className="flex flex-wrap items-center gap-2 sm:contents">
