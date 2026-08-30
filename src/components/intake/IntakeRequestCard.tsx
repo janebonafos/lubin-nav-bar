@@ -103,9 +103,8 @@ export default function IntakeRequestCard({
           </p>
 
           {progress.answered > 0 && !progress.complete && (
-            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
-              <Check className="h-3 w-3" /> {progress.answered} of {progress.total} already
-              filled in
+            <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.05em] text-[#7E6BAF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF] ring-4 ring-[#7E6BAF]/10" /> {progress.answered} of {progress.total} already filled in
             </p>
           )}
           {progress.answered === 0 && progress.prefilled > 0 && (
@@ -173,7 +172,7 @@ export default function IntakeRequestCard({
                     <span
                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                         complete
-                          ? "bg-[#E6F8F1] text-[#2D8E69]"
+                          ? "bg-[#F0EAFB] text-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
                           : "bg-[#F0EAFB] text-[#7E6BAF]"
                       }`}
                     >
@@ -303,8 +302,8 @@ function MeasuresBlock({
                   </p>
                 </div>
                 {done ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
-                    <Check className="h-3 w-3" /> Already done
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.05em] text-[#7E6BAF]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF] ring-4 ring-[#7E6BAF]/10" /> Already done
                   </span>
                 ) : (
                   <Link
@@ -374,11 +373,11 @@ function FieldRow({
   };
 
   const status = dirty
-    ? { text: "Saving…", tone: "text-[#A89BD0]" }
+    ? { text: "Saving…", dot: "bg-[#A89BD0] animate-pulse", tone: "text-[#A89BD0] opacity-80" }
     : savedAt
-      ? { text: "Saved", tone: "text-[#2D8E69]" }
+      ? { text: "Saved", dot: "bg-[#7E6BAF] flex items-center justify-center text-white text-[8px] font-bold", tone: "text-[#7E6BAF]", check: true }
       : state.answered
-        ? { text: "Shared with your provider", tone: "text-[#2D8E69]" }
+        ? { text: "Shared with your provider", dot: "bg-[#7E6BAF] ring-4 ring-[#7E6BAF]/10", tone: "text-[#7E6BAF]" }
         : null;
 
   return (
@@ -386,7 +385,14 @@ function FieldRow({
       <div className="flex items-start justify-between gap-3">
         <label className="block text-sm font-medium text-[#3D2E6B]">{field.label}</label>
         {status && (
-          <span className={`shrink-0 text-[11px] font-semibold ${status.tone}`}>
+          <span className={`flex shrink-0 items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.05em] ${status.tone}`}>
+            {status.check ? (
+              <span className={`flex h-3 w-3 items-center justify-center rounded-full ${status.dot}`}>
+                <Check className="h-2 w-2" />
+              </span>
+            ) : (
+              <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+            )}
             {status.text}
           </span>
         )}
