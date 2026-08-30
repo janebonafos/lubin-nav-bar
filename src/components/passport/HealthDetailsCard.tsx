@@ -456,7 +456,12 @@ function serializeMeds(rows: MedRow[]): string {
   return rows
     .map((r) => {
       const detail = [r.name.trim(), r.dose.trim()].filter(Boolean).join(" ");
-      const type = r.type.trim();
+      const typeRaw = r.type.trim();
+      const specifier = r.otherType?.trim();
+      const type =
+        typeRaw === "Other" && specifier
+          ? `Other (${specifier.replace(/[;—()]/g, " ").trim()})`
+          : typeRaw;
       if (!detail && !type) return "";
       return type ? `${type} — ${detail || "not specified"}` : detail;
     })
