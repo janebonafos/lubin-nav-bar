@@ -554,6 +554,12 @@ function Step1({
         <Lock className="h-3 w-3" />
         Nothing will be shared unless you review and confirm it
       </span>
+      <p className="mt-3 rounded-xl border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-2 text-xs leading-relaxed text-[#5A4A8A]">
+        Any medication, allergy, or health condition details you include may be
+        used by your provider to prescribe and treat you safely. You can change
+        or revoke access at any time.
+      </p>
+
 
       {assessmentContext && (
         <p className="mt-3 rounded-xl border border-[#ECE7F6] bg-[#FAF8FD] px-3 py-2 text-xs text-[#5A4A8A]">
