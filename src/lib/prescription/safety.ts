@@ -268,13 +268,13 @@ export const INFO_FIELDS: {
   },
   {
     key: "currentMedications",
-    label: "Anything taken right now",
+    label: "Anything you take right now",
     placeholder: "Medications, vitamins or supplements they take, or “none”",
     multiline: true,
   },
   {
     key: "conditions",
-    label: "Conditions or past care that's relevant",
+    label: "Conditions or past care that feels relevant",
     placeholder: "Conditions that affect prescribing, or “none relevant”",
     multiline: true,
   },
@@ -290,7 +290,7 @@ export const INFO_FIELDS: {
   },
   {
     key: "pregnancy",
-    label: "Pregnant, breastfeeding or trying to conceive",
+    label: "Pregnant, breastfeeding or trying to conceive?",
     placeholder: "Select a status",
   },
   {
