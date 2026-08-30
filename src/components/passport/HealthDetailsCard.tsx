@@ -908,7 +908,8 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                             className={
                               field.type === "long-text" ||
                               field.type === "choice" ||
-                              field.type === "tags"
+                              field.type === "tags" ||
+                              field.type === "meds"
                                 ? "sm:col-span-2"
                                 : ""
                             }
