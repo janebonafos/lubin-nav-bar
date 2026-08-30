@@ -748,6 +748,81 @@ function Step1({
                     </ul>
                   </div>
                 )}
+                {opt.key === "health" && checked && totalHealthFields > 0 && (
+                  <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                        Details included ({selectedHealthCount} of{" "}
+                        {totalHealthFields})
+                      </p>
+                      <button
+                        type="button"
+                        onClick={
+                          allHealthSelected
+                            ? deselectAllHealthFields
+                            : selectAllHealthFields
+                        }
+                        className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#6A5A98]"
+                      >
+                        {allHealthSelected ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-[#8B85A6]">
+                      Untick anything you'd rather keep private — only the
+                      details you pick are shared.
+                    </p>
+                    <div className="mt-2 space-y-2.5">
+                      {healthGroups.map((g) => (
+                        <div key={g.group}>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#A29EB6]">
+                            {g.group}
+                          </p>
+                          <ul className="mt-1 space-y-1">
+                            {g.items.map((it) => {
+                              const on = selectedHealthFieldIds.includes(it.id);
+                              return (
+                                <li key={it.id}>
+                                  <label
+                                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-1.5 transition ${
+                                      on
+                                        ? "border-[#7E6BAF]/50 bg-[#FAF8FD]"
+                                        : "border-[#ECE7F6] bg-white hover:border-[#7E6BAF]/30"
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={on}
+                                      onChange={() => toggleHealthField(it.id)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={`flex h-4.5 w-4.5 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+                                        on
+                                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                                          : "border-[#D6CCEC] bg-white text-transparent"
+                                      }`}
+                                    >
+                                      <Check
+                                        className="h-3 w-3"
+                                        strokeWidth={3}
+                                      />
+                                    </span>
+                                    <span className="min-w-0 flex-1 truncate text-[12px] text-[#3D2E6B]">
+                                      <span className="font-medium">
+                                        {it.label}:
+                                      </span>{" "}
+                                      {it.value}
+                                    </span>
+                                  </label>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </li>
             );
           })}
