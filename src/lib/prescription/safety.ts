@@ -259,26 +259,28 @@ export const INFO_FIELDS: {
   multiline?: boolean;
 }[] = [
   {
+    // Labels mirror the client's health card questions, so the provider sees the
+    // same wording the client answered.
     key: "allergies",
-    label: "Allergy history",
+    label: "Allergies or reactions",
     placeholder: "Known drug allergies and reactions, or “none known”",
     multiline: true,
   },
   {
     key: "currentMedications",
-    label: "Current medications",
-    placeholder: "Medications and supplements the patient is taking, or “none”",
+    label: "Anything taken right now",
+    placeholder: "Medications, vitamins or supplements they take, or “none”",
     multiline: true,
   },
   {
     key: "conditions",
-    label: "Relevant medical conditions",
+    label: "Conditions or past care that's relevant",
     placeholder: "Conditions that affect prescribing, or “none relevant”",
     multiline: true,
   },
   {
     key: "bipolarHistory",
-    label: "Bipolar disorder or history of mania/hypomania",
+    label: "Bipolar or mania history",
     placeholder: "Screening result",
   },
   {
@@ -288,15 +290,16 @@ export const INFO_FIELDS: {
   },
   {
     key: "pregnancy",
-    label: "Pregnancy / breastfeeding status",
+    label: "Pregnant, breastfeeding or trying to conceive",
     placeholder: "Select a status",
   },
   {
     key: "labs",
-    label: "Relevant labs / organ function",
+    label: "Recent labs or organ function",
     placeholder: "e.g. Creatinine: 0.9 mg/dL",
     multiline: true,
   },
+
 ];
 
 /** Information this medication genuinely needs before verification, in order. */
