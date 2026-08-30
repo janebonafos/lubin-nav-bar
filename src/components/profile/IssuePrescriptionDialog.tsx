@@ -335,7 +335,11 @@ export default function IssuePrescriptionDialog({
     }
   }
 
-  function addSuggestion(s: AiMedication) {
+  function suggestionKey(s: AiMedication, i: number) {
+    return `${s.genericName || s.name}-${i}`;
+  }
+
+  function addSuggestion(s: AiMedication, key?: string) {
     const next: MedForm = {
       id: genRxId(),
       genericName: s.genericName || s.name,
@@ -358,7 +362,16 @@ export default function IssuePrescriptionDialog({
       return blankOnly ? [next] : [...cur, next];
     });
     if (!diagnosis.trim() && s.indication) setDiagnosis(s.indication);
+    if (key) setAddedSuggestions((cur) => (cur.includes(key) ? cur : [...cur, key]));
   }
+
+  function addAllSuggestions() {
+    suggestions.forEach((s, i) => {
+      const key = suggestionKey(s, i);
+      if (!addedSuggestions.includes(key)) addSuggestion(s, key);
+    });
+  }
+
 
   function issue() {
     if (!identity || !canIssue) return;
