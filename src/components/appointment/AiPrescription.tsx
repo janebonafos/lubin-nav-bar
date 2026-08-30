@@ -2953,7 +2953,7 @@ function MedicationEditor({
                                   }`}
                                 >
                                   {needsAck
-                                    ? `${headline} · Review & acknowledge this item individually`
+                                    ? headline
                                     : missingInfo
                                       ? `${headline} · Information not available — judge independently`
                                       : "No conflict identified from available information"}
@@ -2961,15 +2961,16 @@ function MedicationEditor({
                               )}
                               {(() => {
                                 const prov = checkProvenance(k, sharedSources, clientName);
+                                if (!prov) {
+                                  return (
+                                    <span className="mt-1 block text-[11px] text-[#8C86A0]">
+                                      You documented this — the client did not share it
+                                    </span>
+                                  );
+                                }
                                 return (
-                                  <span
-                                    className={`mt-1 inline-flex items-center rounded-[12px] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide ${
-                                      prov
-                                        ? "bg-[#F3FBF7] text-[#1F5C46] ring-1 ring-[#CFE7DD]"
-                                        : "bg-[#F5F3FB] text-[#6F6889] ring-1 ring-[#E4DEF5]"
-                                    }`}
-                                  >
-                                    {prov ? prov.label : "From your record · not client-shared"}
+                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                                    {prov.label}
                                   </span>
                                 );
                               })()}
@@ -3060,7 +3061,7 @@ function MedicationEditor({
                         <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
                           {actionKeys.length === 0
                             ? "Every check for this medication has been reviewed or cleared."
-                            : "Each item is acknowledged individually with its reason shown. There is no bulk review."}
+                            : "Open each item to see why it was flagged, then confirm it."}
                         </p>
 
                         {actionKeys.length > 0 && (
