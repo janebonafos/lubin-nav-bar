@@ -268,13 +268,13 @@ export const INFO_FIELDS: {
   },
   {
     key: "currentMedications",
-    label: "Anything taken right now",
+    label: "Anything you take right now",
     placeholder: "Medications, vitamins or supplements they take, or “none”",
     multiline: true,
   },
   {
     key: "conditions",
-    label: "Conditions or past care that's relevant",
+    label: "Conditions or past care that feels relevant",
     placeholder: "Conditions that affect prescribing, or “none relevant”",
     multiline: true,
   },
@@ -290,7 +290,7 @@ export const INFO_FIELDS: {
   },
   {
     key: "pregnancy",
-    label: "Pregnant, breastfeeding or trying to conceive",
+    label: "Pregnant, breastfeeding or trying to conceive?",
     placeholder: "Select a status",
   },
   {
@@ -701,28 +701,40 @@ export function infoRecordedSummary(
   info?: PatientSafetyInfo,
   visitMedications?: { name: string }[],
 ): string {
+  // Values read back in the same plain wording the client sees on their health
+  // card, so a provider never sees two different phrasings for one answer.
   switch (key) {
     case "allergies":
     case "conditions":
     case "currentMedications": {
       const state = docStateFor(info, key);
-      if (state === "none-known") return "None known";
-      if (state === "not-documented" && !entriesFor(info, key).length)
-        return "Not documented at this visit";
+      const noneLabel =
+        key === "allergies" ? "None known" : key === "conditions" ? "None" : "Nothing right now";
+      if (state === "none-known") return noneLabel;
+      if (state === "not-documented" && !entriesFor(info, key).length) return "Not added yet";
       const names = entriesFor(info, key)
-        .map((e) => e.name.trim())
+        .map((e) => {
+          const name = e.name.trim();
+          // Health-card medication rows read "Antidepressant — Jovia 5mg".
+          const dose = key === "currentMedications" ? (e.dose ?? "").trim() : "";
+          return dose ? `${name} ${dose}` : name;
+        })
         .filter(Boolean);
       if (key === "currentMedications" && !names.length && visitMedications?.length) {
         return visitMedications.map((m) => m.name).join(", ");
       }
-      if (!names.length) return "Recorded";
+      if (!names.length) return "Not added yet";
       return names.length > 3 ? `${names.slice(0, 3).join(", ")} +${names.length - 3} more` : names.join(", ");
     }
-    case "bipolarHistory":
-      return HISTORY_STATE_LABEL[bipolarHistoryState(info)];
+    case "bipolarHistory": {
+      const st = bipolarHistoryState(info);
+      if (st === "present") return "Yes, there is a history";
+      if (st === "none-known") return "None known";
+      return "Not added yet";
+    }
     case "age": {
       const age = patientAge(info);
-      if (age === null) return "Date of birth unavailable";
+      if (age === null) return "Not added yet";
       const dob = info?.dob
         ? new Date(info.dob).toLocaleDateString(undefined, {
             month: "short",
@@ -730,16 +742,21 @@ export function infoRecordedSummary(
             year: "numeric",
           })
         : null;
-      return dob ? `${age} years · born ${dob}` : `${age} years`;
+      return dob ? `${dob} · ${age} years old` : `${age} years old`;
     }
-    case "pregnancy":
-      return PREGNANCY_STATUS_LABEL[pregnancyStatus(info)];
+    case "pregnancy": {
+      const st = pregnancyStatus(info);
+      if (st === "pregnant") return "I'm pregnant";
+      if (st === "breastfeeding") return "I'm breastfeeding";
+      if (st === "trying") return "Trying to conceive";
+      if (st === "not-pregnant" || st === "not-applicable") return "None of these apply";
+      return "Not added yet";
+    }
     case "labs": {
       const labs = (info?.labs ?? "").trim();
-      if (!labs) return "No relevant results documented";
+      if (!labs) return "Not added yet";
       // A bare "none"/"nil" is ambiguous next to a cleared badge: state it plainly.
-      if (/^(none|nil|n\/?a|no results?|no relevant results?)\.?$/i.test(labs))
-        return "No relevant results available";
+      if (/^(none|nil|n\/?a|no results?|no relevant results?)\.?$/i.test(labs)) return "None";
       const taken = info?.labsAt
         ? new Date(info.labsAt).toLocaleDateString(undefined, {
             month: "short",
