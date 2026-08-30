@@ -391,43 +391,62 @@ function CheckoutPage() {
                 </button>
               </div>
             ) : (
-              <div className="mt-5">
-                <button
-                  type="button"
-                  onClick={() => setGooglePicker((v) => !v)}
-                  className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#E9E6FA] bg-white px-4 py-2.5 text-[13.5px] font-semibold text-slate-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-md active:translate-y-0"
-                >
-                  <GoogleGlyph className="h-4.5 w-4.5" />
-                  Continue with Google
-                </button>
-                {googlePicker && (
-                  <div className="mt-2.5 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
-                    <p className="text-[12.5px] font-semibold text-slate-700">
-                      Which Google account should we use?
-                    </p>
-                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                      <input
-                        type="email"
-                        value={googleInput}
-                        onChange={(e) => setGoogleInput(e.target.value)}
-                        placeholder="you@gmail.com"
-                        className="flex-1 rounded-xl border border-[#E9E6FA] bg-white px-3.5 py-2.5 text-[14px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10"
-                      />
-                      <button
-                        type="button"
-                        onClick={connectGoogle}
-                        disabled={!/.+@.+\..+/.test(googleInput)}
-                        className="rounded-xl bg-brand-purple px-4 py-2.5 text-[13.5px] font-semibold text-white transition-all enabled:hover:-translate-y-0.5 disabled:opacity-50"
-                      >
-                        Continue
-                      </button>
-                    </div>
-                    <p className="mt-2 text-[12px] text-slate-500">
-                      We'll use this to create or sign in to your Lubin account and send your
-                      receipt.
-                    </p>
+              <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                {(
+                  [
+                    { id: "google", label: "Google", Icon: GoogleGlyph },
+                    { id: "facebook", label: "Facebook", Icon: FacebookGlyph },
+                    { id: "linkedin", label: "LinkedIn", Icon: LinkedInGlyph },
+                  ] as const
+                ).map(({ id, label, Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => {
+                      setSocialProvider(id);
+                      setGooglePicker(true);
+                    }}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-[#E9E6FA] bg-white px-3 py-2.5 text-[12.5px] font-semibold text-slate-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-md active:translate-y-0"
+                  >
+                    <Icon className="h-4.5 w-4.5" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {googlePicker && (
+                <div className="mt-2.5 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
+                  <p className="text-[12.5px] font-semibold text-slate-700">
+                    Which{" "}
+                    {socialProvider === "google"
+                      ? "Google"
+                      : socialProvider === "facebook"
+                        ? "Facebook"
+                        : "LinkedIn"}{" "}
+                    account should we use?
+                  </p>
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="email"
+                      value={googleInput}
+                      onChange={(e) => setGoogleInput(e.target.value)}
+                      placeholder={`you@${socialProvider === "google" ? "gmail" : socialProvider === "facebook" ? "facebook" : "linkedin"}.com`}
+                      className="flex-1 rounded-xl border border-[#E9E6FA] bg-white px-3.5 py-2.5 text-[14px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={connectGoogle}
+                      disabled={!/.+@.+\..+/.test(googleInput)}
+                      className="rounded-xl bg-brand-purple px-4 py-2.5 text-[13.5px] font-semibold text-white transition-all enabled:hover:-translate-y-0.5 disabled:opacity-50"
+                    >
+                      Continue
+                    </button>
                   </div>
-                )}
+                  <p className="mt-2 text-[12px] text-slate-500">
+                    We'll use this to create or sign in to your Lubin account and send your
+                    receipt.
+                  </p>
+                </div>
+              )}
                 <div className="my-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-[#E9E6FA]" />
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
