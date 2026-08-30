@@ -166,8 +166,9 @@ export default function ShareConsentModal({
       // Any change will uncheck it and require re-consent.
       setAgreed(mode === "update");
       setSelectedAttemptIds(defaultAttemptIds);
+      setSelectedHealthFieldIds(defaultHealthFieldIds);
     }
-  }, [open, defaultSelection, providerContext, defaultAttemptIds, mode]);
+  }, [open, defaultSelection, providerContext, defaultAttemptIds, defaultHealthFieldIds, mode]);
 
   // Dirty tracking (update mode): the "share update" button only appears
   // when the patient actually changed something vs the current grant.
@@ -182,13 +183,19 @@ export default function ShareConsentModal({
     const attDirty =
       selectedAttemptIds.length !== attSet.size ||
       selectedAttemptIds.some((id) => !attSet.has(id));
-    return incDirty || attDirty;
+    const healthSet = new Set(defaultHealthFieldIds);
+    const healthDirty =
+      selectedHealthFieldIds.length !== healthSet.size ||
+      selectedHealthFieldIds.some((id) => !healthSet.has(id));
+    return incDirty || attDirty || healthDirty;
   }, [
     included,
     initialIncluded,
     defaultSelection,
     selectedAttemptIds,
     defaultAttemptIds,
+    selectedHealthFieldIds,
+    defaultHealthFieldIds,
   ]);
 
   // Auto-uncheck the "Assessment results" parent category when the user has
@@ -203,6 +210,18 @@ export default function ShareConsentModal({
       setIncluded((prev) => prev.filter((k) => k !== "assessments"));
     }
   }, [selectedAttemptIds, included, allAttemptIds]);
+
+  // Same for Health Passport details: deselecting every field removes the
+  // parent category so nothing is shared by accident.
+  useEffect(() => {
+    if (
+      included.includes("health") &&
+      allHealthFieldIds.length > 0 &&
+      selectedHealthFieldIds.length === 0
+    ) {
+      setIncluded((prev) => prev.filter((k) => k !== "health"));
+    }
+  }, [selectedHealthFieldIds, included, allHealthFieldIds]);
 
   // In update mode, if the user edits anything, reset the consent checkbox
   // so they must explicitly re-confirm before sharing the update.
