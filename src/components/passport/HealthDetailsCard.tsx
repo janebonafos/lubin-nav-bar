@@ -787,6 +787,16 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
 
+  const allComplete = useMemo(
+    () =>
+      HEALTH_DETAIL_GROUPS.every((g) =>
+        g.id === "safety-net"
+          ? safetyNetComplete(details)
+          : groupFilledCount(g, details) === g.fields.length && g.fields.length > 0,
+      ),
+    [details],
+  );
+
   const update = (fieldId: string, value: string) => {
     setDetails((prev) => {
       const next = { ...prev };
