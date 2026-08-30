@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, FileText, Pencil } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, FileText, Pencil, Plus } from "lucide-react";
 
 import {
   Sheet,
@@ -42,7 +42,16 @@ function FieldEditor({
     "w-full rounded-[10px] border border-[#D8C7F0] bg-white px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#5B4796]";
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
+          {field.label}
+        </label>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+          Editing
+        </span>
+      </div>
+
       {field.type === "choice" && field.options ? (
         <div className="flex flex-wrap gap-1.5">
           {field.options.map((opt) => (
@@ -254,14 +263,14 @@ export default function ProviderIntakeAnswers({
             <div className="flex-1 overflow-y-auto p-5">
               {groups.length === 0 ? (
                 <p className="text-sm text-[#7E6BAF]">
-                  {first} hasn&apos;t shared anything yet — answers appear here live.
+                  {first} hasn't shared anything yet — answers appear here live.
                 </p>
               ) : (
                 <div className="space-y-4">
                   {groups.map(([section, fields]) => {
                     const collapsed = collapsedGroups.has(section);
                     return (
-                      <div key={section} className="rounded-[10px] border border-[#EAE7F5] bg-white">
+                      <div key={section} className="space-y-2">
                         <button
                           onClick={() => toggleGroup(section)}
                           className="flex w-full items-center justify-between gap-2 rounded-[10px] bg-[#F8F5FE] px-4 py-3 text-left"
@@ -280,70 +289,110 @@ export default function ProviderIntakeAnswers({
                         </button>
 
                         {!collapsed && (
-                          <dl className="divide-y divide-[#F0EAFB]">
-                            {fields.map((f) => (
-                              <div
-                                key={f.field.id}
-                                className="grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,200px)_minmax(0,1fr)] sm:gap-4"
-                              >
-                                <dt className="text-sm font-medium text-[#3D2E6B]">
-                                  {f.field.label}
-                                </dt>
-                                <dd className="min-w-0 text-sm leading-relaxed">
-                                  {editingField === f.field.id ? (
+                          <div className="space-y-2">
+                            {fields.map((f) => {
+                              const isEditing = editingField === f.field.id;
+                              const statusLabel = f.skipped
+                                ? "In session"
+                                : "Not shared";
+                              const dotColor = f.skipped
+                                ? "bg-[#C8862A]"
+                                : "bg-[#D9CFF5]";
+
+                              return (
+                                <div
+                                  key={f.field.id}
+                                  className="rounded-[12px] border border-[#EAE7F5] bg-white p-3.5 shadow-[0_1px_2px_rgba(61,46,107,0.06)] transition-all hover:border-[#D8C7F0] hover:shadow-[0_2px_6px_rgba(61,46,107,0.08)]"
+                                >
+                                  {isEditing ? (
                                     <FieldEditor
                                       state={f}
                                       appointmentId={appointmentId}
                                       onDone={() => setEditingField(null)}
                                     />
                                   ) : (
-                                    <>
-                                      {f.answered ? (
-                                        <span className="whitespace-pre-line text-[#3D2E6B]">
-                                          {f.field.type === "ack" ? "Acknowledged" : f.answer}
-                                        </span>
-                                      ) : (
-                                        <span className="text-[#A89BD0]">
-                                          {f.skipped
-                                            ? `${first} would rather talk about this in the session.`
-                                            : "Not shared yet"}
-                                        </span>
-                                      )}
-                                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                                        {f.skipped && (
-                                          <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
-                                            Talk about in session
-                                          </span>
-                                        )}
-                                        {f.byProvider ? (
-                                          <span className="inline-flex items-center rounded-full bg-[#EAF3FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2F5B95]">
-                                            Recorded in session
-                                          </span>
+                                    <div className="space-y-2.5">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <label className="text-[13px] font-semibold leading-tight text-[#3D2E6B]">
+                                          {f.field.label}
+                                        </label>
+                                        {f.answered ? (
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingField(f.field.id)}
+                                            className="inline-flex shrink-0 items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#A89BD0] transition-colors hover:text-[#5B4796]"
+                                          >
+                                            Edit
+                                            <Pencil className="h-3 w-3" />
+                                          </button>
                                         ) : (
-                                          f.fromPassport && (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
-                                              <Sparkles className="h-3 w-3" /> From Health Passport
+                                          <div className="flex shrink-0 items-center gap-1.5">
+                                            <div className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                                              {statusLabel}
                                             </span>
-                                          )
+                                          </div>
                                         )}
+                                      </div>
+
+                                      {f.answered ? (
+                                        <div className="border-l-2 border-[#EAE7F5] bg-[#FBF9FF] py-1.5 pl-3 pr-2 text-[13px] leading-relaxed text-[#3D2E6B]">
+                                          {f.field.type === "ack"
+                                            ? "Acknowledged"
+                                            : f.answer}
+                                        </div>
+                                      ) : f.skipped ? (
+                                        <p className="text-[13px] leading-relaxed text-[#A89BD0]">
+                                          {first} would rather talk about this in the
+                                          session.
+                                        </p>
+                                      ) : (
+                                        <p className="text-[13px] leading-relaxed text-[#A89BD0]">
+                                          Not shared yet
+                                        </p>
+                                      )}
+
+                                      {(f.skipped || f.byProvider || f.fromPassport) && (
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                          {f.skipped && (
+                                            <span className="inline-flex items-center gap-1 rounded border border-[#F0DDB8] bg-[#FFF4E5] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#8A5A12]">
+                                              <span className="h-1 w-1 rounded-full bg-[#C8862A]" />
+                                              Talk in session
+                                            </span>
+                                          )}
+                                          {f.byProvider ? (
+                                            <span className="inline-flex items-center gap-1 rounded border border-[#C7DCF5] bg-[#EAF3FF] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#2F5B95]">
+                                              Recorded in session
+                                            </span>
+                                          ) : (
+                                            f.fromPassport && (
+                                              <span className="inline-flex items-center gap-1 rounded border border-[#D8C7F0] bg-[#F0EAFB] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#5B4796]">
+                                                <Sparkles className="h-2.5 w-2.5" />
+                                                From Health Passport
+                                              </span>
+                                            )
+                                          )}
+                                        </div>
+                                      )}
+
+                                      {!f.answered && (
                                         <button
                                           type="button"
                                           onClick={() => setEditingField(f.field.id)}
-                                          className="group inline-flex items-center gap-1.5 rounded-[10px] px-1.5 py-0.5 text-[12px] font-medium text-[#6B5AA8] transition-colors hover:bg-[#F5F1FF] hover:text-[#4A3A85]"
+                                          className="group/btn flex w-full items-center gap-2 rounded-[10px] border border-[#EAE7F5] bg-[#FBF9FF] px-3 py-2 text-[12px] font-medium text-[#7E6BAF] transition-all hover:border-[#D8C7F0] hover:bg-[#F0EAFB] hover:text-[#5B4796]"
                                         >
-                                          <Pencil className="h-3 w-3 opacity-60 transition-opacity group-hover:opacity-100" />
-                                          <span className="underline decoration-[#D9CFF5] decoration-1 underline-offset-4 transition-colors group-hover:decoration-[#8C74D6]">
-                                            {f.answered ? "Edit" : "Add answer"}
+                                          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[#EAE7F5] bg-white shadow-sm transition-all group-hover/btn:border-[#D8C7F0]">
+                                            <Plus className="h-3 w-3 text-[#A89BD0] transition-colors group-hover/btn:text-[#5B4796]" />
                                           </span>
+                                          Add answer
                                         </button>
-
-                                      </span>
-                                    </>
+                                      )}
+                                    </div>
                                   )}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
                     );
