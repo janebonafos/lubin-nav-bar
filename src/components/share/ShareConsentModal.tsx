@@ -674,7 +674,8 @@ function Step1({
             // result is selected.
             const visuallyChecked =
               checked &&
-              !(opt.key === "assessments" && attempts.length > 0 && selectedCount === 0);
+              !(opt.key === "assessments" && attempts.length > 0 && selectedCount === 0) &&
+              !(opt.key === "health" && totalHealthFields > 0 && selectedHealthCount === 0);
             const label =
               opt.key === "assessments" && assessmentContext
                 ? assessmentContext.label
