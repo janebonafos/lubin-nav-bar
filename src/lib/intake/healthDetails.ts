@@ -57,7 +57,7 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
     why: "Used for your session reminders — never shared outside a provider you book.",
     fields: [
       { id: "contact.phone", label: "Mobile number", type: "tel", placeholder: "912 345 6789" },
-      { id: "contact.email", label: "Best email", type: "email", placeholder: "you@email.com" },
+      { id: "contact.email", label: "Email", type: "email", placeholder: "you@email.com" },
       { id: "contact.address", label: "City and country", type: "short-text", placeholder: "City, country" },
     ],
   },
