@@ -14,6 +14,11 @@ export type ProviderShareGrant = {
   providerName: string;
   appointmentLabel: string; // e.g. "Fri, Jun 28 · 3:00 PM"
   includedKeys: string[];
+  /**
+   * When set, narrows shared Health Passport details to these field IDs.
+   * Undefined means all currently saved details are included.
+   */
+  healthFieldIds?: string[];
   /** Immutable snapshot of the summary at the moment the grant was created. */
   snapshot: SummaryData;
   createdAt: number;
@@ -40,6 +45,7 @@ export type ProviderShareGrant = {
   previousVersions?: Array<{
     version: number;
     includedKeys: string[];
+    healthFieldIds?: string[];
     snapshot: SummaryData;
     createdAt: number;
     replacedAt: number;
@@ -99,6 +105,7 @@ export function createProviderGrant(input: {
   appointmentLabel: string;
   appointmentTs?: number;
   includedKeys: string[];
+  healthFieldIds?: string[];
   snapshot: SummaryData;
 }): ProviderShareGrant {
   const now = Date.now();
@@ -109,6 +116,7 @@ export function createProviderGrant(input: {
     providerName: input.providerName,
     appointmentLabel: input.appointmentLabel,
     includedKeys: input.includedKeys,
+    healthFieldIds: input.healthFieldIds,
     snapshot: input.snapshot,
     createdAt: now,
     expiresAt: base + SEVEN_DAYS_MS,
@@ -123,7 +131,11 @@ export function createProviderGrant(input: {
 
 export function updateProviderGrant(
   appointmentId: string,
-  patch: { includedKeys?: string[]; snapshot?: SummaryData },
+  patch: {
+    includedKeys?: string[];
+    healthFieldIds?: string[];
+    snapshot?: SummaryData;
+  },
 ): ProviderShareGrant | null {
   const store = readStore();
   const g = store[appointmentId];
@@ -133,6 +145,7 @@ export function updateProviderGrant(
   const priorEntry = {
     version: priorVersion,
     includedKeys: g.includedKeys,
+    healthFieldIds: g.healthFieldIds,
     snapshot: g.snapshot,
     createdAt: g.updatedAt ?? g.createdAt,
     replacedAt: now,
@@ -140,6 +153,9 @@ export function updateProviderGrant(
   const next: ProviderShareGrant = {
     ...g,
     ...(patch.includedKeys ? { includedKeys: patch.includedKeys } : {}),
+    ...(patch.healthFieldIds !== undefined
+      ? { healthFieldIds: patch.healthFieldIds }
+      : {}),
     ...(patch.snapshot ? { snapshot: patch.snapshot } : {}),
     updatedAt: now,
     version: priorVersion + 1,

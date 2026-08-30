@@ -246,8 +246,15 @@ export function NarrativeSection({ summary }: { summary: SummaryData }) {
   );
 }
 
-export function HealthDetailsSection() {
-  const groups = sharedHealthDetails();
+export function HealthDetailsSection({ fieldIds }: { fieldIds?: string[] }) {
+  const groups = sharedHealthDetails()
+    .map((g) => ({
+      ...g,
+      items: fieldIds
+        ? g.items.filter((it) => fieldIds.includes(it.id))
+        : g.items,
+    }))
+    .filter((g) => g.items.length > 0);
   if (groups.length === 0) return null;
   return (
     <SectionShell eyebrow="Health Passport details" icon={<HeartPulse className="h-3.5 w-3.5" />}>
@@ -293,13 +300,17 @@ export function PrivacyFooter(_props: { includedKeys?: string[] } = {}) {
   );
 }
 
-export function renderIncluded(summary: SummaryData, includedKeys: string[]) {
+export function renderIncluded(
+  summary: SummaryData,
+  includedKeys: string[],
+  opts?: { healthFieldIds?: string[] },
+) {
   const has = (k: string) => includedKeys.includes(k);
   return (
     <div className="space-y-4">
       {has("mood") && <MoodPatternsSection summary={summary} />}
       {has("assessments") && <AssessmentsSection summary={summary} />}
-      {has("health") && <HealthDetailsSection />}
+      {has("health") && <HealthDetailsSection fieldIds={opts?.healthFieldIds} />}
     </div>
   );
 }

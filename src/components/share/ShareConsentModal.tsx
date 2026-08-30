@@ -27,6 +27,7 @@ import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import {
   hasSharedHealthDetails,
   sharedHealthDetails,
+  type SharedHealthDetailGroup,
 } from "@/lib/intake/healthDetails";
 
 export type ConsentResult = {
@@ -38,6 +39,12 @@ export type ConsentResult = {
    * assessments in range are shared.
    */
   attemptIds?: string[];
+  /**
+   * When `includedKeys` includes "health", this narrows the shared Health
+   * Passport details to specific field IDs. When undefined, all available
+   * health details are shared.
+   */
+  healthFieldIds?: string[];
 };
 
 export type AssessmentContext = {
@@ -60,6 +67,7 @@ export default function ShareConsentModal({
   providerContext,
   initialIncluded,
   initialAttemptIds,
+  initialHealthFieldIds,
   mode = "share",
   onRevoke,
   confirmLabelOverride,
@@ -73,6 +81,7 @@ export default function ShareConsentModal({
   providerContext?: ProviderContext;
   initialIncluded?: string[];
   initialAttemptIds?: string[];
+  initialHealthFieldIds?: string[];
   mode?: "share" | "update";
   onRevoke?: () => void;
   confirmLabelOverride?: string;
@@ -132,6 +141,22 @@ export default function ShareConsentModal({
   const [selectedAttemptIds, setSelectedAttemptIds] =
     useState<string[]>(defaultAttemptIds);
 
+  // Per-field control over which Health Passport details are shared.
+  const healthGroups = useMemo(() => sharedHealthDetails(), []);
+  const allHealthFieldIds = useMemo(
+    () => healthGroups.flatMap((g) => g.items.map((it) => it.id)),
+    [healthGroups],
+  );
+  const defaultHealthFieldIds = useMemo(() => {
+    if (initialHealthFieldIds) {
+      const set = new Set(allHealthFieldIds);
+      return initialHealthFieldIds.filter((id) => set.has(id));
+    }
+    return allHealthFieldIds;
+  }, [initialHealthFieldIds, allHealthFieldIds]);
+  const [selectedHealthFieldIds, setSelectedHealthFieldIds] =
+    useState<string[]>(defaultHealthFieldIds);
+
   useEffect(() => {
     if (open) {
       setStep(1);
@@ -142,8 +167,9 @@ export default function ShareConsentModal({
       // Any change will uncheck it and require re-consent.
       setAgreed(mode === "update");
       setSelectedAttemptIds(defaultAttemptIds);
+      setSelectedHealthFieldIds(defaultHealthFieldIds);
     }
-  }, [open, defaultSelection, providerContext, defaultAttemptIds, mode]);
+  }, [open, defaultSelection, providerContext, defaultAttemptIds, defaultHealthFieldIds, mode]);
 
   // Dirty tracking (update mode): the "share update" button only appears
   // when the patient actually changed something vs the current grant.
@@ -158,13 +184,19 @@ export default function ShareConsentModal({
     const attDirty =
       selectedAttemptIds.length !== attSet.size ||
       selectedAttemptIds.some((id) => !attSet.has(id));
-    return incDirty || attDirty;
+    const healthSet = new Set(defaultHealthFieldIds);
+    const healthDirty =
+      selectedHealthFieldIds.length !== healthSet.size ||
+      selectedHealthFieldIds.some((id) => !healthSet.has(id));
+    return incDirty || attDirty || healthDirty;
   }, [
     included,
     initialIncluded,
     defaultSelection,
     selectedAttemptIds,
     defaultAttemptIds,
+    selectedHealthFieldIds,
+    defaultHealthFieldIds,
   ]);
 
   // Auto-uncheck the "Assessment results" parent category when the user has
@@ -179,6 +211,18 @@ export default function ShareConsentModal({
       setIncluded((prev) => prev.filter((k) => k !== "assessments"));
     }
   }, [selectedAttemptIds, included, allAttemptIds]);
+
+  // Same for Health Passport details: deselecting every field removes the
+  // parent category so nothing is shared by accident.
+  useEffect(() => {
+    if (
+      included.includes("health") &&
+      allHealthFieldIds.length > 0 &&
+      selectedHealthFieldIds.length === 0
+    ) {
+      setIncluded((prev) => prev.filter((k) => k !== "health"));
+    }
+  }, [selectedHealthFieldIds, included, allHealthFieldIds]);
 
   // In update mode, if the user edits anything, reset the consent checkbox
   // so they must explicitly re-confirm before sharing the update.
@@ -207,6 +251,13 @@ export default function ShareConsentModal({
     );
   const selectAllAttempts = () => setSelectedAttemptIds(allAttemptIds);
   const deselectAllAttempts = () => setSelectedAttemptIds([]);
+
+  const toggleHealthField = (id: string) =>
+    setSelectedHealthFieldIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const selectAllHealthFields = () => setSelectedHealthFieldIds(allHealthFieldIds);
+  const deselectAllHealthFields = () => setSelectedHealthFieldIds([]);
 
   // Provider-linked sharing: we show the selection, review, and consent in a
   // single step so the user can choose what to share, see the review, check
@@ -240,27 +291,23 @@ export default function ShareConsentModal({
       ? !agreed || included.length === 0
       : false;
 
+  const buildResult = (): ConsentResult => ({
+    includedKeys: included,
+    recipient: recipient!,
+    attemptIds: included.includes("assessments") ? selectedAttemptIds : undefined,
+    healthFieldIds: included.includes("health")
+      ? selectedHealthFieldIds
+      : undefined,
+  });
+
   const advance = () => {
     if (providerContext) {
       if (recipient && !confirmDisabled) {
-        onConfirm({
-          includedKeys: included,
-          recipient,
-          attemptIds: included.includes("assessments")
-            ? selectedAttemptIds
-            : undefined,
-        });
+        onConfirm(buildResult());
       }
     } else {
       if (step < 3) setStep(step + 1);
-      else if (recipient)
-        onConfirm({
-          includedKeys: included,
-          recipient,
-          attemptIds: included.includes("assessments")
-            ? selectedAttemptIds
-            : undefined,
-        });
+      else if (recipient) onConfirm(buildResult());
     }
   };
 
@@ -329,6 +376,11 @@ export default function ShareConsentModal({
               toggleAttempt={toggleAttempt}
               selectAllAttempts={selectAllAttempts}
               deselectAllAttempts={deselectAllAttempts}
+              healthGroups={healthGroups}
+              selectedHealthFieldIds={selectedHealthFieldIds}
+              toggleHealthField={toggleHealthField}
+              selectAllHealthFields={selectAllHealthFields}
+              deselectAllHealthFields={deselectAllHealthFields}
             />
           )}
           {step === 2 && !providerContext && (
@@ -343,6 +395,7 @@ export default function ShareConsentModal({
               summary={summary}
               onRemoveIncluded={removeIncluded}
               selectedAttemptIds={selectedAttemptIds}
+              selectedHealthFieldIds={selectedHealthFieldIds}
               mode={mode}
               dirty={dirty}
               onRangeChange={onRangeChange}
@@ -359,6 +412,7 @@ export default function ShareConsentModal({
                 summary={summary}
                 onRemoveIncluded={removeIncluded}
                 selectedAttemptIds={selectedAttemptIds}
+                selectedHealthFieldIds={selectedHealthFieldIds}
                 mode={mode}
                 dirty={dirty}
                 onRangeChange={onRangeChange}
@@ -524,6 +578,11 @@ function Step1({
   toggleAttempt,
   selectAllAttempts,
   deselectAllAttempts,
+  healthGroups,
+  selectedHealthFieldIds,
+  toggleHealthField,
+  selectAllHealthFields,
+  deselectAllHealthFields,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -538,6 +597,11 @@ function Step1({
   toggleAttempt: (id: string) => void;
   selectAllAttempts: () => void;
   deselectAllAttempts: () => void;
+  healthGroups: SharedHealthDetailGroup[];
+  selectedHealthFieldIds: string[];
+  toggleHealthField: (id: string) => void;
+  selectAllHealthFields: () => void;
+  deselectAllHealthFields: () => void;
 }) {
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
@@ -547,6 +611,13 @@ function Step1({
   ).length;
   const allAttemptsSelected =
     attempts.length > 0 && selectedCount === attempts.length;
+  const totalHealthFields = healthGroups.reduce(
+    (n, g) => n + g.items.length,
+    0,
+  );
+  const selectedHealthCount = selectedHealthFieldIds.length;
+  const allHealthSelected =
+    totalHealthFields > 0 && selectedHealthCount === totalHealthFields;
   void showAllAssess;
   void setShowAllAssess;
   return (
@@ -605,7 +676,8 @@ function Step1({
             // result is selected.
             const visuallyChecked =
               checked &&
-              !(opt.key === "assessments" && attempts.length > 0 && selectedCount === 0);
+              !(opt.key === "assessments" && attempts.length > 0 && selectedCount === 0) &&
+              !(opt.key === "health" && totalHealthFields > 0 && selectedHealthCount === 0);
             const label =
               opt.key === "assessments" && assessmentContext
                 ? assessmentContext.label
@@ -678,6 +750,81 @@ function Step1({
                     </ul>
                   </div>
                 )}
+                {opt.key === "health" && checked && totalHealthFields > 0 && (
+                  <div className="mt-1.5 ml-3 rounded-xl border border-dashed border-[#E1D9F1] bg-white px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+                        Details included ({selectedHealthCount} of{" "}
+                        {totalHealthFields})
+                      </p>
+                      <button
+                        type="button"
+                        onClick={
+                          allHealthSelected
+                            ? deselectAllHealthFields
+                            : selectAllHealthFields
+                        }
+                        className="text-[11px] font-semibold text-[#7E6BAF] hover:text-[#6A5A98]"
+                      >
+                        {allHealthSelected ? "Deselect all" : "Select all"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-[#8B85A6]">
+                      Untick anything you'd rather keep private — only the
+                      details you pick are shared.
+                    </p>
+                    <div className="mt-2 space-y-2.5">
+                      {healthGroups.map((g) => (
+                        <div key={g.group}>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#A29EB6]">
+                            {g.group}
+                          </p>
+                          <ul className="mt-1 space-y-1">
+                            {g.items.map((it) => {
+                              const on = selectedHealthFieldIds.includes(it.id);
+                              return (
+                                <li key={it.id}>
+                                  <label
+                                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-2.5 py-1.5 transition ${
+                                      on
+                                        ? "border-[#7E6BAF]/50 bg-[#FAF8FD]"
+                                        : "border-[#ECE7F6] bg-white hover:border-[#7E6BAF]/30"
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={on}
+                                      onChange={() => toggleHealthField(it.id)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={`flex h-4.5 w-4.5 flex-none items-center justify-center rounded-[6px] border-2 transition ${
+                                        on
+                                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
+                                          : "border-[#D6CCEC] bg-white text-transparent"
+                                      }`}
+                                    >
+                                      <Check
+                                        className="h-3 w-3"
+                                        strokeWidth={3}
+                                      />
+                                    </span>
+                                    <span className="min-w-0 flex-1 truncate text-[12px] text-[#3D2E6B]">
+                                      <span className="font-medium">
+                                        {it.label}:
+                                      </span>{" "}
+                                      {it.value}
+                                    </span>
+                                  </label>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </li>
             );
           })}
@@ -694,6 +841,10 @@ function Step1({
               : `${included.length} categor${included.length === 1 ? "y" : "ies"} selected${
                   included.includes("assessments")
                     ? ` · ${selectedCount} assessment result${selectedCount === 1 ? "" : "s"}`
+                    : ""
+                }${
+                  included.includes("health")
+                    ? ` · ${selectedHealthFieldIds.length} health detail${selectedHealthFieldIds.length === 1 ? "" : "s"}`
                     : ""
                 }.`}{" "}
             {allSelected ? (
@@ -983,6 +1134,7 @@ function Step3({
   summary,
   onRemoveIncluded,
   selectedAttemptIds,
+  selectedHealthFieldIds,
   mode = "share",
   dirty = false,
   onRangeChange,
@@ -994,6 +1146,7 @@ function Step3({
   summary: SummaryData;
   onRemoveIncluded?: (key: string) => void;
   selectedAttemptIds?: string[];
+  selectedHealthFieldIds?: string[];
   mode?: "share" | "update";
   dirty?: boolean;
   onRangeChange?: (range: RangeKey) => void;
@@ -1107,7 +1260,15 @@ function Step3({
         keys: ["health"],
         body: (
           <div className="space-y-2">
-            {sharedHealthDetails().map((g) => (
+            {sharedHealthDetails()
+              .map((g) => ({
+                ...g,
+                items: selectedHealthFieldIds
+                  ? g.items.filter((it) => selectedHealthFieldIds.includes(it.id))
+                  : g.items,
+              }))
+              .filter((g) => g.items.length > 0)
+              .map((g) => (
               <div
                 key={g.group}
                 className="rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-[#ECE7F6]"

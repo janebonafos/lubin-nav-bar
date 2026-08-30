@@ -825,6 +825,7 @@ function CheckoutPage() {
                 appointmentDate,
               }}
               initialIncluded={pending?.includedKeys}
+              initialHealthFieldIds={pending?.healthFieldIds}
               onConfirm={(r) => {
                 setPendingShare({
                   bookingKey,
@@ -833,6 +834,7 @@ function CheckoutPage() {
                   appointmentLabel,
                   includedKeys: r.includedKeys,
                   attemptIds: r.attemptIds,
+                  healthFieldIds: r.healthFieldIds,
                   createdAt: Date.now(),
                 });
                 setPending({
@@ -842,6 +844,7 @@ function CheckoutPage() {
                   appointmentLabel,
                   includedKeys: r.includedKeys,
                   attemptIds: r.attemptIds,
+                  healthFieldIds: r.healthFieldIds,
                   createdAt: Date.now(),
                 });
                 setShareModalOpen(false);
