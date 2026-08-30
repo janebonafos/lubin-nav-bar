@@ -2307,23 +2307,23 @@ function MedicationEditor({
               setOpenInfoKey(key);
             }
           }}
-          className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left"
+          className="flex w-full flex-wrap items-start gap-x-3 gap-y-1.5 px-4 py-3 text-left"
         >
-          <span className="min-w-0 flex-1">
+          <span className="min-w-0 flex-1 basis-full sm:basis-auto">
             <span
-              className={`flex items-center gap-1.5 text-[13.5px] font-semibold ${
+              className={`flex items-start gap-1.5 text-[13.5px] font-semibold ${
                 done ? "text-[#1F7A57]" : "text-[#2C2B4B]"
               }`}
             >
               {done && (
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1F7A57] text-white">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1F7A57] text-white">
                   <Check className="h-2.5 w-2.5" />
                 </span>
               )}
-              <span className="truncate">{infoLabel(key)}</span>
+              <span className="min-w-0 break-words">{infoLabel(key)}</span>
             </span>
             {done && value && (
-              <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
+              <span className="mt-0.5 block text-[11.5px] leading-snug text-[#5A4A8A]">{value}</span>
             )}
             {shared && (
               <span className="mt-1 flex flex-wrap items-center gap-1.5">
