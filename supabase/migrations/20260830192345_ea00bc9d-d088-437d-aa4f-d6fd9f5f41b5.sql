@@ -1,0 +1,13 @@
+revoke execute on function public.has_role(uuid, public.app_role) from public;
+revoke execute on function public.is_encounter_provider(uuid) from public;
+revoke execute on function public.is_draft_provider(uuid) from public;
+revoke execute on function public.is_encounter_patient(uuid) from public;
+revoke execute on function public.can_prescribe_ph(uuid, uuid) from public;
+revoke execute on function public.set_updated_at() from public;
+revoke execute on function public.protect_signed_prescription() from public;
+revoke execute on function public.protect_signature_events() from public;
+grant execute on function public.has_role(uuid, public.app_role) to authenticated, service_role;
+grant execute on function public.is_encounter_provider(uuid) to authenticated, service_role;
+grant execute on function public.is_draft_provider(uuid) to authenticated, service_role;
+grant execute on function public.is_encounter_patient(uuid) to service_role;
+grant execute on function public.can_prescribe_ph(uuid, uuid) to service_role;
