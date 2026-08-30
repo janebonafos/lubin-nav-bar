@@ -24,6 +24,10 @@ import {
 } from "@/lib/patterns/grouping";
 import { ASSESSMENTS } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
+import {
+  hasSharedHealthDetails,
+  sharedHealthDetails,
+} from "@/lib/intake/healthDetails";
 
 export type ConsentResult = {
   includedKeys: string[];
@@ -89,13 +93,10 @@ export default function ShareConsentModal({
     return {
       mood: summary.checkinsInRange.length > 0,
       assessments: summary.attemptsInRange.length > 0,
-      
-      notes: summary.checkinsInRange.some((c) => (c.note ?? "").trim().length > 0),
+      health: hasSharedHealthDetails(),
     } as Record<string, boolean>;
   }, [summary]);
 
-  // Sensitive categories (written notes) are never pre-selected — the person
-  // has to opt in explicitly.
   const defaultKeys = useMemo(
     () =>
       INCLUDE_OPTIONS.filter((o) => !o.defaultOff)
@@ -1102,24 +1103,30 @@ function Step3({
         })(),
       },
       {
-        title: "My written notes",
-        keys: ["notes"],
+        title: "Health Passport details",
+        keys: ["health"],
         body: (
-          <div className="space-y-1.5">
-            {summary.checkinsInRange
-              .filter((c) => (c.note ?? "").trim().length > 0)
-              .slice(0, 3)
-              .map((c) => (
-                <p
-                  key={c.id}
-                  className="rounded-lg bg-white px-2.5 py-1.5 text-[12px] text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
-                >
-                  “{c.note}”
+          <div className="space-y-2">
+            {sharedHealthDetails().map((g) => (
+              <div
+                key={g.group}
+                className="rounded-lg bg-white px-2.5 py-1.5 ring-1 ring-[#ECE7F6]"
+              >
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                  {g.group}
                 </p>
-              ))}
+                <ul className="mt-1 space-y-0.5">
+                  {g.items.map((it) => (
+                    <li key={it.label} className="text-[12px] text-[#3D2E6B]">
+                      <span className="font-medium">{it.label}:</span> {it.value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
             <p className="text-[11px] text-[#8B85A6]">
-              Your provider will see the notes you wrote, word for word. Remove
-              this if you'd rather keep them private.
+              Your provider may use these details to prescribe and treat you
+              safely. Remove this if you'd rather keep them private.
             </p>
           </div>
         ),
