@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Copy, Sparkles } from "lucide-react";
+import { Check, ChevronDown, Copy } from "lucide-react";
 import {
   emptySoapNote,
   isSoapNoteEmpty,
@@ -188,7 +188,6 @@ export default function SoapNotesPanel({
         disabled={loading}
         className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[12px] bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
       >
-        <Sparkles className="h-4 w-4" />
         {loading
           ? "Drafting SOAP note…"
           : empty
