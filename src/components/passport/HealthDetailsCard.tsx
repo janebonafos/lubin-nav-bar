@@ -1137,9 +1137,11 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                             className="mt-0.5 h-4 w-4 shrink-0 accent-brand-purple"
                           />
                           <span className="text-[12.5px] leading-relaxed text-brand-purple-dark/75">
-                            I confirm that everything on this health card is true and accurate to the
-                            best of my knowledge. I understand this information may be shared with a
-                            provider only when I book and choose to share it.
+                            I confirm that everything on this health card is true and accurate to
+                            the best of my knowledge. I understand this information — including my
+                            medications, allergies, and health conditions — may be shared with a
+                            provider only when I book an appointment and choose to share it, so they
+                            can prescribe and treat me safely.
                           </span>
                         </label>
                         {agreed && (
