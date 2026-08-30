@@ -103,9 +103,8 @@ export default function IntakeRequestCard({
           </p>
 
           {progress.answered > 0 && !progress.complete && (
-            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#E6F8F1] px-2.5 py-1 text-[11px] font-semibold text-[#2D8E69]">
-              <Check className="h-3 w-3" /> {progress.answered} of {progress.total} already
-              filled in
+            <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.05em] text-[#7E6BAF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#7E6BAF] ring-4 ring-[#7E6BAF]/10" /> {progress.answered} of {progress.total} already filled in
             </p>
           )}
           {progress.answered === 0 && progress.prefilled > 0 && (
