@@ -8,7 +8,7 @@ import {
   Plus,
   Search,
   ShieldCheck,
-  Sparkles,
+  
   Trash2,
   UserPlus,
   X,
@@ -796,7 +796,6 @@ export default function IssuePrescriptionDialog({
                 disabled={aiLoading || (!caseNotes.trim() && passportItems.length === 0)}
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#3D2E6B] py-4 text-[14px] font-semibold text-white shadow-lg shadow-[#3D2E6B]/10 transition-all hover:bg-[#2A1F4D] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
               >
-                <Sparkles className="h-5 w-5" />
                 {aiLoading ? "Preparing suggestions…" : "Generate suggested medication"}
               </button>
 
