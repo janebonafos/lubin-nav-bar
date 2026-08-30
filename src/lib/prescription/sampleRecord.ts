@@ -5,7 +5,7 @@ import { savePrescription, loadPrescription, genRxId, type Prescription } from "
 import { listSignedPrescriptions, saveSignedPrescription } from "./documents";
 import { loadIdentity, saveIdentity } from "./credentials";
 
-const APPOINTMENT_ID = "c1";
+const APPOINTMENT_ID = "c7";
 const PATIENT = "Anna Reyes";
 
 export function ensureSamplePrescriptionRecord() {
