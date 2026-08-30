@@ -89,20 +89,30 @@ export default function ShareConsentModal({
     return {
       mood: summary.checkinsInRange.length > 0,
       assessments: summary.attemptsInRange.length > 0,
+      themes: summary.themes.length > 0,
+      notes: summary.checkinsInRange.some((c) => (c.note ?? "").trim().length > 0),
     } as Record<string, boolean>;
   }, [summary]);
+
+  // Sensitive categories (written notes) are never pre-selected — the person
+  // has to opt in explicitly.
+  const defaultKeys = useMemo(
+    () =>
+      INCLUDE_OPTIONS.filter((o) => !o.defaultOff)
+        .map((o) => o.key)
+        .filter((k) => itemHasData[k]),
+    [itemHasData],
+  );
 
   const defaultSelection = useMemo(() => {
     if (initialIncluded) return initialIncluded.filter((k) => itemHasData[k]);
     // Provider-linked sharing: default is "share current Health Passport",
-    // which pre-fills every available item. The user still has to review
-    // and explicitly confirm on the final step.
-    if (providerContext) {
-      return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
-    }
+    // which pre-fills every available non-sensitive item. The user still has
+    // to review and explicitly confirm on the final step.
+    if (providerContext) return defaultKeys;
     if (assessmentContext) return ["assessments"].filter((k) => itemHasData[k]);
-    return INCLUDE_OPTIONS.map((o) => o.key).filter((k) => itemHasData[k]);
-  }, [assessmentContext, itemHasData, providerContext, initialIncluded]);
+    return defaultKeys;
+  }, [assessmentContext, itemHasData, providerContext, initialIncluded, defaultKeys]);
 
   const [included, setIncluded] = useState<string[]>(defaultSelection);
   const [recipient, setRecipient] = useState<RecipientId | null>(null);
@@ -1090,6 +1100,41 @@ function Step3({
             </div>
           );
         })(),
+      },
+      {
+        title: "Common themes",
+        keys: ["themes"],
+        body: (
+          <p className="text-[12px] text-[#5A4A8A]">
+            {summary.themes.map((t) => t.label).join(" · ") || "No themes yet."}
+            <span className="mt-1 block text-[11px] text-[#8B85A6]">
+              Topic labels only — none of your written text is included here.
+            </span>
+          </p>
+        ),
+      },
+      {
+        title: "My written notes",
+        keys: ["notes"],
+        body: (
+          <div className="space-y-1.5">
+            {summary.checkinsInRange
+              .filter((c) => (c.note ?? "").trim().length > 0)
+              .slice(0, 3)
+              .map((c) => (
+                <p
+                  key={c.id}
+                  className="rounded-lg bg-white px-2.5 py-1.5 text-[12px] text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
+                >
+                  “{c.note}”
+                </p>
+              ))}
+            <p className="text-[11px] text-[#8B85A6]">
+              Your provider will see the notes you wrote, word for word. Remove
+              this if you'd rather keep them private.
+            </p>
+          </div>
+        ),
       },
       {
         title: "Previous patient-facing appointment summaries",
