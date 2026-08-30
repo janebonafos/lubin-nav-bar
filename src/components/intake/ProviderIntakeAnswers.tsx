@@ -285,30 +285,52 @@ export default function ProviderIntakeAnswers({
                                   {f.field.label}
                                 </dt>
                                 <dd className="min-w-0 text-sm leading-relaxed">
-                                  {f.answered ? (
-                                    <span className="whitespace-pre-line text-[#3D2E6B]">
-                                      {f.field.type === "ack" ? "Acknowledged" : f.answer}
-                                    </span>
+                                  {editingField === f.field.id ? (
+                                    <FieldEditor
+                                      state={f}
+                                      appointmentId={appointmentId}
+                                      onDone={() => setEditingField(null)}
+                                    />
                                   ) : (
-                                    <span className="text-[#A89BD0]">
-                                      {f.skipped
-                                        ? `${first} would rather talk about this in the session.`
-                                        : "Not shared yet"}
-                                    </span>
-                                  )}
-                                  {(f.skipped || f.fromPassport) && (
-                                    <span className="mt-1 flex flex-wrap gap-1.5">
-                                      {f.skipped && (
-                                        <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
-                                          Talk about in session
+                                    <>
+                                      {f.answered ? (
+                                        <span className="whitespace-pre-line text-[#3D2E6B]">
+                                          {f.field.type === "ack" ? "Acknowledged" : f.answer}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[#A89BD0]">
+                                          {f.skipped
+                                            ? `${first} would rather talk about this in the session.`
+                                            : "Not shared yet"}
                                         </span>
                                       )}
-                                      {f.fromPassport && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
-                                          <Sparkles className="h-3 w-3" /> From Health Passport
-                                        </span>
-                                      )}
-                                    </span>
+                                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                                        {f.skipped && (
+                                          <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
+                                            Talk about in session
+                                          </span>
+                                        )}
+                                        {f.byProvider ? (
+                                          <span className="inline-flex items-center rounded-full bg-[#EAF3FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2F5B95]">
+                                            Recorded in session
+                                          </span>
+                                        ) : (
+                                          f.fromPassport && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                                              <Sparkles className="h-3 w-3" /> From Health Passport
+                                            </span>
+                                          )
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditingField(f.field.id)}
+                                          className="inline-flex items-center gap-1 rounded-[10px] border border-[#EAE7F5] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#5B4796] transition hover:bg-[#FBF9FF]"
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                          {f.answered ? "Edit" : "Add answer"}
+                                        </button>
+                                      </span>
+                                    </>
                                   )}
                                 </dd>
                               </div>
