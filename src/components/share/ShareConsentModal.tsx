@@ -1102,6 +1102,41 @@ function Step3({
         })(),
       },
       {
+        title: "Common themes",
+        keys: ["themes"],
+        body: (
+          <p className="text-[12px] text-[#5A4A8A]">
+            {summary.themes.map((t) => t.label).join(" · ") || "No themes yet."}
+            <span className="mt-1 block text-[11px] text-[#8B85A6]">
+              Topic labels only — none of your written text is included here.
+            </span>
+          </p>
+        ),
+      },
+      {
+        title: "My written notes",
+        keys: ["notes"],
+        body: (
+          <div className="space-y-1.5">
+            {summary.checkinsInRange
+              .filter((c) => (c.note ?? "").trim().length > 0)
+              .slice(0, 3)
+              .map((c) => (
+                <p
+                  key={c.id}
+                  className="rounded-lg bg-white px-2.5 py-1.5 text-[12px] text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
+                >
+                  “{c.note}”
+                </p>
+              ))}
+            <p className="text-[11px] text-[#8B85A6]">
+              Your provider will see the notes you wrote, word for word. Remove
+              this if you'd rather keep them private.
+            </p>
+          </div>
+        ),
+      },
+      {
         title: "Previous patient-facing appointment summaries",
         keys: [],
         body: (
