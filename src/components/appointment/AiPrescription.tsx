@@ -2952,7 +2952,9 @@ function MedicationEditor({
                               <CheckRow
                                 label={label}
                                 check={med.checks?.[k]}
+                                provenance={checkProvenance(k, sharedSources, clientName)}
                                 reviewedAt={med.checkReviews?.[k]}
+
                                 onMarkReviewed={() => {
                                   const wasReviewed = !!med.checkReviews?.[k];
                                   onMarkCheckReviewed(k);
