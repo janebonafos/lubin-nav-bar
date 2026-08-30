@@ -268,7 +268,7 @@ export function setHealthAgreement(agreed: boolean): void {
 
 export type SharedHealthDetailGroup = {
   group: string;
-  items: { label: string; value: string }[];
+  items: { id: string; label: string; value: string }[];
 };
 
 /**
