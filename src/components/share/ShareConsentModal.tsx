@@ -840,6 +840,10 @@ function Step1({
                   included.includes("assessments")
                     ? ` · ${selectedCount} assessment result${selectedCount === 1 ? "" : "s"}`
                     : ""
+                }${
+                  included.includes("health")
+                    ? ` · ${selectedHealthFieldIds.length} health detail${selectedHealthFieldIds.length === 1 ? "" : "s"}`
+                    : ""
                 }.`}{" "}
             {allSelected ? (
               <button
