@@ -256,6 +256,8 @@ export type IntakeFieldState = {
   prefill?: PrefillValue;
   /** True when the answer came from confirming a prefill. */
   fromPassport: boolean;
+  /** True when the provider entered this answer during the session. */
+  byProvider: boolean;
   skipped: boolean;
   answered: boolean;
 };
