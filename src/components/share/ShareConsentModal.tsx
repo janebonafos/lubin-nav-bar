@@ -375,6 +375,11 @@ export default function ShareConsentModal({
               toggleAttempt={toggleAttempt}
               selectAllAttempts={selectAllAttempts}
               deselectAllAttempts={deselectAllAttempts}
+              healthGroups={healthGroups}
+              selectedHealthFieldIds={selectedHealthFieldIds}
+              toggleHealthField={toggleHealthField}
+              selectAllHealthFields={selectAllHealthFields}
+              deselectAllHealthFields={deselectAllHealthFields}
             />
           )}
           {step === 2 && !providerContext && (
