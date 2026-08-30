@@ -72,13 +72,22 @@ export const getEncounterContext = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const isProvider = appointment.provider_user_id === userId;
     let canPrescribe = false;
-    let prescriberDisplay: Json | null = null;
+    let prescriberDisplay: {
+      status: string;
+      verified_at: string | null;
+      license_expires_at: string | null;
+      signing_email_verified: boolean;
+      signing_email_masked: string;
+      outstanding: string[];
+    } | null = null;
     if (isProvider) {
-      const { data: allowed } = await supabaseAdmin.rpc("can_prescribe_ph", {
-        _provider_user_id: userId,
-        _encounter_id: encounter?.id ?? null,
-      });
-      canPrescribe = allowed === true;
+      if (encounter?.id) {
+        const { data: allowed } = await supabaseAdmin.rpc("can_prescribe_ph", {
+          _provider_user_id: userId,
+          _encounter_id: encounter.id,
+        });
+        canPrescribe = allowed === true;
+      }
       const { data: verification } = await supabaseAdmin
         .from("provider_verifications")
         .select("status, verified_at, license_expires_at, signing_email, signing_email_verified_at, outstanding")
@@ -93,10 +102,11 @@ export const getEncounterContext = createServerFn({ method: "POST" })
             license_expires_at: verification.license_expires_at,
             signing_email_verified: !!verification.signing_email_verified_at,
             signing_email_masked: maskEmail(verification.signing_email ?? ""),
-            outstanding: verification.outstanding ?? [],
+            outstanding: (verification.outstanding ?? []) as string[],
           }
         : null;
     }
+
 
     return {
       appointment,
