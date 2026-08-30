@@ -299,7 +299,7 @@ export function renderIncluded(summary: SummaryData, includedKeys: string[]) {
     <div className="space-y-4">
       {has("mood") && <MoodPatternsSection summary={summary} />}
       {has("assessments") && <AssessmentsSection summary={summary} />}
-      {has("themes") && <KeyTopicsSection summary={summary} />}
+      
       {has("notes") && <NotesSection summary={summary} />}
     </div>
   );
