@@ -1043,12 +1043,6 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
           {!openGroup &&
             (() => {
-              const allComplete = HEALTH_DETAIL_GROUPS.every((g) =>
-                g.id === "safety-net"
-                  ? safetyNetComplete(details)
-                  : groupFilledCount(g, details) === g.fields.length && g.fields.length > 0,
-              );
-
               if (allComplete && agreed) {
                 return (
                   <div className="mt-2 flex items-center gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
