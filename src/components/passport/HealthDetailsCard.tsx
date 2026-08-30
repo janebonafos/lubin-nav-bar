@@ -3,7 +3,7 @@
 // so progress is obvious at a glance. Nothing here is required and nothing is
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CalendarDays, Check, Lock, Plus, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
