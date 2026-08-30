@@ -233,15 +233,19 @@ function PassportPage() {
     }
   }, []);
 
-  const today = useMemo(
-    () =>
+  // Locale/timezone date must be computed after hydration — the server's clock
+  // and locale can differ from the visitor's and cause a hydration mismatch.
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(
       new Date().toLocaleDateString(undefined, {
         weekday: "long",
         month: "long",
         day: "numeric",
       }),
-    [],
-  );
+    );
+  }, []);
+
 
   // streak: consecutive days ending today
   const streak = useMemo(() => {
