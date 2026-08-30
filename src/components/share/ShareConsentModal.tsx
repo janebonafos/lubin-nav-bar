@@ -395,6 +395,7 @@ export default function ShareConsentModal({
               summary={summary}
               onRemoveIncluded={removeIncluded}
               selectedAttemptIds={selectedAttemptIds}
+              selectedHealthFieldIds={selectedHealthFieldIds}
               mode={mode}
               dirty={dirty}
               onRangeChange={onRangeChange}
@@ -411,6 +412,7 @@ export default function ShareConsentModal({
                 summary={summary}
                 onRemoveIncluded={removeIncluded}
                 selectedAttemptIds={selectedAttemptIds}
+                selectedHealthFieldIds={selectedHealthFieldIds}
                 mode={mode}
                 dirty={dirty}
                 onRangeChange={onRangeChange}
