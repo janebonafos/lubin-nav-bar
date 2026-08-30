@@ -245,3 +245,23 @@ export function healthDetailsProgress(details = loadHealthDetails()): HealthDeta
 export function groupFilledCount(group: HealthDetailGroup, details: HealthDetails): number {
   return group.fields.filter((f) => (details[f.id] ?? "").trim()).length;
 }
+
+export function loadHealthAgreement(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(AGREEMENT_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function setHealthAgreement(agreed: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (agreed) window.localStorage.setItem(AGREEMENT_KEY, "true");
+    else window.localStorage.removeItem(AGREEMENT_KEY);
+  } catch {
+    /* noop */
+  }
+  emit();
+}
