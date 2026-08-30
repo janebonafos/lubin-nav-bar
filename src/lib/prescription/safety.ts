@@ -383,6 +383,12 @@ export function runSafetyReview(
     .trim();
   const allergyText = structuredText(info, "allergies");
   const conditionText = structuredText(info, "conditions");
+  // Only conditions the patient (or the prescriber) records as current can flag
+  // a history. An entry explicitly marked resolved — e.g. "bipolar disorder,
+  // screened and not present" — must never read back as "history documented".
+  const activeConditionText = activeStructuredText(info, "conditions");
+  const conditionProvenance = entrySourceSummary(info, "conditions");
+
   const name = med.name
     .toLowerCase()
     .replace(/\(.*?\)/g, "")
