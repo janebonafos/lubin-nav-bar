@@ -96,11 +96,17 @@ function CardBack({ details }: { details: HealthDetails }) {
     .map((group) => ({
     label: group.label,
     rows: group.fields
-      .map((f) => ({ label: f.label, value: (details[f.id] ?? "").trim() }))
+      .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim() }))
       .filter((r) => r.value.length > 0)
       .map((r) => ({
         label: r.label,
-        values: r.value.includes(";") ? r.value.split(";").map((s) => s.trim()) : [r.value],
+        // tags/meds store comma-separated lists — render each item on its own line
+        values:
+          (r.type === "tags" || r.type === "meds") && /[;,]/.test(r.value)
+            ? r.value.split(/[;,]/).map((s) => s.trim()).filter(Boolean)
+            : r.value.includes(";")
+              ? r.value.split(";").map((s) => s.trim()).filter(Boolean)
+              : [r.value],
       })),
   })).filter((s) => s.rows.length > 0);
 
