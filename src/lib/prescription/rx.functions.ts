@@ -21,7 +21,9 @@ function forbidden(message = "Forbidden"): never {
 }
 
 async function audit(
-  admin: { from: (t: string) => { insert: (v: Json) => Promise<unknown> } },
+  // Admin client; typed loosely so audit writes stay a single helper.
+  admin: { from: (t: string) => { insert: (v: Json) => unknown } },
+
   event: {
     draft_id?: string | null;
     encounter_id?: string | null;
