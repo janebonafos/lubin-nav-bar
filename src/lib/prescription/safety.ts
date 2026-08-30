@@ -499,16 +499,20 @@ export function runSafetyReview(
   if (missing.includes("conditions")) {
     checks.conditions = needs("conditions", "Relevant medical conditions have not been recorded.");
   } else {
-    const hits = contains(conditionText, CONDITION_FLAGS);
+    const hits = contains(activeConditionText, CONDITION_FLAGS);
+    const where = conditionProvenance ? ` (${conditionProvenance})` : "";
     checks.conditions = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} history documented. Review whether this affects medication choice or monitoring before prescribing.`
+        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} recorded as current in this patient's conditions${where}. Review whether this affects medication choice or monitoring before prescribing.`
         : "No condition identified from the available information that changes this prescription.",
-      informationUsed: "Recorded medical conditions.",
+      informationUsed: conditionProvenance
+        ? `Medical conditions in this record — ${conditionProvenance}.`
+        : "Recorded medical conditions.",
       checkedAt: now,
     };
   }
+
 
   // Monitoring
   // Bipolar / mania history
