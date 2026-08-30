@@ -3,7 +3,7 @@
 // so progress is obvious at a glance. Nothing here is required and nothing is
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CalendarDays, Check, Lock, Plus, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
@@ -171,11 +171,21 @@ function PassportCard({
         type="button"
         onClick={() => setFlipped((v) => !v)}
         aria-label={flipped ? "Show card front" : "Show everything on this card"}
-        className="relative block aspect-[1.58/1] w-full text-left transition-transform duration-700 [transform-style:preserve-3d]"
-        style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
+        className="relative block aspect-[1.58/1] w-full text-left transition-transform duration-700"
+        style={{
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          transformStyle: "preserve-3d",
+          WebkitTransformStyle: "preserve-3d",
+        } as CSSProperties}
       >
         {/* front */}
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)] [backface-visibility:hidden]">
+        <div
+          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple-dark via-brand-purple-dark to-brand-purple shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
+        >
           {/* soft glow */}
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple-accent/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
@@ -239,8 +249,12 @@ function PassportCard({
 
         {/* back */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)] [backface-visibility:hidden]"
-          style={{ transform: "rotateY(180deg)" }}
+          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
+          style={{
+            transform: "rotateY(180deg)",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
         >
           <CardBack details={details} />
         </div>
