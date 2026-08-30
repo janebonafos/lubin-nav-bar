@@ -413,7 +413,7 @@ function CheckoutPage() {
                     {label}
                   </button>
                 ))}
-              </div>
+                </div>
               {googlePicker && (
                 <div className="mt-2.5 rounded-2xl border border-[#E9E6FA] bg-[#FAF8FD] p-3.5">
                   <p className="text-[12.5px] font-semibold text-slate-700">
