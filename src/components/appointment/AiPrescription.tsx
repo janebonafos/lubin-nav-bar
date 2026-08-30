@@ -2324,6 +2324,22 @@ function MedicationEditor({
             {done && value && (
               <span className="mt-0.5 block truncate text-[11.5px] text-[#5A4A8A]">{value}</span>
             )}
+            {shared && (
+              <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                  {shared.source === "passport"
+                    ? `Shared by ${clientName || "the client"} · health card`
+                    : `Shared by ${clientName || "the client"} · intake form`}
+                </span>
+                <span className="text-[11px] text-[#6F6889]">“{shared.value}”</span>
+              </span>
+            )}
+            {drifted && (
+              <span className="mt-1 block text-[11px] leading-relaxed text-[#8A6A20]">
+                Their health card now says something different from what&rsquo;s on the record —
+                check it before prescribing.
+              </span>
+            )}
           </span>
           <StatusChip level={done ? "complete" : requirement} />
           <span className="inline-flex w-[128px] items-center justify-end gap-1 text-[11.5px] font-semibold text-[#6E4FD3]">
