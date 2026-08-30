@@ -2619,14 +2619,12 @@ function MedicationEditor({
                               : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
                           }`}
                         >
-                          {done ? (
-                            <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              className="h-1.5 w-1.5 rounded-full bg-[#A796DE]"
-                            />
-                          )}
+                          <span
+                            aria-hidden="true"
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              done ? "bg-[#1F7A57]" : "bg-[#A796DE]"
+                            }`}
+                          />
                           {item.label}
                         </li>
                       );
