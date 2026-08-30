@@ -421,7 +421,7 @@ function TagsInput({
  * dose, so a clinician reads discrete entries instead of a paragraph. Stored as
  * "Type — Name dose" rows joined by "; ".
  */
-type MedRow = { type: string; name: string; dose: string };
+type MedRow = { type: string; name: string; dose: string; otherType?: string };
 
 function parseMeds(value: string): MedRow[] {
   return value
@@ -430,13 +430,24 @@ function parseMeds(value: string): MedRow[] {
     .filter(Boolean)
     .map((entry) => {
       const [rawType, rest] = entry.includes("—") ? entry.split("—") : ["", entry];
-      const detail = (rest ?? "").trim();
-      const lastSpace = detail.lastIndexOf(" ");
-      const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+      const typeRaw = rawType.trim();
+      // "Other (Antihistamine)" splits into base type + specifier.
+      const otherMatch = typeRaw.match(/^Other\s*\((.+)\)$/i);
       return {
-        type: rawType.trim(),
-        name: looksDosed && lastSpace > 0 ? detail.slice(0, lastSpace).trim() : detail,
-        dose: looksDosed && lastSpace > 0 ? detail.slice(lastSpace + 1).trim() : "",
+        type: otherMatch ? "Other" : typeRaw,
+        otherType: otherMatch ? otherMatch[1].trim() : "",
+        name: (() => {
+          const detail = (rest ?? "").trim();
+          const lastSpace = detail.lastIndexOf(" ");
+          const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+          return looksDosed && lastSpace > 0 ? detail.slice(0, lastSpace).trim() : detail;
+        })(),
+        dose: (() => {
+          const detail = (rest ?? "").trim();
+          const lastSpace = detail.lastIndexOf(" ");
+          const looksDosed = /\d/.test(detail.slice(lastSpace + 1));
+          return looksDosed && lastSpace > 0 ? detail.slice(lastSpace + 1).trim() : "";
+        })(),
       };
     });
 }
@@ -445,7 +456,12 @@ function serializeMeds(rows: MedRow[]): string {
   return rows
     .map((r) => {
       const detail = [r.name.trim(), r.dose.trim()].filter(Boolean).join(" ");
-      const type = r.type.trim();
+      const typeRaw = r.type.trim();
+      const specifier = r.otherType?.trim();
+      const type =
+        typeRaw === "Other" && specifier
+          ? `Other (${specifier.replace(/[;—()]/g, " ").trim()})`
+          : typeRaw;
       if (!detail && !type) return "";
       return type ? `${type} — ${detail || "not specified"}` : detail;
     })
@@ -552,7 +568,7 @@ function MedsInput({
                   />
                   <select
                     value={row.type}
-                    onChange={(e) => update(i, { type: e.target.value })}
+                    onChange={(e) => update(i, { type: e.target.value, otherType: e.target.value === "Other" ? (row.otherType ?? "") : "" })}
                     className={`h-12 min-w-0 flex-1 cursor-pointer appearance-none rounded-[12px] border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
                       row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
                     }`}
@@ -569,6 +585,15 @@ function MedsInput({
                     ))}
                   </select>
                 </div>
+                {row.type === "Other" && (
+                  <input
+                    value={row.otherType ?? ""}
+                    maxLength={field.maxItemLength ?? 40}
+                    placeholder='What type? e.g. "Antihistamine", "Pain reliever"'
+                    onChange={(e) => update(i, { otherType: e.target.value.replace(/[;—()]/g, " ") })}
+                    className="h-12 w-full min-w-0 rounded-[12px] border border-brand-purple/25 bg-white px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:ring-2 focus:ring-brand-purple/30"
+                  />
+                )}
               </div>
             </div>
           ))}
