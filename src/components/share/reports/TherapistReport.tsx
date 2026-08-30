@@ -68,7 +68,7 @@ export default function TherapistReport({
 
       <div className="mt-5">{renderIncluded(summary, includedKeys)}</div>
 
-      <PrivacyFooter />
+      <PrivacyFooter includedKeys={includedKeys} />
     </article>
   );
 }

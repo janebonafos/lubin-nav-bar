@@ -44,7 +44,7 @@ export default function TrustedContactReport({
 
       <div className="mt-3">{renderIncluded(summary, includedKeys)}</div>
 
-      <PrivacyFooter />
+      <PrivacyFooter includedKeys={includedKeys} />
     </article>
   );
 }
