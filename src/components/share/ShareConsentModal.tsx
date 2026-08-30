@@ -27,6 +27,7 @@ import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import {
   hasSharedHealthDetails,
   sharedHealthDetails,
+  type SharedHealthDetailGroup,
 } from "@/lib/intake/healthDetails";
 
 export type ConsentResult = {
@@ -575,6 +576,11 @@ function Step1({
   toggleAttempt,
   selectAllAttempts,
   deselectAllAttempts,
+  healthGroups,
+  selectedHealthFieldIds,
+  toggleHealthField,
+  selectAllHealthFields,
+  deselectAllHealthFields,
 }: {
   included: string[];
   toggle: (key: string) => void;
@@ -589,6 +595,11 @@ function Step1({
   toggleAttempt: (id: string) => void;
   selectAllAttempts: () => void;
   deselectAllAttempts: () => void;
+  healthGroups: SharedHealthDetailGroup[];
+  selectedHealthFieldIds: string[];
+  toggleHealthField: (id: string) => void;
+  selectAllHealthFields: () => void;
+  deselectAllHealthFields: () => void;
 }) {
   const [showAllAssess, setShowAllAssess] = useState(false);
   const attempts = summary.attemptsInRange;
@@ -598,6 +609,13 @@ function Step1({
   ).length;
   const allAttemptsSelected =
     attempts.length > 0 && selectedCount === attempts.length;
+  const totalHealthFields = healthGroups.reduce(
+    (n, g) => n + g.items.length,
+    0,
+  );
+  const selectedHealthCount = selectedHealthFieldIds.length;
+  const allHealthSelected =
+    totalHealthFields > 0 && selectedHealthCount === totalHealthFields;
   void showAllAssess;
   void setShowAllAssess;
   return (
