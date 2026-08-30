@@ -171,12 +171,9 @@ function PassportCard({
         type="button"
         onClick={() => setFlipped((v) => !v)}
         aria-label={flipped ? "Show card front" : "Show everything on this card"}
-        className="relative block aspect-[1.58/1] w-full text-left transition-transform duration-700"
-        style={{
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          transformStyle: "preserve-3d",
-          WebkitTransformStyle: "preserve-3d",
-        } as CSSProperties}
+        data-no-hover
+        className="relative block aspect-[1.58/1] w-full cursor-pointer text-left [transform:rotateY(0deg)] transition-transform duration-700 [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] [[data-flipped=true]_&]:[transform:rotateY(180deg)]"
+        data-flipped={flipped}
       >
         {/* front */}
         <div
