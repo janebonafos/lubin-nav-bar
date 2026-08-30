@@ -38,6 +38,12 @@ export type ConsentResult = {
    * assessments in range are shared.
    */
   attemptIds?: string[];
+  /**
+   * When `includedKeys` includes "health", this narrows the shared Health
+   * Passport details to specific field IDs. When undefined, all available
+   * health details are shared.
+   */
+  healthFieldIds?: string[];
 };
 
 export type AssessmentContext = {
@@ -60,6 +66,7 @@ export default function ShareConsentModal({
   providerContext,
   initialIncluded,
   initialAttemptIds,
+  initialHealthFieldIds,
   mode = "share",
   onRevoke,
   confirmLabelOverride,
