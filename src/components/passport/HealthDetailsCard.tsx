@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, Lock, Plus, X } from "lucide-react";
+import { CalendarDays, Check, Lock, Plus, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
