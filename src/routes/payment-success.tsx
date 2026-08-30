@@ -418,7 +418,7 @@ function PaymentSuccessPage() {
                   <button
                     type="button"
                     onClick={() => setShareOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
+                    className="inline-flex items-center gap-2 rounded-[12px] bg-[#7C69BA] px-4 py-2 text-[12.5px] font-semibold text-white shadow-[0_10px_20px_-10px_rgba(124,105,186,0.55)] transition hover:-translate-y-0.5 hover:bg-[#6857A3]"
                   >
                     Choose what to share
                   </button>
