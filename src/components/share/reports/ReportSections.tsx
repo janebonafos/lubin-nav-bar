@@ -310,7 +310,7 @@ export function renderIncluded(
     <div className="space-y-4">
       {has("mood") && <MoodPatternsSection summary={summary} />}
       {has("assessments") && <AssessmentsSection summary={summary} />}
-      {has("health") && <HealthDetailsSection />}
+      {has("health") && <HealthDetailsSection fieldIds={opts?.healthFieldIds} />}
     </div>
   );
 }
