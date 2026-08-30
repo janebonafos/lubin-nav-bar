@@ -3,6 +3,7 @@
 // without needing a real client to complete the sharing flow.
 
 import { createProviderGrant, revokeProviderGrant } from "@/lib/share/providerShareStore";
+import { loadHealthDetails, setHealthDetail } from "@/lib/intake/healthDetails";
 import type { SummaryData } from "@/lib/share/summary";
 import type { Attempt } from "@/lib/patterns/types";
 
@@ -99,16 +100,35 @@ function buildDemoSnapshot(): SummaryData {
   };
 }
 
+/**
+ * Demo only: if the client's health card is empty, add the few answers a
+ * client would typically fill in, so the shared-state preview shows real
+ * client-shared values instead of blank safety checks.
+ */
+function seedDemoHealthDetails() {
+  const details = loadHealthDetails();
+  const defaults: Record<string, string> = {
+    "medication.list": "Sertraline 50 mg — every morning",
+    "history.allergies": "Penicillin",
+    "history.conditions": "Anxiety, Bipolar II",
+    "history.pregnancy": "None of these apply",
+  };
+  for (const [id, value] of Object.entries(defaults)) {
+    if (!(details[id] ?? "").trim()) setHealthDetail(id, value);
+  }
+}
+
 export function seedDemoSharedGrant(input: {
   appointmentId: string;
   providerName: string;
   appointmentLabel: string;
 }) {
+  seedDemoHealthDetails();
   return createProviderGrant({
     appointmentId: input.appointmentId,
     providerName: input.providerName,
     appointmentLabel: input.appointmentLabel,
-    includedKeys: ["summary", "checkins", "assessments", "conversations"],
+    includedKeys: ["summary", "checkins", "assessments", "conversations", "health"],
     snapshot: buildDemoSnapshot(),
   });
 }
