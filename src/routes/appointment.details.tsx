@@ -1053,7 +1053,24 @@ function DetailsPage() {
                       </p>
                     </div>
                   )}
+                  {prescribingProfession && (
+                    <div className="mt-4">
+                      <SoapNotesPanel
+                        recordKey={`appt:${appt.id}`}
+                        defaultOpen={false}
+                        context={() => ({
+                          country: rxCountry,
+                          patientContext: {
+                            firstName: appt.client?.split(" ")[0] || undefined,
+                          },
+                          caseNotes: appt.notes || undefined,
+                          presenting: appt.notes || undefined,
+                        })}
+                      />
+                    </div>
+                  )}
                 </>
+
               </SectionCard>
             )}
 
