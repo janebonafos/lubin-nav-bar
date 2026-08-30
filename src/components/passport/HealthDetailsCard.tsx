@@ -985,7 +985,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                         >
                           Close
                         </button>
-                        {i < HEALTH_DETAIL_GROUPS.length - 1 ? (
+                        {i < HEALTH_DETAIL_GROUPS.length - 1 && (
                           <button
                             type="button"
                             onClick={() => setOpenGroup(HEALTH_DETAIL_GROUPS[i + 1].id)}
@@ -993,47 +993,37 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                           >
                             Next section
                           </button>
-                        ) : allComplete ? (
-                          <button
-                            type="button"
-                            onClick={() => setOpenGroup(null)}
-                            disabled={!agreed}
-                            className={`rounded-xl px-4 py-2 text-[13px] font-semibold text-white transition ${
-                              agreed
-                                ? "bg-brand-purple hover:brightness-105"
-                                : "cursor-not-allowed bg-brand-purple/35"
-                            }`}
-                          >
-                            Done
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setOpenGroup(null)}
-                            className="rounded-xl bg-brand-purple px-4 py-2 text-[13px] font-semibold text-white transition hover:brightness-105"
-                          >
-                            Done
-                          </button>
                         )}
                       </div>
                     </div>
                     {i === HEALTH_DETAIL_GROUPS.length - 1 && allComplete && (
-                      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.04] p-4">
-                        <input
-                          type="checkbox"
-                          checked={agreed}
-                          onChange={(e) => {
-                            setAgreed(e.target.checked);
-                            setHealthAgreement(e.target.checked);
-                          }}
-                          className="mt-0.5 h-4 w-4 shrink-0 accent-brand-purple"
-                        />
-                        <span className="text-[12.5px] leading-relaxed text-brand-purple-dark/75">
-                          I confirm that everything on this health card is true and accurate to the
-                          best of my knowledge. I understand this information may be shared with a
-                          provider only when I book and choose to share it.
-                        </span>
-                      </label>
+                      <div className="mt-4">
+                        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.04] p-4">
+                          <input
+                            type="checkbox"
+                            checked={agreed}
+                            onChange={(e) => {
+                              setAgreed(e.target.checked);
+                              setHealthAgreement(e.target.checked);
+                            }}
+                            className="mt-0.5 h-4 w-4 shrink-0 accent-brand-purple"
+                          />
+                          <span className="text-[12.5px] leading-relaxed text-brand-purple-dark/75">
+                            I confirm that everything on this health card is true and accurate to the
+                            best of my knowledge. I understand this information may be shared with a
+                            provider only when I book and choose to share it.
+                          </span>
+                        </label>
+                        {agreed && (
+                          <button
+                            type="button"
+                            onClick={() => setOpenGroup(null)}
+                            className="mt-3 w-full rounded-xl bg-brand-purple px-4 py-2.5 text-[13px] font-semibold text-white transition hover:brightness-105"
+                          >
+                            Confirm and finalize health card
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
