@@ -1470,6 +1470,12 @@ function DetailsPage() {
           </div>
         </DialogContent>
       </Dialog>
+      {import.meta.env.DEV && appt?.id && (
+        <DevPatientDataToggle
+          appointmentId={appt.id}
+          appointmentLabel={`${appt.type ?? "Session"} · ${appt.day ?? ""} ${appt.date ?? ""} ${appt.month ?? ""}`}
+        />
+      )}
     </div>
   );
 }
