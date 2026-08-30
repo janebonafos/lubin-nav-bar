@@ -294,6 +294,7 @@ export function buildIntakeProgress(
         answer,
         prefill: suggestion,
         fromPassport: Boolean(suggestion && answer === suggestion.value),
+        byProvider: (response.providerFilled ?? []).includes(field.id),
         skipped: response.skipped.includes(field.id),
         answered: Boolean(answer.trim()),
       });
