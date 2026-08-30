@@ -329,11 +329,14 @@ export default function ProviderIntakeAnswers({
                                         <button
                                           type="button"
                                           onClick={() => setEditingField(f.field.id)}
-                                          className="inline-flex items-center gap-1 rounded-[10px] border border-[#EAE7F5] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#5B4796] transition hover:bg-[#FBF9FF]"
+                                          className="group inline-flex items-center gap-1.5 rounded-[10px] px-1.5 py-0.5 text-[12px] font-medium text-[#6B5AA8] transition-colors hover:bg-[#F5F1FF] hover:text-[#4A3A85]"
                                         >
-                                          <Pencil className="h-3 w-3" />
-                                          {f.answered ? "Edit" : "Add answer"}
+                                          <Pencil className="h-3 w-3 opacity-60 transition-opacity group-hover:opacity-100" />
+                                          <span className="underline decoration-[#D9CFF5] decoration-1 underline-offset-4 transition-colors group-hover:decoration-[#8C74D6]">
+                                            {f.answered ? "Edit" : "Add answer"}
+                                          </span>
                                         </button>
+
                                       </span>
                                     </>
                                   )}
