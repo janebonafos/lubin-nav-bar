@@ -97,6 +97,7 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
           "ADHD medication",
           "Birth control",
           "Vitamins or supplements",
+          "Other",
         ],
         maxItemLength: 40,
         maxItems: 10,
