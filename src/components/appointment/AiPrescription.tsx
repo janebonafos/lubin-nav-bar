@@ -59,6 +59,7 @@ import {
   patientAge,
 } from "@/lib/prescription/safety";
 import { sharedSourceMap, type SharedSourceItem } from "@/lib/prescription/intakeImport";
+import { getProviderGrant } from "@/lib/share/providerShareStore";
 import { findPharmacy, pharmacyLine } from "@/lib/prescription/pharmacies";
 import {
   prescriptionStatus,
@@ -2803,6 +2804,51 @@ function MedicationEditor({
         >
           {drawerTab === "safety" ? (
             <div className="space-y-5">
+              {/* Consent provenance: states plainly that anything client-sourced was
+                  approved by the client for this appointment — never generated here. */}
+              {(() => {
+                const grant = appointmentId ? getProviderGrant(appointmentId) : null;
+                const who = clientName || "The client";
+                const on = grant
+                  ? new Date(grant.createdAt).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "";
+                const until = grant
+                  ? new Date(grant.expiresAt).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                    })
+                  : "";
+                const consented = !!grant && !grant.revoked && sharedCount > 0;
+                return (
+                  <div
+                    className={`rounded-xl px-4 py-3 ring-1 ${
+                      consented
+                        ? "bg-[#F3FBF7] ring-[#CFE7DD]"
+                        : "bg-[#F8F7FC] ring-[#E4DEF5]"
+                    }`}
+                  >
+                    <p
+                      className={`text-[12.5px] font-semibold ${
+                        consented ? "text-[#1F5C46]" : "text-[#2C2B4B]"
+                      }`}
+                    >
+                      {consented
+                        ? `${who} approved sharing this information with you`
+                        : `${who} has not shared any health information with you`}
+                    </p>
+                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#5A4A8A]">
+                      {consented
+                        ? `${sharedCount} item${sharedCount === 1 ? "" : "s"} came from ${who}'s own answers — their health card or the intake form they filled in — released to you on ${on} for this appointment only, and available until ${until}. Each one is labelled below with its source and their exact words. Nothing is generated, guessed or taken from anywhere else; unlabelled items are what you documented yourself.`
+                        : `Nothing below is prefilled. Every value on this page is what you documented yourself — we never add health information without ${who} choosing to share it for this appointment.`}
+                    </p>
+                  </div>
+                );
+              })()}
+
               {(!reviewRan || reviewStale(med, patientInfo)) && (
                 <div
                   className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 ${
