@@ -2,7 +2,7 @@
 // Allergies, current medications and relevant conditions are captured as
 // searchable entries with a status, a source and a last-updated date.
 // "None known" and "Not documented" are deliberately distinct states.
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import {
   INFO_SOURCE_LABEL,
@@ -148,20 +148,61 @@ export function PatientInfoForm({
       ...(state === "documented" ? {} : { [entryField(key)]: [] }),
     } as Partial<PatientSafetyInfo>);
 
-  /** What the client already answered in the intake form for this appointment.
-   *  Shown for acceptance instead of asking the provider to retype it. */
-  const shared = appointmentId ? sharedIntakeInfo(appointmentId, keys, view) : [];
+  /** What the client already shared for this appointment — their intake answers
+   *  and the Health Passport fields they consented to share. Computed from the
+   *  saved record so the source stays visible after it is applied. */
+  const shared = useMemo(
+    () => (appointmentId ? sharedIntakeInfo(appointmentId, keys, info) : []),
+    [appointmentId, keys, info],
+  );
+
+  /** Shared answers prefill the safety checks once, so the provider never has to
+   *  ask for something the client already gave. Anything the client did not
+   *  share stays blank — it is never turned into a question for the provider.
+   *  Nothing is written to the record until "Save patient information". */
+  const prefilled = useRef<string | null>(null);
+  useEffect(() => {
+    if (!appointmentId || shared.length === 0) return;
+    if (prefilled.current === appointmentId) return;
+    prefilled.current = appointmentId;
+    setPatch((cur) => {
+      let next = cur;
+      for (const item of shared) {
+        next = { ...item.patch, ...next };
+      }
+      return next;
+    });
+  }, [appointmentId, shared]);
+
+  const applied = (item: (typeof shared)[number]) =>
+    Object.entries(item.patch).every(
+      ([k, v]) =>
+        JSON.stringify((view as Record<string, unknown>)[k]) === JSON.stringify(v) ||
+        (Array.isArray(v) && v.length === 0),
+    );
+
+  /** Checks with nothing shared — left intentionally blank. */
+  const notShared = keys.filter((k) => {
+    if (shared.some((s) => s.key === k)) return false;
+    if (isStructuredKey(k)) return docStateFor(view, k) === "not-documented";
+    if (k === "pregnancy") return (view.pregnancyStatus ?? "not-documented") === "not-documented";
+    if (k === "age") return !view.dob;
+    return false;
+  });
 
   return (
     <div className="mt-3 space-y-4 border-t border-[#EDEBF3] pt-3">
       {shared.length > 0 && (
         <div className="rounded-xl border border-[#CFE7DD] bg-[#F3FBF7] p-3">
           <p className="text-[12.5px] font-semibold text-[#1F5C46]">
-            {clientName ? `${clientName} already shared this` : "The client already shared this"}
+            {clientName
+              ? `Filled in from what ${clientName} shared`
+              : "Filled in from what the client shared"}
           </p>
           <p className="mt-0.5 text-[12px] leading-relaxed text-[#3C6B59]">
-            Answered in their intake form and shared with you for this appointment. Accept it to
-            record it, or type your own — you stay the author of the clinical record.
+            These checks are already answered from their intake form and the Health Passport fields
+            they consented to share — no need to ask again. Review, edit anything that changed, then
+            save: you stay the author of the clinical record.
           </p>
           <ul className="mt-2 space-y-2">
             {shared.map((item) => (
@@ -175,17 +216,30 @@ export function PatientInfoForm({
                   </span>
                   <span className="mt-0.5 block text-[13px] text-[#2C2B4B]">{item.value}</span>
                 </span>
-                <button
-                  type="button"
-                  onClick={() => stage(item.patch)}
-                  className="inline-flex h-8 items-center rounded-[10px] bg-[#1F7A57] px-3 text-[12px] font-semibold text-white transition hover:bg-[#26906A]"
-                >
-                  Use this answer
-                </button>
+                {applied(item) ? (
+                  <span className="inline-flex h-8 items-center rounded-[10px] border border-[#CFE7DD] bg-[#F3FBF7] px-3 text-[11.5px] font-semibold uppercase tracking-wide text-[#1F7A57]">
+                    {item.source === "passport" ? "From Health Passport" : "From intake form"}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => stage(item.patch)}
+                    className="inline-flex h-8 items-center rounded-[10px] bg-[#1F7A57] px-3 text-[12px] font-semibold text-white transition hover:bg-[#26906A]"
+                  >
+                    Use this answer
+                  </button>
+                )}
               </li>
             ))}
           </ul>
         </div>
+      )}
+      {notShared.length > 0 && (
+        <p className="rounded-xl border border-[#EDEBF3] bg-[#FAF9FC] p-3 text-[12px] leading-relaxed text-[#6F6889]">
+          {clientName ? `${clientName} hasn't shared` : "The client hasn't shared"}{" "}
+          {notShared.map((k) => infoLabel(k).toLowerCase()).join(", ")}. These are left blank on
+          purpose — fill them in only if it comes up in the session.
+        </p>
       )}
       {structured.map((key) => {
         const entries = entriesFor(view, key);
