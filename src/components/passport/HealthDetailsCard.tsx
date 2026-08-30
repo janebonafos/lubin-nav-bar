@@ -100,7 +100,13 @@ function CardBack({ details }: { details: HealthDetails }) {
       .filter((r) => r.value.length > 0)
       .map((r) => ({
         label: r.label,
-        values: r.value.includes(";") ? r.value.split(";").map((s) => s.trim()) : [r.value],
+        // tags/meds store comma-separated lists — render each item on its own line
+        values:
+          (f.type === "tags" || f.type === "meds") && /[;,]/.test(r.value)
+            ? r.value.split(/[;,]/).map((s) => s.trim()).filter(Boolean)
+            : r.value.includes(";")
+              ? r.value.split(";").map((s) => s.trim()).filter(Boolean)
+              : [r.value],
       })),
   })).filter((s) => s.rows.length > 0);
 
