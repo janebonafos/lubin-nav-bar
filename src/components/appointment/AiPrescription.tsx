@@ -2200,6 +2200,14 @@ function MedicationEditor({
     () => infoItems(med, patientInfo, visitMeds),
     [med, patientInfo, visitMeds],
   );
+  /** What the client themselves shared for this appointment, per check. Used to
+   *  state plainly that the answer came from the client — never pulled silently
+   *  from anywhere else — and to compare it with their current health card. */
+  const sharedSources = useMemo<Record<string, SharedSourceItem>>(
+    () => (appointmentId ? sharedSourceMap(appointmentId) : {}),
+    [appointmentId, patientInfo],
+  );
+  const sharedCount = Object.keys(sharedSources).length;
   const outstanding = useMemo(() => infoList.filter((i) => !i.recorded), [infoList]);
   const requiredOutstanding = outstanding.filter((i) => i.requirement === "required");
   const reviewOutstanding = outstanding.filter((i) => i.requirement !== "required");
