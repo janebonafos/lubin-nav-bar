@@ -296,7 +296,7 @@ export function sharedHealthDetails(
               f.id !== "emergency.none"
             ),
         )
-        .map((f) => ({ label: f.label, value: details[f.id] })),
+        .map((f) => ({ id: f.id, label: f.label, value: details[f.id] })),
     }))
     .filter((g) => g.items.length > 0);
 }
