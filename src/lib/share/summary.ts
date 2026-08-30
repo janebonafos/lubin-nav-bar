@@ -241,7 +241,13 @@ export const RANGE_OPTIONS: { id: RangeKey; label: string }[] = [
   { id: "all", label: "Full history" },
 ];
 
-export const INCLUDE_OPTIONS: { key: string; label: string; description: string }[] = [
+export const INCLUDE_OPTIONS: {
+  key: string;
+  label: string;
+  description: string;
+  /** Sensitive items stay unchecked until the person opts in. */
+  defaultOff?: boolean;
+}[] = [
   {
     key: "mood",
     label: "Mood patterns",
@@ -251,6 +257,17 @@ export const INCLUDE_OPTIONS: { key: string; label: string; description: string 
     key: "assessments",
     label: "Assessment results",
     description: "Checks you completed from Self Discovery",
+  },
+  {
+    key: "themes",
+    label: "Common themes",
+    description: "Topics that came up often (like sleep or work) — no written text",
+  },
+  {
+    key: "notes",
+    label: "My written notes",
+    description: "The actual words you wrote in your check-ins. Off unless you turn it on.",
+    defaultOff: true,
   },
 ];
 
