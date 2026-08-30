@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Lock, Plus, X } from "lucide-react";
+import { CalendarDays, Check, Lock, Plus, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   groupFilledCount,
@@ -1023,20 +1023,62 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
             );
           })}
 
-          {!openGroup && (
-            <button
-              type="button"
-              onClick={() => {
-                const next =
-                  HEALTH_DETAIL_GROUPS.find((g) => groupFilledCount(g, details) === 0) ??
-                  HEALTH_DETAIL_GROUPS[0];
-                setOpenGroup(next.id);
-              }}
-              className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
-            >
-              {progress.filled > 0 ? "Continue your health card" : "Start your health card"}
-            </button>
-          )}
+          {!openGroup &&
+            (() => {
+              const allComplete = HEALTH_DETAIL_GROUPS.every((g) =>
+                g.id === "safety-net"
+                  ? safetyNetComplete(details)
+                  : groupFilledCount(g, details) === g.fields.length && g.fields.length > 0,
+              );
+
+              if (allComplete && agreed) {
+                return (
+                  <div className="mt-2 flex items-center gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
+                      <Check className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-[15px] font-bold text-brand-purple-dark">
+                        All set — your health card is complete
+                      </p>
+                      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/55">
+                        You've confirmed everything is accurate. You can still edit any section
+                        above.
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (allComplete) {
+                return (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenGroup(HEALTH_DETAIL_GROUPS[HEALTH_DETAIL_GROUPS.length - 1].id)
+                    }
+                    className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
+                  >
+                    One last step — review and confirm your health card
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next =
+                      HEALTH_DETAIL_GROUPS.find((g) => groupFilledCount(g, details) === 0) ??
+                      HEALTH_DETAIL_GROUPS[0];
+                    setOpenGroup(next.id);
+                  }}
+                  className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
+                >
+                  {progress.filled > 0 ? "Continue your health card" : "Start your health card"}
+                </button>
+              );
+            })()}
         </div>
       </div>
     </section>
