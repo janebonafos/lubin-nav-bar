@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, FileText } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, FileText, Pencil } from "lucide-react";
 
 import {
   Sheet,
@@ -8,8 +8,131 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
+import {
+  buildIntakeProgress,
+  setProviderAnswer,
+  subscribeIntake,
+} from "@/lib/intake/store";
 import type { IntakeFieldState } from "@/lib/intake/store";
+
+/**
+ * Provider-side answer editor: used when the client didn't get to the form in
+ * time, so the answer can be captured live during the call.
+ */
+function FieldEditor({
+  state,
+  appointmentId,
+  onDone,
+}: {
+  state: IntakeFieldState;
+  appointmentId: string;
+  onDone: () => void;
+}) {
+  const { field } = state;
+  const [value, setValue] = useState(
+    field.type === "ack" ? state.answer || "Acknowledged" : state.answer,
+  );
+
+  const save = () => {
+    setProviderAnswer(appointmentId, field.id, value);
+    onDone();
+  };
+
+  const inputClass =
+    "w-full rounded-[10px] border border-[#D8C7F0] bg-white px-3 py-2 text-sm text-[#3D2E6B] outline-none focus:border-[#5B4796]";
+
+  return (
+    <div className="space-y-2">
+      {field.type === "choice" && field.options ? (
+        <div className="flex flex-wrap gap-1.5">
+          {field.options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => setValue(opt)}
+              className={`rounded-[10px] border px-3 py-1.5 text-xs font-semibold transition ${
+                value === opt
+                  ? "border-[#5B4796] bg-[#F0EAFB] text-[#3D2E6B]"
+                  : "border-[#EAE7F5] bg-white text-[#7E6BAF] hover:bg-[#FBF9FF]"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      ) : field.type === "long-text" ? (
+        <textarea
+          autoFocus
+          rows={3}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          maxLength={1000}
+          placeholder={field.placeholder ?? "Type what they told you"}
+          className={inputClass}
+        />
+      ) : field.type === "ack" ? (
+        <label className="flex items-center gap-2 text-sm text-[#3D2E6B]">
+          <input
+            type="checkbox"
+            checked={Boolean(value)}
+            onChange={(e) => setValue(e.target.checked ? "Acknowledged" : "")}
+          />
+          Confirmed verbally during the session
+        </label>
+      ) : (
+        <input
+          autoFocus
+          type={
+            field.type === "date"
+              ? "date"
+              : field.type === "tel"
+                ? "tel"
+                : field.type === "email"
+                  ? "email"
+                  : "text"
+          }
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          maxLength={200}
+          placeholder={field.placeholder ?? "Type what they told you"}
+          className={inputClass}
+        />
+      )}
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={save}
+          className="rounded-[10px] bg-[#5B4796] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4B3B80]"
+        >
+          Save answer
+        </button>
+        <button
+          type="button"
+          onClick={onDone}
+          className="rounded-[10px] border border-[#EAE7F5] bg-white px-3 py-1.5 text-xs font-semibold text-[#7E6BAF] transition hover:bg-[#FBF9FF]"
+        >
+          Cancel
+        </button>
+        {state.answered && (
+          <button
+            type="button"
+            onClick={() => {
+              setProviderAnswer(appointmentId, field.id, "");
+              onDone();
+            }}
+            className="text-xs font-semibold text-[#A89BD0] underline-offset-2 hover:underline"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      <p className="text-[11px] text-[#A89BD0]">
+        Saved answers are marked as recorded by you during the session.
+      </p>
+    </div>
+  );
+}
 
 /**
  * Provider-side read of what the client shared ahead of the session.
@@ -31,6 +154,7 @@ export default function ProviderIntakeAnswers({
   const [mounted, setMounted] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [editingField, setEditingField] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -118,6 +242,10 @@ export default function ProviderIntakeAnswers({
               {progress.open > 0 ? ` · ${progress.open} still open` : ""}
               {progress.skipped > 0 ? ` · ${progress.skipped} saved for conversation` : ""}
               {" · updates arrive live"}
+              <span className="mt-1 block">
+                Anything still open you can fill in here as {first} tells you during
+                the call.
+              </span>
             </SheetDescription>
           </SheetHeader>
 
@@ -162,30 +290,52 @@ export default function ProviderIntakeAnswers({
                                   {f.field.label}
                                 </dt>
                                 <dd className="min-w-0 text-sm leading-relaxed">
-                                  {f.answered ? (
-                                    <span className="whitespace-pre-line text-[#3D2E6B]">
-                                      {f.field.type === "ack" ? "Acknowledged" : f.answer}
-                                    </span>
+                                  {editingField === f.field.id ? (
+                                    <FieldEditor
+                                      state={f}
+                                      appointmentId={appointmentId}
+                                      onDone={() => setEditingField(null)}
+                                    />
                                   ) : (
-                                    <span className="text-[#A89BD0]">
-                                      {f.skipped
-                                        ? `${first} would rather talk about this in the session.`
-                                        : "Not shared yet"}
-                                    </span>
-                                  )}
-                                  {(f.skipped || f.fromPassport) && (
-                                    <span className="mt-1 flex flex-wrap gap-1.5">
-                                      {f.skipped && (
-                                        <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
-                                          Talk about in session
+                                    <>
+                                      {f.answered ? (
+                                        <span className="whitespace-pre-line text-[#3D2E6B]">
+                                          {f.field.type === "ack" ? "Acknowledged" : f.answer}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[#A89BD0]">
+                                          {f.skipped
+                                            ? `${first} would rather talk about this in the session.`
+                                            : "Not shared yet"}
                                         </span>
                                       )}
-                                      {f.fromPassport && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
-                                          <Sparkles className="h-3 w-3" /> From Health Passport
-                                        </span>
-                                      )}
-                                    </span>
+                                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                                        {f.skipped && (
+                                          <span className="inline-flex items-center rounded-full bg-[#FFF4E5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8A5A12]">
+                                            Talk about in session
+                                          </span>
+                                        )}
+                                        {f.byProvider ? (
+                                          <span className="inline-flex items-center rounded-full bg-[#EAF3FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2F5B95]">
+                                            Recorded in session
+                                          </span>
+                                        ) : (
+                                          f.fromPassport && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                                              <Sparkles className="h-3 w-3" /> From Health Passport
+                                            </span>
+                                          )
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditingField(f.field.id)}
+                                          className="inline-flex items-center gap-1 rounded-[10px] border border-[#EAE7F5] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#5B4796] transition hover:bg-[#FBF9FF]"
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                          {f.answered ? "Edit" : "Add answer"}
+                                        </button>
+                                      </span>
+                                    </>
                                   )}
                                 </dd>
                               </div>

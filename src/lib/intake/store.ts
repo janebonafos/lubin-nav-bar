@@ -35,6 +35,8 @@ export type IntakeResponse = {
   values: Record<string, string>;
   /** Fields the client chose to talk about in person instead. */
   skipped: string[];
+  /** Fields the provider filled in during the session, on the client's behalf. */
+  providerFilled?: string[];
   /** Client closed the card; we nudge once more later, never repeatedly. */
   dismissedAt?: number;
   nudgedAt?: number;
@@ -190,6 +192,32 @@ export function setAnswer(appointmentId: string, fieldId: string, value: string)
   });
 }
 
+/**
+ * Answer captured by the provider during the session, when the client didn't
+ * fill the form in time. Recorded separately so everyone can see who wrote it.
+ */
+export function setProviderAnswer(
+  appointmentId: string,
+  fieldId: string,
+  value: string,
+) {
+  const current = getResponse(appointmentId);
+  const values = { ...current.values };
+  const filled = new Set(current.providerFilled ?? []);
+  if (value.trim()) {
+    values[fieldId] = value;
+    filled.add(fieldId);
+  } else {
+    delete values[fieldId];
+    filled.delete(fieldId);
+  }
+  saveResponse(appointmentId, {
+    values,
+    providerFilled: [...filled],
+    skipped: current.skipped.filter((s) => s !== fieldId),
+  });
+}
+
 /** Text stored (and shared with the provider) when a client prefers to talk. */
 export const PREFER_IN_PERSON_TEXT = "I'd rather talk about this in person.";
 
@@ -228,6 +256,8 @@ export type IntakeFieldState = {
   prefill?: PrefillValue;
   /** True when the answer came from confirming a prefill. */
   fromPassport: boolean;
+  /** True when the provider entered this answer during the session. */
+  byProvider: boolean;
   skipped: boolean;
   answered: boolean;
 };
@@ -264,6 +294,7 @@ export function buildIntakeProgress(
         answer,
         prefill: suggestion,
         fromPassport: Boolean(suggestion && answer === suggestion.value),
+        byProvider: (response.providerFilled ?? []).includes(field.id),
         skipped: response.skipped.includes(field.id),
         answered: Boolean(answer.trim()),
       });
