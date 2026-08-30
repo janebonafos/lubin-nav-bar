@@ -825,6 +825,7 @@ function CheckoutPage() {
                 appointmentDate,
               }}
               initialIncluded={pending?.includedKeys}
+              initialHealthFieldIds={pending?.healthFieldIds}
               onConfirm={(r) => {
                 setPendingShare({
                   bookingKey,
