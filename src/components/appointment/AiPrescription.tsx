@@ -2343,7 +2343,7 @@ function MedicationEditor({
             )}
           </span>
           <StatusChip level={done ? "complete" : requirement} />
-          <span className="inline-flex w-[128px] items-center justify-end gap-1 text-[11.5px] font-semibold text-[#6E4FD3]">
+          <span className="inline-flex shrink-0 items-center justify-end gap-1 text-[11.5px] font-semibold text-[#6E4FD3] sm:w-[128px]">
             {open ? "Close" : done ? "Edit" : "Add information"}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
