@@ -36,7 +36,6 @@ import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview.psychiatrist-session'
 import { Route as PreviewPrescriberDemosRouteImport } from './routes/preview.prescriber-demos'
-import { Route as PreviewFilledPatientDataRouteImport } from './routes/preview.filled-patient-data'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
@@ -186,12 +185,6 @@ const PreviewPrescriberDemosRoute = PreviewPrescriberDemosRouteImport.update({
   path: '/preview/prescriber-demos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PreviewFilledPatientDataRoute =
-  PreviewFilledPatientDataRouteImport.update({
-    id: '/preview/filled-patient-data',
-    path: '/preview/filled-patient-data',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
   id: '/appointment/reschedule',
   path: '/appointment/reschedule',
@@ -284,7 +277,6 @@ export interface FileRoutesByFullPath {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
-  '/preview/filled-patient-data': typeof PreviewFilledPatientDataRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -326,7 +318,6 @@ export interface FileRoutesByTo {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
-  '/preview/filled-patient-data': typeof PreviewFilledPatientDataRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -369,7 +360,6 @@ export interface FileRoutesById {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
-  '/preview/filled-patient-data': typeof PreviewFilledPatientDataRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -413,7 +403,6 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
-    | '/preview/filled-patient-data'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -455,7 +444,6 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
-    | '/preview/filled-patient-data'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -497,7 +485,6 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
-    | '/preview/filled-patient-data'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -540,7 +527,6 @@ export interface RootRouteChildren {
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
-  PreviewFilledPatientDataRoute: typeof PreviewFilledPatientDataRoute
   PreviewPrescriberDemosRoute: typeof PreviewPrescriberDemosRoute
   PreviewPsychiatristSessionRoute: typeof PreviewPsychiatristSessionRoute
   ProviderIdRoute: typeof ProviderIdRoute
@@ -744,13 +730,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PreviewPrescriberDemosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/preview/filled-patient-data': {
-      id: '/preview/filled-patient-data'
-      path: '/preview/filled-patient-data'
-      fullPath: '/preview/filled-patient-data'
-      preLoaderRoute: typeof PreviewFilledPatientDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/appointment/reschedule': {
       id: '/appointment/reschedule'
       path: '/appointment/reschedule'
@@ -878,7 +857,6 @@ const rootRouteChildren: RootRouteChildren = {
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
-  PreviewFilledPatientDataRoute: PreviewFilledPatientDataRoute,
   PreviewPrescriberDemosRoute: PreviewPrescriberDemosRoute,
   PreviewPsychiatristSessionRoute: PreviewPsychiatristSessionRoute,
   ProviderIdRoute: ProviderIdRoute,

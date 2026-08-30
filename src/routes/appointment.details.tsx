@@ -11,6 +11,7 @@ import {
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
+import { DevPatientDataToggle } from "@/components/appointment/DevPatientDataToggle";
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
 import {
   isPrescriber,
