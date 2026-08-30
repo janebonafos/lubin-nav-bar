@@ -2857,6 +2857,14 @@ function MedicationEditor({
                         outstandingNames ? ` — ${outstandingNames}` : ""
                       }`}
                 </p>
+                <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#6F6889]">
+                  {sharedCount > 0
+                    ? `Where this comes from: ${clientName || "the client"} shared ${sharedCount} item${
+                        sharedCount === 1 ? "" : "s"
+                      } for this appointment — each one is labelled with its source. Anything unlabelled stays blank until you document it.`
+                    : `Where this comes from: ${clientName || "the client"} hasn't shared health details for this appointment, so nothing is prefilled. Everything here is what you document yourself.`}
+                </p>
+
               </div>
 
               {stableCheckKeys.length > 0 && (
