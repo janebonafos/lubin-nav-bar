@@ -84,7 +84,8 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
       {
         id: "medication.list",
         label: "Anything you take right now",
-        help: "Pick a type, then add the name and dose. Add a row for each medication.",
+        help:
+          "This means anything you take regularly — not just mental-health medication. Prescriptions, over-the-counter medicine, vitamins, supplements, birth control: list them all so prescribing stays safe. Add a row for each.",
         type: "meds",
         placeholder: "e.g. Sertraline 50mg",
         exclusiveOption: "Nothing right now",
