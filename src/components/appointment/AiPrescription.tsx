@@ -1935,7 +1935,7 @@ function MedicationSummaryCard({
             </span>
             <span className="text-[#CFC9DC]">·</span>
             {med.approved ? (
-              <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#1F7A57]">
+              <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[#6E4FD3]">
                 <Check className="h-3.5 w-3.5" /> Verified
               </span>
             ) : (
@@ -2289,7 +2289,7 @@ function MedicationEditor({
           open
             ? "bg-[#FBFAFE]"
             : done
-              ? "bg-[#F3FBF7] transition hover:bg-[#EBF7F1]"
+              ? "bg-[#F3F0FB] transition hover:bg-[#EDE9F7]"
               : "transition hover:bg-[#FBFAFE]"
         }
       >
@@ -2312,11 +2312,11 @@ function MedicationEditor({
           <span className="min-w-0 flex-1 basis-full sm:basis-auto">
             <span
               className={`flex items-start gap-1.5 text-[13.5px] font-semibold ${
-                done ? "text-[#1F7A57]" : "text-[#2C2B4B]"
+                done ? "text-[#6E4FD3]" : "text-[#2C2B4B]"
               }`}
             >
               {done && (
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1F7A57] text-white">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#6E4FD3] text-white">
                   <Check className="h-2.5 w-2.5" />
                 </span>
               )}
@@ -2327,7 +2327,7 @@ function MedicationEditor({
             )}
             {shared && (
               <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                <span className="inline-flex items-center rounded-[12px] bg-[#F3F0FB] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#3D2E6B] ring-1 ring-[#E5DEF5]">
                   {shared.source === "passport"
                     ? `Shared by ${clientName || "the client"} · health card`
                     : `Shared by ${clientName || "the client"} · intake form`}
@@ -2593,14 +2593,14 @@ function MedicationEditor({
           <>
             <div
               className={`mt-3 rounded-2xl border px-5 py-4 ${
-                safetyResolved ? "border-[#CFE9DD] bg-[#F6FBF8]" : "border-[#DCD2F4] bg-[#F6F3FE]"
+                safetyResolved ? "border-[#E5DEF5] bg-[#F6F3FE]" : "border-[#DCD2F4] bg-[#F6F3FE]"
               }`}
             >
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3">
                 <div className="min-w-0">
                   <p
                     className={`text-[15px] font-semibold ${
-                      safetyResolved ? "text-[#1F7A57]" : "text-[#2C2B4B]"
+                      safetyResolved ? "text-[#6E4FD3]" : "text-[#2C2B4B]"
                     }`}
                   >
                     {safetyResolved ? (
@@ -2652,14 +2652,14 @@ function MedicationEditor({
                           key={item.key}
                           className={`inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-1 text-[12px] font-medium ring-1 ${
                             done
-                              ? "bg-[#F1F7F4] text-[#1F7A57] ring-[#CFE9DD]"
+                              ? "bg-[#F3F0FB] text-[#6E4FD3] ring-[#E5DEF5]"
                               : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
                           }`}
                         >
                           <span
                             aria-hidden="true"
                             className={`h-1.5 w-1.5 rounded-full ${
-                              done ? "bg-[#1F7A57]" : "bg-[#A796DE]"
+                              done ? "bg-[#6E4FD3]" : "bg-[#A796DE]"
                             }`}
                           />
                           {item.label}
@@ -2829,13 +2829,13 @@ function MedicationEditor({
                   <div
                     className={`rounded-xl px-4 py-3 ring-1 ${
                       consented
-                        ? "bg-[#F3FBF7] ring-[#CFE7DD]"
+                        ? "bg-[#F3F0FB] ring-[#E5DEF5]"
                         : "bg-[#F8F7FC] ring-[#E4DEF5]"
                     }`}
                   >
                     <p
                       className={`text-[12.5px] font-semibold ${
-                        consented ? "text-[#1F5C46]" : "text-[#2C2B4B]"
+                        consented ? "text-[#3D2E6B]" : "text-[#2C2B4B]"
                       }`}
                     >
                       {consented
@@ -2940,7 +2940,7 @@ function MedicationEditor({
 
                               <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#2C2B4B]">
                                 {reviewed && (
-                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                                  <Check className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]" />
                                 )}
                                 <span>{label}</span>
                               </span>
@@ -2971,7 +2971,7 @@ function MedicationEditor({
                                   );
                                 }
                                 return (
-                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3F0FB] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#3D2E6B] ring-1 ring-[#E5DEF5]">
                                     {prov.label}
                                   </span>
                                 );
@@ -3080,7 +3080,7 @@ function MedicationEditor({
                               onClick={() => setClearedOpen((v) => !v)}
                               className="flex w-full items-center gap-2 rounded-xl border border-[#EFECF7] px-4 py-2.5 text-left transition hover:bg-[#FBFAFE]"
                             >
-                              <Check className="h-3.5 w-3.5 shrink-0 text-[#1F7A57]" />
+                              <Check className="h-3.5 w-3.5 shrink-0 text-[#6E4FD3]" />
                               <span className="min-w-0 flex-1 text-[12.5px] font-semibold text-[#3D2E6B]">
                                 {clearedKeys.length} check{clearedKeys.length === 1 ? "" : "s"}{" "}
                                 completed
@@ -3130,7 +3130,7 @@ function MedicationEditor({
                     Client response: “{clientResponse}”
                   </p>
                   {med.sharedSafetyAcknowledgedAt ? (
-                    <p className="mt-2 text-[11.5px] text-[#1F7A57]">
+                    <p className="mt-2 text-[11.5px] text-[#6E4FD3]">
                       Acknowledged{" "}
                       {new Date(med.sharedSafetyAcknowledgedAt).toLocaleDateString(undefined, {
                         month: "short",
@@ -3288,7 +3288,7 @@ function MedicationEditor({
                 </p>
               )}
               {med.approved && med.verifiedAt && (
-                <p className="mt-1.5 pl-7 text-[12px] font-semibold text-[#1F7A57]">
+                <p className="mt-1.5 pl-7 text-[12px] font-semibold text-[#6E4FD3]">
                   Verified {formatCheckedAt(med.verifiedAt)}
                 </p>
               )}
@@ -3317,8 +3317,8 @@ function StatusChip({
     required: { label: "Required for this prescription", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
     recommended: { label: "Recommended", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
     review: { label: "Needs your review", cls: "bg-[#F4F1FB] text-[#5A4A8A]" },
-    complete: { label: "Reviewed", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
-    acknowledged: { label: "Acknowledged", cls: "bg-[#EDF7F2] text-[#1F7A57]" },
+    complete: { label: "Reviewed", cls: "bg-[#F1EEF8] text-[#6E4FD3]" },
+    acknowledged: { label: "Acknowledged", cls: "bg-[#F1EEF8] text-[#6E4FD3]" },
     unavailable: { label: "Information not available", cls: "bg-[#FDF3E0] text-[#8A6A20]" },
     "no-issue": { label: "No conflict identified", cls: "bg-[#F4F3F7] text-[#6F6889]" },
   } as const;
@@ -3473,7 +3473,7 @@ function FieldHint({ text }: { text: string }) {
 const TONE_TEXT = {
   neutral: "text-[#6F6889]",
   amber: "text-[#8A6A20]",
-  green: "text-[#1F7A57]",
+  green: "text-[#6E4FD3]",
   red: "text-[#9B4A4A]",
 } as const;
 
@@ -3542,8 +3542,8 @@ function CheckRow({
         </p>
       )}
       {provenance && (
-        <div className="mt-2 rounded-[12px] border border-[#CFE7DD] bg-[#F3FBF7] px-2.5 py-2">
-          <span className="inline-flex items-center rounded-[12px] bg-white px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+        <div className="mt-2 rounded-[12px] border border-[#E5DEF5] bg-[#F3F0FB] px-2.5 py-2">
+          <span className="inline-flex items-center rounded-[12px] bg-white px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#3D2E6B] ring-1 ring-[#E5DEF5]">
             {provenance.label}
           </span>
           <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#2F5C4C]">
