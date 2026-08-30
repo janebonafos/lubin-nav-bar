@@ -193,13 +193,13 @@ export function PatientInfoForm({
   return (
     <div className="mt-3 space-y-4 border-t border-[#EDEBF3] pt-3">
       {shared.length > 0 && (
-        <div className="rounded-xl border border-[#CFE7DD] bg-[#F3FBF7] p-3">
-          <p className="text-[12.5px] font-semibold text-[#1F5C46]">
+        <div className="rounded-xl border border-[#E5DEF5] bg-[#F3F0FB] p-3">
+          <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
             {clientName
               ? `Filled in from what ${clientName} shared`
               : "Filled in from what the client shared"}
           </p>
-          <p className="mt-0.5 text-[12px] leading-relaxed text-[#3C6B59]">
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[#5A4A8A]">
             These checks are already answered from their intake form and the Health Passport fields
             they consented to share — no need to ask again. Review, edit anything that changed, then
             save: you stay the author of the clinical record.
@@ -208,7 +208,7 @@ export function PatientInfoForm({
             {shared.map((item) => (
               <li
                 key={item.key}
-                className="flex flex-wrap items-start gap-2 rounded-lg border border-[#DCEFE7] bg-white p-2.5"
+                className="flex flex-wrap items-start gap-2 rounded-lg border border-[#EDE9F7] bg-white p-2.5"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block text-[11.5px] font-semibold uppercase tracking-wide text-[#6F6889]">
@@ -217,14 +217,14 @@ export function PatientInfoForm({
                   <span className="mt-0.5 block text-[13px] text-[#2C2B4B]">{item.value}</span>
                 </span>
                 {applied(item) ? (
-                  <span className="inline-flex h-8 items-center rounded-[10px] border border-[#CFE7DD] bg-[#F3FBF7] px-3 text-[11.5px] font-semibold uppercase tracking-wide text-[#1F7A57]">
+                  <span className="inline-flex h-8 items-center rounded-[10px] border border-[#E5DEF5] bg-[#F3F0FB] px-3 text-[11.5px] font-semibold uppercase tracking-wide text-[#6E4FD3]">
                     {item.source === "passport" ? "From Health Passport" : "From intake form"}
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => stage(item.patch)}
-                    className="inline-flex h-8 items-center rounded-[10px] bg-[#1F7A57] px-3 text-[12px] font-semibold text-white transition hover:bg-[#26906A]"
+                    className="inline-flex h-8 items-center rounded-[10px] bg-[#6E4FD3] px-3 text-[12px] font-semibold text-white transition hover:bg-[#5A4A8A]"
                   >
                     Use this answer
                   </button>
