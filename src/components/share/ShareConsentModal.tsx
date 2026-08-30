@@ -1132,6 +1132,7 @@ function Step3({
   summary,
   onRemoveIncluded,
   selectedAttemptIds,
+  selectedHealthFieldIds,
   mode = "share",
   dirty = false,
   onRangeChange,
@@ -1143,6 +1144,7 @@ function Step3({
   summary: SummaryData;
   onRemoveIncluded?: (key: string) => void;
   selectedAttemptIds?: string[];
+  selectedHealthFieldIds?: string[];
   mode?: "share" | "update";
   dirty?: boolean;
   onRangeChange?: (range: RangeKey) => void;
@@ -1256,12 +1258,12 @@ function Step3({
         keys: ["health"],
         body: (
           <div className="space-y-2">
-            {healthGroups
+            {sharedHealthDetails()
               .map((g) => ({
                 ...g,
-                items: g.items.filter((it) =>
-                  selectedHealthFieldIds.includes(it.id),
-                ),
+                items: selectedHealthFieldIds
+                  ? g.items.filter((it) => selectedHealthFieldIds.includes(it.id))
+                  : g.items,
               }))
               .filter((g) => g.items.length > 0)
               .map((g) => (
