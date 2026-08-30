@@ -10,6 +10,8 @@ export type PendingShare = {
   includedKeys: string[];
   /** When set, narrows shared assessment results to these attempt IDs. */
   attemptIds?: string[];
+  /** When set, narrows shared Health Passport details to these field IDs. */
+  healthFieldIds?: string[];
   createdAt: number;
 };
 
