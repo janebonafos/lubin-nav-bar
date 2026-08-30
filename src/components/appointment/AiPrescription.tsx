@@ -2905,7 +2905,17 @@ function MedicationEditor({
                                       : "No conflict identified from available information"}
                                 </span>
                               )}
+                              {(() => {
+                                const prov = checkProvenance(k, sharedSources, clientName);
+                                if (!prov) return null;
+                                return (
+                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                                    {prov.label}
+                                  </span>
+                                );
+                              })()}
                             </span>
+
                             <div className="flex flex-wrap items-center gap-2 sm:contents">
                               <StatusChip
                                 level={
@@ -2952,7 +2962,9 @@ function MedicationEditor({
                               <CheckRow
                                 label={label}
                                 check={med.checks?.[k]}
+                                provenance={checkProvenance(k, sharedSources, clientName)}
                                 reviewedAt={med.checkReviews?.[k]}
+
                                 onMarkReviewed={() => {
                                   const wasReviewed = !!med.checkReviews?.[k];
                                   onMarkCheckReviewed(k);
@@ -3406,13 +3418,48 @@ function requiredKeys(med: PrescriptionMedication): InfoKey[] {
   return requiredInfoKeys(med);
 }
 
+/**
+ * Which client-shared answer a medication check was evaluated from, so the
+ * provider can see the information came from the client — not from anywhere else.
+ */
+function checkProvenance(
+  checkKey: string,
+  sharedSources: Record<string, SharedSourceItem>,
+  clientName?: string,
+): { label: string; value: string; question: string } | null {
+  const map: Record<string, InfoKey> = {
+    allergies: "allergies",
+    currentMedications: "currentMedications",
+    interactions: "currentMedications",
+    contraindications: "conditions",
+    conditions: "conditions",
+    pregnancy: "pregnancy",
+    age: "age",
+  };
+  const infoKey = map[checkKey];
+  if (!infoKey) return null;
+  const shared = sharedSources[infoKey];
+  if (!shared) return null;
+  const who = clientName || "the client";
+  return {
+    label:
+      shared.source === "passport"
+        ? `Shared by ${who} · health card`
+        : `Shared by ${who} · intake form`,
+    value: shared.value,
+    question: shared.question,
+  };
+}
+
 function CheckRow({
   check,
+  provenance,
   reviewedAt,
   onMarkReviewed,
 }: {
   label?: string;
   check?: MedicationCheck;
+  provenance?: { label: string; value: string; question: string } | null;
   reviewedAt?: number;
   onMarkReviewed?: () => void;
 }) {
@@ -3431,6 +3478,21 @@ function CheckRow({
             : ""}
         </p>
       )}
+      {provenance && (
+        <div className="mt-2 rounded-[12px] border border-[#CFE7DD] bg-[#F3FBF7] px-2.5 py-2">
+          <span className="inline-flex items-center rounded-[12px] bg-white px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+            {provenance.label}
+          </span>
+          <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#2F5C4C]">
+            {provenance.question}: &ldquo;{provenance.value}&rdquo;
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed text-[#4A6F60]">
+            This check was evaluated from what they chose to share. Nothing is added from any
+            other source.
+          </p>
+        </div>
+      )}
+
       {needsAck && onMarkReviewed && (
         <div className="mt-2.5 rounded-[10px] border border-[#EDEBF3] bg-[#FCFBFE] px-2.5 py-2">
           <p className="text-[11.5px] leading-snug text-[#5A4A8A]">
