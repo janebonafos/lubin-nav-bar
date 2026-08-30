@@ -2619,10 +2619,11 @@ function MedicationEditor({
                   <ul className="mt-2 flex flex-wrap gap-1.5">
                     {STANDARD_INFO_CHECKLIST.map((item) => {
                       const done = infoList.find((i) => i.key === item.key)?.recorded ?? false;
+                      const shared = sharedSources[item.key];
                       return (
                         <li
                           key={item.key}
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium ring-1 ${
+                          className={`inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-1 text-[12px] font-medium ring-1 ${
                             done
                               ? "bg-[#F1F7F4] text-[#1F7A57] ring-[#CFE9DD]"
                               : "bg-white text-[#5A3EB8] ring-[#DCD2F4]"
@@ -2635,10 +2636,22 @@ function MedicationEditor({
                             }`}
                           />
                           {item.label}
+                          {shared && (
+                            <span className="rounded-[12px] bg-white/70 px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#5A4A8A] ring-1 ring-[#DCD2F4]">
+                              {shared.source === "passport"
+                                ? "Shared from health card"
+                                : "Shared in intake"}
+                            </span>
+                          )}
                         </li>
                       );
                     })}
                   </ul>
+                  <p className="mt-2 text-[11.5px] leading-relaxed text-[#6F6889]">
+                    {sharedCount > 0
+                      ? `${clientName || "The client"} chose to share ${sharedCount} of these with you — from their health card or intake form. Nothing else is pulled from anywhere: anything unlabelled is blank until you document it.`
+                      : `${clientName || "The client"} hasn't shared any of these yet, so nothing has been filled in. Document what comes up in the session.`}
+                  </p>
                 </div>
               )}
 
