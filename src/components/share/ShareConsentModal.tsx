@@ -251,6 +251,13 @@ export default function ShareConsentModal({
   const selectAllAttempts = () => setSelectedAttemptIds(allAttemptIds);
   const deselectAllAttempts = () => setSelectedAttemptIds([]);
 
+  const toggleHealthField = (id: string) =>
+    setSelectedHealthFieldIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  const selectAllHealthFields = () => setSelectedHealthFieldIds(allHealthFieldIds);
+  const deselectAllHealthFields = () => setSelectedHealthFieldIds([]);
+
   // Provider-linked sharing: we show the selection, review, and consent in a
   // single step so the user can choose what to share, see the review, check
   // "I agree", and then click "Continue and share" directly.
@@ -283,27 +290,23 @@ export default function ShareConsentModal({
       ? !agreed || included.length === 0
       : false;
 
+  const buildResult = (): ConsentResult => ({
+    includedKeys: included,
+    recipient: recipient!,
+    attemptIds: included.includes("assessments") ? selectedAttemptIds : undefined,
+    healthFieldIds: included.includes("health")
+      ? selectedHealthFieldIds
+      : undefined,
+  });
+
   const advance = () => {
     if (providerContext) {
       if (recipient && !confirmDisabled) {
-        onConfirm({
-          includedKeys: included,
-          recipient,
-          attemptIds: included.includes("assessments")
-            ? selectedAttemptIds
-            : undefined,
-        });
+        onConfirm(buildResult());
       }
     } else {
       if (step < 3) setStep(step + 1);
-      else if (recipient)
-        onConfirm({
-          includedKeys: included,
-          recipient,
-          attemptIds: included.includes("assessments")
-            ? selectedAttemptIds
-            : undefined,
-        });
+      else if (recipient) onConfirm(buildResult());
     }
   };
 
