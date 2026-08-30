@@ -7,6 +7,7 @@
 // (src/lib/intake/templates.ts) so prefill is a direct lookup.
 
 const KEY = "lubin.passport.healthDetails.v1";
+const AGREEMENT_KEY = "lubin.passport.healthAgreement.v1";
 const CHANGE_EVENT = "lubin-health-details-change";
 
 export type HealthDetailField = {
