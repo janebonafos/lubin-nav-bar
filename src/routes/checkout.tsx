@@ -137,6 +137,7 @@ function CheckoutPage() {
   const [googleAccount, setGoogleAccount] = useState<{ name: string; email: string } | null>(null);
   const [googlePicker, setGooglePicker] = useState(false);
   const [googleInput, setGoogleInput] = useState("");
+  const [socialProvider, setSocialProvider] = useState<"google" | "facebook" | "linkedin">("google");
 
   const [localCheckins, setLocalCheckins] = useState<
     { id: string; mood: number; note: string; date: string }[]
