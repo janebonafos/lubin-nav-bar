@@ -166,6 +166,8 @@ export default function IssuePrescriptionDialog({
 
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
   const [suggestions, setSuggestions] = useState<AiMedication[]>([]);
+  const [missingInfo, setMissingInfo] = useState<string[]>([]);
+  const [addedSuggestions, setAddedSuggestions] = useState<string[]>([]);
   const [aiNote, setAiNote] = useState("");
   const [aiError, setAiError] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -241,6 +243,8 @@ export default function IssuePrescriptionDialog({
     setSex((record.info.sex as PatientSex) ?? "not-documented");
     setAddress(record.info.address ?? "");
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
   }
 
@@ -252,6 +256,8 @@ export default function IssuePrescriptionDialog({
     setSex("not-documented");
     setAddress("");
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
   }
 
@@ -268,6 +274,8 @@ export default function IssuePrescriptionDialog({
     setNotes("");
     setMeds([emptyMed()]);
     setSuggestions([]);
+    setMissingInfo([]);
+    setAddedSuggestions([]);
     setAiNote("");
     setAiError("");
     setAuthorised(false);
@@ -277,6 +285,7 @@ export default function IssuePrescriptionDialog({
     setAiLoading(true);
     setAiError("");
     setAiNote("");
+    setMissingInfo([]);
     try {
       const res = await fetch("/api/generate-prescription", {
         method: "POST",
@@ -308,6 +317,7 @@ export default function IssuePrescriptionDialog({
       });
       const data = (await res.json()) as {
         medications?: AiMedication[];
+        missingInfo?: string[];
         clinicalNotes?: string;
         error?: string;
       };
@@ -316,6 +326,8 @@ export default function IssuePrescriptionDialog({
         return;
       }
       setSuggestions(data.medications ?? []);
+      setMissingInfo(data.missingInfo ?? []);
+      setAddedSuggestions([]);
       setAiNote(data.clinicalNotes ?? "");
     } catch {
       setAiError("Could not reach the suggestion service.");
@@ -324,7 +336,11 @@ export default function IssuePrescriptionDialog({
     }
   }
 
-  function addSuggestion(s: AiMedication) {
+  function suggestionKey(s: AiMedication, i: number) {
+    return `${s.genericName || s.name}-${i}`;
+  }
+
+  function addSuggestion(s: AiMedication, key?: string) {
     const next: MedForm = {
       id: genRxId(),
       genericName: s.genericName || s.name,
@@ -347,7 +363,16 @@ export default function IssuePrescriptionDialog({
       return blankOnly ? [next] : [...cur, next];
     });
     if (!diagnosis.trim() && s.indication) setDiagnosis(s.indication);
+    if (key) setAddedSuggestions((cur) => (cur.includes(key) ? cur : [...cur, key]));
   }
+
+  function addAllSuggestions() {
+    suggestions.forEach((s, i) => {
+      const key = suggestionKey(s, i);
+      if (!addedSuggestions.includes(key)) addSuggestion(s, key);
+    });
+  }
+
 
   function issue() {
     if (!identity || !canIssue) return;
@@ -743,63 +768,117 @@ export default function IssuePrescriptionDialog({
                   {aiError}
                 </p>
               )}
+              {missingInfo.length > 0 && (
+                <div className="mt-4 rounded-[12px] border border-[#EFE6D2] bg-[#FDF9EF] p-4">
+                  <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A6B1F]">
+                    Confirm before you sign
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {missingInfo.map((m) => (
+                      <span
+                        key={m}
+                        className="rounded-[12px] bg-white px-2.5 py-1 text-[12px] font-medium text-[#6B4E10] ring-1 ring-[#EFE6D2]"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               {aiNote && (
-                <p className="mt-3 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] text-[#6B4E10]">
+                <p className="mt-3 rounded-[12px] bg-[#FDF6E7] px-3 py-2 text-[12px] text-[#6B4E10]">
                   {aiNote}
                 </p>
               )}
+              {!aiLoading && !aiError && aiNote && suggestions.length === 0 && (
+                <button
+                  type="button"
+                  onClick={generateSuggestions}
+                  className="mt-3 rounded-[12px] border border-[#E3DBF5] px-3 py-2 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                >
+                  Add more detail above, then try again
+                </button>
+              )}
               {suggestions.length > 0 && (
                 <div className="mt-5 space-y-3">
-                  <p className="text-[11.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                    Suggestions for your review — nothing is prescribed until you sign
-                  </p>
-                  {suggestions.map((s, i) => (
-                    <div
-                      key={`${s.name}-${i}`}
-                      className="rounded-xl border border-[#E9E2F8] bg-[#FBFAFE] p-4"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            {s.genericName || s.name}
-                            {s.genericName && s.name !== s.genericName ? ` (${s.name})` : ""}
-                          </p>
-                          <p className="mt-1 text-[12.5px] text-[#4B4468]">
-                            {s.dose} · {s.frequency}
-                            {s.duration ? ` · ${s.duration}` : ""}
-                          </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[11.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                      Suggestions for your review — nothing is prescribed until you sign
+                    </p>
+                    {suggestions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={addAllSuggestions}
+                        className="rounded-[12px] border border-[#D9CEF3] px-3 py-1.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                      >
+                        Use all suggestions
+                      </button>
+                    )}
+                  </div>
+                  {suggestions.map((s, i) => {
+                    const key = suggestionKey(s, i);
+                    const added = addedSuggestions.includes(key);
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-[12px] border border-[#E9E2F8] bg-[#FBFAFE] p-4"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-[13.5px] font-bold text-[#3D2E6B]">
+                              {s.genericName || s.name}
+                              {s.genericName && s.name !== s.genericName ? ` (${s.name})` : ""}
+                            </p>
+                            <p className="mt-1 text-[12.5px] text-[#4B4468]">
+                              {s.dose} · {s.frequency}
+                              {s.duration ? ` · ${s.duration}` : ""}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => addSuggestion(s, key)}
+                            className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[12px] px-3 text-[12px] font-semibold transition ${
+                              added
+                                ? "border border-[#D9CEF3] bg-white text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                                : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+                            }`}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            {added ? "Add again" : "Use this — edit after"}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => addSuggestion(s)}
-                          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
-                        >
-                          <Plus className="h-3.5 w-3.5" /> Add to prescription
-                        </button>
+                        {added && (
+                          <p className="mt-2 text-[11.5px] font-semibold text-[#2F6B4F]">
+                            Added to the prescription below — dose, frequency and duration stay
+                            editable.
+                          </p>
+                        )}
+                        {s.rationale && (
+                          <p className="mt-2 text-[12px] text-[#6F6889]">
+                            <span className="font-semibold text-[#3D2E6B]">Why: </span>
+                            {s.rationale}
+                          </p>
+                        )}
+                        {s.instructions && (
+                          <p className="mt-1.5 text-[12px] text-[#6F6889]">
+                            <span className="font-semibold text-[#3D2E6B]">Directions: </span>
+                            {s.instructions}
+                          </p>
+                        )}
+                        {s.warnings && (
+                          <p className="mt-1.5 text-[12px] text-[#6F6889]">
+                            <span className="font-semibold text-[#3D2E6B]">Counsel on: </span>
+                            {s.warnings}
+                          </p>
+                        )}
+                        {s.availabilityNote && (
+                          <p className="mt-1.5 text-[12px] text-[#8A7FB0]">
+                            {s.availabilityNote}
+                          </p>
+                        )}
                       </div>
-                      {s.rationale && (
-                        <p className="mt-2 text-[12px] text-[#6F6889]">
-                          <span className="font-semibold text-[#3D2E6B]">Why: </span>
-                          {s.rationale}
-                        </p>
-                      )}
-                      {s.instructions && (
-                        <p className="mt-1.5 text-[12px] text-[#6F6889]">
-                          <span className="font-semibold text-[#3D2E6B]">Directions: </span>
-                          {s.instructions}
-                        </p>
-                      )}
-                      {s.warnings && (
-                        <p className="mt-1.5 text-[12px] text-[#6F6889]">
-                          <span className="font-semibold text-[#3D2E6B]">Counsel on: </span>
-                          {s.warnings}
-                        </p>
-                      )}
-                      {s.availabilityNote && (
-                        <p className="mt-1.5 text-[12px] text-[#8A7FB0]">{s.availabilityNote}</p>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>

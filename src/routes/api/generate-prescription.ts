@@ -46,7 +46,9 @@ Rules:
 - For every medication also include "availabilityNote": a short note on availability, generic/brand naming, and prescription-class requirements in the specified country.
 - Follow the country context strictly. Never suggest a medication that is not available in that country.
 - Never recommend controlled substances without an explicit indication in the input. Prefer non-controlled first-line agents.
-- If the input lacks the information you need for a safe suggestion, return an empty medications array and a clinicalNotes string explaining what is missing.
+- ALWAYS be useful: as long as there is any clinical context, return 1-3 concrete medication options the prescriber can edit — including symptomatic/supportive options when a definitive diagnosis is not yet established. Do not refuse. Put diagnostic caveats and required work-up in "warnings" and in "missingInfo" instead of returning an empty list.
+- "missingInfo": array of up to 5 short items (max 8 words each) naming what the prescriber should confirm or obtain before signing (e.g. "Chest X-ray", "Weight for dosing", "Penicillin allergy check").
+- Return an empty medications array ONLY when there is no clinical context at all.
 - Do not diagnose. Base suggestions on the input only.
 - Return STRICT JSON matching this schema and nothing else:
 {
@@ -65,6 +67,7 @@ Rules:
       "availabilityNote": string
     }
   ],
+  "missingInfo": string[],
   "clinicalNotes": string
 }`;
 
@@ -158,6 +161,7 @@ export const Route = createFileRoute("/api/generate-prescription")({
           const raw = data.choices?.[0]?.message?.content ?? "";
           let parsed: {
             medications?: Array<Record<string, string | null | undefined>>;
+            missingInfo?: unknown;
             clinicalNotes?: string;
           } = {};
           try {
@@ -183,8 +187,15 @@ export const Route = createFileRoute("/api/generate-prescription")({
               ? String(m.availabilityNote)
               : undefined,
           }));
+          const missingInfo = Array.isArray(parsed.missingInfo)
+            ? parsed.missingInfo
+                .map((x) => String(x).trim())
+                .filter(Boolean)
+                .slice(0, 5)
+            : [];
           return Response.json({
             medications,
+            missingInfo,
             clinicalNotes: parsed.clinicalNotes ?? "",
             country,
           });
