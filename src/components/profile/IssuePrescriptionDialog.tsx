@@ -166,6 +166,8 @@ export default function IssuePrescriptionDialog({
 
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
   const [suggestions, setSuggestions] = useState<AiMedication[]>([]);
+  const [missingInfo, setMissingInfo] = useState<string[]>([]);
+  const [addedSuggestions, setAddedSuggestions] = useState<string[]>([]);
   const [aiNote, setAiNote] = useState("");
   const [aiError, setAiError] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
