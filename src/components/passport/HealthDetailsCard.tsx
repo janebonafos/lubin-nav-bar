@@ -568,7 +568,7 @@ function MedsInput({
                   />
                   <select
                     value={row.type}
-                    onChange={(e) => update(i, { type: e.target.value })}
+                    onChange={(e) => update(i, { type: e.target.value, otherType: e.target.value === "Other" ? (row.otherType ?? "") : "" })}
                     className={`h-12 min-w-0 flex-1 cursor-pointer appearance-none rounded-[12px] border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
                       row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
                     }`}
@@ -585,6 +585,15 @@ function MedsInput({
                     ))}
                   </select>
                 </div>
+                {row.type === "Other" && (
+                  <input
+                    value={row.otherType ?? ""}
+                    maxLength={field.maxItemLength ?? 40}
+                    placeholder='What type? e.g. "Antihistamine", "Pain reliever"'
+                    onChange={(e) => update(i, { otherType: e.target.value.replace(/[;—()]/g, " ") })}
+                    className="h-12 w-full min-w-0 rounded-[12px] border border-brand-purple/25 bg-white px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:ring-2 focus:ring-brand-purple/30"
+                  />
+                )}
               </div>
             </div>
           ))}
