@@ -191,3 +191,44 @@ export function sharedIntakeInfo(
 
   return out;
 }
+
+export type SharedSourceItem = {
+  key: InfoKey;
+  /** Where it came from: the client's intake answers, or their health card. */
+  source: "intake" | "passport";
+  /** What the client's own record says right now, verbatim. */
+  value: string;
+  question: string;
+};
+
+/**
+ * What the client shared for this appointment, per safety check — regardless of
+ * whether the provider has already saved it to the clinical record. Used to
+ * label information as client-shared and to compare the saved record against
+ * what the health card currently says. Nothing here is read without consent.
+ */
+export function sharedSourceMap(appointmentId: string): Record<string, SharedSourceItem> {
+  const values = getResponse(appointmentId).values ?? {};
+  const passport = consentedPassportValues(appointmentId);
+  const pick = (
+    id: string,
+  ): { source: "intake" | "passport"; value: string } | null => {
+    const v = (values[id] ?? "").trim();
+    if (v && v !== PREFER_IN_PERSON_TEXT) return { source: "intake", value: v };
+    const shared = (passport[id] ?? "").trim();
+    if (shared) return { source: "passport", value: shared };
+    return null;
+  };
+  const map: Record<string, SharedSourceItem> = {};
+  const add = (key: InfoKey, id: string, question: string) => {
+    const found = pick(id);
+    if (!found) return;
+    map[key] = { key, source: found.source, value: found.value, question };
+  };
+  add("allergies", "history.allergies", "Any allergies or reactions?");
+  add("currentMedications", "medication.list", "Anything you're taking right now?");
+  add("conditions", "history.conditions", "Any conditions or past care that feels relevant?");
+  add("age", "identity.dob", "Date of birth");
+  add("pregnancy", "history.pregnancy", "Pregnancy or breastfeeding");
+  return map;
+}
