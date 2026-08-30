@@ -615,7 +615,7 @@ function ViewSharedSheet({
             <ul className="mt-2 space-y-1">
               {grant.includedKeys.map((k) => (
                 <li key={k} className="text-[13px]">
-                  • {k}
+                  • {INCLUDE_OPTIONS.find((o) => o.key === k)?.label ?? k}
                 </li>
               ))}
             </ul>
