@@ -278,7 +278,7 @@ export default function ShareTabView({
         </p>
       </header>
 
-      {showEmpty ? (
+      {!mounted ? null : showEmpty ? (
         <EmptyState
           onStart={onStartCheckin}
           isGuest={isGuest}
