@@ -7,6 +7,7 @@
 // (src/lib/intake/templates.ts) so prefill is a direct lookup.
 
 const KEY = "lubin.passport.healthDetails.v1";
+const AGREEMENT_KEY = "lubin.passport.healthAgreement.v1";
 const CHANGE_EVENT = "lubin-health-details-change";
 
 export type HealthDetailField = {
@@ -243,4 +244,24 @@ export function healthDetailsProgress(details = loadHealthDetails()): HealthDeta
 
 export function groupFilledCount(group: HealthDetailGroup, details: HealthDetails): number {
   return group.fields.filter((f) => (details[f.id] ?? "").trim()).length;
+}
+
+export function loadHealthAgreement(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(AGREEMENT_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function setHealthAgreement(agreed: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (agreed) window.localStorage.setItem(AGREEMENT_KEY, "true");
+    else window.localStorage.removeItem(AGREEMENT_KEY);
+  } catch {
+    /* noop */
+  }
+  emit();
 }
