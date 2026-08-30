@@ -192,6 +192,32 @@ export function setAnswer(appointmentId: string, fieldId: string, value: string)
   });
 }
 
+/**
+ * Answer captured by the provider during the session, when the client didn't
+ * fill the form in time. Recorded separately so everyone can see who wrote it.
+ */
+export function setProviderAnswer(
+  appointmentId: string,
+  fieldId: string,
+  value: string,
+) {
+  const current = getResponse(appointmentId);
+  const values = { ...current.values };
+  const filled = new Set(current.providerFilled ?? []);
+  if (value.trim()) {
+    values[fieldId] = value;
+    filled.add(fieldId);
+  } else {
+    delete values[fieldId];
+    filled.delete(fieldId);
+  }
+  saveResponse(appointmentId, {
+    values,
+    providerFilled: [...filled],
+    skipped: current.skipped.filter((s) => s !== fieldId),
+  });
+}
+
 /** Text stored (and shared with the provider) when a client prefers to talk. */
 export const PREFER_IN_PERSON_TEXT = "I'd rather talk about this in person.";
 
