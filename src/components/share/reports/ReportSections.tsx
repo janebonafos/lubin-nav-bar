@@ -278,7 +278,7 @@ export function HealthDetailsSection() {
   );
 }
 
-export function PrivacyFooter() {
+export function PrivacyFooter(_props: { includedKeys?: string[] } = {}) {
   return (
     <footer className="mt-8 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-center">
       <div className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
