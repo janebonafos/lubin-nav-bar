@@ -18,7 +18,7 @@ export default function TrustedContactReport({
           aria-hidden
           className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/50 blur-3xl"
         />
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
           <Heart className="h-3.5 w-3.5 text-rose-400" />
           A note shared with you
         </span>
@@ -35,7 +35,7 @@ export default function TrustedContactReport({
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40"
         >
           <Printer className="h-3.5 w-3.5" />
           Print / Save PDF

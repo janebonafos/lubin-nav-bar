@@ -76,7 +76,7 @@ export default function BookedProviderShareCard({
 
         <div className="flex flex-none items-center justify-between gap-3 sm:justify-end">
           <span
-            className={`inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+            className={`inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
               shared
                 ? "bg-[#2D245A] text-white"
                 : "border border-[#7C69BA]/10 bg-[#F7F4FC] text-[#7C69BA]"

@@ -84,7 +84,7 @@ export default function CaregiverAccessCard({
     <section className="overflow-hidden rounded-3xl border border-brand-purple/12 bg-white shadow-[0_18px_50px_-30px_rgba(126,107,175,0.35)]">
       <div className="flex flex-wrap items-start justify-between gap-4 px-6 pt-6 pb-5 md:px-8 md:pt-8">
         <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
             <Users className="h-3 w-3" /> Shared care
           </span>
           <h3 className="mt-3 text-2xl font-bold tracking-tight text-brand-purple-dark md:text-[1.75rem]">
@@ -100,7 +100,7 @@ export default function CaregiverAccessCard({
         <button
           type="button"
           onClick={() => setFormOpen((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(126,107,175,0.8)]"
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(126,107,175,0.8)]"
         >
           {formOpen ? "Close" : "Invite someone"}
           <UserPlus className="h-4 w-4" />
@@ -120,7 +120,7 @@ export default function CaregiverAccessCard({
           <button
             type="button"
             onClick={() => setActingAs(null)}
-            className="rounded-full border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
+            className="rounded-lg border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
           >
             Stop managing
           </button>
@@ -213,7 +213,7 @@ export default function CaregiverAccessCard({
               type="button"
               disabled={!canSubmit}
               onClick={submit}
-              className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
               Send invite <Mail className="h-4 w-4" />
             </button>
@@ -247,7 +247,7 @@ export default function CaregiverAccessCard({
               </div>
 
               <span
-                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${
                   c.status === "active"
                     ? "bg-brand-purple/10 text-brand-purple"
                     : "bg-brand-purple-dark/5 text-brand-purple-dark/60"
@@ -261,7 +261,7 @@ export default function CaregiverAccessCard({
                 onChange={(e) =>
                   updateCaregiverRole(c.id, e.target.value as CaregiverRole)
                 }
-                className="rounded-full border border-brand-purple/20 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark outline-none"
+                className="rounded-lg border border-brand-purple/20 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark outline-none"
               >
                 <option value="view">{ROLE_META.view.label}</option>
                 <option value="manage">{ROLE_META.manage.label}</option>
@@ -271,7 +271,7 @@ export default function CaregiverAccessCard({
                 <button
                   type="button"
                   onClick={() => markCaregiverAccepted(c.id)}
-                  className="rounded-full border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
+                  className="rounded-lg border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
                 >
                   Mark as accepted
                 </button>
@@ -279,7 +279,7 @@ export default function CaregiverAccessCard({
                 <button
                   type="button"
                   onClick={() => setActingAs(c.id)}
-                  className="rounded-full border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
+                  className="rounded-lg border border-brand-purple/25 bg-white px-3.5 py-1.5 text-[12px] font-semibold text-brand-purple-dark"
                 >
                   Let them manage
                 </button>

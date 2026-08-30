@@ -75,7 +75,7 @@ export default function PassportPreview() {
             Everything you share, gently remembered.
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-purple/10 px-3 py-1.5 text-[12px] font-medium text-brand-purple">
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-purple/10 px-3 py-1.5 text-[12px] font-medium text-brand-purple">
           <Lock className="h-3 w-3" />
           Private to you
         </span>
@@ -136,7 +136,7 @@ export default function PassportPreview() {
             <p className="text-[12px] font-semibold uppercase tracking-wider text-brand-purple">
               Mood trend
             </p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100/70 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-100/70 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
               <TrendingUp className="h-3 w-3" />
               Improving
             </span>
