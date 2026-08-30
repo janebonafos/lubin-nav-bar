@@ -53,12 +53,12 @@ export const CHECK_ROWS: {
   { key: "currentMedications", label: "Current medications" },
   { key: "interactions", label: "Medication interactions" },
   { key: "contraindications", label: "Contraindications" },
-  { key: "conditions", label: "Relevant conditions" },
+  { key: "conditions", label: "Conditions that affect this medicine" },
   { key: "bipolarHistory", label: "Bipolar or mania history" },
   { key: "pregnancy", label: "Pregnancy and breastfeeding" },
   { key: "age", label: "Age-dependent warnings" },
   { key: "organFunction", label: "Laboratory and organ function" },
-  { key: "monitoring", label: "Monitoring requirements" },
+  { key: "monitoring", label: "Follow-up and monitoring plan" },
 ];
 
 /** A short, item-specific line for the checklist row — never just the category. */
@@ -504,7 +504,7 @@ export function runSafetyReview(
     checks.conditions = {
       status: hits.length ? "review-needed" : "no-issue",
       detail: hits.length
-        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} recorded as current in this patient's conditions${where}. Review whether this affects medication choice or monitoring before prescribing.`
+        ? `${hits.map((h) => h.replace(/^\w/, (c) => c.toUpperCase())).join(", ")} recorded as current in this patient's conditions${where}. Check whether this changes the medicine, the dose, or how closely you follow up.`
         : "No condition identified from the available information that changes this prescription.",
       informationUsed: conditionProvenance
         ? `Medical conditions in this record — ${conditionProvenance}.`
@@ -603,8 +603,8 @@ export function runSafetyReview(
   checks.monitoring = {
     status: "review-needed",
     detail: med.requiresLabs
-      ? `Baseline and follow-up monitoring is called for by this medication${med.labsReason ? ` — ${med.labsReason}` : ""}. Confirm the follow-up interval and monitoring plan before prescribing.`
-      : "Confirm the follow-up interval and monitoring plan before prescribing.",
+      ? `Baseline and follow-up monitoring is called for by this medication${med.labsReason ? ` — ${med.labsReason}` : ""}. Set when you will next review this patient, and any tests needed.`
+      : "Set when you will next review this patient, and any tests needed.",
     informationUsed: "Prescribing information for this medication and the recorded plan.",
     checkedAt: now,
   };
