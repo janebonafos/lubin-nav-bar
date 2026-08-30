@@ -90,7 +90,10 @@ function formatDob(value: string): string {
 }
 
 function CardBack({ details }: { details: HealthDetails }) {
-  const sections = HEALTH_DETAIL_GROUPS.map((group) => ({
+  const sections = HEALTH_DETAIL_GROUPS
+    // Basic identity + contact fields already live on the card front.
+    .filter((group) => group.id !== "about-you" && group.id !== "reach-you")
+    .map((group) => ({
     label: group.label,
     rows: group.fields
       .map((f) => ({ label: f.label, value: (details[f.id] ?? "").trim() }))
