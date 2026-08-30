@@ -154,6 +154,7 @@ export default function ProviderIntakeAnswers({
   const [mounted, setMounted] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [editingField, setEditingField] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
