@@ -388,9 +388,6 @@ function PassportPage() {
               </div>
 
               <HealthDetailsCard showHeader={false} />
-              <div className="mt-8">
-                <CaregiverAccessCard ownerLabel={detailsName ?? "you"} />
-              </div>
 
             </div>
           )}
