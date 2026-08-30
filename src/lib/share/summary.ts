@@ -259,11 +259,6 @@ export const INCLUDE_OPTIONS: {
     description: "Checks you completed from Self Discovery",
   },
   {
-    key: "themes",
-    label: "Common themes",
-    description: "Topics that came up often (like sleep or work) — no written text",
-  },
-  {
     key: "notes",
     label: "My written notes",
     description: "The actual words you wrote in your check-ins. Off unless you turn it on.",

@@ -89,7 +89,7 @@ export default function ShareConsentModal({
     return {
       mood: summary.checkinsInRange.length > 0,
       assessments: summary.attemptsInRange.length > 0,
-      themes: summary.themes.length > 0,
+      
       notes: summary.checkinsInRange.some((c) => (c.note ?? "").trim().length > 0),
     } as Record<string, boolean>;
   }, [summary]);
@@ -1100,18 +1100,6 @@ function Step3({
             </div>
           );
         })(),
-      },
-      {
-        title: "Common themes",
-        keys: ["themes"],
-        body: (
-          <p className="text-[12px] text-[#5A4A8A]">
-            {summary.themes.map((t) => t.label).join(" · ") || "No themes yet."}
-            <span className="mt-1 block text-[11px] text-[#8B85A6]">
-              Topic labels only — none of your written text is included here.
-            </span>
-          </p>
-        ),
       },
       {
         title: "My written notes",
