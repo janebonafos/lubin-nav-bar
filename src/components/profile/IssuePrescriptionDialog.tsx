@@ -753,6 +753,41 @@ export default function IssuePrescriptionDialog({
                 />
               </div>
 
+              <div className="mt-6">
+                <SoapNotesPanel
+                  recordKey={`rx:${selected?.id ?? "new-patient"}`}
+                  defaultOpen={false}
+                  context={() => ({
+                    country,
+                    patientContext: {
+                      firstName: patientName.split(" ")[0] || undefined,
+                      age: ageYears,
+                      sex: sex === "not-documented" ? undefined : sex,
+                    },
+                    caseNotes,
+                    presenting: diagnosis || caseNotes,
+                    observations: caseNotes,
+                    plan: notes,
+                    assessments: passportItems.map((p) => ({
+                      name: p.name,
+                      score: p.score,
+                      statusLabel: p.statusLabel,
+                    })),
+                    currentMedications: (selected?.pastMedications ?? [])
+                      .slice(0, 5)
+                      .map((m) => ({
+                        name: m.genericName || m.name,
+                        dose: m.dose,
+                        frequency: m.frequency,
+                      })),
+                    allergies:
+                      selected?.info.allergyEntries?.map((a) => a.name).join(", ") ||
+                      undefined,
+                  })}
+                />
+              </div>
+
+
               <button
                 type="button"
                 onClick={generateSuggestions}
