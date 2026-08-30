@@ -161,6 +161,7 @@ export const Route = createFileRoute("/api/generate-prescription")({
           const raw = data.choices?.[0]?.message?.content ?? "";
           let parsed: {
             medications?: Array<Record<string, string | null | undefined>>;
+            missingInfo?: unknown;
             clinicalNotes?: string;
           } = {};
           try {
@@ -186,8 +187,15 @@ export const Route = createFileRoute("/api/generate-prescription")({
               ? String(m.availabilityNote)
               : undefined,
           }));
+          const missingInfo = Array.isArray(parsed.missingInfo)
+            ? parsed.missingInfo
+                .map((x) => String(x).trim())
+                .filter(Boolean)
+                .slice(0, 5)
+            : [];
           return Response.json({
             medications,
+            missingInfo,
             clinicalNotes: parsed.clinicalNotes ?? "",
             country,
           });
