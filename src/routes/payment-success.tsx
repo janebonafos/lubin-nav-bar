@@ -120,6 +120,7 @@ function PaymentSuccessPage() {
           providerName: pending.providerName,
           appointmentLabel: pending.appointmentLabel,
           includedKeys: pending.includedKeys,
+          healthFieldIds: pending.healthFieldIds,
           snapshot: filteredSummary,
         });
       }
@@ -535,6 +536,7 @@ function PaymentSuccessPage() {
                     providerName: provider.name,
                     appointmentLabel: appointmentShortLabel,
                     includedKeys: r.includedKeys,
+                    healthFieldIds: r.healthFieldIds,
                     snapshot: filteredSnap,
                   });
                 }

@@ -199,6 +199,7 @@ export default function ShareTabView({
                         mode={effectiveMode}
                         initialIncluded={existing?.includedKeys}
                         initialAttemptIds={initialAttemptIds}
+                        initialHealthFieldIds={existing?.healthFieldIds}
                         onRevoke={
                           existing ? () => setRevokeTarget(a) : undefined
                         }
@@ -218,6 +219,7 @@ export default function ShareTabView({
                             if (isUpdate) {
                               updateProviderGrant(a.id, {
                                 includedKeys: r.includedKeys,
+                                healthFieldIds: r.healthFieldIds,
                                 snapshot: filteredSummary,
                               });
                               toast.success("Shared information updated", {
@@ -230,6 +232,7 @@ export default function ShareTabView({
                                 appointmentLabel: a.fullLabel,
                                 appointmentTs: a.ts,
                                 includedKeys: r.includedKeys,
+                                healthFieldIds: r.healthFieldIds,
                                 snapshot: filteredSummary,
                               });
                               toast.success("Health Passport shared", {
