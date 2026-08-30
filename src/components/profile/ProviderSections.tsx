@@ -1495,11 +1495,11 @@ export function AppointmentsSection() {
       },
     },
     {
-      id: "c8", client: "Miguel Santos", day: "SUN", date: "30", month: "AUG", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry consultation (medication review)", sessionFormat: "Individual", mode: "Video", status: "completed",
+      id: "c8", client: "Miguel Santos", day: "SUN", date: "30", month: "AUG", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry consultation (medication review)", sessionFormat: "Individual", mode: "Video", status: "session_review",
       notes: "Discussed low mood and poor sleep over the past two months. No current medication. Agreed to consider starting treatment.",
       amount: "₱3,200", paymentStatus: "Paid",
       prescriptionEligible: true,
-      payoutStatus: "approved",
+      payoutStatus: "pending_review",
       outcome: "completed",
     },
 
