@@ -242,6 +242,10 @@ export default function ProviderIntakeAnswers({
               {progress.open > 0 ? ` · ${progress.open} still open` : ""}
               {progress.skipped > 0 ? ` · ${progress.skipped} saved for conversation` : ""}
               {" · updates arrive live"}
+              <span className="mt-1 block">
+                Anything still open you can fill in here as {first} tells you during
+                the call.
+              </span>
             </SheetDescription>
           </SheetHeader>
 
