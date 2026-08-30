@@ -495,14 +495,16 @@ function MedsInput({
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
+          aria-pressed={takingNone}
           onClick={() => onChange(takingNone ? "" : none)}
-          className={`rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition ${
+          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition ${
             takingNone
               ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
               : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
           }`}
         >
           {none}
+          {takingNone && <X className="h-3.5 w-3.5 opacity-90" aria-label={`Clear ${none}`} />}
         </button>
         {!takingNone && rows.length === 0 && (
           <span className="text-[12px] text-brand-purple-dark/50">
