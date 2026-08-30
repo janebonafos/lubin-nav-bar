@@ -265,3 +265,42 @@ export function setHealthAgreement(agreed: boolean): void {
   }
   emit();
 }
+
+export type SharedHealthDetailGroup = {
+  group: string;
+  items: { label: string; value: string }[];
+};
+
+/**
+ * The health details a client can choose to share with a provider. Identity
+ * and contact groups are excluded — the provider already has those from the
+ * booking. Emergency-contact particulars are dropped when the client said
+ * there's no one to call.
+ */
+export function sharedHealthDetails(
+  details = loadHealthDetails(),
+): SharedHealthDetailGroup[] {
+  const noEmergency = details["emergency.none"] === "No one right now";
+  return HEALTH_DETAIL_GROUPS.filter(
+    (g) => g.id !== "about-you" && g.id !== "reach-you",
+  )
+    .map((g) => ({
+      group: g.label,
+      items: g.fields
+        .filter((f) => (details[f.id] ?? "").trim())
+        .filter(
+          (f) =>
+            !(
+              noEmergency &&
+              f.id.startsWith("emergency.") &&
+              f.id !== "emergency.none"
+            ),
+        )
+        .map((f) => ({ label: f.label, value: details[f.id] })),
+    }))
+    .filter((g) => g.items.length > 0);
+}
+
+export function hasSharedHealthDetails(): boolean {
+  return sharedHealthDetails().length > 0;
+}

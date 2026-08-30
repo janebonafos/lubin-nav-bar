@@ -259,10 +259,10 @@ export const INCLUDE_OPTIONS: {
     description: "Checks you completed from Self Discovery",
   },
   {
-    key: "notes",
-    label: "My written notes",
-    description: "The actual words you wrote in your check-ins. Off unless you turn it on.",
-    defaultOff: true,
+    key: "health",
+    label: "Health Passport details",
+    description:
+      "Medications, allergies, conditions and care info you've added — used for safe prescribing",
   },
 ];
 

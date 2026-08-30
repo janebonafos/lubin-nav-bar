@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ShareConsentModal from "./ShareConsentModal";
 import ShareOptionsModal from "./ShareOptionsModal";
-import { buildSummary, mockSummary, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
+import { buildSummary, mockSummary, INCLUDE_OPTIONS, RANGE_OPTIONS, type RangeKey } from "@/lib/share/summary";
 import type { RecipientId } from "@/lib/share/shareStore";
 import BookedProviderShareCard from "./BookedProviderShareCard";
 import type { ClientUpcomingAppointment } from "@/components/profile/ClientAppointmentsSection";
@@ -278,7 +278,7 @@ export default function ShareTabView({
         </p>
       </header>
 
-      {showEmpty ? (
+      {!mounted ? null : showEmpty ? (
         <EmptyState
           onStart={onStartCheckin}
           isGuest={isGuest}
@@ -615,7 +615,7 @@ function ViewSharedSheet({
             <ul className="mt-2 space-y-1">
               {grant.includedKeys.map((k) => (
                 <li key={k} className="text-[13px]">
-                  • {k}
+                  • {INCLUDE_OPTIONS.find((o) => o.key === k)?.label ?? k}
                 </li>
               ))}
             </ul>
