@@ -172,7 +172,7 @@ export default function IntakeRequestCard({
                     <span
                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                         complete
-                          ? "bg-[#E6F8F1] text-[#2D8E69]"
+                          ? "bg-[#F0EAFB] text-[#7E6BAF] ring-4 ring-[#7E6BAF]/10"
                           : "bg-[#F0EAFB] text-[#7E6BAF]"
                       }`}
                     >
