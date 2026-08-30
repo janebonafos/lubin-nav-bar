@@ -521,7 +521,13 @@ function CheckoutPage() {
                 </p>
               )}
 
-              <div className="mt-4 flex items-center gap-2 border-t border-[#7E6BAF]/10 pt-3">
+              <p className="mt-3 text-[12px] leading-relaxed text-[#7E6BAF]">
+                Any medication, allergy, or health condition details you choose
+                to share may be used by your provider to prescribe and treat you
+                safely.
+              </p>
+
+              <div className="mt-3 flex items-center gap-2 border-t border-[#7E6BAF]/10 pt-3">
                 <Lock className="h-3.5 w-3.5 flex-none text-[#7E6BAF]" />
                 <span className="text-[11px] font-medium text-[#7E6BAF]">
                   {pending && pending.includedKeys.length > 0
@@ -529,6 +535,7 @@ function CheckoutPage() {
                     : "Fixed snapshot. Nothing is shared unless you confirm."}
                 </span>
               </div>
+
             </div>
 
             <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-dashed border-[#E9E6FA] bg-[#FBFAFF] p-4">
