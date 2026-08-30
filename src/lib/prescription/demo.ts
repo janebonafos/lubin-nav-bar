@@ -62,7 +62,9 @@ export function fallbackPrescription(
         name: "Generalised anxiety",
         detail: "Ongoing, managed with therapy",
         status: "active",
-        source: "passport",
+        // No share grant exists in this sample record, so nothing may claim to
+        // have come from the patient's health card.
+        source: "provider",
         updatedAt: generatedAt,
       },
       {
