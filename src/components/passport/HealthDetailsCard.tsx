@@ -421,7 +421,7 @@ function TagsInput({
  * dose, so a clinician reads discrete entries instead of a paragraph. Stored as
  * "Type — Name dose" rows joined by "; ".
  */
-type MedRow = { type: string; name: string; dose: string };
+type MedRow = { type: string; name: string; dose: string; otherType?: string };
 
 function parseMeds(value: string): MedRow[] {
   return value
