@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, FileText } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, FileText, Pencil } from "lucide-react";
 
 import {
   Sheet,
