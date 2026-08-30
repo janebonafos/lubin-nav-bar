@@ -511,76 +511,78 @@ function MedsInput({
         )}
       </div>
 
-      <div className="space-y-3">
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className="overflow-hidden rounded-[12px] border border-brand-purple/20 bg-white shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
-          >
-            <div className="flex items-center justify-between border-b border-brand-purple/10 bg-brand-purple/[0.05] px-4 py-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">
-                Medication {String(i + 1).padStart(2, "0")}
-              </span>
-              <button
-                type="button"
-                aria-label={`Remove medication ${i + 1}`}
-                onClick={() => commit(rows.filter((_, idx) => idx !== i))}
-                className="shrink-0 text-brand-purple-dark/35 transition hover:text-brand-purple-dark"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 p-4">
-              <input
-                value={row.name}
-                maxLength={field.maxItemLength ?? 40}
-                placeholder="Medicine name"
-                onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
-                className="h-12 w-full min-w-0 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
-              />
-              <div className="flex gap-3">
-                <input
-                  value={row.dose}
-                  maxLength={20}
-                  placeholder="Dose"
-                  onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
-                  className="h-12 min-w-0 flex-1 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
-                />
-                <select
-                  value={row.type}
-                  onChange={(e) => update(i, { type: e.target.value })}
-                  className={`h-12 min-w-0 flex-1 cursor-pointer appearance-none rounded-[12px] border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
-                    row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
-                  }`}
-                  style={{
-                    backgroundImage:
-                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237E6BAF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
-                  }}
+      {!takingNone && (
+        <div className="space-y-3">
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className="overflow-hidden rounded-[12px] border border-brand-purple/20 bg-white shadow-[0_1px_2px_rgba(126,107,175,0.06)]"
+            >
+              <div className="flex items-center justify-between border-b border-brand-purple/10 bg-brand-purple/[0.05] px-4 py-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">
+                  Medication {String(i + 1).padStart(2, "0")}
+                </span>
+                <button
+                  type="button"
+                  aria-label={`Remove medication ${i + 1}`}
+                  onClick={() => commit(rows.filter((_, idx) => idx !== i))}
+                  className="shrink-0 text-brand-purple-dark/35 transition hover:text-brand-purple-dark"
                 >
-                  <option value="">Type</option>
-                  {types.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 p-4">
+                <input
+                  value={row.name}
+                  maxLength={field.maxItemLength ?? 40}
+                  placeholder="Medicine name"
+                  onChange={(e) => update(i, { name: e.target.value.replace(/[;—]/g, " ") })}
+                  className="h-12 w-full min-w-0 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm font-medium text-brand-purple-dark placeholder:font-normal placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
+                />
+                <div className="flex gap-3">
+                  <input
+                    value={row.dose}
+                    maxLength={20}
+                    placeholder="Dose"
+                    onChange={(e) => update(i, { dose: e.target.value.replace(/[;—]/g, " ") })}
+                    className="h-12 min-w-0 flex-1 rounded-[12px] border border-transparent bg-brand-purple/[0.05] px-4 text-sm text-brand-purple-dark placeholder:text-brand-purple-dark/35 outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30"
+                  />
+                  <select
+                    value={row.type}
+                    onChange={(e) => update(i, { type: e.target.value })}
+                    className={`h-12 min-w-0 flex-1 cursor-pointer appearance-none rounded-[12px] border border-transparent bg-brand-purple/[0.05] bg-[length:14px] bg-[right_0.85rem_center] bg-no-repeat px-4 pr-9 text-sm outline-none transition focus:bg-white focus:ring-2 focus:ring-brand-purple/30 ${
+                      row.type ? "text-brand-purple-dark" : "text-brand-purple-dark/40"
+                    }`}
+                    style={{
+                      backgroundImage:
+                        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237E6BAF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+                    }}
+                  >
+                    <option value="">Type</option>
+                    {types.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {rows.length < maxRows && (
-          <button
-            type="button"
-            onClick={addRow}
-            className="flex w-full items-center justify-center gap-2 rounded-[12px] bg-brand-purple/10 py-3 text-[13.5px] font-semibold text-brand-purple transition hover:bg-brand-purple hover:text-white active:scale-[0.99]"
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.5} />
-            {rows.length ? "Add another medication" : "Add a medication"}
-          </button>
-        )}
-      </div>
+          {rows.length < maxRows && (
+            <button
+              type="button"
+              onClick={addRow}
+              className="flex w-full items-center justify-center gap-2 rounded-[12px] bg-brand-purple/10 py-3 text-[13.5px] font-semibold text-brand-purple transition hover:bg-brand-purple hover:text-white active:scale-[0.99]"
+            >
+              <Plus className="h-4 w-4" strokeWidth={2.5} />
+              {rows.length ? "Add another medication" : "Add a medication"}
+            </button>
+          )}
+        </div>
+      )}
 
     </div>
   );
