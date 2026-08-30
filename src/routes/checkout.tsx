@@ -391,7 +391,8 @@ function CheckoutPage() {
                 </button>
               </div>
             ) : (
-              <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              <div className="mt-5">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                 {(
                   [
                     { id: "google", label: "Google", Icon: GoogleGlyph },
