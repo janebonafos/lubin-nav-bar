@@ -2905,7 +2905,17 @@ function MedicationEditor({
                                       : "No conflict identified from available information"}
                                 </span>
                               )}
+                              {(() => {
+                                const prov = checkProvenance(k, sharedSources, clientName);
+                                if (!prov) return null;
+                                return (
+                                  <span className="mt-1 inline-flex items-center rounded-[12px] bg-[#F3FBF7] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#1F5C46] ring-1 ring-[#CFE7DD]">
+                                    {prov.label}
+                                  </span>
+                                );
+                              })()}
                             </span>
+
                             <div className="flex flex-wrap items-center gap-2 sm:contents">
                               <StatusChip
                                 level={
