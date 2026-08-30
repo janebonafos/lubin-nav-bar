@@ -1494,6 +1494,14 @@ export function AppointmentsSection() {
         nextFocus: "Check tolerability, sleep and mood at the four-week review.",
       },
     },
+    {
+      id: "c8", client: "Miguel Santos", day: "SUN", date: "30", month: "AUG", time: "4:00 PM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Psychiatry consultation (medication review)", sessionFormat: "Individual", mode: "Video", status: "completed",
+      notes: "Discussed low mood and poor sleep over the past two months. No current medication. Agreed to consider starting treatment.",
+      amount: "₱3,200", paymentStatus: "Paid",
+      prescriptionEligible: true,
+      payoutStatus: "approved",
+      outcome: "completed",
+    },
 
 
     { id: "x1", client: "Priya Patel", day: "MON", date: "17", month: "JUN", time: "11:00 AM", timezone: "PHT (GMT+8)", duration: "30 min", type: "Consultation", sessionFormat: "Individual", mode: "Video", status: "cancelled", notes: "Cancelled by client 2 hours before start.", amount: "₱1,200", paymentStatus: "Refunded" },
