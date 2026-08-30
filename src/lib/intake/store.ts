@@ -35,6 +35,8 @@ export type IntakeResponse = {
   values: Record<string, string>;
   /** Fields the client chose to talk about in person instead. */
   skipped: string[];
+  /** Fields the provider filled in during the session, on the client's behalf. */
+  providerFilled?: string[];
   /** Client closed the card; we nudge once more later, never repeatedly. */
   dismissedAt?: number;
   nudgedAt?: number;
