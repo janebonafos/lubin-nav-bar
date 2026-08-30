@@ -276,7 +276,7 @@ function PassportPage() {
         {/* Header */}
         <header className="mt-6 flex items-start justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <Sparkles className="h-3 w-3 text-brand-purple" />
               <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
                 Your Health Passport
@@ -377,7 +377,7 @@ function PassportPage() {
             <div className="mx-auto max-w-5xl">
               {/* Who this passport belongs to — set at registration */}
               <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.06] px-4 py-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
                   {detailsName ? "Managing for someone" : "This is your passport"}
                 </span>
                 <p className="text-sm text-brand-purple-dark/70">
@@ -402,7 +402,7 @@ function PassportPage() {
           <button
             type="button"
             onClick={() => openAuth("signup")}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-5 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_20px_-6px_rgba(168,155,208,0.55)]"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#C9BEE5] to-[#A89BD0] px-5 py-3 text-sm font-semibold text-[#3D2E6B] shadow-[0_8px_20px_-6px_rgba(168,155,208,0.55)]"
           >
             Create your free account <span aria-hidden>→</span>
           </button>
@@ -537,7 +537,7 @@ function GuestBanner() {
         ].map((text) => (
           <span
             key={text}
-            className="inline-flex items-center rounded-full px-3 py-1 sm:px-3.5 sm:py-1.5 text-[12px] sm:text-[13px] font-medium"
+            className="inline-flex items-center rounded-lg px-3 py-1 sm:px-3.5 sm:py-1.5 text-[12px] sm:text-[13px] font-medium"
             style={{ background: "#EDE9FE", color: "#7E6BAF" }}
           >
             {text}
@@ -668,7 +668,7 @@ export function Overview({
         <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-brand-purple/15 blur-3xl" />
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 ring-1 ring-brand-purple/15 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-1 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-purple-dark/80">
                 Daily check-in
@@ -683,7 +683,7 @@ export function Overview({
           </div>
           <button
             onClick={() => (checkInActive ? onCloseCheckIn() : onLogMood())}
-            className={`group inline-flex items-center justify-center gap-1.5 self-start rounded-full px-6 py-3 text-sm font-bold ring-1 transition-all duration-200 ease-out ${
+            className={`group inline-flex items-center justify-center gap-1.5 self-start rounded-lg px-6 py-3 text-sm font-bold ring-1 transition-all duration-200 ease-out ${
               checkInActive
                 ? "bg-white text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-brand-purple/10 hover:bg-brand-lavender"
                 : "bg-white text-brand-purple-dark shadow-[0_6px_18px_-8px_rgba(91,71,160,0.35)] ring-brand-purple/10 hover:-translate-y-0.5 md:hover:bg-brand-purple md:hover:text-white md:hover:ring-brand-purple md:hover:shadow-[0_12px_26px_-8px_rgba(91,71,160,0.5)]"
@@ -788,7 +788,7 @@ export function Overview({
             transition={{ duration: 0.25, ease: "easeOut" }}
             role="status"
             aria-live="polite"
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-brand-purple-dark px-4 py-2.5 text-sm font-medium text-white shadow-[0_18px_40px_-12px_rgba(61,46,107,0.55)]"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-lg bg-brand-purple-dark px-4 py-2.5 text-sm font-medium text-white shadow-[0_18px_40px_-12px_rgba(61,46,107,0.55)]"
           >
             <CheckCircle2 className="h-4 w-4 text-emerald-300" strokeWidth={2.4} />
             {toast.message}
@@ -880,7 +880,7 @@ function MoodThisMonth({
             Built automatically from your daily check-ins this month.
           </p>
         </div>
-        <div className="flex items-center gap-1 rounded-full bg-brand-lavender/50 p-1.5 ring-1 ring-brand-purple/10">
+        <div className="flex items-center gap-1 rounded-lg bg-brand-lavender/50 p-1.5 ring-1 ring-brand-purple/10">
           <button
             type="button"
             onClick={goPrev}
@@ -961,7 +961,7 @@ function MoodThisMonth({
             {topTopics.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
+                className="rounded-lg bg-brand-purple/10 px-2.5 py-1 text-xs font-medium text-brand-purple-dark"
               >
                 {t}
               </span>

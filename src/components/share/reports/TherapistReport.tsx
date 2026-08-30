@@ -37,7 +37,7 @@ export default function TherapistReport({
               {summary.dateSpan}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur ring-1 ring-white/25">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur ring-1 ring-white/25">
             <ShieldCheck className="h-3.5 w-3.5" />
             Self-reported
           </span>
@@ -59,7 +59,7 @@ export default function TherapistReport({
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#ECE7F6] bg-white px-4 py-2 text-xs font-semibold text-[#3D2E6B] transition hover:border-[#7E6BAF]/40"
         >
           <Printer className="h-3.5 w-3.5" />
           Print / Save PDF
@@ -75,7 +75,7 @@ export default function TherapistReport({
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-2.5 py-1 backdrop-blur ring-1 ring-white/20">
+    <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/12 px-2.5 py-1 backdrop-blur ring-1 ring-white/20">
       <span className="font-semibold uppercase tracking-[0.14em] text-white/70">
         {label}
       </span>

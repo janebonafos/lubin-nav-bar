@@ -100,7 +100,7 @@ function Stat({
       <p className="mt-1 text-base font-semibold text-[#3D2E6B]">{value}</p>
       {trend && (
         <span
-          className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${trendColor}`}
+          className={`mt-2 inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold ring-1 ${trendColor}`}
         >
           <TrendingUp className="h-3 w-3" />
           {trend}
@@ -122,7 +122,7 @@ export function KeyTopicsSection({ summary }: { summary: SummaryData }) {
           return (
             <li
               key={t.label}
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-xs font-medium text-[#3D2E6B] ring-1 ring-[#ECE7F6]"
               style={{
                 background: `rgba(126,107,175,${0.06 + weight * 0.12})`,
               }}
@@ -248,7 +248,7 @@ export function NarrativeSection({ summary }: { summary: SummaryData }) {
 export function PrivacyFooter() {
   return (
     <footer className="mt-8 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4 text-center">
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
+      <div className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1 text-[11px] font-semibold text-[#7E6BAF] ring-1 ring-[#ECE7F6]">
         <Lock className="h-3 w-3" /> User-owned · Voluntarily shared
       </div>
       <p className="mx-auto mt-3 max-w-xl text-[11px] leading-relaxed text-[#5A4A8A]">

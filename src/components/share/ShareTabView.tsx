@@ -291,7 +291,7 @@ export default function ShareTabView({
             <div
               role="tablist"
               aria-label="Time range"
-              className="inline-flex self-start rounded-full border border-[#E9E4F4] bg-white p-1 shadow-sm"
+              className="inline-flex self-start rounded-lg border border-[#E9E4F4] bg-white p-1 shadow-sm"
             >
               {RANGE_OPTIONS.map((opt) => {
                 const active = range === opt.id;
@@ -301,7 +301,7 @@ export default function ShareTabView({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setRange(opt.id)}
-                    className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                    className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition ${
                       active
                         ? "bg-[#7C69BA] text-white shadow-sm"
                         : "text-[#6B6684] hover:text-[#3D2E6B]"
@@ -336,7 +336,7 @@ export default function ShareTabView({
                     {sharerName}
                   </h3>
                 </div>
-                <div className="rounded-full border border-[#E1DAF1] bg-[#F5F1FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C69BA]">
+                <div className="rounded-lg border border-[#E1DAF1] bg-[#F5F1FB] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C69BA]">
                   {summary.rangeLabel}
                 </div>
               </header>
@@ -458,7 +458,7 @@ export default function ShareTabView({
               <button
                 type="button"
                 onClick={() => requireAccount(() => window.print())}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E1DAF1] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] shadow-sm transition-all hover:border-[#7C69BA]/40 hover:bg-[#FBFAFE]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#E1DAF1] bg-white px-8 py-3.5 text-sm font-semibold text-[#3D2E6B] shadow-sm transition-all hover:border-[#7C69BA]/40 hover:bg-[#FBFAFE]"
               >
                 <Download className="h-4 w-4" />
                 Download Summary
@@ -646,14 +646,14 @@ function ViewSharedSheet({
               });
               onClose();
             }}
-            className="rounded-full border border-[#7C69BA]/15 bg-white px-5 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:bg-[#F7F4FC]"
+            className="rounded-lg border border-[#7C69BA]/15 bg-white px-5 py-2 text-sm font-semibold text-[#4A3E7F] transition hover:bg-[#F7F4FC]"
           >
             Revoke access
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white hover:bg-[#6857A3]"
+            className="rounded-lg bg-[#7C69BA] px-5 py-2 text-sm font-semibold text-white hover:bg-[#6857A3]"
           >
             Close
           </button>

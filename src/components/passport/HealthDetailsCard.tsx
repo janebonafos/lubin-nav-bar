@@ -334,7 +334,7 @@ function TagsInput({
               onClick={() => toggle(opt)}
               aria-pressed={active}
               title={active ? `Remove ${opt}` : `Select ${opt}`}
-              className={`inline-flex items-center gap-1.5 rounded-[12px] px-3 py-1.5 text-[13px] font-medium transition ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition ${
                 active
                   ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
                   : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
@@ -350,7 +350,7 @@ function TagsInput({
           <button
             type="button"
             onClick={() => setShowOther((v) => !v)}
-            className={`inline-flex items-center gap-1.5 rounded-[12px] px-3 py-1.5 text-[13px] font-medium transition ${
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition ${
               otherOpen
                 ? "bg-brand-purple/15 text-brand-purple-dark ring-1 ring-brand-purple/30"
                 : "bg-white text-brand-purple-dark/70 ring-1 ring-dashed ring-brand-purple/25 hover:ring-brand-purple/45"
@@ -368,7 +368,7 @@ function TagsInput({
           {custom.map((i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1.5 rounded-[12px] bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple/10 px-3 py-1.5 text-[13px] font-medium text-brand-purple-dark"
             >
               {i}
               <button
@@ -496,7 +496,7 @@ function MedsInput({
         <button
           type="button"
           onClick={() => onChange(takingNone ? "" : none)}
-          className={`rounded-[12px] px-3.5 py-1.5 text-[13px] font-medium transition ${
+          className={`rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition ${
             takingNone
               ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
               : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"
@@ -630,7 +630,7 @@ function FieldInput({
                 key={opt}
                 type="button"
                 onClick={() => onChange(active ? "" : opt)}
-                className={`rounded-xl px-3.5 py-1.5 text-[13px] font-medium transition ${
+                className={`rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition ${
                   active
                     ? "bg-brand-purple text-white shadow-[0_6px_16px_-8px_rgba(126,107,175,0.7)]"
                     : "bg-white text-brand-purple-dark/70 ring-1 ring-brand-purple/15 hover:ring-brand-purple/35"

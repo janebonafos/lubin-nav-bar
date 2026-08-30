@@ -884,7 +884,7 @@ function AssessmentGroupRow({
                       {a.status ? ` · ${a.status.label}` : ""}
                     </span>
                     {idx === 0 && (
-                      <span className="flex-none rounded-full bg-[#EEE8F8] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                      <span className="flex-none rounded-md bg-[#EEE8F8] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7E6BAF]">
                         Latest
                       </span>
                     )}
