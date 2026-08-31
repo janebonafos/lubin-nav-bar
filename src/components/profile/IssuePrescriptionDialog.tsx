@@ -1156,7 +1156,7 @@ export default function IssuePrescriptionDialog({
                         </p>
                         <div className="sm:col-span-2">
                           <label className={label} htmlFor="rx-street">
-                            House / street
+                            House / street <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-street"
