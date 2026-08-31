@@ -2180,7 +2180,7 @@ export default function IssuePrescriptionDialog({
                           {soapMode === "ai" && soapAiPanel}
 
                           {(soapMode === "manual" || soapDrafted) && (
-                            <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                            <div id="soap-generated-sections" className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <h4 className="text-[13px] font-bold text-[#3D2E6B]">
                                   Focused SOAP note
@@ -2244,7 +2244,7 @@ export default function IssuePrescriptionDialog({
                           {soapMode === "ai" && soapAiPanel}
 
                           {(soapMode === "manual" || soapDrafted) && (
-                          <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                          <div id="soap-generated-sections" className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
 
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <h4 className="text-[13px] font-bold text-[#3D2E6B]">
