@@ -7,6 +7,8 @@ import {
   CalendarClock,
   Check,
   CheckCircle2,
+  ChevronDown,
+
   Download,
   FileText,
   Info,
@@ -234,7 +236,6 @@ const cardCls = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
 const chip =
   "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[12.5px] font-semibold transition";
 
-const STEPS = ["Patient", "Clinical context", "Prescription", "Review and sign"] as const;
 
 /**
  * Four-step prescribing flow for a new or non-recorded patient. Prototype only:
@@ -934,81 +935,8 @@ export default function IssuePrescriptionDialog({
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="relative mt-7 pb-12">
-            {/* hairline track — inset to the centre of the first/last step */}
-            <span
-              aria-hidden
-              className="absolute top-4 h-px bg-[#EDE7F7]"
-              style={{ left: `${100 / (STEPS.length * 2)}%`, right: `${100 / (STEPS.length * 2)}%` }}
-            />
-            <span
-              aria-hidden
-              className="absolute top-4 h-px bg-[#3D2E6B] transition-all duration-500 ease-in-out"
-              style={{
-                left: `${100 / (STEPS.length * 2)}%`,
-                width: `${(100 - 100 / STEPS.length) * (step / (STEPS.length - 1))}%`,
-              }}
-            />
-            <ol className="relative flex">
-              {STEPS.map((s, i) => {
-                const done = i < step;
-                const active = i === step;
-                return (
-                  <li key={s} className="relative z-10 flex flex-1 flex-col items-center">
-                    <button
-                      type="button"
-                      onClick={() => i <= step && setStep(i)}
-                      disabled={i > step}
-                      className="no-hover flex flex-col items-center"
-                    >
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
-                          done
-                            ? "bg-[#3D2E6B]"
-                            : active
-                              ? "border border-[#3D2E6B] bg-white ring-4 ring-[#F4F0FB]"
-                              : "border border-[#E5DDF4] bg-white"
-                        }`}
-                      >
-                        {done ? (
-                          <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-                        ) : active ? (
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#3D2E6B]" />
-                        ) : (
-                          <span className="text-[13px] font-medium text-[#A89BCA]">{i + 1}</span>
-                        )}
-                      </span>
-                      <span className="absolute top-12 left-1/2 w-28 -translate-x-1/2 text-center leading-tight">
-                        <span
-                          className={`block text-[9px] font-semibold uppercase tracking-[0.05em] ${
-                            active
-                              ? "text-[#3D2E6B]"
-                              : done
-                                ? "text-[#A89BCA]"
-                                : "text-[#C8BFE2]"
-                          }`}
-                        >
-                          {active ? "Active" : `Step 0${i + 1}`}
-                        </span>
-                        <span
-                          className={`mt-1 inline-block whitespace-nowrap text-[12px] font-medium ${
-                            active
-                              ? "rounded-full bg-[#F4F0FB] px-3 py-0.5 font-semibold text-[#3D2E6B]"
-                              : done
-                                ? "text-[#3D2E6B]"
-                                : "text-[#A89BCA]"
-                          }`}
-                        >
-                          {s}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
         </header>
+
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
           {issued ? (
@@ -1040,8 +968,17 @@ export default function IssuePrescriptionDialog({
           ) : (
             <>
               {/* ---------------- STEP 1 — PATIENT ---------------- */}
-              {step === 0 && (
+              <Acc
+                index={0}
+                label="Patient"
+                hint="Identity and contact details"
+                open={step === 0}
+                onToggle={setStep}
+                done={hasPatient && patientGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Patient</h3>
@@ -1395,10 +1332,21 @@ export default function IssuePrescriptionDialog({
 
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 2 — CLINICAL CONTEXT ---------------- */}
-              {step === 1 && (
+              <Acc
+                index={1}
+                label="Clinical context"
+                hint="Assessment source and readiness"
+                open={step === 1}
+                onToggle={setStep}
+                done={contextGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -1949,10 +1897,21 @@ export default function IssuePrescriptionDialog({
                   )}
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
-              {step === 2 && (
+              <Acc
+                index={2}
+                label="Prescription"
+                hint="Documentation and medications"
+                open={step === 2}
+                onToggle={setStep}
+                done={docGaps.length === 0 && rxGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       Clinical documentation
@@ -2174,10 +2133,21 @@ export default function IssuePrescriptionDialog({
                   </section>
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 4 — REVIEW AND SIGN ---------------- */}
-              {step === 3 && (
+              <Acc
+                index={3}
+                label="Review and sign"
+                hint="Read-only preview, then sign"
+                open={step === 3}
+                onToggle={setStep}
+                done={false}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       Prescription preview
@@ -2375,6 +2345,8 @@ export default function IssuePrescriptionDialog({
                   </section>
                 </>
               )}
+              </Acc>
+
             </>
           )}
         </div>
@@ -2403,10 +2375,10 @@ export default function IssuePrescriptionDialog({
               <>
                 <button
                   type="button"
-                  onClick={() => (step === 0 ? onClose() : setStep(step - 1))}
+                  onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
                 >
-                  {step === 0 ? "Cancel" : (
+                  {step <= 0 ? "Cancel" : (
                     <>
                       <ArrowLeft className="h-4 w-4" /> Back
                     </>
@@ -2415,8 +2387,9 @@ export default function IssuePrescriptionDialog({
                 {step < 3 ? (
                   <button
                     type="button"
-                    onClick={() => setStep(step + 1)}
-                    disabled={!canAdvance}
+                    onClick={() => setStep(step < 0 ? 0 : step + 1)}
+                    disabled={step >= 0 && !canAdvance}
+
                     className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {step === 2 ? "Review prescription" : "Continue"}
@@ -2722,5 +2695,58 @@ function MedicationCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function Acc({
+  index,
+  label,
+  hint,
+  open,
+  done,
+  onToggle,
+  children,
+}: {
+  index: number;
+  label: string;
+  hint?: string;
+  open: boolean;
+  done?: boolean;
+  onToggle: (i: number) => void;
+  children: () => React.ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-[#E3DBF5] bg-white">
+      <button
+        type="button"
+        onClick={() => onToggle(open ? -1 : index)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[#FBF9FF]"
+      >
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${
+            done
+              ? "bg-[#3D2E6B] text-white"
+              : open
+                ? "border border-[#3D2E6B] text-[#3D2E6B]"
+                : "border border-[#E5DDF4] text-[#A89BCA]"
+          }`}
+        >
+          {done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
+          {hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#A89BCA] transition ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="space-y-5 border-t border-[#EDEBF3] bg-[#FBF9FF] px-5 py-5">
+          {children()}
+        </div>
+      )}
+    </section>
   );
 }
