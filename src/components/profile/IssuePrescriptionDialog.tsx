@@ -602,23 +602,25 @@ export default function IssuePrescriptionDialog({
         contextGaps.push("A new assessment — this patient needs reassessment");
     }
   }
-  if (purpose === "new" && entry === "outside") {
-    if (!consultDate) contextGaps.push("Consultation date");
-    if (noteSource === "paste") {
-      if (!pastedNote.trim()) contextGaps.push("The consultation note");
-      else if (!soapDrafted) contextGaps.push("Prepare and review the SOAP draft");
+  if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
+    if (entry === "outside" && !consultDate) contextGaps.push("Consultation date");
+    if (!soapMode) contextGaps.push("Choose “Draft SOAP with AI” or “Write SOAP manually”");
+    if (soapMode === "ai") {
+      if (!pastedNote.trim()) contextGaps.push("Your clinical notes");
+      else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
-    if (noteSource === "write" || soapDrafted) {
+    if (soapMode === "manual" || soapDrafted) {
       if (!soap.subjective.trim()) contextGaps.push("Subjective");
       if (!soap.assessment.trim()) contextGaps.push("Assessment");
       if (!soap.plan.trim()) contextGaps.push("Plan");
+      for (const k of ["subjective", "objective", "assessment", "plan"] as (keyof SoapNote)[]) {
+        if (soap[k].includes(NEEDS_CONFIRMATION))
+          contextGaps.push(`${SOAP_LABEL[k]} needs provider confirmation`);
+      }
+      if (!soapApproved) contextGaps.push("Your review and approval of this SOAP note");
     }
   }
-  if (purpose === "new" && entry === "standalone") {
-    if (!soap.subjective.trim()) contextGaps.push("Subjective");
-    if (!soap.assessment.trim()) contextGaps.push("Assessment");
-    if (!soap.plan.trim()) contextGaps.push("Plan");
-  }
+
   if (purpose === "renewal") {
     if (!renewal.medication.trim()) contextGaps.push("Medication and current SIG");
     if (!renewal.indication.trim()) contextGaps.push("Indication");
