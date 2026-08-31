@@ -51,6 +51,8 @@ import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
+import { getResponse } from "@/lib/intake/store";
+import { loadHealthDetails } from "@/lib/intake/healthDetails";
 import {
   ALLERGY_READINESS_LABEL,
   CONSULT_MODE_LABEL,
@@ -307,6 +309,31 @@ function ageFromDob(dob: string): number | undefined {
   if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age -= 1;
   return age >= 0 && age < 130 ? age : undefined;
 }
+
+/**
+ * Details an existing patient already provided themselves: the intake answers
+ * for any of their appointments, plus the Health Passport details they shared
+ * with this practice. Used only to prefill blank fields — nothing is invented.
+ */
+function sharedPatientDetails(record: PatientRecordView): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const appointmentId of record.appointmentIds) {
+    const values = getResponse(appointmentId).values ?? {};
+    for (const [id, value] of Object.entries(values)) {
+      const v = String(value ?? "").trim();
+      if (v && !out[id]) out[id] = v;
+    }
+  }
+  if (record.passport) {
+    for (const [id, value] of Object.entries(loadHealthDetails())) {
+      const v = String(value ?? "").trim();
+      if (v && !out[id]) out[id] = v;
+    }
+  }
+  return out;
+}
+
+
 
 const field =
   "h-10 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
@@ -809,26 +836,41 @@ export default function IssuePrescriptionDialog({
   }, [signatureBasis, otpCode, issued]);
 
   function selectRecord(record: PatientRecordView) {
+    // What the patient already provided — the clinical record first, then the
+    // intake answers / Health Passport details they shared for their visits.
+    const shared = sharedPatientDetails(record);
+    const pick = (a: string | undefined, ...ids: string[]) => {
+      const v = (a ?? "").trim();
+      if (v) return v;
+      for (const id of ids) {
+        const s = (shared[id] ?? "").trim();
+        if (s) return s;
+      }
+      return "";
+    };
     setSelected(record);
     setCreatingNew(false);
-    setPatientName(record.fullName);
-    setDob(record.info.dob ?? "");
+    setPatientName(pick(record.fullName, "identity.fullName"));
+    setPreferredName(pick(undefined, "identity.preferredName"));
+    setDob(pick(record.info.dob, "identity.dob"));
     setSex((record.info.sex as PatientSex) ?? "not-documented");
     const existing = (record.info.address ?? "").split(",").map((p) => p.trim());
+    const sharedCity = (shared["contact.address"] ?? "").split(",")[0]?.trim() ?? "";
     setAddress({
       street: existing[0] ?? "",
       barangay: existing[1] ?? "",
-      city: existing[2] ?? "",
+      city: existing[2] || sharedCity,
       province: existing[3] ?? "",
       postalCode: existing[4] ?? "",
     });
-    setPatientEmail(record.info.email ?? "");
-    setPatientPhone(record.info.phone ?? "");
+    setPatientEmail(pick(record.info.email, "contact.email"));
+    setPatientPhone(pick(record.info.phone, "contact.phone"));
     setSuggestions([]);
     setMissingInfo([]);
     setConfirmedSuggestions([]);
     setAiNote("");
   }
+
 
   function startNewPatient() {
     setSelected(null);
