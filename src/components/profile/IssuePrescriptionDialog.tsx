@@ -1574,18 +1574,150 @@ export default function IssuePrescriptionDialog({
                     key: keyof SoapNote,
                     hint: string,
                     rows = 2,
-                  ) => (
-                    <div>
-                      <label className={label}>{SOAP_LABEL[key]}</label>
-                      <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
-                      <textarea
-                        rows={rows}
-                        className={`${area} mt-1.5`}
-                        value={soap[key]}
-                        onChange={(e) => setSoap((s) => ({ ...s, [key]: e.target.value }))}
-                      />
+                  ) => {
+                    const needs = soap[key].includes(NEEDS_CONFIRMATION);
+                    return (
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <label className={label}>{SOAP_FULL_LABEL[key]}</label>
+                          {needs && (
+                            <span className="rounded-full bg-[#FDF9EF] px-2 py-0.5 text-[10.5px] font-semibold text-[#8A6B1F]">
+                              {NEEDS_CONFIRMATION}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
+                        <textarea
+                          rows={rows}
+                          className={`${area} mt-1.5 ${needs ? "border-[#EFE6D2] bg-[#FDF9EF]" : ""}`}
+                          value={soap[key]}
+                          onChange={(e) => {
+                            setSoapApproved(false);
+                            setSoap((s) => ({ ...s, [key]: e.target.value }));
+                          }}
+                        />
+                      </div>
+                    );
+                  };
+
+                  /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
+                  const soapModeChoice = (
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {(
+                        [
+                          [
+                            "ai",
+                            "Draft SOAP with AI",
+                            "Enter your notes once — Lubin organizes them.",
+                            true,
+                          ],
+                          [
+                            "manual",
+                            "Write SOAP manually",
+                            "Fill in each SOAP section yourself.",
+                            false,
+                          ],
+                        ] as const
+                      ).map(([value, title, sub, badge]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            setSoapMode(value);
+                            setSoapDrafted(false);
+                            setSoapApproved(false);
+                          }}
+                          className={`rounded-xl border px-3.5 py-3 text-left transition ${
+                            soapMode === value
+                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                              : "border-[#D9CEF3] bg-white hover:bg-[#FBFAFF]"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-[13px] font-bold text-[#3D2E6B]">{title}</span>
+                            {badge && (
+                              <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                                AI
+                              </span>
+                            )}
+                          </span>
+                          <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
+                            {sub}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   );
+
+                  /** The paste-or-dictate field plus the visible AI drafting action. */
+                  const soapAiPanel = (
+                    <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                      <label className={label}>Paste or dictate your clinical notes</label>
+                      <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
+                        Enter your assessment once. Lubin will organize it into Subjective,
+                        Objective, Assessment and Plan.
+                      </p>
+                      <textarea
+                        rows={6}
+                        className={`${area} mt-2`}
+                        value={pastedNote}
+                        onChange={(e) => {
+                          setPastedNote(e.target.value);
+                          setSoapDrafted(false);
+                          setSoapApproved(false);
+                        }}
+                        placeholder="e.g. Patient seen today for follow-up of hypertension. BP 138/86. Tolerating current medication…"
+                      />
+                      <button
+                        type="button"
+                        onClick={prepareSoapDraft}
+                        disabled={aiLoading || !pastedNote.trim()}
+                        className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {aiLoading ? "Organising…" : "Draft SOAP with AI"}
+                        <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider">
+                          AI
+                        </span>
+                      </button>
+                      <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+                        AI only organizes what you wrote. It never adds clinical information —
+                        anything missing is marked “{NEEDS_CONFIRMATION}”.
+                      </p>
+                      {soapDrafted && (
+                        <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
+                          AI-assisted draft — review and edit every section below before continuing.
+                        </p>
+                      )}
+                    </div>
+                  );
+
+                  /** Required provider sign-off on the SOAP note. */
+                  const soapApproval = (
+                    <label
+                      className={`mt-3 flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                        soapApproved
+                          ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                          : "border-[#EDEBF3] bg-white"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                        checked={soapApproved}
+                        onChange={(e) => setSoapApproved(e.target.checked)}
+                      />
+                      <span>
+                        <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
+                          I reviewed and approve this SOAP note
+                        </span>
+                        <span className="mt-0.5 block text-[11.5px] leading-snug text-[#6F6889]">
+                          Required. The note is yours — confirm every section reflects your own
+                          clinical assessment.
+                        </span>
+                      </span>
+                    </label>
+                  );
+
 
                   return (
                     <>
