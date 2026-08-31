@@ -1541,6 +1541,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "external-consult" && (
                             <div className="mt-3 grid gap-3 border-t border-[#EDEBF3] pt-3 sm:grid-cols-2">
                               <div>
                                 <label className={label}>Consultation date</label>
@@ -1613,6 +1614,7 @@ export default function IssuePrescriptionDialog({
                                 />
                               </div>
                             </div>
+                            )}
                           </div>
 
                           {/* Option 3 — assessment now */}
