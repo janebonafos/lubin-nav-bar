@@ -2535,10 +2535,8 @@ export default function IssuePrescriptionDialog({
 
 
 
-                          <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
-                            A medication request or message alone is not a clinical assessment.
-                            Confirm that you personally assessed the patient before issuing a new
-                            treatment.
+                          <p className="mt-3 text-[11.5px] text-[#8A7FB0]">
+                            Prescribe only after personally assessing the patient.
                           </p>
                         </section>
                       )}
