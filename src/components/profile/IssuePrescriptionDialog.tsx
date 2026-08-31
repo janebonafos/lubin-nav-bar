@@ -277,6 +277,7 @@ export default function IssuePrescriptionDialog({
 
   // ---------- Step 2: clinical context ----------
   const [purpose, setPurpose] = useState<RxPurpose | null>("new-treatment");
+  const [skipContext, setSkipContext] = useState(false);
   const [newBasis, setNewBasis] = useState<NewTreatmentBasis>("focused-assessment");
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
