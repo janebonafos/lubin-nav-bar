@@ -1552,23 +1552,17 @@ export default function IssuePrescriptionDialog({
 
                   return (
                     <>
-                      {/* Entry point */}
+                      {/* New treatment or renewal — asked first */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          SOAP note supporting this prescription
+                          New treatment or medication renewal?
                         </h3>
-                        <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                          Reuse the SOAP from a previous consultation or complete a focused SOAP
-                          note now. You only need one clinical note.
-                        </p>
-
-
-                        <div className="mt-4 space-y-2">
-                          {ENTRY_POINTS.map((opt) => (
+                        <div className="mt-3 space-y-2">
+                          {PURPOSE_OPTIONS.map((opt) => (
                             <label
                               key={opt.value}
                               className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                entry === opt.value
+                                purpose === opt.value
                                   ? "border-[#3D2E6B] bg-[#F7F4FE]"
                                   : "border-[#EDEBF3] bg-white"
                               }`}
@@ -1576,8 +1570,11 @@ export default function IssuePrescriptionDialog({
                               <input
                                 type="radio"
                                 className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                checked={entry === opt.value}
-                                onChange={() => setEntry(opt.value)}
+                                checked={purpose === opt.value}
+                                onChange={() => {
+                                  setPurpose(opt.value);
+                                  setEntry(opt.value === "renewal" ? "renewal" : "lubin");
+                                }}
                               />
                               <span className="flex flex-col">
                                 <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -1591,6 +1588,60 @@ export default function IssuePrescriptionDialog({
                           ))}
                         </div>
                       </section>
+
+                      {/* SOAP source — new treatment only */}
+                      {purpose === "new" && !fromAppointment && (
+                        <section className={cardCls}>
+                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                            SOAP note supporting this prescription
+                          </h3>
+                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                            Reuse the SOAP from a consultation or write one focused note now. You
+                            only need one clinical note.
+                          </p>
+
+                          <div className="mt-4 space-y-2">
+                            {ENTRY_POINTS.map((opt) => (
+                              <label
+                                key={opt.value}
+                                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                  entry === opt.value
+                                    ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                    : "border-[#EDEBF3] bg-white"
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                  checked={entry === opt.value}
+                                  onChange={() => setEntry(opt.value)}
+                                />
+                                <span className="flex flex-col">
+                                  <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                    {opt.title}
+                                  </span>
+                                  <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                    {opt.description}
+                                  </span>
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      {purpose === "new" && fromAppointment && (
+                        <section className={cardCls}>
+                          <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
+                            <CheckCircle2 className="h-4 w-4" />
+                            Linked to this appointment automatically
+                          </p>
+                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                            {fromAppointment.patient} · {fromAppointment.type} ·{" "}
+                            {fromAppointment.date}. Its SOAP note is reused — no search needed.
+                          </p>
+                        </section>
+                      )}
 
                       {/* A — completed Lubin consultation */}
                       {entry === "lubin" && (
