@@ -499,6 +499,23 @@ export default function IssuePrescriptionDialog({
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
 
+  /** The linked Lubin consultation, if any — only completed ones are eligible. */
+  const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
+  /** Sections the reused note is missing — the provider is asked for those only. */
+  const missingFromLinked = linkedAppt ? missingSoapSections(linkedAppt.soap) : [];
+  /**
+   * "Document once, reuse everywhere": a linked consultation's SOAP is the note.
+   * Anything it is missing is topped up from the provider's input in this step.
+   */
+  const effectiveSoap: SoapNote = linkedAppt
+    ? {
+        subjective: linkedAppt.soap.subjective || soap.subjective,
+        objective: linkedAppt.soap.objective || soap.objective,
+        assessment: linkedAppt.soap.assessment || soap.assessment,
+        plan: linkedAppt.soap.plan || soap.plan,
+      }
+    : soap;
+
   // ---------- gating ----------
   const patientGaps: string[] = [];
   if (!patientName.trim()) patientGaps.push("Full legal name");
@@ -511,50 +528,67 @@ export default function IssuePrescriptionDialog({
   if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
+  // Step 2 — clinical documentation. One note per prescription: an existing SOAP,
+  // a focused SOAP, or a focused renewal note. Never both a SOAP and a
+  // separate clinical-context questionnaire.
   const contextGaps: string[] = [];
-  // A provider may skip the clinical context step entirely when it isn't
-  // needed for this prescription (e.g. a simple renewal handled elsewhere).
-  if (!skipContext) {
-    if (!purpose) contextGaps.push("Reason for this prescription");
-    if (purpose === "new-treatment") {
-      // A new treatment cannot proceed until an assessment source is complete:
-      // a linked completed Lubin consultation, a documented outside consultation
-      // personally completed by the prescriber, or an assessment documented now.
-      if (newBasis === "linked-appointment") {
-        if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
-      } else {
-        if (newBasis === "external-consult" && !consultDate)
-          contextGaps.push("Consultation date");
-        if (!presenting.trim()) contextGaps.push("Presenting concern");
-        if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
-        if (!plan.trim())
-          contextGaps.push(
-            newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
-          );
+  if (entry === "lubin") {
+    if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
+    else {
+      for (const k of missingFromLinked) {
+        if (k === "objective") continue; // objective findings are optional
+        if (!soap[k].trim()) contextGaps.push(`${SOAP_LABEL[k]} (missing from the reused note)`);
       }
+      if (!materialChange) contextGaps.push("Whether clinical information has changed");
+      if (materialChange === "reassess")
+        contextGaps.push("A new assessment — this patient needs reassessment");
     }
-    if (purpose === "continuation") {
-      if (!renewal.medication.trim()) contextGaps.push("Existing medication and SIG");
-      if (!renewal.indication.trim()) contextGaps.push("Indication");
-      if (!renewal.response.trim()) contextGaps.push("Current response");
-    }
-    if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
-    if (medicationState === "not-assessed")
-      contextGaps.push("Current medication status (not assessed)");
   }
+  if (entry === "outside") {
+    if (!consultDate) contextGaps.push("Consultation date");
+    if (noteSource === "paste") {
+      if (!pastedNote.trim()) contextGaps.push("The consultation note");
+      else if (!soapDrafted) contextGaps.push("Prepare and review the SOAP draft");
+    }
+    if (noteSource === "write" || soapDrafted) {
+      if (!soap.subjective.trim()) contextGaps.push("Subjective");
+      if (!soap.assessment.trim()) contextGaps.push("Assessment");
+      if (!soap.plan.trim()) contextGaps.push("Plan");
+    }
+  }
+  if (entry === "standalone") {
+    if (!soap.subjective.trim()) contextGaps.push("Subjective");
+    if (!soap.assessment.trim()) contextGaps.push("Assessment");
+    if (!soap.plan.trim()) contextGaps.push("Plan");
+  }
+  if (entry === "renewal") {
+    if (!renewal.medication.trim()) contextGaps.push("Medication and current SIG");
+    if (!renewal.indication.trim()) contextGaps.push("Indication");
+    if (!renewal.response.trim()) contextGaps.push("Current response");
+  }
+  // "Not assessed" is a real state and blocks review and signing.
+  if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
+  if (medicationState === "not-assessed")
+    contextGaps.push("Current medication status (not assessed)");
 
-  // Structured focused documentation (required above) is sufficient — a
-  // complete SOAP note is optional in every pathway.
   const docGaps: string[] = [];
 
   const rxGaps: string[] = [];
   if (readyMeds.length === 0)
     rxGaps.push("One medication with generic name, dose and frequency");
+  for (const m of readyMeds) {
+    const name = m.genericName.trim();
+    if (!m.strength.trim()) rxGaps.push(`${name}: strength and dosage form`);
+    if (!m.route.trim()) rxGaps.push(`${name}: route`);
+    if (!m.sig.trim()) rxGaps.push(`${name}: complete SIG`);
+    if (!m.quantity.trim() || !m.unit.trim()) rxGaps.push(`${name}: quantity and unit`);
+    if (!m.refills.trim()) rxGaps.push(`${name}: refills`);
+    if (!m.instructions.trim()) rxGaps.push(`${name}: patient instructions`);
+  }
   if (dangerousMeds.length > 0) rxGaps.push("Remove the dangerous-drug entry");
 
-  /** Continuation the prescriber cannot personally verify: reviewable, not issuable. */
-  const reviewOnly =
-    purpose === "continuation" && contBasis !== "mine-outside" && !verifiedContinuation;
+  /** Nothing in this prototype flow is review-only: the prescriber signs their own work. */
+  const reviewOnly = false;
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
@@ -574,26 +608,20 @@ export default function IssuePrescriptionDialog({
     sex,
     address,
     guardian,
-    purpose,
-    newBasis,
-    contBasis,
+    entry,
     linkedAppointment,
+    materialChange,
     consultDate,
     consultMode,
     consultLocation,
-    presenting,
-    relevantHistory,
-    currentSymptoms,
-    assessment,
-    findings,
-    plan,
-    followUpPlan,
+    noteSource,
+    soap,
     renewal,
-    focusedNote,
     meds,
     allergyState,
     medicationState,
   });
+
   const lastBasis = useRef(signatureBasis);
   useEffect(() => {
     if (lastBasis.current === signatureBasis) return;
