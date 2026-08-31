@@ -1420,8 +1420,70 @@ export default function IssuePrescriptionDialog({
                       </>
                     )}
 
-                    {hasPatient && (
+                    {selected && !editPatient && (
+                      <div className="mt-4 rounded-2xl border border-[#E9E2F8] bg-[#FBF9FF] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-[12px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                            Saved patient details
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setEditPatient(true)}
+                            className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] underline transition hover:text-[#3D2E6B]"
+                          >
+                            Update patient details
+                          </button>
+                        </div>
+                        <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                          {[
+                            ["Full legal name", patientName],
+                            ["Preferred name", preferredName],
+                            [
+                              "Date of birth",
+                              dob
+                                ? `${dob}${ageYears !== undefined ? ` · ${ageYears} years old` : ""}`
+                                : "",
+                            ],
+                            [
+                              "Sex",
+                              SEX_OPTIONS.find((o) => o.value === sex && o.value !== "not-documented")
+                                ?.label ?? "",
+                            ],
+                            [
+                              "Address",
+                              [
+                                address.street,
+                                address.barangay,
+                                address.city,
+                                address.province,
+                                address.postalCode,
+                              ]
+                                .filter(Boolean)
+                                .join(", "),
+                            ],
+                            ["Mobile number", patientPhone],
+                            ["Email", patientEmail],
+                          ].map(([k, v]) => (
+                            <div key={k}>
+                              <dt className={label}>{k}</dt>
+                              <dd
+                                className={`mt-1 text-[13px] ${v ? "text-[#3D2E6B]" : "text-[#A89BD0]"}`}
+                              >
+                                {v || "Not on file"}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <p className="mt-3 text-[11.5px] leading-snug text-[#8A7FB0]">
+                          Reused from this patient’s record and the information they shared — nothing
+                          to re-enter.
+                        </p>
+                      </div>
+                    )}
+
+                    {hasPatient && (!selected || editPatient) && (
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
+
                         <div className="sm:col-span-2">
                           <label className={label} htmlFor="rx-patient">
                             Full legal name
