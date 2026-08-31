@@ -1432,36 +1432,79 @@ export default function IssuePrescriptionDialog({
                             </label>
                             <div className="mt-3 border-t border-[#EDEBF3] pt-3">
                               <label className={label}>Completed Lubin consultations</label>
-                              <div className="mt-1.5 space-y-2">
-                                {ELIGIBLE_APPOINTMENTS.map((a) => (
-                                  <label
-                                    key={a.id}
-                                    className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                      linkedAppointment === a.id
-                                        ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                                        : "border-[#EDEBF3] bg-white"
-                                    }`}
-                                  >
-                                    <input
-                                      type="radio"
-                                      className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                      checked={linkedAppointment === a.id}
-                                      onChange={() => setLinkedAppointment(a.id)}
-                                    />
-                                    <span className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-                                      <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                        {a.patient} · {a.type}
-                                      </span>
-                                      <span className="text-[12px] text-[#6F6889]">
-                                        {a.date}, {a.time}
-                                      </span>
-                                      <span className="ml-auto rounded-full bg-[#F0EBFB] px-2 py-0.5 text-[10.5px] font-semibold capitalize text-[#3D2E6B]">
-                                        {a.status}
-                                      </span>
-                                    </span>
-                                  </label>
-                                ))}
+                              <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
+                                Search by patient name, appointment type, or ID to find the
+                                consultation you want to link.
+                              </p>
+                              <div className="relative mt-1.5">
+                                <input
+                                  className={`${field} pr-9`}
+                                  value={apptSearch}
+                                  onChange={(e) => setApptSearch(e.target.value)}
+                                  placeholder="Search name, title or ID…"
+                                />
+                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A89BD0]">
+                                  ⌕
+                                </span>
                               </div>
+                              {(() => {
+                                const q = apptSearch.trim().toLowerCase();
+                                const matches = q
+                                  ? ELIGIBLE_APPOINTMENTS.filter(
+                                      (a) =>
+                                        a.patient.toLowerCase().includes(q) ||
+                                        a.type.toLowerCase().includes(q) ||
+                                        a.id.toLowerCase().includes(q),
+                                    )
+                                  : [];
+                                if (!q) {
+                                  return (
+                                    <p className="mt-2 text-[11.5px] text-[#9A93B5]">
+                                      {ELIGIBLE_APPOINTMENTS.length} completed consultations
+                                      available — start typing to search.
+                                    </p>
+                                  );
+                                }
+                                if (matches.length === 0) {
+                                  return (
+                                    <p className="mt-2 text-[11.5px] text-[#9A93B5]">
+                                      No completed consultations match “{apptSearch}”.
+                                    </p>
+                                  );
+                                }
+                                return (
+                                  <div className="mt-2 space-y-2">
+                                    {matches.map((a) => (
+                                      <label
+                                        key={a.id}
+                                        className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                          linkedAppointment === a.id
+                                            ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                            : "border-[#EDEBF3] bg-white"
+                                        }`}
+                                      >
+                                        <input
+                                          type="radio"
+                                          className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                          checked={linkedAppointment === a.id}
+                                          onChange={() => setLinkedAppointment(a.id)}
+                                        />
+                                        <span className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+                                          <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                            {a.patient} · {a.type}
+                                          </span>
+                                          <span className="text-[12px] text-[#6F6889]">
+                                            {a.date}, {a.time}
+                                          </span>
+                                          <span className="ml-auto rounded-full bg-[#F0EBFB] px-2 py-0.5 text-[10.5px] font-semibold capitalize text-[#3D2E6B]">
+                                            {a.status}
+                                          </span>
+                                        </span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
                               {linkedAppt && (
                                 <p className="mt-2 rounded-xl bg-[#F7F4FE] px-3 py-2 text-[12px] text-[#4B4468]">
                                   Documentation from this consultation will be reused — you will not
