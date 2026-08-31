@@ -1825,6 +1825,7 @@ export default function IssuePrescriptionDialog({
                   </section>
 
                   {/* Prescribing readiness */}
+                  {!skipContext && (
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing readiness</h3>
                     <p className="mt-1 text-[12px] text-[#6F6889]">
