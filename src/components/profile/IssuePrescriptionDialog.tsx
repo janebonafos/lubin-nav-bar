@@ -1715,7 +1715,7 @@ export default function IssuePrescriptionDialog({
                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
                                         <span className="font-semibold text-[#3D2E6B]">
-                                          {SOAP_LABEL[k]}:{" "}
+                                          {SOAP_FULL_LABEL[k]}:{" "}
                                         </span>
                                         {linkedAppt.soap[k] || (
                                           <span className="text-[#8A7FB0]">
