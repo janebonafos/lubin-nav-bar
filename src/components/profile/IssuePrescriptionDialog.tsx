@@ -177,6 +177,12 @@ const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
   assessment: "A — Assessment",
   plan: "P — Plan",
 };
+/**
+ * Assistive drafting never invents clinical information. Anything the provider
+ * did not supply is marked with this phrase and must be completed by hand.
+ */
+const NEEDS_CONFIRMATION = "Needs provider confirmation";
+
 
 
 /** Is this a new treatment, or a continuation of something already prescribed? */
