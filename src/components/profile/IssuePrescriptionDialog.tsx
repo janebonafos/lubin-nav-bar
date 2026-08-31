@@ -2174,6 +2174,8 @@ export default function IssuePrescriptionDialog({
                   </section>
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 4 — REVIEW AND SIGN ---------------- */}
               <Acc
