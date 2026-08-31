@@ -787,9 +787,11 @@ export default function IssuePrescriptionDialog({
     setMaterialChange(null);
     setConsultDate("");
     setConsultLocation("");
-    setNoteSource("write");
+    setSoapMode(null);
     setPastedNote("");
     setSoapDrafted(false);
+    setSoapApproved(false);
+
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
     setRenewal({
