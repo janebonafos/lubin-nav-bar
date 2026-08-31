@@ -1152,7 +1152,7 @@ export default function IssuePrescriptionDialog({
                           </select>
                         </div>
                         <p className="sm:col-span-2 mt-1 text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                          Address · recommended
+                          Address
                         </p>
                         <div className="sm:col-span-2">
                           <label className={label} htmlFor="rx-street">
