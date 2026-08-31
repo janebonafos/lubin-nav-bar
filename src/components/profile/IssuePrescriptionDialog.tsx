@@ -55,22 +55,18 @@ import PatientAvatar from "@/components/profile/PatientAvatar";
 import {
   ALLERGY_READINESS_LABEL,
   CONSULT_MODE_LABEL,
-  CONTINUATION_BASIS_LABEL,
   MEDICATION_READINESS_LABEL,
-  NEW_TREATMENT_BASIS_LABEL,
   emptyGuardian,
   emptyPhAddress,
   findDuplicateMatches,
   formatPhAddress,
   type AllergyReadiness,
   type ConsultMode,
-  type ContinuationBasis,
   type Guardian,
   type MedicationReadiness,
-  type NewTreatmentBasis,
   type PhAddress,
-  type RxPurpose,
 } from "@/lib/prescription/newPatient";
+
 import {
   PHASE1_DANGEROUS_MESSAGE,
   buildSig,
