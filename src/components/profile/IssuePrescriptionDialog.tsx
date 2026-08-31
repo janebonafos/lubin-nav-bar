@@ -1241,11 +1241,10 @@ export default function IssuePrescriptionDialog({
                           />
                         </div>
                         <p className="sm:col-span-2 -mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                          All fields above are optional — only the patient's full name, date of
-                          birth and sex are legally required on a Philippine prescription. If you
-                          add a mobile number or email, the signed prescription can be delivered by
-                          text or email. The patient does not need a Lubin account before you
-                          continue.
+                          City / municipality is required. All other address fields are optional.
+                          If you add a mobile number or email, the signed prescription can be
+                          delivered by text or email. The patient does not need a Lubin account
+                          before you continue.
                         </p>
                       </div>
                     )}
