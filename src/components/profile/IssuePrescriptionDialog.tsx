@@ -3461,15 +3461,30 @@ export default function IssuePrescriptionDialog({
         </div>
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
-          <p className="text-[11.5px] text-[#8A7FB0]">
-            {issued
-              ? "Prescription signed and recorded."
-              : stepGaps.length > 0
-                ? `Still needed: ${stepGaps.slice(0, 3).join(" · ")}`
-                : allGaps.length > 0
-                  ? `Still to resolve: ${allGaps.slice(0, 3).join(" · ")}`
-                  : "Ready to continue."}
-          </p>
+          <div className="min-w-0">
+            {issued ? (
+              <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
+            ) : stepGaps.length > 0 ? (
+              <>
+                <p className="text-[12px] font-bold text-[#3D2E6B]">
+                  {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
+                </p>
+                <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                  {stepGaps.slice(0, 3).map((g) => (
+                    <li key={g} className="text-[11.5px] text-[#8A7FB0]">
+                      · {g}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : allGaps.length > 0 ? (
+              <p className="text-[11.5px] text-[#8A7FB0]">
+                Still to resolve: {allGaps.slice(0, 3).join(" · ")}
+              </p>
+            ) : (
+              <p className="text-[11.5px] text-[#8A7FB0]">Ready to continue.</p>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {issued ? (
               <button
