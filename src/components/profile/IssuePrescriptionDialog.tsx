@@ -2040,8 +2040,22 @@ export default function IssuePrescriptionDialog({
                               "Diagnosis, clinical impression or indication supporting treatment.",
                               1,
                             )}
-                            {soapField("plan", "Treatment decision, monitoring and follow-up.")}
+                            {soapField(
+                              "plan",
+                              "Treatment decision, medication plan, monitoring and follow-up.",
+                            )}
+                            <p
+                              className={`rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
+                                contextGaps.length === 0
+                                  ? "bg-[#F0EBFB] text-[#3D2E6B]"
+                                  : "bg-[#F7F6FA] text-[#8A7FB0]"
+                              }`}
+                            >
+                              {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
+                            </p>
                           </div>
+                          </div>
+
 
                           <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
                             A medication request or message alone is not a clinical assessment.
