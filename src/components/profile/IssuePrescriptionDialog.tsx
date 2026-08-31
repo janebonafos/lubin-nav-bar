@@ -850,17 +850,26 @@ export default function IssuePrescriptionDialog({
     };
     setSelected(record);
     setCreatingNew(false);
+    setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
     setPreferredName(pick(undefined, "identity.preferredName"));
     setDob(pick(record.info.dob, "identity.dob"));
-    setSex((record.info.sex as PatientSex) ?? "not-documented");
+    const recordSex = (record.info.sex as PatientSex) ?? "not-documented";
+    const sharedSex = (shared["identity.gender"] ?? "").trim().toLowerCase();
+    setSex(
+      recordSex !== "not-documented"
+        ? recordSex
+        : SEX_OPTIONS.some((o) => o.value === sharedSex)
+          ? (sharedSex as PatientSex)
+          : recordSex,
+    );
     const existing = (record.info.address ?? "").split(",").map((p) => p.trim());
-    const sharedCity = (shared["contact.address"] ?? "").split(",")[0]?.trim() ?? "";
+    const sharedAddress = (shared["contact.address"] ?? "").split(",").map((p) => p.trim());
     setAddress({
       street: existing[0] ?? "",
       barangay: existing[1] ?? "",
-      city: existing[2] || sharedCity,
-      province: existing[3] ?? "",
+      city: existing[2] || sharedAddress[0] || "",
+      province: existing[3] || sharedAddress[1] || "",
       postalCode: existing[4] ?? "",
     });
     setPatientEmail(pick(record.info.email, "contact.email"));
@@ -870,6 +879,7 @@ export default function IssuePrescriptionDialog({
     setConfirmedSuggestions([]);
     setAiNote("");
   }
+
 
 
   function startNewPatient() {
