@@ -1723,6 +1723,8 @@ export default function IssuePrescriptionDialog({
                               </div>
                             );
                           })()}
+                            </>
+                          )}
 
                           {linkedAppt && (
                             <>
