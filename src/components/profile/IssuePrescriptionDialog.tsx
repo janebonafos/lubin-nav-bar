@@ -328,22 +328,48 @@ export default function IssuePrescriptionDialog({
     });
   }, [creatingNew, duplicatesDismissed, records, patientName, dob, patientPhone, patientEmail]);
 
+  /**
+   * Patients can share an unbounded number of results. Providers should never
+   * be shown a raw list of hundreds of rows, so results are grouped per tool:
+   * one summary row per assessment with the latest result, a total count and a
+   * short (max 5) recent history that can be expanded on demand.
+   */
   const passportItems = useMemo(() => {
-    const attempts = selected?.passport?.attemptsInRange ?? [];
-    return attempts.slice(0, 8).map((a) => {
-      const meta = Object.values(ASSESSMENTS_BY_SLUG).find((x) => x.id === a.assessmentId);
+    const attempts = [...(selected?.passport?.attemptsInRange ?? [])].sort(
+      (a, b) => (b.takenAt ?? 0) - (a.takenAt ?? 0),
+    );
+    const byTool = new Map<string, typeof attempts>();
+    for (const a of attempts) {
+      const list = byTool.get(a.assessmentId);
+      if (list) list.push(a);
+      else byTool.set(a.assessmentId, [a]);
+    }
+    return [...byTool.entries()].map(([assessmentId, list]) => {
+      const meta = Object.values(ASSESSMENTS_BY_SLUG).find((x) => x.id === assessmentId);
       const maxScore = meta?.maxScore ?? 0;
-      const status =
+      const statusOf = (score: number) =>
         maxScore > 0
-          ? getAssessmentStatus(a.assessmentId, a.score, maxScore, !!meta?.lowerIsBetter)
-          : null;
+          ? getAssessmentStatus(assessmentId, score, maxScore, !!meta?.lowerIsBetter)?.label
+          : undefined;
+      const latest = list[0]!;
+      const previous = list[1];
       return {
-        id: a.id,
-        name: meta?.name ?? a.assessmentName,
+        id: latest.id,
+        assessmentId,
+        name: meta?.name ?? latest.assessmentName,
         clinicalName: meta?.clinicalName,
-        score: a.score,
+        score: latest.score,
         maxScore,
-        statusLabel: status?.label,
+        statusLabel: statusOf(latest.score),
+        takenAt: latest.takenAt,
+        totalCount: list.length,
+        change: previous ? latest.score - previous.score : null,
+        recent: list.slice(0, 5).map((a) => ({
+          id: a.id,
+          score: a.score,
+          takenAt: a.takenAt,
+          statusLabel: statusOf(a.score),
+        })),
       };
     });
   }, [selected]);
