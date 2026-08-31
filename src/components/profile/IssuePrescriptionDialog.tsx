@@ -1644,42 +1644,50 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* A — completed Lubin consultation */}
-                      {entry === "lubin" && (
+                      {purpose === "new" && entry === "lubin" && (
                         <section className={cardCls}>
-                          <label className={label}>Completed Lubin consultations</label>
+                          {!fromAppointment && (
+                            <>
+                          <label className={label}>
+                            Completed Lubin consultations
+                            {selected ? ` — ${selected.fullName}` : ""}
+                          </label>
                           <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
-                            Search by patient name, appointment type or ID.
+                            Only this patient’s completed consultations are shown. Search by
+                            appointment type, date or ID.
                           </p>
                           <div className="relative mt-1.5">
                             <input
                               className={`${field} pr-9`}
                               value={apptSearch}
                               onChange={(e) => setApptSearch(e.target.value)}
-                              placeholder="Search name, title or ID…"
+                              placeholder="Search title, date or ID…"
                             />
                             <Search className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#A89BD0]" />
                           </div>
                           {(() => {
                             const q = apptSearch.trim().toLowerCase();
                             const matches = q
-                              ? ELIGIBLE_APPOINTMENTS.filter(
+                              ? patientAppointments.filter(
                                   (a) =>
                                     a.patient.toLowerCase().includes(q) ||
                                     a.type.toLowerCase().includes(q) ||
+                                    a.date.toLowerCase().includes(q) ||
                                     a.id.toLowerCase().includes(q),
                                 )
                               : [];
                             if (!q)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  {ELIGIBLE_APPOINTMENTS.length} completed consultations available —
+                                  {patientAppointments.length} completed consultation
+                                  {patientAppointments.length === 1 ? "" : "s"} for this patient —
                                   start typing to search.
                                 </p>
                               );
                             if (matches.length === 0)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  No completed consultations match “{apptSearch}”.
+                                  No completed consultations for this patient match “{apptSearch}”.
                                 </p>
                               );
                             return (
