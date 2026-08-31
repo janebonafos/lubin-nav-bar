@@ -2792,14 +2792,13 @@ export default function IssuePrescriptionDialog({
                         </section>
                       )}
 
-                      {/* Confirm safety information */}
+                      {/* Medication safety check */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          Confirm safety information
+                          Medication safety check
                         </h3>
                         <p className="mt-1 text-[12px] text-[#6F6889]">
-                          Only allergies and current medications are reconfirmed here. Identity,
-                          contact and address details are reused from the patient record.
+                          Confirm drug allergies and current medications before prescribing.
                         </p>
                         {passportUpdated && (
                           <p className="mt-2 text-[11.5px] font-semibold text-[#8A7FB0]">
