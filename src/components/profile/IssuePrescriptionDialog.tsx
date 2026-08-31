@@ -809,26 +809,41 @@ export default function IssuePrescriptionDialog({
   }, [signatureBasis, otpCode, issued]);
 
   function selectRecord(record: PatientRecordView) {
+    // What the patient already provided — the clinical record first, then the
+    // intake answers / Health Passport details they shared for their visits.
+    const shared = sharedPatientDetails(record);
+    const pick = (a: string | undefined, ...ids: string[]) => {
+      const v = (a ?? "").trim();
+      if (v) return v;
+      for (const id of ids) {
+        const s = (shared[id] ?? "").trim();
+        if (s) return s;
+      }
+      return "";
+    };
     setSelected(record);
     setCreatingNew(false);
-    setPatientName(record.fullName);
-    setDob(record.info.dob ?? "");
+    setPatientName(pick(record.fullName, "identity.fullName"));
+    setPreferredName(pick(undefined, "identity.preferredName"));
+    setDob(pick(record.info.dob, "identity.dob"));
     setSex((record.info.sex as PatientSex) ?? "not-documented");
     const existing = (record.info.address ?? "").split(",").map((p) => p.trim());
+    const sharedCity = (shared["contact.address"] ?? "").split(",")[0]?.trim() ?? "";
     setAddress({
       street: existing[0] ?? "",
       barangay: existing[1] ?? "",
-      city: existing[2] ?? "",
+      city: existing[2] || sharedCity,
       province: existing[3] ?? "",
       postalCode: existing[4] ?? "",
     });
-    setPatientEmail(record.info.email ?? "");
-    setPatientPhone(record.info.phone ?? "");
+    setPatientEmail(pick(record.info.email, "contact.email"));
+    setPatientPhone(pick(record.info.phone, "contact.phone"));
     setSuggestions([]);
     setMissingInfo([]);
     setConfirmedSuggestions([]);
     setAiNote("");
   }
+
 
   function startNewPatient() {
     setSelected(null);
