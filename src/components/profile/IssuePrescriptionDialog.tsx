@@ -1846,7 +1846,17 @@ export default function IssuePrescriptionDialog({
                             </div>
                           </div>
 
-                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          <div className="mt-5 border-t border-[#EDEBF3] pt-4">
+                            <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                              Focused SOAP note
+                            </h4>
+                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                              Document the consultation using a focused SOAP note, or paste an
+                              existing clinical note and prepare a SOAP draft.
+                            </p>
+                          </div>
+
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
                             {(
                               [
                                 ["write", "Write focused SOAP"],
@@ -1902,26 +1912,37 @@ export default function IssuePrescriptionDialog({
                           )}
 
                           {(noteSource === "write" || soapDrafted) && (
-                            <div className="mt-4 space-y-3 border-t border-[#EDEBF3] pt-4">
-                              {soapField(
-                                "subjective",
-                                "Patient-reported reason for treatment, relevant symptoms and history.",
-                              )}
-                              {soapField(
-                                "objective",
-                                "Relevant observations, findings, results or vital signs — optional.",
-                              )}
-                              {soapField(
-                                "assessment",
-                                "Diagnosis, clinical impression or indication supporting treatment.",
-                                1,
-                              )}
-                              {soapField(
-                                "plan",
-                                "Treatment decision, monitoring and follow-up.",
-                              )}
+                            <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                                  Focused SOAP note
+                                </h4>
+                                <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                  {soapStatusLabel}
+                                </span>
+                              </div>
+                              <div className="mt-3 space-y-3">
+                                {soapField(
+                                  "subjective",
+                                  "Patient-reported reason for treatment, relevant symptoms and history.",
+                                )}
+                                {soapField(
+                                  "objective",
+                                  "Relevant observations, findings, results or vital signs.",
+                                )}
+                                {soapField(
+                                  "assessment",
+                                  "Diagnosis, clinical impression or indication supporting treatment.",
+                                  1,
+                                )}
+                                {soapField(
+                                  "plan",
+                                  "Treatment decision, medication plan, monitoring and follow-up.",
+                                )}
+                              </div>
                             </div>
                           )}
+
                         </section>
                       )}
 
