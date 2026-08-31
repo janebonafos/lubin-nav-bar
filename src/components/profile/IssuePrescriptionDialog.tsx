@@ -512,63 +512,6 @@ export default function IssuePrescriptionDialog({
     setAiNote("");
   }
 
-  function checkNetwork() {
-    const found = lookupHealthNetwork({
-      fullName: patientName,
-      mobile: patientPhone,
-      email: patientEmail,
-    });
-    setNetwork(found);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
-    if (found) {
-      if (!dob && found.dob) setDob(found.dob);
-      if (!patientPhone && found.mobile) setPatientPhone(found.mobile);
-      if (!patientEmail && found.email) setPatientEmail(found.email);
-    }
-  }
-
-  function confirmNetworkItem(key: string) {
-    const next = networkConfirmed.includes(key)
-      ? networkConfirmed
-      : [...networkConfirmed, key];
-    setNetworkConfirmed(next);
-    if (network) {
-      const valueKeys = (
-        [
-          network.dob ? "dob" : null,
-          network.mobile || network.email ? "contact" : null,
-          network.medications ? "medications" : null,
-          network.allergies ? "allergies" : null,
-          network.conditions?.length ? "conditions" : null,
-          network.pregnancy ? "pregnancy" : null,
-          network.careProviders?.length ? "providers" : null,
-        ] as (string | null)[]
-      ).filter((k): k is string => k !== null);
-      if (valueKeys.length > 0 && valueKeys.every((k) => next.includes(k))) {
-        setReviewedAt(Date.now());
-      }
-    }
-    if (key === "allergies" && network?.allergies) {
-      if (network.allergies.length === 0) setAllergyState("none-known");
-      else {
-        setAllergyState("recorded");
-        setAllergyDetail(network.allergies.join(", "));
-      }
-    }
-    if (key === "medications" && network?.medications) {
-      if (network.medications.length === 0) setMedicationState("nothing");
-      else {
-        setMedicationState("recorded");
-        setMedicationDetail(network.medications.join("; "));
-      }
-    }
-    if (key === "conditions" && network?.conditions?.length) {
-      setConditionsText(network.conditions.join(", "));
-    }
-    if (key === "pregnancy" && network?.pregnancy) setPregnancyText(network.pregnancy);
-  }
-
   function resetAll() {
     setStep(0);
     setSelected(null);
@@ -582,9 +525,6 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setNetwork(null);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
     setPurpose(null);
     setLinkedAppointment("");
     setConsultDate("");
