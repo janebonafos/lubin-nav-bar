@@ -1932,8 +1932,7 @@ export default function IssuePrescriptionDialog({
                             Standalone prescribing encounter
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            No scheduled appointment is required. Document the focused clinical
-                            assessment supporting this prescription.
+                            No scheduled appointment is required.
                           </p>
                           <div className="mt-3">
                             <label className={label}>How are you assessing the patient?</label>
@@ -1950,7 +1949,20 @@ export default function IssuePrescriptionDialog({
                             </select>
                           </div>
 
+                          <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                                Focused SOAP note
+                              </h4>
+                              <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                {soapStatusLabel}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                              This SOAP note documents the assessment supporting the prescription.
+                            </p>
                           <div className="mt-4 space-y-3">
+
                             {soapField(
                               "subjective",
                               "Patient-reported reason for treatment, relevant symptoms and history.",
