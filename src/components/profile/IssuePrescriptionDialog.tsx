@@ -1522,13 +1522,13 @@ export default function IssuePrescriptionDialog({
                       {/* Entry point */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          Where is the clinical assessment for this prescription documented?
+                          SOAP note supporting this prescription
                         </h3>
                         <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                          Document once, reuse everywhere. Lubin reuses the encounter note, the
-                          patient’s Health Passport and your prescriber details instead of asking
-                          for them again.
+                          Reuse the SOAP from a previous consultation or complete a focused SOAP
+                          note now. You only need one clinical note.
                         </p>
+
 
                         <div className="mt-4 space-y-2">
                           {ENTRY_POINTS.map((opt) => (
