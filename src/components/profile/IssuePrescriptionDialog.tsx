@@ -1421,7 +1421,7 @@ export default function IssuePrescriptionDialog({
                               key={row.key}
                               className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-3.5 py-3"
                             >
-                              <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                   <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                                     {row.title}
