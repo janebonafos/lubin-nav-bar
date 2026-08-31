@@ -89,6 +89,14 @@ const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
   { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
 
+/** SOAP note attached to a clinical encounter. Fictional prototype fixture. */
+type SoapNote = {
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+};
+
 /** Local demo appointments a prescription can be linked to. Prototype fixture data. */
 type DemoAppointment = {
   id: string;
@@ -97,8 +105,8 @@ type DemoAppointment = {
   time: string;
   type: string;
   status: "completed" | "cancelled" | "upcoming";
-  assessment: string;
-  plan: string;
+  prescriber: string;
+  soap: SoapNote;
 };
 const DEMO_APPOINTMENTS: DemoAppointment[] = [
   {
@@ -108,8 +116,15 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "4:00 PM",
     type: "Psychiatric consultation",
     status: "completed",
-    assessment: "Moderate depressive episode, first presentation. No safety concerns today.",
-    plan: "Start an SSRI at a low dose, review in 4 weeks, sleep hygiene plan agreed.",
+    prescriber: "Dr. Maria Santos",
+    soap: {
+      subjective:
+        "Low mood, poor sleep and reduced interest for about ten weeks. No self-harm thoughts today.",
+      objective:
+        "Alert, cooperative, mildly slowed. PHQ-9 completed before the session — moderate range.",
+      assessment: "Moderate depressive episode, first presentation. No safety concerns today.",
+      plan: "Start an SSRI at a low dose, review in 4 weeks, sleep hygiene plan agreed.",
+    },
   },
   {
     id: "a4",
@@ -118,8 +133,13 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "10:30 AM",
     type: "Follow-up consultation",
     status: "completed",
-    assessment: "Hypertension, BP improved on current dose.",
-    plan: "Continue current medication, review BP log and side effects in 6 weeks.",
+    prescriber: "Dr. Maria Santos",
+    soap: {
+      subjective: "No headaches or dizziness. Taking medication daily, home readings improving.",
+      objective: "",
+      assessment: "Hypertension, BP improved on current dose.",
+      plan: "Continue current medication, review BP log and side effects in 6 weeks.",
+    },
   },
   {
     id: "x1",
@@ -128,8 +148,8 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "2:00 PM",
     type: "Follow-up consultation",
     status: "upcoming",
-    assessment: "",
-    plan: "",
+    prescriber: "Dr. Maria Santos",
+    soap: { subjective: "", objective: "", assessment: "", plan: "" },
   },
   {
     id: "x2",
@@ -138,12 +158,55 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "9:00 AM",
     type: "Psychiatric consultation",
     status: "cancelled",
-    assessment: "",
-    plan: "",
+    prescriber: "Dr. Maria Santos",
+    soap: { subjective: "", objective: "", assessment: "", plan: "" },
   },
 ];
 /** Only completed consultations are eligible to support a new prescription. */
 const ELIGIBLE_APPOINTMENTS = DEMO_APPOINTMENTS.filter((a) => a.status === "completed");
+
+/** Which SOAP sections of a reused note still need the prescriber's input. */
+function missingSoapSections(note: SoapNote): (keyof SoapNote)[] {
+  return (["subjective", "objective", "assessment", "plan"] as (keyof SoapNote)[]).filter(
+    (k) => !note[k].trim(),
+  );
+}
+const SOAP_LABEL: Record<keyof SoapNote, string> = {
+  subjective: "Subjective",
+  objective: "Objective",
+  assessment: "Assessment",
+  plan: "Plan",
+};
+
+/** Where the clinical assessment supporting this prescription was documented. */
+type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
+const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] = [
+  {
+    value: "lubin",
+    title: "Use a completed Lubin consultation",
+    description:
+      "Link this prescription to an appointment you completed in Lubin. Its SOAP note, allergies and current medications are reused.",
+  },
+  {
+    value: "outside",
+    title: "Use a consultation I completed outside Lubin",
+    description:
+      "Use this when you personally assessed the patient in your clinic or another telehealth system.",
+  },
+  {
+    value: "standalone",
+    title: "Standalone prescribing encounter",
+    description:
+      "No scheduled appointment is required. Document the focused clinical assessment supporting this prescription.",
+  },
+  {
+    value: "renewal",
+    title: "Medication continuation / renewal",
+    description:
+      "Continue a medication the patient is already taking using a focused renewal review.",
+  },
+];
+
 
 type MedForm = {
   id: string;
