@@ -1949,6 +1949,8 @@ export default function IssuePrescriptionDialog({
                   )}
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
               <Acc
