@@ -1677,22 +1677,26 @@ export default function IssuePrescriptionDialog({
                         disabled={aiLoading || !pastedNote.trim()}
                         className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        {aiLoading ? "Organising…" : "Draft SOAP with AI"}
-                        <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider">
-                          AI
-                        </span>
+                        {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
                         AI only organizes what you wrote. It never adds clinical information —
                         anything missing is marked “{NEEDS_CONFIRMATION}”.
                       </p>
-                      {soapDrafted && (
+                      {aiLoading && (
+                        <p className="mt-2 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#D3C6F0] border-t-[#3D2E6B]" />
+                          Generating your SOAP note — organizing your notes into S, O, A and P…
+                        </p>
+                      )}
+                      {!aiLoading && soapDrafted && (
                         <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
-                          AI-assisted draft — review and edit every section below before continuing.
+                          SOAP note ready — review and edit every section below before continuing.
                         </p>
                       )}
                     </div>
                   );
+
 
                   /** Required provider sign-off on the SOAP note. */
                   const soapApproval = (
