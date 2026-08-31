@@ -1397,8 +1397,17 @@ export default function IssuePrescriptionDialog({
               )}
 
               {/* ---------------- STEP 2 — CLINICAL CONTEXT ---------------- */}
-              {step === 1 && (
+              <Acc
+                index={1}
+                label="Clinical context"
+                hint="Assessment source and readiness"
+                open={step === 1}
+                onToggle={setStep}
+                done={contextGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
