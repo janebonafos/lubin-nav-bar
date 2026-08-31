@@ -2375,6 +2375,8 @@ export default function IssuePrescriptionDialog({
                   </section>
                 </>
               )}
+              </Acc>
+
             </>
           )}
         </div>
