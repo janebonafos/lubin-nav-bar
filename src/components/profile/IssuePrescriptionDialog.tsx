@@ -862,22 +862,46 @@ export default function IssuePrescriptionDialog({
               <X className="h-4 w-4" />
             </button>
           </div>
-          <ol className="mt-4 grid grid-cols-4 gap-2">
+          <ol className="mt-4 flex items-start">
             {STEPS.map((s, i) => (
-              <li key={s}>
+              <li key={s} className="relative flex flex-1 flex-col items-center">
+                {/* connecting line */}
+                {i > 0 && (
+                  <span
+                    aria-hidden
+                    className={`absolute left-[-50%] top-[13px] h-[2px] w-full rounded-[12px] transition-colors ${
+                      i <= step ? "bg-[#3D2E6B]" : "bg-[#E7E0F6]"
+                    }`}
+                  />
+                )}
                 <button
                   type="button"
                   onClick={() => i <= step && setStep(i)}
                   disabled={i > step}
-                  className={`w-full rounded-xl border px-2 py-2 text-left text-[11px] font-semibold leading-tight transition ${
-                    i === step
-                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                      : i < step
-                        ? "border-[#D9CEF3] bg-[#F7F4FE] text-[#3D2E6B]"
-                        : "border-[#EDEBF3] bg-white text-[#A89BD0]"
-                  }`}
+                  className="relative z-10 flex flex-col items-center gap-1.5 rounded-[12px] px-2 py-0.5"
                 >
-                  {i + 1} · {s}
+                  <span
+                    className={`flex h-[26px] w-[26px] items-center justify-center rounded-[12px] text-[11px] font-bold transition ${
+                      i === step
+                        ? "bg-[#3D2E6B] text-white shadow-[0_4px_12px_-2px_rgba(61,46,107,0.45)]"
+                        : i < step
+                          ? "bg-[#3D2E6B]/15 text-[#3D2E6B]"
+                          : "bg-[#F1ECFA] text-[#A89BD0]"
+                    }`}
+                  >
+                    {i < step ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
+                  </span>
+                  <span
+                    className={`text-[11px] font-semibold leading-tight transition ${
+                      i === step
+                        ? "text-[#3D2E6B]"
+                        : i < step
+                          ? "text-[#3D2E6B]/70"
+                          : "text-[#A89BD0]"
+                    }`}
+                  >
+                    {s}
+                  </span>
                 </button>
               </li>
             ))}
