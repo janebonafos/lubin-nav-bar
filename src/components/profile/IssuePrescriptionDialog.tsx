@@ -1017,10 +1017,14 @@ export default function IssuePrescriptionDialog({
             <div>
               <h2 className="text-[16px] font-bold text-[#3D2E6B]">New prescription</h2>
               <p className="mt-1 text-[12.5px] text-[#6F6889]">
-                Patient, clinical context, prescription, then review and sign. A signed
-                prescription cannot be edited.
+                Patient, clinical documentation, prescription, then review and sign. Documented
+                information is reused, never retyped.
+              </p>
+              <p className="mt-2 inline-flex rounded-xl bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">
+                Design prototype — fictional data only. Not for clinical use.
               </p>
             </div>
+
             <button
               type="button"
               onClick={onClose}
