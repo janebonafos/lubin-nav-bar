@@ -328,25 +328,58 @@ export default function IssuePrescriptionDialog({
     });
   }, [creatingNew, duplicatesDismissed, records, patientName, dob, patientPhone, patientEmail]);
 
+  /**
+   * Patients can share an unbounded number of results. Providers should never
+   * be shown a raw list of hundreds of rows, so results are grouped per tool:
+   * one summary row per assessment with the latest result, a total count and a
+   * short (max 5) recent history that can be expanded on demand.
+   */
   const passportItems = useMemo(() => {
-    const attempts = selected?.passport?.attemptsInRange ?? [];
-    return attempts.slice(0, 8).map((a) => {
-      const meta = Object.values(ASSESSMENTS_BY_SLUG).find((x) => x.id === a.assessmentId);
+    const attempts = [...(selected?.passport?.attemptsInRange ?? [])].sort(
+      (a, b) => (b.takenAt ?? 0) - (a.takenAt ?? 0),
+    );
+    const byTool = new Map<string, typeof attempts>();
+    for (const a of attempts) {
+      const list = byTool.get(a.assessmentId);
+      if (list) list.push(a);
+      else byTool.set(a.assessmentId, [a]);
+    }
+    return [...byTool.entries()].map(([assessmentId, list]) => {
+      const meta = Object.values(ASSESSMENTS_BY_SLUG).find((x) => x.id === assessmentId);
       const maxScore = meta?.maxScore ?? 0;
-      const status =
+      const statusOf = (score: number) =>
         maxScore > 0
-          ? getAssessmentStatus(a.assessmentId, a.score, maxScore, !!meta?.lowerIsBetter)
-          : null;
+          ? getAssessmentStatus(assessmentId, score, maxScore, !!meta?.lowerIsBetter)?.label
+          : undefined;
+      const latest = list[0]!;
+      const previous = list[1];
       return {
-        id: a.id,
-        name: meta?.name ?? a.assessmentName,
+        id: latest.id,
+        assessmentId,
+        name: meta?.name ?? latest.assessmentName,
         clinicalName: meta?.clinicalName,
-        score: a.score,
+        score: latest.score,
         maxScore,
-        statusLabel: status?.label,
+        statusLabel: statusOf(latest.score),
+        takenAt: latest.takenAt,
+        totalCount: list.length,
+        change: previous ? latest.score - previous.score : null,
+        recent: list.slice(0, 5).map((a) => ({
+          id: a.id,
+          score: a.score,
+          takenAt: a.takenAt,
+          statusLabel: statusOf(a.score),
+        })),
       };
     });
   }, [selected]);
+
+  const sharedResultCount = useMemo(
+    () => passportItems.reduce((sum, p) => sum + p.totalCount, 0),
+    [passportItems],
+  );
+  const [expandedTools, setExpandedTools] = useState<string[]>([]);
+
 
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
@@ -1436,19 +1469,92 @@ export default function IssuePrescriptionDialog({
 
                   {selected && passportItems.length > 0 && (
                     <section className={cardCls}>
-                      <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
-                        <FileText className="h-4 w-4" /> Shared by patient — assessments for{" "}
-                        {selected.fullName}
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                          Shared by patient — assessments for {selected.fullName}
+                        </p>
+                        <p className="text-[11px] text-[#6B6484]">
+                          {passportItems.length} tool{passportItems.length === 1 ? "" : "s"} ·{" "}
+                          {sharedResultCount} result{sharedResultCount === 1 ? "" : "s"} shared
+                        </p>
+                      </div>
+                      <p className="mt-1 text-[11px] text-[#6B6484]">
+                        Grouped by tool. Latest result shown first — expand a tool to see its recent
+                        history.
                       </p>
-                      <ul className="mt-2 space-y-1">
-                        {passportItems.map((p) => (
-                          <li key={p.id} className="text-[12px] text-[#4B4468]">
-                            {p.name}
-                            {p.clinicalName ? ` (${p.clinicalName})` : ""} — {p.score}
-                            {p.maxScore ? `/${p.maxScore}` : ""}
-                            {p.statusLabel ? ` · ${p.statusLabel}` : ""}
-                          </li>
-                        ))}
+                      <ul className="mt-3 space-y-2">
+                        {passportItems.map((p) => {
+                          const open = expandedTools.includes(p.assessmentId);
+                          return (
+                            <li
+                              key={p.assessmentId}
+                              className="rounded-[12px] border border-[#E7E0F7] bg-white p-3"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                  <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                    {p.name}
+                                    {p.clinicalName ? (
+                                      <span className="font-medium text-[#6B6484]">
+                                        {" "}
+                                        ({p.clinicalName})
+                                      </span>
+                                    ) : null}
+                                  </p>
+                                  <p className="mt-0.5 text-[12px] text-[#4B4468]">
+                                    Latest {p.score}
+                                    {p.maxScore ? `/${p.maxScore}` : ""}
+                                    {p.statusLabel ? ` · ${p.statusLabel}` : ""}
+                                    {p.takenAt
+                                      ? ` · ${new Date(p.takenAt).toLocaleDateString()}`
+                                      : ""}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {p.change !== null && p.change !== 0 && (
+                                    <span className="rounded-full bg-[#F3EFFC] px-2 py-0.5 text-[11px] font-semibold text-[#3D2E6B]">
+                                      {p.change > 0 ? "+" : ""}
+                                      {p.change} vs previous
+                                    </span>
+                                  )}
+                                  {p.totalCount > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setExpandedTools((prev) =>
+                                          prev.includes(p.assessmentId)
+                                            ? prev.filter((x) => x !== p.assessmentId)
+                                            : [...prev, p.assessmentId],
+                                        )
+                                      }
+                                      className="rounded-lg border border-[#D9CEF3] bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B]"
+                                    >
+                                      {open ? "Hide history" : `${p.totalCount} results`}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              {open && p.totalCount > 1 && (
+                                <ul className="mt-2 space-y-1 border-t border-[#EFEAFA] pt-2">
+                                  {p.recent.map((r) => (
+                                    <li key={r.id} className="text-[11.5px] text-[#4B4468]">
+                                      {r.takenAt ? new Date(r.takenAt).toLocaleDateString() : "—"} ·{" "}
+                                      {r.score}
+                                      {p.maxScore ? `/${p.maxScore}` : ""}
+                                      {r.statusLabel ? ` · ${r.statusLabel}` : ""}
+                                    </li>
+                                  ))}
+                                  {p.totalCount > p.recent.length && (
+                                    <li className="text-[11px] text-[#6B6484]">
+                                      + {p.totalCount - p.recent.length} older result
+                                      {p.totalCount - p.recent.length === 1 ? "" : "s"} not shown
+                                    </li>
+                                  )}
+                                </ul>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </section>
                   )}
