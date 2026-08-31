@@ -985,7 +985,7 @@ export default function IssuePrescriptionDialog({
                           {active ? "Active" : `Step 0${i + 1}`}
                         </span>
                         <span
-                          className={`mt-1 inline-block text-[12px] font-medium ${
+                          className={`mt-1 inline-block whitespace-nowrap text-[12px] font-medium ${
                             active
                               ? "rounded-full bg-[#F4F0FB] px-3 py-0.5 font-semibold text-[#3D2E6B]"
                               : done
