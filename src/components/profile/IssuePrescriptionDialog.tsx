@@ -1040,8 +1040,17 @@ export default function IssuePrescriptionDialog({
           ) : (
             <>
               {/* ---------------- STEP 1 — PATIENT ---------------- */}
-              {step === 0 && (
+              <Acc
+                index={0}
+                label="Patient"
+                hint="Identity and contact details"
+                open={step === 0}
+                onToggle={setStep}
+                done={hasPatient && patientGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Patient</h3>
