@@ -406,7 +406,7 @@ export default function IssuePrescriptionDialog({
     "none" | "update" | "reassess" | null
   >(null);
   const [consultDate, setConsultDate] = useState("");
-  const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
+  const [consultMode, setConsultMode] = useState<ConsultMode | null>(null);
   const [consultLocation, setConsultLocation] = useState("");
   /** How the provider wants to produce the SOAP note. AI drafting is open by
    *  default — writing manually is the secondary action. */
