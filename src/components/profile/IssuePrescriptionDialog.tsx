@@ -1752,7 +1752,7 @@ export default function IssuePrescriptionDialog({
                               onChange={(e) =>
                                 setRenewal((r) => ({ ...r, medication: e.target.value }))
                               }
-                              placeholder="e.g. Sertraline 50 mg — 1 tablet once daily"
+                              placeholder="e.g. Losartan 50 mg — 1 tablet once daily"
                             />
                           </div>
                           <div className="sm:col-span-2">
@@ -1763,7 +1763,7 @@ export default function IssuePrescriptionDialog({
                               onChange={(e) =>
                                 setRenewal((r) => ({ ...r, indication: e.target.value }))
                               }
-                              placeholder="e.g. Generalised anxiety disorder"
+                              placeholder="e.g. Hypertension, newly diagnosed"
                             />
                           </div>
                           <div className="sm:col-span-2">
@@ -1848,7 +1848,7 @@ export default function IssuePrescriptionDialog({
                         className={`${field} mt-2`}
                         value={medicationDetail}
                         onChange={(e) => setMedicationDetail(e.target.value)}
-                        placeholder="e.g. Sertraline 50 mg once daily"
+                        placeholder="e.g. Losartan 50 mg once daily"
                       />
                     )}
 
@@ -2468,7 +2468,7 @@ function MedicationCard({
             className={`${field} pl-9`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. sertraline or Zoloft"
+            placeholder="e.g. losartan or Cozaar"
           />
         </div>
         {results.length > 0 && (
@@ -2511,7 +2511,7 @@ function MedicationCard({
             className={`${field} mt-1.5`}
             value={med.genericName}
             onChange={(e) => onPatch("genericName", e.target.value)}
-            placeholder="e.g. Sertraline hydrochloride"
+            placeholder="e.g. Losartan potassium"
           />
         </div>
         <div>
@@ -2520,7 +2520,7 @@ function MedicationCard({
             className={`${field} mt-1.5`}
             value={med.brandName}
             onChange={(e) => onPatch("brandName", e.target.value)}
-            placeholder="e.g. Zoloft"
+            placeholder="e.g. Cozaar"
           />
         </div>
         <div>
