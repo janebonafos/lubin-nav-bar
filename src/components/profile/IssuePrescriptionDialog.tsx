@@ -1845,22 +1845,24 @@ export default function IssuePrescriptionDialog({
                     {purpose === "new-treatment" && !linkedAppt && (
                       <>
                         <p className="mt-1 text-[12px] text-[#6F6889]">
-                          A focused note is enough for this prescription. Open the full SOAP note
-                          only if you want it.
+                          Your structured documentation from the previous step is the clinical
+                          record for this prescription. Add an optional note or a full SOAP note
+                          only if you want more detail.
                         </p>
+                        <label className={`${label} mt-3 block`}>Additional note (optional)</label>
                         <textarea
-                          rows={5}
-                          className={`${area} mt-3`}
+                          rows={4}
+                          className={`${area} mt-1.5`}
                           value={focusedNote}
                           onChange={(e) => setFocusedNote(e.target.value)}
-                          placeholder="Assessment and plan in your own words…"
+                          placeholder="Anything else you want on the record, in your own words…"
                         />
                         <button
                           type="button"
                           onClick={() => setShowSoap((v) => !v)}
                           className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
                         >
-                          {showSoap ? "Hide full SOAP note" : "Open full SOAP note"}
+                          {showSoap ? "Hide full SOAP note" : "Open full SOAP note (optional)"}
                         </button>
                         {showSoap && (
                           <div className="mt-3">
@@ -1876,8 +1878,10 @@ export default function IssuePrescriptionDialog({
                                 },
                                 caseNotes: focusedNote,
                                 presenting,
-                                observations: findings,
-                                plan,
+                                observations: [relevantHistory, currentSymptoms, findings]
+                                  .filter(Boolean)
+                                  .join("\n"),
+                                plan: [plan, followUpPlan].filter(Boolean).join("\n"),
                               })}
                             />
                           </div>
