@@ -754,11 +754,16 @@ export default function IssuePrescriptionDialog({
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
+  /** Steps 2–4 only open once Step 1 holds a complete patient. */
+  const patientReady =
+    (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
   const goStep = (i: number) => {
+    if (i > 0 && !patientReady) return;
     if (i === 3 && !canReview) return;
     setStep(i);
   };
+
 
   /** Previously signed prescriptions for this patient — the renewal source. */
   const previousPrescriptions = useMemo(() => {
