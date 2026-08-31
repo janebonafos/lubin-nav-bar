@@ -1430,6 +1430,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "linked-appointment" && (
                             <div className="mt-3 border-t border-[#EDEBF3] pt-3">
                               <label className={label}>Completed Lubin consultations</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
@@ -1512,6 +1513,7 @@ export default function IssuePrescriptionDialog({
                                 </p>
                               )}
                             </div>
+                            )}
                           </div>
 
                           {/* Option 2 — outside consultation */}
@@ -1539,6 +1541,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "external-consult" && (
                             <div className="mt-3 grid gap-3 border-t border-[#EDEBF3] pt-3 sm:grid-cols-2">
                               <div>
                                 <label className={label}>Consultation date</label>
@@ -1611,6 +1614,7 @@ export default function IssuePrescriptionDialog({
                                 />
                               </div>
                             </div>
+                            )}
                           </div>
 
                           {/* Option 3 — assessment now */}
@@ -1638,6 +1642,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "focused-assessment" && (
                             <div className="mt-3 grid gap-3 border-t border-[#EDEBF3] pt-3 sm:grid-cols-2">
                               <div className="sm:col-span-2">
                                 <label className={label}>How are you assessing the patient?</label>
@@ -1721,6 +1726,7 @@ export default function IssuePrescriptionDialog({
                                 />
                               </div>
                             </div>
+                            )}
                           </div>
                         </div>
 
