@@ -171,6 +171,13 @@ const SOAP_LABEL: Record<keyof SoapNote, string> = {
   assessment: "Assessment",
   plan: "Plan",
 };
+const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
+  subjective: "S — Subjective",
+  objective: "O — Objective",
+  assessment: "A — Assessment",
+  plan: "P — Plan",
+};
+
 
 /** Where the clinical assessment supporting this prescription was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
@@ -564,7 +571,43 @@ export default function IssuePrescriptionDialog({
   if (medicationState === "not-assessed")
     contextGaps.push("Current medication status (not assessed)");
 
+  /** Visible SOAP status for the Step 2 accordion and the standalone card. */
+  const soapTouched = Boolean(
+    soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
+  );
+  const soapStatusLabel =
+    entry === "renewal"
+      ? contextGaps.length === 0
+        ? "Focused renewal note complete"
+        : "Focused renewal note incomplete"
+      : entry === "lubin" && linkedAppt && missingFromLinked.length === 0
+        ? "Existing SOAP reused"
+        : contextGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
+          ? "SOAP note complete"
+          : soapTouched || Boolean(linkedAppt)
+            ? "SOAP note incomplete"
+            : "SOAP note not started";
+  const soapSourceLabel =
+    entry === "lubin"
+      ? "Existing SOAP note from a completed Lubin consultation"
+      : entry === "outside"
+        ? "Focused SOAP note — consultation completed outside Lubin"
+        : entry === "renewal"
+          ? "Focused renewal note"
+          : "Focused SOAP note — standalone prescribing encounter";
+  const soapDateLabel =
+    entry === "lubin"
+      ? linkedAppt?.date || "Not selected"
+      : entry === "outside"
+        ? consultDate || "Not documented"
+        : new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+
   const docGaps: string[] = [];
+
 
   const rxGaps: string[] = [];
   if (readyMeds.length === 0)
@@ -1437,8 +1480,9 @@ export default function IssuePrescriptionDialog({
               {/* ---------------- STEP 2 — CLINICAL DOCUMENTATION ---------------- */}
               <Acc
                 index={1}
-                label="Clinical documentation"
-                hint="One note — reused, not retyped"
+                label="SOAP / clinical note"
+                hint="Reuse an existing SOAP or complete one focused note"
+
                 open={step === 1}
                 onToggle={setStep}
                 done={contextGaps.length === 0}
@@ -1478,13 +1522,13 @@ export default function IssuePrescriptionDialog({
                       {/* Entry point */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          Where is the clinical assessment for this prescription documented?
+                          SOAP note supporting this prescription
                         </h3>
                         <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                          Document once, reuse everywhere. Lubin reuses the encounter note, the
-                          patient’s Health Passport and your prescriber details instead of asking
-                          for them again.
+                          Reuse the SOAP from a previous consultation or complete a focused SOAP
+                          note now. You only need one clinical note.
                         </p>
+
 
                         <div className="mt-4 space-y-2">
                           {ENTRY_POINTS.map((opt) => (
@@ -1594,10 +1638,9 @@ export default function IssuePrescriptionDialog({
                               <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                                 <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
                                   <CheckCircle2 className="h-4 w-4" />
-                                  {missingFromLinked.filter((k) => k !== "objective").length === 0
-                                    ? "Clinical documentation ready"
-                                    : "Clinical documentation almost ready"}
+                                  SOAP note from Lubin consultation
                                 </p>
+
                                 <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
                                   <div>
                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
@@ -1618,7 +1661,7 @@ export default function IssuePrescriptionDialog({
                                     <dd>
                                       {missingFromLinked.length === 0
                                         ? "Complete"
-                                        : `Missing ${missingFromLinked
+                                        : `Incomplete — missing ${missingFromLinked
                                             .map((k) => SOAP_LABEL[k])
                                             .join(", ")}`}
                                     </dd>
@@ -1637,6 +1680,18 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 </dl>
 
+                                <p
+                                  className={`mt-3 rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
+                                    missingFromLinked.length === 0
+                                      ? "bg-[#F0EBFB] text-[#3D2E6B]"
+                                      : "bg-[#FDF9EF] text-[#8A6B1F]"
+                                  }`}
+                                >
+                                  {missingFromLinked.length === 0
+                                    ? "SOAP complete — no additional clinical note required."
+                                    : "SOAP incomplete — complete the missing section below."}
+                                </p>
+
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   <button
                                     type="button"
@@ -1651,16 +1706,17 @@ export default function IssuePrescriptionDialog({
                                     disabled={contextGaps.length > 0}
                                     className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                                   >
-                                    Continue to prescription
+                                    Use this SOAP
                                   </button>
                                 </div>
+
 
                                 {reviewSoapOpen && (
                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
                                         <span className="font-semibold text-[#3D2E6B]">
-                                          {SOAP_LABEL[k]}:{" "}
+                                          {SOAP_FULL_LABEL[k]}:{" "}
                                         </span>
                                         {linkedAppt.soap[k] || (
                                           <span className="text-[#8A7FB0]">
@@ -1810,7 +1866,17 @@ export default function IssuePrescriptionDialog({
                             </div>
                           </div>
 
-                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          <div className="mt-5 border-t border-[#EDEBF3] pt-4">
+                            <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                              Focused SOAP note
+                            </h4>
+                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                              Document the consultation using a focused SOAP note, or paste an
+                              existing clinical note and prepare a SOAP draft.
+                            </p>
+                          </div>
+
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
                             {(
                               [
                                 ["write", "Write focused SOAP"],
@@ -1866,26 +1932,37 @@ export default function IssuePrescriptionDialog({
                           )}
 
                           {(noteSource === "write" || soapDrafted) && (
-                            <div className="mt-4 space-y-3 border-t border-[#EDEBF3] pt-4">
-                              {soapField(
-                                "subjective",
-                                "Patient-reported reason for treatment, relevant symptoms and history.",
-                              )}
-                              {soapField(
-                                "objective",
-                                "Relevant observations, findings, results or vital signs — optional.",
-                              )}
-                              {soapField(
-                                "assessment",
-                                "Diagnosis, clinical impression or indication supporting treatment.",
-                                1,
-                              )}
-                              {soapField(
-                                "plan",
-                                "Treatment decision, monitoring and follow-up.",
-                              )}
+                            <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                                  Focused SOAP note
+                                </h4>
+                                <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                  {soapStatusLabel}
+                                </span>
+                              </div>
+                              <div className="mt-3 space-y-3">
+                                {soapField(
+                                  "subjective",
+                                  "Patient-reported reason for treatment, relevant symptoms and history.",
+                                )}
+                                {soapField(
+                                  "objective",
+                                  "Relevant observations, findings, results or vital signs.",
+                                )}
+                                {soapField(
+                                  "assessment",
+                                  "Diagnosis, clinical impression or indication supporting treatment.",
+                                  1,
+                                )}
+                                {soapField(
+                                  "plan",
+                                  "Treatment decision, medication plan, monitoring and follow-up.",
+                                )}
+                              </div>
                             </div>
                           )}
+
                         </section>
                       )}
 
@@ -1896,8 +1973,7 @@ export default function IssuePrescriptionDialog({
                             Standalone prescribing encounter
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            No scheduled appointment is required. Document the focused clinical
-                            assessment supporting this prescription.
+                            No scheduled appointment is required.
                           </p>
                           <div className="mt-3">
                             <label className={label}>How are you assessing the patient?</label>
@@ -1914,7 +1990,20 @@ export default function IssuePrescriptionDialog({
                             </select>
                           </div>
 
+                          <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <h4 className="text-[13px] font-bold text-[#3D2E6B]">
+                                Focused SOAP note
+                              </h4>
+                              <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                {soapStatusLabel}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                              This SOAP note documents the assessment supporting the prescription.
+                            </p>
                           <div className="mt-4 space-y-3">
+
                             {soapField(
                               "subjective",
                               "Patient-reported reason for treatment, relevant symptoms and history.",
@@ -2004,8 +2093,22 @@ export default function IssuePrescriptionDialog({
                               "Diagnosis, clinical impression or indication supporting treatment.",
                               1,
                             )}
-                            {soapField("plan", "Treatment decision, monitoring and follow-up.")}
+                            {soapField(
+                              "plan",
+                              "Treatment decision, medication plan, monitoring and follow-up.",
+                            )}
+                            <p
+                              className={`rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
+                                contextGaps.length === 0
+                                  ? "bg-[#F0EBFB] text-[#3D2E6B]"
+                                  : "bg-[#F7F6FA] text-[#8A7FB0]"
+                              }`}
+                            >
+                              {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
+                            </p>
                           </div>
+                          </div>
+
 
                           <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
                             A medication request or message alone is not a clinical assessment.
@@ -2019,11 +2122,13 @@ export default function IssuePrescriptionDialog({
                       {entry === "renewal" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Focused renewal review
+                            Focused renewal note
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            A complete new-treatment SOAP is not required for an ordinary renewal.
+                            A complete new-treatment SOAP note is not required for an ordinary
+                            medication continuation.
                           </p>
+
                           <div className="mt-3 grid gap-3 sm:grid-cols-2">
                             <div className="sm:col-span-2">
                               <label className={label}>Medication and current SIG</label>
@@ -2290,44 +2395,67 @@ export default function IssuePrescriptionDialog({
                   {/* Reused documentation — read-only. Nothing is retyped here. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Reused clinical documentation
+                      SOAP information used for this prescription
                     </h3>
                     {entry === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                          Focused renewal review recorded
+                          Focused renewal note complete
                         </p>
                         <p className="mt-1 text-[12px] text-[#4B4468]">
                           {renewal.medication || "—"} · {renewal.indication || "—"} ·{" "}
                           {renewal.response || "—"}
                         </p>
                         <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
-                          A full new-treatment SOAP is not required for a continuation.
+                          A complete new-treatment SOAP note is not required for an ordinary
+                          medication continuation.
                         </p>
                       </div>
                     ) : (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                        <dl className="grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
+                          <div>
+                            <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                              Source of SOAP note
+                            </dt>
+                            <dd>{soapSourceLabel}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                              SOAP date
+                            </dt>
+                            <dd>{soapDateLabel}</dd>
+                          </div>
+                        </dl>
                         {linkedAppt && (
-                          <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
+                          <p className="mt-2 flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
                             <CalendarClock className="h-4 w-4" /> {linkedAppt.type} ·{" "}
                             {linkedAppt.date}
                           </p>
                         )}
                         <p className="mt-2 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Indication (SOAP Assessment): </span>
+                          <span className="font-semibold">
+                            Indication (SOAP note — Assessment):{" "}
+                          </span>
                           {effectiveSoap.assessment || "Not documented — provider confirmation required"}
                         </p>
                         <p className="mt-1 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Treatment context (SOAP Plan): </span>
+                          <span className="font-semibold">
+                            Treatment context (SOAP note — Plan):{" "}
+                          </span>
                           {effectiveSoap.plan || "Not documented — provider confirmation required"}
                         </p>
+                        <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
+                          Reused from the SOAP note — nothing needs to be retyped here.
+                        </p>
+
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => setStep(1)}
                             className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
                           >
-                            Edit clinical documentation
+                            Review SOAP
                           </button>
                           {linkedAppt && (
                             <a
