@@ -2997,7 +2997,27 @@ function MedicationCard({
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={label}>Patient instructions</label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className={label}>Patient instructions</label>
+            <button
+              type="button"
+              onClick={() =>
+                onPatch(
+                  "instructions",
+                  [
+                    med.sig.trim() ||
+                      `Take ${med.dose || "your dose"} ${med.frequency || "as directed"}.`,
+                    "Take it at the same time each day.",
+                    "Do not stop suddenly — contact your prescriber first.",
+                    "Tell your prescriber about any new symptom or side effect.",
+                  ].join(" "),
+                )
+              }
+              className="inline-flex h-8 items-center rounded-xl border border-[#D9CEF3] bg-white px-2.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+            >
+              Generate patient-friendly instructions
+            </button>
+          </div>
           <textarea
             rows={2}
             className={`${area} mt-1.5`}
@@ -3005,7 +3025,11 @@ function MedicationCard({
             onChange={(e) => onPatch("instructions", e.target.value)}
             placeholder="Take with food. Do not stop suddenly."
           />
+          <p className="mt-1 text-[11px] text-[#8A7FB0]">
+            AI-assisted draft — provider review required.
+          </p>
         </div>
+
         <div className="sm:col-span-2">
           <label className={label}>Pharmacist notes</label>
           <input
