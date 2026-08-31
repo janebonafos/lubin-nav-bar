@@ -370,10 +370,13 @@ export default function IssuePrescriptionDialog({
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
   const [consultLocation, setConsultLocation] = useState("");
-  /** Outside consultation: write a focused SOAP, or paste/dictate an existing note. */
-  const [noteSource, setNoteSource] = useState<"write" | "paste">("write");
+  /** How the provider wants to produce the SOAP note: AI-assisted or manual. */
+  const [soapMode, setSoapMode] = useState<"ai" | "manual" | null>(null);
   const [pastedNote, setPastedNote] = useState("");
   const [soapDrafted, setSoapDrafted] = useState(false);
+  /** The provider must explicitly review and approve the note. */
+  const [soapApproved, setSoapApproved] = useState(false);
+
   const [soap, setSoap] = useState<SoapNote>({
     subjective: "",
     objective: "",
