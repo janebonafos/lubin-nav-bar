@@ -2290,37 +2290,60 @@ export default function IssuePrescriptionDialog({
                   {/* Reused documentation — read-only. Nothing is retyped here. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Reused clinical documentation
+                      SOAP information used for this prescription
                     </h3>
                     {entry === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                          Focused renewal review recorded
+                          Focused renewal note complete
                         </p>
                         <p className="mt-1 text-[12px] text-[#4B4468]">
                           {renewal.medication || "—"} · {renewal.indication || "—"} ·{" "}
                           {renewal.response || "—"}
                         </p>
                         <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
-                          A full new-treatment SOAP is not required for a continuation.
+                          A complete new-treatment SOAP note is not required for an ordinary
+                          medication continuation.
                         </p>
                       </div>
                     ) : (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                        <dl className="grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
+                          <div>
+                            <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                              Source of SOAP note
+                            </dt>
+                            <dd>{soapSourceLabel}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                              SOAP date
+                            </dt>
+                            <dd>{soapDateLabel}</dd>
+                          </div>
+                        </dl>
                         {linkedAppt && (
-                          <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
+                          <p className="mt-2 flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
                             <CalendarClock className="h-4 w-4" /> {linkedAppt.type} ·{" "}
                             {linkedAppt.date}
                           </p>
                         )}
                         <p className="mt-2 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Indication (SOAP Assessment): </span>
+                          <span className="font-semibold">
+                            Indication (SOAP note — Assessment):{" "}
+                          </span>
                           {effectiveSoap.assessment || "Not documented — provider confirmation required"}
                         </p>
                         <p className="mt-1 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Treatment context (SOAP Plan): </span>
+                          <span className="font-semibold">
+                            Treatment context (SOAP note — Plan):{" "}
+                          </span>
                           {effectiveSoap.plan || "Not documented — provider confirmation required"}
                         </p>
+                        <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
+                          Reused from the SOAP note — nothing needs to be retyped here.
+                        </p>
+
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
