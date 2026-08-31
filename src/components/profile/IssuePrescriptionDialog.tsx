@@ -206,22 +206,25 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
 
 /** Where the clinical assessment supporting a NEW treatment was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
-const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] = [
+const ENTRY_POINTS: { value: EntryPoint; title: string; short: string; description: string }[] = [
   {
     value: "lubin",
     title: "Use SOAP from a Lubin consultation",
+    short: "Lubin consultation",
     description:
       "Link this prescription to an appointment you completed in Lubin. Its SOAP note is reused.",
   },
   {
     value: "outside",
     title: "Add SOAP from an outside consultation",
+    short: "Outside consultation",
     description:
       "Use this when you personally assessed the patient in your clinic or another telehealth system.",
   },
   {
     value: "standalone",
     title: "Document assessment now — no Lubin appointment",
+    short: "Assessment documented now",
     description:
       "Use when you personally assessed the patient in person, by video or by phone.",
   },
