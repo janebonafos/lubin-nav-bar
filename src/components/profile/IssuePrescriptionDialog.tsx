@@ -374,6 +374,13 @@ export default function IssuePrescriptionDialog({
     });
   }, [selected]);
 
+  const sharedResultCount = useMemo(
+    () => passportItems.reduce((sum, p) => sum + p.totalCount, 0),
+    [passportItems],
+  );
+  const [expandedTools, setExpandedTools] = useState<string[]>([]);
+
+
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
 
