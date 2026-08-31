@@ -592,6 +592,7 @@ export default function IssuePrescriptionDialog({
     setGuardian(emptyGuardian());
     setNetwork(null);
     setNetworkConfirmed([]);
+    setReviewedAt(null);
     setPurpose(null);
     setLinkedAppointment("");
     setConsultDate("");
