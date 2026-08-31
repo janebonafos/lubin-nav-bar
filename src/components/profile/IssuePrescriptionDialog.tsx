@@ -2792,14 +2792,13 @@ export default function IssuePrescriptionDialog({
                         </section>
                       )}
 
-                      {/* Confirm safety information */}
+                      {/* Medication safety check */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          Confirm safety information
+                          Medication safety check
                         </h3>
                         <p className="mt-1 text-[12px] text-[#6F6889]">
-                          Only allergies and current medications are reconfirmed here. Identity,
-                          contact and address details are reused from the patient record.
+                          Confirm drug allergies and current medications before prescribing.
                         </p>
                         {passportUpdated && (
                           <p className="mt-2 text-[11.5px] font-semibold text-[#8A7FB0]">
@@ -2846,9 +2845,15 @@ export default function IssuePrescriptionDialog({
                           </>
                         ) : (
                           <>
-                            <div className="mt-1.5 grid grid-cols-3 gap-2">
-                              {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map(
-                                (s) => (
+                            {allergyState === "not-assessed" ? (
+                              <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-[#F8F7FB] px-3 py-2 text-[12.5px] font-medium text-[#8A7FB0]">
+                                Not yet reviewed
+                              </p>
+                            ) : (
+                              <div className="mt-1.5 grid grid-cols-2 gap-2">
+                                {(
+                                  ["none-known", "recorded"] as AllergyReadiness[]
+                                ).map((s) => (
                                   <button
                                     key={s}
                                     type="button"
@@ -2861,9 +2866,9 @@ export default function IssuePrescriptionDialog({
                                   >
                                     {ALLERGY_READINESS_LABEL[s]}
                                   </button>
-                                ),
-                              )}
-                            </div>
+                                ))}
+                              </div>
+                            )}
                             {allergyState === "recorded" && (
                               <input
                                 className={`${field} mt-2`}
@@ -2912,24 +2917,30 @@ export default function IssuePrescriptionDialog({
                           </>
                         ) : (
                           <>
-                            <div className="mt-1.5 grid grid-cols-3 gap-2">
-                              {(
-                                Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]
-                              ).map((s) => (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  onClick={() => setMedicationState(s)}
-                                  className={`${chip} w-full justify-center text-center ${
-                                    medicationState === s
-                                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                      : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                  }`}
-                                >
-                                  {MEDICATION_READINESS_LABEL[s]}
-                                </button>
-                              ))}
-                            </div>
+                            {medicationState === "not-assessed" ? (
+                              <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-[#F8F7FB] px-3 py-2 text-[12.5px] font-medium text-[#8A7FB0]">
+                                Not yet reviewed
+                              </p>
+                            ) : (
+                              <div className="mt-1.5 grid grid-cols-2 gap-2">
+                                {(
+                                  ["nothing", "recorded"] as MedicationReadiness[]
+                                ).map((s) => (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => setMedicationState(s)}
+                                    className={`${chip} w-full justify-center text-center ${
+                                      medicationState === s
+                                        ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                        : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                    }`}
+                                  >
+                                    {MEDICATION_READINESS_LABEL[s]}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                             {medicationState === "recorded" && (
                               <input
                                 className={`${field} mt-2`}
@@ -2950,8 +2961,7 @@ export default function IssuePrescriptionDialog({
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
                           <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
                             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                            Allergy and current-medication status must be assessed before you can
-                            review or sign.
+                            Complete both safety checks to continue.
                           </p>
                         )}
 
