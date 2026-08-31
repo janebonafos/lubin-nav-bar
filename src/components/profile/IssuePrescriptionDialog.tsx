@@ -851,16 +851,16 @@ export default function IssuePrescriptionDialog({
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="relative mt-8 pb-14">
-            {/* track — inset to the centre of the first/last step */}
+          <div className="relative mt-7 pb-12">
+            {/* hairline track — inset to the centre of the first/last step */}
             <span
               aria-hidden
-              className="absolute top-5 h-[3px] rounded-full bg-[#EAE7F5]"
+              className="absolute top-4 h-px bg-[#EDE7F7]"
               style={{ left: `${100 / (STEPS.length * 2)}%`, right: `${100 / (STEPS.length * 2)}%` }}
             />
             <span
               aria-hidden
-              className="absolute top-5 h-[3px] rounded-full bg-[#3D2E6B] transition-all duration-500 ease-in-out"
+              className="absolute top-4 h-px bg-[#3D2E6B] transition-all duration-500 ease-in-out"
               style={{
                 left: `${100 / (STEPS.length * 2)}%`,
                 width: `${(100 - 100 / STEPS.length) * (step / (STEPS.length - 1))}%`,
@@ -879,39 +879,41 @@ export default function IssuePrescriptionDialog({
                       className="no-hover flex flex-col items-center"
                     >
                       <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
+                        className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                           done
-                            ? "border-4 border-white bg-[#3D2E6B] shadow-sm"
+                            ? "bg-[#3D2E6B]"
                             : active
-                              ? "border-4 border-[#3D2E6B] bg-white shadow-[0_0_20px_-5px_rgba(61,46,107,0.35)] ring-4 ring-[#EAE7F5]"
-                              : "border-4 border-white bg-[#EAE7F5]"
+                              ? "border border-[#3D2E6B] bg-white ring-4 ring-[#F4F0FB]"
+                              : "border border-[#E5DDF4] bg-white"
                         }`}
                       >
                         {done ? (
-                          <Check className="h-4 w-4 text-white" strokeWidth={3} />
+                          <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+                        ) : active ? (
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#3D2E6B]" />
                         ) : (
-                          <span
-                            className={`text-sm font-bold ${active ? "text-[#3D2E6B]" : "text-[#A89BD0]"}`}
-                          >
-                            {i + 1}
-                          </span>
+                          <span className="text-[13px] font-medium text-[#A89BCA]">{i + 1}</span>
                         )}
                       </span>
-                      <span className="absolute top-14 left-1/2 w-28 -translate-x-1/2 text-center leading-tight">
+                      <span className="absolute top-12 left-1/2 w-28 -translate-x-1/2 text-center leading-tight">
                         <span
-                          className={`block text-[10px] font-bold uppercase tracking-wider ${
-                            active ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                          className={`block text-[10px] font-semibold uppercase tracking-[0.05em] ${
+                            active
+                              ? "text-[#3D2E6B]"
+                              : done
+                                ? "text-[#A89BCA]"
+                                : "text-[#C8BFE2]"
                           }`}
                         >
                           {active ? "Active" : `Step 0${i + 1}`}
                         </span>
                         <span
-                          className={`mt-0.5 inline-block rounded-full text-[13px] font-semibold ${
+                          className={`mt-1 inline-block text-[14px] font-medium ${
                             active
-                              ? "bg-[#EAE7F5]/60 px-3 py-0.5 font-bold text-[#3D2E6B]"
+                              ? "rounded-full bg-[#F4F0FB] px-3 py-0.5 font-semibold text-[#3D2E6B]"
                               : done
                                 ? "text-[#3D2E6B]"
-                                : "text-[#A89BD0]"
+                                : "text-[#A89BCA]"
                           }`}
                         >
                           {s}
