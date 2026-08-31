@@ -2290,82 +2290,12 @@ export default function IssuePrescriptionDialog({
                 {() => (
                 <>
 
+                  {/* Reused documentation — read-only. Nothing is retyped here. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Clinical documentation
+                      Reused clinical documentation
                     </h3>
-
-                    {purpose === "new-treatment" && linkedAppt && (
-                      <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
-                        <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
-                          <CalendarClock className="h-4 w-4" /> Using documentation from this
-                          consultation
-                        </p>
-                        <p className="mt-2 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Assessment: </span>
-                          {linkedAppt.assessment}
-                        </p>
-                        <p className="mt-1 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">Plan: </span>
-                          {linkedAppt.plan}
-                        </p>
-                        <a
-                          href={`/appointment/details?id=${linkedAppt.id}`}
-                          className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                        >
-                          View or edit clinical documentation
-                        </a>
-                      </div>
-                    )}
-
-                    {purpose === "new-treatment" && !linkedAppt && (
-                      <>
-                        <p className="mt-1 text-[12px] text-[#6F6889]">
-                          Your structured documentation from the previous step is the clinical
-                          record for this prescription. Add an optional note or a full SOAP note
-                          only if you want more detail.
-                        </p>
-                        <label className={`${label} mt-3 block`}>Additional note (optional)</label>
-                        <textarea
-                          rows={4}
-                          className={`${area} mt-1.5`}
-                          value={focusedNote}
-                          onChange={(e) => setFocusedNote(e.target.value)}
-                          placeholder="Anything else you want on the record, in your own words…"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowSoap((v) => !v)}
-                          className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                        >
-                          {showSoap ? "Hide full SOAP note" : "Open full SOAP note (optional)"}
-                        </button>
-                        {showSoap && (
-                          <div className="mt-3">
-                            <SoapNotesPanel
-                              recordKey={`rx:${selected?.id ?? "new-patient"}`}
-                              defaultOpen
-                              context={() => ({
-                                country,
-                                patientContext: {
-                                  firstName: (preferredName || patientName).split(" ")[0] || undefined,
-                                  age: ageYears,
-                                  sex: sex === "not-documented" ? undefined : sex,
-                                },
-                                caseNotes: focusedNote,
-                                presenting,
-                                observations: [relevantHistory, currentSymptoms, findings]
-                                  .filter(Boolean)
-                                  .join("\n"),
-                                plan: [plan, followUpPlan].filter(Boolean).join("\n"),
-                              })}
-                            />
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {purpose === "continuation" && (
+                    {entry === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                           Focused renewal review recorded
@@ -2375,11 +2305,46 @@ export default function IssuePrescriptionDialog({
                           {renewal.response || "—"}
                         </p>
                         <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
-                          A full SOAP note is not required for a continuation.
+                          A full new-treatment SOAP is not required for a continuation.
                         </p>
+                      </div>
+                    ) : (
+                      <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                        {linkedAppt && (
+                          <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
+                            <CalendarClock className="h-4 w-4" /> {linkedAppt.type} ·{" "}
+                            {linkedAppt.date}
+                          </p>
+                        )}
+                        <p className="mt-2 text-[12px] text-[#4B4468]">
+                          <span className="font-semibold">Indication (SOAP Assessment): </span>
+                          {effectiveSoap.assessment || "Not documented — provider confirmation required"}
+                        </p>
+                        <p className="mt-1 text-[12px] text-[#4B4468]">
+                          <span className="font-semibold">Treatment context (SOAP Plan): </span>
+                          {effectiveSoap.plan || "Not documented — provider confirmation required"}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                          >
+                            Edit clinical documentation
+                          </button>
+                          {linkedAppt && (
+                            <a
+                              href={`/appointment/details?id=${linkedAppt.id}`}
+                              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                            >
+                              Open the consultation record
+                            </a>
+                          )}
+                        </div>
                       </div>
                     )}
                   </section>
+
 
                   {/* AI drafting */}
                   <section className={cardCls}>
