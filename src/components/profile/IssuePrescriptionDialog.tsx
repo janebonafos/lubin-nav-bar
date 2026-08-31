@@ -2845,9 +2845,15 @@ export default function IssuePrescriptionDialog({
                           </>
                         ) : (
                           <>
-                            <div className="mt-1.5 grid grid-cols-3 gap-2">
-                              {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map(
-                                (s) => (
+                            {allergyState === "not-assessed" ? (
+                              <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-[#F8F7FB] px-3 py-2 text-[12.5px] font-medium text-[#8A7FB0]">
+                                Not yet reviewed
+                              </p>
+                            ) : (
+                              <div className="mt-1.5 grid grid-cols-2 gap-2">
+                                {(
+                                  ["none-known", "recorded"] as AllergyReadiness[]
+                                ).map((s) => (
                                   <button
                                     key={s}
                                     type="button"
@@ -2860,9 +2866,9 @@ export default function IssuePrescriptionDialog({
                                   >
                                     {ALLERGY_READINESS_LABEL[s]}
                                   </button>
-                                ),
-                              )}
-                            </div>
+                                ))}
+                              </div>
+                            )}
                             {allergyState === "recorded" && (
                               <input
                                 className={`${field} mt-2`}
