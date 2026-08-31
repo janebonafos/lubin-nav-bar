@@ -1513,6 +1513,7 @@ export default function IssuePrescriptionDialog({
                                 </p>
                               )}
                             </div>
+                            )}
                           </div>
 
                           {/* Option 2 — outside consultation */}
