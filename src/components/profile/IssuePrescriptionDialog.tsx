@@ -206,22 +206,25 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
 
 /** Where the clinical assessment supporting a NEW treatment was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
-const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] = [
+const ENTRY_POINTS: { value: EntryPoint; title: string; short: string; description: string }[] = [
   {
     value: "lubin",
     title: "Use SOAP from a Lubin consultation",
+    short: "Lubin consultation",
     description:
       "Link this prescription to an appointment you completed in Lubin. Its SOAP note is reused.",
   },
   {
     value: "outside",
     title: "Add SOAP from an outside consultation",
+    short: "Outside consultation",
     description:
       "Use this when you personally assessed the patient in your clinic or another telehealth system.",
   },
   {
     value: "standalone",
     title: "Document assessment now — no Lubin appointment",
+    short: "Assessment documented now",
     description:
       "Use when you personally assessed the patient in person, by video or by phone.",
   },
@@ -393,8 +396,9 @@ export default function IssuePrescriptionDialog({
   // ---------- Step 2: clinical documentation ----------
   // One SOAP note per prescription — documented once, reused everywhere. There is
   // no second clinical-context questionnaire.
-  const [purpose, setPurpose] = useState<RxPurposeChoice>("new");
-  const [entry, setEntry] = useState<EntryPoint>("lubin");
+  // Nothing clinical is preselected — the prescriber chooses every clinical fact.
+  const [purpose, setPurpose] = useState<RxPurposeChoice | null>(null);
+  const [entry, setEntry] = useState<EntryPoint | null>(null);
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
@@ -405,7 +409,7 @@ export default function IssuePrescriptionDialog({
     "none" | "update" | "reassess" | null
   >(null);
   const [consultDate, setConsultDate] = useState("");
-  const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
+  const [consultMode, setConsultMode] = useState<ConsultMode | null>(null);
   const [consultLocation, setConsultLocation] = useState("");
   /** How the provider wants to produce the SOAP note. AI drafting is open by
    *  default — writing manually is the secondary action. */
@@ -639,6 +643,8 @@ export default function IssuePrescriptionDialog({
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
   const contextGaps: string[] = [];
+  if (!purpose) contextGaps.push("Treatment type");
+  if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
   if (purpose === "new" && entry === "lubin") {
     if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
     else {
@@ -656,8 +662,9 @@ export default function IssuePrescriptionDialog({
   }
   if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
     if (entry === "outside" && !consultDate) contextGaps.push("Consultation date");
+    if (!consultMode) contextGaps.push("Consultation method");
     if (soapMode === "ai") {
-      if (!pastedNote.trim()) contextGaps.push("Your clinical notes");
+      if (!pastedNote.trim()) contextGaps.push("Add clinical notes");
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
     if (soapMode === "manual" || soapDrafted) {
@@ -685,9 +692,8 @@ export default function IssuePrescriptionDialog({
   const soapGaps = [...contextGaps];
 
   // "Not assessed" is a real state and blocks review and signing.
-  if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
-  if (medicationState === "not-assessed")
-    contextGaps.push("Current medication status (not assessed)");
+  if (allergyState === "not-assessed") contextGaps.push("Review allergies");
+  if (medicationState === "not-assessed") contextGaps.push("Review current medications");
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
   const soapTouched = Boolean(
@@ -922,7 +928,9 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setEntry("lubin");
+    setPurpose(null);
+    setEntry(null);
+    setConsultMode(null);
     setLinkedAppointment("");
     setApptSearch("");
     setReviewSoapOpen(false);
@@ -1292,8 +1300,46 @@ export default function IssuePrescriptionDialog({
           </div>
         </header>
 
+        {/* Compact patient summary — stays visible through steps 2–4 */}
+        {!issued && hasPatient && patientGaps.length === 0 && step > 0 && (
+          <div className="shrink-0 border-b border-[#EDEBF3] bg-[#F7F4FE] px-6 py-2.5">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-[12.5px] font-bold text-[#3D2E6B]">
+                {patientName || "Patient"}
+              </span>
+              <span className="text-[11.5px] text-[#6F6889]">
+                {ageYears !== undefined ? `${ageYears} yrs` : dob || "DOB —"} ·{" "}
+                {sex === "not-documented" ? "Sex —" : sex.replace(/-/g, " ")}
+              </span>
+              <span className="text-[11.5px] font-semibold text-[#3D2E6B]">
+                Allergies:{" "}
+                {allergyState === "recorded"
+                  ? allergyDetail || "recorded"
+                  : allergyState === "none-known"
+                    ? "none known"
+                    : "not yet reviewed"}
+              </span>
+              <span className="text-[11.5px] text-[#6F6889]">
+                Medications:{" "}
+                {medicationState === "recorded"
+                  ? medicationDetail || "recorded"
+                  : medicationState === "nothing"
+                    ? "none"
+                    : "not yet reviewed"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setStep(0)}
+                className="ml-auto text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+              >
+                Change patient
+              </button>
+            </div>
+          </div>
+        )}
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-4">
+
           {issued ? (
             <section className={cardCls}>
               <p className="flex items-center gap-2 text-[14px] font-bold text-[#3D2E6B]">
@@ -1820,61 +1866,29 @@ export default function IssuePrescriptionDialog({
                   };
 
                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
+                  /** One quiet switch between AI drafting and writing manually. */
                   const soapModeChoice = (
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {(
-                        [
-                          [
-                            "ai",
-                            "Draft SOAP with AI",
-                            "Enter your notes once — Lubin organizes them.",
-                            true,
-                          ],
-                          [
-                            "manual",
-                            "Write SOAP manually",
-                            "Fill in each SOAP section yourself.",
-                            false,
-                          ],
-                        ] as const
-                      ).map(([value, title, sub, badge]) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => {
-                            setSoapMode(value);
-                            setSoapDrafted(false);
-                            setSoapApproved(false);
-                          }}
-                          className={`rounded-xl border px-3.5 py-3 text-left transition ${
-                            soapMode === value
-                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                              : "border-[#D9CEF3] bg-white hover:bg-[#FBFAFF]"
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="text-[13px] font-bold text-[#3D2E6B]">{title}</span>
-                            {badge && null}
-                          </span>
-
-                          <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
-                            {sub}
-                          </span>
-                        </button>
-                      ))}
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSoapMode(soapMode === "ai" ? "manual" : "ai");
+                          setSoapDrafted(false);
+                          setSoapApproved(false);
+                        }}
+                        className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                      >
+                        {soapMode === "ai" ? "Write SOAP manually" : "Draft SOAP with AI instead"}
+                      </button>
                     </div>
                   );
 
                   /** The paste-or-dictate field plus the visible AI drafting action. */
                   const soapAiPanel = (
-                    <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                    <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-white p-4">
                       <label className={label}>Paste or dictate your clinical notes</label>
-                      <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                        Enter your assessment once. Lubin will organize it into Subjective,
-                        Objective, Assessment and Plan.
-                      </p>
                       <textarea
-                        rows={6}
+                        rows={5}
                         className={`${area} mt-2`}
                         value={pastedNote}
                         onChange={(e) => {
@@ -1893,8 +1907,8 @@ export default function IssuePrescriptionDialog({
                         {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-                        AI only organizes what you wrote. It never adds clinical information —
-                        anything missing is marked “{NEEDS_CONFIRMATION}”.
+                        AI only organizes what you wrote — anything missing is marked “
+                        {NEEDS_CONFIRMATION}”.
                       </p>
                       {aiLoading && (
                         <p className="mt-2 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
@@ -1941,82 +1955,102 @@ export default function IssuePrescriptionDialog({
 
                   return (
                     <>
-                      {/* New treatment or renewal — asked first */}
-                      <section className={cardCls}>
-                        <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          New treatment or medication renewal?
-                        </h3>
-                        <div className="mt-3 space-y-2">
-                          {PURPOSE_OPTIONS.map((opt) => (
-                            <label
-                              key={opt.value}
-                              className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                purpose === opt.value
-                                  ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                                  : "border-[#EDEBF3] bg-white"
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                checked={purpose === opt.value}
-                                onChange={() => {
-                                  setPurpose(opt.value);
-                                  setEntry(opt.value === "renewal" ? "renewal" : "lubin");
-                                }}
-                              />
-                              <span className="flex flex-col">
-                                <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                  {opt.title}
-                                </span>
-                                <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
-                                  {opt.description}
-                                </span>
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      </section>
-
-                      {/* SOAP source — new treatment only */}
-                      {purpose === "new" && !fromAppointment && (
-                        <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            SOAP note supporting this prescription
-                          </h3>
-                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Reuse the SOAP from a consultation or write one focused note now. You
-                            only need one clinical note.
-                          </p>
-
-                          <div className="mt-4 space-y-2">
-                            {ENTRY_POINTS.map((opt) => (
-                              <label
-                                key={opt.value}
-                                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                  entry === opt.value
-                                    ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                                    : "border-[#EDEBF3] bg-white"
+                      {/* Once chosen, both selections collapse into one line */}
+                      {purpose && (purpose === "renewal" || !!entry) ? (
+                        <section className="flex items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white px-4 py-3">
+                          <p className="min-w-0 truncate text-[12.5px] font-semibold text-[#3D2E6B]">
+                            {purpose === "renewal"
+                              ? "Medication renewal"
+                              : `New treatment · ${
+                                  ENTRY_POINTS.find((o) => o.value === entry)?.short ??
+                                  ENTRY_POINTS.find((o) => o.value === entry)?.title ??
+                                  "Assessment documented"
                                 }`}
-                              >
-                                <input
-                                  type="radio"
-                                  className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                  checked={entry === opt.value}
-                                  onChange={() => setEntry(opt.value)}
-                                />
-                                <span className="flex flex-col">
-                                  <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                    {opt.title}
-                                  </span>
-                                  <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
-                                    {opt.description}
-                                  </span>
-                                </span>
-                              </label>
-                            ))}
-                          </div>
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPurpose(null);
+                              setEntry(null);
+                            }}
+                            className="shrink-0 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            Change
+                          </button>
                         </section>
+                      ) : (
+                        <>
+                          <section className={cardCls}>
+                            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                              New treatment or medication renewal?
+                            </h3>
+                            <div className="mt-3 space-y-2">
+                              {PURPOSE_OPTIONS.map((opt) => (
+                                <label
+                                  key={opt.value}
+                                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                    purpose === opt.value
+                                      ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                      : "border-[#EDEBF3] bg-white"
+                                  }`}
+                                >
+                                  <input
+                                    type="radio"
+                                    className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                    checked={purpose === opt.value}
+                                    onChange={() => {
+                                      setPurpose(opt.value);
+                                      setEntry(opt.value === "renewal" ? "renewal" : null);
+                                    }}
+                                  />
+                                  <span className="flex flex-col">
+                                    <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                      {opt.title}
+                                    </span>
+                                    <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                      {opt.description}
+                                    </span>
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </section>
+
+                          {purpose === "new" && !fromAppointment && (
+                            <section className={cardCls}>
+                              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                                SOAP note supporting this prescription
+                              </h3>
+                              <div className="mt-3 space-y-2">
+                                {ENTRY_POINTS.map((opt) => (
+                                  <label
+                                    key={opt.value}
+                                    className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                      entry === opt.value
+                                        ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                        : "border-[#EDEBF3] bg-white"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                      checked={entry === opt.value}
+                                      onChange={() => setEntry(opt.value)}
+                                    />
+                                    <span className="flex flex-col">
+                                      <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                        {opt.title}
+                                      </span>
+                                      <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                        {opt.description}
+                                      </span>
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </section>
+                          )}
+                        </>
                       )}
 
                       {purpose === "new" && fromAppointment && (
@@ -2338,10 +2372,7 @@ export default function IssuePrescriptionDialog({
                       {/* B — consultation completed outside Lubin */}
                       {purpose === "new" && entry === "outside" && (
                         <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Consultation I completed outside Lubin
-                          </h3>
-                          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <div className="grid gap-3 sm:grid-cols-2">
                             <div>
                               <label className={label}>Consultation date</label>
                               <input
@@ -2355,9 +2386,12 @@ export default function IssuePrescriptionDialog({
                               <label className={label}>Consultation method</label>
                               <select
                                 className={`${field} mt-1.5`}
-                                value={consultMode}
-                                onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                                value={consultMode ?? ""}
+                                onChange={(e) =>
+                                  setConsultMode((e.target.value || null) as ConsultMode | null)
+                                }
                               >
+                                <option value="">Select…</option>
                                 {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
                                   <option key={m} value={m}>
                                     {CONSULT_MODE_LABEL[m]}
@@ -2376,15 +2410,6 @@ export default function IssuePrescriptionDialog({
                             </div>
                           </div>
 
-                          <div className="mt-5 border-t border-[#EDEBF3] pt-4">
-                            <h4 className="text-[13px] font-bold text-[#3D2E6B]">
-                              SOAP note supporting this prescription
-                            </h4>
-                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                              Document the consultation you personally completed. Draft it with AI
-                              from your own notes, or write each section manually.
-                            </p>
-                          </div>
 
                           {soapModeChoice}
                           {soapMode === "ai" && soapAiPanel}
@@ -2429,20 +2454,16 @@ export default function IssuePrescriptionDialog({
                       {/* C — standalone prescribing encounter */}
                       {purpose === "new" && entry === "standalone" && (
                         <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Document assessment now — no Lubin appointment
-                          </h3>
-                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Use when you personally assessed the patient in person, by video or by
-                            phone.
-                          </p>
-                          <div className="mt-3">
+                          <div>
                             <label className={label}>How are you assessing the patient?</label>
                             <select
                               className={`${field} mt-1.5`}
-                              value={consultMode}
-                              onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                              value={consultMode ?? ""}
+                              onChange={(e) =>
+                                setConsultMode((e.target.value || null) as ConsultMode | null)
+                              }
                             >
+                              <option value="">Select…</option>
                               {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
                                 <option key={m} value={m}>
                                   {CONSULT_MODE_LABEL[m]}
@@ -2579,10 +2600,8 @@ export default function IssuePrescriptionDialog({
 
 
 
-                          <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
-                            A medication request or message alone is not a clinical assessment.
-                            Confirm that you personally assessed the patient before issuing a new
-                            treatment.
+                          <p className="mt-3 text-[11.5px] text-[#8A7FB0]">
+                            Prescribe only after personally assessing the patient.
                           </p>
                         </section>
                       )}
@@ -2845,30 +2864,22 @@ export default function IssuePrescriptionDialog({
                           </>
                         ) : (
                           <>
-                            {allergyState === "not-assessed" ? (
-                              <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-[#F8F7FB] px-3 py-2 text-[12.5px] font-medium text-[#8A7FB0]">
-                                Not yet reviewed
-                              </p>
-                            ) : (
-                              <div className="mt-1.5 grid grid-cols-2 gap-2">
-                                {(
-                                  ["none-known", "recorded"] as AllergyReadiness[]
-                                ).map((s) => (
-                                  <button
-                                    key={s}
-                                    type="button"
-                                    onClick={() => setAllergyState(s)}
-                                    className={`${chip} w-full justify-center text-center ${
-                                      allergyState === s
-                                        ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                        : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                    }`}
-                                  >
-                                    {ALLERGY_READINESS_LABEL[s]}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                            <div className="mt-1.5 grid grid-cols-2 gap-2">
+                              {(["none-known", "recorded"] as AllergyReadiness[]).map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => setAllergyState(s)}
+                                  className={`${chip} w-full justify-center text-center ${
+                                    allergyState === s
+                                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                      : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                  }`}
+                                >
+                                  {ALLERGY_READINESS_LABEL[s]}
+                                </button>
+                              ))}
+                            </div>
                             {allergyState === "recorded" && (
                               <input
                                 className={`${field} mt-2`}
@@ -2917,30 +2928,22 @@ export default function IssuePrescriptionDialog({
                           </>
                         ) : (
                           <>
-                            {medicationState === "not-assessed" ? (
-                              <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-[#F8F7FB] px-3 py-2 text-[12.5px] font-medium text-[#8A7FB0]">
-                                Not yet reviewed
-                              </p>
-                            ) : (
-                              <div className="mt-1.5 grid grid-cols-2 gap-2">
-                                {(
-                                  ["nothing", "recorded"] as MedicationReadiness[]
-                                ).map((s) => (
-                                  <button
-                                    key={s}
-                                    type="button"
-                                    onClick={() => setMedicationState(s)}
-                                    className={`${chip} w-full justify-center text-center ${
-                                      medicationState === s
-                                        ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                        : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                    }`}
-                                  >
-                                    {MEDICATION_READINESS_LABEL[s]}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                            <div className="mt-1.5 grid grid-cols-2 gap-2">
+                              {(["nothing", "recorded"] as MedicationReadiness[]).map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => setMedicationState(s)}
+                                  className={`${chip} w-full justify-center text-center ${
+                                    medicationState === s
+                                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                      : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                  }`}
+                                >
+                                  {MEDICATION_READINESS_LABEL[s]}
+                                </button>
+                              ))}
+                            </div>
                             {medicationState === "recorded" && (
                               <input
                                 className={`${field} mt-2`}
@@ -2959,8 +2962,7 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
-                          <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
-                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          <p className="mt-2.5 text-[11.5px] text-[#8A7FB0]">
                             Complete both safety checks to continue.
                           </p>
                         )}
@@ -3459,15 +3461,30 @@ export default function IssuePrescriptionDialog({
         </div>
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
-          <p className="text-[11.5px] text-[#8A7FB0]">
-            {issued
-              ? "Prescription signed and recorded."
-              : stepGaps.length > 0
-                ? `Still needed: ${stepGaps.slice(0, 3).join(" · ")}`
-                : allGaps.length > 0
-                  ? `Still to resolve: ${allGaps.slice(0, 3).join(" · ")}`
-                  : "Ready to continue."}
-          </p>
+          <div className="min-w-0">
+            {issued ? (
+              <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
+            ) : stepGaps.length > 0 ? (
+              <>
+                <p className="text-[12px] font-bold text-[#3D2E6B]">
+                  {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
+                </p>
+                <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                  {stepGaps.slice(0, 3).map((g) => (
+                    <li key={g} className="text-[11.5px] text-[#8A7FB0]">
+                      · {g}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : allGaps.length > 0 ? (
+              <p className="text-[11.5px] text-[#8A7FB0]">
+                Still to resolve: {allGaps.slice(0, 3).join(" · ")}
+              </p>
+            ) : (
+              <p className="text-[11.5px] text-[#8A7FB0]">Ready to continue.</p>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {issued ? (
               <button
