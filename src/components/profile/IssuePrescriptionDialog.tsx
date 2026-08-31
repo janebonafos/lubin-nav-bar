@@ -806,7 +806,7 @@ export default function IssuePrescriptionDialog({
       clinicalNotes: undefined,
       patientInfo: info,
       signature: {
-        method: "otp-email",
+        method: "two-factor",
         at: signedAt,
         by: identity.fullName,
         credentials,
