@@ -1630,10 +1630,9 @@ export default function IssuePrescriptionDialog({
                               <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                                 <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
                                   <CheckCircle2 className="h-4 w-4" />
-                                  {missingFromLinked.filter((k) => k !== "objective").length === 0
-                                    ? "Clinical documentation ready"
-                                    : "Clinical documentation almost ready"}
+                                  SOAP note from Lubin consultation
                                 </p>
+
                                 <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
                                   <div>
                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
