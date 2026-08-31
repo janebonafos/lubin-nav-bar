@@ -389,9 +389,10 @@ export default function IssuePrescriptionDialog({
   if (!patientName.trim()) patientGaps.push("Full legal name");
   if (!dob) patientGaps.push("Date of birth");
   if (sex === "not-documented") patientGaps.push("Sex");
-  // Address is recorded and printed when present, but is only legally
-  // mandatory for dangerous-drug / senior / PWD prescriptions, which this
-  // Phase 1 flow does not support — so it never blocks issuance here.
+  // City / municipality is the only address field required to issue a
+  // prescription; the rest are optional. It identifies the patient's
+  // locality on the prescription.
+  if (!address.city.trim()) patientGaps.push("City / municipality");
   if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
