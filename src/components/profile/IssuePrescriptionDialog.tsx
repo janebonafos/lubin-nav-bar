@@ -1638,12 +1638,9 @@ export default function IssuePrescriptionDialog({
                         >
                           <span className="flex items-center gap-2">
                             <span className="text-[13px] font-bold text-[#3D2E6B]">{title}</span>
-                            {badge && (
-                              <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                                AI
-                              </span>
-                            )}
+                            {badge && null}
                           </span>
+
                           <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
                             {sub}
                           </span>
