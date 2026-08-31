@@ -859,11 +859,13 @@ export default function IssuePrescriptionDialog({
     window.setTimeout(() => {
       setSoap({
         subjective: pick(0) || raw.slice(0, 180),
-        objective: pick(1) || "Not documented — provider confirmation required",
-        assessment: pick(2) || "Not documented — provider confirmation required",
-        plan: pick(3) || lines.slice(3).join(" ") || "Not documented — provider confirmation required",
+        objective: pick(1) || NEEDS_CONFIRMATION,
+        assessment: pick(2) || NEEDS_CONFIRMATION,
+        plan: pick(3) || lines.slice(3).join(" ") || NEEDS_CONFIRMATION,
       });
+      setSoapApproved(false);
       setSoapDrafted(true);
+
       setAiLoading(false);
     }, 400);
   }
