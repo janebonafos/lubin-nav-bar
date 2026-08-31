@@ -1430,6 +1430,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "linked-appointment" && (
                             <div className="mt-3 border-t border-[#EDEBF3] pt-3">
                               <label className={label}>Completed Lubin consultations</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
