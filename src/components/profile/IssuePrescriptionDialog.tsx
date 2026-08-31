@@ -928,7 +928,9 @@ export default function IssuePrescriptionDialog({
       updatedAt: signedAt,
     };
 
-    const indication = purpose === "continuation" ? renewal.indication : assessment;
+    // The SOAP Assessment is the indication — the provider never retypes it.
+    const indication = entry === "renewal" ? renewal.indication : effectiveSoap.assessment;
+
 
     const medications: PrescriptionMedication[] = readyMeds.map((m) => ({
       id: m.id,
