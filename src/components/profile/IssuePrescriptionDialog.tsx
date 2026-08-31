@@ -2002,6 +2002,33 @@ export default function IssuePrescriptionDialog({
                                     Complete the missing section
                                     {missingFromLinked.length > 1 ? "s" : ""} only
                                   </p>
+                                  <button
+                                    type="button"
+                                    disabled={aiLoading}
+                                    onClick={() => {
+                                      setAiLoading(true);
+                                      window.setTimeout(() => {
+                                        setSoap((s) => {
+                                          const next = { ...s };
+                                          for (const k of missingFromLinked)
+                                            if (!next[k].trim()) next[k] = NEEDS_CONFIRMATION;
+                                          return next;
+                                        });
+                                        setAiLoading(false);
+                                      }, 350);
+                                    }}
+                                    className="inline-flex h-9 items-center gap-2 rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE] disabled:opacity-45"
+                                  >
+                                    {aiLoading ? "Working…" : "Complete missing sections with AI"}
+                                    <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider">
+                                      AI
+                                    </span>
+                                  </button>
+                                  <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
+                                    AI never invents findings — each gap is marked “
+                                    {NEEDS_CONFIRMATION}” for you to complete.
+                                  </p>
+
                                   {missingFromLinked.map((k) => (
                                     <div key={k}>
                                       {soapField(
