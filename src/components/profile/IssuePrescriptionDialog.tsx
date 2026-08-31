@@ -60,12 +60,10 @@ import {
   emptyPhAddress,
   findDuplicateMatches,
   formatPhAddress,
-  lookupHealthNetwork,
   type AllergyReadiness,
   type ConsultMode,
   type ContinuationBasis,
   type Guardian,
-  type HealthNetworkProfile,
   type MedicationReadiness,
   type NewTreatmentBasis,
   type PhAddress,
@@ -235,8 +233,6 @@ export default function IssuePrescriptionDialog({
     relationship: "Mother",
     contact: "+63 917 222 8890",
   });
-  const [network, setNetwork] = useState<HealthNetworkProfile | null>(null);
-  const [networkConfirmed, setNetworkConfirmed] = useState<string[]>([]);
   const [duplicatesDismissed, setDuplicatesDismissed] = useState(false);
 
   // ---------- Step 2: clinical context ----------
@@ -292,8 +288,7 @@ export default function IssuePrescriptionDialog({
   const [otpInvalidated, setOtpInvalidated] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [issued, setIssued] = useState<SignedPrescriptionDocument | null>(null);
-  const [providerName, setProviderName] = useState("");
-  const [reviewedAt, setReviewedAt] = useState<number | null>(null);
+
 
   useEffect(() => {
     if (!open) return;
@@ -302,11 +297,8 @@ export default function IssuePrescriptionDialog({
     setRecords(listPatientRecords());
     const found = detectJurisdiction();
     if (found.country) setCountry(found.country);
-    const stored =
-      (typeof window !== "undefined" && window.localStorage.getItem("lubin.userName")) ||
-      "";
-    setProviderName(stored || id.fullName || "");
   }, [open]);
+
 
   const ageYears = ageFromDob(dob);
   const isMinor = ageYears !== undefined && ageYears < 18;
@@ -510,71 +502,12 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setNetwork(null);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
     setDuplicatesDismissed(false);
+
     setSuggestions([]);
     setMissingInfo([]);
     setConfirmedSuggestions([]);
     setAiNote("");
-  }
-
-  function checkNetwork() {
-    const found = lookupHealthNetwork({
-      fullName: patientName,
-      mobile: patientPhone,
-      email: patientEmail,
-    });
-    setNetwork(found);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
-    if (found) {
-      if (!dob && found.dob) setDob(found.dob);
-      if (!patientPhone && found.mobile) setPatientPhone(found.mobile);
-      if (!patientEmail && found.email) setPatientEmail(found.email);
-    }
-  }
-
-  function confirmNetworkItem(key: string) {
-    const next = networkConfirmed.includes(key)
-      ? networkConfirmed
-      : [...networkConfirmed, key];
-    setNetworkConfirmed(next);
-    if (network) {
-      const valueKeys = (
-        [
-          network.dob ? "dob" : null,
-          network.mobile || network.email ? "contact" : null,
-          network.medications ? "medications" : null,
-          network.allergies ? "allergies" : null,
-          network.conditions?.length ? "conditions" : null,
-          network.pregnancy ? "pregnancy" : null,
-          network.careProviders?.length ? "providers" : null,
-        ] as (string | null)[]
-      ).filter((k): k is string => k !== null);
-      if (valueKeys.length > 0 && valueKeys.every((k) => next.includes(k))) {
-        setReviewedAt(Date.now());
-      }
-    }
-    if (key === "allergies" && network?.allergies) {
-      if (network.allergies.length === 0) setAllergyState("none-known");
-      else {
-        setAllergyState("recorded");
-        setAllergyDetail(network.allergies.join(", "));
-      }
-    }
-    if (key === "medications" && network?.medications) {
-      if (network.medications.length === 0) setMedicationState("nothing");
-      else {
-        setMedicationState("recorded");
-        setMedicationDetail(network.medications.join("; "));
-      }
-    }
-    if (key === "conditions" && network?.conditions?.length) {
-      setConditionsText(network.conditions.join(", "));
-    }
-    if (key === "pregnancy" && network?.pregnancy) setPregnancyText(network.pregnancy);
   }
 
   function resetAll() {
@@ -590,9 +523,6 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setNetwork(null);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
     setPurpose(null);
     setLinkedAppointment("");
     setConsultDate("");
@@ -1383,147 +1313,6 @@ export default function IssuePrescriptionDialog({
                     </section>
                   )}
 
-                   {/* Patient-shared Health Passport */}
-                   {hasPatient && (
-                     <section className={cardCls}>
-                       <div className="flex flex-wrap items-center justify-between gap-2">
-                         <div>
-                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                             Patient-shared Health Passport
-                           </h3>
-                           <p className="mt-0.5 text-[12px] text-[#6F6889]">
-                             Review health information this patient has shared with your practice.
-                           </p>
-                         </div>
-                         <button
-                           type="button"
-                           onClick={checkNetwork}
-                           className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE] whitespace-nowrap"
-                         >
-                           Review shared information
-                         </button>
-                       </div>
-                       {!network ? (
-                         <p className="mt-2 text-[12px] text-[#6F6889]">
-                           Nothing pulled yet. If the patient already shared a Health Passport, it is
-                           reused here instead of being re-typed.
-                         </p>
-                       ) : (
-                         <div className="mt-3 space-y-2">
-                           <p className="text-[11.5px] font-semibold text-[#5A4A8A]">
-                             Shared by patient · Last updated{" "}
-                             {new Date(network.updatedAt).toLocaleDateString(undefined, {
-                               day: "2-digit",
-                               month: "short",
-                               year: "numeric",
-                             })}
-                           </p>
-                           {reviewedAt ? (
-                             <p className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-[#3D2E6B]">
-                               <Check className="h-3.5 w-3.5" /> Reviewed with patient by{" "}
-                               {providerName.match(/^Dr\.?\s/i)
-                                 ? providerName
-                                 : `Dr. ${providerName}`}
-                               {" · "}
-                               {new Date(reviewedAt).toLocaleString(undefined, {
-                                 day: "2-digit",
-                                 month: "short",
-                                 year: "numeric",
-                                 hour: "numeric",
-                                 minute: "2-digit",
-                               })}
-                             </p>
-                           ) : (
-                             <p className="text-[11.5px] text-[#8A7FB0]">
-                               Not independently verified until reviewed during this encounter.
-                             </p>
-                           )}
-                           {[
-                             { key: "dob", title: "Date of birth", value: network.dob },
-                             {
-                               key: "contact",
-                               title: "Mobile / email",
-                               value: [network.mobile, network.email].filter(Boolean).join(" · "),
-                             },
-                             {
-                               key: "medications",
-                               title: "Medications",
-                               value: network.medications
-                                 ? network.medications.join("; ") || "Nothing currently"
-                                 : undefined,
-                             },
-                             {
-                               key: "allergies",
-                               title: "Allergies",
-                               value: network.allergies
-                                 ? network.allergies.join("; ") || "No known allergies"
-                                 : undefined,
-                             },
-                             {
-                               key: "conditions",
-                               title: "Conditions",
-                               value: network.conditions?.join("; "),
-                             },
-                             {
-                               key: "pregnancy",
-                               title: "Pregnancy / breastfeeding",
-                               value: network.pregnancy,
-                             },
-                             {
-                               key: "providers",
-                               title: "Existing care providers",
-                               value: network.careProviders?.join("; "),
-                             },
-                           ].map((row) => (
-                             <div
-                               key={row.key}
-                               className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-3.5 py-3"
-                             >
-                               <div className="flex items-start justify-between gap-3">
-                                 <div className="min-w-0">
-                                   <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                     {row.title}
-                                   </p>
-                                   <p className="text-[12px] text-[#4B4468]">
-                                     {row.value ? (
-                                       row.value
-                                     ) : (
-                                       <span className="text-[#8A7FB0]">
-                                         Not provided — voluntary field left blank, not “none”
-                                       </span>
-                                     )}
-                                   </p>
-                                 </div>
-                                 {row.value &&
-                                   (networkConfirmed.includes(row.key) ? (
-                                     <span className="inline-flex items-center gap-1 whitespace-nowrap text-[11.5px] font-semibold text-[#3D2E6B]">
-                                       <Check className="h-3.5 w-3.5" /> Confirmed
-                                     </span>
-                                   ) : (
-                                     <span className="flex shrink-0 gap-1.5">
-                                       <button
-                                         type="button"
-                                         onClick={() => confirmNetworkItem(row.key)}
-                                         className="whitespace-nowrap rounded-lg bg-[#3D2E6B] px-2.5 py-1.5 text-[11.5px] font-semibold text-white"
-                                       >
-                                         Confirm
-                                       </button>
-                                       <button
-                                         type="button"
-                                         onClick={() => setStep(1)}
-                                         className="whitespace-nowrap rounded-lg border border-[#D9CEF3] bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B]"
-                                       >
-                                         Update
-                                       </button>
-                                     </span>
-                                   ))}
-                               </div>
-                             </div>
-                           ))}
-                         </div>
-                       )}
-                     </section>
-                   )}
 
                   {selected && passportItems.length > 0 && (
                     <section className={cardCls}>
