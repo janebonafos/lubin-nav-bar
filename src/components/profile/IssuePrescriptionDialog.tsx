@@ -312,7 +312,10 @@ export default function IssuePrescriptionDialog({
   const [medicationDetail, setMedicationDetail] = useState("");
   const [conditionsText, setConditionsText] = useState("");
   const [pregnancyText, setPregnancyText] = useState("");
-  const [vitalsText, setVitalsText] = useState("");
+  const [weightText, setWeightText] = useState("");
+  const [bpText, setBpText] = useState("");
+  const [hrText, setHrText] = useState("");
+  const [otherVitalsText, setOtherVitalsText] = useState("");
 
   // ---------- Step 3: documentation + prescription ----------
   const [focusedNote, setFocusedNote] = useState("");
