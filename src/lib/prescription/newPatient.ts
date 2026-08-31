@@ -172,9 +172,9 @@ export type NewTreatmentBasis = "linked-appointment" | "external-consult" | "foc
 export type ContinuationBasis = "mine-outside" | "other-clinician" | "patient-supplied";
 
 export const NEW_TREATMENT_BASIS_LABEL: Record<NewTreatmentBasis, string> = {
-  "linked-appointment": "Link a Lubin appointment",
-  "external-consult": "Record an external consultation",
-  "focused-assessment": "Document a focused assessment",
+  "linked-appointment": "Use a completed Lubin consultation",
+  "external-consult": "Record a consultation I completed outside Lubin",
+  "focused-assessment": "Document an assessment I'm completing now",
 };
 
 export const CONTINUATION_BASIS_LABEL: Record<ContinuationBasis, string> = {
@@ -183,10 +183,11 @@ export const CONTINUATION_BASIS_LABEL: Record<ContinuationBasis, string> = {
   "patient-supplied": "Patient supplied a previous prescription",
 };
 
-export type ConsultMode = "in-person" | "video" | "phone";
+export type ConsultMode = "in-person" | "video" | "phone" | "other";
 
 export const CONSULT_MODE_LABEL: Record<ConsultMode, string> = {
   "in-person": "In person",
   video: "Video",
   phone: "Phone",
+  other: "Other",
 };

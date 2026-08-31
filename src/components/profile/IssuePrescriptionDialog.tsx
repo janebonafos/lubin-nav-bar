@@ -87,21 +87,61 @@ const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
   { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
 
-/** Local demo appointments a prescription can be linked to. Prototype data. */
-const DEMO_APPOINTMENTS = [
+/** Local demo appointments a prescription can be linked to. Prototype fixture data. */
+type DemoAppointment = {
+  id: string;
+  patient: string;
+  date: string;
+  time: string;
+  type: string;
+  status: "completed" | "cancelled" | "upcoming";
+  assessment: string;
+  plan: string;
+};
+const DEMO_APPOINTMENTS: DemoAppointment[] = [
   {
     id: "c9",
-    label: "Miguel Santos · 30 Aug, 4:00 PM",
+    patient: "Miguel Santos",
+    date: "30 Aug 2026",
+    time: "4:00 PM",
+    type: "Psychiatric consultation",
+    status: "completed",
     assessment: "Moderate depressive episode, first presentation. No safety concerns today.",
     plan: "Start an SSRI at a low dose, review in 4 weeks, sleep hygiene plan agreed.",
   },
   {
     id: "a4",
-    label: "Anna Reyes · 24 Aug, 10:30 AM",
+    patient: "Anna Reyes",
+    date: "24 Aug 2026",
+    time: "10:30 AM",
+    type: "Follow-up consultation",
+    status: "completed",
     assessment: "Recurrent depressive episode, partial response to current dose.",
     plan: "Continue current medication, review adherence and side effects in 6 weeks.",
   },
+  {
+    id: "x1",
+    patient: "Miguel Santos",
+    date: "2 Sep 2026",
+    time: "2:00 PM",
+    type: "Follow-up consultation",
+    status: "upcoming",
+    assessment: "",
+    plan: "",
+  },
+  {
+    id: "x2",
+    patient: "Anna Reyes",
+    date: "10 Aug 2026",
+    time: "9:00 AM",
+    type: "Psychiatric consultation",
+    status: "cancelled",
+    assessment: "",
+    plan: "",
+  },
 ];
+/** Only completed consultations are eligible to support a new prescription. */
+const ELIGIBLE_APPOINTMENTS = DEMO_APPOINTMENTS.filter((a) => a.status === "completed");
 
 type MedForm = {
   id: string;
@@ -241,10 +281,14 @@ export default function IssuePrescriptionDialog({
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
+  const [consultLocation, setConsultLocation] = useState("");
   const [presenting, setPresenting] = useState("");
+  const [relevantHistory, setRelevantHistory] = useState("");
+  const [currentSymptoms, setCurrentSymptoms] = useState("");
   const [assessment, setAssessment] = useState("");
   const [findings, setFindings] = useState("");
   const [plan, setPlan] = useState("");
+  const [followUpPlan, setFollowUpPlan] = useState("");
 
   const [contBasis, setContBasis] = useState<ContinuationBasis>("mine-outside");
   const [renewal, setRenewal] = useState({
@@ -393,13 +437,20 @@ export default function IssuePrescriptionDialog({
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Reason for this prescription");
   if (purpose === "new-treatment") {
-    if (newBasis === "linked-appointment" && !linkedAppointment)
-      contextGaps.push("Linked appointment");
-    if (newBasis !== "linked-appointment") {
-      if (!consultDate) contextGaps.push("Consultation date");
+    // A new treatment cannot proceed until an assessment source is complete:
+    // a linked completed Lubin consultation, a documented outside consultation
+    // personally completed by the prescriber, or an assessment documented now.
+    if (newBasis === "linked-appointment") {
+      if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
+    } else {
+      if (newBasis === "external-consult" && !consultDate)
+        contextGaps.push("Consultation date");
       if (!presenting.trim()) contextGaps.push("Presenting concern");
       if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
-      if (!plan.trim()) contextGaps.push("Treatment plan");
+      if (!plan.trim())
+        contextGaps.push(
+          newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
+        );
     }
   }
   if (purpose === "continuation") {
@@ -410,9 +461,9 @@ export default function IssuePrescriptionDialog({
   if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
   if (medicationState === "not-assessed") contextGaps.push("Current medication status (not assessed)");
 
+  // Structured focused documentation (required above) is sufficient — a
+  // complete SOAP note is optional in every pathway.
   const docGaps: string[] = [];
-  if (purpose === "new-treatment" && newBasis !== "linked-appointment" && !focusedNote.trim())
-    docGaps.push("Clinical documentation for this new treatment");
 
   const rxGaps: string[] = [];
   if (readyMeds.length === 0)
@@ -445,9 +496,16 @@ export default function IssuePrescriptionDialog({
     newBasis,
     contBasis,
     linkedAppointment,
+    consultDate,
+    consultMode,
+    consultLocation,
     presenting,
+    relevantHistory,
+    currentSymptoms,
     assessment,
+    findings,
     plan,
+    followUpPlan,
     renewal,
     focusedNote,
     meds,
@@ -521,10 +579,14 @@ export default function IssuePrescriptionDialog({
     setPurpose("new-treatment");
     setLinkedAppointment("");
     setConsultDate("");
+    setConsultLocation("");
     setPresenting("");
+    setRelevantHistory("");
+    setCurrentSymptoms("");
     setAssessment("");
     setFindings("");
     setPlan("");
+    setFollowUpPlan("");
     setRenewal({
       medication: "",
       indication: "",
@@ -1318,142 +1380,330 @@ export default function IssuePrescriptionDialog({
                 <>
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Which clinical assessment supports this new prescription?
+                      Which clinical assessment supports this prescription?
                     </h3>
-                    <div className="mt-3 space-y-2">
-                      {(
-                        [
-                          [
-                            "linked-appointment",
-                            "Use a completed Lubin consultation",
-                            "Link this prescription to an appointment completed in Lubin.",
-                          ],
-                          [
-                            "external-consult",
-                            "Record a consultation I completed outside Lubin",
-                            "The provider personally assessed the patient elsewhere and will document that consultation here.",
-                          ],
-                          [
-                            "focused-assessment",
-                            "Document an assessment I’m completing now",
-                            "Complete the required clinical assessment before preparing the prescription.",
-                          ],
-                        ] as [NewTreatmentBasis, string, string][]
-                      ).map(([value, title, desc]) => (
-                        <label
-                          key={value}
-                          className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                            newBasis === value
-                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                              : "border-[#EDEBF3] bg-white"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                            checked={newBasis === value}
-                            onChange={() => setNewBasis(value)}
-                          />
-                          <span className="flex flex-col">
-                            <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                              {title}
-                            </span>
-                            <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
-                              {desc}
-                            </span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+                    <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                      Every new medication must be connected to a clinical assessment completed by
+                      the prescriber. Choose where that assessment was documented.
+                    </p>
 
-                    {newBasis === "linked-appointment" && (
-                      <div className="mt-4">
-                        <label className={label}>Lubin appointment</label>
-                        <select
-                          className={`${field} mt-1.5`}
-                          value={linkedAppointment}
-                          onChange={(e) => setLinkedAppointment(e.target.value)}
-                        >
-                          <option value="">Select an appointment</option>
-                          {DEMO_APPOINTMENTS.map((a) => (
-                            <option key={a.id} value={a.id}>
-                              {a.label}
-                            </option>
+                    {purpose === "new-treatment" ? (
+                      <>
+                        <div className="mt-4 space-y-2">
+                          {(
+                            [
+                              [
+                                "linked-appointment",
+                                "Use a completed Lubin consultation",
+                                "Link this prescription to an appointment you completed in Lubin. Relevant clinical documentation will be reused.",
+                              ],
+                              [
+                                "external-consult",
+                                "Record a consultation I completed outside Lubin",
+                                "Use this when you personally assessed the patient outside Lubin, such as in your clinic or another telehealth system.",
+                              ],
+                              [
+                                "focused-assessment",
+                                "Document an assessment I’m completing now",
+                                "Complete a focused clinical assessment now before preparing the prescription.",
+                              ],
+                            ] as [NewTreatmentBasis, string, string][]
+                          ).map(([value, title, desc]) => (
+                            <label
+                              key={value}
+                              className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                newBasis === value
+                                  ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                  : "border-[#EDEBF3] bg-white"
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                checked={newBasis === value}
+                                onChange={() => setNewBasis(value)}
+                              />
+                              <span className="flex flex-col">
+                                <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                  {title}
+                                </span>
+                                <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                  {desc}
+                                </span>
+                              </span>
+                            </label>
                           ))}
-                        </select>
-                        {linkedAppt && (
-                          <p className="mt-2 rounded-xl bg-[#F7F4FE] px-3 py-2 text-[12px] text-[#4B4468]">
-                            Documentation from this consultation will be reused — you will not be
-                            asked to write it again.
-                          </p>
-                        )}
-                      </div>
-                    )}
+                        </div>
 
-                    {newBasis !== "linked-appointment" && (
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <label className={label}>Consultation date</label>
-                          <input
-                            type="date"
-                            className={`${field} mt-1.5`}
-                            value={consultDate}
-                            onChange={(e) => setConsultDate(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Mode</label>
-                          <select
-                            className={`${field} mt-1.5`}
-                            value={consultMode}
-                            onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                        <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
+                          A medication request or message alone is not a clinical assessment.
+                          Confirm that you personally assessed the patient before issuing a new
+                          treatment.
+                        </p>
+
+                        {newBasis === "linked-appointment" && (
+                          <div className="mt-4">
+                            <label className={label}>Completed Lubin consultations</label>
+                            <div className="mt-1.5 space-y-2">
+                              {ELIGIBLE_APPOINTMENTS.map((a) => (
+                                <label
+                                  key={a.id}
+                                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                    linkedAppointment === a.id
+                                      ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                      : "border-[#EDEBF3] bg-white"
+                                  }`}
+                                >
+                                  <input
+                                    type="radio"
+                                    className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                    checked={linkedAppointment === a.id}
+                                    onChange={() => setLinkedAppointment(a.id)}
+                                  />
+                                  <span className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                      {a.patient} · {a.type}
+                                    </span>
+                                    <span className="text-[12px] text-[#6F6889]">
+                                      {a.date}, {a.time}
+                                    </span>
+                                    <span className="ml-auto rounded-full bg-[#F0EBFB] px-2 py-0.5 text-[10.5px] font-semibold capitalize text-[#3D2E6B]">
+                                      {a.status}
+                                    </span>
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                            {linkedAppt && (
+                              <p className="mt-2 rounded-xl bg-[#F7F4FE] px-3 py-2 text-[12px] text-[#4B4468]">
+                                Documentation from this consultation will be reused — you will not
+                                be asked to write it again.
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {newBasis === "external-consult" && (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div>
+                              <label className={label}>Consultation date</label>
+                              <input
+                                type="date"
+                                className={`${field} mt-1.5`}
+                                value={consultDate}
+                                onChange={(e) => setConsultDate(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className={label}>Consultation method</label>
+                              <select
+                                className={`${field} mt-1.5`}
+                                value={consultMode}
+                                onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                              >
+                                {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
+                                  <option key={m} value={m}>
+                                    {CONSULT_MODE_LABEL[m]}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Location / practice</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={consultLocation}
+                                onChange={(e) => setConsultLocation(e.target.value)}
+                                placeholder="e.g. Private clinic, Makati"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Presenting concern</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={presenting}
+                                onChange={(e) => setPresenting(e.target.value)}
+                                placeholder="e.g. Low mood and poor sleep for 3 months"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Relevant findings</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={findings}
+                                onChange={(e) => setFindings(e.target.value)}
+                                placeholder="Mental state, risk screen, physical findings…"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Assessment</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={assessment}
+                                onChange={(e) => setAssessment(e.target.value)}
+                                placeholder="e.g. Moderate depressive episode"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Treatment plan</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={plan}
+                                onChange={(e) => setPlan(e.target.value)}
+                                placeholder="What you intend to start, monitor and review"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {newBasis === "focused-assessment" && (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div className="sm:col-span-2">
+                              <label className={label}>How are you assessing the patient?</label>
+                              <select
+                                className={`${field} mt-1.5`}
+                                value={consultMode}
+                                onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                              >
+                                {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
+                                  <option key={m} value={m}>
+                                    {CONSULT_MODE_LABEL[m]}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Presenting concern</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={presenting}
+                                onChange={(e) => setPresenting(e.target.value)}
+                                placeholder="e.g. Low mood and poor sleep for 3 months"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Relevant history</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={relevantHistory}
+                                onChange={(e) => setRelevantHistory(e.target.value)}
+                                placeholder="Psychiatric and medical history relevant to this presentation…"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Current symptoms</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={currentSymptoms}
+                                onChange={(e) => setCurrentSymptoms(e.target.value)}
+                                placeholder="Symptoms reported today, severity and duration…"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Relevant findings</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={findings}
+                                onChange={(e) => setFindings(e.target.value)}
+                                placeholder="Mental state examination, risk screen, physical findings…"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Assessment / diagnosis</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={assessment}
+                                onChange={(e) => setAssessment(e.target.value)}
+                                placeholder="e.g. Moderate depressive episode"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Treatment rationale</label>
+                              <textarea
+                                rows={2}
+                                className={`${area} mt-1.5`}
+                                value={plan}
+                                onChange={(e) => setPlan(e.target.value)}
+                                placeholder="Why this treatment, what you intend to start and monitor"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Follow-up plan</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={followUpPlan}
+                                onChange={(e) => setFollowUpPlan(e.target.value)}
+                                placeholder="e.g. Review response and side effects in 4 weeks"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <p className="mt-4 text-[12px] text-[#6F6889]">
+                          Is this a medication renewal?{" "}
+                          <button
+                            type="button"
+                            onClick={() => setPurpose("continuation")}
+                            className="font-semibold text-[#3D2E6B] underline underline-offset-2 hover:text-[#2A1F4D]"
                           >
-                            {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
-                              <option key={m} value={m}>
-                                {CONSULT_MODE_LABEL[m]}
-                              </option>
-                            ))}
-                          </select>
+                            Use the continuation flow instead.
+                          </button>
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div className="sm:col-span-2">
+                            <label className={label}>Existing medication and SIG</label>
+                            <input
+                              className={`${field} mt-1.5`}
+                              value={renewal.medication}
+                              onChange={(e) =>
+                                setRenewal((r) => ({ ...r, medication: e.target.value }))
+                              }
+                              placeholder="e.g. Sertraline 50 mg — 1 tablet once daily"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className={label}>Indication</label>
+                            <input
+                              className={`${field} mt-1.5`}
+                              value={renewal.indication}
+                              onChange={(e) =>
+                                setRenewal((r) => ({ ...r, indication: e.target.value }))
+                              }
+                              placeholder="e.g. Generalised anxiety disorder"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className={label}>Current response</label>
+                            <textarea
+                              rows={2}
+                              className={`${area} mt-1.5`}
+                              value={renewal.response}
+                              onChange={(e) =>
+                                setRenewal((r) => ({ ...r, response: e.target.value }))
+                              }
+                              placeholder="Symptom control, side effects, adherence…"
+                            />
+                          </div>
                         </div>
-                        <div className="sm:col-span-2">
-                          <label className={label}>Presenting concern</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={presenting}
-                            onChange={(e) => setPresenting(e.target.value)}
-                            placeholder="e.g. Low mood and poor sleep for 3 months"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className={label}>Assessment / diagnosis</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={assessment}
-                            onChange={(e) => setAssessment(e.target.value)}
-                            placeholder="e.g. Moderate depressive episode"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className={label}>Relevant findings</label>
-                          <textarea
-                            rows={2}
-                            className={`${area} mt-1.5`}
-                            value={findings}
-                            onChange={(e) => setFindings(e.target.value)}
-                            placeholder="Mental state, risk screen, physical findings…"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className={label}>Treatment plan</label>
-                          <textarea
-                            rows={2}
-                            className={`${area} mt-1.5`}
-                            value={plan}
-                            onChange={(e) => setPlan(e.target.value)}
-                            placeholder="What you intend to start, monitor and review"
-                          />
-                        </div>
-                      </div>
+                        <p className="mt-4 text-[12px] text-[#6F6889]">
+                          Starting something new?{" "}
+                          <button
+                            type="button"
+                            onClick={() => setPurpose("new-treatment")}
+                            className="font-semibold text-[#3D2E6B] underline underline-offset-2 hover:text-[#2A1F4D]"
+                          >
+                            Use the new treatment flow instead.
+                          </button>
+                        </p>
+                      </>
                     )}
                   </section>
 
@@ -1595,22 +1845,24 @@ export default function IssuePrescriptionDialog({
                     {purpose === "new-treatment" && !linkedAppt && (
                       <>
                         <p className="mt-1 text-[12px] text-[#6F6889]">
-                          A focused note is enough for this prescription. Open the full SOAP note
-                          only if you want it.
+                          Your structured documentation from the previous step is the clinical
+                          record for this prescription. Add an optional note or a full SOAP note
+                          only if you want more detail.
                         </p>
+                        <label className={`${label} mt-3 block`}>Additional note (optional)</label>
                         <textarea
-                          rows={5}
-                          className={`${area} mt-3`}
+                          rows={4}
+                          className={`${area} mt-1.5`}
                           value={focusedNote}
                           onChange={(e) => setFocusedNote(e.target.value)}
-                          placeholder="Assessment and plan in your own words…"
+                          placeholder="Anything else you want on the record, in your own words…"
                         />
                         <button
                           type="button"
                           onClick={() => setShowSoap((v) => !v)}
                           className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
                         >
-                          {showSoap ? "Hide full SOAP note" : "Open full SOAP note"}
+                          {showSoap ? "Hide full SOAP note" : "Open full SOAP note (optional)"}
                         </button>
                         {showSoap && (
                           <div className="mt-3">
@@ -1626,8 +1878,10 @@ export default function IssuePrescriptionDialog({
                                 },
                                 caseNotes: focusedNote,
                                 presenting,
-                                observations: findings,
-                                plan,
+                                observations: [relevantHistory, currentSymptoms, findings]
+                                  .filter(Boolean)
+                                  .join("\n"),
+                                plan: [plan, followUpPlan].filter(Boolean).join("\n"),
                               })}
                             />
                           </div>
