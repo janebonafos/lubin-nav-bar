@@ -2055,11 +2055,13 @@ export default function IssuePrescriptionDialog({
                       {entry === "renewal" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Focused renewal review
+                            Focused renewal note
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            A complete new-treatment SOAP is not required for an ordinary renewal.
+                            A complete new-treatment SOAP note is not required for an ordinary
+                            medication continuation.
                           </p>
+
                           <div className="mt-3 grid gap-3 sm:grid-cols-2">
                             <div className="sm:col-span-2">
                               <label className={label}>Medication and current SIG</label>
