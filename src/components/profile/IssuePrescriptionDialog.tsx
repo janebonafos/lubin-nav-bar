@@ -308,6 +308,31 @@ function ageFromDob(dob: string): number | undefined {
   return age >= 0 && age < 130 ? age : undefined;
 }
 
+/**
+ * Details an existing patient already provided themselves: the intake answers
+ * for any of their appointments, plus the Health Passport details they shared
+ * with this practice. Used only to prefill blank fields — nothing is invented.
+ */
+function sharedPatientDetails(record: PatientRecordView): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const appointmentId of record.appointmentIds) {
+    const values = getResponse(appointmentId).values ?? {};
+    for (const [id, value] of Object.entries(values)) {
+      const v = (value ?? "").trim();
+      if (v && !out[id]) out[id] = v;
+    }
+  }
+  if (record.passport) {
+    for (const [id, value] of Object.entries(loadHealthDetails())) {
+      const v = (value ?? "").trim();
+      if (v && !out[id]) out[id] = v;
+    }
+  }
+  return out;
+}
+
+
+
 const field =
   "h-10 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
 const area =
