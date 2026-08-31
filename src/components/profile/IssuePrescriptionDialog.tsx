@@ -1400,13 +1400,32 @@ export default function IssuePrescriptionDialog({
               {step === 1 && (
                 <>
                   <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Which clinical assessment supports this prescription?
-                    </h3>
-                    <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                      Every new medication must be connected to a clinical assessment completed by
-                      the prescriber. Choose where that assessment was documented.
-                    </p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                          Which clinical assessment supports this prescription?
+                        </h3>
+                        <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                          Every new medication must be connected to a clinical assessment completed
+                          by the prescriber. Choose where that assessment was documented.
+                        </p>
+                      </div>
+                      <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-[11.5px] font-semibold text-[#6F6889]">
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 accent-[#3D2E6B]"
+                          checked={skipContext}
+                          onChange={(e) => setSkipContext(e.target.checked)}
+                        />
+                        Skip
+                      </label>
+                    </div>
+                    {skipContext && (
+                      <p className="mt-2.5 rounded-xl border border-[#E6DEFA] bg-[#F7F4FE] px-3 py-2 text-[11.5px] leading-relaxed text-[#6F5BA0]">
+                        Clinical context is skipped for this prescription. You can fill it in later,
+                        but signing is allowed without it.
+                      </p>
+                    )}
 
                     {purpose === "new-treatment" ? (
                       <>
