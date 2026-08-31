@@ -692,9 +692,8 @@ export default function IssuePrescriptionDialog({
   const soapGaps = [...contextGaps];
 
   // "Not assessed" is a real state and blocks review and signing.
-  if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
-  if (medicationState === "not-assessed")
-    contextGaps.push("Current medication status (not assessed)");
+  if (allergyState === "not-assessed") contextGaps.push("Review allergies");
+  if (medicationState === "not-assessed") contextGaps.push("Review current medications");
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
   const soapTouched = Boolean(
