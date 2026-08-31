@@ -1395,6 +1395,8 @@ export default function IssuePrescriptionDialog({
 
                 </>
               )}
+              </Acc>
+
 
               {/* ---------------- STEP 2 — CLINICAL CONTEXT ---------------- */}
               <Acc
