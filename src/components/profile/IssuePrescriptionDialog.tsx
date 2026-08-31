@@ -2253,7 +2253,12 @@ export default function IssuePrescriptionDialog({
                             </select>
                           </div>
 
+                          {soapModeChoice}
+                          {soapMode === "ai" && soapAiPanel}
+
+                          {(soapMode === "manual" || soapDrafted) && (
                           <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
+
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <h4 className="text-[13px] font-bold text-[#3D2E6B]">
                                 Focused SOAP note
