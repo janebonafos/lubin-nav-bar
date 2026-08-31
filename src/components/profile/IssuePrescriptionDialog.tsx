@@ -928,7 +928,9 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setEntry("lubin");
+    setPurpose(null);
+    setEntry(null);
+    setConsultMode(null);
     setLinkedAppointment("");
     setApptSearch("");
     setReviewSoapOpen(false);
