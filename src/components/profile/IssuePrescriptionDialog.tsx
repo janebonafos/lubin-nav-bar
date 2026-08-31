@@ -393,8 +393,9 @@ export default function IssuePrescriptionDialog({
   // ---------- Step 2: clinical documentation ----------
   // One SOAP note per prescription — documented once, reused everywhere. There is
   // no second clinical-context questionnaire.
-  const [purpose, setPurpose] = useState<RxPurposeChoice>("new");
-  const [entry, setEntry] = useState<EntryPoint>("lubin");
+  // Nothing clinical is preselected — the prescriber chooses every clinical fact.
+  const [purpose, setPurpose] = useState<RxPurposeChoice | null>(null);
+  const [entry, setEntry] = useState<EntryPoint | null>(null);
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
