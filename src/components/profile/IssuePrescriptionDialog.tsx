@@ -356,8 +356,9 @@ export default function IssuePrescriptionDialog({
   if (!patientName.trim()) patientGaps.push("Full legal name");
   if (!dob) patientGaps.push("Date of birth");
   if (sex === "not-documented") patientGaps.push("Sex");
-  if (!address.street.trim() || !address.city.trim() || !address.province.trim())
-    patientGaps.push("Philippine address");
+  // Address is recorded and printed when present, but is only legally
+  // mandatory for dangerous-drug / senior / PWD prescriptions, which this
+  // Phase 1 flow does not support — so it never blocks issuance here.
   if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
@@ -1117,7 +1118,7 @@ export default function IssuePrescriptionDialog({
                           </select>
                         </div>
                         <p className="sm:col-span-2 mt-1 text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                          Address
+                          Address · recommended
                         </p>
                         <div className="sm:col-span-2">
                           <label className={label} htmlFor="rx-street">
@@ -1181,7 +1182,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-phone">
-                            Mobile number
+                            Mobile number <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-phone"
@@ -1194,7 +1195,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-email">
-                            Email
+                            Email <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-email"
@@ -1206,8 +1207,11 @@ export default function IssuePrescriptionDialog({
                           />
                         </div>
                         <p className="sm:col-span-2 -mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                          The signed prescription can be delivered by email or text message. The
-                          patient does not need a Lubin account before you continue.
+                          All fields above are optional — only the patient's full name, date of
+                          birth and sex are legally required on a Philippine prescription. If you
+                          add a mobile number or email, the signed prescription can be delivered by
+                          text or email. The patient does not need a Lubin account before you
+                          continue.
                         </p>
                       </div>
                     )}
