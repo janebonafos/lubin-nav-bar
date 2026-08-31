@@ -322,6 +322,9 @@ function DetailsPage() {
   const [providerProfession, setProviderProfession] = useState<string | undefined>(undefined);
   const [followUpPublishConfirmed, setFollowUpPublishConfirmed] = useState(false);
   const [privateNotesSaved, setPrivateNotesSaved] = useState(false);
+  // Clinical documentation format — either one counts as documented, never both.
+  const [docFormat, setDocFormat] = useState<"quick" | "soap">("quick");
+
   const [followUpSaved, setFollowUpSaved] = useState(false);
   const [sharedRefOpen, setSharedRefOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
