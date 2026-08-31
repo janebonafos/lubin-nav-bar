@@ -2176,8 +2176,17 @@ export default function IssuePrescriptionDialog({
               )}
 
               {/* ---------------- STEP 4 — REVIEW AND SIGN ---------------- */}
-              {step === 3 && (
+              <Acc
+                index={3}
+                label="Review and sign"
+                hint="Read-only preview, then sign"
+                open={step === 3}
+                onToggle={setStep}
+                done={false}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       Prescription preview
