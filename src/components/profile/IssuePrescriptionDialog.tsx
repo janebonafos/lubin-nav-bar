@@ -235,8 +235,6 @@ export default function IssuePrescriptionDialog({
     relationship: "Mother",
     contact: "+63 917 222 8890",
   });
-  const [network, setNetwork] = useState<HealthNetworkProfile | null>(null);
-  const [networkConfirmed, setNetworkConfirmed] = useState<string[]>([]);
   const [duplicatesDismissed, setDuplicatesDismissed] = useState(false);
 
   // ---------- Step 2: clinical context ----------
@@ -292,8 +290,7 @@ export default function IssuePrescriptionDialog({
   const [otpInvalidated, setOtpInvalidated] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [issued, setIssued] = useState<SignedPrescriptionDocument | null>(null);
-  const [providerName, setProviderName] = useState("");
-  const [reviewedAt, setReviewedAt] = useState<number | null>(null);
+
 
   useEffect(() => {
     if (!open) return;
@@ -302,11 +299,8 @@ export default function IssuePrescriptionDialog({
     setRecords(listPatientRecords());
     const found = detectJurisdiction();
     if (found.country) setCountry(found.country);
-    const stored =
-      (typeof window !== "undefined" && window.localStorage.getItem("lubin.userName")) ||
-      "";
-    setProviderName(stored || id.fullName || "");
   }, [open]);
+
 
   const ageYears = ageFromDob(dob);
   const isMinor = ageYears !== undefined && ageYears < 18;
@@ -510,10 +504,8 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setNetwork(null);
-    setNetworkConfirmed([]);
-    setReviewedAt(null);
     setDuplicatesDismissed(false);
+
     setSuggestions([]);
     setMissingInfo([]);
     setConfirmedSuggestions([]);
