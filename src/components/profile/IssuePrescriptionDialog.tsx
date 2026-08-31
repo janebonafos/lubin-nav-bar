@@ -440,31 +440,36 @@ export default function IssuePrescriptionDialog({
     patientGaps.push("Parent or legal guardian details");
 
   const contextGaps: string[] = [];
-  if (!purpose) contextGaps.push("Reason for this prescription");
-  if (purpose === "new-treatment") {
-    // A new treatment cannot proceed until an assessment source is complete:
-    // a linked completed Lubin consultation, a documented outside consultation
-    // personally completed by the prescriber, or an assessment documented now.
-    if (newBasis === "linked-appointment") {
-      if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
-    } else {
-      if (newBasis === "external-consult" && !consultDate)
-        contextGaps.push("Consultation date");
-      if (!presenting.trim()) contextGaps.push("Presenting concern");
-      if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
-      if (!plan.trim())
-        contextGaps.push(
-          newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
-        );
+  // A provider may skip the clinical context step entirely when it isn't
+  // needed for this prescription (e.g. a simple renewal handled elsewhere).
+  if (!skipContext) {
+    if (!purpose) contextGaps.push("Reason for this prescription");
+    if (purpose === "new-treatment") {
+      // A new treatment cannot proceed until an assessment source is complete:
+      // a linked completed Lubin consultation, a documented outside consultation
+      // personally completed by the prescriber, or an assessment documented now.
+      if (newBasis === "linked-appointment") {
+        if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
+      } else {
+        if (newBasis === "external-consult" && !consultDate)
+          contextGaps.push("Consultation date");
+        if (!presenting.trim()) contextGaps.push("Presenting concern");
+        if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
+        if (!plan.trim())
+          contextGaps.push(
+            newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
+          );
+      }
     }
+    if (purpose === "continuation") {
+      if (!renewal.medication.trim()) contextGaps.push("Existing medication and SIG");
+      if (!renewal.indication.trim()) contextGaps.push("Indication");
+      if (!renewal.response.trim()) contextGaps.push("Current response");
+    }
+    if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
+    if (medicationState === "not-assessed")
+      contextGaps.push("Current medication status (not assessed)");
   }
-  if (purpose === "continuation") {
-    if (!renewal.medication.trim()) contextGaps.push("Existing medication and SIG");
-    if (!renewal.indication.trim()) contextGaps.push("Indication");
-    if (!renewal.response.trim()) contextGaps.push("Current response");
-  }
-  if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
-  if (medicationState === "not-assessed") contextGaps.push("Current medication status (not assessed)");
 
   // Structured focused documentation (required above) is sufficient — a
   // complete SOAP note is optional in every pathway.
