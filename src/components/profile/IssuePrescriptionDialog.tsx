@@ -171,6 +171,13 @@ const SOAP_LABEL: Record<keyof SoapNote, string> = {
   assessment: "Assessment",
   plan: "Plan",
 };
+const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
+  subjective: "S — Subjective",
+  objective: "O — Objective",
+  assessment: "A — Assessment",
+  plan: "P — Plan",
+};
+
 
 /** Where the clinical assessment supporting this prescription was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
