@@ -868,7 +868,7 @@ export default function IssuePrescriptionDialog({
             <span
               aria-hidden
               className="absolute left-5 top-5 h-[3px] rounded-full bg-[#3D2E6B] transition-all duration-500 ease-in-out"
-              style={{ width: `calc(${(step / (STEPS.length - 1)) * 100}% * (1 - 40 / 100) )` }}
+              style={{ width: `calc((100% - 40px) * ${step / (STEPS.length - 1)})` }}
             />
             <ol className="relative flex justify-between">
               {STEPS.map((s, i) => {
