@@ -155,15 +155,15 @@ export type AllergyReadiness = "none-known" | "recorded" | "not-assessed";
 export type MedicationReadiness = "nothing" | "recorded" | "not-assessed";
 
 export const ALLERGY_READINESS_LABEL: Record<AllergyReadiness, string> = {
-  "none-known": "No known allergies",
-  recorded: "Add allergy",
-  "not-assessed": "Not assessed",
+  "none-known": "No known drug allergies",
+  recorded: "Add allergies",
+  "not-assessed": "Not yet reviewed",
 };
 
 export const MEDICATION_READINESS_LABEL: Record<MedicationReadiness, string> = {
-  nothing: "No current medications",
-  recorded: "Add medication",
-  "not-assessed": "Not assessed",
+  nothing: "None",
+  recorded: "Add medications",
+  "not-assessed": "Not yet reviewed",
 };
 
 export type RxPurpose = "new-treatment" | "continuation";
