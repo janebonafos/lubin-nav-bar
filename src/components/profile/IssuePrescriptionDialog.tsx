@@ -279,6 +279,7 @@ export default function IssuePrescriptionDialog({
   const [purpose, setPurpose] = useState<RxPurpose | null>("new-treatment");
   const [newBasis, setNewBasis] = useState<NewTreatmentBasis>("focused-assessment");
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
+  const [apptSearch, setApptSearch] = useState("");
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
   const [consultLocation, setConsultLocation] = useState("");
