@@ -1480,8 +1480,9 @@ export default function IssuePrescriptionDialog({
               {/* ---------------- STEP 2 — CLINICAL DOCUMENTATION ---------------- */}
               <Acc
                 index={1}
-                label="Clinical documentation"
-                hint="One note — reused, not retyped"
+                label="SOAP / clinical note"
+                hint="Reuse an existing SOAP or complete one focused note"
+
                 open={step === 1}
                 onToggle={setStep}
                 done={contextGaps.length === 0}
