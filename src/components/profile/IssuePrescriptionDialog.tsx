@@ -512,6 +512,7 @@ export default function IssuePrescriptionDialog({
     setGuardian(emptyGuardian());
     setNetwork(null);
     setNetworkConfirmed([]);
+    setReviewedAt(null);
     setDuplicatesDismissed(false);
     setSuggestions([]);
     setMissingInfo([]);
