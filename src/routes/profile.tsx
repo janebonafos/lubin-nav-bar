@@ -780,6 +780,66 @@ function ProfilePage() {
 
           {/* Main */}
           <div className="relative space-y-6 lg:col-span-3">
+            {/* Mobile account + section switcher */}
+            <section className="rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/85 p-4 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl lg:hidden">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-semibold text-white ${
+                      role === "provider"
+                        ? "bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B]"
+                        : "bg-gradient-to-br from-[#DDD6FE] to-[#A89BD0]"
+                    }`}
+                  >
+                    {profile.avatar ? (
+                      <img src={profile.avatar} alt={displayName} className="h-full w-full object-cover" />
+                    ) : hasInitials ? (
+                      <span>{initials}</span>
+                    ) : (
+                      <img src={lubinMark.url} alt="" className="h-5 w-5 object-contain opacity-90" />
+                    )}
+                  </div>
+                  <p className="truncate text-[13.5px] font-bold text-[#3D2E6B]">{displayName}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/80 p-1">
+                  {(["client", "provider"] as const).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setRole(r)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                        role === r ? "bg-[#7E6BAF] text-white shadow-sm" : "text-[#7E6BAF]"
+                      }`}
+                    >
+                      {r === "client" ? "Personal" : "Pro"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="-mx-4 mt-3 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max items-center gap-2 pb-1">
+                  {NAV.map(({ key, label }) => {
+                    const active = activeSection === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setActiveSection(key)}
+                        className={`whitespace-nowrap rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition ${
+                          active
+                            ? "bg-[#7E6BAF] text-white shadow-sm"
+                            : "border border-[#E3DBF5] bg-white text-[#3D2E6B]/80"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+
             {/* Role switch — branded loader */}
             <AnimatePresence>
               {isRoleSwitching && (
