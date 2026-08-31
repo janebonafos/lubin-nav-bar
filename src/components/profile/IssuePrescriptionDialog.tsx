@@ -87,21 +87,61 @@ const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
   { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
 
-/** Local demo appointments a prescription can be linked to. Prototype data. */
-const DEMO_APPOINTMENTS = [
+/** Local demo appointments a prescription can be linked to. Prototype fixture data. */
+type DemoAppointment = {
+  id: string;
+  patient: string;
+  date: string;
+  time: string;
+  type: string;
+  status: "completed" | "cancelled" | "upcoming";
+  assessment: string;
+  plan: string;
+};
+const DEMO_APPOINTMENTS: DemoAppointment[] = [
   {
     id: "c9",
-    label: "Miguel Santos · 30 Aug, 4:00 PM",
+    patient: "Miguel Santos",
+    date: "30 Aug 2026",
+    time: "4:00 PM",
+    type: "Psychiatric consultation",
+    status: "completed",
     assessment: "Moderate depressive episode, first presentation. No safety concerns today.",
     plan: "Start an SSRI at a low dose, review in 4 weeks, sleep hygiene plan agreed.",
   },
   {
     id: "a4",
-    label: "Anna Reyes · 24 Aug, 10:30 AM",
+    patient: "Anna Reyes",
+    date: "24 Aug 2026",
+    time: "10:30 AM",
+    type: "Follow-up consultation",
+    status: "completed",
     assessment: "Recurrent depressive episode, partial response to current dose.",
     plan: "Continue current medication, review adherence and side effects in 6 weeks.",
   },
+  {
+    id: "x1",
+    patient: "Miguel Santos",
+    date: "2 Sep 2026",
+    time: "2:00 PM",
+    type: "Follow-up consultation",
+    status: "upcoming",
+    assessment: "",
+    plan: "",
+  },
+  {
+    id: "x2",
+    patient: "Anna Reyes",
+    date: "10 Aug 2026",
+    time: "9:00 AM",
+    type: "Psychiatric consultation",
+    status: "cancelled",
+    assessment: "",
+    plan: "",
+  },
 ];
+/** Only completed consultations are eligible to support a new prescription. */
+const ELIGIBLE_APPOINTMENTS = DEMO_APPOINTMENTS.filter((a) => a.status === "completed");
 
 type MedForm = {
   id: string;
