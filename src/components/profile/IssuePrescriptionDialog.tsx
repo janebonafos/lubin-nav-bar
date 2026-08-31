@@ -643,6 +643,8 @@ export default function IssuePrescriptionDialog({
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
   const contextGaps: string[] = [];
+  if (!purpose) contextGaps.push("Treatment type");
+  if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
   if (purpose === "new" && entry === "lubin") {
     if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
     else {
