@@ -686,17 +686,18 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setPurpose("new-treatment");
+    setEntry("lubin");
     setLinkedAppointment("");
+    setApptSearch("");
+    setReviewSoapOpen(false);
+    setMaterialChange(null);
     setConsultDate("");
     setConsultLocation("");
-    setPresenting("");
-    setRelevantHistory("");
-    setCurrentSymptoms("");
-    setAssessment("");
-    setFindings("");
-    setPlan("");
-    setFollowUpPlan("");
+    setNoteSource("write");
+    setPastedNote("");
+    setSoapDrafted(false);
+    setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
+    setObjectiveMode("none");
     setRenewal({
       medication: "",
       indication: "",
@@ -705,24 +706,22 @@ export default function IssuePrescriptionDialog({
       sideEffects: "",
       adherence: "",
       changes: "",
+      allergyChanges: "",
       quantity: "",
       followUp: "",
     });
-    setUploadName("");
-    setVerifiedContinuation(false);
     setSavedForReview(false);
     setAllergyState("not-assessed");
     setAllergyDetail("");
     setMedicationState("not-assessed");
     setMedicationDetail("");
+    setReviewedNoChanges(false);
     setConditionsText("");
     setPregnancyText("");
     setWeightText("");
     setBpText("");
     setHrText("");
     setOtherVitalsText("");
-    setFocusedNote("");
-    setShowSoap(false);
     setMeds([emptyMed()]);
     setSuggestions([]);
     setConfirmedSuggestions([]);
@@ -737,70 +736,72 @@ export default function IssuePrescriptionDialog({
     setIssued(null);
   }
 
-  const linkedAppt = DEMO_APPOINTMENTS.find((a) => a.id === linkedAppointment);
+  /** The clinical plan the prescription is prepared from. */
   const planText =
-    purpose === "continuation"
+    entry === "renewal"
       ? [renewal.medication, renewal.indication, renewal.response].filter(Boolean).join(" · ")
-      : linkedAppt
-        ? `${linkedAppt.assessment} ${linkedAppt.plan}`
-        : [assessment, plan, focusedNote].filter(Boolean).join(" ");
+      : [effectiveSoap.assessment, effectiveSoap.plan].filter(Boolean).join(" ");
 
-  async function draftFromPlan() {
+  /**
+   * Design-only assistive drafting. Everything below is produced locally from
+   * fictional fixture data — no AI service, network call or backend is involved.
+   */
+  function prepareSoapDraft() {
+    const raw = pastedNote.trim();
+    if (!raw) return;
+    setAiLoading(true);
+    const lines = raw.split(/\n|(?<=\.)\s+/).map((l) => l.trim()).filter(Boolean);
+    const pick = (i: number) => lines[i] ?? "";
+    window.setTimeout(() => {
+      setSoap({
+        subjective: pick(0) || raw.slice(0, 180),
+        objective: pick(1) || "Not documented — provider confirmation required",
+        assessment: pick(2) || "Not documented — provider confirmation required",
+        plan: pick(3) || lines.slice(3).join(" ") || "Not documented — provider confirmation required",
+      });
+      setSoapDrafted(true);
+      setAiLoading(false);
+    }, 400);
+  }
+
+  function draftFromPlan() {
     setAiLoading(true);
     setAiError("");
     setAiNote("");
     setMissingInfo([]);
-    try {
-      const res = await fetch("/api/generate-prescription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          country,
-          patientContext: {
-            firstName: (preferredName || patientName).split(" ")[0] || undefined,
-            age: ageYears,
-            sex: sex === "not-documented" ? undefined : sex,
-          },
-          presenting: presenting || renewal.indication || planText,
-          observations: findings || focusedNote,
-          plan: planText,
-          includedAssessments: passportItems.map((p) => ({
-            name: p.name,
-            clinicalName: p.clinicalName,
-            score: p.score,
-            statusLabel: p.statusLabel,
-          })),
-          currentMedications:
-            medicationState === "recorded" && medicationDetail
-              ? [{ name: medicationDetail, dose: "", frequency: "" }]
-              : (selected?.pastMedications ?? []).slice(0, 5).map((m) => ({
-                  name: m.genericName || m.name,
-                  dose: m.dose,
-                  frequency: m.frequency,
-                })),
-          allergies: allergyState === "recorded" ? allergyDetail : undefined,
-        }),
-      });
-      const data = (await res.json()) as {
-        medications?: AiMedication[];
-        missingInfo?: string[];
-        clinicalNotes?: string;
-        error?: string;
-      };
-      if (!res.ok) {
-        setAiError(data.error || "Could not prepare a draft right now.");
-        return;
-      }
-      setSuggestions(data.medications ?? []);
-      setMissingInfo(data.missingInfo ?? []);
+    const source = `${planText} ${effectiveSoap.subjective}`.toLowerCase();
+    const hits = searchPhCatalogue(source ? source.slice(0, 60) : "")
+      .filter((c) => source.includes(c.generic.toLowerCase()))
+      .slice(0, 2);
+    const drafts: AiMedication[] = hits.map((c) => ({
+      name: c.generic,
+      genericName: c.generic,
+      dose: `1 ${c.unit.replace(/s$/, "")}`,
+      route: c.routes[0] ?? "Oral",
+      frequency: "once daily",
+      duration: "30 days",
+      indication: effectiveSoap.assessment || renewal.indication || undefined,
+      instructions: `Take 1 ${c.unit.replace(/s$/, "")} by ${(c.routes[0] ?? "oral").toLowerCase()} route once daily.`,
+      rationale: "Drafted from your documented Plan — fictional prototype suggestion.",
+    }));
+    const gaps: string[] = [];
+    if (!effectiveSoap.assessment.trim()) gaps.push("Assessment / indication");
+    if (allergyState !== "recorded" && allergyState !== "none-known") gaps.push("Allergy status");
+    if (medicationState !== "recorded" && medicationState !== "nothing")
+      gaps.push("Current medications");
+    window.setTimeout(() => {
+      setSuggestions(drafts);
+      setMissingInfo(gaps);
       setConfirmedSuggestions([]);
-      setAiNote(data.clinicalNotes ?? "");
-    } catch {
-      setAiError("Could not reach the drafting service.");
-    } finally {
+      setAiNote(
+        drafts.length === 0
+          ? "No medication could be drafted from the documented Plan. Name the medication in your Plan, or enter it manually below."
+          : "AI-assisted draft — provider review required. Nothing is added to the prescription until you confirm it.",
+      );
       setAiLoading(false);
-    }
+    }, 400);
   }
+
 
   function suggestionKey(s: AiMedication, i: number) {
     return `${s.genericName || s.name}-${i}`;
