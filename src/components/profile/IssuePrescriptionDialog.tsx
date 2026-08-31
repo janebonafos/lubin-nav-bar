@@ -664,7 +664,7 @@ export default function IssuePrescriptionDialog({
     if (entry === "outside" && !consultDate) contextGaps.push("Consultation date");
     if (!consultMode) contextGaps.push("Consultation method");
     if (soapMode === "ai") {
-      if (!pastedNote.trim()) contextGaps.push("Your clinical notes");
+      if (!pastedNote.trim()) contextGaps.push("Add clinical notes");
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
     if (soapMode === "manual" || soapDrafted) {
