@@ -2393,6 +2393,8 @@ export default function IssuePrescriptionDialog({
                                   setAllergyConfirm("unchanged");
                                   setReviewedNoChanges(true);
                                   setAllergyState(savedAllergyState);
+                                  if (savedAllergyState === "recorded")
+                                    setAllergyDetail(savedAllergies);
                                 }}
                                 className={`${chip} w-full justify-center ${
                                   allergyConfirm === "unchanged"
@@ -2457,6 +2459,8 @@ export default function IssuePrescriptionDialog({
                                 onClick={() => {
                                   setMedsConfirm("unchanged");
                                   setMedicationState(savedMedicationState);
+                                  if (savedMedicationState === "recorded")
+                                    setMedicationDetail(savedMedications);
                                 }}
                                 className={`${chip} w-full justify-center ${
                                   medsConfirm === "unchanged"
@@ -3042,7 +3046,15 @@ export default function IssuePrescriptionDialog({
 
                     className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    {step === 2 ? "Review prescription" : "Continue"}
+                    {step === 2
+                      ? "Review prescription"
+                      : step === 1
+                        ? purpose === "renewal"
+                          ? "Continue with renewal"
+                          : entry === "lubin"
+                            ? "Use SOAP and continue"
+                            : "Continue to prescription"
+                        : "Continue"}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 ) : (
