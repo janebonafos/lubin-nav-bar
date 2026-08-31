@@ -862,50 +862,78 @@ export default function IssuePrescriptionDialog({
               <X className="h-4 w-4" />
             </button>
           </div>
-          <ol className="mt-4 flex items-start">
-            {STEPS.map((s, i) => (
-              <li key={s} className="relative flex flex-1 flex-col items-center">
-                {/* connecting line */}
-                {i > 0 && (
-                  <span
-                    aria-hidden
-                    className={`absolute left-[-50%] top-[13px] h-[2px] w-full rounded-[12px] transition-colors ${
-                      i <= step ? "bg-[#3D2E6B]" : "bg-[#E7E0F6]"
-                    }`}
-                  />
-                )}
-                <button
-                  type="button"
-                  onClick={() => i <= step && setStep(i)}
-                  disabled={i > step}
-                  className="relative z-10 flex flex-col items-center gap-1.5 rounded-[12px] px-2 py-0.5"
-                >
-                  <span
-                    className={`flex h-[26px] w-[26px] items-center justify-center rounded-[12px] text-[11px] font-bold transition ${
-                      i === step
-                        ? "bg-[#3D2E6B] text-white shadow-[0_4px_12px_-2px_rgba(61,46,107,0.45)]"
-                        : i < step
-                          ? "bg-[#3D2E6B]/15 text-[#3D2E6B]"
-                          : "bg-[#F1ECFA] text-[#A89BD0]"
-                    }`}
-                  >
-                    {i < step ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
-                  </span>
-                  <span
-                    className={`text-[11px] font-semibold leading-tight transition ${
-                      i === step
-                        ? "text-[#3D2E6B]"
-                        : i < step
-                          ? "text-[#3D2E6B]/70"
-                          : "text-[#A89BD0]"
-                    }`}
-                  >
-                    {s}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ol>
+          <div className="relative mt-8 pb-14">
+            {/* track — inset to the centre of the first/last step */}
+            <span
+              aria-hidden
+              className="absolute top-5 h-[3px] rounded-full bg-[#EAE7F5]"
+              style={{ left: `${100 / (STEPS.length * 2)}%`, right: `${100 / (STEPS.length * 2)}%` }}
+            />
+            <span
+              aria-hidden
+              className="absolute top-5 h-[3px] rounded-full bg-[#3D2E6B] transition-all duration-500 ease-in-out"
+              style={{
+                left: `${100 / (STEPS.length * 2)}%`,
+                width: `${(100 - 100 / STEPS.length) * (step / (STEPS.length - 1))}%`,
+              }}
+            />
+            <ol className="relative flex">
+              {STEPS.map((s, i) => {
+                const done = i < step;
+                const active = i === step;
+                return (
+                  <li key={s} className="relative z-10 flex flex-1 flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={() => i <= step && setStep(i)}
+                      disabled={i > step}
+                      className="no-hover flex flex-col items-center"
+                    >
+                      <span
+                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
+                          done
+                            ? "border-4 border-white bg-[#3D2E6B] shadow-sm"
+                            : active
+                              ? "border-4 border-[#3D2E6B] bg-white shadow-[0_0_20px_-5px_rgba(61,46,107,0.35)] ring-4 ring-[#EAE7F5]"
+                              : "border-4 border-white bg-[#EAE7F5]"
+                        }`}
+                      >
+                        {done ? (
+                          <Check className="h-4 w-4 text-white" strokeWidth={3} />
+                        ) : (
+                          <span
+                            className={`text-sm font-bold ${active ? "text-[#3D2E6B]" : "text-[#A89BD0]"}`}
+                          >
+                            {i + 1}
+                          </span>
+                        )}
+                      </span>
+                      <span className="absolute top-14 left-1/2 w-28 -translate-x-1/2 text-center leading-tight">
+                        <span
+                          className={`block text-[10px] font-bold uppercase tracking-wider ${
+                            active ? "text-[#3D2E6B]" : "text-[#A89BD0]"
+                          }`}
+                        >
+                          {active ? "Active" : `Step 0${i + 1}`}
+                        </span>
+                        <span
+                          className={`mt-0.5 inline-block rounded-full text-[13px] font-semibold ${
+                            active
+                              ? "bg-[#EAE7F5]/60 px-3 py-0.5 font-bold text-[#3D2E6B]"
+                              : done
+                                ? "text-[#3D2E6B]"
+                                : "text-[#A89BD0]"
+                          }`}
+                        >
+                          {s}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
