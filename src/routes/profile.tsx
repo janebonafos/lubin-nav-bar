@@ -838,6 +838,14 @@ function ProfilePage() {
                   })}
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="mt-3 flex items-center gap-2 text-[12px] font-semibold text-[#3D2E6B]/70 transition hover:text-[#7E6BAF]"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Sign out
+              </button>
             </section>
 
             {/* Role switch — branded loader */}
