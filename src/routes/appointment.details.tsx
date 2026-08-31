@@ -1001,8 +1001,8 @@ function DetailsPage() {
                 id="session-notes"
                 number={1}
                 eyebrow="After the session"
-                title="Private clinical notes"
-                description={`For your records only. Not shared with ${clientLabel}.`}
+                title="Clinical documentation"
+                description={`For your records only. Not shared with ${clientLabel}. Complete either format — a quick note or a SOAP note.`}
                 openOverride={openStep === "session-notes"}
                 onToggle={() => toggleStep("session-notes")}
                 done={step1Done}
@@ -1019,62 +1019,88 @@ function DetailsPage() {
                 requirementLabel={rxShown ? "Required before prescribing" : undefined}
               >
                 <>
-                  <ApptNotesBlock
-                    appt={appt}
-                    onChange={onChange}
-                    variant="private"
-                    clientName={appt.client}
-                    providerName={providerDisplayName}
-                    onPrivateNotesSaved={(saved) => {
-                      setPrivateNotesSaved(saved);
-                      if (saved) setOpenStep(null);
-                    }}
-                  />
-                  {!hasNotes && !acks.notes && (
-                    <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
-                      <p className="text-[13px] leading-snug text-[#5A4A8A]">
-                        Nothing to record for this session? You can move on — just confirm it so the
-                        step is not left open by accident. You can still add notes afterwards.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAck({ notes: true });
-                          setOpenStep("care-plan");
-                        }}
-                        className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
-                      >
-                        No private notes for this session
-                      </button>
-                    </div>
-                  )}
-                  {!hasNotes && acks.notes && (
-                    <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
-                      <p className="text-[13px] text-[#5A4A8A]">
-                        You recorded that there are no private notes for this session. If you decide
-                        to document something, use{" "}
-                        <span className="font-semibold">Add clinical notes</span> above and save it
-                        — that replaces this. Otherwise it stays as no notes.
-                      </p>
-                    </div>
-                  )}
                   {prescribingProfession && (
-                    <div className="mt-4">
-                      <SoapNotesPanel
-                        recordKey={`appt:${appt.id}`}
-                        defaultOpen={false}
-                        context={() => ({
-                          country: rxCountry,
-                          patientContext: {
-                            firstName: appt.client?.split(" ")[0] || undefined,
-                          },
-                          caseNotes: appt.notes || undefined,
-                          presenting: appt.notes || undefined,
-                        })}
-                      />
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {(
+                        [
+                          ["quick", "Quick clinical note"],
+                          ["soap", "SOAP note"],
+                        ] as const
+                      ).map(([value, text]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setDocFormat(value)}
+                          className={`inline-flex h-9 items-center rounded-[10px] border px-3.5 text-[12.5px] font-semibold transition ${
+                            docFormat === value
+                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                              : "border-[#D6CCEC] bg-white text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                          }`}
+                        >
+                          {text}
+                        </button>
+                      ))}
                     </div>
+                  )}
+                  {(!prescribingProfession || docFormat === "quick") && (
+                    <>
+                      <ApptNotesBlock
+                        appt={appt}
+                        onChange={onChange}
+                        variant="private"
+                        clientName={appt.client}
+                        providerName={providerDisplayName}
+                        onPrivateNotesSaved={(saved) => {
+                          setPrivateNotesSaved(saved);
+                          if (saved) setOpenStep(null);
+                        }}
+                      />
+                      {!hasNotes && !acks.notes && (
+                        <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3.5">
+                          <p className="text-[13px] leading-snug text-[#5A4A8A]">
+                            Nothing to record for this session? You can move on — just confirm it so
+                            the step is not left open by accident. You can still add notes afterwards.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAck({ notes: true });
+                              setOpenStep("care-plan");
+                            }}
+                            className="mt-2.5 inline-flex h-9 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                          >
+                            No private notes for this session
+                          </button>
+                        </div>
+                      )}
+                      {!hasNotes && acks.notes && (
+                        <div className="mt-4 rounded-2xl border border-[#E5DCF5] bg-white px-4 py-3">
+                          <p className="text-[13px] text-[#5A4A8A]">
+                            You recorded that there are no private notes for this session. If you
+                            decide to document something, use{" "}
+                            <span className="font-semibold">Add clinical notes</span> above and save
+                            it — that replaces this. Otherwise it stays as no notes.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {prescribingProfession && docFormat === "soap" && (
+                    <SoapNotesPanel
+                      recordKey={`appt:${appt.id}`}
+                      defaultOpen
+                      context={() => ({
+                        country: rxCountry,
+                        patientContext: {
+                          firstName: appt.client?.split(" ")[0] || undefined,
+                        },
+                        caseNotes: appt.notes || undefined,
+                        presenting: appt.notes || undefined,
+                      })}
+                    />
                   )}
                 </>
+
 
               </SectionCard>
             )}
