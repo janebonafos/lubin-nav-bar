@@ -2376,10 +2376,10 @@ export default function IssuePrescriptionDialog({
               <>
                 <button
                   type="button"
-                  onClick={() => (step === 0 ? onClose() : setStep(step - 1))}
+                  onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
                 >
-                  {step === 0 ? "Cancel" : (
+                  {step <= 0 ? "Cancel" : (
                     <>
                       <ArrowLeft className="h-4 w-4" /> Back
                     </>
@@ -2388,8 +2388,9 @@ export default function IssuePrescriptionDialog({
                 {step < 3 ? (
                   <button
                     type="button"
-                    onClick={() => setStep(step + 1)}
-                    disabled={!canAdvance}
+                    onClick={() => setStep(step < 0 ? 0 : step + 1)}
+                    disabled={step >= 0 && !canAdvance}
+
                     className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {step === 2 ? "Review prescription" : "Continue"}
