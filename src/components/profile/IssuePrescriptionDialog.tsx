@@ -292,13 +292,20 @@ export default function IssuePrescriptionDialog({
   const [otpInvalidated, setOtpInvalidated] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [issued, setIssued] = useState<SignedPrescriptionDocument | null>(null);
+  const [providerName, setProviderName] = useState("");
+  const [reviewedAt, setReviewedAt] = useState<number | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    setIdentity(loadIdentity());
+    const id = loadIdentity();
+    setIdentity(id);
     setRecords(listPatientRecords());
     const found = detectJurisdiction();
     if (found.country) setCountry(found.country);
+    const stored =
+      (typeof window !== "undefined" && window.localStorage.getItem("lubin.userName")) ||
+      "";
+    setProviderName(stored || id.fullName || "");
   }, [open]);
 
   const ageYears = ageFromDob(dob);
