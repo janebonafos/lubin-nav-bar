@@ -2357,77 +2357,140 @@ export default function IssuePrescriptionDialog({
                           </p>
                         )}
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReviewedNoChanges(true);
-                            if (allergyState === "not-assessed") setAllergyState("none-known");
-                            if (medicationState === "not-assessed") setMedicationState("nothing");
-                          }}
-                          className={`${chip} mt-3 w-full justify-center ${
-                            reviewedNoChanges
-                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                              : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                          }`}
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                          {reviewedNoChanges
-                            ? `Reviewed with patient — no changes reported · ${today}`
-                            : "Reviewed with patient — no changes reported"}
-                        </button>
-
+                        {/* Existing patients confirm what is already on file. */}
                         <p className={`${label} mt-4`}>Allergies</p>
-                        <div className="mt-1.5 grid grid-cols-3 gap-2">
-                          {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => setAllergyState(s)}
-                              className={`${chip} w-full justify-center text-center ${
-                                allergyState === s
-                                  ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                  : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                              }`}
-                            >
-                              {ALLERGY_READINESS_LABEL[s]}
-                            </button>
-                          ))}
-                        </div>
-                        {allergyState === "recorded" && (
-                          <input
-                            className={`${field} mt-2`}
-                            value={allergyDetail}
-                            onChange={(e) => setAllergyDetail(e.target.value)}
-                            placeholder="e.g. Penicillin — rash"
-                          />
-                        )}
-
-                        <p className={`${label} mt-4`}>Current medications</p>
-                        <div className="mt-1.5 grid grid-cols-3 gap-2">
-                          {(Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]).map(
-                            (s) => (
+                        {selected && allergyConfirm !== "update" ? (
+                          <>
+                            <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
+                              {savedAllergies}
+                            </p>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
                               <button
-                                key={s}
                                 type="button"
-                                onClick={() => setMedicationState(s)}
-                                className={`${chip} w-full justify-center text-center ${
-                                  medicationState === s
+                                onClick={() => {
+                                  setAllergyConfirm("unchanged");
+                                  setReviewedNoChanges(true);
+                                  setAllergyState(savedAllergyState);
+                                }}
+                                className={`${chip} w-full justify-center ${
+                                  allergyConfirm === "unchanged"
                                     ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
                                     : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
                                 }`}
                               >
-                                {MEDICATION_READINESS_LABEL[s]}
+                                <Check className="h-3.5 w-3.5" />
+                                {allergyConfirm === "unchanged"
+                                  ? `Confirmed unchanged · ${today}`
+                                  : "Confirm unchanged"}
                               </button>
-                            ),
-                          )}
-                        </div>
-                        {medicationState === "recorded" && (
-                          <input
-                            className={`${field} mt-2`}
-                            value={medicationDetail}
-                            onChange={(e) => setMedicationDetail(e.target.value)}
-                            placeholder="e.g. Losartan 50 mg once daily"
-                          />
+                              <button
+                                type="button"
+                                onClick={() => setAllergyConfirm("update")}
+                                className={`${chip} w-full justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mt-1.5 grid grid-cols-3 gap-2">
+                              {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map(
+                                (s) => (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => setAllergyState(s)}
+                                    className={`${chip} w-full justify-center text-center ${
+                                      allergyState === s
+                                        ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                        : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                    }`}
+                                  >
+                                    {ALLERGY_READINESS_LABEL[s]}
+                                  </button>
+                                ),
+                              )}
+                            </div>
+                            {allergyState === "recorded" && (
+                              <input
+                                className={`${field} mt-2`}
+                                value={allergyDetail}
+                                onChange={(e) => setAllergyDetail(e.target.value)}
+                                placeholder="e.g. Penicillin — rash"
+                              />
+                            )}
+                          </>
+                        )}
+
+                        <p className={`${label} mt-4`}>Current medications</p>
+                        {selected && medsConfirm !== "update" ? (
+                          <>
+                            <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
+                              {savedMedications}
+                            </p>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMedsConfirm("unchanged");
+                                  setMedicationState(savedMedicationState);
+                                }}
+                                className={`${chip} w-full justify-center ${
+                                  medsConfirm === "unchanged"
+                                    ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                    : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                }`}
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                                {medsConfirm === "unchanged"
+                                  ? `Confirmed unchanged · ${today}`
+                                  : "Confirm unchanged"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setMedsConfirm("update")}
+                                className={`${chip} w-full justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mt-1.5 grid grid-cols-3 gap-2">
+                              {(
+                                Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]
+                              ).map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => setMedicationState(s)}
+                                  className={`${chip} w-full justify-center text-center ${
+                                    medicationState === s
+                                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                      : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                  }`}
+                                >
+                                  {MEDICATION_READINESS_LABEL[s]}
+                                </button>
+                              ))}
+                            </div>
+                            {medicationState === "recorded" && (
+                              <input
+                                className={`${field} mt-2`}
+                                value={medicationDetail}
+                                onChange={(e) => setMedicationDetail(e.target.value)}
+                                placeholder="e.g. Losartan 50 mg once daily"
+                              />
+                            )}
+                          </>
+                        )}
+                        {!selected && (
+                          <p className="mt-3 text-[11.5px] leading-snug text-[#8A7FB0]">
+                            This patient is new to your practice — allergies and current medications
+                            are recorded once here.
+                          </p>
                         )}
 
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
