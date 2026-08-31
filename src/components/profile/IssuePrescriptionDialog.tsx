@@ -162,6 +162,8 @@ export default function IssuePrescriptionDialog({
   const [dob, setDob] = useState("");
   const [sex, setSex] = useState<PatientSex>("not-documented");
   const [address, setAddress] = useState("");
+  const [patientEmail, setPatientEmail] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [caseNotes, setCaseNotes] = useState("");
   const [notes, setNotes] = useState("");
@@ -244,6 +246,8 @@ export default function IssuePrescriptionDialog({
     setDob(record.info.dob ?? "");
     setSex((record.info.sex as PatientSex) ?? "not-documented");
     setAddress(record.info.address ?? "");
+    setPatientEmail(record.info.email ?? "");
+    setPatientPhone(record.info.phone ?? "");
     setSuggestions([]);
     setMissingInfo([]);
     setAddedSuggestions([]);
@@ -257,6 +261,8 @@ export default function IssuePrescriptionDialog({
     setDob("");
     setSex("not-documented");
     setAddress("");
+    setPatientEmail("");
+    setPatientPhone("");
     setSuggestions([]);
     setMissingInfo([]);
     setAddedSuggestions([]);
@@ -271,6 +277,8 @@ export default function IssuePrescriptionDialog({
     setDob("");
     setSex("not-documented");
     setAddress("");
+    setPatientEmail("");
+    setPatientPhone("");
     setDiagnosis("");
     setCaseNotes("");
     setNotes("");
@@ -399,6 +407,8 @@ export default function IssuePrescriptionDialog({
       ageYears,
       sex,
       address: address.trim(),
+      email: patientEmail.trim() || undefined,
+      phone: patientPhone.trim() || undefined,
       updatedAt: signedAt,
     };
 
@@ -658,6 +668,36 @@ export default function IssuePrescriptionDialog({
                     placeholder="Street, city"
                   />
                 </div>
+                <div>
+                  <label className={label} htmlFor="rx-email">
+                    Email <span className="font-normal normal-case tracking-normal text-[#A89BD0]">(optional)</span>
+                  </label>
+                  <input
+                    id="rx-email"
+                    type="email"
+                    className={`${field} mt-1.5`}
+                    value={patientEmail}
+                    onChange={(e) => setPatientEmail(e.target.value)}
+                    placeholder="e.g. anna@email.com"
+                  />
+                </div>
+                <div>
+                  <label className={label} htmlFor="rx-phone">
+                    Mobile number <span className="font-normal normal-case tracking-normal text-[#A89BD0]">(optional)</span>
+                  </label>
+                  <input
+                    id="rx-phone"
+                    type="tel"
+                    className={`${field} mt-1.5`}
+                    value={patientPhone}
+                    onChange={(e) => setPatientPhone(e.target.value)}
+                    placeholder="e.g. +63 917 000 0000"
+                  />
+                </div>
+                <p className="sm:col-span-2 -mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
+                  The signed prescription will be delivered to the patient by email or text message
+                  when either is provided — both are optional.
+                </p>
                 <div className="sm:col-span-2">
                   <label className={label} htmlFor="rx-dx">Diagnosis / indication</label>
                   <input
