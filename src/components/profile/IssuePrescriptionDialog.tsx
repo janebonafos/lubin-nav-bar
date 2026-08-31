@@ -1951,8 +1951,17 @@ export default function IssuePrescriptionDialog({
               )}
 
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
-              {step === 2 && (
+              <Acc
+                index={2}
+                label="Prescription"
+                hint="Documentation and medications"
+                open={step === 2}
+                onToggle={setStep}
+                done={docGaps.length === 0 && rxGaps.length === 0}
+              >
+                {() => (
                 <>
+
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       Clinical documentation
