@@ -580,8 +580,8 @@ function ProfilePage() {
         )}
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
-          {/* Sidebar — always show full sidebar with avatar + nav */}
-          <aside className="lg:col-span-1">
+          {/* Sidebar — desktop only; mobile uses the compact tab strip below */}
+          <aside className="hidden lg:col-span-1 lg:block">
             <section className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/80 p-6 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl [scrollbar-width:thin]">
               {/* avatar + name */}
               <div className="flex items-center gap-3 pb-5">
