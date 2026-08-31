@@ -863,19 +863,26 @@ export default function IssuePrescriptionDialog({
             </button>
           </div>
           <div className="relative mt-8 pb-14">
-            {/* track */}
-            <span aria-hidden className="absolute left-5 right-5 top-5 h-[3px] rounded-full bg-[#EAE7F5]" />
+            {/* track — inset to the centre of the first/last step */}
             <span
               aria-hidden
-              className="absolute left-5 top-5 h-[3px] rounded-full bg-[#3D2E6B] transition-all duration-500 ease-in-out"
-              style={{ width: `calc((100% - 40px) * ${step / (STEPS.length - 1)})` }}
+              className="absolute top-5 h-[3px] rounded-full bg-[#EAE7F5]"
+              style={{ left: `${100 / (STEPS.length * 2)}%`, right: `${100 / (STEPS.length * 2)}%` }}
             />
-            <ol className="relative flex justify-between">
+            <span
+              aria-hidden
+              className="absolute top-5 h-[3px] rounded-full bg-[#3D2E6B] transition-all duration-500 ease-in-out"
+              style={{
+                left: `${100 / (STEPS.length * 2)}%`,
+                width: `${(100 - 100 / STEPS.length) * (step / (STEPS.length - 1))}%`,
+              }}
+            />
+            <ol className="relative flex">
               {STEPS.map((s, i) => {
                 const done = i < step;
                 const active = i === step;
                 return (
-                  <li key={s} className="relative z-10 flex flex-col items-center">
+                  <li key={s} className="relative z-10 flex flex-1 flex-col items-center">
                     <button
                       type="button"
                       onClick={() => i <= step && setStep(i)}
