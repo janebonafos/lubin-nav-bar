@@ -236,7 +236,7 @@ export default function IssuePrescriptionDialog({
   const [duplicatesDismissed, setDuplicatesDismissed] = useState(false);
 
   // ---------- Step 2: clinical context ----------
-  const [purpose, setPurpose] = useState<RxPurpose | null>(null);
+  const [purpose, setPurpose] = useState<RxPurpose | null>("new-treatment");
   const [newBasis, setNewBasis] = useState<NewTreatmentBasis>("focused-assessment");
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [consultDate, setConsultDate] = useState("");
@@ -518,7 +518,7 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
-    setPurpose(null);
+    setPurpose("new-treatment");
     setLinkedAppointment("");
     setConsultDate("");
     setPresenting("");
@@ -1318,298 +1318,144 @@ export default function IssuePrescriptionDialog({
                 <>
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Why are you preparing this prescription?
+                      Which clinical assessment supports this new prescription?
                     </h3>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="mt-3 space-y-2">
                       {(
                         [
-                          ["new-treatment", "New treatment"],
-                          ["continuation", "Continue an existing medication"],
-                        ] as [RxPurpose, string][]
-                      ).map(([value, text]) => (
-                        <button
+                          [
+                            "linked-appointment",
+                            "Use a completed Lubin consultation",
+                            "Link this prescription to an appointment completed in Lubin.",
+                          ],
+                          [
+                            "external-consult",
+                            "Record a consultation I completed outside Lubin",
+                            "The provider personally assessed the patient elsewhere and will document that consultation here.",
+                          ],
+                          [
+                            "focused-assessment",
+                            "Document an assessment I’m completing now",
+                            "Complete the required clinical assessment before preparing the prescription.",
+                          ],
+                        ] as [NewTreatmentBasis, string, string][]
+                      ).map(([value, title, desc]) => (
+                        <label
                           key={value}
-                          type="button"
-                          onClick={() => setPurpose(value)}
-                          className={`${chip} justify-center ${
-                            purpose === value
-                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                              : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                            newBasis === value
+                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                              : "border-[#EDEBF3] bg-white"
                           }`}
                         >
-                          {text}
-                        </button>
+                          <input
+                            type="radio"
+                            className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                            checked={newBasis === value}
+                            onChange={() => setNewBasis(value)}
+                          />
+                          <span className="flex flex-col">
+                            <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                              {title}
+                            </span>
+                            <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                              {desc}
+                            </span>
+                          </span>
+                        </label>
                       ))}
                     </div>
-                  </section>
 
-                  {purpose === "new-treatment" && (
-                    <section className={cardCls}>
-                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">New treatment</h3>
-                      <div className="mt-3 space-y-2">
-                        {(Object.keys(NEW_TREATMENT_BASIS_LABEL) as NewTreatmentBasis[]).map((b) => (
-                          <label
-                            key={b}
-                            className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-[12.5px] font-semibold ${
-                              newBasis === b
-                                ? "border-[#3D2E6B] bg-[#F7F4FE] text-[#3D2E6B]"
-                                : "border-[#EDEBF3] bg-white text-[#5A4A8A]"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              className="h-4 w-4"
-                              checked={newBasis === b}
-                              onChange={() => setNewBasis(b)}
-                            />
-                            {NEW_TREATMENT_BASIS_LABEL[b]}
-                          </label>
-                        ))}
+                    {newBasis === "linked-appointment" && (
+                      <div className="mt-4">
+                        <label className={label}>Lubin appointment</label>
+                        <select
+                          className={`${field} mt-1.5`}
+                          value={linkedAppointment}
+                          onChange={(e) => setLinkedAppointment(e.target.value)}
+                        >
+                          <option value="">Select an appointment</option>
+                          {DEMO_APPOINTMENTS.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.label}
+                            </option>
+                          ))}
+                        </select>
+                        {linkedAppt && (
+                          <p className="mt-2 rounded-xl bg-[#F7F4FE] px-3 py-2 text-[12px] text-[#4B4468]">
+                            Documentation from this consultation will be reused — you will not be
+                            asked to write it again.
+                          </p>
+                        )}
                       </div>
+                    )}
 
-                      {newBasis === "linked-appointment" ? (
-                        <div className="mt-4">
-                          <label className={label}>Lubin appointment</label>
+                    {newBasis !== "linked-appointment" && (
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <label className={label}>Consultation date</label>
+                          <input
+                            type="date"
+                            className={`${field} mt-1.5`}
+                            value={consultDate}
+                            onChange={(e) => setConsultDate(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className={label}>Mode</label>
                           <select
                             className={`${field} mt-1.5`}
-                            value={linkedAppointment}
-                            onChange={(e) => setLinkedAppointment(e.target.value)}
+                            value={consultMode}
+                            onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
                           >
-                            <option value="">Select an appointment</option>
-                            {DEMO_APPOINTMENTS.map((a) => (
-                              <option key={a.id} value={a.id}>
-                                {a.label}
+                            {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
+                              <option key={m} value={m}>
+                                {CONSULT_MODE_LABEL[m]}
                               </option>
                             ))}
                           </select>
-                          {linkedAppt && (
-                            <p className="mt-2 rounded-xl bg-[#F7F4FE] px-3 py-2 text-[12px] text-[#4B4468]">
-                              Documentation from this consultation will be reused — you will not be
-                              asked to write it again.
-                            </p>
-                          )}
                         </div>
-                      ) : (
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <label className={label}>Consultation date</label>
-                            <input
-                              type="date"
-                              className={`${field} mt-1.5`}
-                              value={consultDate}
-                              onChange={(e) => setConsultDate(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className={label}>Mode</label>
-                            <select
-                              className={`${field} mt-1.5`}
-                              value={consultMode}
-                              onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
-                            >
-                              {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
-                                <option key={m} value={m}>
-                                  {CONSULT_MODE_LABEL[m]}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <label className={label}>Presenting concern</label>
-                            <input
-                              className={`${field} mt-1.5`}
-                              value={presenting}
-                              onChange={(e) => setPresenting(e.target.value)}
-                              placeholder="e.g. Low mood and poor sleep for 3 months"
-                            />
-                          </div>
-                          <div className="sm:col-span-2">
-                            <label className={label}>Assessment / diagnosis</label>
-                            <input
-                              className={`${field} mt-1.5`}
-                              value={assessment}
-                              onChange={(e) => setAssessment(e.target.value)}
-                              placeholder="e.g. Moderate depressive episode"
-                            />
-                          </div>
-                          <div className="sm:col-span-2">
-                            <label className={label}>Relevant findings</label>
-                            <textarea
-                              rows={2}
-                              className={`${area} mt-1.5`}
-                              value={findings}
-                              onChange={(e) => setFindings(e.target.value)}
-                              placeholder="Mental state, risk screen, physical findings…"
-                            />
-                          </div>
-                          <div className="sm:col-span-2">
-                            <label className={label}>Treatment plan</label>
-                            <textarea
-                              rows={2}
-                              className={`${area} mt-1.5`}
-                              value={plan}
-                              onChange={(e) => setPlan(e.target.value)}
-                              placeholder="What you intend to start, monitor and review"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </section>
-                  )}
-
-                  {purpose === "continuation" && (
-                    <section className={cardCls}>
-                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                        Continue an existing medication
-                      </h3>
-                      <p className="mt-1 text-[12px] text-[#6F6889]">
-                        A focused renewal review is enough — a full SOAP note is not required.
-                      </p>
-                      <div className="mt-3 space-y-2">
-                        {(Object.keys(CONTINUATION_BASIS_LABEL) as ContinuationBasis[]).map((b) => (
-                          <label
-                            key={b}
-                            className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-[12.5px] font-semibold ${
-                              contBasis === b
-                                ? "border-[#3D2E6B] bg-[#F7F4FE] text-[#3D2E6B]"
-                                : "border-[#EDEBF3] bg-white text-[#5A4A8A]"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              className="h-4 w-4"
-                              checked={contBasis === b}
-                              onChange={() => setContBasis(b)}
-                            />
-                            {CONTINUATION_BASIS_LABEL[b]}
-                          </label>
-                        ))}
-                      </div>
-
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         <div className="sm:col-span-2">
-                          <label className={label}>Existing medication and SIG</label>
+                          <label className={label}>Presenting concern</label>
                           <input
                             className={`${field} mt-1.5`}
-                            value={renewal.medication}
-                            onChange={(e) => setRenewal({ ...renewal, medication: e.target.value })}
-                            placeholder="e.g. Sertraline 50 mg, one tablet each morning"
+                            value={presenting}
+                            onChange={(e) => setPresenting(e.target.value)}
+                            placeholder="e.g. Low mood and poor sleep for 3 months"
                           />
                         </div>
-                        <div>
-                          <label className={label}>Indication</label>
+                        <div className="sm:col-span-2">
+                          <label className={label}>Assessment / diagnosis</label>
                           <input
                             className={`${field} mt-1.5`}
-                            value={renewal.indication}
-                            onChange={(e) => setRenewal({ ...renewal, indication: e.target.value })}
-                            placeholder="e.g. Depressive episode"
+                            value={assessment}
+                            onChange={(e) => setAssessment(e.target.value)}
+                            placeholder="e.g. Moderate depressive episode"
                           />
                         </div>
-                        <div>
-                          <label className={label}>Last assessment date</label>
-                          <input
-                            type="date"
-                            className={`${field} mt-1.5`}
-                            value={renewal.lastAssessment}
-                            onChange={(e) =>
-                              setRenewal({ ...renewal, lastAssessment: e.target.value })
-                            }
+                        <div className="sm:col-span-2">
+                          <label className={label}>Relevant findings</label>
+                          <textarea
+                            rows={2}
+                            className={`${area} mt-1.5`}
+                            value={findings}
+                            onChange={(e) => setFindings(e.target.value)}
+                            placeholder="Mental state, risk screen, physical findings…"
                           />
                         </div>
-                        <div>
-                          <label className={label}>Current response</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={renewal.response}
-                            onChange={(e) => setRenewal({ ...renewal, response: e.target.value })}
-                            placeholder="e.g. Improving, sleeping better"
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Side effects</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={renewal.sideEffects}
-                            onChange={(e) => setRenewal({ ...renewal, sideEffects: e.target.value })}
-                            placeholder="e.g. None reported"
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Adherence</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={renewal.adherence}
-                            onChange={(e) => setRenewal({ ...renewal, adherence: e.target.value })}
-                            placeholder="e.g. Takes daily, occasional missed dose"
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Changes in medications or allergies</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={renewal.changes}
-                            onChange={(e) => setRenewal({ ...renewal, changes: e.target.value })}
-                            placeholder="e.g. No changes since last review"
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Requested quantity</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={renewal.quantity}
-                            onChange={(e) => setRenewal({ ...renewal, quantity: e.target.value })}
-                            placeholder="e.g. 30 tablets"
-                          />
-                        </div>
-                        <div>
-                          <label className={label}>Follow-up date</label>
-                          <input
-                            type="date"
-                            className={`${field} mt-1.5`}
-                            value={renewal.followUp}
-                            onChange={(e) => setRenewal({ ...renewal, followUp: e.target.value })}
+                        <div className="sm:col-span-2">
+                          <label className={label}>Treatment plan</label>
+                          <textarea
+                            rows={2}
+                            className={`${area} mt-1.5`}
+                            value={plan}
+                            onChange={(e) => setPlan(e.target.value)}
+                            placeholder="What you intend to start, monitor and review"
                           />
                         </div>
                       </div>
-
-                      <div className="mt-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#FBF9FF] px-3.5 py-3">
-                        <p className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3D2E6B]">
-                          <Paperclip className="h-4 w-4" /> Previous prescription (optional)
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setUploadName("previous-prescription.jpg")}
-                          className="mt-2 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B]"
-                        >
-                          {uploadName ? `Attached: ${uploadName}` : "Attach a photo or PDF"}
-                        </button>
-                        <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
-                          Prototype placeholder — nothing is uploaded.
-                        </p>
-                      </div>
-
-                      {contBasis !== "mine-outside" && (
-                        <div className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-3">
-                          <p className="text-[12.5px] font-semibold text-[#6B4E10]">
-                            You did not prescribe this medication yourself
-                          </p>
-                          <p className="mt-1 text-[12px] text-[#6B4E10]">
-                            You can save this for clinical review. Immediate issuing stays blocked
-                            until you can verify the medication and assessment yourself.
-                          </p>
-                          <label className="mt-2 flex items-start gap-2 text-[12px] text-[#6B4E10]">
-                            <input
-                              type="checkbox"
-                              className="mt-0.5 h-4 w-4"
-                              checked={verifiedContinuation}
-                              onChange={(e) => setVerifiedContinuation(e.target.checked)}
-                            />
-                            I have verified the medication and personally assessed this patient.
-                          </label>
-                        </div>
-                      )}
-                    </section>
-                  )}
+                    )}
+                  </section>
 
                   {/* Prescribing readiness */}
                   <section className={cardCls}>
