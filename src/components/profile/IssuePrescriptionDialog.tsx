@@ -708,7 +708,7 @@ export default function IssuePrescriptionDialog({
     consultDate,
     consultMode,
     consultLocation,
-    noteSource,
+    soapMode,
     soap,
     renewal,
     meds,
