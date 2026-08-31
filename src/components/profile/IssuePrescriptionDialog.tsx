@@ -1801,13 +1801,13 @@ export default function IssuePrescriptionDialog({
                     </p>
 
                     <p className={`${label} mt-4`}>Allergies</p>
-                    <div className="mt-1.5 flex flex-wrap gap-2">
+                    <div className="mt-1.5 grid grid-cols-3 gap-2">
                       {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map((s) => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => setAllergyState(s)}
-                          className={`${chip} ${
+                          className={`${chip} w-full justify-center text-center ${
                             allergyState === s
                               ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
                               : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
@@ -1827,13 +1827,13 @@ export default function IssuePrescriptionDialog({
                     )}
 
                     <p className={`${label} mt-4`}>Current medications</p>
-                    <div className="mt-1.5 flex flex-wrap gap-2">
+                    <div className="mt-1.5 grid grid-cols-3 gap-2">
                       {(Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]).map((s) => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => setMedicationState(s)}
-                          className={`${chip} ${
+                          className={`${chip} w-full justify-center text-center ${
                             medicationState === s
                               ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
                               : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
