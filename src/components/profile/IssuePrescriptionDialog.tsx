@@ -36,6 +36,7 @@ import {
   prescriptionValidity,
 } from "@/lib/prescription/legal";
 import {
+  listSignedPrescriptions,
   saveSignedPrescription,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
@@ -218,9 +219,9 @@ const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] 
   },
   {
     value: "standalone",
-    title: "Write SOAP now — no appointment",
+    title: "Document assessment now — no Lubin appointment",
     description:
-      "No scheduled appointment is required. Document the focused assessment supporting this prescription.",
+      "Use when you personally assessed the patient in person, by video or by phone.",
   },
 ];
 
@@ -376,8 +377,9 @@ export default function IssuePrescriptionDialog({
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
   const [consultLocation, setConsultLocation] = useState("");
-  /** How the provider wants to produce the SOAP note: AI-assisted or manual. */
-  const [soapMode, setSoapMode] = useState<"ai" | "manual" | null>(null);
+  /** How the provider wants to produce the SOAP note. AI drafting is open by
+   *  default — writing manually is the secondary action. */
+  const [soapMode, setSoapMode] = useState<"ai" | "manual">("ai");
   const [pastedNote, setPastedNote] = useState("");
   const [soapDrafted, setSoapDrafted] = useState(false);
   /** The provider must explicitly review and approve the note. */
@@ -402,8 +404,13 @@ export default function IssuePrescriptionDialog({
     changes: "",
     allergyChanges: "",
     quantity: "",
+    refills: "",
     followUp: "",
   });
+  /** Which previously signed prescription the renewal was prefilled from. */
+  const [renewalSource, setRenewalSource] = useState("");
+  /** Optional extra renewal detail, collapsed by default. */
+  const [renewalMore, setRenewalMore] = useState(false);
   const [savedForReview, setSavedForReview] = useState(false);
 
   const [allergyState, setAllergyState] = useState<AllergyReadiness>("not-assessed");
@@ -587,6 +594,12 @@ export default function IssuePrescriptionDialog({
       : selected?.info?.medicationState === "none-known"
         ? "Nothing currently"
         : "Nothing recorded on file";
+  /** Whether the record actually holds safety information to reconfirm. When it
+   *  does not, the prescriber records it here instead of confirming nothing. */
+  const allergyOnFile =
+    savedAllergyEntries.length > 0 || selected?.info?.allergyState === "none-known";
+  const medicationOnFile =
+    savedMedicationEntries.length > 0 || selected?.info?.medicationState === "none-known";
   const savedAllergyState: AllergyReadiness =
     savedAllergyEntries.length > 0 ? "recorded" : "none-known";
   const savedMedicationState: MedicationReadiness =
@@ -613,7 +626,6 @@ export default function IssuePrescriptionDialog({
   }
   if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
     if (entry === "outside" && !consultDate) contextGaps.push("Consultation date");
-    if (!soapMode) contextGaps.push("Choose “Draft SOAP with AI” or “Write SOAP manually”");
     if (soapMode === "ai") {
       if (!pastedNote.trim()) contextGaps.push("Your clinical notes");
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
@@ -631,10 +643,17 @@ export default function IssuePrescriptionDialog({
   }
 
   if (purpose === "renewal") {
-    if (!renewal.medication.trim()) contextGaps.push("Medication and current SIG");
-    if (!renewal.indication.trim()) contextGaps.push("Indication");
-    if (!renewal.response.trim()) contextGaps.push("Current response");
+    if (!renewal.medication.trim()) contextGaps.push("Current medication and directions (SIG)");
+    if (!renewal.response.trim()) contextGaps.push("Is the medication helping?");
+    if (!renewal.sideEffects.trim()) contextGaps.push("Any side effects?");
+    if (!renewal.changes.trim()) contextGaps.push("Any medication or allergy changes?");
   }
+
+  /** Everything still missing from the clinical note itself, without the
+   *  separate safety confirmation. Statuses must never claim a note is
+   *  complete while one of these remains. */
+  const soapGaps = [...contextGaps];
+
   // "Not assessed" is a real state and blocks review and signing.
   if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
   if (medicationState === "not-assessed")
@@ -644,14 +663,22 @@ export default function IssuePrescriptionDialog({
   const soapTouched = Boolean(
     soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
   );
+  const renewalTouched = Boolean(
+    renewal.medication.trim() ||
+      renewal.response.trim() ||
+      renewal.sideEffects.trim() ||
+      renewal.changes.trim(),
+  );
   const soapStatusLabel =
     purpose === "renewal"
-      ? contextGaps.length === 0
-        ? "Focused renewal note complete"
-        : "Focused renewal note incomplete"
-      : entry === "lubin" && linkedAppt && missingFromLinked.length === 0
+      ? soapGaps.length === 0
+        ? "Quick renewal review complete"
+        : renewalTouched
+          ? "Quick renewal review incomplete"
+          : "Quick renewal review not started"
+      : entry === "lubin" && linkedAppt && missingFromLinked.length === 0 && soapGaps.length === 0
         ? "Existing SOAP reused"
-        : contextGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
+        : soapGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
           ? "SOAP note complete"
           : soapTouched || Boolean(linkedAppt)
             ? "SOAP note incomplete"
@@ -662,8 +689,8 @@ export default function IssuePrescriptionDialog({
       : entry === "outside"
         ? "Focused SOAP note — consultation completed outside Lubin"
         : purpose === "renewal"
-          ? "Focused renewal note"
-          : "Focused SOAP note — standalone prescribing encounter";
+          ? "Quick renewal review"
+          : "Focused SOAP note — assessment documented at prescribing";
   const soapDateLabel =
     entry === "lubin"
       ? linkedAppt?.date || "Not selected"
@@ -697,6 +724,50 @@ export default function IssuePrescriptionDialog({
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
+  /** Review and sign stays locked until steps 1–3 are genuinely complete. */
+  const goStep = (i: number) => {
+    if (i === 3 && !canReview) return;
+    setStep(i);
+  };
+
+  /** Previously signed prescriptions for this patient — the renewal source. */
+  const previousPrescriptions = useMemo(() => {
+    const name = (selected?.fullName || patientName).trim();
+    if (!name) return [];
+    return listSignedPrescriptions({ patientName: name }).slice(0, 5);
+  }, [selected, patientName, open]);
+
+  /** Prefills the renewal review and the prescription from a past prescription. */
+  function prefillRenewal(doc: SignedPrescriptionDocument) {
+    const m = doc.medications[0];
+    if (!m) return;
+    setRenewalSource(doc.id);
+    setRenewal((r) => ({
+      ...r,
+      medication: [m.genericName || m.name, m.strength, m.frequency].filter(Boolean).join(" · "),
+      indication: m.indication ?? r.indication,
+      quantity: m.quantity ?? r.quantity,
+      refills: m.refills ?? r.refills,
+      followUp: m.followUp ?? r.followUp,
+    }));
+    setMeds([
+      {
+        ...emptyMed(),
+        genericName: m.genericName || m.name,
+        brandName: m.genericName ? m.name : "",
+        strength: m.strength ?? "",
+        route: m.route ?? "",
+        dose: m.dose ?? "",
+        frequency: m.frequency ?? "",
+        quantity: (m.quantity ?? "").replace(/[^\d]/g, ""),
+        unit: (m.quantity ?? "").replace(/[\d\s]/g, "") || "tablets",
+        refills: m.refills ?? "",
+        sig: [m.dose, m.frequency].filter(Boolean).join(" "),
+        instructions: m.instructions ?? "",
+        followUp: m.followUp ?? "",
+      },
+    ]);
+  }
   const canSign =
     canReview &&
     !reviewOnly &&
@@ -798,7 +869,7 @@ export default function IssuePrescriptionDialog({
     setMaterialChange(null);
     setConsultDate("");
     setConsultLocation("");
-    setSoapMode(null);
+    setSoapMode("ai");
     setPastedNote("");
     setSoapDrafted(false);
     setSoapApproved(false);
@@ -815,8 +886,11 @@ export default function IssuePrescriptionDialog({
       changes: "",
       allergyChanges: "",
       quantity: "",
+      refills: "",
       followUp: "",
     });
+    setRenewalSource("");
+    setRenewalMore(false);
     setSavedForReview(false);
     setAllergyState("not-assessed");
     setAllergyDetail("");
@@ -1188,6 +1262,16 @@ export default function IssuePrescriptionDialog({
             </section>
           ) : (
             <>
+              {identityGaps.length > 0 && (
+                <p className="mb-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2.5 text-[12px] font-semibold text-[#6B4E10]">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    Complete your prescriber profile before issuing a prescription —{" "}
+                    {identityGaps.join(", ")}.
+                  </span>
+                </p>
+              )}
+
               {/* ---------------- STEP 1 — PATIENT ---------------- */}
               <Acc
                 index={0}
@@ -2220,10 +2304,11 @@ export default function IssuePrescriptionDialog({
                       {purpose === "new" && entry === "standalone" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Write SOAP now — no appointment
+                            Document assessment now — no Lubin appointment
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            No scheduled appointment is required.
+                            Use when you personally assessed the patient in person, by video or by
+                            phone.
                           </p>
                           <div className="mt-3">
                             <label className={label}>How are you assessing the patient?</label>
@@ -2380,16 +2465,62 @@ export default function IssuePrescriptionDialog({
                       {purpose === "renewal" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Focused renewal note
+                            Quick renewal review
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            A complete new-treatment SOAP note is not required for an ordinary
-                            medication continuation.
+                            Pick the prescription you are continuing, then answer three questions. A
+                            full new-treatment SOAP note is not required.
                           </p>
 
-                          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                            <div className="sm:col-span-2">
-                              <label className={label}>Medication and current SIG</label>
+                          {previousPrescriptions.length > 0 ? (
+                            <div className="mt-3 space-y-2">
+                              {previousPrescriptions.map((p) => {
+                                const m = p.medications[0];
+                                const active = renewalSource === p.id;
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={() => prefillRenewal(p)}
+                                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                                      active
+                                        ? "border-[#3D2E6B] bg-[#F4F0FF]"
+                                        : "border-[#EDEBF3] bg-white hover:border-[#D9CEF3]"
+                                    }`}
+                                  >
+                                    <span className="min-w-0">
+                                      <span className="block truncate text-[12.5px] font-semibold text-[#3D2E6B]">
+                                        {m ? m.genericName || m.name : p.number}
+                                        {m?.strength ? ` ${m.strength}` : ""}
+                                      </span>
+                                      <span className="mt-0.5 block truncate text-[11.5px] text-[#8A7FB0]">
+                                        {p.number} ·{" "}
+                                        {new Date(p.signedAt).toLocaleDateString(undefined, {
+                                          month: "short",
+                                          day: "numeric",
+                                          year: "numeric",
+                                        })}
+                                      </span>
+                                    </span>
+                                    <span className="shrink-0 text-[11.5px] font-semibold text-[#3D2E6B]">
+                                      {active ? "Prefilled" : "Continue this"}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="mt-3 rounded-xl border border-dashed border-[#DCD4F0] bg-white px-3 py-2.5 text-[12px] text-[#6F6889]">
+                              No previous prescription on file for this patient — enter the
+                              medication below.
+                            </p>
+                          )}
+
+                          <div className="mt-4 grid gap-3">
+                            <div>
+                              <label className={label}>
+                                Current medication and directions (SIG)
+                              </label>
                               <input
                                 className={`${field} mt-1.5`}
                                 value={renewal.medication}
@@ -2399,19 +2530,8 @@ export default function IssuePrescriptionDialog({
                                 placeholder="e.g. Losartan 50 mg — 1 tablet once daily"
                               />
                             </div>
-                            <div className="sm:col-span-2">
-                              <label className={label}>Indication</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.indication}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, indication: e.target.value }))
-                                }
-                                placeholder="e.g. Hypertension"
-                              />
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label className={label}>Current response</label>
+                            <div>
+                              <label className={label}>Is the medication helping?</label>
                               <textarea
                                 rows={2}
                                 className={`${area} mt-1.5`}
@@ -2423,7 +2543,7 @@ export default function IssuePrescriptionDialog({
                               />
                             </div>
                             <div>
-                              <label className={label}>Side effects</label>
+                              <label className={label}>Any side effects?</label>
                               <input
                                 className={`${field} mt-1.5`}
                                 value={renewal.sideEffects}
@@ -2434,86 +2554,126 @@ export default function IssuePrescriptionDialog({
                               />
                             </div>
                             <div>
-                              <label className={label}>Adherence</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.adherence}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, adherence: e.target.value }))
-                                }
-                                placeholder="e.g. Takes daily, no missed doses"
-                              />
-                            </div>
-                            <div>
-                              <label className={label}>Medication changes</label>
+                              <label className={label}>
+                                Any medication or allergy changes?
+                              </label>
                               <input
                                 className={`${field} mt-1.5`}
                                 value={renewal.changes}
                                 onChange={(e) =>
                                   setRenewal((r) => ({ ...r, changes: e.target.value }))
                                 }
-                                placeholder="e.g. No new medications"
-                              />
-                            </div>
-                            <div>
-                              <label className={label}>Allergy changes</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.allergyChanges}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, allergyChanges: e.target.value }))
-                                }
-                                placeholder="e.g. No new allergies"
-                              />
-                            </div>
-                            <div>
-                              <label className={label}>Last clinical assessment date</label>
-                              <input
-                                type="date"
-                                className={`${field} mt-1.5`}
-                                value={renewal.lastAssessment}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, lastAssessment: e.target.value }))
-                                }
-                              />
-                            </div>
-                            <div>
-                              <label className={label}>Requested quantity</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.quantity}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, quantity: e.target.value }))
-                                }
-                                placeholder="e.g. 30 tablets"
-                              />
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label className={label}>Follow-up plan</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.followUp}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, followUp: e.target.value }))
-                                }
-                                placeholder="e.g. Review BP log in 8 weeks"
+                                placeholder="e.g. No new medications or allergies"
                               />
                             </div>
                           </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setRenewalMore((v) => !v)}
+                            className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#3D2E6B]"
+                          >
+                            <ChevronDown
+                              className={`h-3.5 w-3.5 transition ${renewalMore ? "rotate-180" : ""}`}
+                            />
+                            Add more clinical details
+                          </button>
+
+                          {renewalMore && (
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              <div className="sm:col-span-2">
+                                <label className={label}>Indication</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.indication}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, indication: e.target.value }))
+                                  }
+                                  placeholder="e.g. Hypertension"
+                                />
+                              </div>
+                              <div>
+                                <label className={label}>Adherence</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.adherence}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, adherence: e.target.value }))
+                                  }
+                                  placeholder="e.g. Takes daily, no missed doses"
+                                />
+                              </div>
+                              <div>
+                                <label className={label}>Allergy changes</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.allergyChanges}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, allergyChanges: e.target.value }))
+                                  }
+                                  placeholder="e.g. No new allergies"
+                                />
+                              </div>
+                              <div>
+                                <label className={label}>Last clinical assessment date</label>
+                                <input
+                                  type="date"
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.lastAssessment}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, lastAssessment: e.target.value }))
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className={label}>Requested quantity</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.quantity}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, quantity: e.target.value }))
+                                  }
+                                  placeholder="e.g. 30 tablets"
+                                />
+                              </div>
+                              <div>
+                                <label className={label}>Refills</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.refills}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, refills: e.target.value }))
+                                  }
+                                  placeholder="e.g. No refills"
+                                />
+                              </div>
+                              <div className="sm:col-span-2">
+                                <label className={label}>Follow-up plan</label>
+                                <input
+                                  className={`${field} mt-1.5`}
+                                  value={renewal.followUp}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, followUp: e.target.value }))
+                                  }
+                                  placeholder="e.g. Review BP log in 8 weeks"
+                                />
+                              </div>
+                            </div>
+                          )}
                           <p className="mt-3 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[12px] font-semibold text-[#4B3F7A]">
                             Submitting a renewal still requires the prescriber’s clinical review.
                           </p>
                         </section>
                       )}
 
-                      {/* Confirm before prescribing */}
+                      {/* Confirm safety information */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          Confirm before prescribing
+                          Confirm safety information
                         </h3>
                         <p className="mt-1 text-[12px] text-[#6F6889]">
-                          Only safety information is reconfirmed here. Identity, contact and address
-                          details are reused from the patient record.
+                          Only allergies and current medications are reconfirmed here. Identity,
+                          contact and address details are reused from the patient record.
                         </p>
                         {passportUpdated && (
                           <p className="mt-2 text-[11.5px] font-semibold text-[#8A7FB0]">
@@ -2523,7 +2683,7 @@ export default function IssuePrescriptionDialog({
 
                         {/* Existing patients confirm what is already on file. */}
                         <p className={`${label} mt-4`}>Allergies</p>
-                        {selected && allergyConfirm !== "update" ? (
+                        {selected && allergyOnFile && allergyConfirm !== "update" ? (
                           <>
                             <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
                               {savedAllergies}
@@ -2590,7 +2750,7 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         <p className={`${label} mt-4`}>Current medications</p>
-                        {selected && medsConfirm !== "update" ? (
+                        {selected && medicationOnFile && medsConfirm !== "update" ? (
                           <>
                             <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
                               {savedMedications}
@@ -2725,7 +2885,7 @@ export default function IssuePrescriptionDialog({
                     {purpose === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                          Focused renewal note complete
+                          {soapStatusLabel}
                         </p>
                         <p className="mt-1 text-[12px] text-[#4B4468]">
                           {renewal.medication || "—"} · {renewal.indication || "—"} ·{" "}
@@ -2798,7 +2958,9 @@ export default function IssuePrescriptionDialog({
 
                   {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
                   <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Assistive drafting</h3>
+                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                      Draft prescription with AI
+                    </h3>
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
                       Lubin turns your documented Plan into structured prescription fields and
                       patient instructions, and points out missing information. It never diagnoses,
@@ -2938,7 +3100,7 @@ export default function IssuePrescriptionDialog({
                 label="Review and sign"
                 hint="Read-only preview, then sign"
                 open={step === 3}
-                onToggle={setStep}
+                onToggle={goStep}
                 done={false}
               >
                 {() => (
@@ -3153,7 +3315,9 @@ export default function IssuePrescriptionDialog({
               ? "Prescription signed and recorded."
               : stepGaps.length > 0
                 ? `Still needed: ${stepGaps.slice(0, 3).join(" · ")}`
-                : "Ready to continue."}
+                : allGaps.length > 0
+                  ? `Still to resolve: ${allGaps.slice(0, 3).join(" · ")}`
+                  : "Ready to continue."}
           </p>
           <div className="flex items-center gap-2">
             {issued ? (
@@ -3270,7 +3434,7 @@ function MedicationCard({
 
       <div className="mt-3">
         <label className={label}>
-          Search the Philippine catalogue
+          Search medication — Philippines
           <FieldHint text="Search by generic (INN) or brand name. The generic name is always used first on the prescription." />
         </label>
         <div className="relative mt-1.5">
@@ -3447,7 +3611,7 @@ function MedicationCard({
         </div>
         <div className="sm:col-span-2">
           <label className={label}>
-            SIG (generated — editable)
+            Directions (SIG) — editable
             <FieldHint text="Assembled from dose, route, frequency and duration. Edit it and your wording is kept." />
           </label>
           <textarea
@@ -3533,7 +3697,7 @@ function MedicationCard({
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={label}>Follow-up needed</label>
+          <label className={label}>Follow-up plan</label>
           <input
             className={`${field} mt-1.5`}
             value={med.followUp}
