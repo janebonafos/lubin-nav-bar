@@ -236,7 +236,6 @@ const cardCls = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
 const chip =
   "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[12.5px] font-semibold transition";
 
-const STEPS = ["Patient", "Clinical context", "Prescription", "Review and sign"] as const;
 
 /**
  * Four-step prescribing flow for a new or non-recorded patient. Prototype only:
