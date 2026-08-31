@@ -908,7 +908,7 @@ export default function IssuePrescriptionDialog({
                           </span>
                         )}
                       </span>
-                      <span className="absolute top-14 whitespace-nowrap text-center">
+                      <span className="absolute top-14 w-28 text-center leading-tight">
                         <span
                           className={`block text-[10px] font-bold uppercase tracking-wider ${
                             active ? "text-[#3D2E6B]" : "text-[#A89BD0]"
