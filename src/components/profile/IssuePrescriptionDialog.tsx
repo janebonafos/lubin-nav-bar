@@ -1821,61 +1821,29 @@ export default function IssuePrescriptionDialog({
                   };
 
                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
+                  /** One quiet switch between AI drafting and writing manually. */
                   const soapModeChoice = (
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {(
-                        [
-                          [
-                            "ai",
-                            "Draft SOAP with AI",
-                            "Enter your notes once — Lubin organizes them.",
-                            true,
-                          ],
-                          [
-                            "manual",
-                            "Write SOAP manually",
-                            "Fill in each SOAP section yourself.",
-                            false,
-                          ],
-                        ] as const
-                      ).map(([value, title, sub, badge]) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => {
-                            setSoapMode(value);
-                            setSoapDrafted(false);
-                            setSoapApproved(false);
-                          }}
-                          className={`rounded-xl border px-3.5 py-3 text-left transition ${
-                            soapMode === value
-                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                              : "border-[#D9CEF3] bg-white hover:bg-[#FBFAFF]"
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="text-[13px] font-bold text-[#3D2E6B]">{title}</span>
-                            {badge && null}
-                          </span>
-
-                          <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
-                            {sub}
-                          </span>
-                        </button>
-                      ))}
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSoapMode(soapMode === "ai" ? "manual" : "ai");
+                          setSoapDrafted(false);
+                          setSoapApproved(false);
+                        }}
+                        className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                      >
+                        {soapMode === "ai" ? "Write SOAP manually" : "Draft SOAP with AI instead"}
+                      </button>
                     </div>
                   );
 
                   /** The paste-or-dictate field plus the visible AI drafting action. */
                   const soapAiPanel = (
-                    <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-4">
+                    <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-white p-4">
                       <label className={label}>Paste or dictate your clinical notes</label>
-                      <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                        Enter your assessment once. Lubin will organize it into Subjective,
-                        Objective, Assessment and Plan.
-                      </p>
                       <textarea
-                        rows={6}
+                        rows={5}
                         className={`${area} mt-2`}
                         value={pastedNote}
                         onChange={(e) => {
@@ -1894,8 +1862,8 @@ export default function IssuePrescriptionDialog({
                         {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-                        AI only organizes what you wrote. It never adds clinical information —
-                        anything missing is marked “{NEEDS_CONFIRMATION}”.
+                        AI only organizes what you wrote — anything missing is marked “
+                        {NEEDS_CONFIRMATION}”.
                       </p>
                       {aiLoading && (
                         <p className="mt-2 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
