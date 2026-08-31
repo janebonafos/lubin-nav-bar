@@ -2961,8 +2961,7 @@ export default function IssuePrescriptionDialog({
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
                           <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
                             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                            Allergy and current-medication status must be assessed before you can
-                            review or sign.
+                            Complete both safety checks to continue.
                           </p>
                         )}
 
