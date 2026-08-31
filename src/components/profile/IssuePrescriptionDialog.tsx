@@ -312,7 +312,10 @@ export default function IssuePrescriptionDialog({
   const [medicationDetail, setMedicationDetail] = useState("");
   const [conditionsText, setConditionsText] = useState("");
   const [pregnancyText, setPregnancyText] = useState("");
-  const [vitalsText, setVitalsText] = useState("");
+  const [weightText, setWeightText] = useState("");
+  const [bpText, setBpText] = useState("");
+  const [hrText, setHrText] = useState("");
+  const [otherVitalsText, setOtherVitalsText] = useState("");
 
   // ---------- Step 3: documentation + prescription ----------
   const [focusedNote, setFocusedNote] = useState("");
@@ -607,7 +610,10 @@ export default function IssuePrescriptionDialog({
     setMedicationDetail("");
     setConditionsText("");
     setPregnancyText("");
-    setVitalsText("");
+    setWeightText("");
+    setBpText("");
+    setHrText("");
+    setOtherVitalsText("");
     setFocusedNote("");
     setShowSoap(false);
     setMeds([emptyMed()]);
@@ -796,7 +802,15 @@ export default function IssuePrescriptionDialog({
       currentMedications: medicationDetail.trim() || undefined,
       conditions: conditionsText.trim() || undefined,
       pregnancy: pregnancyText.trim() || undefined,
-      labs: vitalsText.trim() || undefined,
+      labs:
+        [
+          weightText.trim() && `Weight ${weightText.trim()}`,
+          bpText.trim() && `BP ${bpText.trim()}`,
+          hrText.trim() && `HR ${hrText.trim()}`,
+          otherVitalsText.trim(),
+        ]
+          .filter(Boolean)
+          .join(" · ") || undefined,
       dob,
       ageYears,
       sex,
@@ -1788,15 +1802,35 @@ export default function IssuePrescriptionDialog({
                         </div>
                       )}
                       <div className="sm:col-span-2">
-                        <label className={label}>
-                          Weight, vitals or labs
-                          <FieldHint text="Only when clinically relevant to the medication being prescribed." />
-                        </label>
+                        <p className={`${label} normal-case`}>
+                          Weight & vitals
+                          <FieldHint text="Only when clinically relevant to the medication being prescribed — all optional." />
+                        </p>
+                        <div className="mt-1.5 grid gap-3 sm:grid-cols-3">
+                          <input
+                            className={field}
+                            value={weightText}
+                            onChange={(e) => setWeightText(e.target.value)}
+                            placeholder="Weight — e.g. 58 kg"
+                          />
+                          <input
+                            className={field}
+                            value={bpText}
+                            onChange={(e) => setBpText(e.target.value)}
+                            placeholder="BP — e.g. 118/74"
+                          />
+                          <input
+                            className={field}
+                            value={hrText}
+                            onChange={(e) => setHrText(e.target.value)}
+                            placeholder="HR — e.g. 72 bpm"
+                          />
+                        </div>
                         <input
-                          className={`${field} mt-1.5`}
-                          value={vitalsText}
-                          onChange={(e) => setVitalsText(e.target.value)}
-                          placeholder="Optional — e.g. 58 kg, BP 118/74"
+                          className={`${field} mt-3`}
+                          value={otherVitalsText}
+                          onChange={(e) => setOtherVitalsText(e.target.value)}
+                          placeholder="Other vitals or labs — e.g. FBS 5.2 mmol/L (optional)"
                         />
                       </div>
                     </div>
