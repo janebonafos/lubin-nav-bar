@@ -564,7 +564,43 @@ export default function IssuePrescriptionDialog({
   if (medicationState === "not-assessed")
     contextGaps.push("Current medication status (not assessed)");
 
+  /** Visible SOAP status for the Step 2 accordion and the standalone card. */
+  const soapTouched = Boolean(
+    soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
+  );
+  const soapStatusLabel =
+    entry === "renewal"
+      ? contextGaps.length === 0
+        ? "Focused renewal note complete"
+        : "Focused renewal note incomplete"
+      : entry === "lubin" && linkedAppt && missingFromLinked.length === 0
+        ? "Existing SOAP reused"
+        : contextGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
+          ? "SOAP note complete"
+          : soapTouched || Boolean(linkedAppt)
+            ? "SOAP note incomplete"
+            : "SOAP note not started";
+  const soapSourceLabel =
+    entry === "lubin"
+      ? "Existing SOAP note from a completed Lubin consultation"
+      : entry === "outside"
+        ? "Focused SOAP note — consultation completed outside Lubin"
+        : entry === "renewal"
+          ? "Focused renewal note"
+          : "Focused SOAP note — standalone prescribing encounter";
+  const soapDateLabel =
+    entry === "lubin"
+      ? linkedAppt?.date || "Not selected"
+      : entry === "outside"
+        ? consultDate || "Not documented"
+        : new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+
   const docGaps: string[] = [];
+
 
   const rxGaps: string[] = [];
   if (readyMeds.length === 0)
