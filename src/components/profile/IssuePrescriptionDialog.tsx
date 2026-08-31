@@ -281,10 +281,14 @@ export default function IssuePrescriptionDialog({
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
+  const [consultLocation, setConsultLocation] = useState("");
   const [presenting, setPresenting] = useState("");
+  const [relevantHistory, setRelevantHistory] = useState("");
+  const [currentSymptoms, setCurrentSymptoms] = useState("");
   const [assessment, setAssessment] = useState("");
   const [findings, setFindings] = useState("");
   const [plan, setPlan] = useState("");
+  const [followUpPlan, setFollowUpPlan] = useState("");
 
   const [contBasis, setContBasis] = useState<ContinuationBasis>("mine-outside");
   const [renewal, setRenewal] = useState({
