@@ -179,32 +179,42 @@ const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
 };
 
 
-/** Where the clinical assessment supporting this prescription was documented. */
+/** Is this a new treatment, or a continuation of something already prescribed? */
+type RxPurposeChoice = "new" | "renewal";
+const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: string }[] = [
+  {
+    value: "new",
+    title: "New treatment",
+    description: "A medication this patient is not already taking. A SOAP note is required.",
+  },
+  {
+    value: "renewal",
+    title: "Medication renewal",
+    description:
+      "Continue a medication the patient is already taking, using a focused renewal review.",
+  },
+];
+
+/** Where the clinical assessment supporting a NEW treatment was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
 const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] = [
   {
     value: "lubin",
-    title: "Use a completed Lubin consultation",
+    title: "Use SOAP from a Lubin consultation",
     description:
-      "Link this prescription to an appointment you completed in Lubin. Its SOAP note, allergies and current medications are reused.",
+      "Link this prescription to an appointment you completed in Lubin. Its SOAP note is reused.",
   },
   {
     value: "outside",
-    title: "Use a consultation I completed outside Lubin",
+    title: "Add SOAP from an outside consultation",
     description:
       "Use this when you personally assessed the patient in your clinic or another telehealth system.",
   },
   {
     value: "standalone",
-    title: "Standalone prescribing encounter",
+    title: "Write SOAP now — no appointment",
     description:
-      "No scheduled appointment is required. Document the focused clinical assessment supporting this prescription.",
-  },
-  {
-    value: "renewal",
-    title: "Medication continuation / renewal",
-    description:
-      "Continue a medication the patient is already taking using a focused renewal review.",
+      "No scheduled appointment is required. Document the focused assessment supporting this prescription.",
   },
 ];
 
@@ -310,10 +320,13 @@ export default function IssuePrescriptionDialog({
   open,
   onClose,
   onIssued,
+  appointmentId,
 }: {
   open: boolean;
   onClose: () => void;
   onIssued?: (doc: SignedPrescriptionDocument) => void;
+  /** When opened from an appointment, that consultation's SOAP is linked automatically. */
+  appointmentId?: string;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
@@ -343,10 +356,14 @@ export default function IssuePrescriptionDialog({
   // ---------- Step 2: clinical documentation ----------
   // One SOAP note per prescription — documented once, reused everywhere. There is
   // no second clinical-context questionnaire.
+  const [purpose, setPurpose] = useState<RxPurposeChoice>("new");
   const [entry, setEntry] = useState<EntryPoint>("lubin");
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
+  /** Existing patients confirm or update the safety information already on file. */
+  const [allergyConfirm, setAllergyConfirm] = useState<"idle" | "unchanged" | "update">("idle");
+  const [medsConfirm, setMedsConfirm] = useState<"idle" | "unchanged" | "update">("idle");
   const [materialChange, setMaterialChange] = useState<
     "none" | "update" | "reassess" | null
   >(null);
@@ -495,9 +512,25 @@ export default function IssuePrescriptionDialog({
   }, [selected]);
 
 
-
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
+
+  /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
+  const fromAppointment = appointmentId
+    ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
+    : undefined;
+  useEffect(() => {
+    if (!open || !fromAppointment) return;
+    setPurpose("new");
+    setEntry("lubin");
+    setLinkedAppointment(fromAppointment.id);
+  }, [open, fromAppointment]);
+
+  /** Only this patient's completed Lubin consultations are eligible. */
+  const patientForAppointments = (selected?.fullName || patientName).trim().toLowerCase();
+  const patientAppointments = ELIGIBLE_APPOINTMENTS.filter(
+    (a) => !patientForAppointments || a.patient.trim().toLowerCase() === patientForAppointments,
+  );
 
   /** The linked Lubin consultation, if any — only completed ones are eligible. */
   const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
@@ -528,11 +561,33 @@ export default function IssuePrescriptionDialog({
   if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
+  /** Safety information already on file for an existing patient (synthetic demo data). */
+  const savedAllergyEntries = (selected?.info?.allergyEntries ?? []).map((e) => e.name).filter(Boolean);
+  const savedMedicationEntries = (selected?.info?.medicationEntries ?? [])
+    .map((e) => e.name)
+    .filter(Boolean);
+  const savedAllergies =
+    savedAllergyEntries.length > 0
+      ? savedAllergyEntries.join(", ")
+      : selected?.info?.allergyState === "none-known"
+        ? "No known allergies"
+        : "Nothing recorded on file";
+  const savedMedications =
+    savedMedicationEntries.length > 0
+      ? savedMedicationEntries.join(", ")
+      : selected?.info?.medicationState === "none-known"
+        ? "Nothing currently"
+        : "Nothing recorded on file";
+  const savedAllergyState: AllergyReadiness =
+    savedAllergyEntries.length > 0 ? "recorded" : "none-known";
+  const savedMedicationState: MedicationReadiness =
+    savedMedicationEntries.length > 0 ? "recorded" : "nothing";
+
   // Step 2 — clinical documentation. One note per prescription: an existing SOAP,
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
   const contextGaps: string[] = [];
-  if (entry === "lubin") {
+  if (purpose === "new" && entry === "lubin") {
     if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
     else {
       for (const k of missingFromLinked) {
@@ -544,7 +599,7 @@ export default function IssuePrescriptionDialog({
         contextGaps.push("A new assessment — this patient needs reassessment");
     }
   }
-  if (entry === "outside") {
+  if (purpose === "new" && entry === "outside") {
     if (!consultDate) contextGaps.push("Consultation date");
     if (noteSource === "paste") {
       if (!pastedNote.trim()) contextGaps.push("The consultation note");
@@ -556,12 +611,12 @@ export default function IssuePrescriptionDialog({
       if (!soap.plan.trim()) contextGaps.push("Plan");
     }
   }
-  if (entry === "standalone") {
+  if (purpose === "new" && entry === "standalone") {
     if (!soap.subjective.trim()) contextGaps.push("Subjective");
     if (!soap.assessment.trim()) contextGaps.push("Assessment");
     if (!soap.plan.trim()) contextGaps.push("Plan");
   }
-  if (entry === "renewal") {
+  if (purpose === "renewal") {
     if (!renewal.medication.trim()) contextGaps.push("Medication and current SIG");
     if (!renewal.indication.trim()) contextGaps.push("Indication");
     if (!renewal.response.trim()) contextGaps.push("Current response");
@@ -576,7 +631,7 @@ export default function IssuePrescriptionDialog({
     soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
   );
   const soapStatusLabel =
-    entry === "renewal"
+    purpose === "renewal"
       ? contextGaps.length === 0
         ? "Focused renewal note complete"
         : "Focused renewal note incomplete"
@@ -592,7 +647,7 @@ export default function IssuePrescriptionDialog({
       ? "Existing SOAP note from a completed Lubin consultation"
       : entry === "outside"
         ? "Focused SOAP note — consultation completed outside Lubin"
-        : entry === "renewal"
+        : purpose === "renewal"
           ? "Focused renewal note"
           : "Focused SOAP note — standalone prescribing encounter";
   const soapDateLabel =
@@ -774,7 +829,7 @@ export default function IssuePrescriptionDialog({
 
   /** The clinical plan the prescription is prepared from. */
   const planText =
-    entry === "renewal"
+    purpose === "renewal"
       ? [renewal.medication, renewal.indication, renewal.response].filter(Boolean).join(" · ")
       : [effectiveSoap.assessment, effectiveSoap.plan].filter(Boolean).join(" ");
 
@@ -965,7 +1020,7 @@ export default function IssuePrescriptionDialog({
     };
 
     // The SOAP Assessment is the indication — the provider never retypes it.
-    const indication = entry === "renewal" ? renewal.indication : effectiveSoap.assessment;
+    const indication = purpose === "renewal" ? renewal.indication : effectiveSoap.assessment;
 
 
     const medications: PrescriptionMedication[] = readyMeds.map((m) => ({
@@ -1519,23 +1574,17 @@ export default function IssuePrescriptionDialog({
 
                   return (
                     <>
-                      {/* Entry point */}
+                      {/* New treatment or renewal — asked first */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          SOAP note supporting this prescription
+                          New treatment or medication renewal?
                         </h3>
-                        <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                          Reuse the SOAP from a previous consultation or complete a focused SOAP
-                          note now. You only need one clinical note.
-                        </p>
-
-
-                        <div className="mt-4 space-y-2">
-                          {ENTRY_POINTS.map((opt) => (
+                        <div className="mt-3 space-y-2">
+                          {PURPOSE_OPTIONS.map((opt) => (
                             <label
                               key={opt.value}
                               className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                entry === opt.value
+                                purpose === opt.value
                                   ? "border-[#3D2E6B] bg-[#F7F4FE]"
                                   : "border-[#EDEBF3] bg-white"
                               }`}
@@ -1543,8 +1592,11 @@ export default function IssuePrescriptionDialog({
                               <input
                                 type="radio"
                                 className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                checked={entry === opt.value}
-                                onChange={() => setEntry(opt.value)}
+                                checked={purpose === opt.value}
+                                onChange={() => {
+                                  setPurpose(opt.value);
+                                  setEntry(opt.value === "renewal" ? "renewal" : "lubin");
+                                }}
                               />
                               <span className="flex flex-col">
                                 <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -1559,43 +1611,105 @@ export default function IssuePrescriptionDialog({
                         </div>
                       </section>
 
-                      {/* A — completed Lubin consultation */}
-                      {entry === "lubin" && (
+                      {/* SOAP source — new treatment only */}
+                      {purpose === "new" && !fromAppointment && (
                         <section className={cardCls}>
-                          <label className={label}>Completed Lubin consultations</label>
+                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                            SOAP note supporting this prescription
+                          </h3>
+                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                            Reuse the SOAP from a consultation or write one focused note now. You
+                            only need one clinical note.
+                          </p>
+
+                          <div className="mt-4 space-y-2">
+                            {ENTRY_POINTS.map((opt) => (
+                              <label
+                                key={opt.value}
+                                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                  entry === opt.value
+                                    ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                    : "border-[#EDEBF3] bg-white"
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                  checked={entry === opt.value}
+                                  onChange={() => setEntry(opt.value)}
+                                />
+                                <span className="flex flex-col">
+                                  <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                    {opt.title}
+                                  </span>
+                                  <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                    {opt.description}
+                                  </span>
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      {purpose === "new" && fromAppointment && (
+                        <section className={cardCls}>
+                          <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
+                            <CheckCircle2 className="h-4 w-4" />
+                            Linked to this appointment automatically
+                          </p>
+                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                            {fromAppointment.patient} · {fromAppointment.type} ·{" "}
+                            {fromAppointment.date}. Its SOAP note is reused — no search needed.
+                          </p>
+                        </section>
+                      )}
+
+                      {/* A — completed Lubin consultation */}
+                      {purpose === "new" && entry === "lubin" && (
+                        <section className={cardCls}>
+                          {!fromAppointment && (
+                            <>
+                          <label className={label}>
+                            Completed Lubin consultations
+                            {selected ? ` — ${selected.fullName}` : ""}
+                          </label>
                           <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
-                            Search by patient name, appointment type or ID.
+                            Only this patient’s completed consultations are shown. Search by
+                            appointment type, date or ID.
                           </p>
                           <div className="relative mt-1.5">
                             <input
                               className={`${field} pr-9`}
                               value={apptSearch}
                               onChange={(e) => setApptSearch(e.target.value)}
-                              placeholder="Search name, title or ID…"
+                              placeholder="Search title, date or ID…"
                             />
                             <Search className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#A89BD0]" />
                           </div>
                           {(() => {
                             const q = apptSearch.trim().toLowerCase();
                             const matches = q
-                              ? ELIGIBLE_APPOINTMENTS.filter(
+                              ? patientAppointments.filter(
                                   (a) =>
                                     a.patient.toLowerCase().includes(q) ||
                                     a.type.toLowerCase().includes(q) ||
+                                    a.date.toLowerCase().includes(q) ||
                                     a.id.toLowerCase().includes(q),
                                 )
                               : [];
                             if (!q)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  {ELIGIBLE_APPOINTMENTS.length} completed consultations available —
+                                  {patientAppointments.length} completed consultation
+                                  {patientAppointments.length === 1 ? "" : "s"} for this patient —
                                   start typing to search.
                                 </p>
                               );
                             if (matches.length === 0)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  No completed consultations match “{apptSearch}”.
+                                  No completed consultations for this patient match “{apptSearch}”.
                                 </p>
                               );
                             return (
@@ -1631,6 +1745,8 @@ export default function IssuePrescriptionDialog({
                               </div>
                             );
                           })()}
+                            </>
+                          )}
 
                           {linkedAppt && (
                             <>
@@ -1826,7 +1942,7 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* B — consultation completed outside Lubin */}
-                      {entry === "outside" && (
+                      {purpose === "new" && entry === "outside" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                             Consultation I completed outside Lubin
@@ -1967,10 +2083,10 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* C — standalone prescribing encounter */}
-                      {entry === "standalone" && (
+                      {purpose === "new" && entry === "standalone" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Standalone prescribing encounter
+                            Write SOAP now — no appointment
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
                             No scheduled appointment is required.
@@ -2119,7 +2235,7 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* D — renewal */}
-                      {entry === "renewal" && (
+                      {purpose === "renewal" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                             Focused renewal note
@@ -2263,77 +2379,144 @@ export default function IssuePrescriptionDialog({
                           </p>
                         )}
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReviewedNoChanges(true);
-                            if (allergyState === "not-assessed") setAllergyState("none-known");
-                            if (medicationState === "not-assessed") setMedicationState("nothing");
-                          }}
-                          className={`${chip} mt-3 w-full justify-center ${
-                            reviewedNoChanges
-                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                              : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                          }`}
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                          {reviewedNoChanges
-                            ? `Reviewed with patient — no changes reported · ${today}`
-                            : "Reviewed with patient — no changes reported"}
-                        </button>
-
+                        {/* Existing patients confirm what is already on file. */}
                         <p className={`${label} mt-4`}>Allergies</p>
-                        <div className="mt-1.5 grid grid-cols-3 gap-2">
-                          {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => setAllergyState(s)}
-                              className={`${chip} w-full justify-center text-center ${
-                                allergyState === s
-                                  ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                  : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                              }`}
-                            >
-                              {ALLERGY_READINESS_LABEL[s]}
-                            </button>
-                          ))}
-                        </div>
-                        {allergyState === "recorded" && (
-                          <input
-                            className={`${field} mt-2`}
-                            value={allergyDetail}
-                            onChange={(e) => setAllergyDetail(e.target.value)}
-                            placeholder="e.g. Penicillin — rash"
-                          />
-                        )}
-
-                        <p className={`${label} mt-4`}>Current medications</p>
-                        <div className="mt-1.5 grid grid-cols-3 gap-2">
-                          {(Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]).map(
-                            (s) => (
+                        {selected && allergyConfirm !== "update" ? (
+                          <>
+                            <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
+                              {savedAllergies}
+                            </p>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
                               <button
-                                key={s}
                                 type="button"
-                                onClick={() => setMedicationState(s)}
-                                className={`${chip} w-full justify-center text-center ${
-                                  medicationState === s
+                                onClick={() => {
+                                  setAllergyConfirm("unchanged");
+                                  setReviewedNoChanges(true);
+                                  setAllergyState(savedAllergyState);
+                                  if (savedAllergyState === "recorded")
+                                    setAllergyDetail(savedAllergies);
+                                }}
+                                className={`${chip} w-full justify-center ${
+                                  allergyConfirm === "unchanged"
                                     ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
                                     : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
                                 }`}
                               >
-                                {MEDICATION_READINESS_LABEL[s]}
+                                <Check className="h-3.5 w-3.5" />
+                                {allergyConfirm === "unchanged"
+                                  ? `Confirmed unchanged · ${today}`
+                                  : "Confirm unchanged"}
                               </button>
-                            ),
-                          )}
-                        </div>
-                        {medicationState === "recorded" && (
-                          <input
-                            className={`${field} mt-2`}
-                            value={medicationDetail}
-                            onChange={(e) => setMedicationDetail(e.target.value)}
-                            placeholder="e.g. Losartan 50 mg once daily"
-                          />
+                              <button
+                                type="button"
+                                onClick={() => setAllergyConfirm("update")}
+                                className={`${chip} w-full justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mt-1.5 grid grid-cols-3 gap-2">
+                              {(Object.keys(ALLERGY_READINESS_LABEL) as AllergyReadiness[]).map(
+                                (s) => (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => setAllergyState(s)}
+                                    className={`${chip} w-full justify-center text-center ${
+                                      allergyState === s
+                                        ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                        : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                    }`}
+                                  >
+                                    {ALLERGY_READINESS_LABEL[s]}
+                                  </button>
+                                ),
+                              )}
+                            </div>
+                            {allergyState === "recorded" && (
+                              <input
+                                className={`${field} mt-2`}
+                                value={allergyDetail}
+                                onChange={(e) => setAllergyDetail(e.target.value)}
+                                placeholder="e.g. Penicillin — rash"
+                              />
+                            )}
+                          </>
+                        )}
+
+                        <p className={`${label} mt-4`}>Current medications</p>
+                        {selected && medsConfirm !== "update" ? (
+                          <>
+                            <p className="mt-1.5 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2 text-[12.5px] text-[#4B4468]">
+                              {savedMedications}
+                            </p>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMedsConfirm("unchanged");
+                                  setMedicationState(savedMedicationState);
+                                  if (savedMedicationState === "recorded")
+                                    setMedicationDetail(savedMedications);
+                                }}
+                                className={`${chip} w-full justify-center ${
+                                  medsConfirm === "unchanged"
+                                    ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                    : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                }`}
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                                {medsConfirm === "unchanged"
+                                  ? `Confirmed unchanged · ${today}`
+                                  : "Confirm unchanged"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setMedsConfirm("update")}
+                                className={`${chip} w-full justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mt-1.5 grid grid-cols-3 gap-2">
+                              {(
+                                Object.keys(MEDICATION_READINESS_LABEL) as MedicationReadiness[]
+                              ).map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => setMedicationState(s)}
+                                  className={`${chip} w-full justify-center text-center ${
+                                    medicationState === s
+                                      ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                      : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                  }`}
+                                >
+                                  {MEDICATION_READINESS_LABEL[s]}
+                                </button>
+                              ))}
+                            </div>
+                            {medicationState === "recorded" && (
+                              <input
+                                className={`${field} mt-2`}
+                                value={medicationDetail}
+                                onChange={(e) => setMedicationDetail(e.target.value)}
+                                placeholder="e.g. Losartan 50 mg once daily"
+                              />
+                            )}
+                          </>
+                        )}
+                        {!selected && (
+                          <p className="mt-3 text-[11.5px] leading-snug text-[#8A7FB0]">
+                            This patient is new to your practice — allergies and current medications
+                            are recorded once here.
+                          </p>
                         )}
 
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
@@ -2397,7 +2580,7 @@ export default function IssuePrescriptionDialog({
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       SOAP information used for this prescription
                     </h3>
-                    {entry === "renewal" ? (
+                    {purpose === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                           Focused renewal note complete
@@ -2863,7 +3046,15 @@ export default function IssuePrescriptionDialog({
 
                     className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    {step === 2 ? "Review prescription" : "Continue"}
+                    {step === 2
+                      ? "Review prescription"
+                      : step === 1
+                        ? purpose === "renewal"
+                          ? "Continue with renewal"
+                          : entry === "lubin"
+                            ? "Use SOAP and continue"
+                            : "Continue to prescription"
+                        : "Continue"}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 ) : (
