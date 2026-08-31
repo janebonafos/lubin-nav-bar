@@ -3090,13 +3090,22 @@ export default function IssuePrescriptionDialog({
                       Draft prescription with AI
                     </h3>
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Lubin turns your documented Plan into structured prescription fields and
-                      patient instructions, and points out missing information. It never diagnoses,
-                      chooses a medication, signs or issues, and it never silently fills a gap —
-                      anything undocumented is shown as “Not documented — provider confirmation
-                      required”. Manual entry always works, and every drafted medication needs your
-                      individual confirmation. In this prototype the drafts are synthetic.
+                      Lubin drafts prescription fields from your SOAP Plan. Review every field before
+                      signing.
                     </p>
+                    <details className="mt-2 group">
+                      <summary className="cursor-pointer list-none text-[12px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] transition hover:text-[#3D2E6B]">
+                        How AI works
+                      </summary>
+                      <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889]">
+                        Lubin turns your documented Plan into structured prescription fields and
+                        patient instructions, and points out missing information. It never diagnoses,
+                        chooses a medication, signs or issues, and it never silently fills a gap —
+                        anything undocumented is shown as “Not documented — provider confirmation
+                        required”. Manual entry always works, and every drafted medication needs your
+                        individual confirmation. In this prototype the drafts are synthetic.
+                      </p>
+                    </details>
 
                     <button
                       type="button"
