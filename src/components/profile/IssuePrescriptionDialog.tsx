@@ -1910,82 +1910,102 @@ export default function IssuePrescriptionDialog({
 
                   return (
                     <>
-                      {/* New treatment or renewal — asked first */}
-                      <section className={cardCls}>
-                        <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                          New treatment or medication renewal?
-                        </h3>
-                        <div className="mt-3 space-y-2">
-                          {PURPOSE_OPTIONS.map((opt) => (
-                            <label
-                              key={opt.value}
-                              className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                purpose === opt.value
-                                  ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                                  : "border-[#EDEBF3] bg-white"
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                checked={purpose === opt.value}
-                                onChange={() => {
-                                  setPurpose(opt.value);
-                                  setEntry(opt.value === "renewal" ? "renewal" : "lubin");
-                                }}
-                              />
-                              <span className="flex flex-col">
-                                <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                  {opt.title}
-                                </span>
-                                <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
-                                  {opt.description}
-                                </span>
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      </section>
-
-                      {/* SOAP source — new treatment only */}
-                      {purpose === "new" && !fromAppointment && (
-                        <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            SOAP note supporting this prescription
-                          </h3>
-                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Reuse the SOAP from a consultation or write one focused note now. You
-                            only need one clinical note.
-                          </p>
-
-                          <div className="mt-4 space-y-2">
-                            {ENTRY_POINTS.map((opt) => (
-                              <label
-                                key={opt.value}
-                                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                                  entry === opt.value
-                                    ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                                    : "border-[#EDEBF3] bg-white"
+                      {/* Once chosen, both selections collapse into one line */}
+                      {purpose && (purpose === "renewal" || !!entry) ? (
+                        <section className="flex items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white px-4 py-3">
+                          <p className="min-w-0 truncate text-[12.5px] font-semibold text-[#3D2E6B]">
+                            {purpose === "renewal"
+                              ? "Medication renewal"
+                              : `New treatment · ${
+                                  ENTRY_POINTS.find((o) => o.value === entry)?.short ??
+                                  ENTRY_POINTS.find((o) => o.value === entry)?.title ??
+                                  "Assessment documented"
                                 }`}
-                              >
-                                <input
-                                  type="radio"
-                                  className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                                  checked={entry === opt.value}
-                                  onChange={() => setEntry(opt.value)}
-                                />
-                                <span className="flex flex-col">
-                                  <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                    {opt.title}
-                                  </span>
-                                  <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
-                                    {opt.description}
-                                  </span>
-                                </span>
-                              </label>
-                            ))}
-                          </div>
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPurpose(null);
+                              setEntry(null);
+                            }}
+                            className="shrink-0 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            Change
+                          </button>
                         </section>
+                      ) : (
+                        <>
+                          <section className={cardCls}>
+                            <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                              New treatment or medication renewal?
+                            </h3>
+                            <div className="mt-3 space-y-2">
+                              {PURPOSE_OPTIONS.map((opt) => (
+                                <label
+                                  key={opt.value}
+                                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                    purpose === opt.value
+                                      ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                      : "border-[#EDEBF3] bg-white"
+                                  }`}
+                                >
+                                  <input
+                                    type="radio"
+                                    className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                    checked={purpose === opt.value}
+                                    onChange={() => {
+                                      setPurpose(opt.value);
+                                      setEntry(opt.value === "renewal" ? "renewal" : null);
+                                    }}
+                                  />
+                                  <span className="flex flex-col">
+                                    <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                      {opt.title}
+                                    </span>
+                                    <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                      {opt.description}
+                                    </span>
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </section>
+
+                          {purpose === "new" && !fromAppointment && (
+                            <section className={cardCls}>
+                              <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                                SOAP note supporting this prescription
+                              </h3>
+                              <div className="mt-3 space-y-2">
+                                {ENTRY_POINTS.map((opt) => (
+                                  <label
+                                    key={opt.value}
+                                    className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
+                                      entry === opt.value
+                                        ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                        : "border-[#EDEBF3] bg-white"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
+                                      checked={entry === opt.value}
+                                      onChange={() => setEntry(opt.value)}
+                                    />
+                                    <span className="flex flex-col">
+                                      <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                        {opt.title}
+                                      </span>
+                                      <span className="mt-0.5 text-[12px] leading-snug text-[#6F6889]">
+                                        {opt.description}
+                                      </span>
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </section>
+                          )}
+                        </>
                       )}
 
                       {purpose === "new" && fromAppointment && (
