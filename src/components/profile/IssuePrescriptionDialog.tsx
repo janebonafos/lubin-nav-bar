@@ -1653,7 +1653,7 @@ export default function IssuePrescriptionDialog({
                                     <dd>
                                       {missingFromLinked.length === 0
                                         ? "Complete"
-                                        : `Missing ${missingFromLinked
+                                        : `Incomplete — missing ${missingFromLinked
                                             .map((k) => SOAP_LABEL[k])
                                             .join(", ")}`}
                                     </dd>
@@ -1672,6 +1672,18 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 </dl>
 
+                                <p
+                                  className={`mt-3 rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
+                                    missingFromLinked.length === 0
+                                      ? "bg-[#F0EBFB] text-[#3D2E6B]"
+                                      : "bg-[#FDF9EF] text-[#8A6B1F]"
+                                  }`}
+                                >
+                                  {missingFromLinked.length === 0
+                                    ? "SOAP complete — no additional clinical note required."
+                                    : "SOAP incomplete — complete the missing section below."}
+                                </p>
+
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   <button
                                     type="button"
@@ -1686,9 +1698,10 @@ export default function IssuePrescriptionDialog({
                                     disabled={contextGaps.length > 0}
                                     className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                                   >
-                                    Continue to prescription
+                                    Use this SOAP
                                   </button>
                                 </div>
+
 
                                 {reviewSoapOpen && (
                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
