@@ -1168,7 +1168,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-brgy">
-                            Barangay
+                            Barangay <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-brgy"
