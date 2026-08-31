@@ -868,10 +868,16 @@ export default function IssuePrescriptionDialog({
       });
       setSoapApproved(false);
       setSoapDrafted(true);
-
       setAiLoading(false);
-    }, 400);
+      // Take the provider straight to the generated note.
+      window.setTimeout(() => {
+        document
+          .getElementById("soap-generated-sections")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 60);
+    }, 1200);
   }
+
 
   function draftFromPlan() {
     setAiLoading(true);
