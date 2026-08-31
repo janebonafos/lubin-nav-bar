@@ -2695,3 +2695,56 @@ function MedicationCard({
     </div>
   );
 }
+
+function Acc({
+  index,
+  label,
+  hint,
+  open,
+  done,
+  onToggle,
+  children,
+}: {
+  index: number;
+  label: string;
+  hint?: string;
+  open: boolean;
+  done?: boolean;
+  onToggle: (i: number) => void;
+  children: () => React.ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-[#E3DBF5] bg-white">
+      <button
+        type="button"
+        onClick={() => onToggle(open ? -1 : index)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[#FBF9FF]"
+      >
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${
+            done
+              ? "bg-[#3D2E6B] text-white"
+              : open
+                ? "border border-[#3D2E6B] text-[#3D2E6B]"
+                : "border border-[#E5DDF4] text-[#A89BCA]"
+          }`}
+        >
+          {done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
+          {hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#A89BCA] transition ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="space-y-5 border-t border-[#EDEBF3] bg-[#FBF9FF] px-5 py-5">
+          {children()}
+        </div>
+      )}
+    </section>
+  );
+}
