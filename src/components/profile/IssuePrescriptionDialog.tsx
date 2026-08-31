@@ -1942,7 +1942,7 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* B — consultation completed outside Lubin */}
-                      {entry === "outside" && (
+                      {purpose === "new" && entry === "outside" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                             Consultation I completed outside Lubin
@@ -2083,10 +2083,10 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* C — standalone prescribing encounter */}
-                      {entry === "standalone" && (
+                      {purpose === "new" && entry === "standalone" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Standalone prescribing encounter
+                            Write SOAP now — no appointment
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
                             No scheduled appointment is required.
