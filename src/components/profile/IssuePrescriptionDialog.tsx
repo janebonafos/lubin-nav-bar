@@ -527,6 +527,7 @@ export default function IssuePrescriptionDialog({
     });
     setNetwork(found);
     setNetworkConfirmed([]);
+    setReviewedAt(null);
     if (found) {
       if (!dob && found.dob) setDob(found.dob);
       if (!patientPhone && found.mobile) setPatientPhone(found.mobile);
@@ -535,7 +536,26 @@ export default function IssuePrescriptionDialog({
   }
 
   function confirmNetworkItem(key: string) {
-    setNetworkConfirmed((cur) => (cur.includes(key) ? cur : [...cur, key]));
+    const next = networkConfirmed.includes(key)
+      ? networkConfirmed
+      : [...networkConfirmed, key];
+    setNetworkConfirmed(next);
+    if (network) {
+      const valueKeys = (
+        [
+          network.dob ? "dob" : null,
+          network.mobile || network.email ? "contact" : null,
+          network.medications ? "medications" : null,
+          network.allergies ? "allergies" : null,
+          network.conditions?.length ? "conditions" : null,
+          network.pregnancy ? "pregnancy" : null,
+          network.careProviders?.length ? "providers" : null,
+        ] as (string | null)[]
+      ).filter((k): k is string => k !== null);
+      if (valueKeys.length > 0 && valueKeys.every((k) => next.includes(k))) {
+        setReviewedAt(Date.now());
+      }
+    }
     if (key === "allergies" && network?.allergies) {
       if (network.allergies.length === 0) setAllergyState("none-known");
       else {
