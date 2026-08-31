@@ -1771,8 +1771,10 @@ export default function IssuePrescriptionDialog({
                 hint="Reuse an existing SOAP or complete one focused note"
 
                 open={step === 1}
-                onToggle={setStep}
-                done={contextGaps.length === 0}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && (contextGaps.length === 0)}
               >
                 {() => {
                   const today = new Date().toLocaleDateString("en-GB", {
@@ -2995,8 +2997,10 @@ export default function IssuePrescriptionDialog({
                 label="Prescription"
                 hint="Documentation and medications"
                 open={step === 2}
-                onToggle={setStep}
-                done={docGaps.length === 0 && rxGaps.length === 0}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && (docGaps.length === 0 && rxGaps.length === 0)}
               >
                 {() => (
                 <>
@@ -3225,6 +3229,8 @@ export default function IssuePrescriptionDialog({
                 hint="Read-only preview, then sign"
                 open={step === 3}
                 onToggle={goStep}
+                locked={!patientReady || !canReview}
+                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–3 first"}
                 done={false}
               >
                 {() => (
@@ -3840,6 +3846,8 @@ function Acc({
   hint,
   open,
   done,
+  locked,
+  lockedHint,
   onToggle,
   children,
 }: {
@@ -3848,6 +3856,8 @@ function Acc({
   hint?: string;
   open: boolean;
   done?: boolean;
+  locked?: boolean;
+  lockedHint?: string;
   onToggle: (i: number) => void;
   children: () => React.ReactNode;
 }) {
@@ -3857,7 +3867,10 @@ function Acc({
         type="button"
         onClick={() => onToggle(open ? -1 : index)}
         aria-expanded={open}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[#FBF9FF]"
+        disabled={locked}
+        className={`flex w-full items-center gap-3 px-5 py-4 text-left transition ${
+          locked ? "cursor-not-allowed opacity-55" : "hover:bg-[#FBF9FF]"
+        }`}
       >
         <span
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${
@@ -3872,7 +3885,11 @@ function Acc({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
-          {hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>}
+          {locked && lockedHint ? (
+            <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{lockedHint}</span>
+          ) : (
+            hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>
+          )}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[#A89BCA] transition ${open ? "rotate-180" : ""}`}
