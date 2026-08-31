@@ -1348,7 +1348,9 @@ export default function IssuePrescriptionDialog({
                           onClick={() => {
                             setSelected(null);
                             setCreatingNew(false);
+                            setEditPatient(false);
                             setPatientQuery("");
+
                           }}
                           className="text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
                         >
