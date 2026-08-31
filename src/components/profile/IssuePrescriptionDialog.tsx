@@ -51,6 +51,8 @@ import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
+import { getResponse } from "@/lib/intake/store";
+import { loadHealthDetails } from "@/lib/intake/healthDetails";
 import {
   ALLERGY_READINESS_LABEL,
   CONSULT_MODE_LABEL,
@@ -318,13 +320,13 @@ function sharedPatientDetails(record: PatientRecordView): Record<string, string>
   for (const appointmentId of record.appointmentIds) {
     const values = getResponse(appointmentId).values ?? {};
     for (const [id, value] of Object.entries(values)) {
-      const v = (value ?? "").trim();
+      const v = String(value ?? "").trim();
       if (v && !out[id]) out[id] = v;
     }
   }
   if (record.passport) {
     for (const [id, value] of Object.entries(loadHealthDetails())) {
-      const v = (value ?? "").trim();
+      const v = String(value ?? "").trim();
       if (v && !out[id]) out[id] = v;
     }
   }
