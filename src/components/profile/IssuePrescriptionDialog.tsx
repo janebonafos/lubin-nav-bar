@@ -973,7 +973,7 @@ export default function IssuePrescriptionDialog({
                       </span>
                       <span className="absolute top-12 left-1/2 w-28 -translate-x-1/2 text-center leading-tight">
                         <span
-                          className={`block text-[10px] font-semibold uppercase tracking-[0.05em] ${
+                          className={`block text-[9px] font-semibold uppercase tracking-[0.05em] ${
                             active
                               ? "text-[#3D2E6B]"
                               : done
@@ -984,7 +984,7 @@ export default function IssuePrescriptionDialog({
                           {active ? "Active" : `Step 0${i + 1}`}
                         </span>
                         <span
-                          className={`mt-1 inline-block text-[14px] font-medium ${
+                          className={`mt-1 inline-block text-[12px] font-medium ${
                             active
                               ? "rounded-full bg-[#F4F0FB] px-3 py-0.5 font-semibold text-[#3D2E6B]"
                               : done
