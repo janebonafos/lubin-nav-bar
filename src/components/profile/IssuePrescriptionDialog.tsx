@@ -339,24 +339,33 @@ export default function IssuePrescriptionDialog({
   });
   const [duplicatesDismissed, setDuplicatesDismissed] = useState(false);
 
-  // ---------- Step 2: clinical context ----------
-  const [purpose, setPurpose] = useState<RxPurpose | null>("new-treatment");
-  const [skipContext, setSkipContext] = useState(false);
-  const [newBasis, setNewBasis] = useState<NewTreatmentBasis>("focused-assessment");
+  // ---------- Step 2: clinical documentation ----------
+  // One SOAP note per prescription — documented once, reused everywhere. There is
+  // no second clinical-context questionnaire.
+  const [entry, setEntry] = useState<EntryPoint>("lubin");
+  const purpose: RxPurpose = entry === "renewal" ? "continuation" : "new-treatment";
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
+  const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
+  const [materialChange, setMaterialChange] = useState<
+    "none" | "update" | "reassess" | null
+  >(null);
   const [consultDate, setConsultDate] = useState("");
   const [consultMode, setConsultMode] = useState<ConsultMode>("in-person");
   const [consultLocation, setConsultLocation] = useState("");
-  const [presenting, setPresenting] = useState("");
-  const [relevantHistory, setRelevantHistory] = useState("");
-  const [currentSymptoms, setCurrentSymptoms] = useState("");
-  const [assessment, setAssessment] = useState("");
-  const [findings, setFindings] = useState("");
-  const [plan, setPlan] = useState("");
-  const [followUpPlan, setFollowUpPlan] = useState("");
+  /** Outside consultation: write a focused SOAP, or paste/dictate an existing note. */
+  const [noteSource, setNoteSource] = useState<"write" | "paste">("write");
+  const [pastedNote, setPastedNote] = useState("");
+  const [soapDrafted, setSoapDrafted] = useState(false);
+  const [soap, setSoap] = useState<SoapNote>({
+    subjective: "",
+    objective: "",
+    assessment: "",
+    plan: "",
+  });
+  /** Objective findings are optional and explicit — never silently blank. */
+  const [objectiveMode, setObjectiveMode] = useState<"none" | "not-obtained" | "add">("none");
 
-  const [contBasis, setContBasis] = useState<ContinuationBasis>("mine-outside");
   const [renewal, setRenewal] = useState({
     medication: "",
     indication: "",
@@ -365,17 +374,17 @@ export default function IssuePrescriptionDialog({
     sideEffects: "",
     adherence: "",
     changes: "",
+    allergyChanges: "",
     quantity: "",
     followUp: "",
   });
-  const [uploadName, setUploadName] = useState("");
-  const [verifiedContinuation, setVerifiedContinuation] = useState(false);
   const [savedForReview, setSavedForReview] = useState(false);
 
   const [allergyState, setAllergyState] = useState<AllergyReadiness>("not-assessed");
   const [allergyDetail, setAllergyDetail] = useState("");
   const [medicationState, setMedicationState] = useState<MedicationReadiness>("not-assessed");
   const [medicationDetail, setMedicationDetail] = useState("");
+  const [reviewedNoChanges, setReviewedNoChanges] = useState(false);
   const [conditionsText, setConditionsText] = useState("");
   const [pregnancyText, setPregnancyText] = useState("");
   const [weightText, setWeightText] = useState("");
@@ -383,10 +392,9 @@ export default function IssuePrescriptionDialog({
   const [hrText, setHrText] = useState("");
   const [otherVitalsText, setOtherVitalsText] = useState("");
 
-  // ---------- Step 3: documentation + prescription ----------
-  const [focusedNote, setFocusedNote] = useState("");
-  const [showSoap, setShowSoap] = useState(false);
+  // ---------- Step 3: prescription ----------
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
+
   const [suggestions, setSuggestions] = useState<AiMedication[]>([]);
   const [confirmedSuggestions, setConfirmedSuggestions] = useState<string[]>([]);
   const [missingInfo, setMissingInfo] = useState<string[]>([]);
