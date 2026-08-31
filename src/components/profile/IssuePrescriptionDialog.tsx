@@ -577,7 +577,7 @@ export default function IssuePrescriptionDialog({
         contextGaps.push("A new assessment — this patient needs reassessment");
     }
   }
-  if (entry === "outside") {
+  if (purpose === "new" && entry === "outside") {
     if (!consultDate) contextGaps.push("Consultation date");
     if (noteSource === "paste") {
       if (!pastedNote.trim()) contextGaps.push("The consultation note");
@@ -589,12 +589,12 @@ export default function IssuePrescriptionDialog({
       if (!soap.plan.trim()) contextGaps.push("Plan");
     }
   }
-  if (entry === "standalone") {
+  if (purpose === "new" && entry === "standalone") {
     if (!soap.subjective.trim()) contextGaps.push("Subjective");
     if (!soap.assessment.trim()) contextGaps.push("Assessment");
     if (!soap.plan.trim()) contextGaps.push("Plan");
   }
-  if (entry === "renewal") {
+  if (purpose === "renewal") {
     if (!renewal.medication.trim()) contextGaps.push("Medication and current SIG");
     if (!renewal.indication.trim()) contextGaps.push("Indication");
     if (!renewal.response.trim()) contextGaps.push("Current response");
@@ -609,7 +609,7 @@ export default function IssuePrescriptionDialog({
     soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
   );
   const soapStatusLabel =
-    entry === "renewal"
+    purpose === "renewal"
       ? contextGaps.length === 0
         ? "Focused renewal note complete"
         : "Focused renewal note incomplete"
@@ -625,7 +625,7 @@ export default function IssuePrescriptionDialog({
       ? "Existing SOAP note from a completed Lubin consultation"
       : entry === "outside"
         ? "Focused SOAP note — consultation completed outside Lubin"
-        : entry === "renewal"
+        : purpose === "renewal"
           ? "Focused renewal note"
           : "Focused SOAP note — standalone prescribing encounter";
   const soapDateLabel =
@@ -807,7 +807,7 @@ export default function IssuePrescriptionDialog({
 
   /** The clinical plan the prescription is prepared from. */
   const planText =
-    entry === "renewal"
+    purpose === "renewal"
       ? [renewal.medication, renewal.indication, renewal.response].filter(Boolean).join(" · ")
       : [effectiveSoap.assessment, effectiveSoap.plan].filter(Boolean).join(" ");
 
@@ -998,7 +998,7 @@ export default function IssuePrescriptionDialog({
     };
 
     // The SOAP Assessment is the indication — the provider never retypes it.
-    const indication = entry === "renewal" ? renewal.indication : effectiveSoap.assessment;
+    const indication = purpose === "renewal" ? renewal.indication : effectiveSoap.assessment;
 
 
     const medications: PrescriptionMedication[] = readyMeds.map((m) => ({
@@ -2213,7 +2213,7 @@ export default function IssuePrescriptionDialog({
                       )}
 
                       {/* D — renewal */}
-                      {entry === "renewal" && (
+                      {purpose === "renewal" && (
                         <section className={cardCls}>
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                             Focused renewal note
@@ -2491,7 +2491,7 @@ export default function IssuePrescriptionDialog({
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                       SOAP information used for this prescription
                     </h3>
-                    {entry === "renewal" ? (
+                    {purpose === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
                         <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                           Focused renewal note complete
