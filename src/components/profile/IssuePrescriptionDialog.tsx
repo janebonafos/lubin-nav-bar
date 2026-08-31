@@ -437,13 +437,20 @@ export default function IssuePrescriptionDialog({
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Reason for this prescription");
   if (purpose === "new-treatment") {
-    if (newBasis === "linked-appointment" && !linkedAppointment)
-      contextGaps.push("Linked appointment");
-    if (newBasis !== "linked-appointment") {
-      if (!consultDate) contextGaps.push("Consultation date");
+    // A new treatment cannot proceed until an assessment source is complete:
+    // a linked completed Lubin consultation, a documented outside consultation
+    // personally completed by the prescriber, or an assessment documented now.
+    if (newBasis === "linked-appointment") {
+      if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
+    } else {
+      if (newBasis === "external-consult" && !consultDate)
+        contextGaps.push("Consultation date");
       if (!presenting.trim()) contextGaps.push("Presenting concern");
       if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
-      if (!plan.trim()) contextGaps.push("Treatment plan");
+      if (!plan.trim())
+        contextGaps.push(
+          newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
+        );
     }
   }
   if (purpose === "continuation") {
@@ -454,9 +461,9 @@ export default function IssuePrescriptionDialog({
   if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
   if (medicationState === "not-assessed") contextGaps.push("Current medication status (not assessed)");
 
+  // Structured focused documentation (required above) is sufficient — a
+  // complete SOAP note is optional in every pathway.
   const docGaps: string[] = [];
-  if (purpose === "new-treatment" && newBasis !== "linked-appointment" && !focusedNote.trim())
-    docGaps.push("Clinical documentation for this new treatment");
 
   const rxGaps: string[] = [];
   if (readyMeds.length === 0)
@@ -565,10 +572,14 @@ export default function IssuePrescriptionDialog({
     setPurpose("new-treatment");
     setLinkedAppointment("");
     setConsultDate("");
+    setConsultLocation("");
     setPresenting("");
+    setRelevantHistory("");
+    setCurrentSymptoms("");
     setAssessment("");
     setFindings("");
     setPlan("");
+    setFollowUpPlan("");
     setRenewal({
       medication: "",
       indication: "",
