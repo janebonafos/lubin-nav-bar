@@ -908,7 +908,7 @@ export default function IssuePrescriptionDialog({
 
   const drawer = (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1B1330]/50 p-3 backdrop-blur-sm sm:p-6">
-      <div className="flex h-full max-h-[calc(100vh-24px)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl sm:max-h-[92vh]">
+      <div className="flex h-full max-h-[calc(100vh-24px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[#E3DBF5] bg-[#FBF9FF] shadow-2xl sm:max-h-[92vh]">
         <header className="shrink-0 border-b border-[#EDEBF3] bg-white px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div>
