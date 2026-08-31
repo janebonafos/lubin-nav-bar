@@ -3246,6 +3246,7 @@ function MedicationCard({
   onPick: (item: PhCatalogueItem) => void;
 }) {
   const [query, setQuery] = useState("");
+  const [instrLoading, setInstrLoading] = useState(false);
   const results = useMemo(() => searchPhCatalogue(query), [query]);
   const item = findPhCatalogue(med.genericName);
 
@@ -3465,21 +3466,29 @@ function MedicationCard({
             <label className={label}>Patient instructions</label>
             <button
               type="button"
-              onClick={() =>
-                onPatch(
-                  "instructions",
-                  [
-                    med.sig.trim() ||
-                      `Take ${med.dose || "your dose"} ${med.frequency || "as directed"}.`,
-                    "Take it at the same time each day.",
-                    "Do not stop suddenly — contact your prescriber first.",
-                    "Tell your prescriber about any new symptom or side effect.",
-                  ].join(" "),
-                )
-              }
-              className="inline-flex h-8 items-center rounded-xl border border-[#D9CEF3] bg-white px-2.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+              disabled={instrLoading}
+              onClick={() => {
+                setInstrLoading(true);
+                window.setTimeout(() => {
+                  onPatch(
+                    "instructions",
+                    [
+                      med.sig.trim() ||
+                        `Take ${med.dose || "your dose"} ${med.frequency || "as directed"}.`,
+                      "Take it at the same time each day.",
+                      "Do not stop suddenly — contact your prescriber first.",
+                      "Tell your prescriber about any new symptom or side effect.",
+                    ].join(" "),
+                  );
+                  setInstrLoading(false);
+                }, 700);
+              }}
+              className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-2.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Generate patient-friendly instructions
+              <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
+                AI
+              </span>
+              {instrLoading ? "Generating…" : "Generate patient-friendly instructions"}
             </button>
           </div>
           <textarea
@@ -3489,9 +3498,20 @@ function MedicationCard({
             onChange={(e) => onPatch("instructions", e.target.value)}
             placeholder="Take with food. Do not stop suddenly."
           />
-          <p className="mt-1 text-[11px] text-[#8A7FB0]">
-            AI-assisted draft — provider review required.
-          </p>
+          {instrLoading && (
+            <p className="mt-1.5 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-1.5 text-[11px] font-semibold text-[#4B3F7A]">
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#D3C6F0] border-t-[#3D2E6B]" />
+              Generating patient-friendly instructions…
+            </p>
+          )}
+          {!instrLoading && med.instructions.trim() && (
+            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#8A7FB0]">
+              <span className="inline-flex h-3.5 items-center rounded-md bg-[#EDE7FA] px-1 text-[8.5px] font-bold tracking-wide text-[#4B3F7A]">
+                AI
+              </span>
+              AI-assisted draft — provider review required.
+            </p>
+          )}
         </div>
 
         <div className="sm:col-span-2">
