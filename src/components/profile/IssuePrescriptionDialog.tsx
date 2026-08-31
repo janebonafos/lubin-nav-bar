@@ -561,6 +561,28 @@ export default function IssuePrescriptionDialog({
   if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
+  /** Safety information already on file for an existing patient (synthetic demo data). */
+  const savedAllergyEntries = (selected?.info?.allergyEntries ?? []).map((e) => e.name).filter(Boolean);
+  const savedMedicationEntries = (selected?.info?.medicationEntries ?? [])
+    .map((e) => e.name)
+    .filter(Boolean);
+  const savedAllergies =
+    savedAllergyEntries.length > 0
+      ? savedAllergyEntries.join(", ")
+      : selected?.info?.allergyState === "none-known"
+        ? "No known allergies"
+        : "Nothing recorded on file";
+  const savedMedications =
+    savedMedicationEntries.length > 0
+      ? savedMedicationEntries.join(", ")
+      : selected?.info?.medicationState === "none-known"
+        ? "Nothing currently"
+        : "Nothing recorded on file";
+  const savedAllergyState: AllergyReadiness =
+    savedAllergyEntries.length > 0 ? "recorded" : "none-known";
+  const savedMedicationState: MedicationReadiness =
+    savedMedicationEntries.length > 0 ? "recorded" : "nothing";
+
   // Step 2 — clinical documentation. One note per prescription: an existing SOAP,
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
