@@ -1180,7 +1180,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-city">
-                            City / municipality
+                            City / municipality <span className="text-[#C2410C] font-semibold">*</span>
                           </label>
                           <input
                             id="rx-city"
