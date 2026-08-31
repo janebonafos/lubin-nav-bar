@@ -179,32 +179,42 @@ const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
 };
 
 
-/** Where the clinical assessment supporting this prescription was documented. */
+/** Is this a new treatment, or a continuation of something already prescribed? */
+type RxPurposeChoice = "new" | "renewal";
+const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: string }[] = [
+  {
+    value: "new",
+    title: "New treatment",
+    description: "A medication this patient is not already taking. A SOAP note is required.",
+  },
+  {
+    value: "renewal",
+    title: "Medication renewal",
+    description:
+      "Continue a medication the patient is already taking, using a focused renewal review.",
+  },
+];
+
+/** Where the clinical assessment supporting a NEW treatment was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
 const ENTRY_POINTS: { value: EntryPoint; title: string; description: string }[] = [
   {
     value: "lubin",
-    title: "Use a completed Lubin consultation",
+    title: "Use SOAP from a Lubin consultation",
     description:
-      "Link this prescription to an appointment you completed in Lubin. Its SOAP note, allergies and current medications are reused.",
+      "Link this prescription to an appointment you completed in Lubin. Its SOAP note is reused.",
   },
   {
     value: "outside",
-    title: "Use a consultation I completed outside Lubin",
+    title: "Add SOAP from an outside consultation",
     description:
       "Use this when you personally assessed the patient in your clinic or another telehealth system.",
   },
   {
     value: "standalone",
-    title: "Standalone prescribing encounter",
+    title: "Write SOAP now — no appointment",
     description:
-      "No scheduled appointment is required. Document the focused clinical assessment supporting this prescription.",
-  },
-  {
-    value: "renewal",
-    title: "Medication continuation / renewal",
-    description:
-      "Continue a medication the patient is already taking using a focused renewal review.",
+      "No scheduled appointment is required. Document the focused assessment supporting this prescription.",
   },
 ];
 
