@@ -1300,8 +1300,46 @@ export default function IssuePrescriptionDialog({
           </div>
         </header>
 
+        {/* Compact patient summary — stays visible through steps 2–4 */}
+        {!issued && hasPatient && patientGaps.length === 0 && step > 0 && (
+          <div className="shrink-0 border-b border-[#EDEBF3] bg-[#F7F4FE] px-6 py-2.5">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-[12.5px] font-bold text-[#3D2E6B]">
+                {patientName || "Patient"}
+              </span>
+              <span className="text-[11.5px] text-[#6F6889]">
+                {ageYears !== undefined ? `${ageYears} yrs` : dob || "DOB —"} ·{" "}
+                {sex === "not-documented" ? "Sex —" : sex.replace(/-/g, " ")}
+              </span>
+              <span className="text-[11.5px] font-semibold text-[#3D2E6B]">
+                Allergies:{" "}
+                {allergyState === "recorded"
+                  ? allergyDetail || "recorded"
+                  : allergyState === "none-known"
+                    ? "none known"
+                    : "not yet reviewed"}
+              </span>
+              <span className="text-[11.5px] text-[#6F6889]">
+                Medications:{" "}
+                {medicationState === "recorded"
+                  ? medicationDetail || "recorded"
+                  : medicationState === "nothing"
+                    ? "none"
+                    : "not yet reviewed"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setStep(0)}
+                className="ml-auto text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+              >
+                Change patient
+              </button>
+            </div>
+          </div>
+        )}
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-4">
+
           {issued ? (
             <section className={cardCls}>
               <p className="flex items-center gap-2 text-[14px] font-bold text-[#3D2E6B]">
