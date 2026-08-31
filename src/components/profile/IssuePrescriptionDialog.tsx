@@ -2131,70 +2131,18 @@ export default function IssuePrescriptionDialog({
 
                           <div className="mt-5 border-t border-[#EDEBF3] pt-4">
                             <h4 className="text-[13px] font-bold text-[#3D2E6B]">
-                              Focused SOAP note
+                              SOAP note supporting this prescription
                             </h4>
                             <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                              Document the consultation using a focused SOAP note, or paste an
-                              existing clinical note and prepare a SOAP draft.
+                              Document the consultation you personally completed. Draft it with AI
+                              from your own notes, or write each section manually.
                             </p>
                           </div>
 
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            {(
-                              [
-                                ["write", "Write focused SOAP"],
-                                ["paste", "Paste or dictate an existing note"],
-                              ] as const
-                            ).map(([value, text]) => (
-                              <button
-                                key={value}
-                                type="button"
-                                onClick={() => setNoteSource(value)}
-                                className={`${chip} w-full justify-center text-center ${
-                                  noteSource === value
-                                    ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                    : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                }`}
-                              >
-                                {text}
-                              </button>
-                            ))}
-                          </div>
-                          <p className="mt-2 text-[11.5px] text-[#8A7FB0]">
-                            Either one is enough — both are never required.
-                          </p>
+                          {soapModeChoice}
+                          {soapMode === "ai" && soapAiPanel}
 
-                          {noteSource === "paste" && (
-                            <div className="mt-3">
-                              <label className={label}>Existing clinical note</label>
-                              <textarea
-                                rows={5}
-                                className={`${area} mt-1.5`}
-                                value={pastedNote}
-                                onChange={(e) => {
-                                  setPastedNote(e.target.value);
-                                  setSoapDrafted(false);
-                                }}
-                                placeholder="Paste or dictate the note you wrote during that consultation…"
-                              />
-                              <button
-                                type="button"
-                                onClick={prepareSoapDraft}
-                                disabled={aiLoading || !pastedNote.trim()}
-                                className="mt-3 inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                              >
-                                {aiLoading ? "Organising…" : "Prepare SOAP draft"}
-                              </button>
-                              {soapDrafted && (
-                                <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
-                                  AI-assisted draft — provider review required. Edit anything below
-                                  before continuing.
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {(noteSource === "write" || soapDrafted) && (
+                          {(soapMode === "manual" || soapDrafted) && (
                             <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <h4 className="text-[13px] font-bold text-[#3D2E6B]">
@@ -2223,8 +2171,10 @@ export default function IssuePrescriptionDialog({
                                   "Treatment decision, medication plan, monitoring and follow-up.",
                                 )}
                               </div>
+                              {soapApproval}
                             </div>
                           )}
+
 
                         </section>
                       )}
