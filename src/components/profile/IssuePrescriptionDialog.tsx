@@ -277,6 +277,7 @@ export default function IssuePrescriptionDialog({
 
   // ---------- Step 2: clinical context ----------
   const [purpose, setPurpose] = useState<RxPurpose | null>("new-treatment");
+  const [skipContext, setSkipContext] = useState(false);
   const [newBasis, setNewBasis] = useState<NewTreatmentBasis>("focused-assessment");
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
@@ -439,31 +440,36 @@ export default function IssuePrescriptionDialog({
     patientGaps.push("Parent or legal guardian details");
 
   const contextGaps: string[] = [];
-  if (!purpose) contextGaps.push("Reason for this prescription");
-  if (purpose === "new-treatment") {
-    // A new treatment cannot proceed until an assessment source is complete:
-    // a linked completed Lubin consultation, a documented outside consultation
-    // personally completed by the prescriber, or an assessment documented now.
-    if (newBasis === "linked-appointment") {
-      if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
-    } else {
-      if (newBasis === "external-consult" && !consultDate)
-        contextGaps.push("Consultation date");
-      if (!presenting.trim()) contextGaps.push("Presenting concern");
-      if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
-      if (!plan.trim())
-        contextGaps.push(
-          newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
-        );
+  // A provider may skip the clinical context step entirely when it isn't
+  // needed for this prescription (e.g. a simple renewal handled elsewhere).
+  if (!skipContext) {
+    if (!purpose) contextGaps.push("Reason for this prescription");
+    if (purpose === "new-treatment") {
+      // A new treatment cannot proceed until an assessment source is complete:
+      // a linked completed Lubin consultation, a documented outside consultation
+      // personally completed by the prescriber, or an assessment documented now.
+      if (newBasis === "linked-appointment") {
+        if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
+      } else {
+        if (newBasis === "external-consult" && !consultDate)
+          contextGaps.push("Consultation date");
+        if (!presenting.trim()) contextGaps.push("Presenting concern");
+        if (!assessment.trim()) contextGaps.push("Assessment / diagnosis");
+        if (!plan.trim())
+          contextGaps.push(
+            newBasis === "external-consult" ? "Treatment plan" : "Treatment rationale",
+          );
+      }
     }
+    if (purpose === "continuation") {
+      if (!renewal.medication.trim()) contextGaps.push("Existing medication and SIG");
+      if (!renewal.indication.trim()) contextGaps.push("Indication");
+      if (!renewal.response.trim()) contextGaps.push("Current response");
+    }
+    if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
+    if (medicationState === "not-assessed")
+      contextGaps.push("Current medication status (not assessed)");
   }
-  if (purpose === "continuation") {
-    if (!renewal.medication.trim()) contextGaps.push("Existing medication and SIG");
-    if (!renewal.indication.trim()) contextGaps.push("Indication");
-    if (!renewal.response.trim()) contextGaps.push("Current response");
-  }
-  if (allergyState === "not-assessed") contextGaps.push("Allergy status (not assessed)");
-  if (medicationState === "not-assessed") contextGaps.push("Current medication status (not assessed)");
 
   // Structured focused documentation (required above) is sufficient — a
   // complete SOAP note is optional in every pathway.
@@ -1394,15 +1400,34 @@ export default function IssuePrescriptionDialog({
               {step === 1 && (
                 <>
                   <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Which clinical assessment supports this prescription?
-                    </h3>
-                    <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                      Every new medication must be connected to a clinical assessment completed by
-                      the prescriber. Choose where that assessment was documented.
-                    </p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                          Which clinical assessment supports this prescription?
+                        </h3>
+                        <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                          Every new medication must be connected to a clinical assessment completed
+                          by the prescriber. Choose where that assessment was documented.
+                        </p>
+                      </div>
+                      <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-[11.5px] font-semibold text-[#6F6889]">
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 accent-[#3D2E6B]"
+                          checked={skipContext}
+                          onChange={(e) => setSkipContext(e.target.checked)}
+                        />
+                        Skip
+                      </label>
+                    </div>
+                    {skipContext && (
+                      <p className="mt-2.5 rounded-xl border border-[#E6DEFA] bg-[#F7F4FE] px-3 py-2 text-[11.5px] leading-relaxed text-[#6F5BA0]">
+                        Clinical context is skipped for this prescription. You can fill it in later,
+                        but signing is allowed without it.
+                      </p>
+                    )}
 
-                    {purpose === "new-treatment" ? (
+                    {!skipContext && purpose === "new-treatment" ? (
                       <>
                         <div className="mt-4 space-y-2">
                           {/* Option 1 — completed Lubin consultation */}
@@ -1800,6 +1825,7 @@ export default function IssuePrescriptionDialog({
                   </section>
 
                   {/* Prescribing readiness */}
+                  {!skipContext && (
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Prescribing readiness</h3>
                     <p className="mt-1 text-[12px] text-[#6F6889]">
@@ -1913,13 +1939,14 @@ export default function IssuePrescriptionDialog({
                       </div>
                     </div>
 
-                    {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
+                    {(!skipContext && (allergyState === "not-assessed" || medicationState === "not-assessed")) && (
                       <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
                         <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         Allergy and current-medication status must be assessed before you can sign.
                       </p>
                     )}
                   </section>
+                  )}
                 </>
               )}
 
