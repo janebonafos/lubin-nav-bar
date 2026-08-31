@@ -371,6 +371,9 @@ export default function IssuePrescriptionDialog({
   const [patientQuery, setPatientQuery] = useState("");
   const [selected, setSelected] = useState<PatientRecordView | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
+  /** Existing patients show saved details read-only until the prescriber edits them. */
+  const [editPatient, setEditPatient] = useState(false);
+
 
   const [patientName, setPatientName] = useState("");
   const [preferredName, setPreferredName] = useState("");
@@ -751,11 +754,16 @@ export default function IssuePrescriptionDialog({
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
+  /** Steps 2–4 only open once Step 1 holds a complete patient. */
+  const patientReady =
+    (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
   const goStep = (i: number) => {
+    if (i > 0 && !patientReady) return;
     if (i === 3 && !canReview) return;
     setStep(i);
   };
+
 
   /** Previously signed prescriptions for this patient — the renewal source. */
   const previousPrescriptions = useMemo(() => {
@@ -850,17 +858,26 @@ export default function IssuePrescriptionDialog({
     };
     setSelected(record);
     setCreatingNew(false);
+    setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
     setPreferredName(pick(undefined, "identity.preferredName"));
     setDob(pick(record.info.dob, "identity.dob"));
-    setSex((record.info.sex as PatientSex) ?? "not-documented");
+    const recordSex = (record.info.sex as PatientSex) ?? "not-documented";
+    const sharedSex = (shared["identity.gender"] ?? "").trim().toLowerCase();
+    setSex(
+      recordSex !== "not-documented"
+        ? recordSex
+        : SEX_OPTIONS.some((o) => o.value === sharedSex)
+          ? (sharedSex as PatientSex)
+          : recordSex,
+    );
     const existing = (record.info.address ?? "").split(",").map((p) => p.trim());
-    const sharedCity = (shared["contact.address"] ?? "").split(",")[0]?.trim() ?? "";
+    const sharedAddress = (shared["contact.address"] ?? "").split(",").map((p) => p.trim());
     setAddress({
       street: existing[0] ?? "",
       barangay: existing[1] ?? "",
-      city: existing[2] || sharedCity,
-      province: existing[3] ?? "",
+      city: existing[2] || sharedAddress[0] || "",
+      province: existing[3] || sharedAddress[1] || "",
       postalCode: existing[4] ?? "",
     });
     setPatientEmail(pick(record.info.email, "contact.email"));
@@ -870,6 +887,7 @@ export default function IssuePrescriptionDialog({
     setConfirmedSuggestions([]);
     setAiNote("");
   }
+
 
 
   function startNewPatient() {
@@ -1335,7 +1353,9 @@ export default function IssuePrescriptionDialog({
                           onClick={() => {
                             setSelected(null);
                             setCreatingNew(false);
+                            setEditPatient(false);
                             setPatientQuery("");
+
                           }}
                           className="text-[12px] font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
                         >
@@ -1405,8 +1425,70 @@ export default function IssuePrescriptionDialog({
                       </>
                     )}
 
-                    {hasPatient && (
+                    {selected && !editPatient && (
+                      <div className="mt-4 rounded-2xl border border-[#E9E2F8] bg-[#FBF9FF] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-[12px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                            Saved patient details
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setEditPatient(true)}
+                            className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] underline transition hover:text-[#3D2E6B]"
+                          >
+                            Update patient details
+                          </button>
+                        </div>
+                        <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                          {[
+                            ["Full legal name", patientName],
+                            ["Preferred name", preferredName],
+                            [
+                              "Date of birth",
+                              dob
+                                ? `${dob}${ageYears !== undefined ? ` · ${ageYears} years old` : ""}`
+                                : "",
+                            ],
+                            [
+                              "Sex",
+                              SEX_OPTIONS.find((o) => o.value === sex && o.value !== "not-documented")
+                                ?.label ?? "",
+                            ],
+                            [
+                              "Address",
+                              [
+                                address.street,
+                                address.barangay,
+                                address.city,
+                                address.province,
+                                address.postalCode,
+                              ]
+                                .filter(Boolean)
+                                .join(", "),
+                            ],
+                            ["Mobile number", patientPhone],
+                            ["Email", patientEmail],
+                          ].map(([k, v]) => (
+                            <div key={k}>
+                              <dt className={label}>{k}</dt>
+                              <dd
+                                className={`mt-1 text-[13px] ${v ? "text-[#3D2E6B]" : "text-[#A89BD0]"}`}
+                              >
+                                {v || "Not on file"}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <p className="mt-3 text-[11.5px] leading-snug text-[#8A7FB0]">
+                          Reused from this patient’s record and the information they shared — nothing
+                          to re-enter.
+                        </p>
+                      </div>
+                    )}
+
+                    {hasPatient && (!selected || editPatient) && (
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
+
                         <div className="sm:col-span-2">
                           <label className={label} htmlFor="rx-patient">
                             Full legal name
@@ -1689,8 +1771,10 @@ export default function IssuePrescriptionDialog({
                 hint="Reuse an existing SOAP or complete one focused note"
 
                 open={step === 1}
-                onToggle={setStep}
-                done={contextGaps.length === 0}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && (contextGaps.length === 0)}
               >
                 {() => {
                   const today = new Date().toLocaleDateString("en-GB", {
@@ -2913,8 +2997,10 @@ export default function IssuePrescriptionDialog({
                 label="Prescription"
                 hint="Documentation and medications"
                 open={step === 2}
-                onToggle={setStep}
-                done={docGaps.length === 0 && rxGaps.length === 0}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && (docGaps.length === 0 && rxGaps.length === 0)}
               >
                 {() => (
                 <>
@@ -3004,13 +3090,22 @@ export default function IssuePrescriptionDialog({
                       Draft prescription with AI
                     </h3>
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Lubin turns your documented Plan into structured prescription fields and
-                      patient instructions, and points out missing information. It never diagnoses,
-                      chooses a medication, signs or issues, and it never silently fills a gap —
-                      anything undocumented is shown as “Not documented — provider confirmation
-                      required”. Manual entry always works, and every drafted medication needs your
-                      individual confirmation. In this prototype the drafts are synthetic.
+                      Lubin drafts prescription fields from your SOAP Plan. Review every field before
+                      signing.
                     </p>
+                    <details className="mt-2 group">
+                      <summary className="cursor-pointer list-none text-[12px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] transition hover:text-[#3D2E6B]">
+                        How AI works
+                      </summary>
+                      <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889]">
+                        Lubin turns your documented Plan into structured prescription fields and
+                        patient instructions, and points out missing information. It never diagnoses,
+                        chooses a medication, signs or issues, and it never silently fills a gap —
+                        anything undocumented is shown as “Not documented — provider confirmation
+                        required”. Manual entry always works, and every drafted medication needs your
+                        individual confirmation. In this prototype the drafts are synthetic.
+                      </p>
+                    </details>
 
                     <button
                       type="button"
@@ -3143,6 +3238,8 @@ export default function IssuePrescriptionDialog({
                 hint="Read-only preview, then sign"
                 open={step === 3}
                 onToggle={goStep}
+                locked={!patientReady || !canReview}
+                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–3 first"}
                 done={false}
               >
                 {() => (
@@ -3758,6 +3855,8 @@ function Acc({
   hint,
   open,
   done,
+  locked,
+  lockedHint,
   onToggle,
   children,
 }: {
@@ -3766,6 +3865,8 @@ function Acc({
   hint?: string;
   open: boolean;
   done?: boolean;
+  locked?: boolean;
+  lockedHint?: string;
   onToggle: (i: number) => void;
   children: () => React.ReactNode;
 }) {
@@ -3775,7 +3876,10 @@ function Acc({
         type="button"
         onClick={() => onToggle(open ? -1 : index)}
         aria-expanded={open}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition hover:bg-[#FBF9FF]"
+        disabled={locked}
+        className={`flex w-full items-center gap-3 px-5 py-4 text-left transition ${
+          locked ? "cursor-not-allowed opacity-55" : "hover:bg-[#FBF9FF]"
+        }`}
       >
         <span
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${
@@ -3790,7 +3894,11 @@ function Acc({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
-          {hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>}
+          {locked && lockedHint ? (
+            <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{lockedHint}</span>
+          ) : (
+            hint && <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{hint}</span>
+          )}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[#A89BCA] transition ${open ? "rotate-180" : ""}`}
