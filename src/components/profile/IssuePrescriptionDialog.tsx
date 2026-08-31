@@ -1192,7 +1192,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-province">
-                            Province
+                            Province <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-province"
@@ -1204,7 +1204,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-postal">
-                            Postal code
+                            Postal code <span className="normal-case font-normal text-[#A99BCB]">(optional)</span>
                           </label>
                           <input
                             id="rx-postal"
