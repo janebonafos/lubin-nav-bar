@@ -1578,7 +1578,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={presenting}
                                   onChange={(e) => setPresenting(e.target.value)}
-                                  placeholder="e.g. Low mood and poor sleep for 3 months"
+                                  placeholder="e.g. Recurring headaches for 3 months"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1588,7 +1588,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={findings}
                                   onChange={(e) => setFindings(e.target.value)}
-                                  placeholder="Mental state, risk screen, physical findings…"
+                                  placeholder="Examination findings, vitals, relevant screening…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1597,7 +1597,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={assessment}
                                   onChange={(e) => setAssessment(e.target.value)}
-                                  placeholder="e.g. Moderate depressive episode"
+                                  placeholder="e.g. Tension-type headache"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1659,7 +1659,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={presenting}
                                   onChange={(e) => setPresenting(e.target.value)}
-                                  placeholder="e.g. Low mood and poor sleep for 3 months"
+                                  placeholder="e.g. Recurring headaches for 3 months"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1669,7 +1669,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={relevantHistory}
                                   onChange={(e) => setRelevantHistory(e.target.value)}
-                                  placeholder="Psychiatric and medical history relevant to this presentation…"
+                                  placeholder="Medical history relevant to this presentation…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1689,7 +1689,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={findings}
                                   onChange={(e) => setFindings(e.target.value)}
-                                  placeholder="Mental state examination, risk screen, physical findings…"
+                                  placeholder="Examination findings, vitals, relevant screening…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1698,7 +1698,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={assessment}
                                   onChange={(e) => setAssessment(e.target.value)}
-                                  placeholder="e.g. Moderate depressive episode"
+                                  placeholder="e.g. Tension-type headache"
                                 />
                               </div>
                               <div className="sm:col-span-2">
