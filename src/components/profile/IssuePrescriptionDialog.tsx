@@ -2339,10 +2339,7 @@ export default function IssuePrescriptionDialog({
                       {/* B — consultation completed outside Lubin */}
                       {purpose === "new" && entry === "outside" && (
                         <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Consultation I completed outside Lubin
-                          </h3>
-                          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <div className="grid gap-3 sm:grid-cols-2">
                             <div>
                               <label className={label}>Consultation date</label>
                               <input
@@ -2356,9 +2353,12 @@ export default function IssuePrescriptionDialog({
                               <label className={label}>Consultation method</label>
                               <select
                                 className={`${field} mt-1.5`}
-                                value={consultMode}
-                                onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                                value={consultMode ?? ""}
+                                onChange={(e) =>
+                                  setConsultMode((e.target.value || null) as ConsultMode | null)
+                                }
                               >
+                                <option value="">Select…</option>
                                 {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
                                   <option key={m} value={m}>
                                     {CONSULT_MODE_LABEL[m]}
@@ -2377,15 +2377,6 @@ export default function IssuePrescriptionDialog({
                             </div>
                           </div>
 
-                          <div className="mt-5 border-t border-[#EDEBF3] pt-4">
-                            <h4 className="text-[13px] font-bold text-[#3D2E6B]">
-                              SOAP note supporting this prescription
-                            </h4>
-                            <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                              Document the consultation you personally completed. Draft it with AI
-                              from your own notes, or write each section manually.
-                            </p>
-                          </div>
 
                           {soapModeChoice}
                           {soapMode === "ai" && soapAiPanel}
