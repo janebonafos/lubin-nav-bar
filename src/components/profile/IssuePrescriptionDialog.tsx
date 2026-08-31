@@ -2430,20 +2430,16 @@ export default function IssuePrescriptionDialog({
                       {/* C — standalone prescribing encounter */}
                       {purpose === "new" && entry === "standalone" && (
                         <section className={cardCls}>
-                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                            Document assessment now — no Lubin appointment
-                          </h3>
-                          <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Use when you personally assessed the patient in person, by video or by
-                            phone.
-                          </p>
-                          <div className="mt-3">
+                          <div>
                             <label className={label}>How are you assessing the patient?</label>
                             <select
                               className={`${field} mt-1.5`}
-                              value={consultMode}
-                              onChange={(e) => setConsultMode(e.target.value as ConsultMode)}
+                              value={consultMode ?? ""}
+                              onChange={(e) =>
+                                setConsultMode((e.target.value || null) as ConsultMode | null)
+                              }
                             >
+                              <option value="">Select…</option>
                               {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
                                 <option key={m} value={m}>
                                   {CONSULT_MODE_LABEL[m]}
