@@ -2960,8 +2960,7 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         {(allergyState === "not-assessed" || medicationState === "not-assessed") && (
-                          <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] font-semibold text-[#6B4E10]">
-                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          <p className="mt-2.5 text-[11.5px] text-[#8A7FB0]">
                             Complete both safety checks to continue.
                           </p>
                         )}
