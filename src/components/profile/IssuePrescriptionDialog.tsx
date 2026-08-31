@@ -2327,7 +2327,7 @@ export default function IssuePrescriptionDialog({
                             onClick={() => setStep(1)}
                             className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
                           >
-                            Edit clinical documentation
+                            Review SOAP
                           </button>
                           {linkedAppt && (
                             <a
