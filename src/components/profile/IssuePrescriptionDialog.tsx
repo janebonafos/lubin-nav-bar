@@ -116,8 +116,8 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "10:30 AM",
     type: "Follow-up consultation",
     status: "completed",
-    assessment: "Recurrent depressive episode, partial response to current dose.",
-    plan: "Continue current medication, review adherence and side effects in 6 weeks.",
+    assessment: "Hypertension, BP improved on current dose.",
+    plan: "Continue current medication, review BP log and side effects in 6 weeks.",
   },
   {
     id: "x1",
