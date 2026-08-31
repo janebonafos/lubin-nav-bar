@@ -320,10 +320,13 @@ export default function IssuePrescriptionDialog({
   open,
   onClose,
   onIssued,
+  appointmentId,
 }: {
   open: boolean;
   onClose: () => void;
   onIssued?: (doc: SignedPrescriptionDocument) => void;
+  /** When opened from an appointment, that consultation's SOAP is linked automatically. */
+  appointmentId?: string;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
