@@ -752,7 +752,7 @@ function DetailsPage() {
                   >
                     {[
                       {
-                        label: "Private clinical notes",
+                        label: "Clinical documentation",
                         done: step1Done,
                         id: "session-notes" as const,
                       },
