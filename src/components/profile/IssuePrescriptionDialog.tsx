@@ -14,7 +14,6 @@ import {
   Info,
   Mail,
   MessageSquare,
-  Paperclip,
   Plus,
   Search,
   ShieldCheck,
@@ -23,7 +22,6 @@ import {
   X,
 } from "lucide-react";
 
-import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 
 import {
@@ -339,7 +337,6 @@ export default function IssuePrescriptionDialog({
   // One SOAP note per prescription — documented once, reused everywhere. There is
   // no second clinical-context questionnaire.
   const [entry, setEntry] = useState<EntryPoint>("lubin");
-  const purpose: RxPurpose = entry === "renewal" ? "continuation" : "new-treatment";
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
