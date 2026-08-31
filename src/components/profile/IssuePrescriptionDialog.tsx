@@ -1427,7 +1427,7 @@ export default function IssuePrescriptionDialog({
                       </p>
                     )}
 
-                    {purpose === "new-treatment" ? (
+                    {!skipContext && purpose === "new-treatment" ? (
                       <>
                         <div className="mt-4 space-y-2">
                           {/* Option 1 — completed Lubin consultation */}
