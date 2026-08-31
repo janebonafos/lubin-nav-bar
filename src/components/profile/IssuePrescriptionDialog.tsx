@@ -602,7 +602,10 @@ export default function IssuePrescriptionDialog({
       for (const k of missingFromLinked) {
         if (k === "objective") continue; // objective findings are optional
         if (!soap[k].trim()) contextGaps.push(`${SOAP_LABEL[k]} (missing from the reused note)`);
+        else if (soap[k].includes(NEEDS_CONFIRMATION))
+          contextGaps.push(`${SOAP_LABEL[k]} needs provider confirmation`);
       }
+
       if (!materialChange) contextGaps.push("Whether clinical information has changed");
       if (materialChange === "reassess")
         contextGaps.push("A new assessment — this patient needs reassessment");
