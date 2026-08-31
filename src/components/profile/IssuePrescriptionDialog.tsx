@@ -371,6 +371,9 @@ export default function IssuePrescriptionDialog({
   const [patientQuery, setPatientQuery] = useState("");
   const [selected, setSelected] = useState<PatientRecordView | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
+  /** Existing patients show saved details read-only until the prescriber edits them. */
+  const [editPatient, setEditPatient] = useState(false);
+
 
   const [patientName, setPatientName] = useState("");
   const [preferredName, setPreferredName] = useState("");
