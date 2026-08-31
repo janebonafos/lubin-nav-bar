@@ -116,8 +116,8 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     time: "10:30 AM",
     type: "Follow-up consultation",
     status: "completed",
-    assessment: "Recurrent depressive episode, partial response to current dose.",
-    plan: "Continue current medication, review adherence and side effects in 6 weeks.",
+    assessment: "Hypertension, BP improved on current dose.",
+    plan: "Continue current medication, review BP log and side effects in 6 weeks.",
   },
   {
     id: "x1",
@@ -1578,7 +1578,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={presenting}
                                   onChange={(e) => setPresenting(e.target.value)}
-                                  placeholder="e.g. Low mood and poor sleep for 3 months"
+                                  placeholder="e.g. Recurring headaches for 3 months"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1588,7 +1588,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={findings}
                                   onChange={(e) => setFindings(e.target.value)}
-                                  placeholder="Mental state, risk screen, physical findings…"
+                                  placeholder="Examination findings, vitals, relevant screening…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1597,7 +1597,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={assessment}
                                   onChange={(e) => setAssessment(e.target.value)}
-                                  placeholder="e.g. Moderate depressive episode"
+                                  placeholder="e.g. Tension-type headache"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1659,7 +1659,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={presenting}
                                   onChange={(e) => setPresenting(e.target.value)}
-                                  placeholder="e.g. Low mood and poor sleep for 3 months"
+                                  placeholder="e.g. Recurring headaches for 3 months"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1669,7 +1669,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={relevantHistory}
                                   onChange={(e) => setRelevantHistory(e.target.value)}
-                                  placeholder="Psychiatric and medical history relevant to this presentation…"
+                                  placeholder="Medical history relevant to this presentation…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1689,7 +1689,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${area} mt-1.5`}
                                   value={findings}
                                   onChange={(e) => setFindings(e.target.value)}
-                                  placeholder="Mental state examination, risk screen, physical findings…"
+                                  placeholder="Examination findings, vitals, relevant screening…"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1698,7 +1698,7 @@ export default function IssuePrescriptionDialog({
                                   className={`${field} mt-1.5`}
                                   value={assessment}
                                   onChange={(e) => setAssessment(e.target.value)}
-                                  placeholder="e.g. Moderate depressive episode"
+                                  placeholder="e.g. Tension-type headache"
                                 />
                               </div>
                               <div className="sm:col-span-2">
@@ -1752,7 +1752,7 @@ export default function IssuePrescriptionDialog({
                               onChange={(e) =>
                                 setRenewal((r) => ({ ...r, medication: e.target.value }))
                               }
-                              placeholder="e.g. Sertraline 50 mg — 1 tablet once daily"
+                              placeholder="e.g. Losartan 50 mg — 1 tablet once daily"
                             />
                           </div>
                           <div className="sm:col-span-2">
@@ -1763,7 +1763,7 @@ export default function IssuePrescriptionDialog({
                               onChange={(e) =>
                                 setRenewal((r) => ({ ...r, indication: e.target.value }))
                               }
-                              placeholder="e.g. Generalised anxiety disorder"
+                              placeholder="e.g. Hypertension, newly diagnosed"
                             />
                           </div>
                           <div className="sm:col-span-2">
@@ -1848,7 +1848,7 @@ export default function IssuePrescriptionDialog({
                         className={`${field} mt-2`}
                         value={medicationDetail}
                         onChange={(e) => setMedicationDetail(e.target.value)}
-                        placeholder="e.g. Sertraline 50 mg once daily"
+                        placeholder="e.g. Losartan 50 mg once daily"
                       />
                     )}
 
@@ -2468,7 +2468,7 @@ function MedicationCard({
             className={`${field} pl-9`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. sertraline or Zoloft"
+            placeholder="e.g. losartan or Cozaar"
           />
         </div>
         {results.length > 0 && (
@@ -2511,7 +2511,7 @@ function MedicationCard({
             className={`${field} mt-1.5`}
             value={med.genericName}
             onChange={(e) => onPatch("genericName", e.target.value)}
-            placeholder="e.g. Sertraline hydrochloride"
+            placeholder="e.g. Losartan potassium"
           />
         </div>
         <div>
@@ -2520,7 +2520,7 @@ function MedicationCard({
             className={`${field} mt-1.5`}
             value={med.brandName}
             onChange={(e) => onPatch("brandName", e.target.value)}
-            placeholder="e.g. Zoloft"
+            placeholder="e.g. Cozaar"
           />
         </div>
         <div>
