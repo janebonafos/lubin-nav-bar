@@ -2343,15 +2343,18 @@ export default function IssuePrescriptionDialog({
                   </section>
 
 
-                  {/* AI drafting */}
+                  {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Assistive drafting</h3>
                     <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Lubin can turn what you documented into structured prescription fields and
-                      patient instructions, and point out missing information. It does not diagnose,
-                      choose a medication, sign or issue. Manual entry below always works without it,
-                      and every drafted medication needs your individual confirmation.
+                      Lubin turns your documented Plan into structured prescription fields and
+                      patient instructions, and points out missing information. It never diagnoses,
+                      chooses a medication, signs or issues, and it never silently fills a gap —
+                      anything undocumented is shown as “Not documented — provider confirmation
+                      required”. Manual entry always works, and every drafted medication needs your
+                      individual confirmation. In this prototype the drafts are synthetic.
                     </p>
+
                     <button
                       type="button"
                       onClick={draftFromPlan}
