@@ -1642,6 +1642,7 @@ export default function IssuePrescriptionDialog({
                                 </span>
                               </span>
                             </label>
+                            {newBasis === "focused-assessment" && (
                             <div className="mt-3 grid gap-3 border-t border-[#EDEBF3] pt-3 sm:grid-cols-2">
                               <div className="sm:col-span-2">
                                 <label className={label}>How are you assessing the patient?</label>
@@ -1725,6 +1726,7 @@ export default function IssuePrescriptionDialog({
                                 />
                               </div>
                             </div>
+                            )}
                           </div>
                         </div>
 
