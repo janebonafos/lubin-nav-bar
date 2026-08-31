@@ -2370,7 +2370,10 @@ export default function IssuePrescriptionDialog({
                               {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
                             </p>
                           </div>
+                          {soapApproval}
                           </div>
+                          )}
+
 
 
                           <p className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#8A6B1F]">
