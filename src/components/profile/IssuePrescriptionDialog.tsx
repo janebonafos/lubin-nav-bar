@@ -228,7 +228,9 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
  * section. The draft never claims a section is "not required" and never
  * fabricates findings, diagnoses or treatment.
  */
-const NO_OBJECTIVE = "Not obtained/documented.";
+const NO_OBJECTIVE = "No vitals or examination obtained.";
+/** Some remote observation exists, but nothing was measured or examined. */
+const LIMITED_REMOTE_OBJECTIVE = "Limited remote observations documented.";
 const NO_ASSESSMENT = "Assessment not yet documented.";
 const NO_PLAN = "Plan not yet documented.";
 /** Shown in Plan until the medication and regimen are chosen in Step 3. */
