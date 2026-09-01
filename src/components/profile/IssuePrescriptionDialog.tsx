@@ -1737,43 +1737,6 @@ export default function IssuePrescriptionDialog({
 
 
 
-  function draftFromPlan() {
-    setAiLoading(true);
-    setAiError("");
-    setAiNote("");
-    setMissingInfo([]);
-    const source = `${planText} ${effectiveSoap.subjective}`.toLowerCase();
-    const hits = searchPhCatalogue(source ? source.slice(0, 60) : "")
-      .filter((c) => source.includes(c.generic.toLowerCase()))
-      .slice(0, 2);
-    const drafts: AiMedication[] = hits.map((c) => ({
-      name: c.generic,
-      genericName: c.generic,
-      dose: `1 ${c.unit.replace(/s$/, "")}`,
-      route: c.routes[0] ?? "Oral",
-      frequency: "once daily",
-      duration: "30 days",
-      indication: effectiveSoap.assessment || renewal.indication || undefined,
-      instructions: `Take 1 ${c.unit.replace(/s$/, "")} by ${(c.routes[0] ?? "oral").toLowerCase()} route once daily.`,
-      rationale: "Drafted from your documented Plan — fictional prototype suggestion.",
-    }));
-    const gaps: string[] = [];
-    if (!effectiveSoap.assessment.trim()) gaps.push("Assessment / indication");
-    if (allergyState !== "recorded" && allergyState !== "none-known") gaps.push("Allergy status");
-    if (medicationState !== "recorded" && medicationState !== "nothing")
-      gaps.push("Current medications");
-    window.setTimeout(() => {
-      setSuggestions(drafts);
-      setMissingInfo(gaps);
-      setConfirmedSuggestions([]);
-      setAiNote(
-        drafts.length === 0
-          ? "No medication could be drafted from the documented Plan. Name the medication in your Plan, or enter it manually below."
-          : "AI-assisted draft — provider review required. Nothing is added to the prescription until you confirm it.",
-      );
-      setAiLoading(false);
-    }, 400);
-  }
 
 
   function suggestionKey(s: AiMedication, i: number) {
