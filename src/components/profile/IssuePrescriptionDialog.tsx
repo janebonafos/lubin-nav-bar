@@ -851,7 +851,9 @@ export default function IssuePrescriptionDialog({
     if (soapMode === "manual" || soapDrafted) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
       if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
-      if (isSoapPlaceholder(soap.plan)) contextGaps.push("Add evaluation or treatment plan");
+      // The Plan is drafted from the Step 3 prescription decisions, so it is
+      // never a blocker for finishing Step 2.
+
       if (!soapApproved) contextGaps.push("Confirm SOAP draft");
     }
 
