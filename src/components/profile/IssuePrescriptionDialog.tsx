@@ -4171,11 +4171,11 @@ export default function IssuePrescriptionDialog({
                           Lubin drafts prescription fields from your SOAP Plan. Review every field
                           before signing.
                         </p>
-                        <details className="mt-2 group">
-                          <summary className="cursor-pointer list-none text-[11.5px] font-medium text-[#C9BCE9] underline decoration-[#7E6BAF] transition hover:text-white">
+                        <div className="group mt-2">
+                          <p className="text-[11.5px] font-medium text-[#C9BCE9] underline decoration-[#7E6BAF] transition group-hover:text-white">
                             How AI works
-                          </summary>
-                          <p className="mt-2 max-w-md text-[12px] leading-relaxed text-[#D6CDF0]">
+                          </p>
+                          <p className="mt-0 max-h-0 max-w-md overflow-hidden text-[12px] leading-relaxed text-[#D6CDF0] opacity-0 transition-all duration-200 group-hover:mt-2 group-hover:max-h-60 group-hover:opacity-100">
                             Lubin turns your documented Plan into structured prescription fields and
                             patient instructions, and points out missing information. It never
                             diagnoses, chooses a medication, signs or issues, and it never silently
@@ -4184,7 +4184,7 @@ export default function IssuePrescriptionDialog({
                             drafted medication needs your individual confirmation. In this prototype
                             the drafts are synthetic.
                           </p>
-                        </details>
+                        </div>
                       </div>
 
                       <button
