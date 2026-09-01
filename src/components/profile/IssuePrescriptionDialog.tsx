@@ -3236,12 +3236,14 @@ export default function IssuePrescriptionDialog({
                             <div id="soap-field-objective">
                               <label className={label}>Objective</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                                Relevant observations, findings, results or vital signs.
+                                Assessment method, visible observations, vitals, examination
+                                findings and test results.
                               </p>
-                              <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
+                              <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
                                 {(
                                   [
-                                    ["not-obtained", "Not obtained/documented"],
+                                    ["not-obtained", "No vitals or examination obtained"],
+                                    ["limited-remote", "Limited remote observations"],
                                     ["add", "Add findings or vitals"],
                                   ] as const
                                 ).map(([value, text]) => (
@@ -3250,10 +3252,14 @@ export default function IssuePrescriptionDialog({
                                     type="button"
                                     onClick={() => {
                                       setObjectiveMode(value);
-                                      if (value !== "add")
+                                      if (value === "not-obtained")
+                                        setSoap((s) => ({ ...s, objective: NO_OBJECTIVE }));
+                                      else if (value === "limited-remote")
                                         setSoap((s) => ({
                                           ...s,
-                                          objective: "Not obtained/documented.",
+                                          objective: isSoapPlaceholder(s.objective)
+                                            ? LIMITED_REMOTE_OBJECTIVE
+                                            : s.objective,
                                         }));
                                       else setSoap((s) => ({ ...s, objective: "" }));
                                     }}
@@ -3267,7 +3273,7 @@ export default function IssuePrescriptionDialog({
                                   </button>
                                 ))}
                               </div>
-                              {objectiveMode === "add" && (
+                              {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
                                 <>
                                   <AutoTextarea
                                     minRows={2}
