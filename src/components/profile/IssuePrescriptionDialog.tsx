@@ -1377,6 +1377,7 @@ export default function IssuePrescriptionDialog({
     setAllergyDetail("");
     setMedicationState("not-assessed");
     setMedicationDetail("");
+    setDemographicConflict("");
     setReviewedNoChanges(false);
     setConditionsText("");
     setPregnancyText("");
