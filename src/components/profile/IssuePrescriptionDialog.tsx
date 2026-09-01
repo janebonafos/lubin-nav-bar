@@ -900,7 +900,7 @@ export default function IssuePrescriptionDialog({
     setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
     setPreferredName(pick(undefined, "identity.preferredName"));
-    setDob(pick(record.info.dob, "identity.dob"));
+    setDob(normalizeDob(pick(record.info.dob, "identity.dob")));
     const recordSex = (record.info.sex as PatientSex) ?? "not-documented";
     const sharedSex = (shared["identity.gender"] ?? "").trim().toLowerCase();
     setSex(
