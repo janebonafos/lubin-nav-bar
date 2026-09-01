@@ -2718,16 +2718,20 @@ export default function IssuePrescriptionDialog({
                    *  Step 3, so it is never a blocker here. */
                   const step2Missing: string[] = [];
                   if (isSoapPlaceholder(soap.subjective))
-                    step2Missing.push("Add Subjective findings.");
+                    step2Missing.push("Add what the patient reported (Subjective).");
                   if (objectiveMode === "none")
-                    step2Missing.push("Select an Objective status.");
+                    step2Missing.push("Choose an Objective option above.");
                   if (!assessmentBasis)
-                    step2Missing.push("Choose an Assessment or indication.");
-                  if (
+                    step2Missing.push(
+                      "Pick one of the three Assessment options above.",
+                    );
+                  else if (
                     assessmentBasis !== "further" &&
                     isSoapPlaceholder(soap.assessment)
                   )
-                    step2Missing.push("Enter an Assessment or indication.");
+                    step2Missing.push(
+                      "Write the diagnosis, working diagnosis or indication in the Assessment field.",
+                    );
                   const step2Ready =
                     step2Missing.length === 0 && !noteRejected && !demographicConflict;
 
