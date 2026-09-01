@@ -532,6 +532,15 @@ function organiseSoap(raw: string): {
     sectionQuestions.objective =
       "Were any vitals, examination findings or test results obtained today?";
 
+  // The assessment method comes from the note itself — never guessed as "Other".
+  const noteMethod: ConsultMode | null = /\b(video|tele(?:health|medicine)|virtual)\b/i.test(raw)
+    ? "video"
+    : /\b(phone|telephone|call)\b/i.test(raw)
+      ? "phone"
+      : /\b(in[- ]person|face[- ]to[- ]face|clinic visit)\b/i.test(raw)
+        ? "in-person"
+        : null;
+
   return {
     soap,
     aiFields: ["subjective", "objective"],
@@ -543,6 +552,7 @@ function organiseSoap(raw: string): {
       medications: medicationLines.join(" "),
     },
     limitedRemoteOnly,
+    noteMethod,
     demographics: readNoteDemographics(raw),
     hasDocumentedAssessment: impressions.length > 0,
   };
