@@ -1418,6 +1418,7 @@ export default function IssuePrescriptionDialog({
       setSuggestedAssessment("");
       setSectionQuestions({});
       setSoapApproved(false);
+      setDemographicConflict("");
       return;
     }
     setNoteRejected(false);
@@ -1428,9 +1429,18 @@ export default function IssuePrescriptionDialog({
         aiFields: drafts,
         suggestedAssessment: proposal,
         sectionQuestions: questions,
+        safety,
+        limitedRemoteOnly,
+        demographics,
       } = organiseSoap(raw);
       setSoap(drafted);
-      setObjectiveMode(drafted.objective === NO_OBJECTIVE ? "not-obtained" : "add");
+      setObjectiveMode(
+        drafted.objective === NO_OBJECTIVE
+          ? "not-obtained"
+          : drafted.objective === LIMITED_REMOTE_OBJECTIVE
+            ? "limited-remote"
+            : "add",
+      );
       setAiFields({
         subjective: drafts.includes("subjective"),
         objective: drafts.includes("objective"),
@@ -1439,6 +1449,42 @@ export default function IssuePrescriptionDialog({
       });
       setSuggestedAssessment(proposal);
       setSectionQuestions(questions);
+
+      // Allergy and current-medication wording goes to the safety check only.
+      if (safety.allergies) {
+        if (/\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(safety.allergies)) {
+          setAllergyState("none-known");
+        } else {
+          setAllergyState("recorded");
+          setAllergyDetail((d) => d || safety.allergies);
+        }
+      }
+      if (safety.medications) {
+        if (/\bno (current )?medications?|not on any medication/i.test(safety.medications)) {
+          setMedicationState("nothing");
+        } else {
+          setMedicationState("recorded");
+          setMedicationDetail((d) => d || safety.medications);
+        }
+      }
+
+      // Demographics in the note must match the selected patient profile.
+      const conflicts: string[] = [];
+      const recordedSex = sex === "male" || sex === "female" ? sex : undefined;
+      if (demographics.sex && recordedSex && demographics.sex !== recordedSex) {
+        conflicts.push(
+          `the selected patient is recorded as ${recordedSex}, but the clinical note says ${demographics.sex}`,
+        );
+      }
+      if (demographics.age && ageYears && Math.abs(demographics.age - ageYears) > 1) {
+        conflicts.push(
+          `the selected patient is recorded as ${ageYears} years old, but the clinical note says ${demographics.age}`,
+        );
+      }
+      setDemographicConflict(
+        conflicts.length ? `Patient information conflict: ${conflicts.join("; and ")}. Please confirm.` : "",
+      );
+      void limitedRemoteOnly;
 
       setSoapApproved(false);
       setSoapDrafted(true);
