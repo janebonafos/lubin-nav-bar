@@ -254,16 +254,25 @@ const OBJECTIVE_HINTS =
   /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|results|x-ray|ecg|ekg|cbc|glucose|urinalysis|ultrasound|imaging|swab|test)\b/i;
 /** How the encounter was conducted — an objective fact about the visit. */
 const METHOD_HINTS =
-  /\b(seen (in person|via|by|over)|in[- ]person|face[- ]to[- ]face|tele(consult|medicine|health)|video (call|consult|visit)|phone (call|consult|visit)|remote(ly)?|home visit|clinic visit|walk[- ]in)\b/i;
+  /\b(seen (in person|via|by|over)|assessed (in person|by|via|over|through)|assessment (was )?(performed|done|conducted|carried out)|consult(ation)? (was )?(performed|done|conducted)|(by|via|over) (video|phone|telephone)|in[- ]person|face[- ]to[- ]face|tele(consult|medicine|health)|video (call|consult|visit)|phone (call|consult|visit)|remote(ly)?|home visit|clinic visit|walk[- ]in)\b/i;
 /** Visible clinician observations (what the prescriber saw, not what was said). */
 const OBSERVATION_HINTS =
-  /\b(appears|appeared|looks|looked|observed|on (video|camera)|alert|oriented|coherent|well[- ]groomed|no (acute )?distress|distressed|tearful|anxious[- ]looking|pale|flushed|speech|affect|mood congruent|gait|ambulat)\b/i;
+  /\b(appears|appeared|looks|looked|observed|on (video|camera)|comfortable|complete sentences|speaking|conversant|alert|oriented|coherent|well[- ]groomed|no (acute )?distress|distressed|tearful|anxious[- ]looking|pale|flushed|speech|affect|mood congruent|gait|ambulat)\b/i;
 const PLAN_HINTS =
   /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
 const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
+/**
+ * Wording that claims a cause is or is not established. Assistive drafting must
+ * never make this judgement, so any such fragment is dropped entirely.
+ */
+const CAUSE_CLAIM =
+  /\bcause\b[^.]*\bnot\s+(yet\s+)?(been\s+)?(established|clear|determined|identified|confirmed)\b/i;
+/** Something was explicitly not measured, examined or collected. */
+const NOT_OBTAINED_LINE =
+  /\bnot\s+(been\s+)?(obtained|performed|done|taken|measured|examined|available|collected)\b/i;
 /** Diagnostic reasoning — belongs in Assessment, never in Subjective. */
 const IMPRESSION_HINTS =
-  /\b(impression|assessment|cause (is )?not (yet )?(established|clear|determined)|aetiolog|etiolog|likely|probable|possible|consistent with|suggestive of|suspect(ed)?|differential|rule out|r\/o|working diagnosis|provisional)\b/i;
+  /\b(impression|assessment|aetiolog|etiolog|likely|probable|possible|consistent with|suggestive of|suspect(ed)?|differential|rule out|r\/o|working diagnosis|provisional)\b/i;
 /** Allergy statements — routed to the medication safety check. */
 const ALLERGY_LINE = /\b(allerg\w*|anaphylax\w*|nkda|no known drug allerg\w*)\b/i;
 /** Current medication statements — routed to the medication safety check. */
