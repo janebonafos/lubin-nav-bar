@@ -2644,24 +2644,42 @@ export default function IssuePrescriptionDialog({
                             </button>
                           </div>
                         ) : (
-                          <AutoTextarea
-                            minRows={rows}
-                            className={`${area} mt-1.5 ${
-                              placeholder
-                                ? "text-[#8A7FB0]"
-                                : aiWritten
-                                  ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                          <div className="mt-2">
+                            {key === "assessment" && (
+                              <p className="mb-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                {assessmentBasis === "symptom"
+                                  ? "Assessment / indication — editable"
+                                  : "Your diagnosis or clinical impression"}
+                              </p>
+                            )}
+                            <AutoTextarea
+                              minRows={rows}
+                              placeholder={
+                                key === "assessment"
+                                  ? "Type the diagnosis, working diagnosis or indication"
+                                  : undefined
+                              }
+                              className={`${area} ${
+                                placeholder
+                                  ? "text-[#8A7FB0]"
+                                  : aiWritten
+                                    ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                                    : ""
+                              } ${
+                                key === "assessment"
+                                  ? "border-[#3D2E6B] bg-white text-[13.5px] font-semibold text-[#2A1F4D] shadow-[0_1px_0_rgba(61,46,107,0.08)]"
                                   : ""
-                            }`}
-                            value={soap[key]}
-                            onChange={(e) => {
-                              setSoapApproved(false);
-                              setAiFields((f) => ({ ...f, [key]: false }));
-                              setSoap((s) => ({ ...s, [key]: e.target.value }));
-                            }}
-                          />
-
+                              }`}
+                              value={soap[key]}
+                              onChange={(e) => {
+                                setSoapApproved(false);
+                                setAiFields((f) => ({ ...f, [key]: false }));
+                                setSoap((s) => ({ ...s, [key]: e.target.value }));
+                              }}
+                            />
+                          </div>
                         )}
+
 
                         {/* Assessment wording is proposed, never auto-recorded. */}
                         {key === "assessment" && !hideAssessmentField && !!suggestedAssessment && (
