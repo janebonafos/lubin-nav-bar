@@ -2885,16 +2885,17 @@ export default function IssuePrescriptionDialog({
                           </button>
                         </div>
                       ) : step2Ready ? (
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="space-y-1.5">
                           <button
                             type="button"
                             onClick={() => setSoapApproved(true)}
-                            className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[#2A1F4D]"
+                            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#2A1F4D]"
                           >
+                            <Check className="h-4 w-4" strokeWidth={2.5} />
                             Confirm clinical assessment
                           </button>
-                          <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
-                            Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization.
+                          <p className="text-center text-[11px] leading-snug text-[#8A7FB0]">
+                            Confirms Subjective, Objective and Assessment. The Plan is drafted in Step 3; your signature provides final authorization.
                           </p>
                         </div>
                       ) : (
