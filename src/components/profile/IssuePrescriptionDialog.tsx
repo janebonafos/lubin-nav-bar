@@ -550,34 +550,6 @@ function organiseSoap(raw: string): {
  * the AI never decides whether a diagnosis is established or uncertain.
  */
 type AssessmentBasis = "confirmed" | "working" | "symptom" | "further";
-const ASSESSMENT_BASIS_OPTIONS: {
-  value: AssessmentBasis;
-  title: string;
-  description: string;
-}[] = [
-  {
-    value: "confirmed",
-    title: "Confirmed diagnosis",
-    description: "Diagnosis confirmed by the provider.",
-  },
-  {
-    value: "working",
-    title: "Working diagnosis",
-    description:
-      "The provider considers this the most likely diagnosis based on the available information.",
-  },
-  {
-    value: "symptom",
-    title: "Symptom-based indication",
-    description:
-      "Treatment is being considered for a documented symptom without claiming a confirmed diagnosis.",
-  },
-  {
-    value: "further",
-    title: "Further assessment required",
-    description: "Additional evaluation is needed before treatment is selected.",
-  },
-];
 
 /** Is this a new treatment, or a continuation of something already prescribed? */
 type RxPurposeChoice = "new" | "renewal";
@@ -1155,7 +1127,7 @@ export default function IssuePrescriptionDialog({
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
-      if (!assessmentBasis) contextGaps.push("Select your clinical assessment");
+      if (!assessmentBasis) contextGaps.push("Choose the assessment or indication");
       if (assessmentBasis !== "further" && isSoapPlaceholder(soap.assessment))
         contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
