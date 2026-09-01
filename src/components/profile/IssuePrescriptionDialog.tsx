@@ -1673,6 +1673,7 @@ export default function IssuePrescriptionDialog({
         sectionQuestions: questions,
         safety,
         limitedRemoteOnly,
+        noteMethod,
         demographics,
         hasDocumentedAssessment,
       } = organiseSoap(raw);
