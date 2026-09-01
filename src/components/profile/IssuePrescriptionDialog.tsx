@@ -3407,7 +3407,8 @@ export default function IssuePrescriptionDialog({
                               </span>
                             </div>
                             <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                              This SOAP note documents the assessment supporting the prescription.
+                              Step 2 documents Subjective, Objective and Assessment. The Plan is
+                              drafted in Step 3, after the medication is selected.
                             </p>
                           <div className="mt-4 space-y-3">
 
@@ -3514,10 +3515,6 @@ export default function IssuePrescriptionDialog({
                               "assessment",
                               "Diagnosis, clinical impression or indication supporting treatment.",
                               1,
-                            )}
-                            {soapField(
-                              "plan",
-                              "Treatment decision, medication plan, monitoring and follow-up.",
                             )}
                             {contextGaps.length === 0 && (
                               <p className="rounded-xl bg-[#F0EBFB] px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B]">
