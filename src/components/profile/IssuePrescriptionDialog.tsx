@@ -2714,7 +2714,8 @@ export default function IssuePrescriptionDialog({
                                   "Treatment decision, medication plan, monitoring and follow-up.",
                                 )}
                               </div>
-                              {soapApproval}
+                              {infoNeededPanel}
+                          {soapApproval}
                             </div>
                           )}
 
@@ -2865,6 +2866,7 @@ export default function IssuePrescriptionDialog({
                               {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
                             </p>
                           </div>
+                          {infoNeededPanel}
                           {soapApproval}
                           </div>
                           )}
