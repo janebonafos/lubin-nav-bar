@@ -376,6 +376,10 @@ const area =
   "w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none";
 const label = "text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
 const cardCls = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
+const chevron =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236F6889' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")";
+const selectField =
+  "h-10 w-full appearance-none rounded-xl border border-[#E3DBF5] bg-white px-3 pr-9 text-[13px] text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none bg-no-repeat [background-position:right_0.7rem_center] [background-size:1rem_1rem]";
 const chip =
   "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[12.5px] font-semibold transition";
 
@@ -2431,7 +2435,7 @@ export default function IssuePrescriptionDialog({
                             <div>
                               <label className={label}>Consultation method</label>
                               <select
-                                className={`${field} mt-1.5`}
+                                className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
                                 value={consultMode ?? ""}
                                 onChange={(e) =>
                                   setConsultMode((e.target.value || null) as ConsultMode | null)
@@ -2503,7 +2507,7 @@ export default function IssuePrescriptionDialog({
                           <div>
                             <label className={label}>How are you assessing the patient?</label>
                             <select
-                              className={`${field} mt-1.5`}
+                              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
                               value={consultMode ?? ""}
                               onChange={(e) =>
                                 setConsultMode((e.target.value || null) as ConsultMode | null)
@@ -3714,7 +3718,7 @@ function MedicationCard({
           <label className={label}>Strength / form</label>
           {item ? (
             <select
-              className={`${field} mt-1.5`}
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.strength}
               onChange={(e) => onPatch("strength", e.target.value)}
             >
@@ -3738,7 +3742,7 @@ function MedicationCard({
           <label className={label}>Route</label>
           {item ? (
             <select
-              className={`${field} mt-1.5`}
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.route}
               onChange={(e) => onPatch("route", e.target.value)}
             >
@@ -3787,7 +3791,7 @@ function MedicationCard({
         <div>
           <label className={label}>Refills</label>
           <select
-            className={`${field} mt-1.5`}
+            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
             value={med.refills}
             onChange={(e) => onPatch("refills", e.target.value)}
           >
@@ -3810,7 +3814,7 @@ function MedicationCard({
         <div>
           <label className={label}>Dispensing unit</label>
           <select
-            className={`${field} mt-1.5`}
+            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
             value={med.unit}
             onChange={(e) => onPatch("unit", e.target.value)}
           >
