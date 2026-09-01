@@ -2924,13 +2924,6 @@ export default function IssuePrescriptionDialog({
                           <p className="text-[11.5px] leading-snug text-[#5C8A6B]">
                             Subjective, Objective and Assessment confirmed. The Plan is drafted after you choose the medication in Step 3.
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => setSoapApproved(false)}
-                            className="ml-auto shrink-0 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                          >
-                            Edit
-                          </button>
                         </div>
                       ) : step2Ready ? (
                         <div className="space-y-1.5">
