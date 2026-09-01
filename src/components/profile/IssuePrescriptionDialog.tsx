@@ -2500,48 +2500,52 @@ export default function IssuePrescriptionDialog({
                     /* Only the prescriber decides what the assessment is. */
                     const basisBlock =
                       key === "assessment" ? (
-                        <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] p-3">
+                        <div className="mt-2">
                           {!noteHasAssessment && (
                             <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                              No clinical assessment was found in the notes.
+                              No diagnosis or clinical impression was documented in the notes.
                             </p>
                           )}
-                          <p className="mt-1 text-[12px] font-semibold text-[#4B4468]">
-                            What is your clinical assessment supporting this prescription?
-                          </p>
-                          <div className="mt-2 grid gap-2">
-                            {ASSESSMENT_BASIS_OPTIONS.map((o) => {
-                              const active = assessmentBasis === o.value;
-                              return (
-                                <button
-                                  key={o.value}
-                                  type="button"
-                                  onClick={() => {
-                                    setAssessmentBasis(o.value);
-                                    setSoapApproved(false);
-                                    if (o.value === "further") {
-                                      setSuggestedAssessment("");
-                                      setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
-                                      setAiFields((f) => ({ ...f, assessment: false }));
-                                    } else if (isSoapPlaceholder(soap.assessment)) {
-                                      setSoap((cur) => ({ ...cur, assessment: "" }));
-                                    }
-                                  }}
-                                  className={`rounded-xl border px-3 py-2 text-left transition ${
-                                    active
-                                      ? "border-[#6D4FCF] bg-white ring-1 ring-[#D9CEF3]"
-                                      : "border-[#E3DBF5] bg-white hover:border-[#D6CCEC]"
-                                  }`}
-                                >
-                                  <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
-                                    {o.title}
-                                  </p>
-                                  <p className="mt-0.5 text-[11.5px] leading-snug text-[#6F6889]">
-                                    {o.description}
-                                  </p>
-                                </button>
-                              );
-                            })}
+                          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                            {(
+                              [
+                                ["symptom", "Use documented symptom as indication"],
+                                ["working", "Enter diagnosis or working diagnosis"],
+                                ["further", "Further assessment required"],
+                              ] as const
+                            ).map(([value, text]) => (
+                              <button
+                                key={value}
+                                type="button"
+                                onClick={() => {
+                                  setAssessmentBasis(value);
+                                  setSoapApproved(false);
+                                  if (value === "further") {
+                                    setSuggestedAssessment("");
+                                    setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
+                                    setAiFields((f) => ({ ...f, assessment: false }));
+                                  } else if (value === "symptom") {
+                                    setSuggestedAssessment("");
+                                    setAiFields((f) => ({ ...f, assessment: false }));
+                                    setSoap((cur) => ({
+                                      ...cur,
+                                      assessment: isSoapPlaceholder(cur.assessment)
+                                        ? symptomIndication
+                                        : cur.assessment,
+                                    }));
+                                  } else if (isSoapPlaceholder(soap.assessment)) {
+                                    setSoap((cur) => ({ ...cur, assessment: "" }));
+                                  }
+                                }}
+                                className={`${chip} w-full justify-center text-center ${
+                                  assessmentBasis === value
+                                    ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                    : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                }`}
+                              >
+                                {text}
+                              </button>
+                            ))}
                           </div>
                           {assessmentBasis === "further" && (
                             <p className="mt-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[11.5px] font-semibold text-[#6B4E10]">
@@ -2556,7 +2560,9 @@ export default function IssuePrescriptionDialog({
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
-                          <label className={label}>{SOAP_FULL_LABEL[key]}</label>
+                          <label className={label}>
+                            {key === "assessment" ? "Assessment or indication" : SOAP_FULL_LABEL[key]}
+                          </label>
                           {aiWritten && (
                             <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
                               AI draft — confirm
@@ -2569,11 +2575,6 @@ export default function IssuePrescriptionDialog({
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
 
                         {basisBlock}
-                        {key === "assessment" && !hideAssessmentField && (
-                          <p className="mt-2 text-[11.5px] font-semibold text-[#4B4468]">
-                            Enter diagnosis, working diagnosis or indication.
-                          </p>
-                        )}
 
                         {hideAssessmentField ? null : planAwaiting ? (
                           <div className="mt-1.5 rounded-xl border border-dashed border-[#D9CEF3] bg-[#FAF8FF] px-3 py-2.5">
