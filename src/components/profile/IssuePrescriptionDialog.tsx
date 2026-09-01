@@ -504,10 +504,11 @@ function organiseSoap(raw: string): {
             : ""
         }`
       : "";
-  // Never propose an assessment from non-clinical text, and never state
-  // whether a diagnosis is established, confirmed or uncertain — only the
-  // prescriber decides that.
-  const suggestedAssessment = dictatedImpression || (symptomIndication ? `${symptomIndication}.` : "");
+  // An assessment may only be proposed when the notes explicitly contain a
+  // diagnosis, working diagnosis, clinical impression or indication. When no
+  // clinical judgment was documented, nothing is proposed — the documented
+  // problem is surfaced separately as a symptom summary instead.
+  const suggestedAssessment = dictatedImpression;
 
 
   const soap: SoapNote = {
@@ -2486,14 +2487,28 @@ export default function IssuePrescriptionDialog({
                       key === "assessment" ? (
                         <div className="mt-2">
                           {!noteHasAssessment && (
-                            <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                              No diagnosis or clinical impression was documented in the notes.
-                            </p>
+                            <div className="rounded-xl border border-[#EDEBF3] bg-white px-3 py-2.5">
+                              <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                No clinical assessment was documented in the notes.
+                              </p>
+                              {!!symptomIndication && (
+                                <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
+                                  <span className="font-semibold text-[#6F5BA0]">
+                                    Documented clinical problem:
+                                  </span>{" "}
+                                  {symptomIndication}.
+                                </p>
+                              )}
+                              <p className="mt-1.5 text-[11px] leading-snug text-[#8A7FB0]">
+                                AI summary of the documented problem only — it is not recorded as
+                                an Assessment unless you choose to use it.
+                              </p>
+                            </div>
                           )}
                           <div className="mt-2 grid gap-2 sm:grid-cols-3">
                             {(
                               [
-                                ["symptom", "Use documented symptom as indication"],
+                                ["symptom", "Use symptom as indication"],
                                 ["working", "Enter diagnosis or working diagnosis"],
                                 ["further", "Further assessment required"],
                               ] as const
@@ -2541,6 +2556,13 @@ export default function IssuePrescriptionDialog({
                       ) : null;
                     const hideAssessmentField =
                       key === "assessment" && (!assessmentBasis || assessmentBasis === "further");
+                    /* The provider's clinical judgment — never the AI — becomes A. */
+                    const providerConfirmedAssessment =
+                      key === "assessment" &&
+                      !!assessmentBasis &&
+                      assessmentBasis !== "further" &&
+                      !placeholder &&
+                      !aiWritten;
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
@@ -2552,9 +2574,16 @@ export default function IssuePrescriptionDialog({
                               AI draft — confirm
                             </span>
                           )}
-                          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-                            {sectionHelp[key]}
-                          </span>
+                          {providerConfirmedAssessment && (
+                            <span className="rounded-full bg-[#3D2E6B] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                              Provider-confirmed Assessment
+                            </span>
+                          )}
+                          {!providerConfirmedAssessment && (
+                            <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                              {sectionHelp[key]}
+                            </span>
+                          )}
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
 
@@ -2609,13 +2638,14 @@ export default function IssuePrescriptionDialog({
                                 type="button"
                                 onClick={() => {
                                   setSoapApproved(false);
-                                  setAiFields((f) => ({ ...f, assessment: true }));
+                                  // Accepting makes it the provider's own assessment.
+                                  setAiFields((f) => ({ ...f, assessment: false }));
                                   setSoap((s) => ({ ...s, assessment: suggestedAssessment }));
                                   setSuggestedAssessment("");
                                 }}
                                 className="rounded-xl bg-[#3D2E6B] px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
                               >
-                                Accept AI draft
+                                Accept as provider-confirmed
                               </button>
                               <button
                                 type="button"
