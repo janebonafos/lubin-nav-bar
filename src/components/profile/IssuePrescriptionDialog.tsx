@@ -2691,6 +2691,7 @@ export default function IssuePrescriptionDialog({
                         disabled={
                           soapApproved ||
                           noteRejected ||
+                          !!demographicConflict ||
                           blockers.length > 0 ||
                           isSoapPlaceholder(soap.assessment)
                         }
