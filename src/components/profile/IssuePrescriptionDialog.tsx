@@ -2543,12 +2543,14 @@ export default function IssuePrescriptionDialog({
                                     } else if (value === "symptom") {
                                       setSuggestedAssessment("");
                                       setAiFields((f) => ({ ...f, assessment: false }));
-                                      setSoap((cur) => ({
-                                        ...cur,
-                                        assessment: isSoapPlaceholder(cur.assessment)
-                                          ? symptomIndication
-                                          : cur.assessment,
-                                      }));
+                                       setSoap((cur) => ({
+                                         ...cur,
+                                         assessment: isSoapPlaceholder(cur.assessment)
+                                           ? symptomIndication
+                                             ? `Symptom-based indication: ${symptomIndication}`
+                                             : ""
+                                           : cur.assessment,
+                                       }));
                                     } else if (isSoapPlaceholder(soap.assessment)) {
                                       setSoap((cur) => ({ ...cur, assessment: "" }));
                                     }
