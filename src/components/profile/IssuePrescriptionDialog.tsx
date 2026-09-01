@@ -2879,20 +2879,27 @@ export default function IssuePrescriptionDialog({
                         AI only organizes what you wrote — it never adds symptoms, findings or
                         treatment.
                       </p>
-                      <div className="group mt-1.5">
-                        <p className="text-[11.5px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] underline-offset-2 transition group-hover:text-[#3D2E6B]">
-                          How AI helps draft your SOAP note
-                        </p>
-                        <p className="mt-0 max-h-0 overflow-hidden text-[11.5px] leading-relaxed text-[#8A7FB0] opacity-0 transition-all duration-200 group-hover:mt-1.5 group-hover:max-h-60 group-hover:opacity-100">
-                          Paste or dictate your raw clinical notes above, then click “Draft SOAP with
-                          AI.” Lubin sorts what you wrote into the four SOAP sections — Subjective
-                          (what the patient reports, including negatives), Objective (findings and
-                          vitals), Assessment (your impression) and Plan (next steps). It never
-                          invents symptoms, examinations, diagnoses, results or treatment. Anything
-                          you did not document is left as an open gap and listed once under
-                          “Required before continuing”, and every section stays editable. In this
-                          prototype the drafts are generated locally for demonstration.
-                        </p>
+                      <div className="mt-1.5">
+                        <button
+                          type="button"
+                          aria-expanded={aiHelpOpen}
+                          onClick={() => setAiHelpOpen((v) => !v)}
+                          className="text-[11.5px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                        >
+                          How AI works
+                        </button>
+                        {aiHelpOpen && (
+                          <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+                            Paste or dictate your raw clinical notes above, then choose “Draft SOAP
+                            with AI.” Lubin sorts what you wrote into Subjective (what the patient
+                            reports, including negatives), Objective (assessment method,
+                            observations, vitals and results) and proposes Assessment wording only
+                            when you documented a clinical impression. It never invents symptoms,
+                            examinations, diagnoses, results or treatment, and the Plan is drafted
+                            only after you select the medication and regimen. Every section stays
+                            editable. In this prototype the drafts are generated locally.
+                          </p>
+                        )}
                       </div>
                       {aiLoading && (
                         <p className="mt-2 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
