@@ -745,6 +745,30 @@ export default function IssuePrescriptionDialog({
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
 
+  /**
+   * The Plan is drafted from the prescription the provider actually confirmed in
+   * Step 3 — never guessed earlier. It only replaces the awaiting placeholder,
+   * so anything the provider typed themselves is left untouched.
+   */
+  useEffect(() => {
+    if (soap.plan !== PLAN_AWAITING_RX) return;
+    if (!readyMeds.length) return;
+    const lines = readyMeds.map(
+      (m) =>
+        `Start ${m.genericName}${m.strength ? ` ${m.strength}` : ""} ${m.dose} ${m.frequency}${
+          m.duration ? ` for ${m.duration}` : ""
+        }.`,
+    );
+    setSoap((s) => ({
+      ...s,
+      plan: `${lines.join(" ")} Follow-up: ${NEEDS_CONFIRMATION}. Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+    }));
+    setAiFields((f) => ({ ...f, plan: true }));
+    setSoapApproved(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
+
+
   /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
   const fromAppointment = appointmentId
     ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
