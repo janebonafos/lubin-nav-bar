@@ -4603,11 +4603,12 @@ function MedicationCard({
   const item = findPhCatalogue(med.genericName);
 
   return (
-    <div className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+    <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
+      <div className="flex items-center gap-3">
+        <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
           Medication {index + 1}
-        </p>
+        </span>
+        <div className="h-px flex-1 bg-[#EDEBF3]" />
         {removable && (
           <button
             type="button"
