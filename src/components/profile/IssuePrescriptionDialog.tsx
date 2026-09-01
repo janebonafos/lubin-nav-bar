@@ -3909,7 +3909,11 @@ export default function IssuePrescriptionDialog({
                       {isMinor && (
                         <Detail
                           label="Guardian"
-                          value={`${guardian.name || "—"}${guardian.relationship ? ` (${guardian.relationship})` : ""}`}
+                          value={
+                            guardianSkipped && !guardian.name
+                              ? "Not applicable"
+                              : `${guardian.name || "—"}${guardian.relationship ? ` (${guardian.relationship})` : ""}`
+                          }
                         />
                       )}
                       <Detail label="Prescriber" value={identity?.fullName || "—"} />
