@@ -419,6 +419,8 @@ function organiseSoap(raw: string): {
   safety: { allergies: string; medications: string };
   /** True when observations exist but nothing was measured or examined. */
   limitedRemoteOnly: boolean;
+  /** Assessment method stated in the notes, if any. */
+  noteMethod: ConsultMode | null;
   /** Demographics the note mentions, for the conflict check. */
   demographics: NoteDemographics;
   /** True when the notes already contain a diagnosis or clinical impression. */
