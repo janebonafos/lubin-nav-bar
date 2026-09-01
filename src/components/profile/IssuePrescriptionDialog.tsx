@@ -4212,7 +4212,7 @@ export default function IssuePrescriptionDialog({
                       </div>
                     )}
                     {aiNote && (
-                      <p className="mt-3 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[12px] text-[#6B4E10]">
+                      <p className="mt-3 rounded-xl border border-[#7E6BAF] bg-[#4A3A7E] px-3 py-2 text-[12px] font-medium text-[#F0E6C7]">
                         {aiNote}
                       </p>
                     )}
