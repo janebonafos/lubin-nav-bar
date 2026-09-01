@@ -1680,6 +1680,8 @@ export default function IssuePrescriptionDialog({
       setNoteHasAssessment(hasDocumentedAssessment);
       setAssessmentBasis("");
       setSoap(drafted);
+      // The method stated in the notes wins over any earlier guess.
+      if (noteMethod) setConsultMode(noteMethod);
       setObjectiveMode(
         limitedRemoteOnly
           ? "limited-remote"
