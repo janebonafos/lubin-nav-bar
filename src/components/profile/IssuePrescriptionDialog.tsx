@@ -4095,12 +4095,14 @@ export default function IssuePrescriptionDialog({
                           </span>
                           {effectiveSoap.assessment || "Not documented — provider confirmation required"}
                         </p>
-                        <p className="mt-1 text-[12px] text-[#4B4468]">
-                          <span className="font-semibold">
-                            Treatment context (SOAP note — Plan):{" "}
-                          </span>
-                          {effectiveSoap.plan || "Not documented — provider confirmation required"}
-                        </p>
+                        {!isSoapPlaceholder(effectiveSoap.plan) && (
+                          <p className="mt-1 text-[12px] text-[#4B4468]">
+                            <span className="font-semibold">
+                              Treatment context (SOAP note — Plan):{" "}
+                            </span>
+                            {effectiveSoap.plan}
+                          </p>
+                        )}
                         <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
                           Reused from the SOAP note — nothing needs to be retyped here.
                         </p>
