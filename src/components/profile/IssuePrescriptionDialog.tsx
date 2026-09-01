@@ -2860,14 +2860,6 @@ export default function IssuePrescriptionDialog({
                    *  are named directly above the button, never as a vague link. */
                   const soapApproval = (
                     <div className="mt-3">
-                      {!soapApproved && step2Missing.length > 0 && (
-                        <p className="mb-2 text-[11.5px] font-semibold leading-snug text-[#6F5BA0]">
-                          Next: {step2Missing[0]}
-                          {step2Missing.length > 1
-                            ? ` (${step2Missing.length - 1} more to complete)`
-                            : ""}
-                        </p>
-                      )}
                       {soapApproved ? (
                         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#BFE9C8] bg-[#F2FBF4] px-3.5 py-2.5">
                           <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#1E9E4B] text-white">
@@ -2887,13 +2879,12 @@ export default function IssuePrescriptionDialog({
                             Edit
                           </button>
                         </div>
-                      ) : (
+                      ) : step2Ready ? (
                         <div className="flex flex-wrap items-center gap-3">
                           <button
                             type="button"
                             onClick={() => setSoapApproved(true)}
-                            disabled={!step2Ready}
-                            className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                            className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[#2A1F4D]"
                           >
                             Confirm clinical assessment
                           </button>
@@ -2901,6 +2892,13 @@ export default function IssuePrescriptionDialog({
                             Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization.
                           </p>
                         </div>
+                      ) : (
+                        <p className="rounded-lg bg-[#F7F4FE] px-3 py-2 text-[11.5px] font-semibold leading-snug text-[#6F5BA0]">
+                          Next: {step2Missing[0]}
+                          {step2Missing.length > 1
+                            ? ` (${step2Missing.length - 1} more to complete)`
+                            : ""}
+                        </p>
                       )}
                     </div>
                   );
