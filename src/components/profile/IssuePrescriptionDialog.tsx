@@ -2170,8 +2170,8 @@ export default function IssuePrescriptionDialog({
                         {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-                        AI only organizes what you wrote — anything missing is marked “
-                        {NEEDS_CONFIRMATION}”.
+                        AI only organizes what you wrote — it never adds symptoms, findings or
+                        treatment.
                       </p>
                       <details className="mt-1.5 group">
                         <summary className="cursor-pointer list-none text-[11.5px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]">
@@ -2179,14 +2179,13 @@ export default function IssuePrescriptionDialog({
                         </summary>
                         <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#8A7FB0]">
                           Paste or dictate your raw clinical notes above, then click “Draft SOAP with
-                          AI.” Lubin reads what you wrote and organizes it into the four SOAP sections —
-                          Subjective (what the patient reports), Objective (measurable findings and
-                          vitals), Assessment (your clinical impression) and Plan (next steps). It only
-                          rearranges information you provided — it never invents diagnoses, vitals, or
-                          findings. Anything it cannot find in your notes is left blank and flagged “
-                          {NEEDS_CONFIRMATION}” so you can fill it in. Always review and edit every
-                          section before signing. In this prototype the drafts are generated locally for
-                          demonstration.
+                          AI.” Lubin sorts what you wrote into the four SOAP sections — Subjective
+                          (what the patient reports, including negatives), Objective (findings and
+                          vitals), Assessment (your impression) and Plan (next steps). It never
+                          invents symptoms, examinations, diagnoses, results or treatment. Anything
+                          you did not document is left as an open gap and listed under “Information
+                          needed”, and every section stays editable. In this prototype the drafts are
+                          generated locally for demonstration.
                         </p>
                       </details>
                       {aiLoading && (
@@ -2197,39 +2196,32 @@ export default function IssuePrescriptionDialog({
                       )}
                       {!aiLoading && soapDrafted && (
                         <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
-                          SOAP note ready — review and edit every section below before continuing.
+                          AI draft created — review and complete the highlighted sections.
                         </p>
                       )}
                     </div>
                   );
 
 
-                  /** Required provider sign-off on the SOAP note. */
+                  /** One explicit confirmation of the whole draft. */
                   const soapApproval = (
-                    <label
-                      className={`mt-3 flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                        soapApproved
-                          ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                          : "border-[#EDEBF3] bg-white"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                        checked={soapApproved}
-                        onChange={(e) => setSoapApproved(e.target.checked)}
-                      />
-                      <span>
-                        <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
-                          I reviewed and approve this SOAP note
-                        </span>
-                        <span className="mt-0.5 block text-[11.5px] leading-snug text-[#6F6889]">
-                          Required. The note is yours — confirm every section reflects your own
-                          clinical assessment.
-                        </span>
-                      </span>
-                    </label>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSoapApproved(true)}
+                        disabled={soapApproved || infoNeeded.some((i) => i.label === "Confirm assessment" || i.label === "Add evaluation or treatment plan")}
+                        className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {soapApproved ? "SOAP draft confirmed" : "Confirm SOAP draft"}
+                      </button>
+                      <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
+                        {soapApproved
+                          ? "You confirmed Subjective, Objective, Assessment and Plan."
+                          : "Review all four sections — your signature at the end provides the final authorization."}
+                      </p>
+                    </div>
                   );
+
 
 
                   return (
