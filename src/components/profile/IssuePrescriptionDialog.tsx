@@ -2225,7 +2225,7 @@ export default function IssuePrescriptionDialog({
                       <button
                         type="button"
                         onClick={() => setSoapApproved(true)}
-                        disabled={soapApproved || infoNeeded.some((i) => i.label === "Confirm assessment" || i.label === "Add evaluation or treatment plan")}
+                        disabled={soapApproved || blockers.length > 0 || isSoapPlaceholder(soap.assessment)}
                         className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         {soapApproved ? "SOAP draft confirmed" : "Confirm SOAP draft"}
