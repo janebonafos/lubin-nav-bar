@@ -1083,6 +1083,9 @@ export default function IssuePrescriptionDialog({
     setPastedNote("");
     setSoapDrafted(false);
     setSoapApproved(false);
+    setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
+    setAiQuestions([]);
+
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
