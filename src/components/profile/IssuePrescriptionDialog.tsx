@@ -1170,6 +1170,7 @@ export default function IssuePrescriptionDialog({
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
+
   const goStep = (i: number) => {
     if (i > 0 && !patientReady) return;
     if (i === 3 && !canReview) return;
@@ -1743,6 +1744,16 @@ export default function IssuePrescriptionDialog({
   if (!open) return null;
 
   const hasPatient = !!patientName.trim() || creatingNew || !!selected;
+  /** The first step that still needs an answer — surfaced as a "Next" guide. */
+  const stepDoneFlags = [
+    hasPatient && patientGaps.length === 0,
+    patientReady && contextGaps.length === 0,
+    patientReady && docGaps.length === 0 && rxGaps.length === 0,
+    false,
+  ];
+  const stepLockedFlags = [false, !patientReady, !patientReady, !patientReady || !canReview];
+  const nextStep = stepDoneFlags.findIndex((d, i) => !d && !stepLockedFlags[i]);
+
   const stepGaps = [patientGaps, contextGaps, [...docGaps, ...rxGaps], []][step] ?? [];
   const canAdvance =
     step === 0
@@ -1866,6 +1877,7 @@ export default function IssuePrescriptionDialog({
                 open={step === 0}
                 onToggle={setStep}
                 done={hasPatient && patientGaps.length === 0}
+                next={nextStep === 0}
               >
                 {() => (
                 <>
@@ -2327,6 +2339,7 @@ export default function IssuePrescriptionDialog({
                 locked={!patientReady}
                 lockedHint="Add a patient in Step 1 first"
                 done={patientReady && (contextGaps.length === 0)}
+                next={nextStep === 1}
               >
                 {() => {
                   const today = new Date().toLocaleDateString("en-GB", {
@@ -3818,6 +3831,7 @@ export default function IssuePrescriptionDialog({
                 locked={!patientReady}
                 lockedHint="Add a patient in Step 1 first"
                 done={patientReady && (docGaps.length === 0 && rxGaps.length === 0)}
+                next={nextStep === 2}
               >
                 {() => (
                 <>
@@ -4056,6 +4070,7 @@ export default function IssuePrescriptionDialog({
                 open={step === 3}
                 onToggle={goStep}
                 locked={!patientReady || !canReview}
+                next={nextStep === 3}
                 lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–3 first"}
                 done={false}
               >
@@ -4691,6 +4706,7 @@ function Acc({
   hint,
   open,
   done,
+  next,
   locked,
   lockedHint,
   onToggle,
@@ -4701,13 +4717,18 @@ function Acc({
   hint?: string;
   open: boolean;
   done?: boolean;
+  next?: boolean;
   locked?: boolean;
   lockedHint?: string;
   onToggle: (i: number) => void;
   children: () => React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#E3DBF5] bg-white">
+    <section
+      className={`overflow-hidden rounded-2xl border bg-white transition ${
+        next && !done ? "border-[#6C4BD8] shadow-[0_0_0_3px_rgba(108,75,216,0.12)]" : "border-[#E3DBF5]"
+      }`}
+    >
       <button
         type="button"
         onClick={() => onToggle(open ? -1 : index)}
@@ -4721,6 +4742,8 @@ function Acc({
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${
             done
               ? "bg-[#3D2E6B] text-white"
+              : next
+                ? "bg-[#EFE9FF] text-[#6C4BD8] ring-1 ring-[#6C4BD8]"
               : open
                 ? "border border-[#3D2E6B] text-[#3D2E6B]"
                 : "border border-[#E5DDF4] text-[#A89BCA]"
@@ -4729,7 +4752,14 @@ function Acc({
           {done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : index + 1}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-[13.5px] font-bold text-[#3D2E6B]">{label}</span>
+            {next && !done && (
+              <span className="rounded-full bg-[#EFE9FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#6C4BD8]">
+                Next
+              </span>
+            )}
+          </span>
           {locked && lockedHint ? (
             <span className="mt-0.5 block text-[11.5px] text-[#8A7FB0]">{lockedHint}</span>
           ) : (
