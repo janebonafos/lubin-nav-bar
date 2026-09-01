@@ -2685,10 +2685,10 @@ export default function IssuePrescriptionDialog({
                   /** Actual blockers only. The Plan is not a blocker here — it is
                    *  drafted from the prescription decisions made in Step 3. */
                   const blockers: { label: string; key: keyof SoapNote }[] = [];
-                  if (isSoapPlaceholder(soap.objective))
-                    blockers.push({ label: "Confirm objective findings status", key: "objective" });
-                  if (isSoapPlaceholder(soap.assessment))
-                    blockers.push({ label: "Accept or write the Assessment", key: "assessment" });
+                   if (isSoapPlaceholder(soap.objective))
+                     blockers.push({ label: "Review Objective", key: "objective" });
+                   if (isSoapPlaceholder(soap.assessment))
+                     blockers.push({ label: "Complete Assessment", key: "assessment" });
 
                   const infoNeededPanel =
                     (soapDrafted || soapMode === "manual") && blockers.length > 0 ? (
