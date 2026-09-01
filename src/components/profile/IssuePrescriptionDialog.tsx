@@ -4876,17 +4876,19 @@ function MedicationCard({
             <label className={label}>Patient instructions</label>
             <button
               type="button"
-              disabled={instrLoading}
+              disabled={instrLoading || !regimenReady}
               onClick={() => {
                 setInstrLoading(true);
                 window.setTimeout(() => {
+                  // Drafted only from the medication and regimen the provider
+                  // selected. No medication-specific warning is invented.
                   onPatch(
                     "instructions",
                     [
                       med.sig.trim() ||
-                        `Take ${med.dose || "your dose"} ${med.frequency || "as directed"}.`,
-                      "Take it at the same time each day.",
-                      "Do not stop suddenly — contact your prescriber first.",
+                        `Take ${med.dose} ${med.frequency}${
+                          med.duration ? ` for ${med.duration}` : ""
+                        }.`,
                       "Tell your prescriber about any new symptom or side effect.",
                     ].join(" "),
                   );
@@ -4898,20 +4900,26 @@ function MedicationCard({
               <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
                 AI
               </span>
-              {instrLoading ? "Generating…" : "Generate patient-friendly instructions"}
+              {instrLoading ? "Generating…" : "Draft patient instructions"}
             </button>
           </div>
+          {!regimenReady && (
+            <p className="mt-1 text-[11px] leading-snug text-[#8A7FB0]">
+              Instructions are drafted only after a medication, dose and frequency are
+              selected.
+            </p>
+          )}
           <AutoTextarea
             minRows={2}
             className={`${area} mt-1.5`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
-            placeholder="Take with food. Do not stop suddenly."
+            placeholder="Written after the medication and regimen are selected."
           />
           {instrLoading && (
             <p className="mt-1.5 flex items-center gap-2 rounded-xl bg-[#F7F3FF] px-3 py-1.5 text-[11px] font-semibold text-[#4B3F7A]">
               <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#D3C6F0] border-t-[#3D2E6B]" />
-              Generating patient-friendly instructions…
+              Drafting patient instructions…
             </p>
           )}
           {!instrLoading && med.instructions.trim() && (
@@ -4919,7 +4927,7 @@ function MedicationCard({
               <span className="inline-flex h-3.5 items-center rounded-md bg-[#EDE7FA] px-1 text-[8.5px] font-bold tracking-wide text-[#4B3F7A]">
                 AI
               </span>
-              AI-assisted draft — provider review required.
+              AI draft — provider review required.
             </p>
           )}
         </div>
