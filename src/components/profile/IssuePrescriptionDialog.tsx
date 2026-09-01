@@ -2867,23 +2867,40 @@ export default function IssuePrescriptionDialog({
                             : ""}
                         </p>
                       )}
-                      <div className="flex flex-wrap items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setSoapApproved(true)}
-                          disabled={soapApproved || !step2Ready}
-                          className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                        >
-                          {soapApproved
-                            ? "Clinical assessment confirmed"
-                            : "Confirm clinical assessment"}
-                        </button>
-                        <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
-                          {soapApproved
-                            ? "You confirmed Subjective, Objective and Assessment. The Plan is drafted after you choose the medication in Step 3."
-                            : "Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization."}
-                        </p>
-                      </div>
+                      {soapApproved ? (
+                        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#BFE9C8] bg-[#F2FBF4] px-3.5 py-2.5">
+                          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#1E9E4B] text-white">
+                            <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                          </span>
+                          <p className="text-[12.5px] font-semibold text-[#15723B]">
+                            Clinical assessment confirmed
+                          </p>
+                          <p className="text-[11.5px] leading-snug text-[#5C8A6B]">
+                            Subjective, Objective and Assessment confirmed. The Plan is drafted after you choose the medication in Step 3.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSoapApproved(false)}
+                            className="ml-auto shrink-0 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSoapApproved(true)}
+                            disabled={!step2Ready}
+                            className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                          >
+                            Confirm clinical assessment
+                          </button>
+                          <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
+                            Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
 
