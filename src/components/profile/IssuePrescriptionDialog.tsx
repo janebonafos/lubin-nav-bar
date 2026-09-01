@@ -602,6 +602,7 @@ export default function IssuePrescriptionDialog({
   // ---------- gating ----------
   const patientGaps: string[] = [];
   if (!patientName.trim()) patientGaps.push("Full legal name");
+  if (!preferredName.trim()) patientGaps.push("Preferred name");
   if (!dob) patientGaps.push("Date of birth");
   if (sex === "not-documented") patientGaps.push("Sex");
   // City / municipality is the only address field required to issue a
@@ -1536,8 +1537,8 @@ export default function IssuePrescriptionDialog({
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
 
                         <div className="sm:col-span-2">
-                          <label className={label} htmlFor="rx-patient">
-                            Full legal name
+                           <label className={label} htmlFor="rx-patient">
+                            Full legal name <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-patient"
@@ -1549,10 +1550,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-preferred">
-                            Preferred name{" "}
-                            <span className="font-normal normal-case tracking-normal text-[#A89BD0]">
-                              (optional)
-                            </span>
+                            Preferred name <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-preferred"
@@ -1564,7 +1562,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-dob">
-                            Date of birth
+                            Date of birth <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-dob"
@@ -1576,7 +1574,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-age">
-                            Age
+                            Age <span className="text-[#B4436C]">*</span>
                           </label>
                           <div
                             id="rx-age"
@@ -1587,7 +1585,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-sex">
-                            Sex
+                            Sex <span className="text-[#B4436C]">*</span>
                           </label>
                           <select
                             id="rx-sex"
