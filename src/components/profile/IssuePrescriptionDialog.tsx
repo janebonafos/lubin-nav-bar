@@ -679,6 +679,8 @@ export default function IssuePrescriptionDialog({
   const [soapDrafted, setSoapDrafted] = useState(false);
   /** Set when the pasted text was rejected as non-clinical (instructions). */
   const [noteRejected, setNoteRejected] = useState(false);
+  /** Vitals fields are optional and only shown when the prescriber asks. */
+  const [showVitals, setShowVitals] = useState(false);
   /** The provider must explicitly review and approve the note. */
   const [soapApproved, setSoapApproved] = useState(false);
   /** Which sections still carry AI wording, so they can be highlighted. */
