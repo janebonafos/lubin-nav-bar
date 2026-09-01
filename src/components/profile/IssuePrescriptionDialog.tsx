@@ -1549,10 +1549,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-preferred">
-                            Preferred name{" "}
-                            <span className="font-normal normal-case tracking-normal text-[#A89BD0]">
-                              (optional)
-                            </span>
+                            Preferred name <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-preferred"
