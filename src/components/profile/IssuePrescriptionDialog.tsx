@@ -975,8 +975,22 @@ export default function IssuePrescriptionDialog({
   const [hrText, setHrText] = useState("");
   const [otherVitalsText, setOtherVitalsText] = useState("");
 
-  // ---------- Step 3: prescription ----------
+  // ---------- Step 3: medication and treatment ----------
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
+  /** How the provider wants to choose the treatment. Nothing is preselected. */
+  const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
+  const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
+  const [basisOpen, setBasisOpen] = useState("");
+  const [aiWorksOpen, setAiWorksOpen] = useState(false);
+  const [aiHelpOpen, setAiHelpOpen] = useState(false);
+  /** Plan detail drafted after the treatment is selected — all editable. */
+  const [planExtras, setPlanExtras] = useState({
+    nonMedication: "",
+    investigations: "",
+    monitoring: "",
+    followUp: "",
+    instructions: "",
+  });
 
   const [suggestions, setSuggestions] = useState<AiMedication[]>([]);
   const [confirmedSuggestions, setConfirmedSuggestions] = useState<string[]>([]);
