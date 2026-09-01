@@ -2784,17 +2784,16 @@ export default function IssuePrescriptionDialog({
                               "Patient-reported reason for treatment, relevant symptoms and history.",
                             )}
 
-                            <div>
+                            <div id="soap-field-objective">
                               <label className={label}>Objective</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
                                 Relevant observations, findings, results or vital signs.
                               </p>
-                              <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
+                              <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
                                 {(
                                   [
-                                    ["none", "No objective findings required"],
-                                    ["not-obtained", "Not obtained — remote assessment"],
-                                    ["add", "Add relevant findings / vitals"],
+                                    ["not-obtained", "Not obtained/documented"],
+                                    ["add", "Add findings or vitals"],
                                   ] as const
                                 ).map(([value, text]) => (
                                   <button
@@ -2805,10 +2804,7 @@ export default function IssuePrescriptionDialog({
                                       if (value !== "add")
                                         setSoap((s) => ({
                                           ...s,
-                                          objective:
-                                            value === "not-obtained"
-                                              ? "Not obtained — remote assessment"
-                                              : "No objective findings required",
+                                          objective: "Not obtained/documented.",
                                         }));
                                       else setSoap((s) => ({ ...s, objective: "" }));
                                     }}
@@ -2872,15 +2868,11 @@ export default function IssuePrescriptionDialog({
                               "plan",
                               "Treatment decision, medication plan, monitoring and follow-up.",
                             )}
-                            <p
-                              className={`rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
-                                contextGaps.length === 0
-                                  ? "bg-[#F0EBFB] text-[#3D2E6B]"
-                                  : "bg-[#F7F6FA] text-[#8A7FB0]"
-                              }`}
-                            >
-                              {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
-                            </p>
+                            {contextGaps.length === 0 && (
+                              <p className="rounded-xl bg-[#F0EBFB] px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B]">
+                                Focused SOAP complete
+                              </p>
+                            )}
                           </div>
                           {infoNeededPanel}
                           {soapApproval}
