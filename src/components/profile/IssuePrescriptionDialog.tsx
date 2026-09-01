@@ -25,6 +25,7 @@ import {
   MessageSquare,
   Plus,
   Search,
+  Sparkles,
   ShieldCheck,
   Trash2,
   UserPlus,
