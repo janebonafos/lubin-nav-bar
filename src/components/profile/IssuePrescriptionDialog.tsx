@@ -1253,6 +1253,77 @@ export default function IssuePrescriptionDialog({
   if (allergyState === "not-assessed") contextGaps.push("Review allergies");
   if (medicationState === "not-assessed") contextGaps.push("Review current medications");
 
+  /* ---- Medication options for provider review (prototype fixtures) ----
+     The information the options are based on is shown first. When something
+     important is missing, no medication or dose is shown at all. */
+  const confirmedIndication = isSoapPlaceholder(soap.assessment) ? "" : soap.assessment.trim();
+  const optionInputs: { label: string; value: string }[] = [
+    {
+      label: "Provider-confirmed Assessment or indication",
+      value: confirmedIndication || "Not documented",
+    },
+    { label: "Age", value: ageYears != null ? `${ageYears} years` : "Not documented" },
+    {
+      label: "Allergies",
+      value:
+        allergyState === "none-known"
+          ? "None reported"
+          : allergyState === "recorded"
+            ? allergyDetail.trim() || "Documented — view details"
+            : "Not assessed",
+    },
+    {
+      label: "Current medications",
+      value:
+        medicationState === "nothing"
+          ? "None reported"
+          : medicationState === "recorded"
+            ? medicationDetail.trim() || "Documented — view details"
+            : "Not assessed",
+    },
+    { label: "Relevant conditions", value: conditionsText.trim() || "None reported" },
+    {
+      label: "Pregnancy / breastfeeding",
+      value: pregnancyText.trim() || "Not applicable",
+    },
+    {
+      label: "Relevant vitals, laboratory or organ function",
+      value:
+        objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
+          ? "Documented — view details"
+          : "Not obtained",
+    },
+  ];
+  const optionsMissing: string[] = [];
+  if (!confirmedIndication) optionsMissing.push("Provider-confirmed Assessment or indication");
+  if (ageYears == null) optionsMissing.push("Date of birth so age can be calculated");
+  if (allergyState === "not-assessed") optionsMissing.push("Drug allergy status");
+  if (medicationState === "not-assessed") optionsMissing.push("Current medications");
+  const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
+
+  /** Copies a structured option into the order. Nothing beyond the option's
+   *  own structured fields is filled in, and every field stays editable. */
+  const useMedicationOption = (opt: MedicationOption) => {
+    setMeds((cur) => {
+      const first = cur[0] ?? emptyMed();
+      return [
+        {
+          ...first,
+          genericName: opt.generic,
+          strength: opt.strengthForm,
+          route: opt.route,
+          dose: opt.dose,
+          frequency: opt.frequency,
+          duration: opt.duration,
+          unit: opt.unit,
+          rationale: opt.why,
+        },
+        ...cur.slice(1),
+      ];
+    });
+    setRxPath("search");
+  };
+
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
   const soapTouched = Boolean(
     soap.subjective.trim() || soap.objective.trim() || soap.assessment.trim() || soap.plan.trim(),
