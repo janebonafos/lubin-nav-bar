@@ -19,7 +19,6 @@ import {
   ChevronDown,
 
   Download,
-  FileText,
   Info,
   Mail,
   MessageSquare,
