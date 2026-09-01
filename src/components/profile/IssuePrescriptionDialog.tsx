@@ -258,19 +258,41 @@ const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
 function soapSentences(raw: string): string[] {
   return raw
     .split(/\n+|(?<=[.;!?])\s+/)
-    .map((l) => l.replace(/\s+/g, " ").trim())
+    .map((l) =>
+      l
+        .replace(/\s+/g, " ")
+        .replace(/^[-•*\u2022]+\s*/, "")
+        .replace(/^\d+[.)]\s*/, "")
+        .replace(/[,:;]+$/, "")
+        .trim(),
+    )
     .filter(Boolean);
 }
 
-/** Joins patient-reported fragments into one natural "Patient reports …" line. */
+/**
+ * Joins patient-reported fragments into readable text.
+ * Short dictation becomes one natural "Patient reports …" sentence; longer or
+ * list-style input keeps its own line structure so nothing turns into a run-on.
+ */
 function phraseSubjective(parts: string[]): string {
-  const cleaned = parts.map((s) =>
-    s
-      .replace(/^patient (reports|has|c\/o|complains of)\s*/i, "")
-      .replace(/^pt\s+(reports|has)\s*/i, "")
-      .replace(/\.$/, "")
-      .trim(),
-  );
+  const cleaned = parts
+    .map((s) =>
+      s
+        .replace(/^patient (reports|has|c\/o|complains of)\s*/i, "")
+        .replace(/^pt\s+(reports|has)\s*/i, "")
+        .replace(/\.$/, "")
+        .trim(),
+    )
+    .filter(Boolean);
+  if (!cleaned.length) return "";
+
+  const isLong = cleaned.length > 3 || cleaned.some((s) => s.length > 120);
+  if (isLong) {
+    return cleaned
+      .map((s) => `• ${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
+      .join("\n");
+  }
+
   const joined =
     cleaned.length > 1
       ? `${cleaned.slice(0, -1).join(", ")} and ${cleaned[cleaned.length - 1]}`
@@ -278,6 +300,7 @@ function phraseSubjective(parts: string[]): string {
   if (!joined) return "";
   return `Patient reports ${joined.charAt(0).toLowerCase()}${joined.slice(1)}.`;
 }
+
 
 /**
  * Organises the provider's own words into Subjective and Objective only.
