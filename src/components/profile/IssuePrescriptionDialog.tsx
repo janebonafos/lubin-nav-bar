@@ -1744,6 +1744,16 @@ export default function IssuePrescriptionDialog({
   if (!open) return null;
 
   const hasPatient = !!patientName.trim() || creatingNew || !!selected;
+  /** The first step that still needs an answer — surfaced as a "Next" guide. */
+  const stepDoneFlags = [
+    hasPatient && patientGaps.length === 0,
+    patientReady && contextGaps.length === 0,
+    patientReady && docGaps.length === 0 && rxGaps.length === 0,
+    false,
+  ];
+  const stepLockedFlags = [false, !patientReady, !patientReady, !patientReady || !canReview];
+  const nextStep = stepDoneFlags.findIndex((d, i) => !d && !stepLockedFlags[i]);
+
   const stepGaps = [patientGaps, contextGaps, [...docGaps, ...rxGaps], []][step] ?? [];
   const canAdvance =
     step === 0
