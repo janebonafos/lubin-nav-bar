@@ -2490,15 +2490,20 @@ export default function IssuePrescriptionDialog({
                       <button
                         type="button"
                         onClick={() => setSoapApproved(true)}
-                        disabled={soapApproved || blockers.length > 0 || isSoapPlaceholder(soap.assessment)}
+                        disabled={
+                          soapApproved ||
+                          noteRejected ||
+                          blockers.length > 0 ||
+                          isSoapPlaceholder(soap.assessment)
+                        }
                         className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        {soapApproved ? "SOAP draft confirmed" : "Confirm SOAP draft"}
+                        {soapApproved ? "Clinical assessment confirmed" : "Confirm clinical assessment"}
                       </button>
                       <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
                         {soapApproved
-                          ? "You confirmed Subjective, Objective, Assessment and Plan."
-                          : "Review all four sections — your signature at the end provides the final authorization."}
+                          ? "You confirmed Subjective, Objective and Assessment. The Plan is drafted after you choose the medication in Step 3."
+                          : "Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization."}
                       </p>
                     </div>
                   );
