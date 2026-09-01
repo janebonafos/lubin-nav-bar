@@ -378,8 +378,9 @@ function readNoteDemographics(raw: string): NoteDemographics {
  *    examination findings and test results. When nothing was measured or
  *    examined it reads "No vitals or examination obtained." — or, when only
  *    remote observations exist, "Limited remote observations documented."
- *  - Assessment: diagnostic impressions ("cause not yet established") are
- *    proposed separately and only enter the note when the provider accepts.
+ *  - Assessment: the AI never decides whether a diagnosis is established. Any
+ *    documented impression is proposed as wording only; the prescriber selects
+ *    the basis (confirmed / working / symptom-based / further assessment).
  *  - Allergies and current medications never enter Subjective; they are routed
  *    to the Medication safety check.
  *  - Plan is left to Step 3, drafted from the confirmed medication and regimen.
@@ -397,6 +398,8 @@ function organiseSoap(raw: string): {
   limitedRemoteOnly: boolean;
   /** Demographics the note mentions, for the conflict check. */
   demographics: NoteDemographics;
+  /** True when the notes already contain a diagnosis or clinical impression. */
+  hasDocumentedAssessment: boolean;
 } {
   const sentences = soapSentences(raw);
   const objective: string[] = [];
@@ -453,7 +456,9 @@ function organiseSoap(raw: string): {
   const dictatedImpression = impressions
     .map((s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
     .join(" ");
-  // Never propose an assessment from non-clinical text.
+  // Never propose an assessment from non-clinical text, and never state
+  // whether a diagnosis is established, confirmed or uncertain — only the
+  // prescriber decides that.
   const suggestedAssessment =
     dictatedImpression ||
     (complaint && !isInstructionFragment(complaint)
@@ -461,8 +466,9 @@ function organiseSoap(raw: string): {
           durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
             ? `, ${durationMatch[1]} duration`
             : ""
-        }; cause not yet established.`
+        }.`
       : "");
+
 
   const soap: SoapNote = {
     subjective: subjectiveText,
@@ -499,6 +505,7 @@ function organiseSoap(raw: string): {
     },
     limitedRemoteOnly,
     demographics: readNoteDemographics(raw),
+    hasDocumentedAssessment: impressions.length > 0,
   };
 }
 
@@ -506,6 +513,40 @@ function organiseSoap(raw: string): {
 
 
 
+
+/**
+ * What the prescriber says the clinical assessment is. Provider-selected only —
+ * the AI never decides whether a diagnosis is established or uncertain.
+ */
+type AssessmentBasis = "confirmed" | "working" | "symptom" | "further";
+const ASSESSMENT_BASIS_OPTIONS: {
+  value: AssessmentBasis;
+  title: string;
+  description: string;
+}[] = [
+  {
+    value: "confirmed",
+    title: "Confirmed diagnosis",
+    description: "The provider has established the diagnosis.",
+  },
+  {
+    value: "working",
+    title: "Working diagnosis",
+    description:
+      "The provider considers this the most likely diagnosis based on the available information.",
+  },
+  {
+    value: "symptom",
+    title: "Symptom-based indication",
+    description:
+      "Treatment is being considered for a documented symptom without claiming a confirmed diagnosis.",
+  },
+  {
+    value: "further",
+    title: "Further assessment required",
+    description: "Additional evaluation is needed before treatment is selected.",
+  },
+];
 
 /** Is this a new treatment, or a continuation of something already prescribed? */
 type RxPurposeChoice = "new" | "renewal";
@@ -788,6 +829,11 @@ export default function IssuePrescriptionDialog({
   });
   /** Proposed assessment wording — never in the record until accepted. */
   const [suggestedAssessment, setSuggestedAssessment] = useState("");
+  /** True when the pasted notes already contain a diagnosis or impression. */
+  const [noteHasAssessment, setNoteHasAssessment] = useState(false);
+  /** The prescriber's own decision about what the assessment is. Only the
+   *  prescriber may set this — AI never claims a diagnosis is established. */
+  const [assessmentBasis, setAssessmentBasis] = useState<AssessmentBasis | "">("");
   /** Targeted question per SOAP section, shown beneath that section. */
   const [sectionQuestions, setSectionQuestions] = useState<
     Partial<Record<keyof SoapNote, string>>
@@ -1076,7 +1122,9 @@ export default function IssuePrescriptionDialog({
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
-      if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
+      if (!assessmentBasis) contextGaps.push("Select your clinical assessment");
+      if (assessmentBasis !== "further" && isSoapPlaceholder(soap.assessment))
+        contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
 
@@ -1352,6 +1400,8 @@ export default function IssuePrescriptionDialog({
     setSoapApproved(false);
     setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
     setSuggestedAssessment("");
+    setNoteHasAssessment(false);
+    setAssessmentBasis("");
     setSectionQuestions({});
 
 
@@ -1434,7 +1484,10 @@ export default function IssuePrescriptionDialog({
         safety,
         limitedRemoteOnly,
         demographics,
+        hasDocumentedAssessment,
       } = organiseSoap(raw);
+      setNoteHasAssessment(hasDocumentedAssessment);
+      setAssessmentBasis("");
       setSoap(drafted);
       setObjectiveMode(
         drafted.objective === NO_OBJECTIVE
@@ -2396,7 +2449,7 @@ export default function IssuePrescriptionDialog({
                   const sectionHelp: Record<keyof SoapNote, string> = {
                     subjective: "Add missing history",
                     objective: "Add findings or mark not obtained",
-                    assessment: "Use or edit suggested wording",
+                    assessment: "Provider-confirmed assessment required",
                     plan: "Generated from your decisions in Step 3",
                   };
 
@@ -2409,6 +2462,62 @@ export default function IssuePrescriptionDialog({
                     const aiWritten = aiFields[key] && !placeholder;
                     const question = sectionQuestions[key];
                     const planAwaiting = key === "plan" && soap.plan === PLAN_AWAITING_RX;
+                    /* Only the prescriber decides what the assessment is. */
+                    const basisBlock =
+                      key === "assessment" ? (
+                        <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] p-3">
+                          {!noteHasAssessment && (
+                            <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                              No clinical assessment was found in the notes.
+                            </p>
+                          )}
+                          <p className="mt-1 text-[12px] font-semibold text-[#4B4468]">
+                            What is your clinical assessment supporting this prescription?
+                          </p>
+                          <div className="mt-2 grid gap-2">
+                            {ASSESSMENT_BASIS_OPTIONS.map((o) => {
+                              const active = assessmentBasis === o.value;
+                              return (
+                                <button
+                                  key={o.value}
+                                  type="button"
+                                  onClick={() => {
+                                    setAssessmentBasis(o.value);
+                                    setSoapApproved(false);
+                                    if (o.value === "further") {
+                                      setSuggestedAssessment("");
+                                      setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
+                                      setAiFields((f) => ({ ...f, assessment: false }));
+                                    } else if (isSoapPlaceholder(soap.assessment)) {
+                                      setSoap((cur) => ({ ...cur, assessment: "" }));
+                                    }
+                                  }}
+                                  className={`rounded-xl border px-3 py-2 text-left transition ${
+                                    active
+                                      ? "border-[#6D4FCF] bg-white ring-1 ring-[#D9CEF3]"
+                                      : "border-[#E3DBF5] bg-white hover:border-[#D6CCEC]"
+                                  }`}
+                                >
+                                  <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
+                                    {o.title}
+                                  </p>
+                                  <p className="mt-0.5 text-[11.5px] leading-snug text-[#6F6889]">
+                                    {o.description}
+                                  </p>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {assessmentBasis === "further" && (
+                            <p className="mt-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[11.5px] font-semibold text-[#6B4E10]">
+                              Medication options are unavailable until the provider documents a
+                              clinical assessment.
+                            </p>
+                          )}
+                        </div>
+                      ) : null;
+                    const hideAssessmentField =
+                      key === "assessment" && (!assessmentBasis || assessmentBasis === "further");
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
@@ -2424,7 +2533,14 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
 
-                        {planAwaiting ? (
+                        {basisBlock}
+                        {key === "assessment" && !hideAssessmentField && (
+                          <p className="mt-2 text-[11.5px] font-semibold text-[#4B4468]">
+                            Enter diagnosis, working diagnosis or indication.
+                          </p>
+                        )}
+
+                        {hideAssessmentField ? null : planAwaiting ? (
                           <div className="mt-1.5 rounded-xl border border-dashed border-[#D9CEF3] bg-[#FAF8FF] px-3 py-2.5">
                             <p className="text-[12px] leading-snug text-[#4B4468]">
                               {PLAN_AWAITING_RX}
@@ -2458,15 +2574,12 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         {/* Assessment wording is proposed, never auto-recorded. */}
-                        {key === "assessment" && !!suggestedAssessment && (
+                        {key === "assessment" && !hideAssessmentField && !!suggestedAssessment && (
                           <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
                             <div className="flex items-center gap-2">
                               <p className="text-[11.5px] font-bold text-[#3D2E6B]">
-                                Suggested assessment wording
+                                AI draft — provider review required
                               </p>
-                              <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                                AI
-                              </span>
                             </div>
                             <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
                               “{suggestedAssessment}”
@@ -2482,7 +2595,7 @@ export default function IssuePrescriptionDialog({
                                 }}
                                 className="rounded-xl bg-[#3D2E6B] px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
                               >
-                                Use in Assessment
+                                Accept AI draft
                               </button>
                               <button
                                 type="button"
@@ -2493,7 +2606,7 @@ export default function IssuePrescriptionDialog({
                                 }}
                                 className="rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
                               >
-                                Edit myself
+                                Edit assessment
                               </button>
                             </div>
                           </div>
@@ -3915,6 +4028,22 @@ export default function IssuePrescriptionDialog({
                   </section>
 
 
+                  {assessmentBasis === "further" && purpose !== "renewal" ? (
+                    <section className={cardCls}>
+                      <p className="text-[12.5px] font-semibold text-[#6B4E10]">
+                        Medication options are unavailable until the provider documents a clinical
+                        assessment.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                      >
+                        Back to the clinical assessment
+                      </button>
+                    </section>
+                  ) : (
+                  <>
                   {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
@@ -4057,6 +4186,8 @@ export default function IssuePrescriptionDialog({
                       ))}
                     </div>
                   </section>
+                  </>
+                  )}
                 </>
               )}
               </Acc>
