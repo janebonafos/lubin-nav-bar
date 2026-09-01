@@ -2041,6 +2041,36 @@ export default function IssuePrescriptionDialog({
                     el?.querySelector("textarea")?.focus({ preventScroll: true });
                   };
 
+                  /** Adds an AI question as a prompt inside the section it belongs to. */
+                  const answerInSection = (key: keyof SoapNote, question: string) => {
+                    setSoapApproved(false);
+                    setAiFields((f) => ({ ...f, [key]: false }));
+                    setSoap((s) => ({
+                      ...s,
+                      [key]: isSoapPlaceholder(s[key])
+                        ? `${question} — `
+                        : `${s[key]} ${question} — `,
+                    }));
+                    if (key === "objective") setObjectiveMode("add");
+                    setSectionQuestions((q) => ({ ...q, [key]: undefined }));
+                    scrollToSoapField(key);
+                  };
+
+                  /** Where an answer will be written — stated on every action. */
+                  const ANSWER_ACTION: Record<keyof SoapNote, string> = {
+                    subjective: "Add to Subjective",
+                    objective: "Add objective findings",
+                    assessment: "Use in Assessment",
+                    plan: "Add to Plan",
+                  };
+
+                  const sectionHelp: Record<keyof SoapNote, string> = {
+                    subjective: "Add missing history",
+                    objective: "Add findings or mark not obtained",
+                    assessment: "Use or edit suggested wording",
+                    plan: "Generated from your decisions in Step 3",
+                  };
+
                   const soapField = (
                     key: keyof SoapNote,
                     hint: string,
@@ -2048,6 +2078,8 @@ export default function IssuePrescriptionDialog({
                   ) => {
                     const placeholder = isSoapPlaceholder(soap[key]);
                     const aiWritten = aiFields[key] && !placeholder;
+                    const question = sectionQuestions[key];
+                    const planAwaiting = key === "plan" && soap.plan === PLAN_AWAITING_RX;
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
@@ -2057,25 +2089,101 @@ export default function IssuePrescriptionDialog({
                               AI draft — confirm
                             </span>
                           )}
+                          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                            {sectionHelp[key]}
+                          </span>
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
-                        <textarea
-                          rows={rows}
-                          className={`${area} mt-1.5 ${
-                            placeholder
-                              ? "text-[#8A7FB0]"
-                              : aiWritten
-                                ? "border-[#D9CEF3] bg-[#FAF8FF]"
-                                : ""
-                          }`}
-                          value={soap[key]}
-                          onChange={(e) => {
-                            setSoapApproved(false);
-                            setAiFields((f) => ({ ...f, [key]: false }));
-                            setSoap((s) => ({ ...s, [key]: e.target.value }));
-                          }}
-                        />
-                        {key === "plan" && (
+
+                        {planAwaiting ? (
+                          <div className="mt-1.5 rounded-xl border border-dashed border-[#D9CEF3] bg-[#FAF8FF] px-3 py-2.5">
+                            <p className="text-[12px] leading-snug text-[#4B4468]">
+                              {PLAN_AWAITING_RX}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setSoap((s) => ({ ...s, plan: "" }))}
+                              className="mt-1.5 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            >
+                              Add non-medication plan now
+                            </button>
+                          </div>
+                        ) : (
+                          <textarea
+                            rows={rows}
+                            className={`${area} mt-1.5 ${
+                              placeholder
+                                ? "text-[#8A7FB0]"
+                                : aiWritten
+                                  ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                                  : ""
+                            }`}
+                            value={soap[key]}
+                            onChange={(e) => {
+                              setSoapApproved(false);
+                              setAiFields((f) => ({ ...f, [key]: false }));
+                              setSoap((s) => ({ ...s, [key]: e.target.value }));
+                            }}
+                          />
+                        )}
+
+                        {/* Assessment wording is proposed, never auto-recorded. */}
+                        {key === "assessment" && !!suggestedAssessment && (
+                          <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[11.5px] font-bold text-[#3D2E6B]">
+                                Suggested assessment wording
+                              </p>
+                              <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                                AI
+                              </span>
+                            </div>
+                            <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
+                              “{suggestedAssessment}”
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSoapApproved(false);
+                                  setAiFields((f) => ({ ...f, assessment: true }));
+                                  setSoap((s) => ({ ...s, assessment: suggestedAssessment }));
+                                  setSuggestedAssessment("");
+                                }}
+                                className="rounded-xl bg-[#3D2E6B] px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                              >
+                                Use in Assessment
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSuggestedAssessment("");
+                                  setSoap((s) => ({ ...s, assessment: "" }));
+                                  scrollToSoapField("assessment");
+                                }}
+                                className="rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                              >
+                                Edit myself
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* A specific question sits directly under its own section. */}
+                        {!!question && (
+                          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2">
+                            <span className="min-w-0 text-[11.5px] text-[#4B4468]">{question}</span>
+                            <button
+                              type="button"
+                              onClick={() => answerInSection(key, question)}
+                              className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                            >
+                              {ANSWER_ACTION[key]}
+                            </button>
+                          </div>
+                        )}
+
+                        {key === "plan" && !planAwaiting && (
                           <p className="mt-1.5 text-[11.5px] leading-snug text-[#8A7FB0]">
                             Optional —{" "}
                             <button
@@ -2111,83 +2219,33 @@ export default function IssuePrescriptionDialog({
                     );
                   };
 
-                  /** Actual blockers only — shown once, compactly. Follow-up and
-                   *  patient instructions are optional prompts inside Plan instead. */
+                  /** Actual blockers only. The Plan is not a blocker here — it is
+                   *  drafted from the prescription decisions made in Step 3. */
                   const blockers: { label: string; key: keyof SoapNote }[] = [];
                   if (isSoapPlaceholder(soap.objective))
                     blockers.push({ label: "Confirm objective findings status", key: "objective" });
-                  if (isSoapPlaceholder(soap.plan))
-                    blockers.push({ label: "Complete the Plan", key: "plan" });
+                  if (isSoapPlaceholder(soap.assessment))
+                    blockers.push({ label: "Accept or write the Assessment", key: "assessment" });
 
-                  const infoNeededPanel = soapDrafted || soapMode === "manual" ? (
-                    <>
-                      {blockers.length > 0 && (
-                        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
-                          <p className="text-[11.5px] font-bold text-[#3D2E6B]">
-                            Required before continuing:
-                          </p>
-                          {blockers.map((item) => (
-                            <button
-                              key={item.label}
-                              type="button"
-                              onClick={() => scrollToSoapField(item.key)}
-                              className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                  const infoNeededPanel =
+                    (soapDrafted || soapMode === "manual") && blockers.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
+                        <p className="text-[11.5px] font-bold text-[#3D2E6B]">
+                          Required before continuing:
+                        </p>
+                        {blockers.map((item) => (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={() => scrollToSoapField(item.key)}
+                            className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null;
 
-                      {aiQuestions.length > 0 && (
-                        <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] p-4">
-                          <div className="flex items-center gap-2">
-                            <p className="text-[12.5px] font-bold text-[#3D2E6B]">AI questions</p>
-                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                              AI
-                            </span>
-                          </div>
-                          <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                            The AI needs a little more detail — nothing here enters the clinical
-                            record until you answer.
-                          </p>
-                          <ul className="mt-2.5 space-y-2">
-                            {aiQuestions.map((q) => (
-                              <li
-                                key={q}
-                                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2"
-                              >
-                                <span className="min-w-0 text-[12px] text-[#4B4468]">{q}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const key: keyof SoapNote = /finding|vital/i.test(q)
-                                      ? "objective"
-                                      : /impression/i.test(q)
-                                        ? "assessment"
-                                        : "plan";
-                                    setSoapApproved(false);
-                                    setAiFields((f) => ({ ...f, [key]: false }));
-                                    setSoap((s) => ({
-                                      ...s,
-                                      [key]: isSoapPlaceholder(s[key])
-                                        ? `${q} — `
-                                        : `${s[key]} ${q} — `,
-                                    }));
-                                    setAiQuestions((list) => list.filter((x) => x !== q));
-                                    scrollToSoapField(key);
-                                  }}
-                                  className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
-                                >
-                                  Add response
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </>
-                  ) : null;
 
 
                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
