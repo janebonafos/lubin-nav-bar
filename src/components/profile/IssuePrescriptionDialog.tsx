@@ -401,6 +401,8 @@ function organiseSoap(raw: string): {
   aiFields: (keyof SoapNote)[];
   /** Proposed assessment wording, held outside the clinical record. */
   suggestedAssessment: string;
+  /** The documented symptom, offered as an indication when no diagnosis exists. */
+  symptomIndication: string;
   /** One targeted question per section, shown beneath that section. */
   sectionQuestions: Partial<Record<keyof SoapNote, string>>;
   /** Safety information lifted out of the note for the safety check. */
@@ -526,6 +528,7 @@ function organiseSoap(raw: string): {
     soap,
     aiFields: ["subjective", "objective"],
     suggestedAssessment,
+    symptomIndication,
     sectionQuestions,
     safety: {
       allergies: allergyLines.join(" "),
@@ -555,7 +558,7 @@ const ASSESSMENT_BASIS_OPTIONS: {
   {
     value: "confirmed",
     title: "Confirmed diagnosis",
-    description: "The provider has established the diagnosis.",
+    description: "Diagnosis confirmed by the provider.",
   },
   {
     value: "working",
@@ -1205,10 +1208,10 @@ export default function IssuePrescriptionDialog({
     entry === "lubin"
       ? "Existing SOAP note from a completed Lubin consultation"
       : entry === "outside"
-        ? "Focused SOAP note — consultation completed outside Lubin"
+        ? "Clinical assessment — consultation completed outside Lubin"
         : purpose === "renewal"
           ? "Quick renewal review"
-          : "Focused SOAP note — assessment documented at prescribing";
+          : "Clinical assessment — documented at prescribing";
   const soapDateLabel =
     entry === "lubin"
       ? linkedAppt?.date || "Not selected"
@@ -3329,7 +3332,7 @@ export default function IssuePrescriptionDialog({
                             <div id="soap-generated-sections" className="mt-4 rounded-xl border border-[#E3DBF5] bg-white p-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <h4 className="text-[13px] font-bold text-[#3D2E6B]">
-                                  Focused SOAP note
+                                  Clinical assessment
                                 </h4>
                                 <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
                                   {soapStatusLabel}
@@ -3392,7 +3395,7 @@ export default function IssuePrescriptionDialog({
 
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <h4 className="text-[13px] font-bold text-[#3D2E6B]">
-                                Focused SOAP note
+                                Clinical assessment
                               </h4>
                               <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
                                 {soapStatusLabel}
@@ -3513,7 +3516,7 @@ export default function IssuePrescriptionDialog({
                             )}
                             {contextGaps.length === 0 && (
                               <p className="rounded-xl bg-[#F0EBFB] px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B]">
-                                Focused SOAP complete
+                                Clinical assessment complete
                               </p>
                             )}
                           </div>
