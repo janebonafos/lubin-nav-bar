@@ -254,6 +254,34 @@ const PLAN_HINTS =
   /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
 const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
 
+/**
+ * Product/design/engineering instruction language. Text like this is not
+ * patient information and must never reach a clinical field.
+ */
+const INSTRUCTION_HINTS: RegExp[] = [
+  /\b(frontend|front[- ]end|backend|back[- ]end|database|api|endpoint|schema|storage|localstorage|supabase|migration|component|css|ui|ux|modal|dropdown|button|placeholder|textarea|tooltip|accordion|route|repo|deploy|build|typescript|react)\b/i,
+  /\b(must (contain|not|be|show)|should (contain|be|show|not)|do not (add|place|show|generate|use)|never (add|show|generate|invent)|rename|replace\b.*\bwith\b|implement|refactor|redesign|design only|requirement|spec\b|task \d)/i,
+  /\b(subjective|objective|assessment|plan)\b\s*(must|should|section|field|fields)\b/i,
+  /^\s*\d+[.)]\s+\S+/m,
+];
+
+/** True when the pasted text reads as instructions rather than clinical notes. */
+export function looksLikeInstructions(raw: string): boolean {
+  const text = raw.trim();
+  if (!text) return false;
+  const hits = INSTRUCTION_HINTS.filter((r) => r.test(text)).length;
+  return hits >= 2 || /\bdesign only\b|\bfrontend design only\b/i.test(text);
+}
+
+/** True for a single fragment that reads as an instruction, not a finding. */
+function isInstructionFragment(s: string): boolean {
+  return (
+    /\b(must|should|do not|don't|never|rename|replace|implement|remove|add a|show only|instead of)\b/i.test(
+      s,
+    ) && /\b(subjective|objective|assessment|plan|field|section|button|text|note|ui|design)\b/i.test(s)
+  );
+}
+
 /** Splits raw dictation into sentence-like fragments, preserving every fact. */
 function soapSentences(raw: string): string[] {
   return raw
@@ -328,26 +356,30 @@ function organiseSoap(raw: string): {
   const subjective: string[] = [];
 
   for (const s of sentences) {
+    // Instruction-style lines ("Objective must contain…") are not clinical facts.
+    if (isInstructionFragment(s)) continue;
     if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
     else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
     else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
     else subjective.push(s);
   }
 
-  const subjectiveText = subjective.length ? phraseSubjective(subjective) : raw.trim();
+  const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
 
   // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
-  const complaint = (subjective[0] ?? sentences[0] ?? "")
+  const complaint = (subjective[0] ?? "")
     .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
     .replace(/\.$/, "");
-  const suggestedAssessment = complaint
-    ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
-        durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
-          ? `, ${durationMatch[1]} duration`
-          : ""
-      }; cause not yet established.`
-    : "";
+  // Never propose an assessment from non-clinical text.
+  const suggestedAssessment =
+    complaint && !isInstructionFragment(complaint)
+      ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
+          durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
+            ? `, ${durationMatch[1]} duration`
+            : ""
+        }; cause not yet established.`
+      : "";
 
   const soap: SoapNote = {
     subjective: subjectiveText,
@@ -645,6 +677,10 @@ export default function IssuePrescriptionDialog({
   const [soapMode, setSoapMode] = useState<"ai" | "manual">("ai");
   const [pastedNote, setPastedNote] = useState("");
   const [soapDrafted, setSoapDrafted] = useState(false);
+  /** Set when the pasted text was rejected as non-clinical (instructions). */
+  const [noteRejected, setNoteRejected] = useState(false);
+  /** Vitals fields are optional and only shown when the prescriber asks. */
+  const [showVitals, setShowVitals] = useState(false);
   /** The provider must explicitly review and approve the note. */
   const [soapApproved, setSoapApproved] = useState(false);
   /** Which sections still carry AI wording, so they can be highlighted. */
@@ -934,15 +970,17 @@ export default function IssuePrescriptionDialog({
     if (!consultMode) contextGaps.push("Consultation method");
     if (soapMode === "ai") {
       if (!pastedNote.trim()) contextGaps.push("Add clinical notes");
+      else if (noteRejected)
+        contextGaps.push("Replace the pasted text with patient clinical notes");
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
-    if (soapMode === "manual" || soapDrafted) {
+    if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
       if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
 
-      if (!soapApproved) contextGaps.push("Confirm SOAP draft");
+      if (!soapApproved) contextGaps.push("Confirm clinical assessment");
     }
 
   }
@@ -1271,6 +1309,16 @@ export default function IssuePrescriptionDialog({
   function prepareSoapDraft() {
     const raw = pastedNote.trim();
     if (!raw) return;
+    // Guard: only patient clinical information may enter the record.
+    if (looksLikeInstructions(raw)) {
+      setNoteRejected(true);
+      setSoapDrafted(false);
+      setSuggestedAssessment("");
+      setSectionQuestions({});
+      setSoapApproved(false);
+      return;
+    }
+    setNoteRejected(false);
     setAiLoading(true);
     window.setTimeout(() => {
       const {
@@ -2369,9 +2417,33 @@ export default function IssuePrescriptionDialog({
                           setPastedNote(e.target.value);
                           setSoapDrafted(false);
                           setSoapApproved(false);
+                          setNoteRejected(false);
                         }}
                         placeholder="e.g. Patient seen today for follow-up of hypertension. BP 138/86. Tolerating current medication…"
                       />
+                      {noteRejected && (
+                        <div className="mt-2 rounded-xl border border-[#F0D3CF] bg-[#FDF2F2] px-3 py-2.5">
+                          <p className="text-[11.5px] font-semibold leading-relaxed text-[#9B3B33]">
+                            This appears to contain design or product instructions rather than
+                            clinical notes. No information was added to the patient record.
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPastedNote("");
+                                setNoteRejected(false);
+                              }}
+                              className="inline-flex h-8 items-center rounded-[10px] border border-[#E0C9C5] bg-white px-3 text-[11.5px] font-semibold text-[#9B3B33]"
+                            >
+                              Clear text
+                            </button>
+                            <span className="inline-flex h-8 items-center text-[11.5px] text-[#9B3B33]">
+                              or edit the text above and try again
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={prepareSoapDraft}
@@ -2420,15 +2492,20 @@ export default function IssuePrescriptionDialog({
                       <button
                         type="button"
                         onClick={() => setSoapApproved(true)}
-                        disabled={soapApproved || blockers.length > 0 || isSoapPlaceholder(soap.assessment)}
+                        disabled={
+                          soapApproved ||
+                          noteRejected ||
+                          blockers.length > 0 ||
+                          isSoapPlaceholder(soap.assessment)
+                        }
                         className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        {soapApproved ? "SOAP draft confirmed" : "Confirm SOAP draft"}
+                        {soapApproved ? "Clinical assessment confirmed" : "Confirm clinical assessment"}
                       </button>
                       <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
                         {soapApproved
-                          ? "You confirmed Subjective, Objective, Assessment and Plan."
-                          : "Review all four sections — your signature at the end provides the final authorization."}
+                          ? "You confirmed Subjective, Objective and Assessment. The Plan is drafted after you choose the medication in Step 3."
+                          : "Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization."}
                       </p>
                     </div>
                   );
@@ -3024,26 +3101,36 @@ export default function IssuePrescriptionDialog({
                                     }
                                     placeholder="Examination findings, results…"
                                   />
-                                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                                    <input
-                                      className={field}
-                                      value={weightText}
-                                      onChange={(e) => setWeightText(e.target.value)}
-                                      placeholder="Weight — e.g. 58 kg"
-                                    />
-                                    <input
-                                      className={field}
-                                      value={bpText}
-                                      onChange={(e) => setBpText(e.target.value)}
-                                      placeholder="BP — e.g. 118/74"
-                                    />
-                                    <input
-                                      className={field}
-                                      value={hrText}
-                                      onChange={(e) => setHrText(e.target.value)}
-                                      placeholder="HR — e.g. 72 bpm"
-                                    />
-                                  </div>
+                                  {!showVitals ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowVitals(true)}
+                                      className="mt-2 inline-flex h-9 items-center rounded-[10px] border border-[#D9CEF3] bg-white px-3 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
+                                    >
+                                      Add vitals (optional)
+                                    </button>
+                                  ) : (
+                                    <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                                      <input
+                                        className={field}
+                                        value={weightText}
+                                        onChange={(e) => setWeightText(e.target.value)}
+                                        placeholder="Weight — e.g. 58 kg"
+                                      />
+                                      <input
+                                        className={field}
+                                        value={bpText}
+                                        onChange={(e) => setBpText(e.target.value)}
+                                        placeholder="BP — e.g. 118/74"
+                                      />
+                                      <input
+                                        className={field}
+                                        value={hrText}
+                                        onChange={(e) => setHrText(e.target.value)}
+                                        placeholder="HR — e.g. 72 bpm"
+                                      />
+                                    </div>
+                                  )}
                                   <input
                                     className={`${field} mt-2`}
                                     value={otherVitalsText}
