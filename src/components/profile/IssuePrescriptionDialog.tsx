@@ -7,34 +7,8 @@ import {
   type TextareaHTMLAttributes,
 } from "react";
 
-/**
- * Textarea that grows with its content so a long AI draft is readable at a
- * glance — the prescriber never scrolls inside a field to read the note.
- */
-function AutoTextarea({
-  minRows = 2,
-  value,
-  ...rest
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { minRows?: number }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
-  return (
-    <textarea
-      {...rest}
-      ref={ref}
-      rows={minRows}
-      value={value}
-      style={{ overflow: "hidden", resize: "none", ...rest.style }}
-    />
-  );
-}
-
 import { createPortal } from "react-dom";
+
 import {
   AlertTriangle,
   ArrowLeft,
