@@ -514,6 +514,40 @@ function organiseSoap(raw: string): {
 
 
 
+/**
+ * What the prescriber says the clinical assessment is. Provider-selected only —
+ * the AI never decides whether a diagnosis is established or uncertain.
+ */
+type AssessmentBasis = "confirmed" | "working" | "symptom" | "further";
+const ASSESSMENT_BASIS_OPTIONS: {
+  value: AssessmentBasis;
+  title: string;
+  description: string;
+}[] = [
+  {
+    value: "confirmed",
+    title: "Confirmed diagnosis",
+    description: "The provider has established the diagnosis.",
+  },
+  {
+    value: "working",
+    title: "Working diagnosis",
+    description:
+      "The provider considers this the most likely diagnosis based on the available information.",
+  },
+  {
+    value: "symptom",
+    title: "Symptom-based indication",
+    description:
+      "Treatment is being considered for a documented symptom without claiming a confirmed diagnosis.",
+  },
+  {
+    value: "further",
+    title: "Further assessment required",
+    description: "Additional evaluation is needed before treatment is selected.",
+  },
+];
+
 /** Is this a new treatment, or a continuation of something already prescribed? */
 type RxPurposeChoice = "new" | "renewal";
 const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: string }[] = [
@@ -795,6 +829,11 @@ export default function IssuePrescriptionDialog({
   });
   /** Proposed assessment wording — never in the record until accepted. */
   const [suggestedAssessment, setSuggestedAssessment] = useState("");
+  /** True when the pasted notes already contain a diagnosis or impression. */
+  const [noteHasAssessment, setNoteHasAssessment] = useState(false);
+  /** The prescriber's own decision about what the assessment is. Only the
+   *  prescriber may set this — AI never claims a diagnosis is established. */
+  const [assessmentBasis, setAssessmentBasis] = useState<AssessmentBasis | "">("");
   /** Targeted question per SOAP section, shown beneath that section. */
   const [sectionQuestions, setSectionQuestions] = useState<
     Partial<Record<keyof SoapNote, string>>
@@ -1083,7 +1122,9 @@ export default function IssuePrescriptionDialog({
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
-      if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
+      if (!assessmentBasis) contextGaps.push("Select your clinical assessment");
+      if (assessmentBasis !== "further" && isSoapPlaceholder(soap.assessment))
+        contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
 
@@ -1359,6 +1400,8 @@ export default function IssuePrescriptionDialog({
     setSoapApproved(false);
     setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
     setSuggestedAssessment("");
+    setNoteHasAssessment(false);
+    setAssessmentBasis("");
     setSectionQuestions({});
 
 
@@ -1441,7 +1484,10 @@ export default function IssuePrescriptionDialog({
         safety,
         limitedRemoteOnly,
         demographics,
+        hasDocumentedAssessment,
       } = organiseSoap(raw);
+      setNoteHasAssessment(hasDocumentedAssessment);
+      setAssessmentBasis("");
       setSoap(drafted);
       setObjectiveMode(
         drafted.objective === NO_OBJECTIVE
