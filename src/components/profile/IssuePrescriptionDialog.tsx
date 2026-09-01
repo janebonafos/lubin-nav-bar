@@ -2545,7 +2545,7 @@ export default function IssuePrescriptionDialog({
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
                           <label className={label}>
-                            {key === "assessment" ? "Assessment or indication" : SOAP_FULL_LABEL[key]}
+                            {SOAP_FULL_LABEL[key]}
                           </label>
                           {aiWritten && (
                             <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
