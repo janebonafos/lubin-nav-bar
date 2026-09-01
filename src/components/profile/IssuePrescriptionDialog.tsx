@@ -378,8 +378,9 @@ function readNoteDemographics(raw: string): NoteDemographics {
  *    examination findings and test results. When nothing was measured or
  *    examined it reads "No vitals or examination obtained." — or, when only
  *    remote observations exist, "Limited remote observations documented."
- *  - Assessment: diagnostic impressions ("cause not yet established") are
- *    proposed separately and only enter the note when the provider accepts.
+ *  - Assessment: the AI never decides whether a diagnosis is established. Any
+ *    documented impression is proposed as wording only; the prescriber selects
+ *    the basis (confirmed / working / symptom-based / further assessment).
  *  - Allergies and current medications never enter Subjective; they are routed
  *    to the Medication safety check.
  *  - Plan is left to Step 3, drafted from the confirmed medication and regimen.
@@ -397,6 +398,8 @@ function organiseSoap(raw: string): {
   limitedRemoteOnly: boolean;
   /** Demographics the note mentions, for the conflict check. */
   demographics: NoteDemographics;
+  /** True when the notes already contain a diagnosis or clinical impression. */
+  hasDocumentedAssessment: boolean;
 } {
   const sentences = soapSentences(raw);
   const objective: string[] = [];
@@ -502,6 +505,7 @@ function organiseSoap(raw: string): {
     },
     limitedRemoteOnly,
     demographics: readNoteDemographics(raw),
+    hasDocumentedAssessment: impressions.length > 0,
   };
 }
 
