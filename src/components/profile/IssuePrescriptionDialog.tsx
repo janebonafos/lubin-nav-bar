@@ -2645,7 +2645,7 @@ export default function IssuePrescriptionDialog({
                         ) : (
                           <div className="mt-2">
                             {key === "assessment" && (
-                              <p className="mb-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                              <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#6F5BA0]">
                                 {assessmentBasis === "symptom"
                                   ? "Assessment / indication — editable"
                                   : "Your diagnosis or clinical impression"}
