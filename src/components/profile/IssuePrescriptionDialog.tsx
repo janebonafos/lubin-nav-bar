@@ -191,10 +191,19 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
  * section. The draft never claims a section is "not required" and never
  * fabricates findings, diagnoses or treatment.
  */
-const NO_OBJECTIVE = "No objective findings documented.";
+const NO_OBJECTIVE = "Not obtained/documented.";
 const NO_ASSESSMENT = "Assessment not yet documented.";
 const NO_PLAN = "Plan not yet documented.";
-const SOAP_PLACEHOLDERS = [NO_OBJECTIVE, NO_ASSESSMENT, NO_PLAN, NEEDS_CONFIRMATION];
+/** Shown in Plan until the medication and regimen are chosen in Step 3. */
+const PLAN_AWAITING_RX =
+  "The Plan will be drafted after you select the medication and regimen in Step 3.";
+const SOAP_PLACEHOLDERS = [
+  NO_OBJECTIVE,
+  NO_ASSESSMENT,
+  NO_PLAN,
+  PLAN_AWAITING_RX,
+  NEEDS_CONFIRMATION,
+];
 
 /** Placeholder text is a visible gap, never documented content. */
 function isSoapPlaceholder(value: string): boolean {
@@ -216,71 +225,93 @@ function soapSentences(raw: string): string[] {
     .filter(Boolean);
 }
 
+/** Joins patient-reported fragments into one natural "Patient reports …" line. */
+function phraseSubjective(parts: string[]): string {
+  const cleaned = parts.map((s) =>
+    s
+      .replace(/^patient (reports|has|c\/o|complains of)\s*/i, "")
+      .replace(/^pt\s+(reports|has)\s*/i, "")
+      .replace(/\.$/, "")
+      .trim(),
+  );
+  const joined =
+    cleaned.length > 1
+      ? `${cleaned.slice(0, -1).join(", ")} and ${cleaned[cleaned.length - 1]}`
+      : (cleaned[0] ?? "");
+  if (!joined) return "";
+  return `Patient reports ${joined.charAt(0).toLowerCase()}${joined.slice(1)}.`;
+}
+
 /**
- * Organises the provider's own words into S/O/A/P. Nothing is invented: each
- * sentence is routed to a section, negatives are preserved verbatim, and empty
- * sections receive a neutral placeholder.
+ * Organises the provider's own words into Subjective and Objective only.
+ *
+ * Rules the finished AI feature must follow:
+ *  - Subjective holds only patient-reported symptoms, history and concerns —
+ *    never an AI interpretation such as "cause not yet established".
+ *  - Objective holds only measured or observed information. When nothing was
+ *    entered it reads "Not obtained/documented." and never invents findings.
+ *  - Assessment is NOT written into the record. Wording is proposed separately
+ *    and only enters the note when the provider chooses "Use in Assessment".
+ *  - Plan is left to Step 3: it is drafted from the medication, regimen and
+ *    follow-up the provider actually confirms.
  */
 function organiseSoap(raw: string): {
   soap: SoapNote;
   aiFields: (keyof SoapNote)[];
-  questions: string[];
+  /** Proposed assessment wording, held outside the clinical record. */
+  suggestedAssessment: string;
+  /** One targeted question per section, shown beneath that section. */
+  sectionQuestions: Partial<Record<keyof SoapNote, string>>;
 } {
   const sentences = soapSentences(raw);
   const objective: string[] = [];
-  const plan: string[] = [];
   const subjective: string[] = [];
 
   for (const s of sentences) {
-    if (PLAN_HINTS.test(s)) plan.push(s);
+    if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
     else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
     else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
     else subjective.push(s);
   }
 
-  const subjectiveText = subjective.length
-    ? subjective
-        .map((s) => (/^patient|^pt\b/i.test(s) ? s : `Patient reports ${s.charAt(0).toLowerCase()}${s.slice(1)}`))
-        .join(" ")
-        .replace(/\.\./g, ".")
-    : raw.trim();
+  const subjectiveText = subjective.length ? phraseSubjective(subjective) : raw.trim();
 
-  // The assessment restates the documented complaint without adding a cause.
+  // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
   const complaint = (subjective[0] ?? sentences[0] ?? "")
     .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
     .replace(/\.$/, "");
-  const assessment = complaint
+  const suggestedAssessment = complaint
     ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
         durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
-          ? ` of ${durationMatch[1]} duration`
+          ? `, ${durationMatch[1]} duration`
           : ""
       }; cause not yet established.`
-    : NO_ASSESSMENT;
+    : "";
 
   const soap: SoapNote = {
     subjective: subjectiveText,
     objective: objective.length ? objective.join(" ") : NO_OBJECTIVE,
-    assessment,
-    plan: plan.length ? plan.join(" ") : NO_PLAN,
+    assessment: NO_ASSESSMENT,
+    plan: PLAN_AWAITING_RX,
   };
 
-  const questions: string[] = [];
+  const sectionQuestions: Partial<Record<keyof SoapNote, string>> = {};
+  if (!/\b(started|since|for \d|history|previous|prior|allerg)\b/i.test(raw))
+    sectionQuestions.subjective =
+      "Any relevant history, onset detail or previous treatment the patient mentioned?";
   if (!objective.length)
-    questions.push("Were any findings or vitals obtained today (BP, HR, temperature, exam)?");
-  if (assessment === NO_ASSESSMENT)
-    questions.push("What is your working clinical impression for this visit?");
-  if (!plan.length)
-    questions.push("What treatment, medication or investigation are you planning?");
-  if (!/follow[- ]?up|review in|return/i.test(raw))
-    questions.push("When should this patient be reviewed again?");
+    sectionQuestions.objective =
+      "Were any findings or vitals obtained today (BP, HR, temperature, exam)?";
 
   return {
     soap,
-    aiFields: ["subjective", "objective", "assessment", "plan"],
-    questions,
+    aiFields: ["subjective", "objective"],
+    suggestedAssessment,
+    sectionQuestions,
   };
 }
+
 
 
 
@@ -559,8 +590,13 @@ export default function IssuePrescriptionDialog({
     assessment: false,
     plan: false,
   });
-  /** Targeted questions the assistant asks instead of guessing. */
-  const [aiQuestions, setAiQuestions] = useState<string[]>([]);
+  /** Proposed assessment wording — never in the record until accepted. */
+  const [suggestedAssessment, setSuggestedAssessment] = useState("");
+  /** Targeted question per SOAP section, shown beneath that section. */
+  const [sectionQuestions, setSectionQuestions] = useState<
+    Partial<Record<keyof SoapNote, string>>
+  >({});
+
 
 
   const [soap, setSoap] = useState<SoapNote>({
@@ -709,6 +745,30 @@ export default function IssuePrescriptionDialog({
   const readyMeds = meds.filter((m) => m.genericName.trim() && m.dose.trim() && m.frequency.trim());
   const dangerousMeds = meds.filter((m) => m.dangerous);
 
+  /**
+   * The Plan is drafted from the prescription the provider actually confirmed in
+   * Step 3 — never guessed earlier. It only replaces the awaiting placeholder,
+   * so anything the provider typed themselves is left untouched.
+   */
+  useEffect(() => {
+    if (soap.plan !== PLAN_AWAITING_RX) return;
+    if (!readyMeds.length) return;
+    const lines = readyMeds.map(
+      (m) =>
+        `Start ${m.genericName}${m.strength ? ` ${m.strength}` : ""} ${m.dose} ${m.frequency}${
+          m.duration ? ` for ${m.duration}` : ""
+        }.`,
+    );
+    setSoap((s) => ({
+      ...s,
+      plan: `${lines.join(" ")} Follow-up: ${NEEDS_CONFIRMATION}. Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+    }));
+    setAiFields((f) => ({ ...f, plan: true }));
+    setSoapApproved(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
+
+
   /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
   const fromAppointment = appointmentId
     ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
@@ -815,7 +875,9 @@ export default function IssuePrescriptionDialog({
     if (soapMode === "manual" || soapDrafted) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
       if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
-      if (isSoapPlaceholder(soap.plan)) contextGaps.push("Add evaluation or treatment plan");
+      // The Plan is drafted from the Step 3 prescription decisions, so it is
+      // never a blocker for finishing Step 2.
+
       if (!soapApproved) contextGaps.push("Confirm SOAP draft");
     }
 
@@ -1084,7 +1146,9 @@ export default function IssuePrescriptionDialog({
     setSoapDrafted(false);
     setSoapApproved(false);
     setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
-    setAiQuestions([]);
+    setSuggestedAssessment("");
+    setSectionQuestions({});
+
 
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
@@ -1145,15 +1209,23 @@ export default function IssuePrescriptionDialog({
     if (!raw) return;
     setAiLoading(true);
     window.setTimeout(() => {
-      const { soap: drafted, aiFields: drafts, questions } = organiseSoap(raw);
+      const {
+        soap: drafted,
+        aiFields: drafts,
+        suggestedAssessment: proposal,
+        sectionQuestions: questions,
+      } = organiseSoap(raw);
       setSoap(drafted);
+      setObjectiveMode(drafted.objective === NO_OBJECTIVE ? "not-obtained" : "add");
       setAiFields({
         subjective: drafts.includes("subjective"),
         objective: drafts.includes("objective"),
-        assessment: drafts.includes("assessment"),
-        plan: drafts.includes("plan"),
+        assessment: false,
+        plan: false,
       });
-      setAiQuestions(questions);
+      setSuggestedAssessment(proposal);
+      setSectionQuestions(questions);
+
       setSoapApproved(false);
       setSoapDrafted(true);
       setAiLoading(false);
@@ -1995,6 +2067,36 @@ export default function IssuePrescriptionDialog({
                     el?.querySelector("textarea")?.focus({ preventScroll: true });
                   };
 
+                  /** Adds an AI question as a prompt inside the section it belongs to. */
+                  const answerInSection = (key: keyof SoapNote, question: string) => {
+                    setSoapApproved(false);
+                    setAiFields((f) => ({ ...f, [key]: false }));
+                    setSoap((s) => ({
+                      ...s,
+                      [key]: isSoapPlaceholder(s[key])
+                        ? `${question} — `
+                        : `${s[key]} ${question} — `,
+                    }));
+                    if (key === "objective") setObjectiveMode("add");
+                    setSectionQuestions((q) => ({ ...q, [key]: undefined }));
+                    scrollToSoapField(key);
+                  };
+
+                  /** Where an answer will be written — stated on every action. */
+                  const ANSWER_ACTION: Record<keyof SoapNote, string> = {
+                    subjective: "Add to Subjective",
+                    objective: "Add objective findings",
+                    assessment: "Use in Assessment",
+                    plan: "Add to Plan",
+                  };
+
+                  const sectionHelp: Record<keyof SoapNote, string> = {
+                    subjective: "Add missing history",
+                    objective: "Add findings or mark not obtained",
+                    assessment: "Use or edit suggested wording",
+                    plan: "Generated from your decisions in Step 3",
+                  };
+
                   const soapField = (
                     key: keyof SoapNote,
                     hint: string,
@@ -2002,6 +2104,8 @@ export default function IssuePrescriptionDialog({
                   ) => {
                     const placeholder = isSoapPlaceholder(soap[key]);
                     const aiWritten = aiFields[key] && !placeholder;
+                    const question = sectionQuestions[key];
+                    const planAwaiting = key === "plan" && soap.plan === PLAN_AWAITING_RX;
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
@@ -2011,25 +2115,101 @@ export default function IssuePrescriptionDialog({
                               AI draft — confirm
                             </span>
                           )}
+                          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                            {sectionHelp[key]}
+                          </span>
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
-                        <textarea
-                          rows={rows}
-                          className={`${area} mt-1.5 ${
-                            placeholder
-                              ? "text-[#8A7FB0]"
-                              : aiWritten
-                                ? "border-[#D9CEF3] bg-[#FAF8FF]"
-                                : ""
-                          }`}
-                          value={soap[key]}
-                          onChange={(e) => {
-                            setSoapApproved(false);
-                            setAiFields((f) => ({ ...f, [key]: false }));
-                            setSoap((s) => ({ ...s, [key]: e.target.value }));
-                          }}
-                        />
-                        {key === "plan" && (
+
+                        {planAwaiting ? (
+                          <div className="mt-1.5 rounded-xl border border-dashed border-[#D9CEF3] bg-[#FAF8FF] px-3 py-2.5">
+                            <p className="text-[12px] leading-snug text-[#4B4468]">
+                              {PLAN_AWAITING_RX}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setSoap((s) => ({ ...s, plan: "" }))}
+                              className="mt-1.5 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            >
+                              Add non-medication plan now
+                            </button>
+                          </div>
+                        ) : (
+                          <textarea
+                            rows={rows}
+                            className={`${area} mt-1.5 ${
+                              placeholder
+                                ? "text-[#8A7FB0]"
+                                : aiWritten
+                                  ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                                  : ""
+                            }`}
+                            value={soap[key]}
+                            onChange={(e) => {
+                              setSoapApproved(false);
+                              setAiFields((f) => ({ ...f, [key]: false }));
+                              setSoap((s) => ({ ...s, [key]: e.target.value }));
+                            }}
+                          />
+                        )}
+
+                        {/* Assessment wording is proposed, never auto-recorded. */}
+                        {key === "assessment" && !!suggestedAssessment && (
+                          <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[11.5px] font-bold text-[#3D2E6B]">
+                                Suggested assessment wording
+                              </p>
+                              <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                                AI
+                              </span>
+                            </div>
+                            <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
+                              “{suggestedAssessment}”
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSoapApproved(false);
+                                  setAiFields((f) => ({ ...f, assessment: true }));
+                                  setSoap((s) => ({ ...s, assessment: suggestedAssessment }));
+                                  setSuggestedAssessment("");
+                                }}
+                                className="rounded-xl bg-[#3D2E6B] px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                              >
+                                Use in Assessment
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSuggestedAssessment("");
+                                  setSoap((s) => ({ ...s, assessment: "" }));
+                                  scrollToSoapField("assessment");
+                                }}
+                                className="rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                              >
+                                Edit myself
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* A specific question sits directly under its own section. */}
+                        {!!question && (
+                          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2">
+                            <span className="min-w-0 text-[11.5px] text-[#4B4468]">{question}</span>
+                            <button
+                              type="button"
+                              onClick={() => answerInSection(key, question)}
+                              className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                            >
+                              {ANSWER_ACTION[key]}
+                            </button>
+                          </div>
+                        )}
+
+                        {key === "plan" && !planAwaiting && (
                           <p className="mt-1.5 text-[11.5px] leading-snug text-[#8A7FB0]">
                             Optional —{" "}
                             <button
@@ -2065,83 +2245,33 @@ export default function IssuePrescriptionDialog({
                     );
                   };
 
-                  /** Actual blockers only — shown once, compactly. Follow-up and
-                   *  patient instructions are optional prompts inside Plan instead. */
+                  /** Actual blockers only. The Plan is not a blocker here — it is
+                   *  drafted from the prescription decisions made in Step 3. */
                   const blockers: { label: string; key: keyof SoapNote }[] = [];
                   if (isSoapPlaceholder(soap.objective))
                     blockers.push({ label: "Confirm objective findings status", key: "objective" });
-                  if (isSoapPlaceholder(soap.plan))
-                    blockers.push({ label: "Complete the Plan", key: "plan" });
+                  if (isSoapPlaceholder(soap.assessment))
+                    blockers.push({ label: "Accept or write the Assessment", key: "assessment" });
 
-                  const infoNeededPanel = soapDrafted || soapMode === "manual" ? (
-                    <>
-                      {blockers.length > 0 && (
-                        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
-                          <p className="text-[11.5px] font-bold text-[#3D2E6B]">
-                            Required before continuing:
-                          </p>
-                          {blockers.map((item) => (
-                            <button
-                              key={item.label}
-                              type="button"
-                              onClick={() => scrollToSoapField(item.key)}
-                              className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                  const infoNeededPanel =
+                    (soapDrafted || soapMode === "manual") && blockers.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
+                        <p className="text-[11.5px] font-bold text-[#3D2E6B]">
+                          Required before continuing:
+                        </p>
+                        {blockers.map((item) => (
+                          <button
+                            key={item.label}
+                            type="button"
+                            onClick={() => scrollToSoapField(item.key)}
+                            className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null;
 
-                      {aiQuestions.length > 0 && (
-                        <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] p-4">
-                          <div className="flex items-center gap-2">
-                            <p className="text-[12.5px] font-bold text-[#3D2E6B]">AI questions</p>
-                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                              AI
-                            </span>
-                          </div>
-                          <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                            The AI needs a little more detail — nothing here enters the clinical
-                            record until you answer.
-                          </p>
-                          <ul className="mt-2.5 space-y-2">
-                            {aiQuestions.map((q) => (
-                              <li
-                                key={q}
-                                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2"
-                              >
-                                <span className="min-w-0 text-[12px] text-[#4B4468]">{q}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const key: keyof SoapNote = /finding|vital/i.test(q)
-                                      ? "objective"
-                                      : /impression/i.test(q)
-                                        ? "assessment"
-                                        : "plan";
-                                    setSoapApproved(false);
-                                    setAiFields((f) => ({ ...f, [key]: false }));
-                                    setSoap((s) => ({
-                                      ...s,
-                                      [key]: isSoapPlaceholder(s[key])
-                                        ? `${q} — `
-                                        : `${s[key]} ${q} — `,
-                                    }));
-                                    setAiQuestions((list) => list.filter((x) => x !== q));
-                                    scrollToSoapField(key);
-                                  }}
-                                  className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
-                                >
-                                  Add response
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </>
-                  ) : null;
 
 
                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
