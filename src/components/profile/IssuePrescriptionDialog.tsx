@@ -1573,7 +1573,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-age">
-                            Age
+                            Age <span className="text-[#B4436C]">*</span>
                           </label>
                           <div
                             id="rx-age"
