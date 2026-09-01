@@ -1141,15 +1141,16 @@ export default function IssuePrescriptionDialog({
     const raw = pastedNote.trim();
     if (!raw) return;
     setAiLoading(true);
-    const lines = raw.split(/\n|(?<=\.)\s+/).map((l) => l.trim()).filter(Boolean);
-    const pick = (i: number) => lines[i] ?? "";
     window.setTimeout(() => {
-      setSoap({
-        subjective: pick(0) || raw.slice(0, 180),
-        objective: pick(1) || NEEDS_CONFIRMATION,
-        assessment: pick(2) || NEEDS_CONFIRMATION,
-        plan: pick(3) || lines.slice(3).join(" ") || NEEDS_CONFIRMATION,
+      const { soap: drafted, aiFields: drafts, questions } = organiseSoap(raw);
+      setSoap(drafted);
+      setAiFields({
+        subjective: drafts.includes("subjective"),
+        objective: drafts.includes("objective"),
+        assessment: drafts.includes("assessment"),
+        plan: drafts.includes("plan"),
       });
+      setAiQuestions(questions);
       setSoapApproved(false);
       setSoapDrafted(true);
       setAiLoading(false);
@@ -1161,6 +1162,7 @@ export default function IssuePrescriptionDialog({
       }, 60);
     }, 1200);
   }
+
 
 
   function draftFromPlan() {
