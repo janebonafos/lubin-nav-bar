@@ -602,6 +602,7 @@ export default function IssuePrescriptionDialog({
   // ---------- gating ----------
   const patientGaps: string[] = [];
   if (!patientName.trim()) patientGaps.push("Full legal name");
+  if (!preferredName.trim()) patientGaps.push("Preferred name");
   if (!dob) patientGaps.push("Date of birth");
   if (sex === "not-documented") patientGaps.push("Sex");
   // City / municipality is the only address field required to issue a
