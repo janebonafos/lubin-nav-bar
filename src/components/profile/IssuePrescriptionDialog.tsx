@@ -590,8 +590,13 @@ export default function IssuePrescriptionDialog({
     assessment: false,
     plan: false,
   });
-  /** Targeted questions the assistant asks instead of guessing. */
-  const [aiQuestions, setAiQuestions] = useState<string[]>([]);
+  /** Proposed assessment wording — never in the record until accepted. */
+  const [suggestedAssessment, setSuggestedAssessment] = useState("");
+  /** Targeted question per SOAP section, shown beneath that section. */
+  const [sectionQuestions, setSectionQuestions] = useState<
+    Partial<Record<keyof SoapNote, string>>
+  >({});
+
 
 
   const [soap, setSoap] = useState<SoapNote>({
