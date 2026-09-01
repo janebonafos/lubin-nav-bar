@@ -2621,6 +2621,25 @@ export default function IssuePrescriptionDialog({
                           </div>
                         </div>
                       )}
+                      {demographicConflict && (
+                        <div className="mt-2 rounded-xl border border-[#EFD6B8] bg-[#FDF7EE] px-3 py-2.5">
+                          <p className="text-[11.5px] font-semibold leading-relaxed text-[#8A5A16]">
+                            {demographicConflict}
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setDemographicConflict("")}
+                              className="inline-flex h-8 items-center rounded-[10px] border border-[#E4CBA6] bg-white px-3 text-[11.5px] font-semibold text-[#8A5A16]"
+                            >
+                              Confirm this is the right patient
+                            </button>
+                            <span className="inline-flex h-8 items-center text-[11.5px] text-[#8A5A16]">
+                              or correct the patient details in Step 1
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={prepareSoapDraft}
