@@ -2494,7 +2494,7 @@ export default function IssuePrescriptionDialog({
                               }
                             >
                               <option value="">Select…</option>
-                              {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
+                              {(["in-person", "video", "phone", "other"] as ConsultMode[]).map((m) => (
                                 <option key={m} value={m}>
                                   {CONSULT_MODE_LABEL[m]}
                                 </option>
