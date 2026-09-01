@@ -3381,10 +3381,9 @@ export default function IssuePrescriptionDialog({
                             )}
 
                             <div id="soap-field-objective">
-                              <label className={label}>Objective</label>
+                              <label className={label}>Examination, observations or test results</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                                Assessment method, visible observations, vitals, examination
-                                findings and test results.
+                                Document only findings you observed, measured, examined or reviewed.
                               </p>
                               <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
                                 {(
@@ -3429,7 +3428,11 @@ export default function IssuePrescriptionDialog({
                                     onChange={(e) =>
                                       setSoap((s) => ({ ...s, objective: e.target.value }))
                                     }
-                                    placeholder="Examination findings, results…"
+                                    placeholder={
+                                      objectiveMode === "limited-remote"
+                                        ? "Document what you could observe during the video or telephone assessment."
+                                        : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
+                                    }
                                   />
                                   {!showVitals ? (
                                     <button
