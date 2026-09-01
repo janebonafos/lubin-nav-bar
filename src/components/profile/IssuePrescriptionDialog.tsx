@@ -2487,25 +2487,30 @@ export default function IssuePrescriptionDialog({
                     const basisBlock =
                       key === "assessment" ? (
                         <div className="mt-2">
-                          {!noteHasAssessment && (
-                            <div className="rounded-xl border border-[#EDEBF3] bg-white px-3 py-2.5">
-                              <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                No clinical assessment was documented in the notes.
-                              </p>
-                              {!!symptomIndication && (
-                                <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
-                                  <span className="font-semibold text-[#6F5BA0]">
-                                    Documented clinical problem:
-                                  </span>{" "}
-                                  {symptomIndication}.
-                                </p>
-                              )}
-                              <p className="mt-1.5 text-[11px] leading-snug text-[#8A7FB0]">
-                                AI summary of the documented problem only — it is not recorded as
-                                an Assessment unless you choose to use it.
-                              </p>
-                            </div>
-                          )}
+                           {!noteHasAssessment && (
+                             <div className="space-y-2">
+                               <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                 No clinical assessment was documented in the notes.
+                               </p>
+                               {!!symptomIndication && (
+                                 <div className="flex items-start gap-2.5 rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
+                                   <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#3D2E6B]" />
+                                   <div className="min-w-0">
+                                     <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                       Documented clinical problem
+                                     </p>
+                                     <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
+                                       {symptomIndication}
+                                     </p>
+                                     <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
+                                       AI summary of the documented problem only — it is not recorded
+                                       as an Assessment unless you choose to use it.
+                                     </p>
+                                   </div>
+                                 </div>
+                               )}
+                             </div>
+                           )}
                           <div className="mt-2 grid gap-2 sm:grid-cols-3">
                             {(
                               [
