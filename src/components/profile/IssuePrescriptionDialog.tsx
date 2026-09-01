@@ -1536,8 +1536,8 @@ export default function IssuePrescriptionDialog({
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
 
                         <div className="sm:col-span-2">
-                          <label className={label} htmlFor="rx-patient">
-                            Full legal name
+                           <label className={label} htmlFor="rx-patient">
+                            Full legal name <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-patient"
