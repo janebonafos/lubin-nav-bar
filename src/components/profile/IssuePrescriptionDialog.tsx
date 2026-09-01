@@ -4143,139 +4143,201 @@ export default function IssuePrescriptionDialog({
                     </section>
                   ) : (
                   <>
-                  {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
-                  <section className="relative overflow-hidden rounded-2xl bg-[#3D2E6B] p-6 shadow-lg shadow-[#E7E0F7]">
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-[#6B54B0] opacity-60 blur-3xl"
-                    />
-                    <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="h-4.5 w-4.5 text-[#C9BCE9]" />
-                          <h3 className="text-[15px] font-semibold text-white">
-                            Draft prescription with AI
-                          </h3>
-                        </div>
-                        <p className="mt-1 max-w-md text-[12.5px] leading-relaxed text-[#D6CDF0]">
-                          Lubin drafts prescription fields from your SOAP Plan. Review every field
-                          before signing.
-                        </p>
-                        <div className="group mt-2">
-                          <p className="text-[11.5px] font-medium text-[#C9BCE9] underline decoration-[#7E6BAF] transition group-hover:text-white">
-                            How AI works
-                          </p>
-                          <p className="mt-0 max-h-0 max-w-md overflow-hidden text-[12px] leading-relaxed text-[#D6CDF0] opacity-0 transition-all duration-200 group-hover:mt-2 group-hover:max-h-60 group-hover:opacity-100">
-                            Lubin turns your documented Plan into structured prescription fields and
-                            patient instructions, and points out missing information. It never
-                            diagnoses, chooses a medication, signs or issues, and it never silently
-                            fills a gap — anything undocumented is shown as “Not documented —
-                            provider confirmation required”. Manual entry always works, and every
-                            drafted medication needs your individual confirmation. In this prototype
-                            the drafts are synthetic.
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={draftFromPlan}
-                        disabled={aiLoading || !planText.trim()}
-                        className="group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[13px] font-bold text-[#3D2E6B] shadow-sm transition hover:bg-[#F4F0FE] disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <span>{aiLoading ? "Drafting…" : "Draft from my plan"}</span>
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </button>
+                  {/* Two ways to choose the treatment. Manual entry is always open. */}
+                  <section className={cardCls}>
+                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                      Medication and treatment
+                    </h3>
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
+                      Choose how you want to select the treatment. Manual entry stays available at
+                      all times.
+                    </p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {(
+                        [
+                          [
+                            "search",
+                            "Search and prescribe a medication",
+                            "Choose the medication and complete the regimen yourself.",
+                          ],
+                          [
+                            "options",
+                            "Review medication options",
+                            "Review evidence-supported options based on the provider-confirmed Assessment and available patient information.",
+                          ],
+                        ] as const
+                      ).map(([value, title, helper]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setRxPath(value)}
+                          className={`rounded-xl border px-3.5 py-3 text-left transition ${
+                            rxPath === value
+                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                              : "border-[#EDEBF3] bg-white hover:border-[#D9CEF3]"
+                          }`}
+                        >
+                          <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
+                            {title}
+                          </span>
+                          <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
+                            {helper}
+                          </span>
+                        </button>
+                      ))}
                     </div>
-
-
-                    {aiError && (
-                      <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
-                        {aiError}
-                      </p>
-                    )}
-                    {missingInfo.length > 0 && (
-                      <div className="mt-4 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-4">
-                        <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A6B1F]">
-                          Missing information
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {missingInfo.map((m) => (
-                            <span
-                              key={m}
-                              className="rounded-xl bg-white px-2.5 py-1 text-[12px] font-medium text-[#6B4E10] ring-1 ring-[#EFE6D2]"
-                            >
-                              {m}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {aiNote && (
-                      <p className="mt-3 rounded-xl border border-[#7E6BAF] bg-[#4A3A7E] px-3 py-2 text-[12px] font-medium text-[#F0E6C7]">
-                        {aiNote}
-                      </p>
-                    )}
-                    {suggestions.length > 0 && (
-                      <div className="mt-4 space-y-3">
-                        <p className="text-[11.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                          Drafts for your review — confirm each one individually
-                        </p>
-                        {suggestions.map((s, i) => {
-                          const key = suggestionKey(s, i);
-                          const done = confirmedSuggestions.includes(key);
-                          return (
-                            <div
-                              key={key}
-                              className="rounded-xl border border-[#E9E2F8] bg-[#FBFAFE] p-4"
-                            >
-                              <div className="flex flex-wrap items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <p className="text-[13.5px] font-bold text-[#3D2E6B]">
-                                    {s.genericName || s.name}
-                                  </p>
-                                  <p className="mt-1 text-[12.5px] text-[#4B4468]">
-                                    {s.dose} · {s.frequency}
-                                    {s.duration ? ` · ${s.duration}` : ""}
-                                  </p>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => confirmSuggestion(s, key)}
-                                  className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl px-3 text-[12px] font-semibold transition ${
-                                    done
-                                      ? "border border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                      : "bg-[#3D2E6B] text-white"
-                                  }`}
-                                >
-                                  <Plus className="h-3.5 w-3.5" />
-                                  {done ? "Confirmed — add again" : "Confirm this medication"}
-                                </button>
-                              </div>
-                              {s.rationale && (
-                                <p className="mt-2 text-[12px] text-[#6F6889]">
-                                  <span className="font-semibold text-[#3D2E6B]">Why: </span>
-                                  {s.rationale}
-                                </p>
-                              )}
-                              {s.instructions && (
-                                <p className="mt-1.5 text-[12px] text-[#6F6889]">
-                                  <span className="font-semibold text-[#3D2E6B]">Directions: </span>
-                                  {s.instructions}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </section>
 
-                  {/* Prescription entry */}
+                  {/* Design-only medication options — synthetic fixtures, no AI service. */}
+                  {rxPath === "options" && (
+                    <section className={cardCls}>
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                            Information used for medication options
+                          </h3>
+                          <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
+                            Options are not ranked and none is preselected. The prescriber decides.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          aria-expanded={aiWorksOpen}
+                          onClick={() => setAiWorksOpen((v) => !v)}
+                          className="inline-flex h-8 items-center rounded-[10px] border border-[#D9CEF3] bg-white px-3 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                        >
+                          How AI works
+                        </button>
+                      </div>
+                      {aiWorksOpen && (
+                        <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] leading-relaxed text-[#4B4468]">
+                          Lubin lists structured options against the provider-confirmed Assessment
+                          and the patient information recorded here. It never diagnoses, never
+                          ranks or chooses a medication, never invents a dose and never signs or
+                          issues. When required information is missing, no option is shown. In this
+                          prototype the options are fictional fixtures.
+                        </p>
+                      )}
+
+                      <dl className="mt-3 grid gap-x-6 gap-y-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4 text-[12px] text-[#4B4468] sm:grid-cols-2">
+                        {optionInputs.map((row) => (
+                          <div key={row.label}>
+                            <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                              {row.label}
+                            </dt>
+                            <dd>{row.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+
+                      {optionsMissing.length > 0 ? (
+                        <div className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-4">
+                          <p className="text-[12.5px] font-semibold text-[#6B4E10]">
+                            More information is required before medication options can be displayed.
+                          </p>
+                          <ul className="mt-2 space-y-1 text-[12px] text-[#6B4E10]">
+                            {optionsMissing.map((m) => (
+                              <li key={m}>• {m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="mt-4 space-y-3">
+                          <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+                            Medication options for provider review
+                          </p>
+                          {visibleOptions.length === 0 ? (
+                            <p className="rounded-xl border border-dashed border-[#DCD4F0] bg-white px-3 py-2.5 text-[12px] text-[#6F6889]">
+                              All options were dismissed. Use search and manual entry below.
+                            </p>
+                          ) : (
+                            visibleOptions.map((opt) => (
+                              <div
+                                key={opt.id}
+                                className="rounded-xl border border-[#E9E2F8] bg-[#FBFAFE] p-4"
+                              >
+                                <p className="text-[13.5px] font-semibold text-[#3D2E6B]">
+                                  {opt.generic}
+                                </p>
+                                <p className="mt-0.5 text-[12.5px] text-[#4B4468]">
+                                  {opt.strengthForm} · {opt.route}
+                                </p>
+                                <dl className="mt-2.5 space-y-1.5 text-[12px] text-[#4B4468]">
+                                  <div>
+                                    <dt className="font-semibold text-[#3D2E6B]">
+                                      Why this option was shown
+                                    </dt>
+                                    <dd>{opt.why}</dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-[#3D2E6B]">
+                                      Patient information used
+                                    </dt>
+                                    <dd>{opt.patientInfoUsed}</dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-[#3D2E6B]">
+                                      Important contraindications or interactions
+                                    </dt>
+                                    <dd>{opt.cautions}</dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-[#3D2E6B]">
+                                      Missing or unverified information
+                                    </dt>
+                                    <dd>{opt.unverified}</dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-semibold text-[#3D2E6B]">Dosage source</dt>
+                                    <dd>{opt.source}</dd>
+                                  </div>
+                                </dl>
+                                {basisOpen === opt.id && (
+                                  <p className="mt-2 rounded-xl bg-[#F2EEFD] px-3 py-2 text-[12px] leading-relaxed text-[#4B4468]">
+                                    {opt.clinicalBasis}
+                                  </p>
+                                )}
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => useMedicationOption(opt)}
+                                    className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                                  >
+                                    <Plus className="h-3.5 w-3.5" /> Use option
+                                  </button>
+                                  <button
+                                    type="button"
+                                    aria-expanded={basisOpen === opt.id}
+                                    onClick={() =>
+                                      setBasisOpen((cur) => (cur === opt.id ? "" : opt.id))
+                                    }
+                                    className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                                  >
+                                    View clinical basis
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setDismissedOptions((cur) => [...cur, opt.id])
+                                    }
+                                    className="inline-flex h-9 items-center rounded-xl border border-[#EDEBF3] bg-white px-3 text-[12px] font-semibold text-[#8A7FB0] transition hover:bg-[#FBFAFE]"
+                                  >
+                                    Dismiss
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {/* Medication order — manual entry always available */}
                   <section className={cardCls}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                        Medications on this prescription
+                        Medication order
                       </h3>
                       <button
                         type="button"
@@ -4299,6 +4361,50 @@ export default function IssuePrescriptionDialog({
                       ))}
                     </div>
                   </section>
+
+                  {/* P — Plan, drafted only after the treatment is selected */}
+                  {readyMeds.length > 0 && purpose !== "renewal" && (
+                    <section className={cardCls}>
+                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">P — Plan</h3>
+                      <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
+                        Drafted from the medication and regimen you selected. Every field is
+                        editable — AI draft, provider review required.
+                      </p>
+                      <div className="mt-3 space-y-3">
+                        <div>
+                          <label className={label}>Medication and regimen</label>
+                          <AutoTextarea
+                            minRows={2}
+                            className={`${area} mt-1.5`}
+                            value={soap.plan}
+                            onChange={(e) => setSoap((s) => ({ ...s, plan: e.target.value }))}
+                          />
+                        </div>
+                        {(
+                          [
+                            ["nonMedication", "Non-medication treatment"],
+                            ["investigations", "Investigations or referrals"],
+                            ["monitoring", "Monitoring"],
+                            ["followUp", "Follow-up"],
+                            ["instructions", "Patient instructions and warning signs"],
+                          ] as const
+                        ).map(([key, text]) => (
+                          <div key={key}>
+                            <label className={label}>{text}</label>
+                            <AutoTextarea
+                              minRows={2}
+                              className={`${area} mt-1.5`}
+                              value={planExtras[key]}
+                              onChange={(e) =>
+                                setPlanExtras((p) => ({ ...p, [key]: e.target.value }))
+                              }
+                              placeholder="Not documented"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
                   </>
                   )}
                 </>
