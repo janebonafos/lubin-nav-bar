@@ -2638,13 +2638,14 @@ export default function IssuePrescriptionDialog({
                                 type="button"
                                 onClick={() => {
                                   setSoapApproved(false);
-                                  setAiFields((f) => ({ ...f, assessment: true }));
+                                  // Accepting makes it the provider's own assessment.
+                                  setAiFields((f) => ({ ...f, assessment: false }));
                                   setSoap((s) => ({ ...s, assessment: suggestedAssessment }));
                                   setSuggestedAssessment("");
                                 }}
                                 className="rounded-xl bg-[#3D2E6B] px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
                               >
-                                Accept AI draft
+                                Accept as provider-confirmed
                               </button>
                               <button
                                 type="button"
