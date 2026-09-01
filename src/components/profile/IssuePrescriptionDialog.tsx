@@ -4028,6 +4028,22 @@ export default function IssuePrescriptionDialog({
                   </section>
 
 
+                  {assessmentBasis === "further" && purpose !== "renewal" ? (
+                    <section className={cardCls}>
+                      <p className="text-[12.5px] font-semibold text-[#6B4E10]">
+                        Medication options are unavailable until the provider documents a clinical
+                        assessment.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="mt-3 inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                      >
+                        Back to the clinical assessment
+                      </button>
+                    </section>
+                  ) : (
+                  <>
                   {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
@@ -4170,6 +4186,8 @@ export default function IssuePrescriptionDialog({
                       ))}
                     </div>
                   </section>
+                  </>
+                  )}
                 </>
               )}
               </Acc>
