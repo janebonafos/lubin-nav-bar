@@ -677,6 +677,8 @@ export default function IssuePrescriptionDialog({
   const [soapMode, setSoapMode] = useState<"ai" | "manual">("ai");
   const [pastedNote, setPastedNote] = useState("");
   const [soapDrafted, setSoapDrafted] = useState(false);
+  /** Set when the pasted text was rejected as non-clinical (instructions). */
+  const [noteRejected, setNoteRejected] = useState(false);
   /** The provider must explicitly review and approve the note. */
   const [soapApproved, setSoapApproved] = useState(false);
   /** Which sections still carry AI wording, so they can be highlighted. */
