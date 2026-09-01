@@ -1215,6 +1215,7 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
+    setGuardianSkipped(false);
     setDuplicatesDismissed(false);
 
     setSuggestions([]);
@@ -1236,6 +1237,7 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
+    setGuardianSkipped(false);
     setPurpose(null);
     setEntry(null);
     setConsultMode(null);
