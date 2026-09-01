@@ -3534,9 +3534,11 @@ export default function IssuePrescriptionDialog({
                                     minRows={2}
                                     className={`${area} mt-2`}
                                     value={soap.objective}
-                                    onChange={(e) =>
-                                      setSoap((s) => ({ ...s, objective: e.target.value }))
-                                    }
+                                    onChange={(e) => {
+                                      setSoapApproved(false);
+                                      setAiFields((f) => ({ ...f, objective: false }));
+                                      setSoap((s) => ({ ...s, objective: e.target.value }));
+                                    }}
                                     placeholder={
                                       objectiveMode === "limited-remote"
                                         ? "Document what you could observe during the video or telephone assessment."
