@@ -4647,6 +4647,10 @@ function MedicationCard({
   const [instrLoading, setInstrLoading] = useState(false);
   const results = useMemo(() => searchPhCatalogue(query), [query]);
   const item = findPhCatalogue(med.genericName);
+  /** Patient instructions may only be drafted from a selected regimen. */
+  const regimenReady = Boolean(
+    med.genericName.trim() && med.dose.trim() && med.frequency.trim(),
+  );
 
   return (
     <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
