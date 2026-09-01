@@ -968,15 +968,17 @@ export default function IssuePrescriptionDialog({
     if (!consultMode) contextGaps.push("Consultation method");
     if (soapMode === "ai") {
       if (!pastedNote.trim()) contextGaps.push("Add clinical notes");
+      else if (noteRejected)
+        contextGaps.push("Replace the pasted text with patient clinical notes");
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
-    if (soapMode === "manual" || soapDrafted) {
+    if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
       if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
 
-      if (!soapApproved) contextGaps.push("Confirm SOAP draft");
+      if (!soapApproved) contextGaps.push("Confirm clinical assessment");
     }
 
   }
