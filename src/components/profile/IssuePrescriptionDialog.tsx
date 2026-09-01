@@ -915,7 +915,7 @@ export default function IssuePrescriptionDialog({
   // prescription; the rest are optional. It identifies the patient's
   // locality on the prescription.
   if (!address.city.trim()) patientGaps.push("City / municipality");
-  if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
+  if (isMinor && !guardianSkipped && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
   /** Safety information already on file for an existing patient (synthetic demo data). */
