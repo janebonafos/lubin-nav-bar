@@ -2682,32 +2682,24 @@ export default function IssuePrescriptionDialog({
                     );
                   };
 
-                  /** Actual blockers only. The Plan is not a blocker here — it is
-                   *  drafted from the prescription decisions made in Step 3. */
-                  const blockers: { label: string; key: keyof SoapNote }[] = [];
-                   if (isSoapPlaceholder(soap.objective))
-                     blockers.push({ label: "Review Objective", key: "objective" });
-                   if (isSoapPlaceholder(soap.assessment))
-                     blockers.push({ label: "Complete Assessment", key: "assessment" });
-
-                  const infoNeededPanel =
-                    (soapDrafted || soapMode === "manual") && blockers.length > 0 ? (
-                      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] px-3 py-2.5">
-                        <p className="text-[11.5px] font-bold text-[#3D2E6B]">
-                          Required before continuing:
-                        </p>
-                        {blockers.map((item) => (
-                          <button
-                            key={item.label}
-                            type="button"
-                            onClick={() => scrollToSoapField(item.key)}
-                            className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null;
+                  /** Step 2 completion. Objective counts as reviewed as soon as any
+                   *  one of the three mutually exclusive options is selected — no
+                   *  separate confirmation click required. The Plan is drafted in
+                   *  Step 3, so it is never a blocker here. */
+                  const step2Missing: string[] = [];
+                  if (isSoapPlaceholder(soap.subjective))
+                    step2Missing.push("Add Subjective findings.");
+                  if (objectiveMode === "none")
+                    step2Missing.push("Select an Objective status.");
+                  if (!assessmentBasis)
+                    step2Missing.push("Choose an Assessment or indication.");
+                  if (
+                    assessmentBasis !== "further" &&
+                    isSoapPlaceholder(soap.assessment)
+                  )
+                    step2Missing.push("Enter an Assessment or indication.");
+                  const step2Ready =
+                    step2Missing.length === 0 && !noteRejected && !demographicConflict;
 
 
 
@@ -2829,28 +2821,39 @@ export default function IssuePrescriptionDialog({
                   );
 
 
-                  /** One explicit confirmation of the whole draft. */
+                  /** One explicit confirmation of the whole draft. Missing items
+                   *  are named directly above the button, never as a vague link. */
                   const soapApproval = (
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setSoapApproved(true)}
-                        disabled={
-                          soapApproved ||
-                          noteRejected ||
-                          !!demographicConflict ||
-                          blockers.length > 0 ||
-                          isSoapPlaceholder(soap.assessment)
-                        }
-                        className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                      >
-                        {soapApproved ? "Clinical assessment confirmed" : "Confirm clinical assessment"}
-                      </button>
-                      <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
-                        {soapApproved
-                          ? "You confirmed Subjective, Objective and Assessment. The Plan is drafted after you choose the medication in Step 3."
-                          : "Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization."}
-                      </p>
+                    <div className="mt-3">
+                      {!soapApproved && step2Missing.length > 0 && (
+                        <ul className="mb-2 space-y-1">
+                          {step2Missing.map((m) => (
+                            <li
+                              key={m}
+                              className="text-[11.5px] font-semibold text-[#9B3B33]"
+                            >
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSoapApproved(true)}
+                          disabled={soapApproved || !step2Ready}
+                          className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          {soapApproved
+                            ? "Clinical assessment confirmed"
+                            : "Confirm clinical assessment"}
+                        </button>
+                        <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
+                          {soapApproved
+                            ? "You confirmed Subjective, Objective and Assessment. The Plan is drafted after you choose the medication in Step 3."
+                            : "Confirm Subjective, Objective and Assessment. The Plan is completed in Step 3, and your signature provides the final authorization."}
+                        </p>
+                      </div>
                     </div>
                   );
 
@@ -3346,7 +3349,6 @@ export default function IssuePrescriptionDialog({
                                   "Treatment decision, medication plan, monitoring and follow-up.",
                                 )}
                               </div>
-                              {infoNeededPanel}
                           {soapApproval}
                             </div>
                           )}
@@ -3490,8 +3492,7 @@ export default function IssuePrescriptionDialog({
                               </p>
                             )}
                           </div>
-                          {infoNeededPanel}
-                          {soapApproval}
+                           {soapApproval}
                           </div>
                           )}
 
