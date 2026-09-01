@@ -19,7 +19,6 @@ import {
   ChevronDown,
 
   Download,
-  FileText,
   Info,
   Mail,
   MessageSquare,
@@ -2493,21 +2492,19 @@ export default function IssuePrescriptionDialog({
                                  No clinical assessment was documented in the notes.
                                </p>
                                {!!symptomIndication && (
-                                 <div className="flex items-start gap-2.5 rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
-                                   <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#3D2E6B]" />
-                                   <div className="min-w-0">
-                                     <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
-                                       Documented clinical problem
-                                     </p>
-                                     <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
-                                       {symptomIndication}
-                                     </p>
-                                     <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
-                                       AI summary of the documented problem only — it is not recorded
-                                       as an Assessment unless you choose to use it.
-                                     </p>
-                                   </div>
+                                 <div className="rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
+                                   <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                     Documented clinical problem
+                                   </p>
+                                   <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
+                                     {symptomIndication}
+                                   </p>
+                                   <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
+                                     AI summary of the documented problem only — it is not recorded
+                                     as an Assessment unless you choose to use it.
+                                   </p>
                                  </div>
+
                                )}
                              </div>
                            )}
@@ -2646,24 +2643,42 @@ export default function IssuePrescriptionDialog({
                             </button>
                           </div>
                         ) : (
-                          <AutoTextarea
-                            minRows={rows}
-                            className={`${area} mt-1.5 ${
-                              placeholder
-                                ? "text-[#8A7FB0]"
-                                : aiWritten
-                                  ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                          <div className="mt-2">
+                            {key === "assessment" && (
+                              <p className="mb-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                {assessmentBasis === "symptom"
+                                  ? "Assessment / indication — editable"
+                                  : "Your diagnosis or clinical impression"}
+                              </p>
+                            )}
+                            <AutoTextarea
+                              minRows={rows}
+                              placeholder={
+                                key === "assessment"
+                                  ? "Type the diagnosis, working diagnosis or indication"
+                                  : undefined
+                              }
+                              className={`${area} ${
+                                placeholder
+                                  ? "text-[#8A7FB0]"
+                                  : aiWritten
+                                    ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                                    : ""
+                              } ${
+                                key === "assessment"
+                                  ? "border-[#3D2E6B] bg-white text-[13.5px] font-semibold text-[#2A1F4D] shadow-[0_1px_0_rgba(61,46,107,0.08)]"
                                   : ""
-                            }`}
-                            value={soap[key]}
-                            onChange={(e) => {
-                              setSoapApproved(false);
-                              setAiFields((f) => ({ ...f, [key]: false }));
-                              setSoap((s) => ({ ...s, [key]: e.target.value }));
-                            }}
-                          />
-
+                              }`}
+                              value={soap[key]}
+                              onChange={(e) => {
+                                setSoapApproved(false);
+                                setAiFields((f) => ({ ...f, [key]: false }));
+                                setSoap((s) => ({ ...s, [key]: e.target.value }));
+                              }}
+                            />
+                          </div>
                         )}
+
 
                         {/* Assessment wording is proposed, never auto-recorded. */}
                         {key === "assessment" && !hideAssessmentField && !!suggestedAssessment && (
