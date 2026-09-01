@@ -813,15 +813,12 @@ export default function IssuePrescriptionDialog({
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
     if (soapMode === "manual" || soapDrafted) {
-      if (!soap.subjective.trim()) contextGaps.push("Subjective");
-      if (!soap.assessment.trim()) contextGaps.push("Assessment");
-      if (!soap.plan.trim()) contextGaps.push("Plan");
-      for (const k of ["subjective", "objective", "assessment", "plan"] as (keyof SoapNote)[]) {
-        if (soap[k].includes(NEEDS_CONFIRMATION))
-          contextGaps.push(`${SOAP_LABEL[k]} needs provider confirmation`);
-      }
-      if (!soapApproved) contextGaps.push("Your review and approval of this SOAP note");
+      if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
+      if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
+      if (isSoapPlaceholder(soap.plan)) contextGaps.push("Add evaluation or treatment plan");
+      if (!soapApproved) contextGaps.push("Confirm SOAP draft");
     }
+
   }
 
   if (purpose === "renewal") {
