@@ -647,6 +647,8 @@ export default function IssuePrescriptionDialog({
   const [patientEmail, setPatientEmail] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
   const [guardian, setGuardian] = useState<Guardian>(emptyGuardian());
+  /** Prescriber may skip guardian details (not applicable / captured elsewhere). */
+  const [guardianSkipped, setGuardianSkipped] = useState(false);
   const [emergencyContact] = useState({
     name: "Rosa Santos",
     relationship: "Mother",
@@ -913,7 +915,7 @@ export default function IssuePrescriptionDialog({
   // prescription; the rest are optional. It identifies the patient's
   // locality on the prescription.
   if (!address.city.trim()) patientGaps.push("City / municipality");
-  if (isMinor && (!guardian.name.trim() || !guardian.contact.trim()))
+  if (isMinor && !guardianSkipped && (!guardian.name.trim() || !guardian.contact.trim()))
     patientGaps.push("Parent or legal guardian details");
 
   /** Safety information already on file for an existing patient (synthetic demo data). */
@@ -1213,6 +1215,7 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
+    setGuardianSkipped(false);
     setDuplicatesDismissed(false);
 
     setSuggestions([]);
@@ -1234,6 +1237,7 @@ export default function IssuePrescriptionDialog({
     setPatientEmail("");
     setPatientPhone("");
     setGuardian(emptyGuardian());
+    setGuardianSkipped(false);
     setPurpose(null);
     setEntry(null);
     setConsultMode(null);
@@ -2074,62 +2078,91 @@ export default function IssuePrescriptionDialog({
                   {/* Guardian — minors only */}
                   {hasPatient && isMinor && (
                     <section className={cardCls}>
-                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                        Parent or legal guardian
-                      </h3>
-                      <p className="mt-1 text-[12px] text-[#6F6889]">
-                        Required because the patient is {ageYears} years old. An emergency contact
-                        is not automatically the legal guardian.
-                      </p>
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <label className={label}>Guardian name</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={guardian.name}
-                            onChange={(e) => setGuardian({ ...guardian, name: e.target.value })}
-                            placeholder="Full name"
-                          />
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                            Parent or legal guardian
+                          </h3>
+                          <p className="mt-1 text-[12px] text-[#6F6889]">
+                            Requested because the patient is {ageYears} years old. An emergency
+                            contact is not automatically the legal guardian.
+                          </p>
                         </div>
-                        <div>
-                          <label className={label}>Relationship</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={guardian.relationship}
-                            onChange={(e) =>
-                              setGuardian({ ...guardian, relationship: e.target.value })
-                            }
-                            placeholder="e.g. Mother"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className={label}>Mobile or email</label>
-                          <input
-                            className={`${field} mt-1.5`}
-                            value={guardian.contact}
-                            onChange={(e) => setGuardian({ ...guardian, contact: e.target.value })}
-                            placeholder="+63 917 000 0000 or name@email.com"
-                          />
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setGuardianSkipped((v) => !v)}
+                          className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                        >
+                          {guardianSkipped ? "Add guardian details" : "Not applicable / skip"}
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setGuardian({
-                            name: emergencyContact.name,
-                            relationship: emergencyContact.relationship,
-                            contact: emergencyContact.contact,
-                          })
-                        }
-                        className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                      >
-                        <Plus className="h-3.5 w-3.5" /> Copy confirmed emergency contact (
-                        {emergencyContact.name})
-                      </button>
-                      <p className="mt-2 text-[11.5px] text-[#8A7FB0]">
-                        Confirm with the patient that this contact is the legal guardian before
-                        copying.
-                      </p>
+
+                      {guardianSkipped ? (
+                        <p className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#FBF9FF] px-3 py-2.5 text-[11.5px] leading-relaxed text-[#6F5BA0]">
+                          Guardian details skipped for this prescription. You remain responsible for
+                          confirming consent as required in your jurisdiction.
+                        </p>
+                      ) : (
+                        <>
+                          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                            <div>
+                              <label className={label}>Guardian name</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={guardian.name}
+                                onChange={(e) => setGuardian({ ...guardian, name: e.target.value })}
+                                placeholder="Full name"
+                              />
+                            </div>
+                            <div>
+                              <label className={label}>Relationship</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={guardian.relationship}
+                                onChange={(e) =>
+                                  setGuardian({ ...guardian, relationship: e.target.value })
+                                }
+                                placeholder="e.g. Mother"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className={label}>Mobile or email</label>
+                              <input
+                                className={`${field} mt-1.5`}
+                                value={guardian.contact}
+                                onChange={(e) =>
+                                  setGuardian({ ...guardian, contact: e.target.value })
+                                }
+                                placeholder="+63 917 000 0000 or name@email.com"
+                              />
+                            </div>
+                          </div>
+                          {/* Only offered when an emergency contact is actually on file —
+                              a brand-new patient has nothing to copy. */}
+                          {emergencyContact.name.trim() && emergencyContact.contact.trim() && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setGuardian({
+                                    name: emergencyContact.name,
+                                    relationship: emergencyContact.relationship,
+                                    contact: emergencyContact.contact,
+                                  })
+                                }
+                                className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                              >
+                                <Plus className="h-3.5 w-3.5" /> Copy confirmed emergency contact (
+                                {emergencyContact.name})
+                              </button>
+                              <p className="mt-2 text-[11.5px] text-[#8A7FB0]">
+                                Confirm with the patient that this contact is the legal guardian
+                                before copying.
+                              </p>
+                            </>
+                          )}
+                        </>
+                      )}
                     </section>
                   )}
 
@@ -3876,7 +3909,11 @@ export default function IssuePrescriptionDialog({
                       {isMinor && (
                         <Detail
                           label="Guardian"
-                          value={`${guardian.name || "—"}${guardian.relationship ? ` (${guardian.relationship})` : ""}`}
+                          value={
+                            guardianSkipped && !guardian.name
+                              ? "Not applicable"
+                              : `${guardian.name || "—"}${guardian.relationship ? ` (${guardian.relationship})` : ""}`
+                          }
                         />
                       )}
                       <Detail label="Prescriber" value={identity?.fullName || "—"} />
