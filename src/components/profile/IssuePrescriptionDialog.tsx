@@ -2199,9 +2199,9 @@ export default function IssuePrescriptionDialog({
                           (what the patient reports, including negatives), Objective (findings and
                           vitals), Assessment (your impression) and Plan (next steps). It never
                           invents symptoms, examinations, diagnoses, results or treatment. Anything
-                          you did not document is left as an open gap and listed under “Information
-                          needed”, and every section stays editable. In this prototype the drafts are
-                          generated locally for demonstration.
+                          you did not document is left as an open gap and listed once under
+                          “Required before continuing”, and every section stays editable. In this
+                          prototype the drafts are generated locally for demonstration.
                         </p>
                       </details>
                       {aiLoading && (
