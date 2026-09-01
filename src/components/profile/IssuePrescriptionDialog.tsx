@@ -2493,21 +2493,19 @@ export default function IssuePrescriptionDialog({
                                  No clinical assessment was documented in the notes.
                                </p>
                                {!!symptomIndication && (
-                                 <div className="flex items-start gap-2.5 rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
-                                   <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#3D2E6B]" />
-                                   <div className="min-w-0">
-                                     <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
-                                       Documented clinical problem
-                                     </p>
-                                     <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
-                                       {symptomIndication}
-                                     </p>
-                                     <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
-                                       AI summary of the documented problem only — it is not recorded
-                                       as an Assessment unless you choose to use it.
-                                     </p>
-                                   </div>
+                                 <div className="rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
+                                   <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                     Documented clinical problem
+                                   </p>
+                                   <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
+                                     {symptomIndication}
+                                   </p>
+                                   <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
+                                     AI summary of the documented problem only — it is not recorded
+                                     as an Assessment unless you choose to use it.
+                                   </p>
                                  </div>
+
                                )}
                              </div>
                            )}
