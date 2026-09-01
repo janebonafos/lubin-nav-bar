@@ -601,6 +601,83 @@ const ENTRY_POINTS: { value: EntryPoint; title: string; short: string; descripti
   },
 ];
 
+/**
+ * Fictional medication options shown for provider review. Prototype fixtures
+ * only — no medication database, no AI service and no ranking. Nothing here is
+ * described as best, recommended or AI-selected, and none is preselected.
+ */
+type MedicationOption = {
+  id: string;
+  generic: string;
+  strengthForm: string;
+  route: string;
+  dose: string;
+  frequency: string;
+  duration: string;
+  unit: string;
+  why: string;
+  patientInfoUsed: string;
+  cautions: string;
+  unverified: string;
+  source: string;
+  clinicalBasis: string;
+};
+
+const MEDICATION_OPTIONS: MedicationOption[] = [
+  {
+    id: "opt-dextromethorphan",
+    generic: "Dextromethorphan",
+    strengthForm: "15 mg tablet",
+    route: "Oral",
+    dose: "15 mg",
+    frequency: "Every 6 to 8 hours as needed",
+    duration: "5 days",
+    unit: "tablets",
+    why: "Shown against the provider-confirmed indication of a dry, non-productive cough.",
+    patientInfoUsed: "Provider-confirmed indication, age and recorded allergy status.",
+    cautions:
+      "Avoid with monoamine oxidase inhibitors. Not for productive cough or documented respiratory depression.",
+    unverified: "Chest examination and oxygen saturation were not obtained.",
+    source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
+    clinicalBasis:
+      "Fictional demonstration text: symptomatic antitussive used for short-term relief of dry cough when no red-flag features are documented.",
+  },
+  {
+    id: "opt-carbocisteine",
+    generic: "Carbocisteine",
+    strengthForm: "500 mg capsule",
+    route: "Oral",
+    dose: "500 mg",
+    frequency: "Three times daily",
+    duration: "7 days",
+    unit: "capsules",
+    why: "Shown as an alternative when cough becomes productive during the documented episode.",
+    patientInfoUsed: "Provider-confirmed indication and recorded current medications.",
+    cautions: "Avoid with active peptic ulceration.",
+    unverified: "Sputum character was not documented.",
+    source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
+    clinicalBasis:
+      "Fictional demonstration text: mucolytic option listed for provider consideration if secretions are documented.",
+  },
+  {
+    id: "opt-cetirizine",
+    generic: "Cetirizine",
+    strengthForm: "10 mg tablet",
+    route: "Oral",
+    dose: "10 mg",
+    frequency: "Once daily at bedtime",
+    duration: "7 days",
+    unit: "tablets",
+    why: "Shown where an upper-airway or allergic contribution to the documented cough is being considered.",
+    patientInfoUsed: "Provider-confirmed indication, age and recorded conditions.",
+    cautions: "May cause drowsiness. Dose review needed in documented renal impairment.",
+    unverified: "Renal function was not documented.",
+    source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
+    clinicalBasis:
+      "Fictional demonstration text: antihistamine listed only as an option; the provider decides whether an allergic contribution applies.",
+  },
+];
+
 
 type MedForm = {
   id: string;
