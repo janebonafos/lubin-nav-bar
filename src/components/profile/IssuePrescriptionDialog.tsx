@@ -25,6 +25,7 @@ import {
   MessageSquare,
   Plus,
   Search,
+  Sparkles,
   ShieldCheck,
   Trash2,
   UserPlus,
@@ -4097,36 +4098,50 @@ export default function IssuePrescriptionDialog({
                   ) : (
                   <>
                   {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
-                  <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Draft prescription with AI
-                    </h3>
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Lubin drafts prescription fields from your SOAP Plan. Review every field before
-                      signing.
-                    </p>
-                    <details className="mt-2 group">
-                      <summary className="cursor-pointer list-none text-[12px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] transition hover:text-[#3D2E6B]">
-                        How AI works
-                      </summary>
-                      <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889]">
-                        Lubin turns your documented Plan into structured prescription fields and
-                        patient instructions, and points out missing information. It never diagnoses,
-                        chooses a medication, signs or issues, and it never silently fills a gap —
-                        anything undocumented is shown as “Not documented — provider confirmation
-                        required”. Manual entry always works, and every drafted medication needs your
-                        individual confirmation. In this prototype the drafts are synthetic.
-                      </p>
-                    </details>
+                  <section className="relative overflow-hidden rounded-2xl bg-[#3D2E6B] p-6 shadow-lg shadow-[#E7E0F7]">
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-[#6B54B0] opacity-60 blur-3xl"
+                    />
+                    <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-4.5 w-4.5 text-[#C9BCE9]" />
+                          <h3 className="text-[15px] font-semibold text-white">
+                            Draft prescription with AI
+                          </h3>
+                        </div>
+                        <p className="mt-1 max-w-md text-[12.5px] leading-relaxed text-[#D6CDF0]">
+                          Lubin drafts prescription fields from your SOAP Plan. Review every field
+                          before signing.
+                        </p>
+                        <details className="mt-2 group">
+                          <summary className="cursor-pointer list-none text-[11.5px] font-medium text-[#C9BCE9] underline decoration-[#7E6BAF] transition hover:text-white">
+                            How AI works
+                          </summary>
+                          <p className="mt-2 max-w-md text-[12px] leading-relaxed text-[#D6CDF0]">
+                            Lubin turns your documented Plan into structured prescription fields and
+                            patient instructions, and points out missing information. It never
+                            diagnoses, chooses a medication, signs or issues, and it never silently
+                            fills a gap — anything undocumented is shown as “Not documented —
+                            provider confirmation required”. Manual entry always works, and every
+                            drafted medication needs your individual confirmation. In this prototype
+                            the drafts are synthetic.
+                          </p>
+                        </details>
+                      </div>
 
-                    <button
-                      type="button"
-                      onClick={draftFromPlan}
-                      disabled={aiLoading || !planText.trim()}
-                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#3D2E6B] py-3.5 text-[13.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      {aiLoading ? "Drafting…" : "Draft prescription from my plan"}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={draftFromPlan}
+                        disabled={aiLoading || !planText.trim()}
+                        className="group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[13px] font-bold text-[#3D2E6B] shadow-sm transition hover:bg-[#F4F0FE] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span>{aiLoading ? "Drafting…" : "Draft from my plan"}</span>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </button>
+                    </div>
+
 
                     {aiError && (
                       <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
@@ -4588,11 +4603,12 @@ function MedicationCard({
   const item = findPhCatalogue(med.genericName);
 
   return (
-    <div className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+    <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
+      <div className="flex items-center gap-3">
+        <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
           Medication {index + 1}
-        </p>
+        </span>
+        <div className="h-px flex-1 bg-[#EDEBF3]" />
         {removable && (
           <button
             type="button"
@@ -4671,117 +4687,128 @@ function MedicationCard({
             placeholder="e.g. Cozaar"
           />
         </div>
-        <div>
-          <label className={label}>Strength / form</label>
-          {item ? (
-            <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-              value={med.strength}
-              onChange={(e) => onPatch("strength", e.target.value)}
-            >
-              <option value="">Select strength and form</option>
-              {item.forms.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              className={`${field} mt-1.5`}
-              value={med.strength}
-              onChange={(e) => onPatch("strength", e.target.value)}
-              placeholder="50 mg tablet"
-            />
-          )}
+
+        {/* Posology group */}
+        <div className="sm:col-span-2 rounded-xl border border-[#EDEBF3] bg-white/70 p-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="col-span-2">
+              <label className={label}>Strength / form</label>
+              {item ? (
+                <select
+                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  value={med.strength}
+                  onChange={(e) => onPatch("strength", e.target.value)}
+                >
+                  <option value="">Select strength and form</option>
+                  {item.forms.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className={`${field} mt-1.5`}
+                  value={med.strength}
+                  onChange={(e) => onPatch("strength", e.target.value)}
+                  placeholder="50 mg tablet"
+                />
+              )}
+            </div>
+            <div className="col-span-2">
+              <label className={label}>Route</label>
+              {item ? (
+                <select
+                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  value={med.route}
+                  onChange={(e) => onPatch("route", e.target.value)}
+                >
+                  {item.routes.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className={`${field} mt-1.5`}
+                  value={med.route}
+                  onChange={(e) => onPatch("route", e.target.value)}
+                  placeholder="Oral"
+                />
+              )}
+            </div>
+            <div>
+              <label className={label}>Dose</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.dose}
+                onChange={(e) => onPatch("dose", e.target.value)}
+                placeholder="50 mg"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={label}>Frequency</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.frequency}
+                onChange={(e) => onPatch("frequency", e.target.value)}
+                placeholder="Once daily in the morning"
+              />
+            </div>
+            <div>
+              <label className={label}>Duration</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.duration}
+                onChange={(e) => onPatch("duration", e.target.value)}
+                placeholder="4 weeks"
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label className={label}>Route</label>
-          {item ? (
+
+        {/* Dispensing group */}
+        <div className="sm:col-span-2 grid gap-3 sm:grid-cols-3">
+          <div>
+            <label className={label}>Refills</label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-              value={med.route}
-              onChange={(e) => onPatch("route", e.target.value)}
+              value={med.refills}
+              onChange={(e) => onPatch("refills", e.target.value)}
             >
-              {item.routes.map((r) => (
+              {["No refills", "1 refill", "2 refills", "3 refills"].map((r) => (
                 <option key={r} value={r}>
                   {r}
                 </option>
               ))}
             </select>
-          ) : (
+          </div>
+          <div>
+            <label className={label}>Quantity to dispense</label>
             <input
               className={`${field} mt-1.5`}
-              value={med.route}
-              onChange={(e) => onPatch("route", e.target.value)}
-              placeholder="Oral"
+              value={med.quantity}
+              onChange={(e) => onPatch("quantity", e.target.value)}
+              placeholder="30"
             />
-          )}
+          </div>
+          <div>
+            <label className={label}>Dispensing unit</label>
+            <select
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              value={med.unit}
+              onChange={(e) => onPatch("unit", e.target.value)}
+            >
+              {["tablets", "capsules", "mL", "bottles", "sachets"].map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div>
-          <label className={label}>Dose</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.dose}
-            onChange={(e) => onPatch("dose", e.target.value)}
-            placeholder="50 mg"
-          />
-        </div>
-        <div>
-          <label className={label}>Frequency</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.frequency}
-            onChange={(e) => onPatch("frequency", e.target.value)}
-            placeholder="Once daily in the morning"
-          />
-        </div>
-        <div>
-          <label className={label}>Duration</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.duration}
-            onChange={(e) => onPatch("duration", e.target.value)}
-            placeholder="4 weeks, then review"
-          />
-        </div>
-        <div>
-          <label className={label}>Refills</label>
-          <select
-            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-            value={med.refills}
-            onChange={(e) => onPatch("refills", e.target.value)}
-          >
-            {["No refills", "1 refill", "2 refills", "3 refills"].map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={label}>Quantity to dispense</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.quantity}
-            onChange={(e) => onPatch("quantity", e.target.value)}
-            placeholder="30"
-          />
-        </div>
-        <div>
-          <label className={label}>Dispensing unit</label>
-          <select
-            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-            value={med.unit}
-            onChange={(e) => onPatch("unit", e.target.value)}
-          >
-            {["tablets", "capsules", "mL", "bottles", "sachets"].map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-        </div>
+
         <div className="sm:col-span-2">
           <label className={label}>
             Directions (SIG) — editable
