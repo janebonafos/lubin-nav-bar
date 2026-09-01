@@ -214,8 +214,15 @@ const SOAP_LABEL: Record<keyof SoapNote, string> = {
 const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
   subjective: "S — Subjective",
   objective: "O — Objective",
-  assessment: "A — Assessment",
+  assessment: "A — Assessment / indication",
   plan: "P — Plan",
+};
+const SOAP_SECTION_HINT: Record<keyof SoapNote, string> = {
+  subjective: "Patient-reported symptoms and history.",
+  objective: "Observations, examination findings, vital signs and test results.",
+  assessment:
+    "Provider’s diagnosis, working diagnosis, clinical impression or reason for treatment.",
+  plan: "Completed with the treatment decisions made in Step 3.",
 };
 /**
  * Assistive drafting never invents clinical information. Anything the provider
