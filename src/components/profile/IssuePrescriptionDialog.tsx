@@ -1170,15 +1170,6 @@ export default function IssuePrescriptionDialog({
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
-  /** The first step that still needs an answer — surfaced as a "Next" guide. */
-  const stepDone = [
-    hasPatient && patientGaps.length === 0,
-    patientReady && contextGaps.length === 0,
-    patientReady && docGaps.length === 0 && rxGaps.length === 0,
-    false,
-  ];
-  const stepLocked = [false, !patientReady, !patientReady, !patientReady || !canReview];
-  const nextStep = stepDone.findIndex((d, i) => !d && !stepLocked[i]);
 
   const goStep = (i: number) => {
     if (i > 0 && !patientReady) return;
