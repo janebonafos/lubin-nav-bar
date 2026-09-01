@@ -552,6 +552,16 @@ export default function IssuePrescriptionDialog({
   const [soapDrafted, setSoapDrafted] = useState(false);
   /** The provider must explicitly review and approve the note. */
   const [soapApproved, setSoapApproved] = useState(false);
+  /** Which sections still carry AI wording, so they can be highlighted. */
+  const [aiFields, setAiFields] = useState<Record<keyof SoapNote, boolean>>({
+    subjective: false,
+    objective: false,
+    assessment: false,
+    plan: false,
+  });
+  /** Targeted questions the assistant asks instead of guessing. */
+  const [aiQuestions, setAiQuestions] = useState<string[]>([]);
+
 
   const [soap, setSoap] = useState<SoapNote>({
     subjective: "",
