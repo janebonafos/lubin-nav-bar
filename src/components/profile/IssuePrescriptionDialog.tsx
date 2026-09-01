@@ -2135,8 +2135,8 @@ export default function IssuePrescriptionDialog({
                             </button>
                           </div>
                         ) : (
-                          <textarea
-                            rows={rows}
+                          <AutoTextarea
+                            minRows={rows}
                             className={`${area} mt-1.5 ${
                               placeholder
                                 ? "text-[#8A7FB0]"
@@ -2151,6 +2151,7 @@ export default function IssuePrescriptionDialog({
                               setSoap((s) => ({ ...s, [key]: e.target.value }));
                             }}
                           />
+
                         )}
 
                         {/* Assessment wording is proposed, never auto-recorded. */}
