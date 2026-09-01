@@ -186,6 +186,104 @@ const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
  */
 const NEEDS_CONFIRMATION = "Needs provider confirmation";
 
+/**
+ * Neutral placeholders used when the provider's notes contain nothing for a
+ * section. The draft never claims a section is "not required" and never
+ * fabricates findings, diagnoses or treatment.
+ */
+const NO_OBJECTIVE = "No objective findings documented.";
+const NO_ASSESSMENT = "Assessment not yet documented.";
+const NO_PLAN = "Plan not yet documented.";
+const SOAP_PLACEHOLDERS = [NO_OBJECTIVE, NO_ASSESSMENT, NO_PLAN, NEEDS_CONFIRMATION];
+
+/** Placeholder text is a visible gap, never documented content. */
+function isSoapPlaceholder(value: string): boolean {
+  const v = value.trim();
+  return !v || SOAP_PLACEHOLDERS.some((p) => v === p);
+}
+
+const OBJECTIVE_HINTS =
+  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|x-ray|ecg|cbc|glucose)\b/i;
+const PLAN_HINTS =
+  /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
+const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
+
+/** Splits raw dictation into sentence-like fragments, preserving every fact. */
+function soapSentences(raw: string): string[] {
+  return raw
+    .split(/\n+|(?<=[.;!?])\s+/)
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+/**
+ * Organises the provider's own words into S/O/A/P. Nothing is invented: each
+ * sentence is routed to a section, negatives are preserved verbatim, and empty
+ * sections receive a neutral placeholder.
+ */
+function organiseSoap(raw: string): {
+  soap: SoapNote;
+  aiFields: (keyof SoapNote)[];
+  questions: string[];
+} {
+  const sentences = soapSentences(raw);
+  const objective: string[] = [];
+  const plan: string[] = [];
+  const subjective: string[] = [];
+
+  for (const s of sentences) {
+    if (PLAN_HINTS.test(s)) plan.push(s);
+    else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
+    else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
+    else subjective.push(s);
+  }
+
+  const subjectiveText = subjective.length
+    ? subjective
+        .map((s) => (/^patient|^pt\b/i.test(s) ? s : `Patient reports ${s.charAt(0).toLowerCase()}${s.slice(1)}`))
+        .join(" ")
+        .replace(/\.\./g, ".")
+    : raw.trim();
+
+  // The assessment restates the documented complaint without adding a cause.
+  const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
+  const complaint = (subjective[0] ?? sentences[0] ?? "")
+    .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
+    .replace(/\.$/, "");
+  const assessment = complaint
+    ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
+        durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
+          ? ` of ${durationMatch[1]} duration`
+          : ""
+      }; cause not yet established.`
+    : NO_ASSESSMENT;
+
+  const soap: SoapNote = {
+    subjective: subjectiveText,
+    objective: objective.length ? objective.join(" ") : NO_OBJECTIVE,
+    assessment,
+    plan: plan.length ? plan.join(" ") : NO_PLAN,
+  };
+
+  const questions: string[] = [];
+  if (!objective.length)
+    questions.push("Were any findings or vitals obtained today (BP, HR, temperature, exam)?");
+  if (assessment === NO_ASSESSMENT)
+    questions.push("What is your working clinical impression for this visit?");
+  if (!plan.length)
+    questions.push("What treatment, medication or investigation are you planning?");
+  if (!/follow[- ]?up|review in|return/i.test(raw))
+    questions.push("When should this patient be reviewed again?");
+
+  return {
+    soap,
+    aiFields: ["subjective", "objective", "assessment", "plan"],
+    questions,
+  };
+}
+
+
+
 
 
 /** Is this a new treatment, or a continuation of something already prescribed? */
@@ -454,6 +552,16 @@ export default function IssuePrescriptionDialog({
   const [soapDrafted, setSoapDrafted] = useState(false);
   /** The provider must explicitly review and approve the note. */
   const [soapApproved, setSoapApproved] = useState(false);
+  /** Which sections still carry AI wording, so they can be highlighted. */
+  const [aiFields, setAiFields] = useState<Record<keyof SoapNote, boolean>>({
+    subjective: false,
+    objective: false,
+    assessment: false,
+    plan: false,
+  });
+  /** Targeted questions the assistant asks instead of guessing. */
+  const [aiQuestions, setAiQuestions] = useState<string[]>([]);
+
 
   const [soap, setSoap] = useState<SoapNote>({
     subjective: "",
@@ -705,15 +813,12 @@ export default function IssuePrescriptionDialog({
       else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
     }
     if (soapMode === "manual" || soapDrafted) {
-      if (!soap.subjective.trim()) contextGaps.push("Subjective");
-      if (!soap.assessment.trim()) contextGaps.push("Assessment");
-      if (!soap.plan.trim()) contextGaps.push("Plan");
-      for (const k of ["subjective", "objective", "assessment", "plan"] as (keyof SoapNote)[]) {
-        if (soap[k].includes(NEEDS_CONFIRMATION))
-          contextGaps.push(`${SOAP_LABEL[k]} needs provider confirmation`);
-      }
-      if (!soapApproved) contextGaps.push("Your review and approval of this SOAP note");
+      if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
+      if (isSoapPlaceholder(soap.assessment)) contextGaps.push("Confirm assessment");
+      if (isSoapPlaceholder(soap.plan)) contextGaps.push("Add evaluation or treatment plan");
+      if (!soapApproved) contextGaps.push("Confirm SOAP draft");
     }
+
   }
 
   if (purpose === "renewal") {
@@ -978,6 +1083,9 @@ export default function IssuePrescriptionDialog({
     setPastedNote("");
     setSoapDrafted(false);
     setSoapApproved(false);
+    setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
+    setAiQuestions([]);
+
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
@@ -1036,15 +1144,16 @@ export default function IssuePrescriptionDialog({
     const raw = pastedNote.trim();
     if (!raw) return;
     setAiLoading(true);
-    const lines = raw.split(/\n|(?<=\.)\s+/).map((l) => l.trim()).filter(Boolean);
-    const pick = (i: number) => lines[i] ?? "";
     window.setTimeout(() => {
-      setSoap({
-        subjective: pick(0) || raw.slice(0, 180),
-        objective: pick(1) || NEEDS_CONFIRMATION,
-        assessment: pick(2) || NEEDS_CONFIRMATION,
-        plan: pick(3) || lines.slice(3).join(" ") || NEEDS_CONFIRMATION,
+      const { soap: drafted, aiFields: drafts, questions } = organiseSoap(raw);
+      setSoap(drafted);
+      setAiFields({
+        subjective: drafts.includes("subjective"),
+        objective: drafts.includes("objective"),
+        assessment: drafts.includes("assessment"),
+        plan: drafts.includes("plan"),
       });
+      setAiQuestions(questions);
       setSoapApproved(false);
       setSoapDrafted(true);
       setAiLoading(false);
@@ -1056,6 +1165,7 @@ export default function IssuePrescriptionDialog({
       }, 60);
     }, 1200);
   }
+
 
 
   function draftFromPlan() {
@@ -1874,30 +1984,149 @@ export default function IssuePrescriptionDialog({
                     hint: string,
                     rows = 2,
                   ) => {
-                    const needs = soap[key].includes(NEEDS_CONFIRMATION);
+                    const placeholder = isSoapPlaceholder(soap[key]);
+                    const aiWritten = aiFields[key] && !placeholder;
                     return (
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <label className={label}>{SOAP_FULL_LABEL[key]}</label>
-                          {needs && (
-                            <span className="rounded-full bg-[#FDF9EF] px-2 py-0.5 text-[10.5px] font-semibold text-[#8A6B1F]">
-                              {NEEDS_CONFIRMATION}
+                          {aiWritten && (
+                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                              AI draft — confirm
                             </span>
                           )}
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
                         <textarea
                           rows={rows}
-                          className={`${area} mt-1.5 ${needs ? "border-[#EFE6D2] bg-[#FDF9EF]" : ""}`}
+                          className={`${area} mt-1.5 ${
+                            placeholder
+                              ? "text-[#8A7FB0]"
+                              : aiWritten
+                                ? "border-[#D9CEF3] bg-[#FAF8FF]"
+                                : ""
+                          }`}
                           value={soap[key]}
                           onChange={(e) => {
                             setSoapApproved(false);
+                            setAiFields((f) => ({ ...f, [key]: false }));
                             setSoap((s) => ({ ...s, [key]: e.target.value }));
                           }}
                         />
+                        {placeholder && key === "objective" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAiFields((f) => ({ ...f, objective: false }));
+                              setSoap((s) => ({ ...s, objective: "" }));
+                            }}
+                            className="mt-1.5 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            Add findings or vitals
+                          </button>
+                        )}
                       </div>
                     );
                   };
+
+                  /** Specific, actionable gaps — kept outside the SOAP fields. */
+                  const infoNeeded: { label: string; key: keyof SoapNote }[] = [];
+                  if (isSoapPlaceholder(soap.assessment))
+                    infoNeeded.push({ label: "Confirm assessment", key: "assessment" });
+                  if (isSoapPlaceholder(soap.objective))
+                    infoNeeded.push({ label: "Add relevant findings or vitals", key: "objective" });
+                  if (isSoapPlaceholder(soap.plan))
+                    infoNeeded.push({ label: "Add evaluation or treatment plan", key: "plan" });
+                  if (!/follow[- ]?up|review in|return/i.test(soap.plan))
+                    infoNeeded.push({ label: "Add follow-up", key: "plan" });
+                  if (!/instruct|warning|return if|advise/i.test(soap.plan))
+                    infoNeeded.push({
+                      label: "Add patient instructions and warning signs",
+                      key: "plan",
+                    });
+
+                  const infoNeededPanel = soapDrafted || soapMode === "manual" ? (
+                    <>
+                      {infoNeeded.length > 0 && (
+                        <div className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDFBF4] p-4">
+                          <p className="text-[12.5px] font-bold text-[#7A5E14]">Information needed</p>
+                          <p className="mt-1 text-[11.5px] leading-snug text-[#8A7A56]">
+                            These are not part of the note yet. Complete each one in the sections
+                            above.
+                          </p>
+                          <ul className="mt-2.5 space-y-1.5">
+                            {infoNeeded.map((item) => (
+                              <li key={item.label}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (isSoapPlaceholder(soap[item.key])) {
+                                      setAiFields((f) => ({ ...f, [item.key]: false }));
+                                      setSoap((s) => ({ ...s, [item.key]: "" }));
+                                    }
+                                    document
+                                      .getElementById("soap-generated-sections")
+                                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                  }}
+                                  className="text-left text-[12px] font-semibold text-[#6F5BA0] underline decoration-[#E3D6B8] underline-offset-2 transition hover:text-[#3D2E6B]"
+                                >
+                                  {item.label}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {aiQuestions.length > 0 && (
+                        <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#FAF8FF] p-4">
+                          <div className="flex items-center gap-2">
+                            <p className="text-[12.5px] font-bold text-[#3D2E6B]">AI suggestions</p>
+                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#3D2E6B]">
+                              AI
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
+                            Questions only — nothing here enters the clinical record until you choose
+                            “Use suggestion”.
+                          </p>
+                          <ul className="mt-2.5 space-y-2">
+                            {aiQuestions.map((q) => (
+                              <li
+                                key={q}
+                                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#EDEBF3] bg-white px-3 py-2"
+                              >
+                                <span className="min-w-0 text-[12px] text-[#4B4468]">{q}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const key: keyof SoapNote = /finding|vital/i.test(q)
+                                      ? "objective"
+                                      : /impression/i.test(q)
+                                        ? "assessment"
+                                        : "plan";
+                                    setSoapApproved(false);
+                                    setAiFields((f) => ({ ...f, [key]: false }));
+                                    setSoap((s) => ({
+                                      ...s,
+                                      [key]: isSoapPlaceholder(s[key])
+                                        ? `${q} — `
+                                        : `${s[key]} ${q} — `,
+                                    }));
+                                    setAiQuestions((list) => list.filter((x) => x !== q));
+                                  }}
+                                  className="shrink-0 rounded-xl border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                                >
+                                  Use suggestion
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  ) : null;
+
 
                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
                   /** One quiet switch between AI drafting and writing manually. */
@@ -1941,8 +2170,8 @@ export default function IssuePrescriptionDialog({
                         {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-                        AI only organizes what you wrote — anything missing is marked “
-                        {NEEDS_CONFIRMATION}”.
+                        AI only organizes what you wrote — it never adds symptoms, findings or
+                        treatment.
                       </p>
                       <details className="mt-1.5 group">
                         <summary className="cursor-pointer list-none text-[11.5px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]">
@@ -1950,14 +2179,13 @@ export default function IssuePrescriptionDialog({
                         </summary>
                         <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#8A7FB0]">
                           Paste or dictate your raw clinical notes above, then click “Draft SOAP with
-                          AI.” Lubin reads what you wrote and organizes it into the four SOAP sections —
-                          Subjective (what the patient reports), Objective (measurable findings and
-                          vitals), Assessment (your clinical impression) and Plan (next steps). It only
-                          rearranges information you provided — it never invents diagnoses, vitals, or
-                          findings. Anything it cannot find in your notes is left blank and flagged “
-                          {NEEDS_CONFIRMATION}” so you can fill it in. Always review and edit every
-                          section before signing. In this prototype the drafts are generated locally for
-                          demonstration.
+                          AI.” Lubin sorts what you wrote into the four SOAP sections — Subjective
+                          (what the patient reports, including negatives), Objective (findings and
+                          vitals), Assessment (your impression) and Plan (next steps). It never
+                          invents symptoms, examinations, diagnoses, results or treatment. Anything
+                          you did not document is left as an open gap and listed under “Information
+                          needed”, and every section stays editable. In this prototype the drafts are
+                          generated locally for demonstration.
                         </p>
                       </details>
                       {aiLoading && (
@@ -1968,39 +2196,32 @@ export default function IssuePrescriptionDialog({
                       )}
                       {!aiLoading && soapDrafted && (
                         <p className="mt-2 rounded-xl bg-[#F7F3FF] px-3 py-2 text-[11.5px] font-semibold text-[#4B3F7A]">
-                          SOAP note ready — review and edit every section below before continuing.
+                          AI draft created — review and complete the highlighted sections.
                         </p>
                       )}
                     </div>
                   );
 
 
-                  /** Required provider sign-off on the SOAP note. */
+                  /** One explicit confirmation of the whole draft. */
                   const soapApproval = (
-                    <label
-                      className={`mt-3 flex cursor-pointer items-start gap-3 rounded-xl border px-3.5 py-3 ${
-                        soapApproved
-                          ? "border-[#3D2E6B] bg-[#F7F4FE]"
-                          : "border-[#EDEBF3] bg-white"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
-                        checked={soapApproved}
-                        onChange={(e) => setSoapApproved(e.target.checked)}
-                      />
-                      <span>
-                        <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
-                          I reviewed and approve this SOAP note
-                        </span>
-                        <span className="mt-0.5 block text-[11.5px] leading-snug text-[#6F6889]">
-                          Required. The note is yours — confirm every section reflects your own
-                          clinical assessment.
-                        </span>
-                      </span>
-                    </label>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSoapApproved(true)}
+                        disabled={soapApproved || infoNeeded.some((i) => i.label === "Confirm assessment" || i.label === "Add evaluation or treatment plan")}
+                        className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {soapApproved ? "SOAP draft confirmed" : "Confirm SOAP draft"}
+                      </button>
+                      <p className="text-[11.5px] leading-snug text-[#8A7FB0]">
+                        {soapApproved
+                          ? "You confirmed Subjective, Objective, Assessment and Plan."
+                          : "Review all four sections — your signature at the end provides the final authorization."}
+                      </p>
+                    </div>
                   );
+
 
 
                   return (
@@ -2493,7 +2714,8 @@ export default function IssuePrescriptionDialog({
                                   "Treatment decision, medication plan, monitoring and follow-up.",
                                 )}
                               </div>
-                              {soapApproval}
+                              {infoNeededPanel}
+                          {soapApproval}
                             </div>
                           )}
 
@@ -2644,6 +2866,7 @@ export default function IssuePrescriptionDialog({
                               {contextGaps.length === 0 ? "Focused SOAP complete" : soapStatusLabel}
                             </p>
                           </div>
+                          {infoNeededPanel}
                           {soapApproval}
                           </div>
                           )}
