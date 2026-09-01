@@ -2487,14 +2487,28 @@ export default function IssuePrescriptionDialog({
                       key === "assessment" ? (
                         <div className="mt-2">
                           {!noteHasAssessment && (
-                            <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                              No diagnosis or clinical impression was documented in the notes.
-                            </p>
+                            <div className="rounded-xl border border-[#EDEBF3] bg-white px-3 py-2.5">
+                              <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                No clinical assessment was documented in the notes.
+                              </p>
+                              {!!symptomIndication && (
+                                <p className="mt-1.5 text-[12px] leading-snug text-[#4B4468]">
+                                  <span className="font-semibold text-[#6F5BA0]">
+                                    Documented clinical problem:
+                                  </span>{" "}
+                                  {symptomIndication}.
+                                </p>
+                              )}
+                              <p className="mt-1.5 text-[11px] leading-snug text-[#8A7FB0]">
+                                AI summary of the documented problem only — it is not recorded as
+                                an Assessment unless you choose to use it.
+                              </p>
+                            </div>
                           )}
                           <div className="mt-2 grid gap-2 sm:grid-cols-3">
                             {(
                               [
-                                ["symptom", "Use documented symptom as indication"],
+                                ["symptom", "Use symptom as indication"],
                                 ["working", "Enter diagnosis or working diagnosis"],
                                 ["further", "Further assessment required"],
                               ] as const
