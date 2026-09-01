@@ -4097,36 +4097,50 @@ export default function IssuePrescriptionDialog({
                   ) : (
                   <>
                   {/* Design-only assistive drafting — synthetic, in-memory, no AI service. */}
-                  <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Draft prescription with AI
-                    </h3>
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Lubin drafts prescription fields from your SOAP Plan. Review every field before
-                      signing.
-                    </p>
-                    <details className="mt-2 group">
-                      <summary className="cursor-pointer list-none text-[12px] font-semibold text-[#7E6BAF] underline decoration-[#D9CEF3] transition hover:text-[#3D2E6B]">
-                        How AI works
-                      </summary>
-                      <p className="mt-2 text-[12px] leading-relaxed text-[#6F6889]">
-                        Lubin turns your documented Plan into structured prescription fields and
-                        patient instructions, and points out missing information. It never diagnoses,
-                        chooses a medication, signs or issues, and it never silently fills a gap —
-                        anything undocumented is shown as “Not documented — provider confirmation
-                        required”. Manual entry always works, and every drafted medication needs your
-                        individual confirmation. In this prototype the drafts are synthetic.
-                      </p>
-                    </details>
+                  <section className="relative overflow-hidden rounded-2xl bg-[#3D2E6B] p-6 shadow-lg shadow-[#E7E0F7]">
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-[#6B54B0] opacity-60 blur-3xl"
+                    />
+                    <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-4.5 w-4.5 text-[#C9BCE9]" />
+                          <h3 className="text-[15px] font-semibold text-white">
+                            Draft prescription with AI
+                          </h3>
+                        </div>
+                        <p className="mt-1 max-w-md text-[12.5px] leading-relaxed text-[#D6CDF0]">
+                          Lubin drafts prescription fields from your SOAP Plan. Review every field
+                          before signing.
+                        </p>
+                        <details className="mt-2 group">
+                          <summary className="cursor-pointer list-none text-[11.5px] font-medium text-[#C9BCE9] underline decoration-[#7E6BAF] transition hover:text-white">
+                            How AI works
+                          </summary>
+                          <p className="mt-2 max-w-md text-[12px] leading-relaxed text-[#D6CDF0]">
+                            Lubin turns your documented Plan into structured prescription fields and
+                            patient instructions, and points out missing information. It never
+                            diagnoses, chooses a medication, signs or issues, and it never silently
+                            fills a gap — anything undocumented is shown as “Not documented —
+                            provider confirmation required”. Manual entry always works, and every
+                            drafted medication needs your individual confirmation. In this prototype
+                            the drafts are synthetic.
+                          </p>
+                        </details>
+                      </div>
 
-                    <button
-                      type="button"
-                      onClick={draftFromPlan}
-                      disabled={aiLoading || !planText.trim()}
-                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#3D2E6B] py-3.5 text-[13.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      {aiLoading ? "Drafting…" : "Draft prescription from my plan"}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={draftFromPlan}
+                        disabled={aiLoading || !planText.trim()}
+                        className="group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[13px] font-bold text-[#3D2E6B] shadow-sm transition hover:bg-[#F4F0FE] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span>{aiLoading ? "Drafting…" : "Draft from my plan"}</span>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </button>
+                    </div>
+
 
                     {aiError && (
                       <p className="mt-3 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
