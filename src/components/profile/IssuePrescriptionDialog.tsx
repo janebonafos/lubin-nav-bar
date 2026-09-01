@@ -3580,11 +3580,6 @@ export default function IssuePrescriptionDialog({
                             </div>
 
                             {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
-                            {contextGaps.length === 0 && (
-                              <p className="rounded-xl bg-[#F0EBFB] px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B]">
-                                Clinical assessment complete
-                              </p>
-                            )}
                           </div>
                            {soapApproval}
                           </div>
