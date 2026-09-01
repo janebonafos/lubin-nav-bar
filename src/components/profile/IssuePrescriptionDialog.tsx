@@ -2924,13 +2924,6 @@ export default function IssuePrescriptionDialog({
                           <p className="text-[11.5px] leading-snug text-[#5C8A6B]">
                             Subjective, Objective and Assessment confirmed. The Plan is drafted after you choose the medication in Step 3.
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => setSoapApproved(false)}
-                            className="ml-auto shrink-0 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                          >
-                            Edit
-                          </button>
                         </div>
                       ) : step2Ready ? (
                         <div className="space-y-1.5">
@@ -3541,9 +3534,11 @@ export default function IssuePrescriptionDialog({
                                     minRows={2}
                                     className={`${area} mt-2`}
                                     value={soap.objective}
-                                    onChange={(e) =>
-                                      setSoap((s) => ({ ...s, objective: e.target.value }))
-                                    }
+                                    onChange={(e) => {
+                                      setSoapApproved(false);
+                                      setAiFields((f) => ({ ...f, objective: false }));
+                                      setSoap((s) => ({ ...s, objective: e.target.value }));
+                                    }}
                                     placeholder={
                                       objectiveMode === "limited-remote"
                                         ? "Document what you could observe during the video or telephone assessment."
