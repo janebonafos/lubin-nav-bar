@@ -356,26 +356,30 @@ function organiseSoap(raw: string): {
   const subjective: string[] = [];
 
   for (const s of sentences) {
+    // Instruction-style lines ("Objective must contain…") are not clinical facts.
+    if (isInstructionFragment(s)) continue;
     if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
     else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
     else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
     else subjective.push(s);
   }
 
-  const subjectiveText = subjective.length ? phraseSubjective(subjective) : raw.trim();
+  const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
 
   // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
-  const complaint = (subjective[0] ?? sentences[0] ?? "")
+  const complaint = (subjective[0] ?? "")
     .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
     .replace(/\.$/, "");
-  const suggestedAssessment = complaint
-    ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
-        durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
-          ? `, ${durationMatch[1]} duration`
-          : ""
-      }; cause not yet established.`
-    : "";
+  // Never propose an assessment from non-clinical text.
+  const suggestedAssessment =
+    complaint && !isInstructionFragment(complaint)
+      ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
+          durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
+            ? `, ${durationMatch[1]} duration`
+            : ""
+        }; cause not yet established.`
+      : "";
 
   const soap: SoapNote = {
     subjective: subjectiveText,
