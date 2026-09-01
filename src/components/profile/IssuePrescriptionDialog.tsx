@@ -2556,6 +2556,13 @@ export default function IssuePrescriptionDialog({
                       ) : null;
                     const hideAssessmentField =
                       key === "assessment" && (!assessmentBasis || assessmentBasis === "further");
+                    /* The provider's clinical judgment — never the AI — becomes A. */
+                    const providerConfirmedAssessment =
+                      key === "assessment" &&
+                      !!assessmentBasis &&
+                      assessmentBasis !== "further" &&
+                      !placeholder &&
+                      !aiWritten;
                     return (
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
@@ -2567,9 +2574,16 @@ export default function IssuePrescriptionDialog({
                               AI draft — confirm
                             </span>
                           )}
-                          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
-                            {sectionHelp[key]}
-                          </span>
+                          {providerConfirmedAssessment && (
+                            <span className="rounded-full bg-[#3D2E6B] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                              Provider-confirmed Assessment
+                            </span>
+                          )}
+                          {!providerConfirmedAssessment && (
+                            <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                              {sectionHelp[key]}
+                            </span>
+                          )}
                         </div>
                         <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">{hint}</p>
 
