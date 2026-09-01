@@ -2511,46 +2511,83 @@ export default function IssuePrescriptionDialog({
                                )}
                              </div>
                            )}
-                          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                          <div className="mt-2 space-y-2">
                             {(
                               [
-                                ["symptom", "Use symptom as indication"],
-                                ["working", "Enter diagnosis or working diagnosis"],
-                                ["further", "Further assessment required"],
+                                [
+                                  "symptom",
+                                  "Use symptom as indication",
+                                  "Record the documented problem as the treatment indication",
+                                ],
+                                [
+                                  "working",
+                                  "Enter diagnosis or working diagnosis",
+                                  "Type the diagnosis or clinical impression you formed",
+                                ],
+                                [
+                                  "further",
+                                  "Further assessment required",
+                                  "No medication yet — the assessment is still ongoing",
+                                ],
                               ] as const
-                            ).map(([value, text]) => (
-                              <button
-                                key={value}
-                                type="button"
-                                onClick={() => {
-                                  setAssessmentBasis(value);
-                                  setSoapApproved(false);
-                                  if (value === "further") {
-                                    setSuggestedAssessment("");
-                                    setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
-                                    setAiFields((f) => ({ ...f, assessment: false }));
-                                  } else if (value === "symptom") {
-                                    setSuggestedAssessment("");
-                                    setAiFields((f) => ({ ...f, assessment: false }));
-                                    setSoap((cur) => ({
-                                      ...cur,
-                                      assessment: isSoapPlaceholder(cur.assessment)
-                                        ? symptomIndication
-                                        : cur.assessment,
-                                    }));
-                                  } else if (isSoapPlaceholder(soap.assessment)) {
-                                    setSoap((cur) => ({ ...cur, assessment: "" }));
-                                  }
-                                }}
-                                className={`${chip} w-full justify-center text-center ${
-                                  assessmentBasis === value
-                                    ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
-                                    : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
-                                }`}
-                              >
-                                {text}
-                              </button>
-                            ))}
+                            ).map(([value, title, desc]) => {
+                              const active = assessmentBasis === value;
+                              return (
+                                <button
+                                  key={value}
+                                  type="button"
+                                  onClick={() => {
+                                    setAssessmentBasis(value);
+                                    setSoapApproved(false);
+                                    if (value === "further") {
+                                      setSuggestedAssessment("");
+                                      setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
+                                      setAiFields((f) => ({ ...f, assessment: false }));
+                                    } else if (value === "symptom") {
+                                      setSuggestedAssessment("");
+                                      setAiFields((f) => ({ ...f, assessment: false }));
+                                      setSoap((cur) => ({
+                                        ...cur,
+                                        assessment: isSoapPlaceholder(cur.assessment)
+                                          ? symptomIndication
+                                          : cur.assessment,
+                                      }));
+                                    } else if (isSoapPlaceholder(soap.assessment)) {
+                                      setSoap((cur) => ({ ...cur, assessment: "" }));
+                                    }
+                                  }}
+                                  className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-2.5 text-left transition ${
+                                    active
+                                      ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                                      : "border-[#EDEBF3] bg-white hover:border-[#C9BCE9]"
+                                  }`}
+                                >
+                                  <span
+                                    className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border transition ${
+                                      active
+                                        ? "border-[#3D2E6B] bg-[#3D2E6B]"
+                                        : "border-[#C9BCE9]"
+                                    }`}
+                                  >
+                                    {active && (
+                                      <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                                    )}
+                                  </span>
+                                  <span className="flex flex-col">
+                                    <span
+                                      className={`text-[12.5px] font-semibold ${
+                                        active ? "text-[#3D2E6B]" : "text-[#4B4468]"
+                                      }`}
+                                    >
+                                      {title}
+                                    </span>
+                                    <span className="mt-0.5 text-[11.5px] leading-snug text-[#8A7FB0]">
+                                      {desc}
+                                    </span>
+                                  </span>
+                                </button>
+                              );
+                            })}
                           </div>
                           {assessmentBasis === "further" && (
                             <p className="mt-2 rounded-xl bg-[#FDF6E7] px-3 py-2 text-[11.5px] font-semibold text-[#6B4E10]">
