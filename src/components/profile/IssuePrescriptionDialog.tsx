@@ -2664,10 +2664,6 @@ export default function IssuePrescriptionDialog({
                                   : aiWritten
                                     ? "border-[#D9CEF3] bg-[#FAF8FF]"
                                     : ""
-                              } ${
-                                key === "assessment"
-                                  ? "border-[#3D2E6B] bg-white text-[13.5px] font-semibold text-[#2A1F4D] shadow-[0_1px_0_rgba(61,46,107,0.08)]"
-                                  : ""
                               }`}
                               value={soap[key]}
                               onChange={(e) => {
