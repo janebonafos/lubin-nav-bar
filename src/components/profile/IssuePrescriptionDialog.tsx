@@ -2413,9 +2413,33 @@ export default function IssuePrescriptionDialog({
                           setPastedNote(e.target.value);
                           setSoapDrafted(false);
                           setSoapApproved(false);
+                          setNoteRejected(false);
                         }}
                         placeholder="e.g. Patient seen today for follow-up of hypertension. BP 138/86. Tolerating current medication…"
                       />
+                      {noteRejected && (
+                        <div className="mt-2 rounded-xl border border-[#F0D3CF] bg-[#FDF2F2] px-3 py-2.5">
+                          <p className="text-[11.5px] font-semibold leading-relaxed text-[#9B3B33]">
+                            This appears to contain design or product instructions rather than
+                            clinical notes. No information was added to the patient record.
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPastedNote("");
+                                setNoteRejected(false);
+                              }}
+                              className="inline-flex h-8 items-center rounded-[10px] border border-[#E0C9C5] bg-white px-3 text-[11.5px] font-semibold text-[#9B3B33]"
+                            >
+                              Clear text
+                            </button>
+                            <span className="inline-flex h-8 items-center text-[11.5px] text-[#9B3B33]">
+                              or edit the text above and try again
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={prepareSoapDraft}
