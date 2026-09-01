@@ -251,10 +251,27 @@ function isSoapPlaceholder(value: string): boolean {
 }
 
 const OBJECTIVE_HINTS =
-  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|x-ray|ecg|cbc|glucose)\b/i;
+  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|results|x-ray|ecg|ekg|cbc|glucose|urinalysis|ultrasound|imaging|swab|test)\b/i;
+/** How the encounter was conducted — an objective fact about the visit. */
+const METHOD_HINTS =
+  /\b(seen (in person|via|by|over)|in[- ]person|face[- ]to[- ]face|tele(consult|medicine|health)|video (call|consult|visit)|phone (call|consult|visit)|remote(ly)?|home visit|clinic visit|walk[- ]in)\b/i;
+/** Visible clinician observations (what the prescriber saw, not what was said). */
+const OBSERVATION_HINTS =
+  /\b(appears|appeared|looks|looked|observed|on (video|camera)|alert|oriented|coherent|well[- ]groomed|no (acute )?distress|distressed|tearful|anxious[- ]looking|pale|flushed|speech|affect|mood congruent|gait|ambulat)\b/i;
 const PLAN_HINTS =
   /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
 const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
+/** Diagnostic reasoning — belongs in Assessment, never in Subjective. */
+const IMPRESSION_HINTS =
+  /\b(impression|assessment|cause (is )?not (yet )?(established|clear|determined)|aetiolog|etiolog|likely|probable|possible|consistent with|suggestive of|suspect(ed)?|differential|rule out|r\/o|working diagnosis|provisional)\b/i;
+/** Allergy statements — routed to the medication safety check. */
+const ALLERGY_LINE = /\b(allerg\w*|anaphylax\w*|nkda|no known drug allerg\w*)\b/i;
+/** Current medication statements — routed to the medication safety check. */
+const MEDICATION_LINE =
+  /\b(currently (taking|on)|current medication\w*|home medication\w*|maintenance (medication|meds)|taking\s+\w+\s*\d+\s*(mg|mcg|g|ml)|on\s+\w+\s*\d+\s*(mg|mcg|g|ml)|no (current )?medications?|not on any medication\w*)\b/i;
+/** Vitals or an actual examination / test result was documented. */
+const MEASURED_HINTS =
+  /\b(\d{2,3}\/\d{2,3}|\d+\s*(mmhg|bpm|kg|lbs|°c|°f|mg\/dl|mmol)|bp\b|heart rate|pulse|temperature|spo2|weight|exam|examination|auscultation|palpat|lab|result|x-ray|ecg|ekg|cbc|ultrasound|imaging)\b/i;
 
 /**
  * Product/design/engineering instruction language. Text like this is not
