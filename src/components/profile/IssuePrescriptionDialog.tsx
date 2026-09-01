@@ -2937,7 +2937,7 @@ export default function IssuePrescriptionDialog({
                           <button
                             type="button"
                             onClick={() => setSoapApproved(true)}
-                            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#3D2E6B] bg-white px-4 text-[13px] font-semibold text-[#3D2E6B] shadow-sm transition hover:bg-[#3D2E6B] hover:text-white"
+                            className="flex h-11 w-full items-center justify-center gap-2 rounded-[12px] border border-[#3D2E6B] bg-white px-4 text-[13px] font-semibold text-[#3D2E6B] shadow-sm transition hover:bg-[#3D2E6B] hover:text-white"
                           >
                             Confirm clinical assessment
                           </button>
