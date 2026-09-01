@@ -1584,7 +1584,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-sex">
-                            Sex
+                            Sex <span className="text-[#B4436C]">*</span>
                           </label>
                           <select
                             id="rx-sex"
