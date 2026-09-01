@@ -2496,9 +2496,9 @@ export default function IssuePrescriptionDialog({
                                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
                                      Documented clinical problem
                                    </p>
-                                   <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
-                                     {symptomIndication}
-                                   </p>
+                                    <p className="mt-0.5 text-[13px] leading-snug text-[#3D2E6B]">
+                                      {symptomIndication}
+                                    </p>
                                    <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
                                      AI summary of the documented problem only — it is not recorded
                                      as an Assessment unless you choose to use it.
@@ -2645,7 +2645,7 @@ export default function IssuePrescriptionDialog({
                         ) : (
                           <div className="mt-2">
                             {key === "assessment" && (
-                              <p className="mb-1 text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                              <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-wider text-[#6F5BA0]">
                                 {assessmentBasis === "symptom"
                                   ? "Assessment / indication — editable"
                                   : "Your diagnosis or clinical impression"}
@@ -2664,10 +2664,6 @@ export default function IssuePrescriptionDialog({
                                   : aiWritten
                                     ? "border-[#D9CEF3] bg-[#FAF8FF]"
                                     : ""
-                              } ${
-                                key === "assessment"
-                                  ? "border-[#3D2E6B] bg-white text-[13.5px] font-semibold text-[#2A1F4D] shadow-[0_1px_0_rgba(61,46,107,0.08)]"
-                                  : ""
                               }`}
                               value={soap[key]}
                               onChange={(e) => {
