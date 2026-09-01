@@ -214,8 +214,15 @@ const SOAP_LABEL: Record<keyof SoapNote, string> = {
 const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
   subjective: "S — Subjective",
   objective: "O — Objective",
-  assessment: "A — Assessment",
+  assessment: "A — Assessment / indication",
   plan: "P — Plan",
+};
+const SOAP_SECTION_HINT: Record<keyof SoapNote, string> = {
+  subjective: "Patient-reported symptoms and history.",
+  objective: "Observations, examination findings, vital signs and test results.",
+  assessment:
+    "Provider’s diagnosis, working diagnosis, clinical impression or reason for treatment.",
+  plan: "Completed with the treatment decisions made in Step 3.",
 };
 /**
  * Assistive drafting never invents clinical information. Anything the provider
@@ -231,6 +238,9 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
 const NO_OBJECTIVE = "No vitals or examination obtained.";
 /** Some remote observation exists, but nothing was measured or examined. */
 const LIMITED_REMOTE_OBJECTIVE = "Limited remote observations documented.";
+/** Documented wording used when a remote assessment is the only observation. */
+const LIMITED_REMOTE_PREFILL =
+  "Assessed by video. Patient appeared comfortable and was speaking in complete sentences. Temperature, oxygen saturation and chest examination were not obtained.";
 const NO_ASSESSMENT = "Assessment not yet documented.";
 const NO_PLAN = "Plan not yet documented.";
 /** Shown in Plan until the medication and regimen are chosen in Step 3. */
@@ -502,16 +512,13 @@ function organiseSoap(raw: string): {
 
   const soap: SoapNote = {
     subjective: subjectiveText,
-    objective: objective.length
-      ? [
-          objective.length > 2
-            ? objective.map((o) => `• ${o}${/[.?!]$/.test(o) ? "" : "."}`).join("\n")
-            : objective.map((o) => (/[.?!]$/.test(o) ? o : `${o}.`)).join(" "),
-          limitedRemoteOnly ? LIMITED_REMOTE_OBJECTIVE : "",
-        ]
-          .filter(Boolean)
-          .join(objective.length > 2 ? "\n" : " ")
-      : NO_OBJECTIVE,
+    objective: limitedRemoteOnly
+      ? LIMITED_REMOTE_PREFILL
+      : objective.length
+        ? objective.length > 2
+          ? objective.map((o) => `• ${o}${/[.?!]$/.test(o) ? "" : "."}`).join("\n")
+          : objective.map((o) => (/[.?!]$/.test(o) ? o : `${o}.`)).join(" ")
+        : NO_OBJECTIVE,
     assessment: NO_ASSESSMENT,
     plan: PLAN_AWAITING_RX,
   };
@@ -1174,10 +1181,12 @@ export default function IssuePrescriptionDialog({
       : entry === "lubin" && linkedAppt && missingFromLinked.length === 0 && soapGaps.length === 0
         ? "Existing SOAP reused"
         : soapGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
-          ? "SOAP note complete"
+          ? isSoapPlaceholder(soap.plan)
+            ? "Clinical assessment complete"
+            : "SOAP note ready for review"
           : soapTouched || Boolean(linkedAppt)
-            ? "SOAP note incomplete"
-            : "SOAP note not started";
+            ? "Clinical assessment incomplete"
+            : "Clinical assessment not started";
   const soapSourceLabel =
     entry === "lubin"
       ? "Existing SOAP note from a completed Lubin consultation"
@@ -1496,11 +1505,14 @@ export default function IssuePrescriptionDialog({
       setAssessmentBasis("");
       setSoap(drafted);
       setObjectiveMode(
-        drafted.objective === NO_OBJECTIVE
-          ? "not-obtained"
-          : limitedRemoteOnly
-            ? "limited-remote"
-            : "add",
+        limitedRemoteOnly
+          ? "limited-remote"
+          : drafted.objective === NO_OBJECTIVE
+            ? "not-obtained"
+            : // Never claim findings are documented while the field is empty.
+              drafted.objective.trim()
+              ? "add"
+              : "none",
       );
       setAiFields({
         subjective: drafts.includes("subjective"),
@@ -2533,7 +2545,7 @@ export default function IssuePrescriptionDialog({
                       <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
                           <label className={label}>
-                            {key === "assessment" ? "Assessment or indication" : SOAP_FULL_LABEL[key]}
+                            {SOAP_FULL_LABEL[key]}
                           </label>
                           {aiWritten && (
                             <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
@@ -2673,10 +2685,10 @@ export default function IssuePrescriptionDialog({
                   /** Actual blockers only. The Plan is not a blocker here — it is
                    *  drafted from the prescription decisions made in Step 3. */
                   const blockers: { label: string; key: keyof SoapNote }[] = [];
-                  if (isSoapPlaceholder(soap.objective))
-                    blockers.push({ label: "Confirm objective findings status", key: "objective" });
-                  if (isSoapPlaceholder(soap.assessment))
-                    blockers.push({ label: "Accept or write the Assessment", key: "assessment" });
+                   if (isSoapPlaceholder(soap.objective))
+                     blockers.push({ label: "Review Objective", key: "objective" });
+                   if (isSoapPlaceholder(soap.assessment))
+                     blockers.push({ label: "Complete Assessment", key: "assessment" });
 
                   const infoNeededPanel =
                     (soapDrafted || soapMode === "manual") && blockers.length > 0 ? (
@@ -3382,24 +3394,72 @@ export default function IssuePrescriptionDialog({
                               Step 2 documents Subjective, Objective and Assessment. The Plan is
                               drafted in Step 3, after the medication is selected.
                             </p>
+
+                            {/* Progress summary — makes the SOAP structure explicit. */}
+                            <ul className="mt-3 space-y-1 rounded-xl border border-[#EDE6FA] bg-[#FAF8FF] px-3 py-2.5">
+                              {(
+                                [
+                                  [
+                                    SOAP_FULL_LABEL.subjective,
+                                    isSoapPlaceholder(soap.subjective) ? "Required" : "Drafted",
+                                  ],
+                                  [
+                                    SOAP_FULL_LABEL.objective,
+                                    isSoapPlaceholder(soap.objective)
+                                      ? "Required"
+                                      : soapApproved
+                                        ? "Confirmed"
+                                        : "Review required",
+                                  ],
+                                  [
+                                    SOAP_FULL_LABEL.assessment,
+                                    isSoapPlaceholder(soap.assessment)
+                                      ? "Required"
+                                      : soapApproved
+                                        ? "Confirmed"
+                                        : "Drafted",
+                                  ],
+                                  [
+                                    SOAP_FULL_LABEL.plan,
+                                    "Completed with treatment decisions in Step 3",
+                                  ],
+                                ] as const
+                              ).map(([name, state]) => (
+                                <li
+                                  key={name}
+                                  className="flex flex-wrap items-baseline justify-between gap-x-3 text-[11.5px]"
+                                >
+                                  <span className="font-bold text-[#3D2E6B]">{name}</span>
+                                  <span
+                                    className={`font-semibold ${
+                                      state === "Required"
+                                        ? "text-[#9B3B33]"
+                                        : state === "Review required"
+                                          ? "text-[#6B4E10]"
+                                          : "text-[#6F5BA0]"
+                                    }`}
+                                  >
+                                    {state}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
                           <div className="mt-4 space-y-3">
 
-                            {soapField(
-                              "subjective",
-                              "Patient-reported reason for treatment, relevant symptoms and history.",
-                            )}
+                            {soapField("subjective", SOAP_SECTION_HINT.subjective)}
 
                             <div id="soap-field-objective">
-                              <label className={label}>Examination, observations or test results</label>
+                              <label className={label}>{SOAP_FULL_LABEL.objective}</label>
                               <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
-                                Document only findings you observed, measured, examined or reviewed.
+                                {SOAP_SECTION_HINT.objective} Document only findings you observed,
+                                measured, examined or reviewed.
                               </p>
                               <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
                                 {(
                                   [
-                                    ["not-obtained", "No vitals or examination obtained"],
+                                    ["not-obtained", "No objective findings obtained"],
                                     ["limited-remote", "Limited remote observations"],
-                                    ["add", "Add findings or vitals"],
+                                    ["add", "Findings, vitals or results documented"],
                                   ] as const
                                 ).map(([value, text]) => (
                                   <button
@@ -3413,7 +3473,7 @@ export default function IssuePrescriptionDialog({
                                         setSoap((s) => ({
                                           ...s,
                                           objective: isSoapPlaceholder(s.objective)
-                                            ? LIMITED_REMOTE_OBJECTIVE
+                                            ? LIMITED_REMOTE_PREFILL
                                             : s.objective,
                                         }));
                                       else setSoap((s) => ({ ...s, objective: "" }));
@@ -3473,21 +3533,11 @@ export default function IssuePrescriptionDialog({
                                       />
                                     </div>
                                   )}
-                                  <input
-                                    className={`${field} mt-2`}
-                                    value={otherVitalsText}
-                                    onChange={(e) => setOtherVitalsText(e.target.value)}
-                                    placeholder="Other findings or labs (optional)"
-                                  />
                                 </>
                               )}
                             </div>
 
-                            {soapField(
-                              "assessment",
-                              "Diagnosis, clinical impression or indication supporting treatment.",
-                              1,
-                            )}
+                            {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
                             {contextGaps.length === 0 && (
                               <p className="rounded-xl bg-[#F0EBFB] px-3 py-2 text-[11.5px] font-semibold text-[#3D2E6B]">
                                 Clinical assessment complete
