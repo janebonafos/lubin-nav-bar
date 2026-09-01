@@ -418,10 +418,13 @@ function organiseSoap(raw: string): {
   const medicationLines: string[] = [];
   let hasMeasured = false;
   let hasObservation = false;
+  let hasNotObtained = false;
 
   for (const s of sentences) {
     // Instruction-style lines ("Objective must contain…") are not clinical facts.
     if (isInstructionFragment(s)) continue;
+    // Never claim whether a cause is or is not established.
+    if (CAUSE_CLAIM.test(s)) continue;
     // Safety information goes to the Medication safety check, not Subjective.
     if (ALLERGY_LINE.test(s)) {
       allergyLines.push(s);
@@ -431,16 +434,23 @@ function organiseSoap(raw: string): {
       medicationLines.push(s);
       continue;
     }
+    // How the encounter was conducted is an objective fact about the visit.
+    if (METHOD_HINTS.test(s)) {
+      objective.push(s);
+      continue;
+    }
+    // Something explicitly not measured, examined or collected is Objective.
+    if (NOT_OBTAINED_LINE.test(s)) {
+      objective.push(s);
+      hasNotObtained = true;
+      continue;
+    }
     // Diagnostic reasoning is Assessment wording, never Subjective.
     if (IMPRESSION_HINTS.test(s)) {
       impressions.push(s);
       continue;
     }
     if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
-    if (METHOD_HINTS.test(s)) {
-      objective.push(s);
-      continue;
-    }
     if (OBSERVATION_HINTS.test(s) && !/^(patient (reports|says)|pt reports)/i.test(s)) {
       objective.push(s);
       hasObservation = true;
@@ -455,7 +465,8 @@ function organiseSoap(raw: string): {
   }
 
   const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
-  const limitedRemoteOnly = !hasMeasured && (hasObservation || objective.length > 0);
+  // Only a genuine remote observation without measurement counts as "limited".
+  const limitedRemoteOnly = !hasMeasured && !hasNotObtained && hasObservation;
 
   // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
