@@ -453,7 +453,9 @@ function organiseSoap(raw: string): {
   const dictatedImpression = impressions
     .map((s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
     .join(" ");
-  // Never propose an assessment from non-clinical text.
+  // Never propose an assessment from non-clinical text, and never state
+  // whether a diagnosis is established, confirmed or uncertain — only the
+  // prescriber decides that.
   const suggestedAssessment =
     dictatedImpression ||
     (complaint && !isInstructionFragment(complaint)
@@ -461,8 +463,9 @@ function organiseSoap(raw: string): {
           durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
             ? `, ${durationMatch[1]} duration`
             : ""
-        }; cause not yet established.`
+        }.`
       : "");
+
 
   const soap: SoapNote = {
     subjective: subjectiveText,
