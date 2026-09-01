@@ -2496,9 +2496,9 @@ export default function IssuePrescriptionDialog({
                                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
                                      Documented clinical problem
                                    </p>
-                                   <p className="mt-0.5 text-[14px] font-bold leading-snug text-[#2A1F4D]">
-                                     {symptomIndication}
-                                   </p>
+                                    <p className="mt-0.5 text-[13px] leading-snug text-[#3D2E6B]">
+                                      {symptomIndication}
+                                    </p>
                                    <p className="mt-1 text-[11px] leading-snug text-[#7E6BAF]">
                                      AI summary of the documented problem only — it is not recorded
                                      as an Assessment unless you choose to use it.
