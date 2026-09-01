@@ -254,6 +254,34 @@ const PLAN_HINTS =
   /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
 const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
 
+/**
+ * Product/design/engineering instruction language. Text like this is not
+ * patient information and must never reach a clinical field.
+ */
+const INSTRUCTION_HINTS: RegExp[] = [
+  /\b(frontend|front[- ]end|backend|back[- ]end|database|api|endpoint|schema|storage|localstorage|supabase|migration|component|css|ui|ux|modal|dropdown|button|placeholder|textarea|tooltip|accordion|route|repo|deploy|build|typescript|react)\b/i,
+  /\b(must (contain|not|be|show)|should (contain|be|show|not)|do not (add|place|show|generate|use)|never (add|show|generate|invent)|rename|replace\b.*\bwith\b|implement|refactor|redesign|design only|requirement|spec\b|task \d)/i,
+  /\b(subjective|objective|assessment|plan)\b\s*(must|should|section|field|fields)\b/i,
+  /^\s*\d+[.)]\s+\S+/m,
+];
+
+/** True when the pasted text reads as instructions rather than clinical notes. */
+export function looksLikeInstructions(raw: string): boolean {
+  const text = raw.trim();
+  if (!text) return false;
+  const hits = INSTRUCTION_HINTS.filter((r) => r.test(text)).length;
+  return hits >= 2 || /\bdesign only\b|\bfrontend design only\b/i.test(text);
+}
+
+/** True for a single fragment that reads as an instruction, not a finding. */
+function isInstructionFragment(s: string): boolean {
+  return (
+    /\b(must|should|do not|don't|never|rename|replace|implement|remove|add a|show only|instead of)\b/i.test(
+      s,
+    ) && /\b(subjective|objective|assessment|plan|field|section|button|text|note|ui|design)\b/i.test(s)
+  );
+}
+
 /** Splits raw dictation into sentence-like fragments, preserving every fact. */
 function soapSentences(raw: string): string[] {
   return raw
