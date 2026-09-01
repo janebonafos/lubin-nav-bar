@@ -1505,11 +1505,14 @@ export default function IssuePrescriptionDialog({
       setAssessmentBasis("");
       setSoap(drafted);
       setObjectiveMode(
-        drafted.objective === NO_OBJECTIVE
-          ? "not-obtained"
-          : limitedRemoteOnly
-            ? "limited-remote"
-            : "add",
+        limitedRemoteOnly
+          ? "limited-remote"
+          : drafted.objective === NO_OBJECTIVE
+            ? "not-obtained"
+            : // Never claim findings are documented while the field is empty.
+              drafted.objective.trim()
+              ? "add"
+              : "none",
       );
       setAiFields({
         subjective: drafts.includes("subjective"),
