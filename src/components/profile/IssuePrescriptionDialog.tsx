@@ -4686,117 +4686,128 @@ function MedicationCard({
             placeholder="e.g. Cozaar"
           />
         </div>
-        <div>
-          <label className={label}>Strength / form</label>
-          {item ? (
-            <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-              value={med.strength}
-              onChange={(e) => onPatch("strength", e.target.value)}
-            >
-              <option value="">Select strength and form</option>
-              {item.forms.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              className={`${field} mt-1.5`}
-              value={med.strength}
-              onChange={(e) => onPatch("strength", e.target.value)}
-              placeholder="50 mg tablet"
-            />
-          )}
+
+        {/* Posology group */}
+        <div className="sm:col-span-2 rounded-xl border border-[#EDEBF3] bg-white/70 p-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="col-span-2">
+              <label className={label}>Strength / form</label>
+              {item ? (
+                <select
+                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  value={med.strength}
+                  onChange={(e) => onPatch("strength", e.target.value)}
+                >
+                  <option value="">Select strength and form</option>
+                  {item.forms.map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className={`${field} mt-1.5`}
+                  value={med.strength}
+                  onChange={(e) => onPatch("strength", e.target.value)}
+                  placeholder="50 mg tablet"
+                />
+              )}
+            </div>
+            <div className="col-span-2">
+              <label className={label}>Route</label>
+              {item ? (
+                <select
+                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  value={med.route}
+                  onChange={(e) => onPatch("route", e.target.value)}
+                >
+                  {item.routes.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className={`${field} mt-1.5`}
+                  value={med.route}
+                  onChange={(e) => onPatch("route", e.target.value)}
+                  placeholder="Oral"
+                />
+              )}
+            </div>
+            <div>
+              <label className={label}>Dose</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.dose}
+                onChange={(e) => onPatch("dose", e.target.value)}
+                placeholder="50 mg"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={label}>Frequency</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.frequency}
+                onChange={(e) => onPatch("frequency", e.target.value)}
+                placeholder="Once daily in the morning"
+              />
+            </div>
+            <div>
+              <label className={label}>Duration</label>
+              <input
+                className={`${field} mt-1.5`}
+                value={med.duration}
+                onChange={(e) => onPatch("duration", e.target.value)}
+                placeholder="4 weeks"
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label className={label}>Route</label>
-          {item ? (
+
+        {/* Dispensing group */}
+        <div className="sm:col-span-2 grid gap-3 sm:grid-cols-3">
+          <div>
+            <label className={label}>Refills</label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-              value={med.route}
-              onChange={(e) => onPatch("route", e.target.value)}
+              value={med.refills}
+              onChange={(e) => onPatch("refills", e.target.value)}
             >
-              {item.routes.map((r) => (
+              {["No refills", "1 refill", "2 refills", "3 refills"].map((r) => (
                 <option key={r} value={r}>
                   {r}
                 </option>
               ))}
             </select>
-          ) : (
+          </div>
+          <div>
+            <label className={label}>Quantity to dispense</label>
             <input
               className={`${field} mt-1.5`}
-              value={med.route}
-              onChange={(e) => onPatch("route", e.target.value)}
-              placeholder="Oral"
+              value={med.quantity}
+              onChange={(e) => onPatch("quantity", e.target.value)}
+              placeholder="30"
             />
-          )}
+          </div>
+          <div>
+            <label className={label}>Dispensing unit</label>
+            <select
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              value={med.unit}
+              onChange={(e) => onPatch("unit", e.target.value)}
+            >
+              {["tablets", "capsules", "mL", "bottles", "sachets"].map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div>
-          <label className={label}>Dose</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.dose}
-            onChange={(e) => onPatch("dose", e.target.value)}
-            placeholder="50 mg"
-          />
-        </div>
-        <div>
-          <label className={label}>Frequency</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.frequency}
-            onChange={(e) => onPatch("frequency", e.target.value)}
-            placeholder="Once daily in the morning"
-          />
-        </div>
-        <div>
-          <label className={label}>Duration</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.duration}
-            onChange={(e) => onPatch("duration", e.target.value)}
-            placeholder="4 weeks, then review"
-          />
-        </div>
-        <div>
-          <label className={label}>Refills</label>
-          <select
-            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-            value={med.refills}
-            onChange={(e) => onPatch("refills", e.target.value)}
-          >
-            {["No refills", "1 refill", "2 refills", "3 refills"].map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={label}>Quantity to dispense</label>
-          <input
-            className={`${field} mt-1.5`}
-            value={med.quantity}
-            onChange={(e) => onPatch("quantity", e.target.value)}
-            placeholder="30"
-          />
-        </div>
-        <div>
-          <label className={label}>Dispensing unit</label>
-          <select
-            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
-            value={med.unit}
-            onChange={(e) => onPatch("unit", e.target.value)}
-          >
-            {["tablets", "capsules", "mL", "bottles", "sachets"].map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-        </div>
+
         <div className="sm:col-span-2">
           <label className={label}>
             Directions (SIG) — editable
