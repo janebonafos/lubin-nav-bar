@@ -2988,8 +2988,8 @@ export default function IssuePrescriptionDialog({
                               </div>
                               {objectiveMode === "add" && (
                                 <>
-                                  <textarea
-                                    rows={2}
+                                  <AutoTextarea
+                                    minRows={2}
                                     className={`${area} mt-2`}
                                     value={soap.objective}
                                     onChange={(e) =>
@@ -3126,8 +3126,8 @@ export default function IssuePrescriptionDialog({
                             </div>
                             <div>
                               <label className={label}>Is the medication helping?</label>
-                              <textarea
-                                rows={2}
+                              <AutoTextarea
+                                minRows={2}
                                 className={`${area} mt-1.5`}
                                 value={renewal.response}
                                 onChange={(e) =>
@@ -4267,8 +4267,8 @@ function MedicationCard({
             Directions (SIG) — editable
             <FieldHint text="Assembled from dose, route, frequency and duration. Edit it and your wording is kept." />
           </label>
-          <textarea
-            rows={2}
+          <AutoTextarea
+            minRows={2}
             className={`${area} mt-1.5`}
             value={med.sig}
             onChange={(e) => {
@@ -4308,8 +4308,8 @@ function MedicationCard({
               {instrLoading ? "Generating…" : "Generate patient-friendly instructions"}
             </button>
           </div>
-          <textarea
-            rows={2}
+          <AutoTextarea
+            minRows={2}
             className={`${area} mt-1.5`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
