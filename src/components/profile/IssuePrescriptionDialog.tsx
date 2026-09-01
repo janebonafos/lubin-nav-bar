@@ -191,10 +191,19 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
  * section. The draft never claims a section is "not required" and never
  * fabricates findings, diagnoses or treatment.
  */
-const NO_OBJECTIVE = "No objective findings documented.";
+const NO_OBJECTIVE = "Not obtained/documented.";
 const NO_ASSESSMENT = "Assessment not yet documented.";
 const NO_PLAN = "Plan not yet documented.";
-const SOAP_PLACEHOLDERS = [NO_OBJECTIVE, NO_ASSESSMENT, NO_PLAN, NEEDS_CONFIRMATION];
+/** Shown in Plan until the medication and regimen are chosen in Step 3. */
+const PLAN_AWAITING_RX =
+  "The Plan will be drafted after you select the medication and regimen in Step 3.";
+const SOAP_PLACEHOLDERS = [
+  NO_OBJECTIVE,
+  NO_ASSESSMENT,
+  NO_PLAN,
+  PLAN_AWAITING_RX,
+  NEEDS_CONFIRMATION,
+];
 
 /** Placeholder text is a visible gap, never documented content. */
 function isSoapPlaceholder(value: string): boolean {
@@ -216,71 +225,93 @@ function soapSentences(raw: string): string[] {
     .filter(Boolean);
 }
 
+/** Joins patient-reported fragments into one natural "Patient reports …" line. */
+function phraseSubjective(parts: string[]): string {
+  const cleaned = parts.map((s) =>
+    s
+      .replace(/^patient (reports|has|c\/o|complains of)\s*/i, "")
+      .replace(/^pt\s+(reports|has)\s*/i, "")
+      .replace(/\.$/, "")
+      .trim(),
+  );
+  const joined =
+    cleaned.length > 1
+      ? `${cleaned.slice(0, -1).join(", ")} and ${cleaned[cleaned.length - 1]}`
+      : (cleaned[0] ?? "");
+  if (!joined) return "";
+  return `Patient reports ${joined.charAt(0).toLowerCase()}${joined.slice(1)}.`;
+}
+
 /**
- * Organises the provider's own words into S/O/A/P. Nothing is invented: each
- * sentence is routed to a section, negatives are preserved verbatim, and empty
- * sections receive a neutral placeholder.
+ * Organises the provider's own words into Subjective and Objective only.
+ *
+ * Rules the finished AI feature must follow:
+ *  - Subjective holds only patient-reported symptoms, history and concerns —
+ *    never an AI interpretation such as "cause not yet established".
+ *  - Objective holds only measured or observed information. When nothing was
+ *    entered it reads "Not obtained/documented." and never invents findings.
+ *  - Assessment is NOT written into the record. Wording is proposed separately
+ *    and only enters the note when the provider chooses "Use in Assessment".
+ *  - Plan is left to Step 3: it is drafted from the medication, regimen and
+ *    follow-up the provider actually confirms.
  */
 function organiseSoap(raw: string): {
   soap: SoapNote;
   aiFields: (keyof SoapNote)[];
-  questions: string[];
+  /** Proposed assessment wording, held outside the clinical record. */
+  suggestedAssessment: string;
+  /** One targeted question per section, shown beneath that section. */
+  sectionQuestions: Partial<Record<keyof SoapNote, string>>;
 } {
   const sentences = soapSentences(raw);
   const objective: string[] = [];
-  const plan: string[] = [];
   const subjective: string[] = [];
 
   for (const s of sentences) {
-    if (PLAN_HINTS.test(s)) plan.push(s);
+    if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
     else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
     else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
     else subjective.push(s);
   }
 
-  const subjectiveText = subjective.length
-    ? subjective
-        .map((s) => (/^patient|^pt\b/i.test(s) ? s : `Patient reports ${s.charAt(0).toLowerCase()}${s.slice(1)}`))
-        .join(" ")
-        .replace(/\.\./g, ".")
-    : raw.trim();
+  const subjectiveText = subjective.length ? phraseSubjective(subjective) : raw.trim();
 
-  // The assessment restates the documented complaint without adding a cause.
+  // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
   const complaint = (subjective[0] ?? sentences[0] ?? "")
     .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
     .replace(/\.$/, "");
-  const assessment = complaint
+  const suggestedAssessment = complaint
     ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
         durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
-          ? ` of ${durationMatch[1]} duration`
+          ? `, ${durationMatch[1]} duration`
           : ""
       }; cause not yet established.`
-    : NO_ASSESSMENT;
+    : "";
 
   const soap: SoapNote = {
     subjective: subjectiveText,
     objective: objective.length ? objective.join(" ") : NO_OBJECTIVE,
-    assessment,
-    plan: plan.length ? plan.join(" ") : NO_PLAN,
+    assessment: NO_ASSESSMENT,
+    plan: PLAN_AWAITING_RX,
   };
 
-  const questions: string[] = [];
+  const sectionQuestions: Partial<Record<keyof SoapNote, string>> = {};
+  if (!/\b(started|since|for \d|history|previous|prior|allerg)\b/i.test(raw))
+    sectionQuestions.subjective =
+      "Any relevant history, onset detail or previous treatment the patient mentioned?";
   if (!objective.length)
-    questions.push("Were any findings or vitals obtained today (BP, HR, temperature, exam)?");
-  if (assessment === NO_ASSESSMENT)
-    questions.push("What is your working clinical impression for this visit?");
-  if (!plan.length)
-    questions.push("What treatment, medication or investigation are you planning?");
-  if (!/follow[- ]?up|review in|return/i.test(raw))
-    questions.push("When should this patient be reviewed again?");
+    sectionQuestions.objective =
+      "Were any findings or vitals obtained today (BP, HR, temperature, exam)?";
 
   return {
     soap,
-    aiFields: ["subjective", "objective", "assessment", "plan"],
-    questions,
+    aiFields: ["subjective", "objective"],
+    suggestedAssessment,
+    sectionQuestions,
   };
 }
+
 
 
 
