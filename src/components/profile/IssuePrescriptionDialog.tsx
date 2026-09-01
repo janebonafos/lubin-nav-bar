@@ -862,6 +862,8 @@ export default function IssuePrescriptionDialog({
   const [suggestedAssessment, setSuggestedAssessment] = useState("");
   /** True when the pasted notes already contain a diagnosis or impression. */
   const [noteHasAssessment, setNoteHasAssessment] = useState(false);
+  /** Documented symptom offered as an indication when no diagnosis exists. */
+  const [symptomIndication, setSymptomIndication] = useState("");
   /** The prescriber's own decision about what the assessment is. Only the
    *  prescriber may set this — AI never claims a diagnosis is established. */
   const [assessmentBasis, setAssessmentBasis] = useState<AssessmentBasis | "">("");
@@ -1511,6 +1513,7 @@ export default function IssuePrescriptionDialog({
         soap: drafted,
         aiFields: drafts,
         suggestedAssessment: proposal,
+        symptomIndication: symptom,
         sectionQuestions: questions,
         safety,
         limitedRemoteOnly,
@@ -1534,6 +1537,7 @@ export default function IssuePrescriptionDialog({
         plan: false,
       });
       setSuggestedAssessment(proposal);
+      setSymptomIndication(symptom);
       setSectionQuestions(questions);
 
       // Allergy and current-medication wording goes to the safety check only.
