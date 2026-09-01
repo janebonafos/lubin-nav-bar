@@ -2860,16 +2860,12 @@ export default function IssuePrescriptionDialog({
                   const soapApproval = (
                     <div className="mt-3">
                       {!soapApproved && step2Missing.length > 0 && (
-                        <ul className="mb-2 space-y-1">
-                          {step2Missing.map((m) => (
-                            <li
-                              key={m}
-                              className="text-[11.5px] font-semibold text-[#9B3B33]"
-                            >
-                              {m}
-                            </li>
-                          ))}
-                        </ul>
+                        <p className="mb-2 text-[11.5px] font-semibold leading-snug text-[#6F5BA0]">
+                          Next: {step2Missing[0]}
+                          {step2Missing.length > 1
+                            ? ` (${step2Missing.length - 1} more to complete)`
+                            : ""}
+                        </p>
                       )}
                       <div className="flex flex-wrap items-center gap-3">
                         <button
