@@ -1437,7 +1437,7 @@ export default function IssuePrescriptionDialog({
       setObjectiveMode(
         drafted.objective === NO_OBJECTIVE
           ? "not-obtained"
-          : drafted.objective === LIMITED_REMOTE_OBJECTIVE
+          : limitedRemoteOnly
             ? "limited-remote"
             : "add",
       );
