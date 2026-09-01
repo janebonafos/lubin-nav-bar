@@ -4036,8 +4036,8 @@ export default function IssuePrescriptionDialog({
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
               <Acc
                 index={2}
-                label="Prescription"
-                hint="Documentation and medications"
+                label="Medication and treatment"
+                hint="Choose the treatment and complete the order"
                 open={step === 2}
                 onToggle={goStep}
                 locked={!patientReady}
