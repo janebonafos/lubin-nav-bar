@@ -1183,15 +1183,23 @@ export default function IssuePrescriptionDialog({
     if (!raw) return;
     setAiLoading(true);
     window.setTimeout(() => {
-      const { soap: drafted, aiFields: drafts, questions } = organiseSoap(raw);
+      const {
+        soap: drafted,
+        aiFields: drafts,
+        suggestedAssessment: proposal,
+        sectionQuestions: questions,
+      } = organiseSoap(raw);
       setSoap(drafted);
+      setObjectiveMode(drafted.objective === NO_OBJECTIVE ? "not-obtained" : "add");
       setAiFields({
         subjective: drafts.includes("subjective"),
         objective: drafts.includes("objective"),
-        assessment: drafts.includes("assessment"),
-        plan: drafts.includes("plan"),
+        assessment: false,
+        plan: false,
       });
-      setAiQuestions(questions);
+      setSuggestedAssessment(proposal);
+      setSectionQuestions(questions);
+
       setSoapApproved(false);
       setSoapDrafted(true);
       setAiLoading(false);
