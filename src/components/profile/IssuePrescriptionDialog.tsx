@@ -2334,8 +2334,8 @@ export default function IssuePrescriptionDialog({
                   const soapAiPanel = (
                     <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-white p-4">
                       <label className={label}>Paste or dictate your clinical notes</label>
-                      <textarea
-                        rows={5}
+                      <AutoTextarea
+                        minRows={5}
                         className={`${area} mt-2`}
                         value={pastedNote}
                         onChange={(e) => {
