@@ -1305,6 +1305,16 @@ export default function IssuePrescriptionDialog({
   function prepareSoapDraft() {
     const raw = pastedNote.trim();
     if (!raw) return;
+    // Guard: only patient clinical information may enter the record.
+    if (looksLikeInstructions(raw)) {
+      setNoteRejected(true);
+      setSoapDrafted(false);
+      setSuggestedAssessment("");
+      setSectionQuestions({});
+      setSoapApproved(false);
+      return;
+    }
+    setNoteRejected(false);
     setAiLoading(true);
     window.setTimeout(() => {
       const {
