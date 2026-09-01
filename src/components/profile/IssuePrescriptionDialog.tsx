@@ -351,7 +351,11 @@ function organiseSoap(raw: string): {
 
   const soap: SoapNote = {
     subjective: subjectiveText,
-    objective: objective.length ? objective.join(" ") : NO_OBJECTIVE,
+    objective: objective.length
+      ? objective.length > 2
+        ? objective.map((o) => `• ${o}${/[.?!]$/.test(o) ? "" : "."}`).join("\n")
+        : objective.map((o) => (/[.?!]$/.test(o) ? o : `${o}.`)).join(" ")
+      : NO_OBJECTIVE,
     assessment: NO_ASSESSMENT,
     plan: PLAN_AWAITING_RX,
   };
