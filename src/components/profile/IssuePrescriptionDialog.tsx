@@ -504,10 +504,11 @@ function organiseSoap(raw: string): {
             : ""
         }`
       : "";
-  // Never propose an assessment from non-clinical text, and never state
-  // whether a diagnosis is established, confirmed or uncertain — only the
-  // prescriber decides that.
-  const suggestedAssessment = dictatedImpression || (symptomIndication ? `${symptomIndication}.` : "");
+  // An assessment may only be proposed when the notes explicitly contain a
+  // diagnosis, working diagnosis, clinical impression or indication. When no
+  // clinical judgment was documented, nothing is proposed — the documented
+  // problem is surfaced separately as a symptom summary instead.
+  const suggestedAssessment = dictatedImpression;
 
 
   const soap: SoapNote = {
