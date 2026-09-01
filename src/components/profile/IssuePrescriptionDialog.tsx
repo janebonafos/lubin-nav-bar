@@ -186,6 +186,104 @@ const SOAP_FULL_LABEL: Record<keyof SoapNote, string> = {
  */
 const NEEDS_CONFIRMATION = "Needs provider confirmation";
 
+/**
+ * Neutral placeholders used when the provider's notes contain nothing for a
+ * section. The draft never claims a section is "not required" and never
+ * fabricates findings, diagnoses or treatment.
+ */
+const NO_OBJECTIVE = "No objective findings documented.";
+const NO_ASSESSMENT = "Assessment not yet documented.";
+const NO_PLAN = "Plan not yet documented.";
+const SOAP_PLACEHOLDERS = [NO_OBJECTIVE, NO_ASSESSMENT, NO_PLAN, NEEDS_CONFIRMATION];
+
+/** Placeholder text is a visible gap, never documented content. */
+function isSoapPlaceholder(value: string): boolean {
+  const v = value.trim();
+  return !v || SOAP_PLACEHOLDERS.some((p) => v === p);
+}
+
+const OBJECTIVE_HINTS =
+  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|x-ray|ecg|cbc|glucose)\b/i;
+const PLAN_HINTS =
+  /\b(start|started|continue|continued|prescribe|prescribed|advis|recommend|refer|follow[- ]?up|review in|monitor|increase|decrease|taper|stop|counsel|instruct|return if|rest|hydrat)\b/i;
+const NEGATIVE_HINTS = /\b(no|denies|without|negative for|absent)\b/i;
+
+/** Splits raw dictation into sentence-like fragments, preserving every fact. */
+function soapSentences(raw: string): string[] {
+  return raw
+    .split(/\n+|(?<=[.;!?])\s+/)
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+/**
+ * Organises the provider's own words into S/O/A/P. Nothing is invented: each
+ * sentence is routed to a section, negatives are preserved verbatim, and empty
+ * sections receive a neutral placeholder.
+ */
+function organiseSoap(raw: string): {
+  soap: SoapNote;
+  aiFields: (keyof SoapNote)[];
+  questions: string[];
+} {
+  const sentences = soapSentences(raw);
+  const objective: string[] = [];
+  const plan: string[] = [];
+  const subjective: string[] = [];
+
+  for (const s of sentences) {
+    if (PLAN_HINTS.test(s)) plan.push(s);
+    else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
+    else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
+    else subjective.push(s);
+  }
+
+  const subjectiveText = subjective.length
+    ? subjective
+        .map((s) => (/^patient|^pt\b/i.test(s) ? s : `Patient reports ${s.charAt(0).toLowerCase()}${s.slice(1)}`))
+        .join(" ")
+        .replace(/\.\./g, ".")
+    : raw.trim();
+
+  // The assessment restates the documented complaint without adding a cause.
+  const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
+  const complaint = (subjective[0] ?? sentences[0] ?? "")
+    .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
+    .replace(/\.$/, "");
+  const assessment = complaint
+    ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
+        durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
+          ? ` of ${durationMatch[1]} duration`
+          : ""
+      }; cause not yet established.`
+    : NO_ASSESSMENT;
+
+  const soap: SoapNote = {
+    subjective: subjectiveText,
+    objective: objective.length ? objective.join(" ") : NO_OBJECTIVE,
+    assessment,
+    plan: plan.length ? plan.join(" ") : NO_PLAN,
+  };
+
+  const questions: string[] = [];
+  if (!objective.length)
+    questions.push("Were any findings or vitals obtained today (BP, HR, temperature, exam)?");
+  if (assessment === NO_ASSESSMENT)
+    questions.push("What is your working clinical impression for this visit?");
+  if (!plan.length)
+    questions.push("What treatment, medication or investigation are you planning?");
+  if (!/follow[- ]?up|review in|return/i.test(raw))
+    questions.push("When should this patient be reviewed again?");
+
+  return {
+    soap,
+    aiFields: ["subjective", "objective", "assessment", "plan"],
+    questions,
+  };
+}
+
+
+
 
 
 /** Is this a new treatment, or a continuation of something already prescribed? */
