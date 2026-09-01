@@ -1181,10 +1181,12 @@ export default function IssuePrescriptionDialog({
       : entry === "lubin" && linkedAppt && missingFromLinked.length === 0 && soapGaps.length === 0
         ? "Existing SOAP reused"
         : soapGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
-          ? "SOAP note complete"
+          ? isSoapPlaceholder(soap.plan)
+            ? "Clinical assessment complete"
+            : "SOAP note ready for review"
           : soapTouched || Boolean(linkedAppt)
-            ? "SOAP note incomplete"
-            : "SOAP note not started";
+            ? "Clinical assessment incomplete"
+            : "Clinical assessment not started";
   const soapSourceLabel =
     entry === "lubin"
       ? "Existing SOAP note from a completed Lubin consultation"
