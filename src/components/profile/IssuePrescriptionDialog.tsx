@@ -802,7 +802,11 @@ export default function IssuePrescriptionDialog({
     plan: "",
   });
   /** Objective findings are optional and explicit — never silently blank. */
-  const [objectiveMode, setObjectiveMode] = useState<"none" | "not-obtained" | "add">("none");
+  const [objectiveMode, setObjectiveMode] = useState<
+    "none" | "not-obtained" | "limited-remote" | "add"
+  >("none");
+  /** Age / sex mismatch between the dictated note and the selected patient. */
+  const [demographicConflict, setDemographicConflict] = useState<string>("");
 
   const [renewal, setRenewal] = useState({
     medication: "",
