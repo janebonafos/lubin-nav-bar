@@ -1979,6 +1979,22 @@ export default function IssuePrescriptionDialog({
                         year: "numeric",
                       })
                     : null;
+                  const scrollToSoapField = (key: keyof SoapNote) => {
+                    if (isSoapPlaceholder(soap[key])) {
+                      setAiFields((f) => ({ ...f, [key]: false }));
+                      if (key !== "objective") setSoap((s) => ({ ...s, [key]: "" }));
+                    }
+                    if (key === "objective" && isSoapPlaceholder(soap[key])) {
+                      setObjectiveMode("add");
+                      setSoap((s) => ({ ...s, objective: "" }));
+                    }
+                    const el =
+                      document.getElementById(`soap-field-${key}`) ??
+                      document.getElementById("soap-generated-sections");
+                    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    el?.querySelector("textarea")?.focus({ preventScroll: true });
+                  };
+
                   const soapField = (
                     key: keyof SoapNote,
                     hint: string,
@@ -1987,7 +2003,7 @@ export default function IssuePrescriptionDialog({
                     const placeholder = isSoapPlaceholder(soap[key]);
                     const aiWritten = aiFields[key] && !placeholder;
                     return (
-                      <div>
+                      <div id={`soap-field-${key}`}>
                         <div className="flex flex-wrap items-center gap-2">
                           <label className={label}>{SOAP_FULL_LABEL[key]}</label>
                           {aiWritten && (
@@ -2013,17 +2029,37 @@ export default function IssuePrescriptionDialog({
                             setSoap((s) => ({ ...s, [key]: e.target.value }));
                           }}
                         />
-                        {placeholder && key === "objective" && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAiFields((f) => ({ ...f, objective: false }));
-                              setSoap((s) => ({ ...s, objective: "" }));
-                            }}
-                            className="mt-1.5 text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                          >
-                            Add findings or vitals
-                          </button>
+                        {key === "plan" && (
+                          <p className="mt-1.5 text-[11.5px] leading-snug text-[#8A7FB0]">
+                            Optional —{" "}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSoapApproved(false);
+                                setSoap((s) => ({
+                                  ...s,
+                                  plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Follow-up: `.trim(),
+                                }));
+                              }}
+                              className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            >
+                              add follow-up
+                            </button>
+                            {" · "}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSoapApproved(false);
+                                setSoap((s) => ({
+                                  ...s,
+                                  plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Patient instructions and warning signs: `.trim(),
+                                }));
+                              }}
+                              className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            >
+                              add patient instructions and warning signs
+                            </button>
+                          </p>
                         )}
                       </div>
                     );
