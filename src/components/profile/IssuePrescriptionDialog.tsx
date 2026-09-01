@@ -647,6 +647,8 @@ export default function IssuePrescriptionDialog({
   const [patientEmail, setPatientEmail] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
   const [guardian, setGuardian] = useState<Guardian>(emptyGuardian());
+  /** Prescriber may skip guardian details (not applicable / captured elsewhere). */
+  const [guardianSkipped, setGuardianSkipped] = useState(false);
   const [emergencyContact] = useState({
     name: "Rosa Santos",
     relationship: "Mother",
