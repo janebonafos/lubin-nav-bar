@@ -4653,6 +4653,53 @@ export default function IssuePrescriptionDialog({
                     </ol>
                   </section>
 
+                  {/* The full clinical record, reviewed once alongside the order. */}
+                  {purpose !== "renewal" && (
+                    <section className={cardCls}>
+                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                        Clinical assessment record
+                      </h3>
+                      <dl className="mt-2 space-y-2 text-[12.5px] text-[#4B4468]">
+                        {(
+                          [
+                            ["S — Subjective", soap.subjective],
+                            ["O — Objective", soap.objective],
+                            ["A — Assessment", soap.assessment],
+                            ["P — Plan", soap.plan],
+                            ["Non-medication treatment", planExtras.nonMedication],
+                            ["Investigations or referrals", planExtras.investigations],
+                            ["Monitoring", planExtras.monitoring],
+                            ["Follow-up", planExtras.followUp],
+                            ["Patient instructions and warning signs", planExtras.instructions],
+                          ] as const
+                        ).map(([heading, value]) => (
+                          <div key={heading}>
+                            <dt className="text-[11px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                              {heading}
+                            </dt>
+                            <dd className="mt-0.5 whitespace-pre-line">
+                              {value.trim() && !isSoapPlaceholder(value)
+                                ? value
+                                : "Not documented"}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                        Information and sources used by AI
+                      </p>
+                      <ul className="mt-1 space-y-1 text-[12px] text-[#6F6889]">
+                        {optionInputs.map((row) => (
+                          <li key={row.label}>
+                            · {row.label} — {row.value}
+                          </li>
+                        ))}
+                        <li>· Fictional prototype formulary · v2026.1 (01 Jun 2026)</li>
+                      </ul>
+                    </section>
+                  )}
+
+
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Safety review</h3>
                     <ul className="mt-2 space-y-1.5 text-[12.5px] text-[#4B4468]">
