@@ -473,23 +473,29 @@ function organiseSoap(raw: string): {
   // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
   const complaint = (subjective[0] ?? "")
-    .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
-    .replace(/\.$/, "");
+    // Drop demographics and reporting verbs so only the symptom itself remains.
+    .replace(/^\d{1,3}\s*[- ]?(?:y\/o|yo|yrs?|years?[- ]old|year[- ]old)\s*/i, "")
+    .replace(/^(male|female|man|woman|boy|girl|patient|pt)\s*/i, "")
+    .replace(/^(reports|reported|has|complains of|c\/o|presents with|with)\s*/i, "")
+    .replace(/^(a|an|the)\s+/i, "")
+    .replace(/\.$/, "")
+    .trim();
   const dictatedImpression = impressions
     .map((s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
     .join(" ");
+  /** The documented symptom, usable as an indication without claiming a cause. */
+  const symptomIndication =
+    complaint && !isInstructionFragment(complaint)
+      ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
+          durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
+            ? ` for ${durationMatch[1]}`
+            : ""
+        }`
+      : "";
   // Never propose an assessment from non-clinical text, and never state
   // whether a diagnosis is established, confirmed or uncertain — only the
   // prescriber decides that.
-  const suggestedAssessment =
-    dictatedImpression ||
-    (complaint && !isInstructionFragment(complaint)
-      ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
-          durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
-            ? `, ${durationMatch[1]} duration`
-            : ""
-        }.`
-      : "");
+  const suggestedAssessment = dictatedImpression || (symptomIndication ? `${symptomIndication}.` : "");
 
 
   const soap: SoapNote = {
