@@ -2718,16 +2718,20 @@ export default function IssuePrescriptionDialog({
                    *  Step 3, so it is never a blocker here. */
                   const step2Missing: string[] = [];
                   if (isSoapPlaceholder(soap.subjective))
-                    step2Missing.push("Add Subjective findings.");
+                    step2Missing.push("Add what the patient reported (Subjective).");
                   if (objectiveMode === "none")
-                    step2Missing.push("Select an Objective status.");
+                    step2Missing.push("Choose an Objective option above.");
                   if (!assessmentBasis)
-                    step2Missing.push("Choose an Assessment or indication.");
-                  if (
+                    step2Missing.push(
+                      "Pick one of the three Assessment options above.",
+                    );
+                  else if (
                     assessmentBasis !== "further" &&
                     isSoapPlaceholder(soap.assessment)
                   )
-                    step2Missing.push("Enter an Assessment or indication.");
+                    step2Missing.push(
+                      "Write the diagnosis, working diagnosis or indication in the Assessment field.",
+                    );
                   const step2Ready =
                     step2Missing.length === 0 && !noteRejected && !demographicConflict;
 
@@ -2856,16 +2860,12 @@ export default function IssuePrescriptionDialog({
                   const soapApproval = (
                     <div className="mt-3">
                       {!soapApproved && step2Missing.length > 0 && (
-                        <ul className="mb-2 space-y-1">
-                          {step2Missing.map((m) => (
-                            <li
-                              key={m}
-                              className="text-[11.5px] font-semibold text-[#9B3B33]"
-                            >
-                              {m}
-                            </li>
-                          ))}
-                        </ul>
+                        <p className="mb-2 text-[11.5px] font-semibold leading-snug text-[#6F5BA0]">
+                          Next: {step2Missing[0]}
+                          {step2Missing.length > 1
+                            ? ` (${step2Missing.length - 1} more to complete)`
+                            : ""}
+                        </p>
                       )}
                       <div className="flex flex-wrap items-center gap-3">
                         <button
