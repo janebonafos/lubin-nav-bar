@@ -1561,7 +1561,7 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-dob">
-                            Date of birth
+                            Date of birth <span className="text-[#B4436C]">*</span>
                           </label>
                           <input
                             id="rx-dob"
