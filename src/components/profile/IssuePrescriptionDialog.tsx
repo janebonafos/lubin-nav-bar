@@ -2435,7 +2435,7 @@ export default function IssuePrescriptionDialog({
                             <div>
                               <label className={label}>Consultation method</label>
                               <select
-                                className={`${field} mt-1.5`}
+                                className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
                                 value={consultMode ?? ""}
                                 onChange={(e) =>
                                   setConsultMode((e.target.value || null) as ConsultMode | null)
@@ -2507,7 +2507,7 @@ export default function IssuePrescriptionDialog({
                           <div>
                             <label className={label}>How are you assessing the patient?</label>
                             <select
-                              className={`${field} mt-1.5`}
+                              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
                               value={consultMode ?? ""}
                               onChange={(e) =>
                                 setConsultMode((e.target.value || null) as ConsultMode | null)
@@ -3718,7 +3718,7 @@ function MedicationCard({
           <label className={label}>Strength / form</label>
           {item ? (
             <select
-              className={`${field} mt-1.5`}
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.strength}
               onChange={(e) => onPatch("strength", e.target.value)}
             >
@@ -3742,7 +3742,7 @@ function MedicationCard({
           <label className={label}>Route</label>
           {item ? (
             <select
-              className={`${field} mt-1.5`}
+              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.route}
               onChange={(e) => onPatch("route", e.target.value)}
             >
@@ -3791,7 +3791,7 @@ function MedicationCard({
         <div>
           <label className={label}>Refills</label>
           <select
-            className={`${field} mt-1.5`}
+            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
             value={med.refills}
             onChange={(e) => onPatch("refills", e.target.value)}
           >
@@ -3814,7 +3814,7 @@ function MedicationCard({
         <div>
           <label className={label}>Dispensing unit</label>
           <select
-            className={`${field} mt-1.5`}
+            className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
             value={med.unit}
             onChange={(e) => onPatch("unit", e.target.value)}
           >
