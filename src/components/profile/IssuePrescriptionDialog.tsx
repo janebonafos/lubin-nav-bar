@@ -349,18 +349,40 @@ function phraseSubjective(parts: string[]): string {
 }
 
 
+/** Age / sex the dictated note mentions, used only to flag a mismatch. */
+type NoteDemographics = { age?: number; sex?: "male" | "female" };
+
+function readNoteDemographics(raw: string): NoteDemographics {
+  const out: NoteDemographics = {};
+  const age =
+    raw.match(/\b(\d{1,3})\s*(?:y\/o|yo|yrs?|years?[- ]old|year[- ]old)\b/i) ??
+    raw.match(/\bage[d]?\s*(\d{1,3})\b/i);
+  if (age?.[1]) {
+    const n = Number(age[1]);
+    if (n > 0 && n < 120) out.age = n;
+  }
+  if (/\b(female|woman|girl|she|her)\b/i.test(raw)) out.sex = "female";
+  if (/\b(male|man|boy|he|his)\b/i.test(raw)) {
+    // A note mentioning both is ambiguous — prefer the explicit noun.
+    out.sex = /\b(female|woman|girl)\b/i.test(raw) ? out.sex : "male";
+  }
+  return out;
+}
+
 /**
  * Organises the provider's own words into Subjective and Objective only.
  *
- * Rules the finished AI feature must follow:
- *  - Subjective holds only patient-reported symptoms, history and concerns —
- *    never an AI interpretation such as "cause not yet established".
- *  - Objective holds only measured or observed information. When nothing was
- *    entered it reads "Not obtained/documented." and never invents findings.
- *  - Assessment is NOT written into the record. Wording is proposed separately
- *    and only enters the note when the provider chooses "Use in Assessment".
- *  - Plan is left to Step 3: it is drafted from the medication, regimen and
- *    follow-up the provider actually confirms.
+ * Classification rules the finished AI feature must follow:
+ *  - Subjective: ONLY patient-reported symptoms, history and concerns.
+ *  - Objective: the assessment method, visible observations, vitals,
+ *    examination findings and test results. When nothing was measured or
+ *    examined it reads "No vitals or examination obtained." — or, when only
+ *    remote observations exist, "Limited remote observations documented."
+ *  - Assessment: diagnostic impressions ("cause not yet established") are
+ *    proposed separately and only enter the note when the provider accepts.
+ *  - Allergies and current medications never enter Subjective; they are routed
+ *    to the Medication safety check.
+ *  - Plan is left to Step 3, drafted from the confirmed medication and regimen.
  */
 function organiseSoap(raw: string): {
   soap: SoapNote;
@@ -369,61 +391,114 @@ function organiseSoap(raw: string): {
   suggestedAssessment: string;
   /** One targeted question per section, shown beneath that section. */
   sectionQuestions: Partial<Record<keyof SoapNote, string>>;
+  /** Safety information lifted out of the note for the safety check. */
+  safety: { allergies: string; medications: string };
+  /** True when observations exist but nothing was measured or examined. */
+  limitedRemoteOnly: boolean;
+  /** Demographics the note mentions, for the conflict check. */
+  demographics: NoteDemographics;
 } {
   const sentences = soapSentences(raw);
   const objective: string[] = [];
   const subjective: string[] = [];
+  const impressions: string[] = [];
+  const allergyLines: string[] = [];
+  const medicationLines: string[] = [];
+  let hasMeasured = false;
+  let hasObservation = false;
 
   for (const s of sentences) {
     // Instruction-style lines ("Objective must contain…") are not clinical facts.
     if (isInstructionFragment(s)) continue;
+    // Safety information goes to the Medication safety check, not Subjective.
+    if (ALLERGY_LINE.test(s)) {
+      allergyLines.push(s);
+      continue;
+    }
+    if (MEDICATION_LINE.test(s)) {
+      medicationLines.push(s);
+      continue;
+    }
+    // Diagnostic reasoning is Assessment wording, never Subjective.
+    if (IMPRESSION_HINTS.test(s)) {
+      impressions.push(s);
+      continue;
+    }
     if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
-    else if (OBJECTIVE_HINTS.test(s) && /\d/.test(s)) objective.push(s);
-    else if (OBJECTIVE_HINTS.test(s) && !NEGATIVE_HINTS.test(s)) objective.push(s);
-    else subjective.push(s);
+    if (METHOD_HINTS.test(s)) {
+      objective.push(s);
+      continue;
+    }
+    if (OBSERVATION_HINTS.test(s) && !/^(patient (reports|says)|pt reports)/i.test(s)) {
+      objective.push(s);
+      hasObservation = true;
+      continue;
+    }
+    if (OBJECTIVE_HINTS.test(s) && (/\d/.test(s) || !NEGATIVE_HINTS.test(s))) {
+      objective.push(s);
+      if (MEASURED_HINTS.test(s)) hasMeasured = true;
+      continue;
+    }
+    subjective.push(s);
   }
 
   const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
+  const limitedRemoteOnly = !hasMeasured && (hasObservation || objective.length > 0);
 
   // Proposed wording only — restates the documented complaint, adds no cause.
   const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
   const complaint = (subjective[0] ?? "")
     .replace(/^patient (reports|has|complains of|c\/o)\s*/i, "")
     .replace(/\.$/, "");
+  const dictatedImpression = impressions
+    .map((s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
+    .join(" ");
   // Never propose an assessment from non-clinical text.
   const suggestedAssessment =
-    complaint && !isInstructionFragment(complaint)
+    dictatedImpression ||
+    (complaint && !isInstructionFragment(complaint)
       ? `${complaint.charAt(0).toUpperCase()}${complaint.slice(1)}${
           durationMatch && !complaint.toLowerCase().includes(durationMatch[1]!.toLowerCase())
             ? `, ${durationMatch[1]} duration`
             : ""
         }; cause not yet established.`
-      : "";
+      : "");
 
   const soap: SoapNote = {
     subjective: subjectiveText,
     objective: objective.length
-      ? objective.length > 2
-        ? objective.map((o) => `• ${o}${/[.?!]$/.test(o) ? "" : "."}`).join("\n")
-        : objective.map((o) => (/[.?!]$/.test(o) ? o : `${o}.`)).join(" ")
+      ? [
+          objective.length > 2
+            ? objective.map((o) => `• ${o}${/[.?!]$/.test(o) ? "" : "."}`).join("\n")
+            : objective.map((o) => (/[.?!]$/.test(o) ? o : `${o}.`)).join(" "),
+          limitedRemoteOnly ? LIMITED_REMOTE_OBJECTIVE : "",
+        ]
+          .filter(Boolean)
+          .join(objective.length > 2 ? "\n" : " ")
       : NO_OBJECTIVE,
     assessment: NO_ASSESSMENT,
     plan: PLAN_AWAITING_RX,
   };
 
   const sectionQuestions: Partial<Record<keyof SoapNote, string>> = {};
-  if (!/\b(started|since|for \d|history|previous|prior|allerg)\b/i.test(raw))
+  if (!/\b(started|since|for \d|history|previous|prior)\b/i.test(raw))
     sectionQuestions.subjective =
       "Any relevant history, onset detail or previous treatment the patient mentioned?";
-  if (!objective.length)
+  if (!hasMeasured)
     sectionQuestions.objective =
-      "Were any findings or vitals obtained today (BP, HR, temperature, exam)?";
+      "Were any vitals, examination findings or test results obtained today?";
 
   return {
     soap,
     aiFields: ["subjective", "objective"],
     suggestedAssessment,
     sectionQuestions,
+    safety: {
+      allergies: allergyLines.join(" "),
+      medications: medicationLines.join(" "),
+    },
+    limitedRemoteOnly,
+    demographics: readNoteDemographics(raw),
   };
 }
 
