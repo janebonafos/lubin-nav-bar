@@ -302,9 +302,41 @@ function FieldHint({ text }: { text: string }) {
   );
 }
 
+/** Normalise a date of birth value to ISO `YYYY-MM-DD` so the `<input type="date">`
+ *  and age calculation always work, even when a stored record used a locale
+ *  format such as `12/05/1996` or `Dec 5, 1996`. Returns "" when unparseable. */
+function normalizeDob(value: string): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  // Already ISO — pass through.
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+  const parsed = new Date(v);
+  if (!Number.isNaN(parsed.getTime())) {
+    const y = parsed.getFullYear();
+    const m = String(parsed.getMonth() + 1).padStart(2, "0");
+    const d = String(parsed.getDate()).padStart(2, "0");
+    // Guard against absurd years from malformed strings.
+    if (y > 1000 && y < 2100) return `${y}-${m}-${d}`;
+  }
+  // numeric split: 12/05/1996 or 12-05-1996 — assume MM/DD/YYYY (en-PH/en-US).
+  const parts = v.split(/[/-]/).map((p) => p.trim());
+  if (parts.length === 3) {
+    const [a, b, c] = parts.map((p) => parseInt(p, 10));
+    if (c > 1000 && c < 2100 && a >= 1 && a <= 12 && b >= 1 && b <= 31) {
+      return `${c}-${String(a).padStart(2, "0")}-${String(b).padStart(2, "0")}`;
+    }
+    // YYYY/MM/DD
+    if (a > 1000 && a < 2100 && b >= 1 && b <= 12 && c >= 1 && c <= 31) {
+      return `${a}-${String(b).padStart(2, "0")}-${String(c).padStart(2, "0")}`;
+    }
+  }
+  return v;
+}
+
 function ageFromDob(dob: string): number | undefined {
   if (!dob) return undefined;
-  const d = new Date(dob);
+  const iso = normalizeDob(dob);
+  const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return undefined;
   const now = new Date();
   let age = now.getFullYear() - d.getFullYear();
@@ -868,7 +900,7 @@ export default function IssuePrescriptionDialog({
     setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
     setPreferredName(pick(undefined, "identity.preferredName"));
-    setDob(pick(record.info.dob, "identity.dob"));
+    setDob(normalizeDob(pick(record.info.dob, "identity.dob")));
     const recordSex = (record.info.sex as PatientSex) ?? "not-documented";
     const sharedSex = (shared["identity.gender"] ?? "").trim().toLowerCase();
     setSex(
