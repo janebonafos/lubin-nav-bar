@@ -342,7 +342,9 @@ function phraseSubjective(parts: string[]): string {
     .filter(Boolean);
   if (!cleaned.length) return "";
 
-  const isLong = cleaned.length > 3 || cleaned.some((s) => s.length > 120);
+  // Two or more documented statements stay as separate lines so no fact merges
+  // into a run-on sentence and nothing is reworded.
+  const isLong = cleaned.length > 1 || cleaned.some((s) => s.length > 120);
   if (isLong) {
     return cleaned
       .map((s) => `• ${s.charAt(0).toUpperCase()}${s.slice(1)}${/[.?!]$/.test(s) ? "" : "."}`)
