@@ -1510,7 +1510,9 @@ export default function IssuePrescriptionDialog({
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
      important is missing, no medication or dose is shown at all. */
-  const confirmedIndication = isSoapPlaceholder(soap.assessment) ? "" : soap.assessment.trim();
+  const confirmedIndication = isSoapPlaceholder(effectiveSoap.assessment)
+    ? ""
+    : effectiveSoap.assessment.trim();
   /** The Plan is unresolved while it still carries a confirmation placeholder. */
   const planUnresolved =
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
