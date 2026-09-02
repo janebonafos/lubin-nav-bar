@@ -5687,26 +5687,30 @@ export default function IssuePrescriptionDialog({
               ) : stepGaps.length > 0 ? (
                 <>
                   <p className="text-[12px] font-bold text-[#3D2E6B]">
-                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
+                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} still needed — tap one
+                    to go straight there
                   </p>
-                  <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                    {stepGaps.slice(0, 3).map((g) => (
-                      <li key={g} className="text-[11.5px] text-[#8A7FB0]">
-                        ·{" "}
+                  <ul className="mt-1 flex max-h-[54px] flex-wrap gap-1.5 overflow-y-auto">
+                    {stepGaps.map((g) => (
+                      <li key={g}>
                         {gapTargets[g] ? (
                           <button
                             type="button"
                             onClick={() => jumpToGap(g)}
-                            className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            className="inline-flex items-center gap-1 rounded-full border border-[#E4D8F7] bg-[#F7F3FF] px-2.5 py-1 text-[11px] font-semibold text-[#5A4790] transition hover:border-[#C9B6EE] hover:bg-[#EFE7FF]"
                           >
                             {g}
+                            <ArrowRight className="h-3 w-3" />
                           </button>
                         ) : (
-                          g
+                          <span className="inline-flex rounded-full border border-[#EDEBF3] bg-white px-2.5 py-1 text-[11px] text-[#8A7FB0]">
+                            {g}
+                          </span>
                         )}
                       </li>
                     ))}
                   </ul>
+
                 </>
               ) : allGaps.length > 0 ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">
@@ -5788,20 +5792,31 @@ export default function IssuePrescriptionDialog({
                         }}
                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
                           blocked
-                            ? `bg-[#3D2E6B] text-white opacity-45 ${hasTargets ? "" : "cursor-not-allowed"}`
+                            ? hasTargets
+                              ? "border border-[#D8C7F0] bg-[#F7F3FF] text-[#4B3F7A] hover:bg-[#EFE7FF]"
+                              : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
                         }`}
                       >
-                        {step === 2
-                          ? "Review prescription"
-                          : step === 1
-                            ? purpose === "renewal"
-                              ? "Continue with renewal"
-                              : entry === "lubin"
-                                ? "Use SOAP and continue"
-                                : "Continue to prescription"
-                            : "Continue"}
-                        <ArrowRight className="h-4 w-4" />
+                        {blocked && hasTargets ? (
+                          <>
+                            <AlertTriangle className="h-4 w-4" />
+                            Show what&apos;s missing ({stepGaps.length})
+                          </>
+                        ) : (
+                          <>
+                            {step === 2
+                              ? "Review prescription"
+                              : step === 1
+                                ? purpose === "renewal"
+                                  ? "Continue with renewal"
+                                  : entry === "lubin"
+                                    ? "Use SOAP and continue"
+                                    : "Continue to prescription"
+                                : "Continue"}
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
                       </button>
                     );
                   })()
@@ -5871,6 +5886,17 @@ function MedicationCard({
     med.genericName.trim() ||
     (med.brandName.trim() ? med.brandName.trim() : "Untitled medication");
 
+  /** Fields still required on this medication, surfaced on the collapsed header. */
+  const missingCount = [
+    med.strength,
+    med.route,
+    med.sig,
+    med.quantity,
+    med.unit,
+    med.refills,
+    med.instructions,
+  ].filter((v) => !String(v ?? "").trim()).length;
+
   const HeaderInner = () => (
     <>
       <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
@@ -5879,6 +5905,17 @@ function MedicationCard({
       {collapsible && (
         <span className="min-w-0 truncate text-[13px] font-semibold text-[#3D2E6B]">
           {medSummary}
+        </span>
+      )}
+      {collapsible && med.genericName.trim() && (
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-bold ${
+            missingCount > 0
+              ? "bg-[#FDF6E7] text-[#6B4E10]"
+              : "bg-[#E9F6EF] text-[#1F6B4A]"
+          }`}
+        >
+          {missingCount > 0 ? `${missingCount} to complete` : "Complete"}
         </span>
       )}
       <div className="h-px flex-1 bg-[#EDEBF3]" />
