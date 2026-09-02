@@ -1806,19 +1806,11 @@ export default function IssuePrescriptionDialog({
           <>
             <button
               type="button"
-              aria-pressed={selectedOptionIds.includes(opt.id)}
-              onClick={() =>
-                setSelectedOptionIds((cur) =>
-                  cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
-                )
-              }
-              className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
-                selectedOptionIds.includes(opt.id)
-                  ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
-                  : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
-              }`}
+              onClick={() => addMedicationOption(opt)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
             >
-              {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
+              <Plus className="h-3.5 w-3.5" />
+              Select option
             </button>
             <button
               type="button"
