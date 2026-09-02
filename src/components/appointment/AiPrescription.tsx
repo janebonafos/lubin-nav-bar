@@ -111,6 +111,7 @@ import { REVIEW_BANNER, fallbackPrescription } from "@/lib/prescription/demo";
 import { PatientInfoForm } from "./PatientInfoForm";
 import { findCatalogue, searchCatalogue } from "@/lib/prescription/catalogue";
 import { sharedSafetyResponse, type SharedSafetyResponse } from "@/lib/prescription/sharedSafety";
+import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
 import { toast } from "sonner";
 
 const JURISDICTION_LABEL: Record<RxCountry, string> = {
@@ -633,12 +634,14 @@ export function AiPrescription({
 
   /** Open the patient-facing copy in a new tab so it reads as a document. */
   const openClientCopy = (draft = true) => {
-    const params = new URLSearchParams({ appointment: appointmentId, country });
-    if (clientName) params.set("client", clientName);
-    const name = identity.fullName || providerName;
-    if (name) params.set("provider", name);
-    if (draft) params.set("draft", "true");
-    window.open(`/e-prescription?${params.toString()}`, "_blank", "noopener,noreferrer");
+    const id = stashPrescriptionView({
+      appointmentId,
+      country,
+      clientName,
+      providerName: identity.fullName || providerName,
+      draft,
+    });
+    window.open(`/e-prescription/${id}`, "_blank", "noopener,noreferrer");
   };
 
   const identityMissing = missingIdentityFields(identity, country);
