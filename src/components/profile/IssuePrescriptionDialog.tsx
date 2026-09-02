@@ -4331,6 +4331,7 @@ export default function IssuePrescriptionDialog({
                                           type="button"
                                           onClick={() => {
                                             setObjectiveMode(value);
+                                            setObjectiveForConsult(linkedAppointment);
                                             setSoapApproved(false);
                                             if (value === "not-obtained")
                                               setSoap((current) => ({ ...current, objective: NO_OBJECTIVE }));
