@@ -1171,6 +1171,14 @@ export default function IssuePrescriptionDialog({
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
   /** Options already copied into the medication order below. */
   const [usedOptionIds, setUsedOptionIds] = useState<string[]>([]);
+  /** Brings the populated medication order into view after using options. */
+  const scrollToMedicationOrder = () => {
+    requestAnimationFrame(() => {
+      document
+        .getElementById("med-order-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
   /** Per-option provider choices before the option is copied into the order:
    *  dispense as generic or a fictional brand, plus editable posology. */
   type OptionDraft = {
