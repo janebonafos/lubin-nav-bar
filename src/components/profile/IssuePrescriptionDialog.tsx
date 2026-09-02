@@ -1941,6 +1941,39 @@ export default function IssuePrescriptionDialog({
     if (!sameStep) setStep(target.step);
     window.setTimeout(() => flashField(target.id), sameStep ? 60 : 220);
   };
+
+  /** Highlights every outstanding field on a step at once, focusing the first. */
+  const highlightGaps = (labels: string[]) => {
+    const targets = labels
+      .map((l) => gapTargets[l])
+      .filter((t): t is { step: number; id: string } => !!t);
+    if (!targets.length) return;
+    const first = targets[0]!;
+    const sameStep = first.step === step;
+    if (!sameStep) setStep(first.step);
+    window.setTimeout(
+      () => {
+        targets.slice(1).forEach((t) => {
+          const el = document.getElementById(t.id);
+          if (!el) return;
+          const control = (
+            el.matches("input, textarea, select")
+              ? el
+              : el.querySelector("input, textarea, select")
+          ) as HTMLElement | null;
+          const node = control ?? el;
+          node.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+          window.setTimeout(
+            () => node.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+            2400,
+          );
+        });
+        flashField(first.id);
+      },
+      sameStep ? 60 : 220,
+    );
+  };
+
   /** Steps 2–4 only open once Step 1 holds a complete patient. */
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
@@ -5627,9 +5660,9 @@ export default function IssuePrescriptionDialog({
                 {step < 3 ? (
                   (() => {
                     const blocked = step >= 0 && !canAdvance;
-                    // Blocked, but never a dead end: it takes the provider to
-                    // the first field still needed instead of doing nothing.
-                    const firstGap = stepGaps.find((g) => gapTargets[g]);
+                    // Blocked, but never a dead end: clicking highlights the
+                    // fields still needed instead of changing the button.
+                    const hasTargets = stepGaps.some((g) => gapTargets[g]);
                     return (
                       <button
                         type="button"
@@ -5639,37 +5672,28 @@ export default function IssuePrescriptionDialog({
                             setStep(step < 0 ? 0 : step + 1);
                             return;
                           }
-                          if (firstGap) jumpToGap(firstGap);
+                          if (hasTargets) highlightGaps(stepGaps);
                         }}
                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
                           blocked
-                            ? firstGap
-                              ? "border border-[#D8C7F0] bg-[#F5F1FE] text-[#4B3F7A] hover:bg-[#EDE7FA]"
-                              : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
+                            ? `bg-[#3D2E6B] text-white opacity-45 ${hasTargets ? "" : "cursor-not-allowed"}`
                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
                         }`}
                       >
-                        {blocked && firstGap ? (
-                          <>
-                            <AlertTriangle className="h-4 w-4" /> Show what’s missing
-                          </>
-                        ) : (
-                          <>
-                            {step === 2
-                              ? "Review prescription"
-                              : step === 1
-                                ? purpose === "renewal"
-                                  ? "Continue with renewal"
-                                  : entry === "lubin"
-                                    ? "Use SOAP and continue"
-                                    : "Continue to prescription"
-                                : "Continue"}
-                            <ArrowRight className="h-4 w-4" />
-                          </>
-                        )}
+                        {step === 2
+                          ? "Review prescription"
+                          : step === 1
+                            ? purpose === "renewal"
+                              ? "Continue with renewal"
+                              : entry === "lubin"
+                                ? "Use SOAP and continue"
+                                : "Continue to prescription"
+                            : "Continue"}
+                        <ArrowRight className="h-4 w-4" />
                       </button>
                     );
                   })()
+
                 ) : (
                   <button
                     type="button"
