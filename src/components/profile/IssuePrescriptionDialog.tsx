@@ -1164,6 +1164,8 @@ export default function IssuePrescriptionDialog({
 
   // ---------- Step 3: medication and treatment ----------
   const [meds, setMeds] = useState<MedForm[]>([emptyMed()]);
+  /** Which medication accordion is expanded in the order. Null = all collapsed. */
+  const [openMedId, setOpenMedId] = useState<string | null>(null);
   /** How the provider wants to choose the treatment. Nothing is preselected. */
   const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
@@ -1921,26 +1923,27 @@ export default function IssuePrescriptionDialog({
 
   /** Where each outstanding item lives, so a missing field can be highlighted
    *  and brought into view instead of leaving the provider to hunt for it. */
-  const gapTargets: Record<string, { step: number; id: string }> = {
-    "Full legal name": { step: 0, id: "rx-patient" },
-    "Date of birth": { step: 0, id: "rx-dob" },
-    Sex: { step: 0, id: "rx-sex" },
-    "City / municipality": { step: 0, id: "rx-city" },
-  };
-  if (meds[0])
-    gapTargets["One medication with generic name, dose and frequency"] = {
-      step: 2,
-      id: `med-${meds[0].id}-generic`,
-    };
-  for (const m of readyMeds) {
-    const n = m.genericName.trim();
-    gapTargets[`${n}: strength and dosage form`] = { step: 2, id: `med-${m.id}-strength` };
-    gapTargets[`${n}: route`] = { step: 2, id: `med-${m.id}-route` };
-    gapTargets[`${n}: complete SIG`] = { step: 2, id: `med-${m.id}-sig` };
-    gapTargets[`${n}: quantity and unit`] = { step: 2, id: `med-${m.id}-quantity` };
-    gapTargets[`${n}: refills`] = { step: 2, id: `med-${m.id}-refills` };
-    gapTargets[`${n}: patient instructions`] = { step: 2, id: `med-${m.id}-instructions` };
-  }
+   const gapTargets: Record<string, { step: number; id: string; medId?: string }> = {
+     "Full legal name": { step: 0, id: "rx-patient" },
+     "Date of birth": { step: 0, id: "rx-dob" },
+     Sex: { step: 0, id: "rx-sex" },
+     "City / municipality": { step: 0, id: "rx-city" },
+   };
+   if (meds[0])
+     gapTargets["One medication with generic name, dose and frequency"] = {
+       step: 2,
+       id: `med-${meds[0].id}-generic`,
+       medId: meds[0].id,
+     };
+   for (const m of readyMeds) {
+     const n = m.genericName.trim();
+     gapTargets[`${n}: strength and dosage form`] = { step: 2, id: `med-${m.id}-strength`, medId: m.id };
+     gapTargets[`${n}: route`] = { step: 2, id: `med-${m.id}-route`, medId: m.id };
+     gapTargets[`${n}: complete SIG`] = { step: 2, id: `med-${m.id}-sig`, medId: m.id };
+     gapTargets[`${n}: quantity and unit`] = { step: 2, id: `med-${m.id}-quantity`, medId: m.id };
+     gapTargets[`${n}: refills`] = { step: 2, id: `med-${m.id}-refills`, medId: m.id };
+     gapTargets[`${n}: patient instructions`] = { step: 2, id: `med-${m.id}-instructions`, medId: m.id };
+   }
 
   /** Scrolls a field into view, focuses it and flashes a highlight ring. */
   const flashField = (id: string) => {
@@ -1965,6 +1968,7 @@ export default function IssuePrescriptionDialog({
     if (!target) return;
     const sameStep = target.step === step;
     if (!sameStep) setStep(target.step);
+    if (target.medId) setOpenMedId(target.medId);
     window.setTimeout(() => flashField(target.id), sameStep ? 60 : 220);
   };
 
@@ -1972,11 +1976,14 @@ export default function IssuePrescriptionDialog({
   const highlightGaps = (labels: string[]) => {
     const targets = labels
       .map((l) => gapTargets[l])
-      .filter((t): t is { step: number; id: string } => !!t);
+      .filter((t): t is { step: number; id: string; medId?: string } => !!t);
     if (!targets.length) return;
     const first = targets[0]!;
     const sameStep = first.step === step;
     if (!sameStep) setStep(first.step);
+    targets.forEach((t) => {
+      if (t.medId) setOpenMedId(t.medId);
+    });
     window.setTimeout(
       () => {
         targets.slice(1).forEach((t) => {
@@ -5274,6 +5281,11 @@ export default function IssuePrescriptionDialog({
                           onRemove={() => setMeds((cur) => cur.filter((x) => x.id !== m.id))}
                           onPatch={(k, v) => patch(m.id, k, v)}
                           onPick={(item) => applyCatalogue(m.id, item)}
+                          collapsible={meds.length > 1}
+                          open={openMedId === m.id}
+                          onToggle={() =>
+                            setOpenMedId((cur) => (cur === m.id ? null : m.id))
+                          }
                         />
                       ))}
                     </div>
@@ -5828,6 +5840,9 @@ function MedicationCard({
   onRemove,
   onPatch,
   onPick,
+  collapsible = false,
+  open = false,
+  onToggle,
 }: {
   med: MedForm;
   index: number;
@@ -5835,6 +5850,9 @@ function MedicationCard({
   onRemove: () => void;
   onPatch: (key: keyof MedForm, value: string | boolean) => void;
   onPick: (item: PhCatalogueItem) => void;
+  collapsible?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [instrLoading, setInstrLoading] = useState(false);
@@ -5845,26 +5863,62 @@ function MedicationCard({
     med.genericName.trim() && med.dose.trim() && med.frequency.trim(),
   );
 
+  const medSummary =
+    med.genericName.trim() ||
+    (med.brandName.trim() ? med.brandName.trim() : "Untitled medication");
+
+  const HeaderInner = () => (
+    <>
+      <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
+        Medication {index + 1}
+      </span>
+      {collapsible && (
+        <span className="min-w-0 truncate text-[13px] font-semibold text-[#3D2E6B]">
+          {medSummary}
+        </span>
+      )}
+      <div className="h-px flex-1 bg-[#EDEBF3]" />
+      {removable && (
+        <button
+          type="button"
+          aria-label={`Remove medication ${index + 1}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="rounded-lg p-1.5 text-[#A89BD0] transition hover:bg-[#FDF2F2] hover:text-[#B4483F]"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      )}
+      {collapsible && (
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#A89BCA] transition ${open ? "rotate-180" : ""}`}
+        />
+      )}
+    </>
+  );
+
   return (
     <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
-      <div className="flex items-center gap-3">
-        <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
-          Medication {index + 1}
-        </span>
-        <div className="h-px flex-1 bg-[#EDEBF3]" />
-        {removable && (
-          <button
-            type="button"
-            aria-label={`Remove medication ${index + 1}`}
-            onClick={onRemove}
-            className="rounded-lg p-1.5 text-[#A89BD0] transition hover:bg-[#FDF2F2] hover:text-[#B4483F]"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => onToggle?.()}
+          aria-expanded={open}
+          aria-controls={`med-body-${med.id}`}
+          className="flex w-full items-center gap-3 text-left"
+        >
+          <HeaderInner />
+        </button>
+      ) : (
+        <div className="flex items-center gap-3">
+          <HeaderInner />
+        </div>
+      )}
 
-      <div className="mt-3">
+      {(!collapsible || open) && (
+      <div className="mt-3 space-y-3">
         <label className={label}>
           Search medication — Philippines
           <FieldHint text="Search by generic (INN) or brand name. The generic name is always used first on the prescription." />
@@ -5902,9 +5956,8 @@ function MedicationCard({
             ))}
           </ul>
         )}
-      </div>
 
-      {med.dangerous && (
+        {med.dangerous && (
         <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           {PHASE1_DANGEROUS_MESSAGE}
@@ -6216,6 +6269,8 @@ function MedicationCard({
           />
         </div>
       </div>
+      </div>
+      )}
     </div>
   );
 }
