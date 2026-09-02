@@ -6270,7 +6270,7 @@ function MedicationCard({
           </label>
               {item ? (
                 <select
-                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  className={`${selectField} mt-1.5${needRing(med.strength)}`} style={{ backgroundImage: chevron }}
                   id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
@@ -6284,7 +6284,7 @@ function MedicationCard({
                 </select>
               ) : (
                 <input
-                  className={`${field} mt-1.5`}
+                  className={`${field} mt-1.5${needRing(med.strength)}`}
                   id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
@@ -6299,7 +6299,7 @@ function MedicationCard({
           </label>
               {item ? (
                 <select
-                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  className={`${selectField} mt-1.5${needRing(med.route)}`} style={{ backgroundImage: chevron }}
                   id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
@@ -6312,7 +6312,7 @@ function MedicationCard({
                 </select>
               ) : (
                 <input
-                  className={`${field} mt-1.5`}
+                  className={`${field} mt-1.5${needRing(med.route)}`}
                   id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
@@ -6367,7 +6367,7 @@ function MedicationCard({
             <FieldHint text="How many times this prescription may be repeated without a new consultation. Keep at no refills when a review is needed first." />
           </label>
             <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              className={`${selectField} mt-1.5${needRing(med.refills)}`} style={{ backgroundImage: chevron }}
               id={`med-${med.id}-refills`}
               value={med.refills}
               onChange={(e) => onPatch("refills", e.target.value)}
@@ -6385,7 +6385,7 @@ function MedicationCard({
             <FieldHint text="Total amount the pharmacy dispenses. It should match dose × frequency × duration." />
           </label>
             <input
-              className={`${field} mt-1.5`}
+              className={`${field} mt-1.5${needRing(med.quantity)}`}
               id={`med-${med.id}-quantity`}
               value={med.quantity}
               onChange={(e) => onPatch("quantity", e.target.value)}
@@ -6418,7 +6418,7 @@ function MedicationCard({
           </label>
           <AutoTextarea
             minRows={2}
-            className={`${area} mt-1.5`}
+            className={`${area} mt-1.5${needRing(med.sig)}`}
             id={`med-${med.id}-sig`}
             value={med.sig}
             onChange={(e) => {
@@ -6479,7 +6479,7 @@ function MedicationCard({
           )}
           <AutoTextarea
             minRows={2}
-            className={`${area} mt-1.5`}
+            className={`${area} mt-1.5${needRing(med.instructions)}`}
             id={`med-${med.id}-instructions`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
