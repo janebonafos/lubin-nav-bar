@@ -6062,15 +6062,61 @@ function MedicationCard({
     (med.brandName.trim() ? med.brandName.trim() : "Untitled medication");
 
   /** Fields still required on this medication, surfaced on the collapsed header. */
-  const missingCount = [
-    med.strength,
-    med.route,
-    med.sig,
-    med.quantity,
-    med.unit,
-    med.refills,
-    med.instructions,
-  ].filter((v) => !String(v ?? "").trim()).length;
+  const missingFields = (
+    [
+      { label: "Strength and form", value: med.strength, id: `med-${med.id}-strength` },
+      { label: "Route", value: med.route, id: `med-${med.id}-route` },
+      { label: "Directions (SIG)", value: med.sig, id: `med-${med.id}-sig` },
+      { label: "Quantity", value: med.quantity, id: `med-${med.id}-quantity` },
+      { label: "Unit", value: med.unit, id: `med-${med.id}-quantity` },
+      { label: "Refills", value: med.refills, id: `med-${med.id}-refills` },
+      { label: "Patient instructions", value: med.instructions, id: `med-${med.id}-instructions` },
+    ] as const
+  ).filter((f) => !String(f.value ?? "").trim());
+  const missingCount = missingFields.length;
+
+  /** Scrolls to a field in this card and flashes a ring so it is unmistakable. */
+  const flashMedField = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const control = (
+      el.matches("input, textarea, select") ? el : el.querySelector("input, textarea, select")
+    ) as HTMLElement | null;
+    const target = control ?? el;
+    control?.focus({ preventScroll: true });
+    target.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+    window.setTimeout(
+      () => target.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+      2400,
+    );
+  };
+
+  /** Opens the card if needed, then highlights every outstanding field. */
+  const revealMissing = () => {
+    if (collapsible && !open) onToggle?.();
+    window.setTimeout(() => {
+      missingFields.forEach((f, i) => {
+        if (i === 0) flashMedField(f.id);
+        else {
+          const el = document.getElementById(f.id);
+          if (!el) return;
+          const control = (
+            el.matches("input, textarea, select")
+              ? el
+              : el.querySelector("input, textarea, select")
+          ) as HTMLElement | null;
+          const t = control ?? el;
+          t.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+          window.setTimeout(
+            () => t.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+            2400,
+          );
+        }
+      });
+    }, collapsible && !open ? 180 : 40);
+  };
+
 
   const HeaderInner = () => (
     <>
@@ -6120,7 +6166,10 @@ function MedicationCard({
       {collapsible ? (
         <button
           type="button"
-          onClick={() => onToggle?.()}
+          onClick={() => {
+            if (!open && missingCount > 0 && med.genericName.trim()) revealMissing();
+            else onToggle?.();
+          }}
           aria-expanded={open}
           aria-controls={`med-body-${med.id}`}
           className="flex w-full items-center gap-3 text-left"
@@ -6135,6 +6184,25 @@ function MedicationCard({
 
       {(!collapsible || open) && (
       <div className="mt-3 space-y-3">
+        {missingCount > 0 && med.genericName.trim() && (
+          <div className="rounded-xl border border-[#F0DFB5] bg-[#FDF9EF] px-3 py-2.5">
+            <p className="text-[11.5px] font-semibold text-[#6B4E10]">
+              Still needed on this medication — tap an item to jump to the field
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {missingFields.map((f) => (
+                <button
+                  key={f.label}
+                  type="button"
+                  onClick={() => flashMedField(f.id)}
+                  className="rounded-full border border-[#E4CE94] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10] transition hover:bg-[#FBF3E2]"
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <label className={label}>
           Search medication — Philippines
           <FieldHint text="Search by generic (INN) or brand name. The generic name is always used first on the prescription." />
