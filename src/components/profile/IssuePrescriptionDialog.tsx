@@ -634,6 +634,9 @@ type MedicationOption = {
   unverified: string;
   source: string;
   clinicalBasis: string;
+  /** The documented clinical need this option addresses. Options are grouped by
+   *  target so the provider sees every related item, not one medicine only. */
+  target: string;
   /** Fictional brand equivalents. The provider chooses generic or a brand —
    *  nothing is preselected and the generic is listed first. */
   brands: { id: string; name: string; note: string }[];
