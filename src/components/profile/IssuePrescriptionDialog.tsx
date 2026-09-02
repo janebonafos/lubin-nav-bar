@@ -1145,6 +1145,16 @@ export default function IssuePrescriptionDialog({
    * Step 3 — never guessed earlier. It only replaces the awaiting placeholder,
    * so anything the provider typed themselves is left untouched.
    */
+  /** Information already documented in the medication order — never asked twice. */
+  const orderFollowUp = readyMeds
+    .map((m) => m.followUp.trim())
+    .filter(Boolean)
+    .join(" ");
+  const orderInstructions = readyMeds
+    .map((m) => m.instructions.trim())
+    .filter(Boolean)
+    .join(" ");
+
   useEffect(() => {
     if (soap.plan !== PLAN_AWAITING_RX) return;
     if (!readyMeds.length) return;
@@ -1156,12 +1166,25 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${NEEDS_CONFIRMATION}. Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+      plan: `${lines.join(" ")} Follow-up: ${orderFollowUp || NEEDS_CONFIRMATION}. Patient instructions: ${
+        orderInstructions || NEEDS_CONFIRMATION
+      }. Warning signs: ${NEEDS_CONFIRMATION}.`,
     }));
     setAiFields((f) => ({ ...f, plan: true }));
-    setSoapApproved(false);
+    // Editing the medication or the Plan never re-opens the confirmed S/O/A.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
+
+  /** Follow-up and patient instructions documented in the medication order flow
+   *  straight into the Plan — the provider never types them twice. */
+  useEffect(() => {
+    if (!orderFollowUp) return;
+    setPlanExtras((p) => (p.followUp.trim() ? p : { ...p, followUp: orderFollowUp }));
+  }, [orderFollowUp]);
+  useEffect(() => {
+    if (!orderInstructions) return;
+    setPlanExtras((p) => (p.instructions.trim() ? p : { ...p, instructions: orderInstructions }));
+  }, [orderInstructions]);
 
 
   /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
