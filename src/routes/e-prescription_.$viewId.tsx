@@ -28,7 +28,7 @@ type Search = {
   d?: string;
 };
 
-export const Route = createFileRoute("/e-prescription")({
+export const Route = createFileRoute("/e-prescription_/$viewId")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     appointment: String(search.appointment ?? ""),
     country: search.country === "US" ? "US" : "PH",

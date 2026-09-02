@@ -8,6 +8,7 @@ import {
   PREGNANCY_STATUS_LABEL,
   type Prescription,
 } from "@/lib/prescription/store";
+import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
   type SignedPrescriptionDocument,
