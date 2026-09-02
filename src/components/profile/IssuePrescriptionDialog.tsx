@@ -1087,6 +1087,8 @@ export default function IssuePrescriptionDialog({
   const [purpose, setPurpose] = useState<RxPurposeChoice | null>(null);
   const [entry, setEntry] = useState<EntryPoint | null>(null);
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
+  /** Which consultation a manual Objective selection was made for. */
+  const [objectiveForConsult, setObjectiveForConsult] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
   /** Existing patients confirm or update the safety information already on file. */
@@ -1407,10 +1409,14 @@ export default function IssuePrescriptionDialog({
   }, [orderInstructions]);
 
 
-  /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
-  const fromAppointment = appointmentId
+  /** Preselect only when the immutable patient record proves the appointment link. */
+  const fromAppointmentCandidate = appointmentId
     ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
     : undefined;
+  const fromAppointment =
+    fromAppointmentCandidate && selected?.appointmentIds.includes(fromAppointmentCandidate.id)
+      ? fromAppointmentCandidate
+      : undefined;
   useEffect(() => {
     if (!open || !fromAppointment) return;
     setPurpose("new");
@@ -1418,11 +1424,16 @@ export default function IssuePrescriptionDialog({
     setLinkedAppointment(fromAppointment.id);
   }, [open, fromAppointment]);
 
-  /** Only this patient's completed Lubin consultations are eligible. */
+  /** Only this patient's completed Lubin consultations are eligible. Prefer the
+   * immutable appointment relationship on a saved patient record; the fixture's
+   * name match remains a display-only fallback for a newly selected patient. */
   const patientForAppointments = (selected?.fullName || patientName).trim().toLowerCase();
   const patientAppointments = ELIGIBLE_APPOINTMENTS.filter(
-    (a) => !patientForAppointments || a.patient.trim().toLowerCase() === patientForAppointments,
-  );
+    (a) =>
+      !patientForAppointments ||
+      (selected?.appointmentIds.includes(a.id) ?? false) ||
+      (!selected && a.patient.trim().toLowerCase() === patientForAppointments),
+  ).slice(0, 5);
 
   /** The linked Lubin consultation, if any — only completed ones are eligible. */
   const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
@@ -1437,15 +1448,21 @@ export default function IssuePrescriptionDialog({
         subjective: linkedAppt.soap.subjective || soap.subjective,
         objective: linkedAppt.soap.objective || soap.objective,
         assessment: linkedAppt.soap.assessment || soap.assessment,
-        plan: linkedAppt.soap.plan || soap.plan,
+        // A previous consultation's Plan is never the current treatment Plan for
+        // a new treatment — that Plan comes from the Step 3 decisions.
+        plan: purpose === "new" ? soap.plan : linkedAppt.soap.plan || soap.plan,
       }
     : soap;
 
   // ---- reused-consultation branch (Step 2) ----
   /** What the linked consultation itself documents. */
   const linkedObjectiveText = (linkedAppt?.soap.objective ?? "").trim();
+  /** A manual Objective selection belongs to the consultation it was made for,
+   *  so it can never satisfy another consultation's validation. */
+  const objectiveMatchesConsult = objectiveForConsult === linkedAppointment;
   /** Documented findings in the reused note stand in for the "documented" status. */
-  const reusedObjectiveEstablished = Boolean(linkedObjectiveText) || objectiveMode !== "none";
+  const reusedObjectiveEstablished =
+    Boolean(linkedObjectiveText) || (objectiveMode !== "none" && objectiveMatchesConsult);
   const reusedGaps = linkedAppt
     ? missingReusedAssessmentItems({
         subjective: effectiveSoap.subjective,
@@ -1458,23 +1475,27 @@ export default function IssuePrescriptionDialog({
   const reusedMissingTopUpSections = reusedGaps.filter((k) => k !== "objective");
 
   /**
-   * State safety: a newly selected consultation, entry method or patient never
-   * inherits the previous consultation's Objective selection, assessment basis
-   * or topped-up text, and always needs a fresh confirmation.
+   * State safety: a newly selected consultation, treatment type, entry method or
+   * patient never inherits the previous consultation's Objective selection,
+   * assessment basis or topped-up text, and always needs a fresh confirmation.
    */
   useEffect(() => {
     if (!open) return;
     setSoapApproved(false);
     setAssessmentBasis("");
     setDiagnosisSaved(false);
+    setMaterialChange(null);
+    setAllergyConfirm("idle");
+    setMedsConfirm("idle");
     setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setSuggestedAssessment("");
     setNoteHasAssessment(false);
     setSymptomIndication("");
     setObjectiveMode(entry === "lubin" && linkedObjectiveText ? "add" : "none");
+    setObjectiveForConsult(entry === "lubin" && linkedObjectiveText ? linkedAppointment : "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, entry, linkedAppointment, selected?.id]);
+  }, [open, purpose, entry, linkedAppointment, selected?.id]);
 
 
 
@@ -1522,6 +1543,19 @@ export default function IssuePrescriptionDialog({
   // Step 2 — clinical documentation. One note per prescription: an existing SOAP,
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
+  const isReusedConsultation = purpose === "new" && entry === "lubin" && !!linkedAppt;
+  const safetyGaps = [
+    ...((!isReusedConsultation || !allergyOnFile) && allergyState === "not-assessed"
+      ? ["Review allergies"]
+      : []),
+    ...((!isReusedConsultation || !medicationOnFile) && medicationState === "not-assessed"
+      ? ["Review current medications"]
+      : []),
+  ];
+  const pregnancyGap =
+    isReusedConsultation && sex !== "male" && pregnancyStatus === "not-reviewed"
+      ? ["Review pregnancy / breastfeeding status"]
+      : [];
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Treatment type");
   if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
@@ -1537,7 +1571,10 @@ export default function IssuePrescriptionDialog({
               : "Confirm an Assessment or indication",
         );
       }
-      if (!soapApproved) contextGaps.push("Confirm clinical assessment");
+      if (materialChange === "reassess") contextGaps.push("Patient requires reassessment");
+      if (materialChange === "update" && (!soap.subjective.trim() || !soap.plan.trim()))
+        contextGaps.push("Complete updated clinical information");
+      if (!soapApproved) contextGaps.push("Review and confirm the clinical information");
     }
   }
   if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
@@ -1556,27 +1593,23 @@ export default function IssuePrescriptionDialog({
         contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
-
       if (!soapApproved) contextGaps.push("Confirm clinical assessment");
     }
-
   }
-
   if (purpose === "renewal") {
     if (!renewal.medication.trim()) contextGaps.push("Current medication and directions (SIG)");
     if (!renewal.response.trim()) contextGaps.push("Is the medication helping?");
     if (!renewal.sideEffects.trim()) contextGaps.push("Any side effects?");
     if (!renewal.changes.trim()) contextGaps.push("Any medication or allergy changes?");
   }
-
   /** Everything still missing from the clinical note itself, without the
-   *  separate safety confirmation. Statuses must never claim a note is
-   *  complete while one of these remains. */
+   *  separate safety confirmation. */
   const soapGaps = [...contextGaps];
-
-  // "Not assessed" is a real state and blocks review and signing.
-  if (allergyState === "not-assessed") contextGaps.push("Review allergies");
-  if (medicationState === "not-assessed") contextGaps.push("Review current medications");
+  if (isReusedConsultation) {
+    contextGaps.push(...safetyGaps, ...pregnancyGap);
+  } else {
+    contextGaps.push(...safetyGaps);
+  }
 
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
@@ -2281,6 +2314,7 @@ export default function IssuePrescriptionDialog({
     };
     setSelected(record);
     setLinkedAppointment("");
+    setObjectiveForConsult("");
     setCreatingNew(false);
     setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
@@ -2430,7 +2464,9 @@ export default function IssuePrescriptionDialog({
   const planText =
     purpose === "renewal"
       ? [renewal.medication, renewal.indication, renewal.response].filter(Boolean).join(" · ")
-      : [effectiveSoap.assessment, effectiveSoap.plan].filter(Boolean).join(" ");
+      : [effectiveSoap.assessment, purpose === "new" && entry === "lubin" ? "" : effectiveSoap.plan]
+          .filter(Boolean)
+          .join(" ");
 
   /**
    * Design-only assistive drafting. Everything below is produced locally from
@@ -3830,12 +3866,40 @@ export default function IssuePrescriptionDialog({
                         "Write the diagnosis, working diagnosis or indication in the Assessment field.",
                       );
                   }
-                  const step2Ready =
-                    step2Missing.length === 0 && !noteRejected && !demographicConflict;
+                   const step2Ready =
+                     step2Missing.length === 0 && !noteRejected && !demographicConflict;
+                   const reusedReviewReady =
+                     isReusedConsultation &&
+                     reusedGaps.length === 0 &&
+                     materialChange !== "reassess" &&
+                     (materialChange !== "update" ||
+                       (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
+                     (allergyOnFile || allergyState !== "not-assessed") &&
+                     (medicationOnFile || medicationState !== "not-assessed") &&
+                     (sex === "male" || pregnancyStatus !== "not-reviewed");
+                   const reusedReviewLabel =
+                     materialChange === "update"
+                       ? "Confirm updated information and continue"
+                       : "Confirm reviewed and unchanged";
+                   const confirmReusedReview = () => {
+                     if (!reusedReviewReady || !linkedAppt) return;
+                     setSoapApproved(true);
+                     setMaterialChange(materialChange === "update" ? "update" : "none");
+                     if (allergyOnFile) {
+                       setAllergyConfirm("unchanged");
+                       setAllergyState(savedAllergyState);
+                       if (savedAllergyState === "recorded") setAllergyDetail(savedAllergies);
+                     }
+                     if (medicationOnFile) {
+                       setMedsConfirm("unchanged");
+                       setMedicationState(savedMedicationState);
+                       if (savedMedicationState === "recorded") setMedicationDetail(savedMedications);
+                     }
+                     setStep(2);
+                   };
 
 
-
-                  /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
+                   /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
                   /** One quiet switch between AI drafting and writing manually. */
                   const soapModeChoice = (
                     <div className="mt-3 flex justify-end">
@@ -4155,13 +4219,11 @@ export default function IssuePrescriptionDialog({
                                     a.date.toLowerCase().includes(q) ||
                                     a.id.toLowerCase().includes(q),
                                 )
-                              : [];
-                            if (!q)
+                              : patientAppointments;
+                            if (!q && patientAppointments.length === 0)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  {patientAppointments.length} completed consultation
-                                  {patientAppointments.length === 1 ? "" : "s"} for this patient —
-                                  start typing to search.
+                                  No completed consultations are available for this patient.
                                 </p>
                               );
                             if (matches.length === 0)
@@ -4187,6 +4249,7 @@ export default function IssuePrescriptionDialog({
                                       checked={linkedAppointment === a.id}
                                       onChange={() => {
                                         setLinkedAppointment(a.id);
+                                        setObjectiveForConsult("");
                                         setSoapApproved(false);
                                         setAssessmentBasis("");
                                         setDiagnosisSaved(false);
@@ -4294,6 +4357,7 @@ export default function IssuePrescriptionDialog({
                                           type="button"
                                           onClick={() => {
                                             setObjectiveMode(value);
+                                            setObjectiveForConsult(linkedAppointment);
                                             setSoapApproved(false);
                                             if (value === "not-obtained")
                                               setSoap((current) => ({ ...current, objective: NO_OBJECTIVE }));
@@ -4336,45 +4400,46 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => setReviewSoapOpen((v) => !v)}
-                                    className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                                  >
-                                    {reviewSoapOpen ? "Hide SOAP" : "Review SOAP"}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setStep(2)}
-                                    disabled={contextGaps.length > 0}
-                                    className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                                  >
-                                    Use this SOAP
-                                  </button>
-                                </div>
-
-
-                                {reviewSoapOpen && (
-                                  <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
-                                    {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
-                                      <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
-                                        <span className="font-semibold text-[#3D2E6B]">
-                                          {SOAP_FULL_LABEL[k]}:{" "}
-                                        </span>
-                                        {linkedAppt.soap[k] || (
-                                          <span className="text-[#8A7FB0]">
-                                            Not documented — provider confirmation required
-                                          </span>
-                                        )}
-                                      </p>
-                                    ))}
-                                    <p className="text-[11.5px] text-[#8A7FB0]">
-                                      Reused from the consultation record — read-only here.
-                                    </p>
-                                  </div>
-                                )}
-                                {soapApproval}
+                                 {reviewSoapOpen && (
+                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
+                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
+                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
+                                         <span className="font-semibold text-[#3D2E6B]">
+                                           {SOAP_FULL_LABEL[k]}:{" "}
+                                         </span>
+                                         {linkedAppt.soap[k] || (
+                                           <span className="text-[#8A7FB0]">
+                                             Not documented — provider confirmation required
+                                           </span>
+                                         )}
+                                       </p>
+                                     ))}
+                                     <p className="text-[11.5px] text-[#8A7FB0]">
+                                       Reused from the consultation record — read-only here.
+                                     </p>
+                                   </div>
+                                 )}
+                                 <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
+                                   <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                     Review clinical assessment and medication safety information before continuing.
+                                   </p>
+                                   <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
+                                     The selected consultation supports this prescription. Review the displayed Subjective, Objective and Assessment, confirm that important clinical information has not changed, and verify the saved allergy, medication and pregnancy information when applicable.
+                                   </p>
+                                   <button
+                                     type="button"
+                                     onClick={confirmReusedReview}
+                                     disabled={!reusedReviewReady}
+                                     className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                                   >
+                                     {reusedReviewLabel}
+                                   </button>
+                                   {materialChange === "reassess" && (
+                                     <p className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
+                                       Patient requires reassessment before a prescription can be issued.
+                                     </p>
+                                   )}
+                                 </div>
                               </div>
 
                               {/* Ask only for the missing SOAP section(s) */}
