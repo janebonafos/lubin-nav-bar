@@ -2814,10 +2814,32 @@ export default function IssuePrescriptionDialog({
                               value={soap[key]}
                               onChange={(e) => {
                                 setSoapApproved(false);
+                                if (key === "assessment") setDiagnosisSaved(false);
                                 setAiFields((f) => ({ ...f, [key]: false }));
                                 setSoap((s) => ({ ...s, [key]: e.target.value }));
                               }}
                             />
+                            {key === "assessment" && assessmentBasis === "working" && (
+                              <div className="mt-2 flex items-center gap-2.5">
+                                <button
+                                  type="button"
+                                  disabled={!soap.assessment.trim() || diagnosisSaved}
+                                  onClick={() => setDiagnosisSaved(true)}
+                                  className={`inline-flex h-9 items-center rounded-[12px] border px-3.5 text-[12px] font-semibold transition ${
+                                    !soap.assessment.trim() || diagnosisSaved
+                                      ? "cursor-not-allowed border-[#E3DBF5] bg-[#F1ECF9] text-[#A89BD0]"
+                                      : "border-[#3D2E6B] bg-white text-[#3D2E6B] hover:bg-[#3D2E6B] hover:text-white"
+                                  }`}
+                                >
+                                  {diagnosisSaved ? "Diagnosis saved" : "Save diagnosis"}
+                                </button>
+                                {diagnosisSaved && (
+                                  <span className="text-[11.5px] font-medium text-[#6F5BA0]">
+                                    Recorded as your Assessment
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
 
