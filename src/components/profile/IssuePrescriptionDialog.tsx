@@ -200,6 +200,26 @@ function missingSoapSections(note: SoapNote): (keyof SoapNote)[] {
     (k) => !note[k].trim(),
   );
 }
+
+/**
+ * Reused-consultation branch only. A reused Lubin consultation never has to
+ * carry a Plan: the Plan is drafted from the provider's Step 3 decisions. Step 2
+ * only needs Subjective content, an established Objective status and a
+ * provider-confirmed Assessment or indication.
+ */
+function missingReusedAssessmentItems(input: {
+  subjective: string;
+  objectiveEstablished: boolean;
+  assessment: string;
+}): ("subjective" | "objective" | "assessment")[] {
+  const gaps: ("subjective" | "objective" | "assessment")[] = [];
+  if (isSoapPlaceholder(input.subjective) || input.subjective.includes(NEEDS_CONFIRMATION))
+    gaps.push("subjective");
+  if (!input.objectiveEstablished) gaps.push("objective");
+  if (isSoapPlaceholder(input.assessment) || input.assessment.includes(NEEDS_CONFIRMATION))
+    gaps.push("assessment");
+  return gaps;
+}
 const SOAP_LABEL: Record<keyof SoapNote, string> = {
   subjective: "Subjective",
   objective: "Objective",
@@ -1421,6 +1441,43 @@ export default function IssuePrescriptionDialog({
       }
     : soap;
 
+  // ---- reused-consultation branch (Step 2) ----
+  /** What the linked consultation itself documents. */
+  const linkedObjectiveText = (linkedAppt?.soap.objective ?? "").trim();
+  /** Documented findings in the reused note stand in for the "documented" status. */
+  const reusedObjectiveEstablished = Boolean(linkedObjectiveText) || objectiveMode !== "none";
+  const reusedGaps = linkedAppt
+    ? missingReusedAssessmentItems({
+        subjective: effectiveSoap.subjective,
+        objectiveEstablished: reusedObjectiveEstablished,
+        assessment: effectiveSoap.assessment,
+      })
+    : [];
+  /** Objective is completed by the existing structured status control; only the
+   * remaining text sections use the existing top-up fields. */
+  const reusedMissingTopUpSections = reusedGaps.filter((k) => k !== "objective");
+
+  /**
+   * State safety: a newly selected consultation, entry method or patient never
+   * inherits the previous consultation's Objective selection, assessment basis
+   * or topped-up text, and always needs a fresh confirmation.
+   */
+  useEffect(() => {
+    if (!open) return;
+    setSoapApproved(false);
+    setAssessmentBasis("");
+    setDiagnosisSaved(false);
+    setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
+    setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
+    setSuggestedAssessment("");
+    setNoteHasAssessment(false);
+    setSymptomIndication("");
+    setObjectiveMode(entry === "lubin" && linkedObjectiveText ? "add" : "none");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, entry, linkedAppointment, selected?.id]);
+
+
+
   // ---------- gating ----------
   const patientGaps: string[] = [];
   if (!patientName.trim()) patientGaps.push("Full legal name");
@@ -1471,16 +1528,16 @@ export default function IssuePrescriptionDialog({
   if (purpose === "new" && entry === "lubin") {
     if (!linkedAppointment) contextGaps.push("A completed Lubin consultation");
     else {
-      for (const k of missingFromLinked) {
-        if (k === "objective") continue; // objective findings are optional
-        if (!soap[k].trim()) contextGaps.push(`${SOAP_LABEL[k]} (missing from the reused note)`);
-        else if (soap[k].includes(NEEDS_CONFIRMATION))
-          contextGaps.push(`${SOAP_LABEL[k]} needs provider confirmation`);
+      for (const k of reusedGaps) {
+        contextGaps.push(
+          k === "subjective"
+            ? "Subjective information from the reused consultation"
+            : k === "objective"
+              ? "Choose an Objective status"
+              : "Confirm an Assessment or indication",
+        );
       }
-
-      if (!materialChange) contextGaps.push("Whether clinical information has changed");
-      if (materialChange === "reassess")
-        contextGaps.push("A new assessment — this patient needs reassessment");
+      if (!soapApproved) contextGaps.push("Confirm clinical assessment");
     }
   }
   if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
@@ -1490,7 +1547,7 @@ export default function IssuePrescriptionDialog({
       if (!pastedNote.trim()) contextGaps.push("Add clinical notes");
       else if (noteRejected)
         contextGaps.push("Replace the pasted text with patient clinical notes");
-      else if (!soapDrafted) contextGaps.push("Draft the SOAP note with AI");
+      else if (!soapDrafted) contextGaps.push("Draft clinical assessment with AI");
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
@@ -1968,7 +2025,7 @@ export default function IssuePrescriptionDialog({
         : renewalTouched
           ? "Quick renewal review incomplete"
           : "Quick renewal review not started"
-      : entry === "lubin" && linkedAppt && missingFromLinked.length === 0 && soapGaps.length === 0
+      : entry === "lubin" && linkedAppt && reusedGaps.length === 0 && soapApproved
         ? "Existing SOAP reused"
         : soapGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
           ? soapApproved
@@ -2223,6 +2280,7 @@ export default function IssuePrescriptionDialog({
       return "";
     };
     setSelected(record);
+    setLinkedAppointment("");
     setCreatingNew(false);
     setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
@@ -2265,6 +2323,7 @@ export default function IssuePrescriptionDialog({
 
   function startNewPatient() {
     setSelected(null);
+    setLinkedAppointment("");
     setCreatingNew(true);
     setPatientName(patientQuery.trim());
     setPreferredName("");
@@ -3744,22 +3803,33 @@ export default function IssuePrescriptionDialog({
                    *  one of the three mutually exclusive options is selected — no
                    *  separate confirmation click required. The Plan is drafted in
                    *  Step 3, so it is never a blocker here. */
-                  const step2Missing: string[] = [];
-                  if (isSoapPlaceholder(soap.subjective))
-                    step2Missing.push("Add what the patient reported (Subjective).");
-                  if (objectiveMode === "none")
-                    step2Missing.push("Choose an Objective option above.");
-                  if (!assessmentBasis)
-                    step2Missing.push(
-                      "Pick one of the three Assessment options above.",
-                    );
-                  else if (
-                    assessmentBasis !== "further" &&
-                    isSoapPlaceholder(soap.assessment)
-                  )
-                    step2Missing.push(
-                      "Write the diagnosis, working diagnosis or indication in the Assessment field.",
-                    );
+                  const step2Missing: string[] =
+                    entry === "lubin" && linkedAppt
+                      ? reusedGaps.map((gap) =>
+                          gap === "subjective"
+                            ? "Add what the patient reported (Subjective)."
+                            : gap === "objective"
+                              ? "Choose an Objective option above."
+                              : "Confirm an Assessment or indication above.",
+                        )
+                      : [];
+                  if (!(entry === "lubin" && linkedAppt)) {
+                    if (isSoapPlaceholder(soap.subjective))
+                      step2Missing.push("Add what the patient reported (Subjective).");
+                    if (objectiveMode === "none")
+                      step2Missing.push("Choose an Objective option above.");
+                    if (!assessmentBasis)
+                      step2Missing.push(
+                        "Pick one of the three Assessment options above.",
+                      );
+                    else if (
+                      assessmentBasis !== "further" &&
+                      isSoapPlaceholder(soap.assessment)
+                    )
+                      step2Missing.push(
+                        "Write the diagnosis, working diagnosis or indication in the Assessment field.",
+                      );
+                  }
                   const step2Ready =
                     step2Missing.length === 0 && !noteRejected && !demographicConflict;
 
@@ -3778,7 +3848,7 @@ export default function IssuePrescriptionDialog({
                         }}
                         className="text-[11.5px] font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
                       >
-                        {soapMode === "ai" ? "Write SOAP manually" : "Draft SOAP with AI instead"}
+                        {soapMode === "ai" ? "Write clinical assessment manually" : "Draft clinical assessment with AI instead"}
                       </button>
                     </div>
                   );
@@ -3847,7 +3917,7 @@ export default function IssuePrescriptionDialog({
                         disabled={aiLoading || !pastedNote.trim()}
                         className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        {aiLoading ? "Generating SOAP note…" : "Draft SOAP with AI"}
+                        {aiLoading ? "Generating SOAP note…" : "Draft clinical assessment with AI"}
                       </button>
                       <p className="mt-2 text-[11.5px] leading-relaxed text-[#8A7FB0]">
                         AI only organizes what you wrote — it never adds symptoms, findings or
@@ -4115,7 +4185,15 @@ export default function IssuePrescriptionDialog({
                                       type="radio"
                                       className="mt-0.5 h-4 w-4 accent-[#3D2E6B]"
                                       checked={linkedAppointment === a.id}
-                                      onChange={() => setLinkedAppointment(a.id)}
+                                      onChange={() => {
+                                        setLinkedAppointment(a.id);
+                                        setSoapApproved(false);
+                                        setAssessmentBasis("");
+                                        setDiagnosisSaved(false);
+                                        setMaterialChange(null);
+                                        setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
+                                        setObjectiveMode(a.soap.objective.trim() ? "add" : "none");
+                                      }}
                                     />
                                     <span className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                                       <span className="text-[12.5px] font-semibold text-[#3D2E6B]">
@@ -4163,9 +4241,9 @@ export default function IssuePrescriptionDialog({
                                       SOAP status
                                     </dt>
                                     <dd>
-                                      {missingFromLinked.length === 0
-                                        ? "Complete"
-                                        : `Incomplete — missing ${missingFromLinked
+                                      {reusedGaps.length === 0
+                                        ? "Ready for provider confirmation"
+                                        : `Incomplete — missing ${reusedGaps
                                             .map((k) => SOAP_LABEL[k])
                                             .join(", ")}`}
                                     </dd>
@@ -4186,15 +4264,77 @@ export default function IssuePrescriptionDialog({
 
                                 <p
                                   className={`mt-3 rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
-                                    missingFromLinked.length === 0
+                                    reusedGaps.length === 0
                                       ? "bg-[#F0EBFB] text-[#3D2E6B]"
                                       : "bg-[#FDF9EF] text-[#8A6B1F]"
                                   }`}
                                 >
-                                  {missingFromLinked.length === 0
-                                    ? "SOAP complete — no additional clinical note required."
-                                    : "SOAP incomplete — complete the missing section below."}
+                                  {reusedGaps.length === 0
+                                    ? "Clinical assessment ready for confirmation."
+                                    : "Clinical assessment incomplete — complete the missing section below."}
                                 </p>
+
+                                {!linkedObjectiveText && (
+                                  <div id="soap-field-objective" className="mt-3">
+                                    <label className={label}>{SOAP_FULL_LABEL.objective}</label>
+                                    <p className="mt-1 text-[11.5px] leading-snug text-[#8A7FB0]">
+                                      {SOAP_SECTION_HINT.objective} Document only findings you observed,
+                                      measured, examined or reviewed.
+                                    </p>
+                                    <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
+                                      {(
+                                        [
+                                          ["not-obtained", "No objective findings obtained"],
+                                          ["limited-remote", "Limited remote observations"],
+                                          ["add", "Findings, vitals or results documented"],
+                                        ] as const
+                                      ).map(([value, text]) => (
+                                        <button
+                                          key={value}
+                                          type="button"
+                                          onClick={() => {
+                                            setObjectiveMode(value);
+                                            setSoapApproved(false);
+                                            if (value === "not-obtained")
+                                              setSoap((current) => ({ ...current, objective: NO_OBJECTIVE }));
+                                            else if (value === "limited-remote")
+                                              setSoap((current) => ({
+                                                ...current,
+                                                objective: isSoapPlaceholder(current.objective)
+                                                  ? LIMITED_REMOTE_PREFILL
+                                                  : current.objective,
+                                              }));
+                                            else setSoap((current) => ({ ...current, objective: "" }));
+                                          }}
+                                          className={`${chip} w-full justify-center text-center ${
+                                            objectiveMode === value
+                                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                              : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
+                                          }`}
+                                        >
+                                          {text}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
+                                      <AutoTextarea
+                                        minRows={2}
+                                        className={`${area} mt-2`}
+                                        value={soap.objective}
+                                        onChange={(e) => {
+                                          setSoapApproved(false);
+                                          setAiFields((current) => ({ ...current, objective: false }));
+                                          setSoap((current) => ({ ...current, objective: e.target.value }));
+                                        }}
+                                        placeholder={
+                                          objectiveMode === "limited-remote"
+                                            ? "Document what you could observe during the video or telephone assessment."
+                                            : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
+                                        }
+                                      />
+                                    )}
+                                  </div>
+                                )}
 
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   <button
@@ -4234,14 +4374,15 @@ export default function IssuePrescriptionDialog({
                                     </p>
                                   </div>
                                 )}
+                                {soapApproval}
                               </div>
 
                               {/* Ask only for the missing SOAP section(s) */}
-                              {missingFromLinked.length > 0 && (
+                              {reusedMissingTopUpSections.length > 0 && (
                                 <div className="mt-4 space-y-3 rounded-xl border border-[#EDEBF3] bg-white p-4">
                                   <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                                     Complete the missing section
-                                    {missingFromLinked.length > 1 ? "s" : ""} only
+                                    {reusedMissingTopUpSections.length > 1 ? "s" : ""} only
                                   </p>
                                   <button
                                     type="button"
@@ -4251,7 +4392,7 @@ export default function IssuePrescriptionDialog({
                                       window.setTimeout(() => {
                                         setSoap((s) => {
                                           const next = { ...s };
-                                          for (const k of missingFromLinked)
+                                          for (const k of reusedMissingTopUpSections)
                                             if (!next[k].trim()) next[k] = NEEDS_CONFIRMATION;
                                           return next;
                                         });
@@ -4270,14 +4411,9 @@ export default function IssuePrescriptionDialog({
                                     {NEEDS_CONFIRMATION}” for you to complete.
                                   </p>
 
-                                  {missingFromLinked.map((k) => (
+                                  {reusedMissingTopUpSections.map((k) => (
                                     <div key={k}>
-                                      {soapField(
-                                        k,
-                                        k === "objective"
-                                          ? "Optional — leave blank if no objective findings were obtained."
-                                          : "Not documented in the reused note.",
-                                      )}
+                                      {soapField(k, "Not documented in the reused note.")}
                                     </div>
                                   ))}
                                 </div>
