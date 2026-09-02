@@ -3898,35 +3898,6 @@ export default function IssuePrescriptionDialog({
                   }
                    const step2Ready =
                      step2Missing.length === 0 && !noteRejected && !demographicConflict;
-                   const reusedReviewReady =
-                     isReusedConsultation &&
-                     reusedGaps.length === 0 &&
-                     materialChange !== "reassess" &&
-                     (materialChange !== "update" ||
-                       (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
-                     (allergyOnFile || allergyState !== "not-assessed") &&
-                     (medicationOnFile || medicationState !== "not-assessed") &&
-                     (sex === "male" || pregnancyStatus !== "not-reviewed");
-                   const reusedReviewLabel =
-                     materialChange === "update"
-                       ? "Confirm updated information and continue"
-                       : "Confirm reviewed and unchanged";
-                   const confirmReusedReview = () => {
-                     if (!reusedReviewReady || !linkedAppt) return;
-                     setSoapApproved(true);
-                     setMaterialChange(materialChange === "update" ? "update" : "none");
-                     if (allergyOnFile) {
-                       setAllergyConfirm("unchanged");
-                       setAllergyState(savedAllergyState);
-                       if (savedAllergyState === "recorded") setAllergyDetail(savedAllergies);
-                     }
-                     if (medicationOnFile) {
-                       setMedsConfirm("unchanged");
-                       setMedicationState(savedMedicationState);
-                       if (savedMedicationState === "recorded") setMedicationDetail(savedMedications);
-                     }
-                     setStep(2);
-                   };
 
 
                    /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
