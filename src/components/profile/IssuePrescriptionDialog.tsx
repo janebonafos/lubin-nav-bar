@@ -5196,8 +5196,60 @@ export default function IssuePrescriptionDialog({
                               No option is supported by the documented record. Use search and manual
                               entry below.
                             </p>
+                          ) : !optionsListOpen && usedOptionIds.length > 0 ? (
+                            <div className="rounded-xl border border-[#3D2E6B] bg-[#F7F3FF] p-3">
+                              <p className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#3D2E6B]">
+                                <Check className="h-3.5 w-3.5" />
+                                {usedOptionIds.length} option
+                                {usedOptionIds.length === 1 ? "" : "s"} added to the medication
+                                order
+                              </p>
+                              <ul className="mt-2 flex flex-wrap gap-1.5">
+                                {usedOptionIds.map((id) => {
+                                  const o = MEDICATION_OPTIONS.find((m) => m.id === id);
+                                  if (!o) return null;
+                                  return (
+                                    <li
+                                      key={id}
+                                      className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[#3D2E6B]"
+                                    >
+                                      <Check className="h-3 w-3" />
+                                      {o.generic}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={scrollToMedicationOrder}
+                                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+                                >
+                                  Review medication order
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setOptionsListOpen(true)}
+                                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Select another option
+                                </button>
+                              </div>
+                            </div>
                           ) : (
-                            supportedOptions.map(renderOption)
+                            <>
+                              {usedOptionIds.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setOptionsListOpen(false)}
+                                  className="text-[11.5px] font-semibold text-[#3D2E6B] underline underline-offset-2"
+                                >
+                                  Hide options
+                                </button>
+                              )}
+                              {supportedOptions.map(renderOption)}
+                            </>
                           )}
                           {selectedOptionIds.length > 0 && (
                             <div className="sticky bottom-2 z-10 rounded-xl border border-[#3D2E6B] bg-[#F7F3FF] p-3 shadow-sm">
