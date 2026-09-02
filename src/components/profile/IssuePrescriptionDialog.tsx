@@ -6253,7 +6253,7 @@ export default function IssuePrescriptionDialog({
                             ? purpose === "renewal"
                               ? "Continue with renewal"
                               : entry === "lubin"
-                                ? "Use SOAP and continue"
+                                ? "Continue to medication"
                                 : "Continue to prescription"
                             : "Continue"}
                         <ArrowRight className="h-4 w-4" />
