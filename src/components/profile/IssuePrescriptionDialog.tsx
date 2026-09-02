@@ -1590,8 +1590,16 @@ export default function IssuePrescriptionDialog({
   const renderOption = (opt: MedicationOption) => {
     const draft = draftFor(opt);
     const chosenBrand = opt.brands.find((b) => b.id === draft.brandId);
+    const isSelected = selectedOptionIds.includes(opt.id);
     return (
-    <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
+    <div
+      key={opt.id}
+      className={`relative rounded-xl border p-4 transition ${
+        isSelected
+          ? "border-[#3D2E6B] bg-[#F7F3FF] shadow-[0_0_0_1px_#3D2E6B_inset]"
+          : "border-[#E3DBF5] bg-white"
+      }`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[10.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
@@ -1605,11 +1613,18 @@ export default function IssuePrescriptionDialog({
             {chosenBrand ? ` · Dispense as ${chosenBrand.name}` : " · Dispense as generic"}
           </p>
         </div>
-        {!opt.supported && (
-          <span className="rounded-full bg-[#F5F1FF] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
-            Conditional
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {isSelected && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#3D2E6B] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-white">
+              <Check className="h-3 w-3" /> Selected
+            </span>
+          )}
+          {!opt.supported && (
+            <span className="rounded-full bg-[#F5F1FF] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+              Conditional
+            </span>
+          )}
+        </div>
       </div>
       <dl className="mt-3 grid gap-2 text-[11.5px] leading-snug text-[#4B4468]">
         <div>
