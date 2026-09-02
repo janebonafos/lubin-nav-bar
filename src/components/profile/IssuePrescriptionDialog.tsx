@@ -1169,6 +1169,16 @@ export default function IssuePrescriptionDialog({
   /** How the provider wants to choose the treatment. Nothing is preselected. */
   const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
+  /** Options already copied into the medication order below. */
+  const [usedOptionIds, setUsedOptionIds] = useState<string[]>([]);
+  /** Brings the populated medication order into view after using options. */
+  const scrollToMedicationOrder = () => {
+    requestAnimationFrame(() => {
+      document
+        .getElementById("med-order-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
   /** Per-option provider choices before the option is copied into the order:
    *  dispense as generic or a fictional brand, plus editable posology. */
   type OptionDraft = {
@@ -1778,29 +1788,47 @@ export default function IssuePrescriptionDialog({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          aria-pressed={selectedOptionIds.includes(opt.id)}
-          onClick={() =>
-            setSelectedOptionIds((cur) =>
-              cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
-            )
-          }
-          className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
-            selectedOptionIds.includes(opt.id)
-              ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
-              : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
-          }`}
-        >
-          {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setDismissedOptions((cur) => [...cur, opt.id])}
-          className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
-        >
-          Not appropriate
-        </button>
+        {usedOptionIds.includes(opt.id) ? (
+          <>
+            <span className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#3D2E6B] bg-[#F0EBFF] px-3.5 text-[12.5px] font-semibold text-[#3D2E6B]">
+              <Check className="h-3.5 w-3.5" />
+              Added to medication order
+            </span>
+            <button
+              type="button"
+              onClick={() => scrollToMedicationOrder()}
+              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+            >
+              Review in order
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              aria-pressed={selectedOptionIds.includes(opt.id)}
+              onClick={() =>
+                setSelectedOptionIds((cur) =>
+                  cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+                )
+              }
+              className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+                selectedOptionIds.includes(opt.id)
+                  ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+                  : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+              }`}
+            >
+              {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDismissedOptions((cur) => [...cur, opt.id])}
+              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+            >
+              Not appropriate
+            </button>
+          </>
+        )}
       </div>
       <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
         Every field stays editable in the medication order after you use an option.
@@ -1849,9 +1877,11 @@ export default function IssuePrescriptionDialog({
       selectedOptionIds.includes(opt.id),
     );
     selectedOptions.forEach((opt) => useMedicationOption(opt));
+    setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
+    scrollToMedicationOrder();
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
@@ -2181,6 +2211,9 @@ export default function IssuePrescriptionDialog({
 
   function resetAll() {
     setStep(0);
+    setUsedOptionIds([]);
+    setSelectedOptionIds([]);
+    setDismissedOptions([]);
     setSelected(null);
     setCreatingNew(false);
     setPatientQuery("");
@@ -5237,8 +5270,12 @@ export default function IssuePrescriptionDialog({
 
                   {/* Medication order — hidden while options are being reviewed and
                       nothing has been copied into the order yet. */}
-                  {!(rxPath === "options" && readyMeds.length === 0) && (
-                  <section className={cardCls}>
+                  {!(
+                    rxPath === "options" &&
+                    readyMeds.length === 0 &&
+                    !meds.some((m) => m.genericName.trim())
+                  ) && (
+                  <section id="med-order-section" className={cardCls}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
