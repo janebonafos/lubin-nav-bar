@@ -5267,8 +5267,12 @@ export default function IssuePrescriptionDialog({
 
                   {/* Medication order — hidden while options are being reviewed and
                       nothing has been copied into the order yet. */}
-                  {!(rxPath === "options" && readyMeds.length === 0) && (
-                  <section className={cardCls}>
+                  {!(
+                    rxPath === "options" &&
+                    readyMeds.length === 0 &&
+                    !meds.some((m) => m.genericName.trim())
+                  ) && (
+                  <section id="med-order-section" className={cardCls}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
