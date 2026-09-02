@@ -2357,6 +2357,7 @@ export default function IssuePrescriptionDialog({
     setOtpInvalidated(false);
     setOtpError("");
     setIssued(null);
+    setDeliveryChoice("email");
   }
 
   /** The clinical plan the prescription is prepared from. */
