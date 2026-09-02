@@ -1409,10 +1409,14 @@ export default function IssuePrescriptionDialog({
   }, [orderInstructions]);
 
 
-  /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
-  const fromAppointment = appointmentId
+  /** Preselect only when the immutable patient record proves the appointment link. */
+  const fromAppointmentCandidate = appointmentId
     ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
     : undefined;
+  const fromAppointment =
+    fromAppointmentCandidate && selected?.appointmentIds.includes(fromAppointmentCandidate.id)
+      ? fromAppointmentCandidate
+      : undefined;
   useEffect(() => {
     if (!open || !fromAppointment) return;
     setPurpose("new");
@@ -1540,14 +1544,18 @@ export default function IssuePrescriptionDialog({
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
   const isReusedConsultation = purpose === "new" && entry === "lubin" && !!linkedAppt;
-  const safetyGaps =
-    allergyState === "not-assessed" || medicationState === "not-assessed"
-      ? [
-          ...(allergyState === "not-assessed" ? ["Review allergies"] : []),
-          ...(medicationState === "not-assessed" ? ["Review current medications"] : []),
-        ]
+  const safetyGaps = [
+    ...((!isReusedConsultation || !allergyOnFile) && allergyState === "not-assessed"
+      ? ["Review allergies"]
+      : []),
+    ...((!isReusedConsultation || !medicationOnFile) && medicationState === "not-assessed"
+      ? ["Review current medications"]
+      : []),
+  ];
+  const pregnancyGap =
+    isReusedConsultation && sex !== "male" && pregnancyStatus === "not-reviewed"
+      ? ["Review pregnancy / breastfeeding status"]
       : [];
-  const pregnancyGap = sex !== "male" && pregnancyStatus === "not-reviewed" ? ["Review pregnancy / breastfeeding status"] : [];
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Treatment type");
   if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
@@ -1603,9 +1611,8 @@ export default function IssuePrescriptionDialog({
    *  complete while one of these remains. */
   const soapGaps = [...contextGaps];
 
-  // "Not assessed" is a real state and blocks review and signing.
-  if (allergyState === "not-assessed") contextGaps.push("Review allergies");
-  if (medicationState === "not-assessed") contextGaps.push("Review current medications");
+  // Saved reused records are explicitly reconfirmed by the single review action.
+  contextGaps.push(...safetyGaps, ...pregnancyGap);
 
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
@@ -2459,7 +2466,9 @@ export default function IssuePrescriptionDialog({
   const planText =
     purpose === "renewal"
       ? [renewal.medication, renewal.indication, renewal.response].filter(Boolean).join(" · ")
-      : [effectiveSoap.assessment, effectiveSoap.plan].filter(Boolean).join(" ");
+      : [effectiveSoap.assessment, purpose === "new" && entry === "lubin" ? "" : effectiveSoap.plan]
+          .filter(Boolean)
+          .join(" ");
 
   /**
    * Design-only assistive drafting. Everything below is produced locally from
