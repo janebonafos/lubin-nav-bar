@@ -1869,9 +1869,11 @@ export default function IssuePrescriptionDialog({
       selectedOptionIds.includes(opt.id),
     );
     selectedOptions.forEach((opt) => useMedicationOption(opt));
+    setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
+    scrollToMedicationOrder();
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
