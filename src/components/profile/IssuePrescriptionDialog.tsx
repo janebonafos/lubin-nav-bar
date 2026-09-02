@@ -5275,7 +5275,6 @@ export default function IssuePrescriptionDialog({
                                       key={id}
                                       className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white py-1 pl-2.5 pr-1 text-[11.5px] font-semibold text-[#3D2E6B]"
                                     >
-                                      <Check className="h-3 w-3" />
                                       {o.generic}
                                       <button
                                         type="button"
