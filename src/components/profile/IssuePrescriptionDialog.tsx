@@ -636,6 +636,17 @@ type MedicationOption = {
   /** Fictional brand equivalents. The provider chooses generic or a brand —
    *  nothing is preselected and the generic is listed first. */
   brands: { id: string; name: string; note: string }[];
+  /** Fictional in-app reference so the prescriber does not have to search the web. */
+  about: {
+    className: string;
+    howItWorks: string;
+    commonSideEffects: string;
+    seriousSideEffects: string;
+    interactions: string;
+    contraindications: string;
+    monitoring: string;
+    counselling: string;
+  };
   /** True only when the documented record supports the option. Anything else is
    *  hypothetical and lives in the collapsed "clinical picture changes" group. */
   supported: boolean;
@@ -663,6 +674,16 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       { id: "b-tussivex", name: "Tussivex", note: "Fictional brand · 15 mg tablet" },
       { id: "b-coughlan", name: "Coughlan DM", note: "Fictional brand · 15 mg tablet" },
     ],
+    about: {
+      className: "Central antitussive (cough suppressant)",
+      howItWorks: "Fictional reference text: acts centrally on the cough reflex to reduce a dry, non-productive cough. It does not treat an underlying infection.",
+      commonSideEffects: "Drowsiness, dizziness, nausea, mild gastrointestinal upset.",
+      seriousSideEffects: "Confusion or agitation, and serotonin-related reactions when combined with serotonergic medicines.",
+      interactions: "Monoamine oxidase inhibitors, SSRIs and other serotonergic agents; sedatives and alcohol increase drowsiness.",
+      contraindications: "Productive cough needing clearance, documented respiratory depression, current or recent MAO inhibitor use.",
+      monitoring: "Review after 5 days. Reassess if cough persists beyond 3 weeks or new red-flag features appear.",
+      counselling: "Take as needed for cough, avoid alcohol, and do not drive if drowsy. Return sooner for fever, breathlessness or blood-streaked sputum.",
+    },
     supported: true,
   },
   {
@@ -682,6 +703,16 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     clinicalBasis:
       "Fictional demonstration text: mucolytic option listed for provider consideration if secretions are documented.",
     brands: [{ id: "b-mucolyx", name: "Mucolyx", note: "Fictional brand · 500 mg capsule" }],
+    about: {
+      className: "Mucolytic",
+      howItWorks: "Fictional reference text: reduces sputum viscosity so secretions are easier to clear in a productive cough.",
+      commonSideEffects: "Nausea, gastric discomfort, diarrhoea, rash.",
+      seriousSideEffects: "Gastrointestinal bleeding in documented peptic ulceration; rare hypersensitivity reactions.",
+      interactions: "Caution with antitussives, which retain secretions, and with medicines that irritate the gastric mucosa.",
+      contraindications: "Active peptic ulceration; documented hypersensitivity.",
+      monitoring: "Review at 7 days for sputum change and symptom course.",
+      counselling: "Take with plenty of fluids and stop if abdominal pain or dark stools occur.",
+    },
     supported: false,
   },
   {
@@ -701,6 +732,16 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     clinicalBasis:
       "Fictional demonstration text: antihistamine listed only as an option; the provider decides whether an allergic contribution applies.",
     brands: [{ id: "b-alerzin", name: "Alerzin", note: "Fictional brand · 10 mg tablet" }],
+    about: {
+      className: "Second-generation antihistamine",
+      howItWorks: "Fictional reference text: blocks peripheral H1 receptors, reducing upper-airway allergic symptoms that can drive a dry cough.",
+      commonSideEffects: "Drowsiness, dry mouth, headache, fatigue.",
+      seriousSideEffects: "Marked sedation; rare hypersensitivity reactions.",
+      interactions: "Additive sedation with alcohol and other central nervous system depressants.",
+      contraindications: "Documented hypersensitivity; dose review needed in documented renal impairment.",
+      monitoring: "Review at 7 days. Reconsider the allergic contribution if there is no response.",
+      counselling: "Take at bedtime, avoid alcohol and do not drive if drowsy.",
+    },
     supported: false,
   },
 ];
@@ -1037,6 +1078,7 @@ export default function IssuePrescriptionDialog({
     frequency: string;
     duration: string;
     open: boolean;
+    aboutOpen: boolean;
   };
   const [optionDrafts, setOptionDrafts] = useState<Record<string, OptionDraft>>({});
   const draftFor = (opt: MedicationOption): OptionDraft =>
@@ -1046,6 +1088,7 @@ export default function IssuePrescriptionDialog({
       frequency: opt.frequency,
       duration: opt.duration,
       open: false,
+      aboutOpen: false,
     };
   const patchDraft = (opt: MedicationOption, patch: Partial<OptionDraft>) =>
     setOptionDrafts((cur) => ({ ...cur, [opt.id]: { ...draftFor(opt), ...patch } }));
@@ -1487,6 +1530,49 @@ export default function IssuePrescriptionDialog({
         </div>
       </dl>
       <p className="mt-2 text-[10.5px] text-[#8A7FB0]">{opt.source}</p>
+
+      <button
+        type="button"
+        aria-expanded={draft.aboutOpen}
+        aria-controls={`about-${opt.id}`}
+        onClick={() => patchDraft(opt, { aboutOpen: !draft.aboutOpen })}
+        className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+      >
+        {draft.aboutOpen ? "Hide medication information" : "About this medication"}
+      </button>
+      {draft.aboutOpen && (
+        <div
+          id={`about-${opt.id}`}
+          className="mt-2 rounded-xl border border-[#E9E2FA] bg-[#FBF9FF] p-3"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+            Medication information · {opt.about.className}
+          </p>
+          <dl className="mt-2 grid gap-2 text-[11.5px] leading-snug text-[#4B4468] sm:grid-cols-2">
+            {(
+              [
+                ["How it works", opt.about.howItWorks],
+                ["Common side effects", opt.about.commonSideEffects],
+                ["Serious side effects", opt.about.seriousSideEffects],
+                ["Interactions", opt.about.interactions],
+                ["Contraindications and cautions", opt.about.contraindications],
+                ["Monitoring and review", opt.about.monitoring],
+                ["What to tell the patient", opt.about.counselling],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label}>
+                <dt className="font-semibold text-[#3D2E6B]">{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
+            Fictional prototype reference text for demonstration only. It is not a formulary or a
+            substitute for the prescriber&apos;s own review.
+          </p>
+        </div>
+      )}
+
 
       <div className="mt-3 rounded-xl border border-[#E9E2FA] bg-[#FBF9FF] p-3">
         <p className="text-[11px] font-bold uppercase tracking-wide text-[#6F5BA0]">
