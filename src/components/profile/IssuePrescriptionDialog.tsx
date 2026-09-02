@@ -1171,6 +1171,8 @@ export default function IssuePrescriptionDialog({
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
   /** Options already copied into the medication order below. */
   const [usedOptionIds, setUsedOptionIds] = useState<string[]>([]);
+  /** Suggestion list collapses once an option has been used. */
+  const [optionsListOpen, setOptionsListOpen] = useState(true);
   /** Brings the populated medication order into view after using options. */
   const scrollToMedicationOrder = () => {
     requestAnimationFrame(() => {
