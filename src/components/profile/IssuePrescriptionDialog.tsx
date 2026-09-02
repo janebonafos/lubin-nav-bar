@@ -116,11 +116,8 @@ function AutoTextarea({
 type PatientSex = NonNullable<PatientSafetyInfo["sex"]>;
 
 const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
-  { value: "not-documented", label: "Not documented" },
   { value: "female", label: "Female" },
   { value: "male", label: "Male" },
-  { value: "intersex", label: "Intersex" },
-  { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
 
 /** SOAP note attached to a clinical encounter. Fictional prototype fixture. */
@@ -2474,10 +2471,15 @@ export default function IssuePrescriptionDialog({
                           </label>
                           <select
                             id="rx-sex"
-                            className={`${field} mt-1.5`}
+                            className={`${field} mt-1.5 ${sex === "not-documented" ? "text-[#A89BD0]" : ""}`}
                             value={sex}
                             onChange={(e) => setSex(e.target.value as PatientSex)}
                           >
+                            {sex === "not-documented" && (
+                              <option value="not-documented" disabled>
+                                Select sex
+                              </option>
+                            )}
                             {SEX_OPTIONS.map((o) => (
                               <option key={o.value} value={o.value}>
                                 {o.label}
