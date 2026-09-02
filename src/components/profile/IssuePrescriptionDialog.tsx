@@ -2211,6 +2211,9 @@ export default function IssuePrescriptionDialog({
 
   function resetAll() {
     setStep(0);
+    setUsedOptionIds([]);
+    setSelectedOptionIds([]);
+    setDismissedOptions([]);
     setSelected(null);
     setCreatingNew(false);
     setPatientQuery("");
