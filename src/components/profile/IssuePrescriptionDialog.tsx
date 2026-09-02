@@ -652,6 +652,33 @@ type MedicationOption = {
   supported: boolean;
 };
 
+/** Splits a documented clinical string into display lines. Bullet-joined
+ *  fixture text renders as a real list instead of one run-on paragraph. */
+function summaryLines(value: string): string[] {
+  const parts = value
+    .split(/\r?\n|\u2022/)
+    .map((p) => p.replace(/^[\s\u00b7\-]+/, "").trim())
+    .filter(Boolean);
+  return parts.length ? parts : [value];
+}
+
+/** Renders one summary value: a single line stays a paragraph, multiple
+ *  documented findings become a bulleted list. */
+function SummaryValue({ value }: { value: string }) {
+  const lines = summaryLines(value);
+  if (lines.length === 1) return <>{lines[0]}</>;
+  return (
+    <ul className="mt-0.5 space-y-0.5">
+      {lines.map((line, i) => (
+        <li key={i} className="relative pl-3">
+          <span className="absolute left-0 top-0">•</span>
+          {line}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 const MEDICATION_OPTIONS: MedicationOption[] = [
   {
     id: "opt-dextromethorphan",
@@ -4836,7 +4863,7 @@ export default function IssuePrescriptionDialog({
                             <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
                               {row.label}
                             </dt>
-                            <dd>{row.value}</dd>
+                            <dd className="mt-0.5 leading-snug"><SummaryValue value={row.value} /></dd>
                           </div>
                         ))}
                       </dl>
@@ -5130,7 +5157,7 @@ export default function IssuePrescriptionDialog({
                       <ul className="mt-1 space-y-1 text-[12px] text-[#6F6889]">
                         {optionInputs.map((row) => (
                           <li key={row.label}>
-                            · {row.label} — {row.value}
+                            · {row.label} — {summaryLines(row.value).join(" ")}
                           </li>
                         ))}
                         <li>· Fictional prototype formulary · v2026.1 (01 Jun 2026)</li>
