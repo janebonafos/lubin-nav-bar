@@ -1233,6 +1233,7 @@ export default function IssuePrescriptionDialog({
   const [otpInvalidated, setOtpInvalidated] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [issued, setIssued] = useState<SignedPrescriptionDocument | null>(null);
+  const [deliveryChoice, setDeliveryChoice] = useState<"email" | "download" | "invite">("email");
 
 
   useEffect(() => {
