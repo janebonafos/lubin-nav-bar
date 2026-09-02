@@ -4208,8 +4208,10 @@ export default function IssuePrescriptionDialog({
                             Quick renewal review
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Pick the prescription you are continuing, then answer three questions. A
-                            full new-treatment SOAP note is not required.
+                            Pick the prescription you are continuing, then answer the renewal
+                            questions. A full new-treatment S–O–A–P note is not required, but the
+                            renewal review must still record effectiveness, side effects, adherence,
+                            safety information and monitoring.
                           </p>
 
                           {previousPrescriptions.length > 0 ? (
