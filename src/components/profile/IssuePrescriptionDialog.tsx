@@ -1701,6 +1701,15 @@ export default function IssuePrescriptionDialog({
   const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
     const d = draft ?? draftFor(opt);
     const brand = opt.brands.find((b) => b.id === d.brandId);
+    // The directions (SIG) are drafted from the same structured option, so the
+    // provider does not have to retype them. It stays fully editable.
+    const draftedSig = buildSig({
+      dose: d.dose,
+      route: opt.route,
+      frequency: d.frequency,
+      duration: d.duration,
+      form: opt.strengthForm,
+    });
     setMeds((cur) => {
       const first = cur[0] ?? emptyMed();
       return [
@@ -1715,6 +1724,8 @@ export default function IssuePrescriptionDialog({
           duration: d.duration,
           unit: opt.unit,
           rationale: opt.why,
+          sig: draftedSig,
+          sigEdited: false,
         },
         ...cur.slice(1),
       ];
@@ -5751,6 +5762,14 @@ function MedicationCard({
             }}
             placeholder="Take 50 mg by oral route once daily in the morning for 4 weeks."
           />
+          {med.sig.trim() && !med.sigEdited && (
+            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#8A7FB0]">
+              <span className="inline-flex h-3.5 items-center rounded-md bg-[#EDE7FA] px-1 text-[8.5px] font-bold tracking-wide text-[#4B3F7A]">
+                AI
+              </span>
+              AI draft from the selected regimen — provider review required.
+            </p>
+          )}
         </div>
         <div className="sm:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
