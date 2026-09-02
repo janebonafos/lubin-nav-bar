@@ -5781,8 +5781,7 @@ export default function IssuePrescriptionDialog({
                           patient instructions. AI assistance is a suggestion only; the clinical
                           decision and the responsibility for it are mine.
                         </span>
-                        <span className="flex items-center gap-1.5 opacity-70">
-                          <ShieldCheck className="h-3.5 w-3.5 text-[#7E6BAF]" />
+                        <span className="opacity-70">
                           <span className="text-[11px] font-medium text-[#6F6889]">
                             Accountability for AI-assisted content
                           </span>
