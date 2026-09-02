@@ -3003,6 +3003,23 @@ export default function IssuePrescriptionDialog({
                           Reused from this patient’s record and the information they shared — nothing
                           to re-enter.
                         </p>
+                        {patientGaps.length > 0 && (
+                          <div className="mt-3 rounded-xl border border-[#D9534F]/40 bg-[#FDF3F3] p-3">
+                            <p className="text-[12.5px] font-semibold text-[#8A3B38]">
+                              Required for a prescription and not on file:
+                            </p>
+                            <p className="mt-1 text-[12px] text-[#8A3B38]">
+                              {patientGaps.join(" · ")}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setEditPatient(true)}
+                              className="mt-2 rounded-full bg-[#3D2E6B] px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2050]"
+                            >
+                              Add missing details
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
