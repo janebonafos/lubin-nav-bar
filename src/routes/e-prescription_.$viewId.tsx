@@ -15,29 +15,7 @@ import {
   useVerifiedPrescribing,
 } from "@/lib/prescription/useVerifiedPrescribing";
 
-type Search = {
-  appointment: string;
-  country?: RxCountry;
-  client?: string;
-  provider?: string;
-  draft?: boolean;
-  /** Issued document id — renders the signed record instead of the draft. */
-  doc?: string;
-  /** Encoded issued document, so a new tab renders the signed record even when
-   *  it cannot read the local record store. */
-  d?: string;
-};
-
 export const Route = createFileRoute("/e-prescription_/$viewId")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    appointment: String(search.appointment ?? ""),
-    country: search.country === "US" ? "US" : "PH",
-    client: search.client ? String(search.client) : undefined,
-    provider: search.provider ? String(search.provider) : undefined,
-    draft: search.draft === true || search.draft === "true",
-    doc: search.doc ? String(search.doc) : undefined,
-    d: search.d ? String(search.d) : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "E-prescription — Lubin" },
