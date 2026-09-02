@@ -577,7 +577,8 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
   {
     value: "new",
     title: "New treatment",
-    description: "A medication this patient is not already taking. A SOAP note is required.",
+    description:
+      "A medication this patient is not already taking. Supporting clinical documentation is required — brief notes are enough and AI can organize them into S, O, A and P.",
   },
   {
     value: "renewal",
@@ -592,24 +593,24 @@ type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
 const ENTRY_POINTS: { value: EntryPoint; title: string; short: string; description: string }[] = [
   {
     value: "lubin",
-    title: "Use SOAP from a Lubin consultation",
-    short: "Lubin consultation",
+    title: "Use documentation from a completed consultation",
+    short: "Completed consultation",
     description:
-      "Link this prescription to an appointment you completed in Lubin. Its SOAP note is reused.",
+      "Reuse the existing clinical note from an appointment you completed in Lubin. Nothing is retyped.",
   },
   {
     value: "outside",
-    title: "Add SOAP from an outside consultation",
+    title: "Document a new assessment — consultation outside Lubin",
     short: "Outside consultation",
     description:
-      "Use this when you personally assessed the patient in your clinic or another telehealth system.",
+      "Use this when you personally assessed the patient in your clinic or another telehealth system. Brief notes are enough; AI can organize them.",
   },
   {
     value: "standalone",
-    title: "Document assessment now — no Lubin appointment",
+    title: "Document a new assessment now",
     short: "Assessment documented now",
     description:
-      "Use when you personally assessed the patient in person, by video or by phone.",
+      "Use when you personally assessed the patient in person, by video or by phone. Brief notes are enough; AI can organize them.",
   },
 ];
 
@@ -3612,8 +3613,16 @@ export default function IssuePrescriptionDialog({
                           {purpose === "new" && !fromAppointment && (
                             <section className={cardCls}>
                               <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                                SOAP note supporting this prescription
+                                Clinical documentation supporting this prescription
                               </h3>
+                              <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
+                                A prescription always needs supporting documentation, but a full
+                                manually typed S–O–A–P note is not always required. The record must
+                                still show why the medication is prescribed, the relevant history and
+                                findings, your assessment or indication, allergies, current medicines
+                                and safety information, and the medication decision, instructions and
+                                follow-up.
+                              </p>
                               <div className="mt-3 space-y-2">
                                 {ENTRY_POINTS.map((opt) => (
                                   <label
@@ -3654,7 +3663,7 @@ export default function IssuePrescriptionDialog({
                           </p>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
                             {fromAppointment.patient} · {fromAppointment.type} ·{" "}
-                            {fromAppointment.date}. Its SOAP note is reused — no search needed.
+                            {fromAppointment.date}. Its clinical documentation is reused — no search needed.
                           </p>
                         </section>
                       )}
@@ -4199,8 +4208,10 @@ export default function IssuePrescriptionDialog({
                             Quick renewal review
                           </h3>
                           <p className="mt-1.5 text-[12px] leading-relaxed text-[#6F6889]">
-                            Pick the prescription you are continuing, then answer three questions. A
-                            full new-treatment SOAP note is not required.
+                            Pick the prescription you are continuing, then answer the renewal
+                            questions. A full new-treatment S–O–A–P note is not required, but the
+                            renewal review must still record effectiveness, side effects, adherence,
+                            safety information and monitoring.
                           </p>
 
                           {previousPrescriptions.length > 0 ? (
