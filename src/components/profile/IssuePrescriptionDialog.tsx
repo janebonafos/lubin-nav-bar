@@ -5134,7 +5134,7 @@ export default function IssuePrescriptionDialog({
 
                   {/* Design-only medication options — synthetic fixtures, no AI service. */}
                   {rxPath === "options" && (
-                    <section className={cardCls}>
+                    <section id="med-options-section" className={cardCls}>
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
