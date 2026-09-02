@@ -1510,7 +1510,9 @@ export default function IssuePrescriptionDialog({
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
      important is missing, no medication or dose is shown at all. */
-  const confirmedIndication = isSoapPlaceholder(soap.assessment) ? "" : soap.assessment.trim();
+  const confirmedIndication = isSoapPlaceholder(effectiveSoap.assessment)
+    ? ""
+    : effectiveSoap.assessment.trim();
   /** The Plan is unresolved while it still carries a confirmation placeholder. */
   const planUnresolved =
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
@@ -1572,14 +1574,24 @@ export default function IssuePrescriptionDialog({
       value: vitalsLabel,
     },
   ];
-  const optionsMissing: string[] = [];
-  if (!confirmedIndication) optionsMissing.push("Provider-confirmed Assessment or indication");
-  if (ageYears == null) optionsMissing.push("Date of birth so age can be calculated");
-  if (allergyState === "not-assessed") optionsMissing.push("Drug allergy status");
-  if (medicationState === "not-assessed") optionsMissing.push("Current medications");
+  /** Each missing item knows which step resolves it, so the provider can jump
+   *  straight there instead of guessing why no option is shown. */
+  const optionsMissingItems: { label: string; step: number }[] = [];
+  if (!confirmedIndication)
+    optionsMissingItems.push({
+      label: "Provider-confirmed Assessment or indication",
+      step: 1,
+    });
+  if (ageYears == null)
+    optionsMissingItems.push({ label: "Date of birth so age can be calculated", step: 0 });
+  if (allergyState === "not-assessed")
+    optionsMissingItems.push({ label: "Drug allergy status", step: 0 });
+  if (medicationState === "not-assessed")
+    optionsMissingItems.push({ label: "Current medications", step: 0 });
   if (sex !== "male" && pregnancyStatus === "not-reviewed") {
-    optionsMissing.push("Pregnancy / breastfeeding status");
+    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 0 });
   }
+  const optionsMissing = optionsMissingItems.map((i) => i.label);
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
   const supportedOptions = visibleOptions.filter((o) => o.supported);
   const conditionalOptions = visibleOptions.filter((o) => !o.supported);
@@ -5103,10 +5115,30 @@ export default function IssuePrescriptionDialog({
                             reviewed.
                           </p>
                           <ul className="mt-2 space-y-1 text-[12px] text-[#6B4E10]">
-                            {optionsMissing.map((m) => (
-                              <li key={m}>• {m}</li>
+                            {optionsMissingItems.map((m) => (
+                              <li key={m.label}>
+                                •{" "}
+                                <button
+                                  type="button"
+                                  onClick={() => setStep(m.step)}
+                                  className="underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
+                                >
+                                  {m.label}
+                                </button>
+                              </li>
                             ))}
                           </ul>
+                          <p className="mt-3 text-[11.5px] leading-snug text-[#6B4E10]">
+                            You can still prescribe now — switch to{" "}
+                            <button
+                              type="button"
+                              onClick={() => setRxPath("search")}
+                              className="font-semibold underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
+                            >
+                              Search and prescribe a medication
+                            </button>{" "}
+                            and complete the regimen yourself.
+                          </p>
                         </div>
                       ) : (
                         <div className="mt-4 space-y-3">
