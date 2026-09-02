@@ -5567,7 +5567,10 @@ function MedicationCard({
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className={label}>Generic name</label>
+          <label className={label}>
+            Generic name
+            <FieldHint text="International non-proprietary (generic) name. This is what appears first on the prescription, as required for generic prescribing." />
+          </label>
           <input
             className={`${field} mt-1.5`}
             value={med.genericName}
@@ -5576,7 +5579,10 @@ function MedicationCard({
           />
         </div>
         <div>
-          <label className={label}>Brand (optional)</label>
+          <label className={label}>
+            Brand (optional)
+            <FieldHint text="Optional trade name. Add it only when a specific brand is clinically needed; otherwise the pharmacist may dispense any equivalent generic." />
+          </label>
           <input
             className={`${field} mt-1.5`}
             value={med.brandName}
@@ -5589,7 +5595,10 @@ function MedicationCard({
         <div className="sm:col-span-2 rounded-xl border border-[#EDEBF3] bg-white/70 p-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="col-span-2">
-              <label className={label}>Strength / form</label>
+              <label className={label}>
+            Strength / form
+            <FieldHint text="Strength per unit and the dosage form dispensed, e.g. 10 mg tablet or 100 mg/5 mL syrup." />
+          </label>
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
@@ -5613,7 +5622,10 @@ function MedicationCard({
               )}
             </div>
             <div className="col-span-2">
-              <label className={label}>Route</label>
+              <label className={label}>
+            Route
+            <FieldHint text="How the medicine is taken or given — oral, topical, inhaled, intramuscular and so on." />
+          </label>
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
@@ -5636,7 +5648,10 @@ function MedicationCard({
               )}
             </div>
             <div>
-              <label className={label}>Dose</label>
+              <label className={label}>
+            Dose
+            <FieldHint text="Amount taken at each administration, e.g. 10 mg or 5 mL. Not the total daily amount." />
+          </label>
               <input
                 className={`${field} mt-1.5`}
                 value={med.dose}
@@ -5645,7 +5660,10 @@ function MedicationCard({
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={label}>Frequency</label>
+              <label className={label}>
+            Frequency
+            <FieldHint text="How often each dose is taken, e.g. once daily at bedtime or every 8 hours as needed." />
+          </label>
               <input
                 className={`${field} mt-1.5`}
                 value={med.frequency}
@@ -5654,7 +5672,10 @@ function MedicationCard({
               />
             </div>
             <div>
-              <label className={label}>Duration</label>
+              <label className={label}>
+            Duration
+            <FieldHint text="How long the medicine is continued, e.g. 7 days, or 4 weeks then review." />
+          </label>
               <input
                 className={`${field} mt-1.5`}
                 value={med.duration}
@@ -5668,7 +5689,10 @@ function MedicationCard({
         {/* Dispensing group */}
         <div className="sm:col-span-2 grid gap-3 sm:grid-cols-3">
           <div>
-            <label className={label}>Refills</label>
+            <label className={label}>
+            Refills
+            <FieldHint text="How many times this prescription may be repeated without a new consultation. Keep at no refills when a review is needed first." />
+          </label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.refills}
@@ -5682,7 +5706,10 @@ function MedicationCard({
             </select>
           </div>
           <div>
-            <label className={label}>Quantity to dispense</label>
+            <label className={label}>
+            Quantity to dispense
+            <FieldHint text="Total amount the pharmacy dispenses. It should match dose × frequency × duration." />
+          </label>
             <input
               className={`${field} mt-1.5`}
               value={med.quantity}
@@ -5691,7 +5718,10 @@ function MedicationCard({
             />
           </div>
           <div>
-            <label className={label}>Dispensing unit</label>
+            <label className={label}>
+            Dispensing unit
+            <FieldHint text="Unit the quantity is counted in — tablets, capsules, mL, bottles or sachets." />
+          </label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
               value={med.unit}
@@ -5724,7 +5754,10 @@ function MedicationCard({
         </div>
         <div className="sm:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className={label}>Patient instructions</label>
+            <label className={label}>
+            Patient instructions
+            <FieldHint text="Plain-language wording the patient reads. It repeats the regimen and what to watch for; it does not replace the SIG." />
+          </label>
             <button
               type="button"
               disabled={instrLoading || !regimenReady}
@@ -5784,7 +5817,10 @@ function MedicationCard({
         </div>
 
         <div className="sm:col-span-2">
-          <label className={label}>Pharmacist notes</label>
+          <label className={label}>
+            Pharmacist notes
+            <FieldHint text="Printed message to the dispensing pharmacist, e.g. dispense generic, or counselling points." />
+          </label>
           <input
             className={`${field} mt-1.5`}
             value={med.pharmacistNotes}
@@ -5793,7 +5829,10 @@ function MedicationCard({
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={label}>Internal follow-up note (not printed)</label>
+          <label className={label}>
+            Internal follow-up note (not printed)
+            <FieldHint text="For your own record only. It is not printed on the prescription and the patient does not see it." />
+          </label>
           <input
             className={`${field} mt-1.5`}
             value={med.internalNotes}
@@ -5802,7 +5841,10 @@ function MedicationCard({
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={label}>Follow-up plan</label>
+          <label className={label}>
+            Follow-up plan
+            <FieldHint text="When and how the patient is reviewed, e.g. review in 4 weeks before continuing. This also fills the Plan section." />
+          </label>
           <input
             className={`${field} mt-1.5`}
             value={med.followUp}
