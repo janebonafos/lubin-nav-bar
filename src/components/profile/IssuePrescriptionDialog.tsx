@@ -1808,11 +1808,29 @@ export default function IssuePrescriptionDialog({
           <>
             <button
               type="button"
-              onClick={() => addMedicationOption(opt)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+              aria-pressed={isSelected}
+              onClick={() =>
+                setSelectedOptionIds((cur) =>
+                  cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+                )
+              }
+              className={`inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+                isSelected
+                  ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+                  : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+              }`}
             >
-              <Plus className="h-3.5 w-3.5" />
-              Select option
+              {isSelected ? (
+                <>
+                  <Check className="h-3.5 w-3.5" />
+                  Selected — tap to remove
+                </>
+              ) : (
+                <>
+                  <Plus className="h-3.5 w-3.5" />
+                  Select option
+                </>
+              )}
             </button>
             <button
               type="button"
@@ -1866,16 +1884,8 @@ export default function IssuePrescriptionDialog({
     });
   };
 
-  /** One-click: copies the option into the order, collapses the suggestion list
-   *  so it stops competing for attention, and reveals the order below. */
-  const addMedicationOption = (opt: MedicationOption) => {
-    useMedicationOption(opt);
-    setUsedOptionIds((cur) => [...new Set([...cur, opt.id])]);
-    setSelectedOptionIds((cur) => cur.filter((id) => id !== opt.id));
-    setOptionsListOpen(false);
-    scrollToMedicationOrder();
-  };
-
+  /** Copies every selected option into the order, then collapses the suggestion
+   *  list so the populated order takes priority. */
   const addSelectedMedicationOptions = () => {
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
@@ -1883,9 +1893,22 @@ export default function IssuePrescriptionDialog({
     selectedOptions.forEach((opt) => useMedicationOption(opt));
     setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
+    setOptionsListOpen(false);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
     scrollToMedicationOrder();
+  };
+
+  /** Re-opens the AI-assisted options list (e.g. after adding a medication
+   *  manually the provider may want to check the suggestions again). */
+  const reopenMedicationOptions = () => {
+    setRxPath("options");
+    setOptionsListOpen(true);
+    requestAnimationFrame(() => {
+      document
+        .getElementById("med-options-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
@@ -5111,7 +5134,7 @@ export default function IssuePrescriptionDialog({
 
                   {/* Design-only medication options — synthetic fixtures, no AI service. */}
                   {rxPath === "options" && (
-                    <section className={cardCls}>
+                    <section id="med-options-section" className={cardCls}>
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
                           <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
@@ -5348,18 +5371,32 @@ export default function IssuePrescriptionDialog({
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {rxPath === "options" && (
-                          <button
-                            type="button"
-                            onClick={() => setRxPath("search")}
-                            className="inline-flex h-9 items-center rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-                          >
-                            Switch to manual entry
-                          </button>
+                          <>
+                            {!optionsListOpen && (
+                              <button
+                                type="button"
+                                onClick={reopenMedicationOptions}
+                                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                              >
+                                <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
+                                  AI
+                                </span>
+                                Check options again
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setRxPath("search")}
+                              className="inline-flex h-9 items-center rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                            >
+                              Switch to manual entry
+                            </button>
+                          </>
                         )}
                         {rxPath !== "options" && (
                           <button
                             type="button"
-                            onClick={() => setRxPath("options")}
+                            onClick={reopenMedicationOptions}
                             className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
                           >
                             <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
