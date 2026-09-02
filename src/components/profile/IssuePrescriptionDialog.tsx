@@ -1800,6 +1800,55 @@ export default function IssuePrescriptionDialog({
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
+
+  /** Where each outstanding item lives, so a missing field can be highlighted
+   *  and brought into view instead of leaving the provider to hunt for it. */
+  const gapTargets: Record<string, { step: number; id: string }> = {
+    "Full legal name": { step: 0, id: "rx-patient" },
+    "Date of birth": { step: 0, id: "rx-dob" },
+    Sex: { step: 0, id: "rx-sex" },
+    "City / municipality": { step: 0, id: "rx-city" },
+  };
+  if (meds[0])
+    gapTargets["One medication with generic name, dose and frequency"] = {
+      step: 2,
+      id: `med-${meds[0].id}-generic`,
+    };
+  for (const m of readyMeds) {
+    const n = m.genericName.trim();
+    gapTargets[`${n}: strength and dosage form`] = { step: 2, id: `med-${m.id}-strength` };
+    gapTargets[`${n}: route`] = { step: 2, id: `med-${m.id}-route` };
+    gapTargets[`${n}: complete SIG`] = { step: 2, id: `med-${m.id}-sig` };
+    gapTargets[`${n}: quantity and unit`] = { step: 2, id: `med-${m.id}-quantity` };
+    gapTargets[`${n}: refills`] = { step: 2, id: `med-${m.id}-refills` };
+    gapTargets[`${n}: patient instructions`] = { step: 2, id: `med-${m.id}-instructions` };
+  }
+
+  /** Scrolls a field into view, focuses it and flashes a highlight ring. */
+  const flashField = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const control = (
+      el.matches("input, textarea, select") ? el : el.querySelector("input, textarea, select")
+    ) as HTMLElement | null;
+    const target = control ?? el;
+    control?.focus({ preventScroll: true });
+    target.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+    window.setTimeout(
+      () => target.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+      2400,
+    );
+  };
+
+  /** Takes the provider to the field behind an outstanding checklist item. */
+  const jumpToGap = (labelText: string) => {
+    const target = gapTargets[labelText];
+    if (!target) return;
+    const sameStep = target.step === step;
+    if (!sameStep) setStep(target.step);
+    window.setTimeout(() => flashField(target.id), sameStep ? 60 : 220);
+  };
   /** Steps 2–4 only open once Step 1 holds a complete patient. */
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
