@@ -485,7 +485,10 @@ export function organiseSoap(raw: string): {
   const limitedRemoteOnly = !hasMeasured && !hasNotObtained && hasObservation;
 
   // Proposed wording only — restates the documented complaint, adds no cause.
-  const durationMatch = raw.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
+  // A symptom duration — never an age ("33 year old female" is not a duration).
+  const durationMatch = raw.match(
+    /(\d+\s*(?:day|days|week|weeks|month|months|year|years))(?!\s*[- ]?old)/i,
+  );
   const complaint = (subjective[0] ?? "")
     // Drop demographics and reporting verbs so only the symptom itself remains.
     .replace(/^\d{1,3}\s*[- ]?(?:y\/o|yo|yrs?|years?[- ]old|year[- ]old)\s*/i, "")
