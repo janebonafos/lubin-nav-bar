@@ -11,7 +11,6 @@ import { createPortal } from "react-dom";
 
 import {
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   CalendarClock,
   Check,
@@ -5692,13 +5691,9 @@ export default function IssuePrescriptionDialog({
                 <button
                   type="button"
                   onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                  className="inline-flex h-10 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
                 >
-                  {step <= 0 ? "Cancel" : (
-                    <>
-                      <ArrowLeft className="h-4 w-4" /> Back
-                    </>
-                  )}
+                  Cancel
                 </button>
                 {step < 3 ? (
                   (() => {
