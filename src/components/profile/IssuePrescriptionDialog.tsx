@@ -4193,13 +4193,11 @@ export default function IssuePrescriptionDialog({
                                     a.date.toLowerCase().includes(q) ||
                                     a.id.toLowerCase().includes(q),
                                 )
-                              : [];
-                            if (!q)
+                              : patientAppointments;
+                            if (!q && patientAppointments.length === 0)
                               return (
                                 <p className="mt-2 text-[11.5px] text-[#9A93B5]">
-                                  {patientAppointments.length} completed consultation
-                                  {patientAppointments.length === 1 ? "" : "s"} for this patient —
-                                  start typing to search.
+                                  No completed consultations are available for this patient.
                                 </p>
                               );
                             if (matches.length === 0)
