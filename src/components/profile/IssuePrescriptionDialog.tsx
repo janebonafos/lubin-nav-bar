@@ -2765,16 +2765,16 @@ export default function IssuePrescriptionDialog({
 
           {issued ? (
             <section className="mx-auto w-full max-w-[480px]">
-              <div className="relative overflow-hidden rounded-[32px] border border-white/80 bg-white/60 shadow-[0_32px_64px_-12px_rgba(150,123,182,0.18)] backdrop-blur-2xl">
+              <div className="relative overflow-hidden rounded-[32px] border border-[#7E6BAF]/30 bg-[#EAE7F5]/70 shadow-[0_32px_64px_-12px_rgba(61,46,107,0.25)] backdrop-blur-2xl">
                 {/* decorative blooms */}
-                <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#A89BD0]/25 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[#E0B0FF]/20 blur-3xl" />
+                <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#7E6BAF]/30 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[#5B45A0]/20 blur-3xl" />
 
                 <div className="relative flex flex-col items-center px-8 pt-10 pb-8 text-center">
                   {/* Success medallion */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 scale-150 rounded-full bg-[#967BB6]/30 blur-2xl" />
-                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#E0B0FF] to-[#967BB6] shadow-lg shadow-[#967BB6]/30">
+                    <div className="absolute inset-0 scale-150 rounded-full bg-[#7E6BAF]/40 blur-2xl" />
+                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] shadow-lg shadow-[#3D2E6B]/30">
                       <Check className="h-10 w-10 text-white" strokeWidth={2.5} />
                     </div>
                   </div>
@@ -2782,9 +2782,9 @@ export default function IssuePrescriptionDialog({
                   <h2 className="text-2xl font-semibold tracking-tight text-[#3D2E6B]" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                     Prescription issued
                   </h2>
-                  <p className="mt-2 text-[13px] text-[#8A7A9E]">
+                  <p className="mt-2 text-[13px] text-[#5B45A0]">
                     Signed for{" "}
-                    <span className="font-semibold text-[#4A3B63]">{issued.patientName}</span> — your document is ready
+                    <span className="font-semibold text-[#3D2E6B]">{issued.patientName}</span> — your document is ready
                     for delivery.
                   </p>
 
@@ -2793,20 +2793,20 @@ export default function IssuePrescriptionDialog({
                     {/* Email — highlighted */}
                     <button
                       type="button"
-                      className="group flex w-full items-center justify-between rounded-2xl border-2 border-[#967BB6] bg-[#F3E8FF]/70 px-5 py-4 text-left ring-4 ring-[#967BB6]/5 transition-all hover:bg-[#F3E8FF]"
+                      className="group flex w-full items-center justify-between rounded-2xl border-2 border-[#7E6BAF] bg-[#DDD4F0]/80 px-5 py-4 text-left ring-4 ring-[#7E6BAF]/10 transition-all hover:bg-[#DDD4F0]"
                     >
                       <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#967BB6] shadow-sm">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#5B45A0] shadow-sm">
                           <Mail className="h-5 w-5" />
                         </span>
                         <span>
-                          <span className="block text-[14px] font-semibold text-[#4A3B63]">Send by email</span>
-                          <span className="mt-0.5 block text-[11.5px] text-[#8A7A9E]">
+                          <span className="block text-[14px] font-semibold text-[#3D2E6B]">Send by email</span>
+                          <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
                             Secure link delivered to the patient's inbox
                           </span>
                         </span>
                       </div>
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#967BB6] bg-[#967BB6]">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#7E6BAF] bg-[#7E6BAF]">
                         <span className="h-2 w-2 rounded-full bg-white" />
                       </span>
                     </button>
@@ -2814,14 +2814,14 @@ export default function IssuePrescriptionDialog({
                     {/* Download */}
                     <button
                       type="button"
-                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#E0B0FF]/40 bg-white/40 px-5 py-4 text-left transition-colors hover:bg-white"
+                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#7E6BAF]/30 bg-[#F3EFFF]/60 px-5 py-4 text-left transition-colors hover:bg-[#EAE7F5]"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F3E8FF]/60 text-[#967BB6]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#DDD4F0] text-[#5B45A0]">
                         <Download className="h-5 w-5" />
                       </span>
                       <span>
-                        <span className="block text-[14px] font-medium text-[#4A3B63]">Download or print</span>
-                        <span className="mt-0.5 block text-[11.5px] text-[#8A7A9E]">
+                        <span className="block text-[14px] font-medium text-[#3D2E6B]">Download or print</span>
+                        <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
                           Signed PDF copy for records or pharmacy
                         </span>
                       </span>
@@ -2830,16 +2830,16 @@ export default function IssuePrescriptionDialog({
                     {/* Invite */}
                     <button
                       type="button"
-                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#E0B0FF]/40 bg-white/40 px-5 py-4 text-left transition-colors hover:bg-white"
+                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#7E6BAF]/30 bg-[#F3EFFF]/60 px-5 py-4 text-left transition-colors hover:bg-[#EAE7F5]"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F3E8FF]/60 text-[#967BB6]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#DDD4F0] text-[#5B45A0]">
                         <UserPlus className="h-5 w-5" />
                       </span>
                       <span>
-                        <span className="block text-[14px] font-medium text-[#4A3B63]">
+                        <span className="block text-[14px] font-medium text-[#3D2E6B]">
                           Invite to create a Lubin account
                         </span>
-                        <span className="mt-0.5 block text-[11.5px] text-[#8A7A9E]">
+                        <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
                           Keeps future prescriptions and records in one place
                         </span>
                       </span>
@@ -2847,7 +2847,7 @@ export default function IssuePrescriptionDialog({
                   </div>
                 </div>
 
-                <p className="relative border-t border-[#EFEAFA]/60 bg-white/30 px-6 py-3 text-center text-[11px] uppercase tracking-widest text-[#A89BD0]">
+                <p className="relative border-t border-[#7E6BAF]/15 bg-[#EAE7F5]/40 px-6 py-3 text-center text-[11px] uppercase tracking-widest text-[#7E6BAF]">
                   Prototype only — no message is actually sent
                 </p>
               </div>
