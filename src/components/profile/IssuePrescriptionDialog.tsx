@@ -6075,6 +6075,10 @@ function MedicationCard({
   ).filter((f) => !String(f.value ?? "").trim());
   const missingCount = missingFields.length;
 
+  /** Red outline on any required field that is still empty. */
+  const needRing = (v: string | undefined) =>
+    String(v ?? "").trim() ? "" : " !border-[#D9534F] bg-[#FEF7F6]";
+
   /** Scrolls to a field in this card and flashes a ring so it is unmistakable. */
   const flashMedField = (id: string) => {
     const el = document.getElementById(id);
@@ -6184,25 +6188,6 @@ function MedicationCard({
 
       {(!collapsible || open) && (
       <div className="mt-3 space-y-3">
-        {missingCount > 0 && med.genericName.trim() && (
-          <div className="rounded-xl border border-[#F0DFB5] bg-[#FDF9EF] px-3 py-2.5">
-            <p className="text-[11.5px] font-semibold text-[#6B4E10]">
-              Still needed on this medication — tap an item to jump to the field
-            </p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {missingFields.map((f) => (
-                <button
-                  key={f.label}
-                  type="button"
-                  onClick={() => flashMedField(f.id)}
-                  className="rounded-full border border-[#E4CE94] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10] transition hover:bg-[#FBF3E2]"
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         <label className={label}>
           Search medication — Philippines
           <FieldHint text="Search by generic (INN) or brand name. The generic name is always used first on the prescription." />
@@ -6285,7 +6270,7 @@ function MedicationCard({
           </label>
               {item ? (
                 <select
-                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  className={`${selectField} mt-1.5${needRing(med.strength)}`} style={{ backgroundImage: chevron }}
                   id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
@@ -6299,7 +6284,7 @@ function MedicationCard({
                 </select>
               ) : (
                 <input
-                  className={`${field} mt-1.5`}
+                  className={`${field} mt-1.5${needRing(med.strength)}`}
                   id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
@@ -6314,7 +6299,7 @@ function MedicationCard({
           </label>
               {item ? (
                 <select
-                  className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  className={`${selectField} mt-1.5${needRing(med.route)}`} style={{ backgroundImage: chevron }}
                   id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
@@ -6327,7 +6312,7 @@ function MedicationCard({
                 </select>
               ) : (
                 <input
-                  className={`${field} mt-1.5`}
+                  className={`${field} mt-1.5${needRing(med.route)}`}
                   id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
@@ -6382,7 +6367,7 @@ function MedicationCard({
             <FieldHint text="How many times this prescription may be repeated without a new consultation. Keep at no refills when a review is needed first." />
           </label>
             <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              className={`${selectField} mt-1.5${needRing(med.refills)}`} style={{ backgroundImage: chevron }}
               id={`med-${med.id}-refills`}
               value={med.refills}
               onChange={(e) => onPatch("refills", e.target.value)}
@@ -6400,7 +6385,7 @@ function MedicationCard({
             <FieldHint text="Total amount the pharmacy dispenses. It should match dose × frequency × duration." />
           </label>
             <input
-              className={`${field} mt-1.5`}
+              className={`${field} mt-1.5${needRing(med.quantity)}`}
               id={`med-${med.id}-quantity`}
               value={med.quantity}
               onChange={(e) => onPatch("quantity", e.target.value)}
@@ -6413,7 +6398,7 @@ function MedicationCard({
             <FieldHint text="Unit the quantity is counted in — tablets, capsules, mL, bottles or sachets." />
           </label>
             <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              className={`${selectField} mt-1.5${needRing(med.unit)}`} style={{ backgroundImage: chevron }}
               value={med.unit}
               onChange={(e) => onPatch("unit", e.target.value)}
             >
@@ -6433,7 +6418,7 @@ function MedicationCard({
           </label>
           <AutoTextarea
             minRows={2}
-            className={`${area} mt-1.5`}
+            className={`${area} mt-1.5${needRing(med.sig)}`}
             id={`med-${med.id}-sig`}
             value={med.sig}
             onChange={(e) => {
@@ -6494,7 +6479,7 @@ function MedicationCard({
           )}
           <AutoTextarea
             minRows={2}
-            className={`${area} mt-1.5`}
+            className={`${area} mt-1.5${needRing(med.instructions)}`}
             id={`med-${med.id}-instructions`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
