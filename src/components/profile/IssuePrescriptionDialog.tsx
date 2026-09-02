@@ -1045,6 +1045,7 @@ export default function IssuePrescriptionDialog({
 
   // ---------- Step 4: review + simulated signing ----------
   const [attested, setAttested] = useState(false);
+  const [aiReviewed, setAiReviewed] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpEntry, setOtpEntry] = useState("");
   const [otpInvalidated, setOtpInvalidated] = useState(false);
@@ -1571,6 +1572,7 @@ export default function IssuePrescriptionDialog({
     !reviewOnly &&
     identityGaps.length === 0 &&
     attested &&
+    aiReviewed &&
     !!otpCode &&
     !otpInvalidated &&
     otpEntry.trim().length === 6;
@@ -1745,6 +1747,7 @@ export default function IssuePrescriptionDialog({
     setAiNote("");
     setAiError("");
     setAttested(false);
+    setAiReviewed(false);
     setOtpCode("");
     setOtpEntry("");
     setOtpInvalidated(false);
@@ -5005,19 +5008,19 @@ export default function IssuePrescriptionDialog({
                             <button
                               type="button"
                               onClick={sendCode}
-                              disabled={!attested || !canReview}
+                              disabled={!attested || !aiReviewed || !canReview}
                               className={`flex items-center justify-center gap-2.5 rounded-xl px-5 py-3.5 text-[13px] font-bold transition-all ${
-                                !attested || !canReview
+                                !attested || !aiReviewed || !canReview
                                   ? "cursor-not-allowed border border-[#E3DBF5] bg-[#F1ECF9] text-[#A89BD0]"
                                   : "bg-[#3D2E6B] text-white hover:bg-[#4A3A7E]"
                               }`}
                             >
                               <Mail className="h-4 w-4" /> Send verification code
                             </button>
-                            {(!attested || !canReview) && (
+                            {(!attested || !aiReviewed || !canReview) && (
                               <div className="flex items-center justify-center gap-2 text-[12px] font-medium text-[#8A7FB0]">
                                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C9BCE9]" />
-                                Confirm the attestation above to proceed to verification
+                                Confirm both attestations above to proceed to verification
                               </div>
                             )}
                           </>
