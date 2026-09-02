@@ -1593,26 +1593,23 @@ export default function IssuePrescriptionDialog({
         contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
       // never a blocker for finishing Step 2.
-
       if (!soapApproved) contextGaps.push("Confirm clinical assessment");
     }
-
   }
-
   if (purpose === "renewal") {
     if (!renewal.medication.trim()) contextGaps.push("Current medication and directions (SIG)");
     if (!renewal.response.trim()) contextGaps.push("Is the medication helping?");
     if (!renewal.sideEffects.trim()) contextGaps.push("Any side effects?");
     if (!renewal.changes.trim()) contextGaps.push("Any medication or allergy changes?");
   }
-
   /** Everything still missing from the clinical note itself, without the
-   *  separate safety confirmation. Statuses must never claim a note is
-   *  complete while one of these remains. */
+   *  separate safety confirmation. */
   const soapGaps = [...contextGaps];
-
-  // Saved reused records are explicitly reconfirmed by the single review action.
-  contextGaps.push(...safetyGaps, ...pregnancyGap);
+  if (isReusedConsultation) {
+    contextGaps.push(...safetyGaps, ...pregnancyGap);
+  } else {
+    contextGaps.push(...safetyGaps);
+  }
 
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
