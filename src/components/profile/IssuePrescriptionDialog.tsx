@@ -5261,8 +5261,7 @@ export default function IssuePrescriptionDialog({
                             </p>
                           ) : !optionsListOpen && usedOptionIds.length > 0 ? (
                             <div className="rounded-xl border border-[#3D2E6B] bg-[#F7F3FF] p-3">
-                              <p className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#3D2E6B]">
-                                <Check className="h-3.5 w-3.5" />
+                              <p className="text-[12.5px] font-semibold text-[#3D2E6B]">
                                 {usedOptionIds.length} option
                                 {usedOptionIds.length === 1 ? "" : "s"} added to the medication
                                 order
@@ -5276,7 +5275,6 @@ export default function IssuePrescriptionDialog({
                                       key={id}
                                       className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white py-1 pl-2.5 pr-1 text-[11.5px] font-semibold text-[#3D2E6B]"
                                     >
-                                      <Check className="h-3 w-3" />
                                       {o.generic}
                                       <button
                                         type="button"
