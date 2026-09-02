@@ -6166,7 +6166,10 @@ function MedicationCard({
       {collapsible ? (
         <button
           type="button"
-          onClick={() => onToggle?.()}
+          onClick={() => {
+            if (!open && missingCount > 0 && med.genericName.trim()) revealMissing();
+            else onToggle?.();
+          }}
           aria-expanded={open}
           aria-controls={`med-body-${med.id}`}
           className="flex w-full items-center gap-3 text-left"
