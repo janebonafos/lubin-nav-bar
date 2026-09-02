@@ -1780,29 +1780,47 @@ export default function IssuePrescriptionDialog({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          aria-pressed={selectedOptionIds.includes(opt.id)}
-          onClick={() =>
-            setSelectedOptionIds((cur) =>
-              cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
-            )
-          }
-          className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
-            selectedOptionIds.includes(opt.id)
-              ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
-              : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
-          }`}
-        >
-          {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setDismissedOptions((cur) => [...cur, opt.id])}
-          className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
-        >
-          Not appropriate
-        </button>
+        {usedOptionIds.includes(opt.id) ? (
+          <>
+            <span className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#3D2E6B] bg-[#F0EBFF] px-3.5 text-[12.5px] font-semibold text-[#3D2E6B]">
+              <Check className="h-3.5 w-3.5" />
+              Added to medication order
+            </span>
+            <button
+              type="button"
+              onClick={() => scrollToMedicationOrder()}
+              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+            >
+              Review in order
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              aria-pressed={selectedOptionIds.includes(opt.id)}
+              onClick={() =>
+                setSelectedOptionIds((cur) =>
+                  cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+                )
+              }
+              className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+                selectedOptionIds.includes(opt.id)
+                  ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+                  : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+              }`}
+            >
+              {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDismissedOptions((cur) => [...cur, opt.id])}
+              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+            >
+              Not appropriate
+            </button>
+          </>
+        )}
       </div>
       <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
         Every field stays editable in the medication order after you use an option.
