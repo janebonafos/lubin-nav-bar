@@ -2791,60 +2791,38 @@ export default function IssuePrescriptionDialog({
 
                   {/* Delivery options */}
                   <div className="mt-8 w-full space-y-3 text-left">
-                    {/* Email — highlighted */}
-                    <button
-                      type="button"
-                      className="group flex w-full items-center justify-between rounded-2xl border-2 border-[#7E6BAF] bg-[#DDD4F0]/80 px-5 py-4 text-left ring-4 ring-[#7E6BAF]/10 transition-all hover:bg-[#DDD4F0]"
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#5B45A0] shadow-sm">
-                          <Mail className="h-5 w-5" />
-                        </span>
-                        <span>
-                          <span className="block text-[14px] font-semibold text-[#3D2E6B]">Send by email</span>
-                          <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
-                            Secure link delivered to the patient's inbox
+                    {([
+                      { key: "email" as const, icon: <Mail className="h-5 w-5" />, title: "Send by email", desc: "Secure link delivered to the patient's inbox" },
+                      { key: "download" as const, icon: <Download className="h-5 w-5" />, title: "Download or print", desc: "Signed PDF copy for records or pharmacy" },
+                      { key: "invite" as const, icon: <UserPlus className="h-5 w-5" />, title: "Invite to create a Lubin account", desc: "Keeps future prescriptions and records in one place" },
+                    ]).map((opt) => {
+                      const selected = deliveryChoice === opt.key;
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => setDeliveryChoice(opt.key)}
+                          className={`group flex w-full items-center justify-between rounded-2xl px-5 py-4 text-left transition-all ${
+                            selected
+                              ? "border-2 border-[#7E6BAF] bg-[#DDD4F0]/80 ring-4 ring-[#7E6BAF]/10"
+                              : "border border-[#7E6BAF]/30 bg-[#F3EFFF]/60 hover:bg-[#EAE7F5]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <span className={`flex h-10 w-10 items-center justify-center rounded-full ${selected ? "bg-white text-[#5B45A0] shadow-sm" : "bg-[#DDD4F0] text-[#5B45A0]"}`}>
+                              {opt.icon}
+                            </span>
+                            <span>
+                              <span className={`block text-[14px] ${selected ? "font-semibold text-[#3D2E6B]" : "font-medium text-[#3D2E6B]"}`}>{opt.title}</span>
+                              <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">{opt.desc}</span>
+                            </span>
+                          </div>
+                          <span className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors ${selected ? "border-[#7E6BAF] bg-[#7E6BAF]" : "border-[#A89BD0]"}`}>
+                            {selected && <span className="h-2 w-2 rounded-full bg-white" />}
                           </span>
-                        </span>
-                      </div>
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#7E6BAF] bg-[#7E6BAF]">
-                        <span className="h-2 w-2 rounded-full bg-white" />
-                      </span>
-                    </button>
-
-                    {/* Download */}
-                    <button
-                      type="button"
-                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#7E6BAF]/30 bg-[#F3EFFF]/60 px-5 py-4 text-left transition-colors hover:bg-[#EAE7F5]"
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#DDD4F0] text-[#5B45A0]">
-                        <Download className="h-5 w-5" />
-                      </span>
-                      <span>
-                        <span className="block text-[14px] font-medium text-[#3D2E6B]">Download or print</span>
-                        <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
-                          Signed PDF copy for records or pharmacy
-                        </span>
-                      </span>
-                    </button>
-
-                    {/* Invite */}
-                    <button
-                      type="button"
-                      className="group flex w-full items-center gap-4 rounded-2xl border border-[#7E6BAF]/30 bg-[#F3EFFF]/60 px-5 py-4 text-left transition-colors hover:bg-[#EAE7F5]"
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#DDD4F0] text-[#5B45A0]">
-                        <UserPlus className="h-5 w-5" />
-                      </span>
-                      <span>
-                        <span className="block text-[14px] font-medium text-[#3D2E6B]">
-                          Invite to create a Lubin account
-                        </span>
-                        <span className="mt-0.5 block text-[11.5px] text-[#5B45A0]">
-                          Keeps future prescriptions and records in one place
-                        </span>
-                      </span>
-                    </button>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
