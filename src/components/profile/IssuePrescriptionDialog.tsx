@@ -6184,25 +6184,6 @@ function MedicationCard({
 
       {(!collapsible || open) && (
       <div className="mt-3 space-y-3">
-        {missingCount > 0 && med.genericName.trim() && (
-          <div className="rounded-xl border border-[#F0DFB5] bg-[#FDF9EF] px-3 py-2.5">
-            <p className="text-[11.5px] font-semibold text-[#6B4E10]">
-              Still needed on this medication — tap an item to jump to the field
-            </p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {missingFields.map((f) => (
-                <button
-                  key={f.label}
-                  type="button"
-                  onClick={() => flashMedField(f.id)}
-                  className="rounded-full border border-[#E4CE94] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10] transition hover:bg-[#FBF3E2]"
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         <label className={label}>
           Search medication — Philippines
           <FieldHint text="Search by generic (INN) or brand name. The generic name is always used first on the prescription." />
