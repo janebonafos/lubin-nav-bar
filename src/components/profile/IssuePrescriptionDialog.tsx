@@ -5136,7 +5136,7 @@ export default function IssuePrescriptionDialog({
                               onClick={() => setRxPath("search")}
                               className="font-semibold underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
                             >
-                              Search and prescribe a medication
+                              Enter medication manually
                             </button>{" "}
                             and complete the regimen yourself.
                           </p>
