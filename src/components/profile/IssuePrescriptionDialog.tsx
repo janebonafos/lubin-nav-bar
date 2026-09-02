@@ -4408,27 +4408,19 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                 <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
-                                   <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                     Review clinical assessment and medication safety information before continuing.
-                                   </p>
-                                   <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
-                                     The selected consultation supports this prescription. Review the displayed Subjective, Objective and Assessment, confirm that important clinical information has not changed, and verify the saved allergy, medication and pregnancy information when applicable.
-                                   </p>
-                                   <button
-                                     type="button"
-                                     onClick={confirmReusedReview}
-                                     disabled={!reusedReviewReady}
-                                     className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                                   >
-                                     {reusedReviewLabel}
-                                   </button>
-                                   {materialChange === "reassess" && (
-                                     <p className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
-                                       Patient requires reassessment before a prescription can be issued.
-                                     </p>
-                                   )}
-                                 </div>
+                                  <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
+                                    <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                      Review the clinical information before continuing.
+                                    </p>
+                                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
+                                      This consultation can be reused only when the information is complete and still applies to today’s prescription. The single confirmation action is at the bottom of this dialog.
+                                    </p>
+                                    {materialChange === "reassess" && (
+                                      <p id="material-change-section" className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
+                                        Patient requires reassessment before a prescription can be issued.
+                                      </p>
+                                    )}
+                                  </div>
                               </div>
 
                               {/* Ask only for the missing SOAP section(s) */}
