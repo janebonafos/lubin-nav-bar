@@ -1090,7 +1090,6 @@ export default function IssuePrescriptionDialog({
   /** Which consultation a manual Objective selection was made for. */
   const [objectiveForConsult, setObjectiveForConsult] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
-  const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
   /** Existing patients confirm or update the safety information already on file. */
   const [allergyConfirm, setAllergyConfirm] = useState<"idle" | "unchanged" | "update">("idle");
   const [medsConfirm, setMedsConfirm] = useState<"idle" | "unchanged" | "update">("idle");
@@ -2109,6 +2108,38 @@ export default function IssuePrescriptionDialog({
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
 
+  /** A completed consultation gets one explicit review action. It does not
+   * infer unchanged information until the provider clicks the footer action. */
+  const reusedReviewReady =
+    isReusedConsultation &&
+    reusedGaps.length === 0 &&
+    materialChange !== "reassess" &&
+    (materialChange !== "update" ||
+      (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
+    (allergyOnFile || allergyState !== "not-assessed") &&
+    (medicationOnFile || medicationState !== "not-assessed") &&
+    (sex === "male" || pregnancyStatus !== "not-reviewed");
+  const reusedReviewLabel =
+    materialChange === "update"
+      ? "Confirm updated information and continue"
+      : "Confirm reviewed and unchanged";
+  const confirmReusedReview = () => {
+    if (!reusedReviewReady || !linkedAppt) return;
+    setSoapApproved(true);
+    setMaterialChange(materialChange === "update" ? "update" : "none");
+    if (allergyOnFile) {
+      setAllergyConfirm("unchanged");
+      setAllergyState(savedAllergyState);
+      if (savedAllergyState === "recorded") setAllergyDetail(savedAllergies);
+    }
+    if (medicationOnFile) {
+      setMedsConfirm("unchanged");
+      setMedicationState(savedMedicationState);
+      if (savedMedicationState === "recorded") setMedicationDetail(savedMedications);
+    }
+    setStep(2);
+  };
+
   /** Where each outstanding item lives, so a missing field can be highlighted
    *  and brought into view instead of leaving the provider to hunt for it. */
    const gapTargets: Record<string, { step: number; id: string; medId?: string }> = {
@@ -2398,7 +2429,6 @@ export default function IssuePrescriptionDialog({
     setConsultMode(null);
     setLinkedAppointment("");
     setApptSearch("");
-    setReviewSoapOpen(false);
     setMaterialChange(null);
     setConsultDate("");
     setConsultLocation("");
