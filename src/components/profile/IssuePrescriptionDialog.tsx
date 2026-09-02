@@ -2631,9 +2631,11 @@ export default function IssuePrescriptionDialog({
                            {!noteHasAssessment && (
                              <div className="space-y-2">
                                <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                 No clinical assessment was documented in the notes.
+                                 {diagnosisSaved
+                                   ? "Provider diagnosis recorded — it replaces the documented problem summary."
+                                   : "No clinical assessment was documented in the notes."}
                                </p>
-                               {!!symptomIndication && (
+                               {!!symptomIndication && !diagnosisSaved && (
                                  <div className="rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
                                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
                                      Documented clinical problem
