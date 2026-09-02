@@ -6398,7 +6398,7 @@ function MedicationCard({
             <FieldHint text="Unit the quantity is counted in — tablets, capsules, mL, bottles or sachets." />
           </label>
             <select
-              className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              className={`${selectField} mt-1.5${needRing(med.unit)}`} style={{ backgroundImage: chevron }}
               value={med.unit}
               onChange={(e) => onPatch("unit", e.target.value)}
             >
