@@ -1420,11 +1420,16 @@ export default function IssuePrescriptionDialog({
     setLinkedAppointment(fromAppointment.id);
   }, [open, fromAppointment]);
 
-  /** Only this patient's completed Lubin consultations are eligible. */
+  /** Only this patient's completed Lubin consultations are eligible. Prefer the
+   * immutable appointment relationship on a saved patient record; the fixture's
+   * name match remains a display-only fallback for a newly selected patient. */
   const patientForAppointments = (selected?.fullName || patientName).trim().toLowerCase();
   const patientAppointments = ELIGIBLE_APPOINTMENTS.filter(
-    (a) => !patientForAppointments || a.patient.trim().toLowerCase() === patientForAppointments,
-  );
+    (a) =>
+      !patientForAppointments ||
+      (selected?.appointmentIds.includes(a.id) ?? false) ||
+      (!selected && a.patient.trim().toLowerCase() === patientForAppointments),
+  ).slice(0, 5);
 
   /** The linked Lubin consultation, if any — only completed ones are eligible. */
   const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
