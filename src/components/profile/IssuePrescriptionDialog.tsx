@@ -1800,6 +1800,55 @@ export default function IssuePrescriptionDialog({
 
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
+
+  /** Where each outstanding item lives, so a missing field can be highlighted
+   *  and brought into view instead of leaving the provider to hunt for it. */
+  const gapTargets: Record<string, { step: number; id: string }> = {
+    "Full legal name": { step: 0, id: "rx-patient" },
+    "Date of birth": { step: 0, id: "rx-dob" },
+    Sex: { step: 0, id: "rx-sex" },
+    "City / municipality": { step: 0, id: "rx-city" },
+  };
+  if (meds[0])
+    gapTargets["One medication with generic name, dose and frequency"] = {
+      step: 2,
+      id: `med-${meds[0].id}-generic`,
+    };
+  for (const m of readyMeds) {
+    const n = m.genericName.trim();
+    gapTargets[`${n}: strength and dosage form`] = { step: 2, id: `med-${m.id}-strength` };
+    gapTargets[`${n}: route`] = { step: 2, id: `med-${m.id}-route` };
+    gapTargets[`${n}: complete SIG`] = { step: 2, id: `med-${m.id}-sig` };
+    gapTargets[`${n}: quantity and unit`] = { step: 2, id: `med-${m.id}-quantity` };
+    gapTargets[`${n}: refills`] = { step: 2, id: `med-${m.id}-refills` };
+    gapTargets[`${n}: patient instructions`] = { step: 2, id: `med-${m.id}-instructions` };
+  }
+
+  /** Scrolls a field into view, focuses it and flashes a highlight ring. */
+  const flashField = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const control = (
+      el.matches("input, textarea, select") ? el : el.querySelector("input, textarea, select")
+    ) as HTMLElement | null;
+    const target = control ?? el;
+    control?.focus({ preventScroll: true });
+    target.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+    window.setTimeout(
+      () => target.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+      2400,
+    );
+  };
+
+  /** Takes the provider to the field behind an outstanding checklist item. */
+  const jumpToGap = (labelText: string) => {
+    const target = gapTargets[labelText];
+    if (!target) return;
+    const sameStep = target.step === step;
+    if (!sameStep) setStep(target.step);
+    window.setTimeout(() => flashField(target.id), sameStep ? 60 : 220);
+  };
   /** Steps 2–4 only open once Step 1 holds a complete patient. */
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
@@ -5386,14 +5435,41 @@ export default function IssuePrescriptionDialog({
                 <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
                   {stepGaps.slice(0, 3).map((g) => (
                     <li key={g} className="text-[11.5px] text-[#8A7FB0]">
-                      · {g}
+                      ·{" "}
+                      {gapTargets[g] ? (
+                        <button
+                          type="button"
+                          onClick={() => jumpToGap(g)}
+                          className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                        >
+                          {g}
+                        </button>
+                      ) : (
+                        g
+                      )}
                     </li>
                   ))}
                 </ul>
               </>
             ) : allGaps.length > 0 ? (
               <p className="text-[11.5px] text-[#8A7FB0]">
-                Still to resolve: {allGaps.slice(0, 3).join(" · ")}
+                Still to resolve:{" "}
+                {allGaps.slice(0, 3).map((g, i) => (
+                  <span key={g}>
+                    {i > 0 && " · "}
+                    {gapTargets[g] ? (
+                      <button
+                        type="button"
+                        onClick={() => jumpToGap(g)}
+                        className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                      >
+                        {g}
+                      </button>
+                    ) : (
+                      g
+                    )}
+                  </span>
+                ))}
               </p>
             ) : (
               <p className="text-[11.5px] text-[#8A7FB0]">
@@ -5437,24 +5513,51 @@ export default function IssuePrescriptionDialog({
                   )}
                 </button>
                 {step < 3 ? (
-                  <button
-                    type="button"
-                    onClick={() => setStep(step < 0 ? 0 : step + 1)}
-                    disabled={step >= 0 && !canAdvance}
-
-                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
-                  >
-                    {step === 2
-                      ? "Review prescription"
-                      : step === 1
-                        ? purpose === "renewal"
-                          ? "Continue with renewal"
-                          : entry === "lubin"
-                            ? "Use SOAP and continue"
-                            : "Continue to prescription"
-                        : "Continue"}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
+                  (() => {
+                    const blocked = step >= 0 && !canAdvance;
+                    // Blocked, but never a dead end: it takes the provider to
+                    // the first field still needed instead of doing nothing.
+                    const firstGap = stepGaps.find((g) => gapTargets[g]);
+                    return (
+                      <button
+                        type="button"
+                        aria-disabled={blocked}
+                        onClick={() => {
+                          if (!blocked) {
+                            setStep(step < 0 ? 0 : step + 1);
+                            return;
+                          }
+                          if (firstGap) jumpToGap(firstGap);
+                        }}
+                        className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
+                          blocked
+                            ? firstGap
+                              ? "border border-[#D8C7F0] bg-[#F5F1FE] text-[#4B3F7A] hover:bg-[#EDE7FA]"
+                              : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
+                            : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+                        }`}
+                      >
+                        {blocked && firstGap ? (
+                          <>
+                            <AlertTriangle className="h-4 w-4" /> Show what’s missing
+                          </>
+                        ) : (
+                          <>
+                            {step === 2
+                              ? "Review prescription"
+                              : step === 1
+                                ? purpose === "renewal"
+                                  ? "Continue with renewal"
+                                  : entry === "lubin"
+                                    ? "Use SOAP and continue"
+                                    : "Continue to prescription"
+                                : "Continue"}
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </button>
+                    );
+                  })()
                 ) : (
                   <button
                     type="button"
@@ -5584,6 +5687,7 @@ function MedicationCard({
           </label>
           <input
             className={`${field} mt-1.5`}
+            id={`med-${med.id}-generic`}
             value={med.genericName}
             onChange={(e) => onPatch("genericName", e.target.value)}
             placeholder="e.g. Losartan potassium"
@@ -5613,6 +5717,7 @@ function MedicationCard({
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
                 >
@@ -5626,6 +5731,7 @@ function MedicationCard({
               ) : (
                 <input
                   className={`${field} mt-1.5`}
+                  id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
                   placeholder="50 mg tablet"
@@ -5640,6 +5746,7 @@ function MedicationCard({
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
                 >
@@ -5652,6 +5759,7 @@ function MedicationCard({
               ) : (
                 <input
                   className={`${field} mt-1.5`}
+                  id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
                   placeholder="Oral"
@@ -5706,6 +5814,7 @@ function MedicationCard({
           </label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              id={`med-${med.id}-refills`}
               value={med.refills}
               onChange={(e) => onPatch("refills", e.target.value)}
             >
@@ -5723,6 +5832,7 @@ function MedicationCard({
           </label>
             <input
               className={`${field} mt-1.5`}
+              id={`med-${med.id}-quantity`}
               value={med.quantity}
               onChange={(e) => onPatch("quantity", e.target.value)}
               placeholder="30"
@@ -5755,6 +5865,7 @@ function MedicationCard({
           <AutoTextarea
             minRows={2}
             className={`${area} mt-1.5`}
+            id={`med-${med.id}-sig`}
             value={med.sig}
             onChange={(e) => {
               onPatch("sigEdited", true);
@@ -5815,6 +5926,7 @@ function MedicationCard({
           <AutoTextarea
             minRows={2}
             className={`${area} mt-1.5`}
+            id={`med-${med.id}-instructions`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
             placeholder="Written after the medication and regimen are selected."
