@@ -406,7 +406,7 @@ function readNoteDemographics(raw: string): NoteDemographics {
  *    to the Medication safety check.
  *  - Plan is left to Step 3, drafted from the confirmed medication and regimen.
  */
-export function organiseSoap(raw: string): {
+function organiseSoap(raw: string): {
   soap: SoapNote;
   aiFields: (keyof SoapNote)[];
   /** Proposed assessment wording, held outside the clinical record. */
@@ -1361,9 +1361,9 @@ export default function IssuePrescriptionDialog({
       : entry === "lubin" && linkedAppt && missingFromLinked.length === 0 && soapGaps.length === 0
         ? "Existing SOAP reused"
         : soapGaps.length === 0 && (soapTouched || Boolean(linkedAppt))
-          ? isSoapPlaceholder(soap.plan)
-            ? "Clinical assessment complete"
-            : "SOAP note ready for review"
+          ? soapApproved
+            ? "Clinical assessment confirmed"
+            : "Ready for your confirmation"
           : soapTouched || Boolean(linkedAppt)
             ? "Clinical assessment incomplete"
             : "Clinical assessment not started";
@@ -3597,9 +3597,11 @@ export default function IssuePrescriptionDialog({
                                 <h4 className="text-[13px] font-bold text-[#3D2E6B]">
                                   Clinical assessment
                                 </h4>
-                                <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
-                                  {soapStatusLabel}
-                                </span>
+                                {!soapApproved && (
+                                  <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                    {soapStatusLabel}
+                                  </span>
+                                )}
                               </div>
                               <div className="mt-3 space-y-3">
                                 {soapField(
@@ -3659,9 +3661,11 @@ export default function IssuePrescriptionDialog({
                               <h4 className="text-[13px] font-bold text-[#3D2E6B]">
                                 Clinical assessment
                               </h4>
-                              <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
-                                {soapStatusLabel}
-                              </span>
+                              {!soapApproved && (
+                                <span className="rounded-full bg-[#F0EBFB] px-2.5 py-0.5 text-[10.5px] font-semibold text-[#3D2E6B]">
+                                  {soapStatusLabel}
+                                </span>
+                              )}
                             </div>
                           <div className="mt-4 space-y-3">
 
