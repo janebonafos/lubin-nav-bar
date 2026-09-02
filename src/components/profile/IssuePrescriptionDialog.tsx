@@ -20,7 +20,6 @@ import {
   Download,
   Info,
   Mail,
-  MessageSquare,
   Plus,
   Search,
   Sparkles,
