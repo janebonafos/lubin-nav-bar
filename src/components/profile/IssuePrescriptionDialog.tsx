@@ -4990,7 +4990,7 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         {/* Existing patients confirm what is already on file. */}
-                        <div className="mt-4 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
+                        <div id="rx-allergy" className="mt-4 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
                           <p className="text-[12.5px] font-bold text-[#3D2E6B]">
                             Does the patient have any drug allergies?
                           </p>
