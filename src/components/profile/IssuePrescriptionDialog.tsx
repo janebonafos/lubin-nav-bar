@@ -809,6 +809,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       monitoring: "Review at 7 days for sputum change and symptom course.",
       counselling: "Take with plenty of fluids and stop if abdominal pain or dark stools occur.",
     },
+    target: "Productive cough — secretion clearance if documented",
     supported: false,
   },
   {
