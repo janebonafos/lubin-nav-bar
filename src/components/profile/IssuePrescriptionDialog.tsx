@@ -5274,14 +5274,26 @@ export default function IssuePrescriptionDialog({
                                   return (
                                     <li
                                       key={id}
-                                      className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[#3D2E6B]"
+                                      className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white py-1 pl-2.5 pr-1 text-[11.5px] font-semibold text-[#3D2E6B]"
                                     >
                                       <Check className="h-3 w-3" />
                                       {o.generic}
+                                      <button
+                                        type="button"
+                                        aria-label={`Remove ${o.generic} from the medication order`}
+                                        onClick={() => removeUsedOption(o.id)}
+                                        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[#8A7FB0] transition hover:bg-[#F0EBFF] hover:text-[#9B3535]"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
                                     </li>
                                   );
                                 })}
                               </ul>
+                              <p className="mt-1.5 text-[11px] text-[#6F6889]">
+                                Remove any medication with the ✕, or reopen the list to review every
+                                option again.
+                              </p>
                               <div className="mt-3 flex flex-wrap gap-2">
                                 <button
                                   type="button"
@@ -5297,6 +5309,13 @@ export default function IssuePrescriptionDialog({
                                 >
                                   <Plus className="h-3.5 w-3.5" />
                                   Select another option
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setOptionsListOpen(true)}
+                                  className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+                                >
+                                  Show all options ({supportedOptions.length})
                                 </button>
                               </div>
                             </div>
