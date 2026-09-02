@@ -4403,45 +4403,46 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => setReviewSoapOpen((v) => !v)}
-                                    className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                                  >
-                                    {reviewSoapOpen ? "Hide SOAP" : "Review SOAP"}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setStep(2)}
-                                    disabled={contextGaps.length > 0}
-                                    className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                                  >
-                                    Use this SOAP
-                                  </button>
-                                </div>
-
-
-                                {reviewSoapOpen && (
-                                  <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
-                                    {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
-                                      <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
-                                        <span className="font-semibold text-[#3D2E6B]">
-                                          {SOAP_FULL_LABEL[k]}:{" "}
-                                        </span>
-                                        {linkedAppt.soap[k] || (
-                                          <span className="text-[#8A7FB0]">
-                                            Not documented — provider confirmation required
-                                          </span>
-                                        )}
-                                      </p>
-                                    ))}
-                                    <p className="text-[11.5px] text-[#8A7FB0]">
-                                      Reused from the consultation record — read-only here.
-                                    </p>
-                                  </div>
-                                )}
-                                {soapApproval}
+                                 {reviewSoapOpen && (
+                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
+                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
+                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
+                                         <span className="font-semibold text-[#3D2E6B]">
+                                           {SOAP_FULL_LABEL[k]}:{" "}
+                                         </span>
+                                         {linkedAppt.soap[k] || (
+                                           <span className="text-[#8A7FB0]">
+                                             Not documented — provider confirmation required
+                                           </span>
+                                         )}
+                                       </p>
+                                     ))}
+                                     <p className="text-[11.5px] text-[#8A7FB0]">
+                                       Reused from the consultation record — read-only here.
+                                     </p>
+                                   </div>
+                                 )}
+                                 <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
+                                   <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                     Review clinical assessment and medication safety information before continuing.
+                                   </p>
+                                   <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
+                                     The selected consultation supports this prescription. Review the displayed Subjective, Objective and Assessment, confirm that important clinical information has not changed, and verify the saved allergy, medication and pregnancy information when applicable.
+                                   </p>
+                                   <button
+                                     type="button"
+                                     onClick={confirmReusedReview}
+                                     disabled={!reusedReviewReady}
+                                     className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
+                                   >
+                                     {reusedReviewLabel}
+                                   </button>
+                                   {materialChange === "reassess" && (
+                                     <p className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
+                                       Patient requires reassessment before a prescription can be issued.
+                                     </p>
+                                   )}
+                                 </div>
                               </div>
 
                               {/* Ask only for the missing SOAP section(s) */}
