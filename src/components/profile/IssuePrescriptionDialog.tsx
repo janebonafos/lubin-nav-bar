@@ -1850,7 +1850,8 @@ export default function IssuePrescriptionDialog({
     );
     selectedOptions.forEach((opt) => useMedicationOption(opt));
     setSelectedOptionIds([]);
-    setRxPath("search");
+    // The provider stays on the AI-assisted path they chose; the order below is
+    // simply populated with the options they picked.
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
