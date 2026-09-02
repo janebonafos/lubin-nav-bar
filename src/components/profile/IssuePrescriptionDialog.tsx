@@ -1941,6 +1941,39 @@ export default function IssuePrescriptionDialog({
     if (!sameStep) setStep(target.step);
     window.setTimeout(() => flashField(target.id), sameStep ? 60 : 220);
   };
+
+  /** Highlights every outstanding field on a step at once, focusing the first. */
+  const highlightGaps = (labels: string[]) => {
+    const targets = labels
+      .map((l) => gapTargets[l])
+      .filter((t): t is { step: number; id: string } => !!t);
+    if (!targets.length) return;
+    const first = targets[0]!;
+    const sameStep = first.step === step;
+    if (!sameStep) setStep(first.step);
+    window.setTimeout(
+      () => {
+        targets.slice(1).forEach((t) => {
+          const el = document.getElementById(t.id);
+          if (!el) return;
+          const control = (
+            el.matches("input, textarea, select")
+              ? el
+              : el.querySelector("input, textarea, select")
+          ) as HTMLElement | null;
+          const node = control ?? el;
+          node.classList.add("ring-2", "ring-[#8C6FE0]", "ring-offset-2");
+          window.setTimeout(
+            () => node.classList.remove("ring-2", "ring-[#8C6FE0]", "ring-offset-2"),
+            2400,
+          );
+        });
+        flashField(first.id);
+      },
+      sameStep ? 60 : 220,
+    );
+  };
+
   /** Steps 2–4 only open once Step 1 holds a complete patient. */
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
