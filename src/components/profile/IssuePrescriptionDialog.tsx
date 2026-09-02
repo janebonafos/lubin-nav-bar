@@ -1808,11 +1808,29 @@ export default function IssuePrescriptionDialog({
           <>
             <button
               type="button"
-              onClick={() => addMedicationOption(opt)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+              aria-pressed={isSelected}
+              onClick={() =>
+                setSelectedOptionIds((cur) =>
+                  cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+                )
+              }
+              className={`inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+                isSelected
+                  ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+                  : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+              }`}
             >
-              <Plus className="h-3.5 w-3.5" />
-              Select option
+              {isSelected ? (
+                <>
+                  <Check className="h-3.5 w-3.5" />
+                  Selected — tap to remove
+                </>
+              ) : (
+                <>
+                  <Plus className="h-3.5 w-3.5" />
+                  Select option
+                </>
+              )}
             </button>
             <button
               type="button"
