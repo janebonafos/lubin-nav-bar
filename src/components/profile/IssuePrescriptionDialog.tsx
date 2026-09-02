@@ -1574,14 +1574,24 @@ export default function IssuePrescriptionDialog({
       value: vitalsLabel,
     },
   ];
-  const optionsMissing: string[] = [];
-  if (!confirmedIndication) optionsMissing.push("Provider-confirmed Assessment or indication");
-  if (ageYears == null) optionsMissing.push("Date of birth so age can be calculated");
-  if (allergyState === "not-assessed") optionsMissing.push("Drug allergy status");
-  if (medicationState === "not-assessed") optionsMissing.push("Current medications");
+  /** Each missing item knows which step resolves it, so the provider can jump
+   *  straight there instead of guessing why no option is shown. */
+  const optionsMissingItems: { label: string; step: number }[] = [];
+  if (!confirmedIndication)
+    optionsMissingItems.push({
+      label: "Provider-confirmed Assessment or indication",
+      step: 1,
+    });
+  if (ageYears == null)
+    optionsMissingItems.push({ label: "Date of birth so age can be calculated", step: 0 });
+  if (allergyState === "not-assessed")
+    optionsMissingItems.push({ label: "Drug allergy status", step: 0 });
+  if (medicationState === "not-assessed")
+    optionsMissingItems.push({ label: "Current medications", step: 0 });
   if (sex !== "male" && pregnancyStatus === "not-reviewed") {
-    optionsMissing.push("Pregnancy / breastfeeding status");
+    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 0 });
   }
+  const optionsMissing = optionsMissingItems.map((i) => i.label);
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
   const supportedOptions = visibleOptions.filter((o) => o.supported);
   const conditionalOptions = visibleOptions.filter((o) => !o.supported);
