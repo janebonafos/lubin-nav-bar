@@ -116,11 +116,8 @@ function AutoTextarea({
 type PatientSex = NonNullable<PatientSafetyInfo["sex"]>;
 
 const SEX_OPTIONS: { value: PatientSex; label: string }[] = [
-  { value: "not-documented", label: "Not documented" },
   { value: "female", label: "Female" },
   { value: "male", label: "Male" },
-  { value: "intersex", label: "Intersex" },
-  { value: "prefer-not-to-say", label: "Prefer not to say" },
 ];
 
 /** SOAP note attached to a clinical encounter. Fictional prototype fixture. */
