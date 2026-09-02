@@ -2317,6 +2317,7 @@ export default function IssuePrescriptionDialog({
     };
     setSelected(record);
     setLinkedAppointment("");
+    setObjectiveForConsult("");
     setCreatingNew(false);
     setEditPatient(false);
     setPatientName(pick(record.fullName, "identity.fullName"));
