@@ -5687,6 +5687,7 @@ function MedicationCard({
           </label>
           <input
             className={`${field} mt-1.5`}
+            id={`med-${med.id}-generic`}
             value={med.genericName}
             onChange={(e) => onPatch("genericName", e.target.value)}
             placeholder="e.g. Losartan potassium"
@@ -5716,6 +5717,7 @@ function MedicationCard({
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
                 >
@@ -5729,6 +5731,7 @@ function MedicationCard({
               ) : (
                 <input
                   className={`${field} mt-1.5`}
+                  id={`med-${med.id}-strength`}
                   value={med.strength}
                   onChange={(e) => onPatch("strength", e.target.value)}
                   placeholder="50 mg tablet"
@@ -5743,6 +5746,7 @@ function MedicationCard({
               {item ? (
                 <select
                   className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+                  id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
                 >
@@ -5755,6 +5759,7 @@ function MedicationCard({
               ) : (
                 <input
                   className={`${field} mt-1.5`}
+                  id={`med-${med.id}-route`}
                   value={med.route}
                   onChange={(e) => onPatch("route", e.target.value)}
                   placeholder="Oral"
@@ -5809,6 +5814,7 @@ function MedicationCard({
           </label>
             <select
               className={`${selectField} mt-1.5`} style={{ backgroundImage: chevron }}
+              id={`med-${med.id}-refills`}
               value={med.refills}
               onChange={(e) => onPatch("refills", e.target.value)}
             >
@@ -5826,6 +5832,7 @@ function MedicationCard({
           </label>
             <input
               className={`${field} mt-1.5`}
+              id={`med-${med.id}-quantity`}
               value={med.quantity}
               onChange={(e) => onPatch("quantity", e.target.value)}
               placeholder="30"
@@ -5858,6 +5865,7 @@ function MedicationCard({
           <AutoTextarea
             minRows={2}
             className={`${area} mt-1.5`}
+            id={`med-${med.id}-sig`}
             value={med.sig}
             onChange={(e) => {
               onPatch("sigEdited", true);
@@ -5918,6 +5926,7 @@ function MedicationCard({
           <AutoTextarea
             minRows={2}
             className={`${area} mt-1.5`}
+            id={`med-${med.id}-instructions`}
             value={med.instructions}
             onChange={(e) => onPatch("instructions", e.target.value)}
             placeholder="Written after the medication and regimen are selected."
