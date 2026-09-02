@@ -5687,26 +5687,30 @@ export default function IssuePrescriptionDialog({
               ) : stepGaps.length > 0 ? (
                 <>
                   <p className="text-[12px] font-bold text-[#3D2E6B]">
-                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
+                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} still needed — tap one
+                    to go straight there
                   </p>
-                  <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                    {stepGaps.slice(0, 3).map((g) => (
-                      <li key={g} className="text-[11.5px] text-[#8A7FB0]">
-                        ·{" "}
+                  <ul className="mt-1 flex max-h-[54px] flex-wrap gap-1.5 overflow-y-auto">
+                    {stepGaps.map((g) => (
+                      <li key={g}>
                         {gapTargets[g] ? (
                           <button
                             type="button"
                             onClick={() => jumpToGap(g)}
-                            className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                            className="inline-flex items-center gap-1 rounded-full border border-[#E4D8F7] bg-[#F7F3FF] px-2.5 py-1 text-[11px] font-semibold text-[#5A4790] transition hover:border-[#C9B6EE] hover:bg-[#EFE7FF]"
                           >
                             {g}
+                            <ArrowRight className="h-3 w-3" />
                           </button>
                         ) : (
-                          g
+                          <span className="inline-flex rounded-full border border-[#EDEBF3] bg-white px-2.5 py-1 text-[11px] text-[#8A7FB0]">
+                            {g}
+                          </span>
                         )}
                       </li>
                     ))}
                   </ul>
+
                 </>
               ) : allGaps.length > 0 ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">
