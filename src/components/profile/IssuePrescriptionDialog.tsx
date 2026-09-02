@@ -2763,10 +2763,10 @@ export default function IssuePrescriptionDialog({
           </div>
         )}
 
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-4">
+        <div className={`min-h-0 flex-1 overflow-y-auto px-6 py-4 ${issued ? "flex items-center justify-center" : "space-y-4"}`}>
 
           {issued ? (
-            <section className="mx-auto w-full max-w-[480px]">
+            <section className="mx-auto w-full max-w-[480px] my-auto">
               <div className="relative overflow-hidden rounded-[32px] border border-[#7E6BAF]/30 bg-[#EAE7F5]/70 shadow-[0_32px_64px_-12px_rgba(61,46,107,0.25)] backdrop-blur-2xl">
                 {/* decorative blooms */}
                 <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#7E6BAF]/30 blur-3xl" />
