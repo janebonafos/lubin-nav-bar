@@ -5705,33 +5705,10 @@ export default function IssuePrescriptionDialog({
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
               ) : stepGaps.length > 0 ? (
-                <>
-                  <p className="text-[12px] font-bold text-[#3D2E6B]">
-                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} still needed — tap one
-                    to go straight there
-                  </p>
-                  <ul className="mt-1 flex max-h-[54px] flex-wrap gap-1.5 overflow-y-auto">
-                    {stepGaps.map((g) => (
-                      <li key={g}>
-                        {gapTargets[g] ? (
-                          <button
-                            type="button"
-                            onClick={() => jumpToGap(g)}
-                            className="inline-flex items-center gap-1 rounded-full border border-[#E4D8F7] bg-[#F7F3FF] px-2.5 py-1 text-[11px] font-semibold text-[#5A4790] transition hover:border-[#C9B6EE] hover:bg-[#EFE7FF]"
-                          >
-                            {g}
-                            <ArrowRight className="h-3 w-3" />
-                          </button>
-                        ) : (
-                          <span className="inline-flex rounded-full border border-[#EDEBF3] bg-white px-2.5 py-1 text-[11px] text-[#8A7FB0]">
-                            {g}
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-
-                </>
+                <p className="text-[11.5px] text-[#8A7FB0]">
+                  {stepGaps.length} field{stepGaps.length === 1 ? "" : "s"} still needed on this
+                  step.
+                </p>
               ) : allGaps.length > 0 ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">
                   Still to resolve:{" "}
