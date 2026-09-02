@@ -406,7 +406,7 @@ function readNoteDemographics(raw: string): NoteDemographics {
  *    to the Medication safety check.
  *  - Plan is left to Step 3, drafted from the confirmed medication and regimen.
  */
-function organiseSoap(raw: string): {
+export function organiseSoap(raw: string): {
   soap: SoapNote;
   aiFields: (keyof SoapNote)[];
   /** Proposed assessment wording, held outside the clinical record. */
