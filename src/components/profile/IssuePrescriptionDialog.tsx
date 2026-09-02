@@ -4736,23 +4736,43 @@ export default function IssuePrescriptionDialog({
                   </section>
 
                   <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Attest and sign</h3>
-                    <label className="mt-3 flex items-start gap-3 rounded-xl border border-[#E3DBF5] bg-[#FBFAFE] p-4">
-                      <input
-                        type="checkbox"
-                        checked={attested}
-                        onChange={(e) => setAttested(e.target.checked)}
-                        className="mt-0.5 h-4 w-4 rounded border-[#C9BCE9]"
-                      />
-                      <span className="text-[12.5px] text-[#4B4468]">
-                        I assessed this patient, the medication and directions above are clinically
-                        appropriate, and I am signing this prescription under my own professional
-                        licence.
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Attest and sign</h3>
+                      <span className="rounded-md border border-[#E3DBF5] bg-[#F5F1FB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#5A3E8F]">
+                        Step 4 of 4
+                      </span>
+                    </div>
+
+                    <label className="group mt-4 flex cursor-pointer items-start gap-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FD] p-5 transition-colors hover:border-[#D6CCEC] hover:bg-[#F1EBFA]">
+                      <span className="relative mt-1 flex shrink-0 items-center justify-center">
+                        <input
+                          type="checkbox"
+                          checked={attested}
+                          onChange={(e) => setAttested(e.target.checked)}
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[#C9BCE9] bg-white transition-all checked:border-[#5A3E8F] checked:bg-[#5A3E8F] focus:ring-2 focus:ring-[#7E6BAF] focus:ring-offset-1 focus:outline-none"
+                        />
+                        <Check
+                          className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                          strokeWidth={3}
+                        />
+                      </span>
+                      <span className="flex flex-col gap-1.5">
+                        <span className="select-none text-[13px] font-medium leading-relaxed text-[#4B4468]">
+                          I assessed this patient, the medication and directions above are clinically
+                          appropriate, and I am signing this prescription under my own professional
+                          licence.
+                        </span>
+                        <span className="flex items-center gap-1.5 opacity-70">
+                          <ShieldCheck className="h-3.5 w-3.5 text-[#7E6BAF]" />
+                          <span className="text-[11px] font-medium text-[#6F6889]">
+                            Professional affirmation required
+                          </span>
+                        </span>
                       </span>
                     </label>
 
                     {reviewOnly ? (
-                      <div className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-3.5">
+                      <div className="mt-4 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-3.5">
                         <p className="text-[12.5px] font-semibold text-[#6B4E10]">
                           Immediate issuing is blocked
                         </p>
@@ -4769,11 +4789,11 @@ export default function IssuePrescriptionDialog({
                         </button>
                       </div>
                     ) : (
-                      <div className="mt-3">
+                      <div className="mt-4 flex flex-col gap-3">
                         {!otpCode || otpInvalidated ? (
                           <>
                             {otpInvalidated && (
-                              <p className="mb-2 rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
+                              <p className="rounded-xl bg-[#FDF2F2] px-3 py-2 text-[12px] font-semibold text-[#9B3B33]">
                                 The prescription changed after the last code was sent — that code is
                                 no longer valid.
                               </p>
@@ -4782,10 +4802,20 @@ export default function IssuePrescriptionDialog({
                               type="button"
                               onClick={sendCode}
                               disabled={!attested || !canReview}
-                              className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                              className={`flex items-center justify-center gap-2.5 rounded-xl px-5 py-3.5 text-[13px] font-bold transition-all ${
+                                !attested || !canReview
+                                  ? "cursor-not-allowed border border-[#E3DBF5] bg-[#F1ECF9] text-[#A89BD0]"
+                                  : "bg-[#3D2E6B] text-white hover:bg-[#4A3A7E]"
+                              }`}
                             >
                               <Mail className="h-4 w-4" /> Send verification code
                             </button>
+                            {(!attested || !canReview) && (
+                              <div className="flex items-center justify-center gap-2 text-[12px] font-medium text-[#8A7FB0]">
+                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C9BCE9]" />
+                                Confirm the attestation above to proceed to verification
+                              </div>
+                            )}
                           </>
                         ) : (
                           <>
@@ -4794,7 +4824,7 @@ export default function IssuePrescriptionDialog({
                               code: <span className="font-bold text-[#3D2E6B]">{otpCode}</span>
                             </p>
                             <input
-                              className={`${field} mt-2 tracking-[0.34em]`}
+                              className={`${field} mt-1 tracking-[0.34em]`}
                               inputMode="numeric"
                               value={otpEntry}
                               onChange={(e) => {
@@ -4804,7 +4834,7 @@ export default function IssuePrescriptionDialog({
                               placeholder="000000"
                             />
                             {otpError && (
-                              <p className="mt-2 text-[12px] font-semibold text-[#9B3B33]">
+                              <p className="mt-1 text-[12px] font-semibold text-[#9B3B33]">
                                 {otpError}
                               </p>
                             )}
