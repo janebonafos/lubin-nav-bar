@@ -1169,6 +1169,8 @@ export default function IssuePrescriptionDialog({
   /** How the provider wants to choose the treatment. Nothing is preselected. */
   const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
+  /** Options already copied into the medication order below. */
+  const [usedOptionIds, setUsedOptionIds] = useState<string[]>([]);
   /** Per-option provider choices before the option is copied into the order:
    *  dispense as generic or a fictional brand, plus editable posology. */
   type OptionDraft = {
