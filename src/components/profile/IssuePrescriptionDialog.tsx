@@ -633,6 +633,9 @@ type MedicationOption = {
   unverified: string;
   source: string;
   clinicalBasis: string;
+  /** Fictional brand equivalents. The provider chooses generic or a brand —
+   *  nothing is preselected and the generic is listed first. */
+  brands: { id: string; name: string; note: string }[];
   /** True only when the documented record supports the option. Anything else is
    *  hypothetical and lives in the collapsed "clinical picture changes" group. */
   supported: boolean;
@@ -656,6 +659,10 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: symptomatic antitussive used for short-term relief of dry cough when no red-flag features are documented.",
+    brands: [
+      { id: "b-tussivex", name: "Tussivex", note: "Fictional brand · 15 mg tablet" },
+      { id: "b-coughlan", name: "Coughlan DM", note: "Fictional brand · 15 mg tablet" },
+    ],
     supported: true,
   },
   {
@@ -674,6 +681,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: mucolytic option listed for provider consideration if secretions are documented.",
+    brands: [{ id: "b-mucolyx", name: "Mucolyx", note: "Fictional brand · 500 mg capsule" }],
     supported: false,
   },
   {
@@ -692,6 +700,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: antihistamine listed only as an option; the provider decides whether an allergic contribution applies.",
+    brands: [{ id: "b-alerzin", name: "Alerzin", note: "Fictional brand · 10 mg tablet" }],
     supported: false,
   },
 ];
@@ -1020,6 +1029,26 @@ export default function IssuePrescriptionDialog({
   /** How the provider wants to choose the treatment. Nothing is preselected. */
   const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
+  /** Per-option provider choices before the option is copied into the order:
+   *  dispense as generic or a fictional brand, plus editable posology. */
+  type OptionDraft = {
+    brandId: string; // "" = generic
+    dose: string;
+    frequency: string;
+    duration: string;
+    open: boolean;
+  };
+  const [optionDrafts, setOptionDrafts] = useState<Record<string, OptionDraft>>({});
+  const draftFor = (opt: MedicationOption): OptionDraft =>
+    optionDrafts[opt.id] ?? {
+      brandId: "",
+      dose: opt.dose,
+      frequency: opt.frequency,
+      duration: opt.duration,
+      open: false,
+    };
+  const patchDraft = (opt: MedicationOption, patch: Partial<OptionDraft>) =>
+    setOptionDrafts((cur) => ({ ...cur, [opt.id]: { ...draftFor(opt), ...patch } }));
   const [basisOpen, setBasisOpen] = useState("");
   const [aiWorksOpen, setAiWorksOpen] = useState(false);
   const [conditionalOpen, setConditionalOpen] = useState(false);
@@ -1414,7 +1443,10 @@ export default function IssuePrescriptionDialog({
 
   /** One structured option card. Used for both the supported group and the
    *  collapsed "clinical picture changes" group. */
-  const renderOption = (opt: MedicationOption) => (
+  const renderOption = (opt: MedicationOption) => {
+    const draft = draftFor(opt);
+    const chosenBrand = opt.brands.find((b) => b.id === draft.brandId);
+    return (
     <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
@@ -1422,7 +1454,8 @@ export default function IssuePrescriptionDialog({
             {opt.generic} <span className="font-semibold text-[#6F6889]">{opt.strengthForm}</span>
           </p>
           <p className="mt-0.5 text-[12px] text-[#4B4468]">
-            {opt.route} · {opt.dose} · {opt.frequency} · {opt.duration}
+            {opt.route} · {draft.dose} · {draft.frequency} · {draft.duration}
+            {chosenBrand ? ` · Dispense as ${chosenBrand.name}` : " · Dispense as generic"}
           </p>
         </div>
         {!opt.supported && (
@@ -1454,13 +1487,85 @@ export default function IssuePrescriptionDialog({
         </div>
       </dl>
       <p className="mt-2 text-[10.5px] text-[#8A7FB0]">{opt.source}</p>
+
+      <div className="mt-3 rounded-xl border border-[#E9E2FA] bg-[#FBF9FF] p-3">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+          Dispense as
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            aria-pressed={!draft.brandId}
+            onClick={() => patchDraft(opt, { brandId: "" })}
+            className={`inline-flex h-8 items-center rounded-lg border px-3 text-[12px] font-semibold transition ${
+              !draft.brandId
+                ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                : "border-[#D9CEF3] bg-white text-[#3D2E6B] hover:bg-[#F7F4FE]"
+            }`}
+          >
+            Generic — {opt.generic}
+          </button>
+          {opt.brands.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              aria-pressed={draft.brandId === b.id}
+              title={b.note}
+              onClick={() => patchDraft(opt, { brandId: b.id })}
+              className={`inline-flex h-8 items-center rounded-lg border px-3 text-[12px] font-semibold transition ${
+                draft.brandId === b.id
+                  ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                  : "border-[#D9CEF3] bg-white text-[#3D2E6B] hover:bg-[#F7F4FE]"
+              }`}
+            >
+              Brand — {b.name}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
+          Brand names shown are fictional prototype entries. The prescriber decides whether a brand
+          or the generic is dispensed.
+        </p>
+
+        <button
+          type="button"
+          aria-expanded={draft.open}
+          onClick={() => patchDraft(opt, { open: !draft.open })}
+          className="mt-3 text-[12px] font-semibold text-[#5A47A0] underline decoration-dotted underline-offset-2"
+        >
+          {draft.open ? "Hide dose adjustments" : "Adjust dose, frequency or duration"}
+        </button>
+        {draft.open && (
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {(
+              [
+                ["dose", "Dose"],
+                ["frequency", "Frequency"],
+                ["duration", "Duration"],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="block">
+                <span className="text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+                  {label}
+                </span>
+                <input
+                  value={draft[key]}
+                  onChange={(e) => patchDraft(opt, { [key]: e.target.value } as Partial<OptionDraft>)}
+                  className="mt-1 h-9 w-full rounded-lg border border-[#D9CEF3] bg-white px-2.5 text-[12.5px] text-[#2F2748] outline-none focus:border-[#8A72D6]"
+                />
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => useMedicationOption(opt)}
+          onClick={() => useMedicationOption(opt, draft)}
           className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
         >
-          Use option
+          Use this option
         </button>
         <button
           type="button"
@@ -1470,23 +1575,30 @@ export default function IssuePrescriptionDialog({
           Not appropriate
         </button>
       </div>
+      <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
+        Every field stays editable in the medication order after you use an option.
+      </p>
     </div>
-  );
+    );
+  };
 
   /** Copies a structured option into the order. Nothing beyond the option's
    *  own structured fields is filled in, and every field stays editable. */
-  const useMedicationOption = (opt: MedicationOption) => {
+  const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
+    const d = draft ?? draftFor(opt);
+    const brand = opt.brands.find((b) => b.id === d.brandId);
     setMeds((cur) => {
       const first = cur[0] ?? emptyMed();
       return [
         {
           ...first,
           genericName: opt.generic,
+          brandName: brand?.name ?? "",
           strength: opt.strengthForm,
           route: opt.route,
-          dose: opt.dose,
-          frequency: opt.frequency,
-          duration: opt.duration,
+          dose: d.dose,
+          frequency: d.frequency,
+          duration: d.duration,
           unit: opt.unit,
           rationale: opt.why,
         },
