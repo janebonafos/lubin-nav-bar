@@ -5371,18 +5371,32 @@ export default function IssuePrescriptionDialog({
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {rxPath === "options" && (
-                          <button
-                            type="button"
-                            onClick={() => setRxPath("search")}
-                            className="inline-flex h-9 items-center rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-                          >
-                            Switch to manual entry
-                          </button>
+                          <>
+                            {!optionsListOpen && (
+                              <button
+                                type="button"
+                                onClick={reopenMedicationOptions}
+                                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                              >
+                                <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
+                                  AI
+                                </span>
+                                Check options again
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setRxPath("search")}
+                              className="inline-flex h-9 items-center rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                            >
+                              Switch to manual entry
+                            </button>
+                          </>
                         )}
                         {rxPath !== "options" && (
                           <button
                             type="button"
-                            onClick={() => setRxPath("options")}
+                            onClick={reopenMedicationOptions}
                             className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
                           >
                             <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
