@@ -1849,9 +1849,9 @@ export default function IssuePrescriptionDialog({
     );
   };
 
-  /** Copies one structured option into a new editable order. Nothing beyond
+  /** Builds one editable medication row from a structured option. Nothing beyond
    *  the option's own fields is filled in, and every field stays editable. */
-  const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
+  const medFromOption = (opt: MedicationOption, draft?: OptionDraft): MedForm => {
     const d = draft ?? draftFor(opt);
     const brand = opt.brands.find((b) => b.id === d.brandId);
     // The directions (SIG) are drafted from the same structured option, so the
@@ -1863,26 +1863,40 @@ export default function IssuePrescriptionDialog({
       duration: d.duration,
       form: opt.strengthForm,
     });
+    return {
+      ...emptyMed(),
+      genericName: opt.generic,
+      brandName: brand?.name ?? "",
+      strength: opt.strengthForm,
+      route: opt.route,
+      dose: d.dose,
+      frequency: d.frequency,
+      duration: d.duration,
+      unit: opt.unit,
+      rationale: opt.why,
+      sig: draftedSig,
+      sigEdited: false,
+    };
+  };
+
+  /** Copies one or more structured options into the order in a single update, so
+   *  every selected medication lands in the list (never just the last one). */
+  const useMedicationOptions = (opts: MedicationOption[], draft?: OptionDraft) => {
+    if (!opts.length) return;
     setMeds((cur) => {
-      const next: MedForm = {
-        ...emptyMed(),
-        genericName: opt.generic,
-        brandName: brand?.name ?? "",
-        strength: opt.strengthForm,
-        route: opt.route,
-        dose: d.dose,
-        frequency: d.frequency,
-        duration: d.duration,
-        unit: opt.unit,
-        rationale: opt.why,
-        sig: draftedSig,
-        sigEdited: false,
-      };
-      const blankOnly = cur.length === 1 && !cur[0]?.genericName.trim();
-      if (cur.some((m) => m.genericName.trim() === opt.generic)) return cur;
-      return blankOnly ? [next] : [...cur, next];
+      let next = [...cur];
+      // Drop a single untouched blank row so the first option takes its place.
+      if (next.length === 1 && !next[0]?.genericName.trim()) next = [];
+      for (const opt of opts) {
+        if (next.some((m) => m.genericName.trim() === opt.generic)) continue;
+        next.push(medFromOption(opt, opts.length === 1 ? draft : undefined));
+      }
+      return next.length ? next : cur;
     });
   };
+
+  const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) =>
+    useMedicationOptions([opt], draft);
 
   /** Copies every selected option into the order, then collapses the suggestion
    *  list so the populated order takes priority. */
@@ -1890,10 +1904,13 @@ export default function IssuePrescriptionDialog({
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
     );
-    selectedOptions.forEach((opt) => useMedicationOption(opt));
+    useMedicationOptions(selectedOptions);
     setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
     setOptionsListOpen(false);
+    // Keep every added medication visible: collapse the accordions instead of
+    // leaving one expanded so the provider sees the full list at a glance.
+    setOpenMedId(null);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
     scrollToMedicationOrder();
