@@ -5435,14 +5435,41 @@ export default function IssuePrescriptionDialog({
                 <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
                   {stepGaps.slice(0, 3).map((g) => (
                     <li key={g} className="text-[11.5px] text-[#8A7FB0]">
-                      · {g}
+                      ·{" "}
+                      {gapTargets[g] ? (
+                        <button
+                          type="button"
+                          onClick={() => jumpToGap(g)}
+                          className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                        >
+                          {g}
+                        </button>
+                      ) : (
+                        g
+                      )}
                     </li>
                   ))}
                 </ul>
               </>
             ) : allGaps.length > 0 ? (
               <p className="text-[11.5px] text-[#8A7FB0]">
-                Still to resolve: {allGaps.slice(0, 3).join(" · ")}
+                Still to resolve:{" "}
+                {allGaps.slice(0, 3).map((g, i) => (
+                  <span key={g}>
+                    {i > 0 && " · "}
+                    {gapTargets[g] ? (
+                      <button
+                        type="button"
+                        onClick={() => jumpToGap(g)}
+                        className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                      >
+                        {g}
+                      </button>
+                    ) : (
+                      g
+                    )}
+                  </span>
+                ))}
               </p>
             ) : (
               <p className="text-[11.5px] text-[#8A7FB0]">
