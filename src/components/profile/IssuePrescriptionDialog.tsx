@@ -5017,14 +5017,15 @@ export default function IssuePrescriptionDialog({
                         [
                           [
                             "search",
-                            "Search and prescribe a medication",
-                            "Choose the medication and complete the regimen yourself.",
+                            "Enter medication manually",
+                            "Search the Philippine medication catalogue and complete the regimen.",
                           ],
                           [
                             "options",
-                            "Review medication options",
-                            "Review evidence-supported options based on the provider-confirmed Assessment and available patient information.",
+                            "Review AI-assisted options",
+                            "View non-ranked options based on the confirmed assessment and reviewed patient information. You choose and edit the final order.",
                           ],
+
                         ] as const
                       ).map(([value, title, helper]) => {
                         const selected = rxPath === value;
@@ -5135,7 +5136,7 @@ export default function IssuePrescriptionDialog({
                               onClick={() => setRxPath("search")}
                               className="font-semibold underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
                             >
-                              Search and prescribe a medication
+                              Enter medication manually
                             </button>{" "}
                             and complete the regimen yourself.
                           </p>
