@@ -6075,6 +6075,10 @@ function MedicationCard({
   ).filter((f) => !String(f.value ?? "").trim());
   const missingCount = missingFields.length;
 
+  /** Red outline on any required field that is still empty. */
+  const needRing = (v: string | undefined) =>
+    String(v ?? "").trim() ? "" : " !border-[#D9534F] bg-[#FEF7F6]";
+
   /** Scrolls to a field in this card and flashes a ring so it is unmistakable. */
   const flashMedField = (id: string) => {
     const el = document.getElementById(id);
