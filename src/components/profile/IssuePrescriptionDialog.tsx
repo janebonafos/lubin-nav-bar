@@ -5705,33 +5705,10 @@ export default function IssuePrescriptionDialog({
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
               ) : stepGaps.length > 0 ? (
-                <>
-                  <p className="text-[12px] font-bold text-[#3D2E6B]">
-                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} still needed — tap one
-                    to go straight there
-                  </p>
-                  <ul className="mt-1 flex max-h-[54px] flex-wrap gap-1.5 overflow-y-auto">
-                    {stepGaps.map((g) => (
-                      <li key={g}>
-                        {gapTargets[g] ? (
-                          <button
-                            type="button"
-                            onClick={() => jumpToGap(g)}
-                            className="inline-flex items-center gap-1 rounded-full border border-[#E4D8F7] bg-[#F7F3FF] px-2.5 py-1 text-[11px] font-semibold text-[#5A4790] transition hover:border-[#C9B6EE] hover:bg-[#EFE7FF]"
-                          >
-                            {g}
-                            <ArrowRight className="h-3 w-3" />
-                          </button>
-                        ) : (
-                          <span className="inline-flex rounded-full border border-[#EDEBF3] bg-white px-2.5 py-1 text-[11px] text-[#8A7FB0]">
-                            {g}
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-
-                </>
+                <p className="text-[11.5px] text-[#8A7FB0]">
+                  {stepGaps.length} field{stepGaps.length === 1 ? "" : "s"} still needed on this
+                  step.
+                </p>
               ) : allGaps.length > 0 ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">
                   Still to resolve:{" "}
@@ -5813,30 +5790,21 @@ export default function IssuePrescriptionDialog({
                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
                           blocked
                             ? hasTargets
-                              ? "border border-[#D8C7F0] bg-[#F7F3FF] text-[#4B3F7A] hover:bg-[#EFE7FF]"
+                              ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
                               : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
                         }`}
                       >
-                        {blocked && hasTargets ? (
-                          <>
-                            <AlertTriangle className="h-4 w-4" />
-                            Show what&apos;s missing ({stepGaps.length})
-                          </>
-                        ) : (
-                          <>
-                            {step === 2
-                              ? "Review prescription"
-                              : step === 1
-                                ? purpose === "renewal"
-                                  ? "Continue with renewal"
-                                  : entry === "lubin"
-                                    ? "Use SOAP and continue"
-                                    : "Continue to prescription"
-                                : "Continue"}
-                            <ArrowRight className="h-4 w-4" />
-                          </>
-                        )}
+                        {step === 2
+                          ? "Review and sign"
+                          : step === 1
+                            ? purpose === "renewal"
+                              ? "Continue with renewal"
+                              : entry === "lubin"
+                                ? "Use SOAP and continue"
+                                : "Continue to prescription"
+                            : "Continue"}
+                        <ArrowRight className="h-4 w-4" />
                       </button>
                     );
                   })()
