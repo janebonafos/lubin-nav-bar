@@ -1437,15 +1437,21 @@ export default function IssuePrescriptionDialog({
         subjective: linkedAppt.soap.subjective || soap.subjective,
         objective: linkedAppt.soap.objective || soap.objective,
         assessment: linkedAppt.soap.assessment || soap.assessment,
-        plan: linkedAppt.soap.plan || soap.plan,
+        // A previous consultation's Plan is never the current treatment Plan for
+        // a new treatment — that Plan comes from the Step 3 decisions.
+        plan: purpose === "new" ? soap.plan : linkedAppt.soap.plan || soap.plan,
       }
     : soap;
 
   // ---- reused-consultation branch (Step 2) ----
   /** What the linked consultation itself documents. */
   const linkedObjectiveText = (linkedAppt?.soap.objective ?? "").trim();
+  /** A manual Objective selection belongs to the consultation it was made for,
+   *  so it can never satisfy another consultation's validation. */
+  const objectiveMatchesConsult = objectiveForConsult === linkedAppointment;
   /** Documented findings in the reused note stand in for the "documented" status. */
-  const reusedObjectiveEstablished = Boolean(linkedObjectiveText) || objectiveMode !== "none";
+  const reusedObjectiveEstablished =
+    Boolean(linkedObjectiveText) || (objectiveMode !== "none" && objectiveMatchesConsult);
   const reusedGaps = linkedAppt
     ? missingReusedAssessmentItems({
         subjective: effectiveSoap.subjective,
@@ -1458,23 +1464,27 @@ export default function IssuePrescriptionDialog({
   const reusedMissingTopUpSections = reusedGaps.filter((k) => k !== "objective");
 
   /**
-   * State safety: a newly selected consultation, entry method or patient never
-   * inherits the previous consultation's Objective selection, assessment basis
-   * or topped-up text, and always needs a fresh confirmation.
+   * State safety: a newly selected consultation, treatment type, entry method or
+   * patient never inherits the previous consultation's Objective selection,
+   * assessment basis or topped-up text, and always needs a fresh confirmation.
    */
   useEffect(() => {
     if (!open) return;
     setSoapApproved(false);
     setAssessmentBasis("");
     setDiagnosisSaved(false);
+    setMaterialChange(null);
+    setAllergyConfirm("idle");
+    setMedsConfirm("idle");
     setAiFields({ subjective: false, objective: false, assessment: false, plan: false });
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setSuggestedAssessment("");
     setNoteHasAssessment(false);
     setSymptomIndication("");
     setObjectiveMode(entry === "lubin" && linkedObjectiveText ? "add" : "none");
+    setObjectiveForConsult(entry === "lubin" && linkedObjectiveText ? linkedAppointment : "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, entry, linkedAppointment, selected?.id]);
+  }, [open, purpose, entry, linkedAppointment, selected?.id]);
 
 
 
