@@ -5014,25 +5014,40 @@ export default function IssuePrescriptionDialog({
                             "Review evidence-supported options based on the provider-confirmed Assessment and available patient information.",
                           ],
                         ] as const
-                      ).map(([value, title, helper]) => (
+                      ).map(([value, title, helper]) => {
+                        const selected = rxPath === value;
+                        return (
                         <button
                           key={value}
                           type="button"
                           onClick={() => setRxPath(value)}
-                          className={`rounded-xl border px-3.5 py-3 text-left transition ${
-                            rxPath === value
-                              ? "border-[#3D2E6B] bg-[#F7F4FE]"
+                          aria-pressed={selected}
+                          className={`group relative rounded-xl border px-3.5 py-3 text-left transition ${
+                            selected
+                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-[0_6px_18px_-8px_#3D2E6B]"
                               : "border-[#EDEBF3] bg-white hover:border-[#D9CEF3]"
                           }`}
                         >
-                          <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
-                            {title}
+                          <span className="flex items-center justify-between gap-2">
+                            <span className={`block text-[12.5px] font-semibold ${selected ? "text-white" : "text-[#3D2E6B]"}`}>
+                              {title}
+                            </span>
+                            <span
+                              className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border transition ${
+                                selected
+                                  ? "border-white bg-white text-[#3D2E6B]"
+                                  : "border-[#D9CEF3] bg-white text-transparent"
+                              }`}
+                            >
+                              <Check className="h-3 w-3" strokeWidth={3} />
+                            </span>
                           </span>
-                          <span className="mt-1 block text-[11.5px] leading-snug text-[#6F6889]">
+                          <span className={`mt-1 block text-[11.5px] leading-snug ${selected ? "text-[#E7DEF6]" : "text-[#6F6889]"}`}>
                             {helper}
                           </span>
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   </section>
 
