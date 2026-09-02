@@ -839,6 +839,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       monitoring: "Review at 7 days. Reconsider the allergic contribution if there is no response.",
       counselling: "Take at bedtime, avoid alcohol and do not drive if drowsy.",
     },
+    target: "Upper-airway or allergic contribution — if established",
     supported: false,
   },
 ];
