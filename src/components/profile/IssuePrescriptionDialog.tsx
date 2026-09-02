@@ -2680,6 +2680,7 @@ export default function IssuePrescriptionDialog({
                                   onClick={() => {
                                     setAssessmentBasis(value);
                                     setSoapApproved(false);
+                                    setDiagnosisSaved(false);
                                     if (value === "further") {
                                       setSuggestedAssessment("");
                                       setSoap((cur) => ({ ...cur, assessment: NO_ASSESSMENT }));
