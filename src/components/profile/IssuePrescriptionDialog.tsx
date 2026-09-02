@@ -1539,6 +1539,15 @@ export default function IssuePrescriptionDialog({
   // Step 2 — clinical documentation. One note per prescription: an existing SOAP,
   // a focused SOAP, or a focused renewal note. Never both a SOAP and a
   // separate clinical-context questionnaire.
+  const isReusedConsultation = purpose === "new" && entry === "lubin" && !!linkedAppt;
+  const safetyGaps =
+    allergyState === "not-assessed" || medicationState === "not-assessed"
+      ? [
+          ...(allergyState === "not-assessed" ? ["Review allergies"] : []),
+          ...(medicationState === "not-assessed" ? ["Review current medications"] : []),
+        ]
+      : [];
+  const pregnancyGap = sex !== "male" && pregnancyStatus === "not-reviewed" ? ["Review pregnancy / breastfeeding status"] : [];
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Treatment type");
   if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
@@ -1554,7 +1563,8 @@ export default function IssuePrescriptionDialog({
               : "Confirm an Assessment or indication",
         );
       }
-      if (!soapApproved) contextGaps.push("Confirm clinical assessment");
+      if (materialChange === "reassess") contextGaps.push("Patient requires reassessment");
+      if (!soapApproved) contextGaps.push("Review and confirm the clinical information");
     }
   }
   if (purpose === "new" && (entry === "outside" || entry === "standalone")) {
