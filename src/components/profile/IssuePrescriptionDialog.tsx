@@ -2237,15 +2237,22 @@ export default function IssuePrescriptionDialog({
           ? (sharedSex as PatientSex)
           : recordSex,
     );
-    const existing = (record.info.address ?? "").split(",").map((p) => p.trim());
-    const sharedAddress = (shared["contact.address"] ?? "").split(",").map((p) => p.trim());
-    setAddress({
-      street: existing[0] ?? "",
-      barangay: existing[1] ?? "",
-      city: existing[2] || sharedAddress[0] || "",
-      province: existing[3] || sharedAddress[1] || "",
-      postalCode: existing[4] ?? "",
-    });
+    const existing = (record.info.address ?? "").split(",").map((p) => p.trim()).filter(Boolean);
+    const sharedAddress = (shared["contact.address"] ?? "").split(",").map((p) => p.trim()).filter(Boolean);
+    // A saved address is often a single free-text line. Treat the last part as
+    // the city so an existing patient is not blocked by an invisible gap.
+    const parts = existing.length > 0 ? existing : sharedAddress;
+    setAddress(
+      parts.length <= 1
+        ? { ...emptyPhAddress(), city: parts[0] ?? "" }
+        : {
+            street: parts[0] ?? "",
+            barangay: parts.length > 2 ? (parts[1] ?? "") : "",
+            city: parts.length > 2 ? (parts[2] ?? "") : (parts[1] ?? ""),
+            province: parts[3] ?? "",
+            postalCode: parts[4] ?? "",
+          },
+    );
     setPatientEmail(pick(record.info.email, "contact.email"));
     setPatientPhone(pick(record.info.phone, "contact.phone"));
     setSuggestions([]);
@@ -2996,6 +3003,23 @@ export default function IssuePrescriptionDialog({
                           Reused from this patient’s record and the information they shared — nothing
                           to re-enter.
                         </p>
+                        {patientGaps.length > 0 && (
+                          <div className="mt-3 rounded-xl border border-[#D9534F]/40 bg-[#FDF3F3] p-3">
+                            <p className="text-[12.5px] font-semibold text-[#8A3B38]">
+                              Required for a prescription and not on file:
+                            </p>
+                            <p className="mt-1 text-[12px] text-[#8A3B38]">
+                              {patientGaps.join(" · ")}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setEditPatient(true)}
+                              className="mt-2 rounded-full bg-[#3D2E6B] px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#2C2050]"
+                            >
+                              Add missing details
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
