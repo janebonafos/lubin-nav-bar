@@ -1803,6 +1803,14 @@ export default function IssuePrescriptionDialog({
             >
               Review in order
             </button>
+            <button
+              type="button"
+              onClick={() => removeUsedOption(opt.id)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#E7C8C8] bg-white px-3.5 text-[12.5px] font-semibold text-[#9B3535] transition hover:bg-[#FFF6F6]"
+            >
+              <X className="h-3.5 w-3.5" />
+              Remove from order
+            </button>
           </>
         ) : (
           <>
