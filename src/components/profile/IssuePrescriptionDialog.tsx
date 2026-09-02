@@ -1884,16 +1884,8 @@ export default function IssuePrescriptionDialog({
     });
   };
 
-  /** One-click: copies the option into the order, collapses the suggestion list
-   *  so it stops competing for attention, and reveals the order below. */
-  const addMedicationOption = (opt: MedicationOption) => {
-    useMedicationOption(opt);
-    setUsedOptionIds((cur) => [...new Set([...cur, opt.id])]);
-    setSelectedOptionIds((cur) => cur.filter((id) => id !== opt.id));
-    setOptionsListOpen(false);
-    scrollToMedicationOrder();
-  };
-
+  /** Copies every selected option into the order, then collapses the suggestion
+   *  list so the populated order takes priority. */
   const addSelectedMedicationOptions = () => {
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
@@ -1901,9 +1893,22 @@ export default function IssuePrescriptionDialog({
     selectedOptions.forEach((opt) => useMedicationOption(opt));
     setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
+    setOptionsListOpen(false);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
     scrollToMedicationOrder();
+  };
+
+  /** Re-opens the AI-assisted options list (e.g. after adding a medication
+   *  manually the provider may want to check the suggestions again). */
+  const reopenMedicationOptions = () => {
+    setRxPath("options");
+    setOptionsListOpen(true);
+    requestAnimationFrame(() => {
+      document
+        .getElementById("med-options-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
