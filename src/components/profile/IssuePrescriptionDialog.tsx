@@ -634,6 +634,9 @@ type MedicationOption = {
   unverified: string;
   source: string;
   clinicalBasis: string;
+  /** The documented clinical need this option addresses. Options are grouped by
+   *  target so the provider sees every related item, not one medicine only. */
+  target: string;
   /** Fictional brand equivalents. The provider chooses generic or a brand —
    *  nothing is preselected and the generic is listed first. */
   brands: { id: string; name: string; note: string }[];
@@ -712,6 +715,71 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       monitoring: "Review after 5 days. Reassess if cough persists beyond 3 weeks or new red-flag features appear.",
       counselling: "Take as needed for cough, avoid alcohol, and do not drive if drowsy. Return sooner for fever, breathlessness or blood-streaked sputum.",
     },
+    target: "Dry cough — symptom control",
+    supported: true,
+  },
+  {
+    id: "opt-benzydamine",
+    generic: "Benzydamine hydrochloride",
+    strengthForm: "3 mg lozenge",
+    route: "Oromucosal",
+    dose: "1 lozenge",
+    frequency: "Every 3 hours as needed, up to 8 lozenges daily",
+    duration: "5 days",
+    unit: "lozenges",
+    why: "Shown against the documented throat irritation associated with the confirmed dry cough.",
+    patientInfoUsed: "Provider-confirmed indication, age and recorded allergy status.",
+    cautions: "Local numbness or stinging. Avoid in documented hypersensitivity to the class.",
+    unverified: "Oropharyngeal examination was not obtained on a video visit.",
+    source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
+    clinicalBasis:
+      "Fictional demonstration text: topical anti-inflammatory used for short-term relief of throat irritation documented alongside a dry cough.",
+    brands: [{ id: "b-throatex", name: "Throatex", note: "Fictional brand · 3 mg lozenge" }],
+    about: {
+      className: "Topical non-steroidal anti-inflammatory (oromucosal)",
+      howItWorks:
+        "Fictional reference text: acts locally on inflamed pharyngeal mucosa to reduce irritation and soreness. It does not suppress the cough reflex.",
+      commonSideEffects: "Numbness or stinging of the mouth, altered taste, dry mouth.",
+      seriousSideEffects: "Rare hypersensitivity reactions including oral swelling.",
+      interactions: "No clinically significant interactions expected with the documented medicines.",
+      contraindications: "Documented hypersensitivity to benzydamine or related agents.",
+      monitoring: "Review at 5 days. Reassess if throat pain worsens or swallowing becomes difficult.",
+      counselling:
+        "Allow the lozenge to dissolve slowly and do not exceed the stated daily number. Stop if the mouth stings persistently.",
+    },
+    target: "Throat irritation — local relief",
+    supported: true,
+  },
+  {
+    id: "opt-supportive-care",
+    generic: "Sodium chloride 0.9% (saline)",
+    strengthForm: "Nasal spray / gargle solution",
+    route: "Nasal and oropharyngeal",
+    dose: "1 to 2 sprays per nostril, or gargle",
+    frequency: "Three to four times daily",
+    duration: "7 days",
+    unit: "bottles",
+    why: "Shown as supportive care for the documented dry cough where drug therapy alone may be insufficient.",
+    patientInfoUsed: "Provider-confirmed indication and documented episode duration.",
+    cautions: "No systemic cautions documented. Discontinue if nasal irritation occurs.",
+    unverified: "Nasal examination was not obtained.",
+    source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
+    clinicalBasis:
+      "Fictional demonstration text: non-drug supportive measure listed alongside symptom control for a persistent dry cough.",
+    brands: [],
+    about: {
+      className: "Supportive care (isotonic saline)",
+      howItWorks:
+        "Fictional reference text: moistens the upper airway and helps clear irritants that maintain a dry cough.",
+      commonSideEffects: "Transient nasal stinging or dripping.",
+      seriousSideEffects: "None expected.",
+      interactions: "None expected.",
+      contraindications: "None documented for topical isotonic saline.",
+      monitoring: "Reassess with the cough review at 7 days.",
+      counselling:
+        "Use regularly through the day alongside fluids and humidified air. It relieves irritation rather than treating an infection.",
+    },
+    target: "Supportive care — airway comfort",
     supported: true,
   },
   {
@@ -741,6 +809,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       monitoring: "Review at 7 days for sputum change and symptom course.",
       counselling: "Take with plenty of fluids and stop if abdominal pain or dark stools occur.",
     },
+    target: "Productive cough — secretion clearance if documented",
     supported: false,
   },
   {
@@ -770,6 +839,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
       monitoring: "Review at 7 days. Reconsider the allergic contribution if there is no response.",
       counselling: "Take at bedtime, avoid alcohol and do not drive if drowsy.",
     },
+    target: "Upper-airway or allergic contribution — if established",
     supported: false,
   },
 ];
@@ -1124,6 +1194,9 @@ export default function IssuePrescriptionDialog({
   const [aiWorksOpen, setAiWorksOpen] = useState(false);
   const [conditionalOpen, setConditionalOpen] = useState(false);
   const [aiHelpOpen, setAiHelpOpen] = useState(false);
+  /** Options are selected first, then added together so related treatments can
+   *  become separate editable medication orders in one provider action. */
+  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
   /** Plan detail drafted after the treatment is selected — all editable. */
   const [planExtras, setPlanExtras] = useState({
     nonMedication: "",
@@ -1521,7 +1594,10 @@ export default function IssuePrescriptionDialog({
     <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[13.5px] font-bold text-[#3D2E6B]">
+          <p className="text-[10.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+            {opt.target}
+          </p>
+          <p className="mt-1 text-[13.5px] font-bold text-[#3D2E6B]">
             {opt.generic} <span className="font-semibold text-[#6F6889]">{opt.strengthForm}</span>
           </p>
           <p className="mt-0.5 text-[12px] text-[#4B4468]">
@@ -1676,10 +1752,19 @@ export default function IssuePrescriptionDialog({
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => useMedicationOption(opt, draft)}
-          className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          aria-pressed={selectedOptionIds.includes(opt.id)}
+          onClick={() =>
+            setSelectedOptionIds((cur) =>
+              cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+            )
+          }
+          className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+            selectedOptionIds.includes(opt.id)
+              ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+              : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+          }`}
         >
-          Use this option
+          {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
         </button>
         <button
           type="button"
@@ -1696,8 +1781,8 @@ export default function IssuePrescriptionDialog({
     );
   };
 
-  /** Copies a structured option into the order. Nothing beyond the option's
-   *  own structured fields is filled in, and every field stays editable. */
+  /** Copies one structured option into a new editable order. Nothing beyond
+   *  the option's own fields is filled in, and every field stays editable. */
   const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
     const d = draft ?? draftFor(opt);
     const brand = opt.brands.find((b) => b.id === d.brandId);
@@ -1711,25 +1796,32 @@ export default function IssuePrescriptionDialog({
       form: opt.strengthForm,
     });
     setMeds((cur) => {
-      const first = cur[0] ?? emptyMed();
-      return [
-        {
-          ...first,
-          genericName: opt.generic,
-          brandName: brand?.name ?? "",
-          strength: opt.strengthForm,
-          route: opt.route,
-          dose: d.dose,
-          frequency: d.frequency,
-          duration: d.duration,
-          unit: opt.unit,
-          rationale: opt.why,
-          sig: draftedSig,
-          sigEdited: false,
-        },
-        ...cur.slice(1),
-      ];
+      const next: MedForm = {
+        ...emptyMed(),
+        genericName: opt.generic,
+        brandName: brand?.name ?? "",
+        strength: opt.strengthForm,
+        route: opt.route,
+        dose: d.dose,
+        frequency: d.frequency,
+        duration: d.duration,
+        unit: opt.unit,
+        rationale: opt.why,
+        sig: draftedSig,
+        sigEdited: false,
+      };
+      const blankOnly = cur.length === 1 && !cur[0]?.genericName.trim();
+      if (cur.some((m) => m.genericName.trim() === opt.generic)) return cur;
+      return blankOnly ? [next] : [...cur, next];
     });
+  };
+
+  const addSelectedMedicationOptions = () => {
+    const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
+      selectedOptionIds.includes(opt.id),
+    );
+    selectedOptions.forEach((opt) => useMedicationOption(opt));
+    setSelectedOptionIds([]);
     setRxPath("search");
   };
 
@@ -4906,7 +4998,7 @@ export default function IssuePrescriptionDialog({
                             Information used for medication options
                           </h3>
                           <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
-                            Options are not ranked and none is preselected. The prescriber decides.
+                            AI has identified related options across the documented clinical notes. Select one or more; none is preselected or ranked.
                           </p>
                         </div>
                         <button
@@ -4966,6 +5058,26 @@ export default function IssuePrescriptionDialog({
                             </p>
                           ) : (
                             supportedOptions.map(renderOption)
+                          )}
+                          {selectedOptionIds.length > 0 && (
+                            <div className="rounded-xl border border-[#D9CEF3] bg-[#F7F4FE] p-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                  {selectedOptionIds.length} related option
+                                  {selectedOptionIds.length === 1 ? "" : "s"} selected
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={addSelectedMedicationOptions}
+                                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+                                >
+                                  Add selected to medication order
+                                </button>
+                              </div>
+                              <p className="mt-1 text-[11px] leading-snug text-[#6F6889]">
+                                Each selection will become its own editable order. Review every item before signing.
+                              </p>
+                            </div>
                           )}
                           {conditionalOptions.length > 0 && (
                             <div className="rounded-xl border border-[#E9E2F8] bg-white p-3">
