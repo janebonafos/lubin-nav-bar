@@ -1701,6 +1701,15 @@ export default function IssuePrescriptionDialog({
   const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
     const d = draft ?? draftFor(opt);
     const brand = opt.brands.find((b) => b.id === d.brandId);
+    // The directions (SIG) are drafted from the same structured option, so the
+    // provider does not have to retype them. It stays fully editable.
+    const draftedSig = buildSig({
+      dose: d.dose,
+      route: opt.route,
+      frequency: d.frequency,
+      duration: d.duration,
+      form: opt.strengthForm,
+    });
     setMeds((cur) => {
       const first = cur[0] ?? emptyMed();
       return [
@@ -1715,6 +1724,8 @@ export default function IssuePrescriptionDialog({
           duration: d.duration,
           unit: opt.unit,
           rationale: opt.why,
+          sig: draftedSig,
+          sigEdited: false,
         },
         ...cur.slice(1),
       ];
