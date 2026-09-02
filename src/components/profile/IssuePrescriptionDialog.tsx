@@ -5115,10 +5115,30 @@ export default function IssuePrescriptionDialog({
                             reviewed.
                           </p>
                           <ul className="mt-2 space-y-1 text-[12px] text-[#6B4E10]">
-                            {optionsMissing.map((m) => (
-                              <li key={m}>• {m}</li>
+                            {optionsMissingItems.map((m) => (
+                              <li key={m.label}>
+                                •{" "}
+                                <button
+                                  type="button"
+                                  onClick={() => setStep(m.step)}
+                                  className="underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
+                                >
+                                  {m.label}
+                                </button>
+                              </li>
                             ))}
                           </ul>
+                          <p className="mt-3 text-[11.5px] leading-snug text-[#6B4E10]">
+                            You can still prescribe now — switch to{" "}
+                            <button
+                              type="button"
+                              onClick={() => setRxPath("search")}
+                              className="font-semibold underline decoration-[#C9A83F] underline-offset-2 hover:text-[#4B3607]"
+                            >
+                              Search and prescribe a medication
+                            </button>{" "}
+                            and complete the regimen yourself.
+                          </p>
                         </div>
                       ) : (
                         <div className="mt-4 space-y-3">
