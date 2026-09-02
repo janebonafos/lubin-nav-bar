@@ -2765,28 +2765,60 @@ export default function IssuePrescriptionDialog({
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-4">
 
           {issued ? (
-            <section className={cardCls}>
-              <p className="flex items-center gap-2 text-[14px] font-bold text-[#3D2E6B]">
-                <CheckCircle2 className="h-5 w-5" /> Prescription issued
-              </p>
-              <p className="mt-1 text-[12.5px] text-[#6F6889]">
-                Signed for {issued.patientName}. Choose how the patient receives it.
-              </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <button type="button" className={`${chip} justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}>
-                  <MessageSquare className="h-4 w-4" /> Send secure link by SMS
+            <section className="mx-auto w-full max-w-[560px] overflow-hidden rounded-2xl border border-[#E7E0F6] bg-white shadow-[0_10px_30px_-24px_rgba(61,46,107,0.45)]">
+              <div className="flex flex-col items-center gap-2 border-b border-[#EFEAFA] bg-[#F8F5FF] px-6 py-6 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EDE5FF] text-[#5B45A0]">
+                  <CheckCircle2 className="h-6 w-6" />
+                </span>
+                <p className="text-[15px] font-bold text-[#3D2E6B]">Prescription issued</p>
+                <p className="text-[12.5px] text-[#6F6889]">
+                  Signed for <span className="font-semibold text-[#3D2E6B]">{issued.patientName}</span> — choose how it
+                  reaches them.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 px-6 py-5">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl bg-[#3D2E6B] px-4 py-3 text-left text-[13px] font-semibold text-white transition hover:bg-[#31245A]"
+                >
+                  <Mail className="h-4 w-4 shrink-0" />
+                  <span className="flex-1">
+                    Send by email
+                    <span className="mt-0.5 block text-[11.5px] font-normal text-white/70">
+                      Secure link delivered to the patient's inbox
+                    </span>
+                  </span>
                 </button>
-                <button type="button" className={`${chip} justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}>
-                  <Mail className="h-4 w-4" /> Send by email
+
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl border border-[#E1D8F5] bg-white px-4 py-3 text-left text-[13px] font-semibold text-[#3D2E6B] transition hover:border-[#C9BAEE] hover:bg-[#FAF8FF]"
+                >
+                  <Download className="h-4 w-4 shrink-0 text-[#6F5BA0]" />
+                  <span className="flex-1">
+                    Download or print
+                    <span className="mt-0.5 block text-[11.5px] font-normal text-[#8A7FB0]">
+                      Signed PDF copy for records or pharmacy
+                    </span>
+                  </span>
                 </button>
-                <button type="button" className={`${chip} justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}>
-                  <Download className="h-4 w-4" /> Download or print
-                </button>
-                <button type="button" className={`${chip} justify-center border-[#D9CEF3] bg-white text-[#3D2E6B]`}>
-                  <UserPlus className="h-4 w-4" /> Invite to create a Lubin account
+
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#E1D8F5] bg-white px-4 py-3 text-left text-[13px] font-semibold text-[#3D2E6B] transition hover:border-[#C9BAEE] hover:bg-[#FAF8FF]"
+                >
+                  <UserPlus className="h-4 w-4 shrink-0 text-[#6F5BA0]" />
+                  <span className="flex-1">
+                    Invite to create a Lubin account
+                    <span className="mt-0.5 block text-[11.5px] font-normal text-[#8A7FB0]">
+                      Keeps future prescriptions and records in one place
+                    </span>
+                  </span>
                 </button>
               </div>
-              <p className="mt-3 text-[11.5px] text-[#8A7FB0]">
+
+              <p className="border-t border-[#EFEAFA] bg-[#FBFAFF] px-6 py-3 text-center text-[11.5px] text-[#8A7FB0]">
                 Prototype only — no message is actually sent.
               </p>
             </section>
