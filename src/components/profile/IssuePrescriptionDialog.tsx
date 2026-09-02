@@ -4638,14 +4638,35 @@ export default function IssuePrescriptionDialog({
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
                         Medication order
                       </h3>
-                      <button
-                        type="button"
-                        onClick={() => setMeds((cur) => [...cur, emptyMed()])}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-                      >
-                        <Plus className="h-3.5 w-3.5" /> Add medication
-                      </button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {rxPath !== "options" && (
+                          <button
+                            type="button"
+                            onClick={() => setRxPath("options")}
+                            className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                          >
+                            <span className="inline-flex h-4 items-center rounded-md bg-white/15 px-1 text-[9px] font-bold tracking-wide text-white">
+                              AI
+                            </span>
+                            Suggest medication options
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setMeds((cur) => [...cur, emptyMed()])}
+                          className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Add medication
+                        </button>
+                      </div>
                     </div>
+                    {rxPath !== "options" && (
+                      <p className="mt-2 text-[11.5px] leading-snug text-[#6F6889]">
+                        You can search and prescribe directly, or ask for AI-drafted options built
+                        from the documented record. Anything AI drafts is a suggestion only — you
+                        review, edit and remain accountable for the final order.
+                      </p>
+                    )}
                     <div className="mt-3 space-y-4">
                       {meds.map((m, i) => (
                         <MedicationCard
