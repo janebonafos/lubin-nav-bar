@@ -5073,7 +5073,7 @@ export default function IssuePrescriptionDialog({
                           )}
                         </div>
 
-                        <div className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
+                        <div id="rx-medications" className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
                           <p className="text-[12.5px] font-bold text-[#3D2E6B]">
                             Is the patient taking any medications?
                           </p>
