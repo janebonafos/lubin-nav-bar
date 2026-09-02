@@ -1194,6 +1194,9 @@ export default function IssuePrescriptionDialog({
   const [aiWorksOpen, setAiWorksOpen] = useState(false);
   const [conditionalOpen, setConditionalOpen] = useState(false);
   const [aiHelpOpen, setAiHelpOpen] = useState(false);
+  /** Options are selected first, then added together so related treatments can
+   *  become separate editable medication orders in one provider action. */
+  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
   /** Plan detail drafted after the treatment is selected — all editable. */
   const [planExtras, setPlanExtras] = useState({
     nonMedication: "",
@@ -1591,7 +1594,10 @@ export default function IssuePrescriptionDialog({
     <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[13.5px] font-bold text-[#3D2E6B]">
+          <p className="text-[10.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
+            {opt.target}
+          </p>
+          <p className="mt-1 text-[13.5px] font-bold text-[#3D2E6B]">
             {opt.generic} <span className="font-semibold text-[#6F6889]">{opt.strengthForm}</span>
           </p>
           <p className="mt-0.5 text-[12px] text-[#4B4468]">
@@ -1746,10 +1752,19 @@ export default function IssuePrescriptionDialog({
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => useMedicationOption(opt, draft)}
-          className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+          aria-pressed={selectedOptionIds.includes(opt.id)}
+          onClick={() =>
+            setSelectedOptionIds((cur) =>
+              cur.includes(opt.id) ? cur.filter((id) => id !== opt.id) : [...cur, opt.id],
+            )
+          }
+          className={`inline-flex h-9 items-center rounded-xl px-3.5 text-[12.5px] font-semibold transition ${
+            selectedOptionIds.includes(opt.id)
+              ? "border border-[#3D2E6B] bg-[#F0EBFF] text-[#3D2E6B]"
+              : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+          }`}
         >
-          Use this option
+          {selectedOptionIds.includes(opt.id) ? "Selected for order" : "Select option"}
         </button>
         <button
           type="button"
@@ -1766,8 +1781,8 @@ export default function IssuePrescriptionDialog({
     );
   };
 
-  /** Copies a structured option into the order. Nothing beyond the option's
-   *  own structured fields is filled in, and every field stays editable. */
+  /** Copies one structured option into a new editable order. Nothing beyond
+   *  the option's own fields is filled in, and every field stays editable. */
   const useMedicationOption = (opt: MedicationOption, draft?: OptionDraft) => {
     const d = draft ?? draftFor(opt);
     const brand = opt.brands.find((b) => b.id === d.brandId);
@@ -1781,25 +1796,32 @@ export default function IssuePrescriptionDialog({
       form: opt.strengthForm,
     });
     setMeds((cur) => {
-      const first = cur[0] ?? emptyMed();
-      return [
-        {
-          ...first,
-          genericName: opt.generic,
-          brandName: brand?.name ?? "",
-          strength: opt.strengthForm,
-          route: opt.route,
-          dose: d.dose,
-          frequency: d.frequency,
-          duration: d.duration,
-          unit: opt.unit,
-          rationale: opt.why,
-          sig: draftedSig,
-          sigEdited: false,
-        },
-        ...cur.slice(1),
-      ];
+      const next: MedForm = {
+        ...emptyMed(),
+        genericName: opt.generic,
+        brandName: brand?.name ?? "",
+        strength: opt.strengthForm,
+        route: opt.route,
+        dose: d.dose,
+        frequency: d.frequency,
+        duration: d.duration,
+        unit: opt.unit,
+        rationale: opt.why,
+        sig: draftedSig,
+        sigEdited: false,
+      };
+      const blankOnly = cur.length === 1 && !cur[0]?.genericName.trim();
+      if (cur.some((m) => m.genericName.trim() === opt.generic)) return cur;
+      return blankOnly ? [next] : [...cur, next];
     });
+  };
+
+  const addSelectedMedicationOptions = () => {
+    const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
+      selectedOptionIds.includes(opt.id),
+    );
+    selectedOptions.forEach((opt) => useMedicationOption(opt));
+    setSelectedOptionIds([]);
     setRxPath("search");
   };
 
@@ -4976,7 +4998,7 @@ export default function IssuePrescriptionDialog({
                             Information used for medication options
                           </h3>
                           <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
-                            Options are not ranked and none is preselected. The prescriber decides.
+                            AI has identified related options across the documented clinical notes. Select one or more; none is preselected or ranked.
                           </p>
                         </div>
                         <button
@@ -5036,6 +5058,26 @@ export default function IssuePrescriptionDialog({
                             </p>
                           ) : (
                             supportedOptions.map(renderOption)
+                          )}
+                          {selectedOptionIds.length > 0 && (
+                            <div className="rounded-xl border border-[#D9CEF3] bg-[#F7F4FE] p-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                  {selectedOptionIds.length} related option
+                                  {selectedOptionIds.length === 1 ? "" : "s"} selected
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={addSelectedMedicationOptions}
+                                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+                                >
+                                  Add selected to medication order
+                                </button>
+                              </div>
+                              <p className="mt-1 text-[11px] leading-snug text-[#6F6889]">
+                                Each selection will become its own editable order. Review every item before signing.
+                              </p>
+                            </div>
                           )}
                           {conditionalOptions.length > 0 && (
                             <div className="rounded-xl border border-[#E9E2F8] bg-white p-3">
