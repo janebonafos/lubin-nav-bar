@@ -1571,6 +1571,19 @@ export default function IssuePrescriptionDialog({
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
 
+  /** Takes the provider straight back to the Plan fields still needing input. */
+  const goToPlanItems = () => {
+    setStep(2);
+    window.setTimeout(() => {
+      const el =
+        (!planExtras.instructions.trim() && document.getElementById("plan-field-instructions")) ||
+        (!planExtras.followUp.trim() && document.getElementById("plan-field-followUp")) ||
+        document.getElementById("plan-section");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.querySelector("textarea")?.focus({ preventScroll: true });
+    }, 120);
+  };
+
   const goStep = (i: number) => {
     if (i > 0 && !patientReady) return;
     if (i === 3 && !canReview) return;
@@ -2753,7 +2766,8 @@ export default function IssuePrescriptionDialog({
 
                   /** Adds an AI question as a prompt inside the section it belongs to. */
                   const answerInSection = (key: keyof SoapNote, question: string) => {
-                    setSoapApproved(false);
+                    // Plan edits never re-open the confirmed S/O/A.
+                    if (key !== "plan") setSoapApproved(false);
                     setAiFields((f) => ({ ...f, [key]: false }));
                     setSoap((s) => ({
                       ...s,
@@ -2994,7 +3008,7 @@ export default function IssuePrescriptionDialog({
                               }`}
                               value={soap[key]}
                               onChange={(e) => {
-                                setSoapApproved(false);
+                                if (key !== "plan") setSoapApproved(false);
                                 if (key === "assessment") setDiagnosisSaved(false);
                                 setAiFields((f) => ({ ...f, [key]: false }));
                                 setSoap((s) => ({ ...s, [key]: e.target.value }));
@@ -3085,7 +3099,6 @@ export default function IssuePrescriptionDialog({
                             <button
                               type="button"
                               onClick={() => {
-                                setSoapApproved(false);
                                 setSoap((s) => ({
                                   ...s,
                                   plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Follow-up: `.trim(),
@@ -3099,7 +3112,6 @@ export default function IssuePrescriptionDialog({
                             <button
                               type="button"
                               onClick={() => {
-                                setSoapApproved(false);
                                 setSoap((s) => ({
                                   ...s,
                                   plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Patient instructions and warning signs: `.trim(),
@@ -4737,7 +4749,7 @@ export default function IssuePrescriptionDialog({
 
                   {/* P — Plan, drafted only after the treatment is selected */}
                   {readyMeds.length > 0 && purpose !== "renewal" && (
-                    <section className={cardCls}>
+                    <section className={cardCls} id="plan-section">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">P — Plan</h3>
                       <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
                         Drafted from the medication and regimen you selected. Every field is
@@ -4762,7 +4774,7 @@ export default function IssuePrescriptionDialog({
                             ["instructions", "Patient instructions and warning signs"],
                           ] as const
                         ).map(([key, text]) => (
-                          <div key={key}>
+                          <div key={key} id={`plan-field-${key}`}>
                             <label className={label}>{text}</label>
                             <AutoTextarea
                               minRows={2}
@@ -5136,9 +5148,17 @@ export default function IssuePrescriptionDialog({
               </p>
             ) : (
               <p className="text-[11.5px] text-[#8A7FB0]">
-                {planUnresolved
-                  ? "Resolve the Plan items marked “Needs provider confirmation”."
-                  : "Ready to continue."}
+                {planUnresolved ? (
+                  <button
+                    type="button"
+                    onClick={goToPlanItems}
+                    className="text-left font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                  >
+                    Resolve the Plan items marked “Needs provider confirmation”.
+                  </button>
+                ) : (
+                  "Ready to continue."
+                )}
               </p>
             )}
           </div>
