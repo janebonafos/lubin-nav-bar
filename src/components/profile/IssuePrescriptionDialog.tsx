@@ -5790,30 +5790,21 @@ export default function IssuePrescriptionDialog({
                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
                           blocked
                             ? hasTargets
-                              ? "border border-[#D8C7F0] bg-[#F7F3FF] text-[#4B3F7A] hover:bg-[#EFE7FF]"
+                              ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
                               : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
                         }`}
                       >
-                        {blocked && hasTargets ? (
-                          <>
-                            <AlertTriangle className="h-4 w-4" />
-                            Show what&apos;s missing ({stepGaps.length})
-                          </>
-                        ) : (
-                          <>
-                            {step === 2
-                              ? "Review prescription"
-                              : step === 1
-                                ? purpose === "renewal"
-                                  ? "Continue with renewal"
-                                  : entry === "lubin"
-                                    ? "Use SOAP and continue"
-                                    : "Continue to prescription"
-                                : "Continue"}
-                            <ArrowRight className="h-4 w-4" />
-                          </>
-                        )}
+                        {step === 2
+                          ? "Review and sign"
+                          : step === 1
+                            ? purpose === "renewal"
+                              ? "Continue with renewal"
+                              : entry === "lubin"
+                                ? "Use SOAP and continue"
+                                : "Continue to prescription"
+                            : "Continue"}
+                        <ArrowRight className="h-4 w-4" />
                       </button>
                     );
                   })()
