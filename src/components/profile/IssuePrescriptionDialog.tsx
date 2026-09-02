@@ -1590,8 +1590,16 @@ export default function IssuePrescriptionDialog({
   const renderOption = (opt: MedicationOption) => {
     const draft = draftFor(opt);
     const chosenBrand = opt.brands.find((b) => b.id === draft.brandId);
+    const isSelected = selectedOptionIds.includes(opt.id);
     return (
-    <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
+    <div
+      key={opt.id}
+      className={`relative rounded-xl border p-4 transition ${
+        isSelected
+          ? "border-[#3D2E6B] bg-[#F7F3FF] shadow-[0_0_0_1px_#3D2E6B_inset]"
+          : "border-[#E3DBF5] bg-white"
+      }`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[10.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
@@ -1605,11 +1613,18 @@ export default function IssuePrescriptionDialog({
             {chosenBrand ? ` · Dispense as ${chosenBrand.name}` : " · Dispense as generic"}
           </p>
         </div>
-        {!opt.supported && (
-          <span className="rounded-full bg-[#F5F1FF] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
-            Conditional
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {isSelected && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#3D2E6B] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-white">
+              <Check className="h-3 w-3" /> Selected
+            </span>
+          )}
+          {!opt.supported && (
+            <span className="rounded-full bg-[#F5F1FF] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+              Conditional
+            </span>
+          )}
+        </div>
       </div>
       <dl className="mt-3 grid gap-2 text-[11.5px] leading-snug text-[#4B4468]">
         <div>
@@ -5093,21 +5108,49 @@ export default function IssuePrescriptionDialog({
                             supportedOptions.map(renderOption)
                           )}
                           {selectedOptionIds.length > 0 && (
-                            <div className="rounded-xl border border-[#D9CEF3] bg-[#F7F4FE] p-3">
+                            <div className="sticky bottom-2 z-10 rounded-xl border border-[#3D2E6B] bg-[#F7F3FF] p-3 shadow-sm">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                  {selectedOptionIds.length} related option
-                                  {selectedOptionIds.length === 1 ? "" : "s"} selected
+                                <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#3D2E6B]">
+                                  <Check className="h-3.5 w-3.5" />
+                                  {selectedOptionIds.length} medication
+                                  {selectedOptionIds.length === 1 ? "" : "s"} selected for order
                                 </p>
                                 <button
                                   type="button"
                                   onClick={addSelectedMedicationOptions}
-                                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+                                  className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
                                 >
+                                  <Plus className="h-3.5 w-3.5" />
                                   Add selected to medication order
                                 </button>
                               </div>
-                              <p className="mt-1 text-[11px] leading-snug text-[#6F6889]">
+                              <ul className="mt-2 flex flex-wrap gap-1.5">
+                                {selectedOptionIds.map((id) => {
+                                  const o = MEDICATION_OPTIONS.find((m) => m.id === id);
+                                  if (!o) return null;
+                                  return (
+                                    <li key={id}>
+                                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#3D2E6B] bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[#3D2E6B]">
+                                        <Check className="h-3 w-3 text-[#3D2E6B]" />
+                                        {o.generic}
+                                        <button
+                                          type="button"
+                                          aria-label={`Remove ${o.generic} from selection`}
+                                          onClick={() =>
+                                            setSelectedOptionIds((cur) =>
+                                              cur.filter((x) => x !== id),
+                                            )
+                                          }
+                                          className="-mr-0.5 rounded-full p-0.5 text-[#8A7FB0] hover:bg-[#F0EBFF] hover:text-[#3D2E6B]"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      </span>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                              <p className="mt-2 text-[11px] leading-snug text-[#6F6889]">
                                 Each selection will become its own editable order. Review every item before signing.
                               </p>
                             </div>
