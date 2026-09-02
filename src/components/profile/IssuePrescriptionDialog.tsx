@@ -5671,18 +5671,49 @@ export default function IssuePrescriptionDialog({
         </div>
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
-          <div className="min-w-0">
-            {issued ? (
-              <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
-            ) : stepGaps.length > 0 ? (
-              <>
-                <p className="text-[12px] font-bold text-[#3D2E6B]">
-                  {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
-                </p>
-                <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                  {stepGaps.slice(0, 3).map((g) => (
-                    <li key={g} className="text-[11.5px] text-[#8A7FB0]">
-                      ·{" "}
+          <div className="flex min-w-0 items-center gap-3">
+            {!issued && (
+              <button
+                type="button"
+                onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
+                className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+              >
+                Cancel
+              </button>
+            )}
+            <div className="min-w-0">
+              {issued ? (
+                <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
+              ) : stepGaps.length > 0 ? (
+                <>
+                  <p className="text-[12px] font-bold text-[#3D2E6B]">
+                    {stepGaps.length} item{stepGaps.length === 1 ? "" : "s"} remaining
+                  </p>
+                  <ul className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                    {stepGaps.slice(0, 3).map((g) => (
+                      <li key={g} className="text-[11.5px] text-[#8A7FB0]">
+                        ·{" "}
+                        {gapTargets[g] ? (
+                          <button
+                            type="button"
+                            onClick={() => jumpToGap(g)}
+                            className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                          >
+                            {g}
+                          </button>
+                        ) : (
+                          g
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : allGaps.length > 0 ? (
+                <p className="text-[11.5px] text-[#8A7FB0]">
+                  Still to resolve:{" "}
+                  {allGaps.slice(0, 3).map((g, i) => (
+                    <span key={g}>
+                      {i > 0 && " · "}
                       {gapTargets[g] ? (
                         <button
                           type="button"
@@ -5694,45 +5725,25 @@ export default function IssuePrescriptionDialog({
                       ) : (
                         g
                       )}
-                    </li>
+                    </span>
                   ))}
-                </ul>
-              </>
-            ) : allGaps.length > 0 ? (
-              <p className="text-[11.5px] text-[#8A7FB0]">
-                Still to resolve:{" "}
-                {allGaps.slice(0, 3).map((g, i) => (
-                  <span key={g}>
-                    {i > 0 && " · "}
-                    {gapTargets[g] ? (
-                      <button
-                        type="button"
-                        onClick={() => jumpToGap(g)}
-                        className="font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                      >
-                        {g}
-                      </button>
-                    ) : (
-                      g
-                    )}
-                  </span>
-                ))}
-              </p>
-            ) : (
-              <p className="text-[11.5px] text-[#8A7FB0]">
-                {planUnresolved ? (
-                  <button
-                    type="button"
-                    onClick={goToPlanItems}
-                    className="text-left font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                  >
-                    Resolve the Plan items marked “Needs provider confirmation”.
-                  </button>
-                ) : (
-                  "Ready to continue."
-                )}
-              </p>
-            )}
+                </p>
+              ) : (
+                <p className="text-[11.5px] text-[#8A7FB0]">
+                  {planUnresolved ? (
+                    <button
+                      type="button"
+                      onClick={goToPlanItems}
+                      className="text-left font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                    >
+                      Resolve the Plan items marked “Needs provider confirmation”.
+                    </button>
+                  ) : (
+                    "Ready to continue."
+                  )}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {issued ? (
@@ -5748,13 +5759,6 @@ export default function IssuePrescriptionDialog({
               </button>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
-                  className="inline-flex h-10 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-                >
-                  Cancel
-                </button>
                 {step < 3 ? (
                   step === 2 && selectedOptionIds.length > 0 ? (
                     <button
