@@ -936,6 +936,8 @@ export default function IssuePrescriptionDialog({
   /** The prescriber's own decision about what the assessment is. Only the
    *  prescriber may set this — AI never claims a diagnosis is established. */
   const [assessmentBasis, setAssessmentBasis] = useState<AssessmentBasis | "">("");
+  /** Set once the provider saves a manually typed diagnosis. */
+  const [diagnosisSaved, setDiagnosisSaved] = useState(false);
   /** Targeted question per SOAP section, shown beneath that section. */
   const [sectionQuestions, setSectionQuestions] = useState<
     Partial<Record<keyof SoapNote, string>>
