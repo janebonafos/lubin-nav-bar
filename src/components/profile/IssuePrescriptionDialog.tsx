@@ -1531,6 +1531,49 @@ export default function IssuePrescriptionDialog({
       </dl>
       <p className="mt-2 text-[10.5px] text-[#8A7FB0]">{opt.source}</p>
 
+      <button
+        type="button"
+        aria-expanded={draft.aboutOpen}
+        aria-controls={`about-${opt.id}`}
+        onClick={() => patchDraft(opt, { aboutOpen: !draft.aboutOpen })}
+        className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+      >
+        {draft.aboutOpen ? "Hide medication information" : "About this medication"}
+      </button>
+      {draft.aboutOpen && (
+        <div
+          id={`about-${opt.id}`}
+          className="mt-2 rounded-xl border border-[#E9E2FA] bg-[#FBF9FF] p-3"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+            Medication information · {opt.about.className}
+          </p>
+          <dl className="mt-2 grid gap-2 text-[11.5px] leading-snug text-[#4B4468] sm:grid-cols-2">
+            {(
+              [
+                ["How it works", opt.about.howItWorks],
+                ["Common side effects", opt.about.commonSideEffects],
+                ["Serious side effects", opt.about.seriousSideEffects],
+                ["Interactions", opt.about.interactions],
+                ["Contraindications and cautions", opt.about.contraindications],
+                ["Monitoring and review", opt.about.monitoring],
+                ["What to tell the patient", opt.about.counselling],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label}>
+                <dt className="font-semibold text-[#3D2E6B]">{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-2 text-[10.5px] text-[#8A7FB0]">
+            Fictional prototype reference text for demonstration only. It is not a formulary or a
+            substitute for the prescriber&apos;s own review.
+          </p>
+        </div>
+      )}
+
+
       <div className="mt-3 rounded-xl border border-[#E9E2FA] bg-[#FBF9FF] p-3">
         <p className="text-[11px] font-bold uppercase tracking-wide text-[#6F5BA0]">
           Dispense as
