@@ -1916,6 +1916,21 @@ export default function IssuePrescriptionDialog({
     scrollToMedicationOrder();
   };
 
+  /** Undoes one added option: it leaves the medication order and becomes
+   *  selectable again in the options list. */
+  const removeUsedOption = (optId: string) => {
+    const opt = MEDICATION_OPTIONS.find((o) => o.id === optId);
+    setUsedOptionIds((cur) => cur.filter((id) => id !== optId));
+    setSelectedOptionIds((cur) => cur.filter((id) => id !== optId));
+    if (!opt) return;
+    setMeds((cur) => {
+      const next = cur.filter((m) => m.genericName.trim() !== opt.generic);
+      return next.length ? next : [emptyMed()];
+    });
+  };
+
+
+
   /** Re-opens the AI-assisted options list (e.g. after adding a medication
    *  manually the provider may want to check the suggestions again). */
   const reopenMedicationOptions = () => {
