@@ -4401,25 +4401,6 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                 {reviewSoapOpen && (
-                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
-                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
-                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
-                                         <span className="font-semibold text-[#3D2E6B]">
-                                           {SOAP_FULL_LABEL[k]}:{" "}
-                                         </span>
-                                         {linkedAppt.soap[k] || (
-                                           <span className="text-[#8A7FB0]">
-                                             Not documented — provider confirmation required
-                                           </span>
-                                         )}
-                                       </p>
-                                     ))}
-                                     <p className="text-[11.5px] text-[#8A7FB0]">
-                                       Reused from the consultation record — read-only here.
-                                     </p>
-                                   </div>
-                                 )}
                                  <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
                                    <p className="text-[12px] font-semibold text-[#3D2E6B]">
                                      Review clinical assessment and medication safety information before continuing.
