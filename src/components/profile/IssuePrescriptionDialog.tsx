@@ -633,6 +633,9 @@ type MedicationOption = {
   unverified: string;
   source: string;
   clinicalBasis: string;
+  /** Fictional brand equivalents. The provider chooses generic or a brand —
+   *  nothing is preselected and the generic is listed first. */
+  brands: { id: string; name: string; note: string }[];
   /** True only when the documented record supports the option. Anything else is
    *  hypothetical and lives in the collapsed "clinical picture changes" group. */
   supported: boolean;
@@ -656,6 +659,10 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: symptomatic antitussive used for short-term relief of dry cough when no red-flag features are documented.",
+    brands: [
+      { id: "b-tussivex", name: "Tussivex", note: "Fictional brand · 15 mg tablet" },
+      { id: "b-coughlan", name: "Coughlan DM", note: "Fictional brand · 15 mg tablet" },
+    ],
     supported: true,
   },
   {
@@ -674,6 +681,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: mucolytic option listed for provider consideration if secretions are documented.",
+    brands: [{ id: "b-mucolyx", name: "Mucolyx", note: "Fictional brand · 500 mg capsule" }],
     supported: false,
   },
   {
@@ -692,6 +700,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: antihistamine listed only as an option; the provider decides whether an allergic contribution applies.",
+    brands: [{ id: "b-alerzin", name: "Alerzin", note: "Fictional brand · 10 mg tablet" }],
     supported: false,
   },
 ];
@@ -1020,6 +1029,26 @@ export default function IssuePrescriptionDialog({
   /** How the provider wants to choose the treatment. Nothing is preselected. */
   const [rxPath, setRxPath] = useState<"search" | "options" | null>(null);
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
+  /** Per-option provider choices before the option is copied into the order:
+   *  dispense as generic or a fictional brand, plus editable posology. */
+  type OptionDraft = {
+    brandId: string; // "" = generic
+    dose: string;
+    frequency: string;
+    duration: string;
+    open: boolean;
+  };
+  const [optionDrafts, setOptionDrafts] = useState<Record<string, OptionDraft>>({});
+  const draftFor = (opt: MedicationOption): OptionDraft =>
+    optionDrafts[opt.id] ?? {
+      brandId: "",
+      dose: opt.dose,
+      frequency: opt.frequency,
+      duration: opt.duration,
+      open: false,
+    };
+  const patchDraft = (opt: MedicationOption, patch: Partial<OptionDraft>) =>
+    setOptionDrafts((cur) => ({ ...cur, [opt.id]: { ...draftFor(opt), ...patch } }));
   const [basisOpen, setBasisOpen] = useState("");
   const [aiWorksOpen, setAiWorksOpen] = useState(false);
   const [conditionalOpen, setConditionalOpen] = useState(false);
