@@ -1850,7 +1850,8 @@ export default function IssuePrescriptionDialog({
     );
     selectedOptions.forEach((opt) => useMedicationOption(opt));
     setSelectedOptionIds([]);
-    setRxPath("search");
+    // The provider stays on the AI-assisted path they chose; the order below is
+    // simply populated with the options they picked.
   };
 
   /** Visible SOAP status for the Step 2 accordion and the standalone card. */
@@ -5239,10 +5240,29 @@ export default function IssuePrescriptionDialog({
                   {!(rxPath === "options" && readyMeds.length === 0) && (
                   <section className={cardCls}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                        Medication order
-                      </h3>
                       <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
+                          Medication order
+                        </h3>
+                        {rxPath === "options" && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#D9CEF3] bg-[#F7F3FF] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#3D2E6B]">
+                            <span className="rounded-[4px] bg-[#3D2E6B] px-1 text-[9px] font-bold text-white">
+                              AI
+                            </span>
+                            From AI-assisted options — review and edit
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {rxPath === "options" && (
+                          <button
+                            type="button"
+                            onClick={() => setRxPath("search")}
+                            className="inline-flex h-9 items-center rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+                          >
+                            Switch to manual entry
+                          </button>
+                        )}
                         {rxPath !== "options" && (
                           <button
                             type="button"
