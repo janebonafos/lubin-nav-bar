@@ -1145,6 +1145,16 @@ export default function IssuePrescriptionDialog({
    * Step 3 — never guessed earlier. It only replaces the awaiting placeholder,
    * so anything the provider typed themselves is left untouched.
    */
+  /** Information already documented in the medication order — never asked twice. */
+  const orderFollowUp = readyMeds
+    .map((m) => m.followUp.trim())
+    .filter(Boolean)
+    .join(" ");
+  const orderInstructions = readyMeds
+    .map((m) => m.instructions.trim())
+    .filter(Boolean)
+    .join(" ");
+
   useEffect(() => {
     if (soap.plan !== PLAN_AWAITING_RX) return;
     if (!readyMeds.length) return;
@@ -1156,12 +1166,42 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${NEEDS_CONFIRMATION}. Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+      plan: `${lines.join(" ")} Follow-up: ${orderFollowUp || NEEDS_CONFIRMATION}. Patient instructions: ${
+        orderInstructions || NEEDS_CONFIRMATION
+      }. Warning signs: ${NEEDS_CONFIRMATION}.`,
     }));
     setAiFields((f) => ({ ...f, plan: true }));
-    setSoapApproved(false);
+    // Editing the medication or the Plan never re-opens the confirmed S/O/A.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
+
+  /** A Plan placeholder resolves itself once the same information is documented
+   *  in the medication order. Only warning signs can remain outstanding. */
+  useEffect(() => {
+    setSoap((s) => {
+      let plan = s.plan;
+      if (orderFollowUp)
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${orderFollowUp}`);
+      if (orderInstructions)
+        plan = plan.replace(
+          `Patient instructions: ${NEEDS_CONFIRMATION}`,
+          `Patient instructions: ${orderInstructions}`,
+        );
+      return plan === s.plan ? s : { ...s, plan };
+    });
+  }, [orderFollowUp, orderInstructions]);
+
+
+  /** Follow-up and patient instructions documented in the medication order flow
+   *  straight into the Plan — the provider never types them twice. */
+  useEffect(() => {
+    if (!orderFollowUp) return;
+    setPlanExtras((p) => (p.followUp.trim() ? p : { ...p, followUp: orderFollowUp }));
+  }, [orderFollowUp]);
+  useEffect(() => {
+    if (!orderInstructions) return;
+    setPlanExtras((p) => (p.instructions.trim() ? p : { ...p, instructions: orderInstructions }));
+  }, [orderInstructions]);
 
 
   /** Opened from an appointment: link and reuse that consultation's SOAP, no search. */
@@ -1201,7 +1241,7 @@ export default function IssuePrescriptionDialog({
   // ---------- gating ----------
   const patientGaps: string[] = [];
   if (!patientName.trim()) patientGaps.push("Full legal name");
-  if (!preferredName.trim()) patientGaps.push("Preferred name");
+  // Preferred name is genuinely optional — it never blocks or appears as a gap.
   if (!dob) patientGaps.push("Date of birth");
   if (sex === "not-documented") patientGaps.push("Sex");
   // City / municipality is the only address field required to issue a
@@ -1320,6 +1360,15 @@ export default function IssuePrescriptionDialog({
     objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
       ? soap.objective.trim()
       : "Not obtained — no vital signs, laboratory results or renal or hepatic function recorded at this visit";
+  /** One relevant-conditions status, used identically in medication options and
+   *  in the final Safety review. Conditions count as reviewed once the provider
+   *  has answered the allergy and current-medication questions. */
+  const conditionsReviewed = allergyState !== "not-assessed" && medicationState !== "not-assessed";
+  const conditionsLabel = conditionsText.trim()
+    ? `Reviewed — documented: ${conditionsText.trim()}`
+    : conditionsReviewed
+      ? "Reviewed — none"
+      : "Not reviewed";
   const optionInputs: { label: string; value: string }[] = [
     {
       label: "Provider-confirmed Assessment or indication",
@@ -1344,7 +1393,7 @@ export default function IssuePrescriptionDialog({
             ? medicationDetail.trim() || "Documented — view details"
             : "Not assessed",
     },
-    { label: "Relevant conditions", value: conditionsText.trim() || "None reported" },
+    { label: "Relevant conditions", value: conditionsLabel },
     {
       label: "Pregnancy / breastfeeding",
       value: pregnancyLabel,
@@ -1521,6 +1570,19 @@ export default function IssuePrescriptionDialog({
   const patientReady =
     (!!patientName.trim() || creatingNew || !!selected) && patientGaps.length === 0;
   /** Review and sign stays locked until steps 1–3 are genuinely complete. */
+
+  /** Takes the provider straight back to the Plan fields still needing input. */
+  const goToPlanItems = () => {
+    setStep(2);
+    window.setTimeout(() => {
+      const el =
+        (!planExtras.instructions.trim() && document.getElementById("plan-field-instructions")) ||
+        (!planExtras.followUp.trim() && document.getElementById("plan-field-followUp")) ||
+        document.getElementById("plan-section");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.querySelector("textarea")?.focus({ preventScroll: true });
+    }, 120);
+  };
 
   const goStep = (i: number) => {
     if (i > 0 && !patientReady) return;
@@ -2704,7 +2766,8 @@ export default function IssuePrescriptionDialog({
 
                   /** Adds an AI question as a prompt inside the section it belongs to. */
                   const answerInSection = (key: keyof SoapNote, question: string) => {
-                    setSoapApproved(false);
+                    // Plan edits never re-open the confirmed S/O/A.
+                    if (key !== "plan") setSoapApproved(false);
                     setAiFields((f) => ({ ...f, [key]: false }));
                     setSoap((s) => ({
                       ...s,
@@ -2945,7 +3008,7 @@ export default function IssuePrescriptionDialog({
                               }`}
                               value={soap[key]}
                               onChange={(e) => {
-                                setSoapApproved(false);
+                                if (key !== "plan") setSoapApproved(false);
                                 if (key === "assessment") setDiagnosisSaved(false);
                                 setAiFields((f) => ({ ...f, [key]: false }));
                                 setSoap((s) => ({ ...s, [key]: e.target.value }));
@@ -3036,7 +3099,6 @@ export default function IssuePrescriptionDialog({
                             <button
                               type="button"
                               onClick={() => {
-                                setSoapApproved(false);
                                 setSoap((s) => ({
                                   ...s,
                                   plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Follow-up: `.trim(),
@@ -3050,7 +3112,6 @@ export default function IssuePrescriptionDialog({
                             <button
                               type="button"
                               onClick={() => {
-                                setSoapApproved(false);
                                 setSoap((s) => ({
                                   ...s,
                                   plan: `${isSoapPlaceholder(s.plan) ? "" : `${s.plan} `}Patient instructions and warning signs: `.trim(),
@@ -4688,7 +4749,7 @@ export default function IssuePrescriptionDialog({
 
                   {/* P — Plan, drafted only after the treatment is selected */}
                   {readyMeds.length > 0 && purpose !== "renewal" && (
-                    <section className={cardCls}>
+                    <section className={cardCls} id="plan-section">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">P — Plan</h3>
                       <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
                         Drafted from the medication and regimen you selected. Every field is
@@ -4713,7 +4774,7 @@ export default function IssuePrescriptionDialog({
                             ["instructions", "Patient instructions and warning signs"],
                           ] as const
                         ).map(([key, text]) => (
-                          <div key={key}>
+                          <div key={key} id={`plan-field-${key}`}>
                             <label className={label}>{text}</label>
                             <AutoTextarea
                               minRows={2}
@@ -4890,7 +4951,7 @@ export default function IssuePrescriptionDialog({
                           ? `: ${medicationDetail}`
                           : ""}
                       </li>
-                      <li>Conditions — {conditionsText || "Not provided"}</li>
+                      <li>Relevant conditions — {conditionsLabel}</li>
                       {sex !== "male" && (
                         <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
@@ -5087,9 +5148,17 @@ export default function IssuePrescriptionDialog({
               </p>
             ) : (
               <p className="text-[11.5px] text-[#8A7FB0]">
-                {planUnresolved
-                  ? "Resolve the Plan items marked “Needs provider confirmation”."
-                  : "Ready to continue."}
+                {planUnresolved ? (
+                  <button
+                    type="button"
+                    onClick={goToPlanItems}
+                    className="text-left font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
+                  >
+                    Resolve the Plan items marked “Needs provider confirmation”.
+                  </button>
+                ) : (
+                  "Ready to continue."
+                )}
               </p>
             )}
           </div>
