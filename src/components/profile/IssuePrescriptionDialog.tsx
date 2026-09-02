@@ -1087,6 +1087,8 @@ export default function IssuePrescriptionDialog({
   const [purpose, setPurpose] = useState<RxPurposeChoice | null>(null);
   const [entry, setEntry] = useState<EntryPoint | null>(null);
   const [linkedAppointment, setLinkedAppointment] = useState<string>("");
+  /** Which consultation a manual Objective selection was made for. */
+  const [objectiveForConsult, setObjectiveForConsult] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
   const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
   /** Existing patients confirm or update the safety information already on file. */
