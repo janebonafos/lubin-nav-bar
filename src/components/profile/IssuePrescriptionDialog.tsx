@@ -5762,6 +5762,14 @@ function MedicationCard({
             }}
             placeholder="Take 50 mg by oral route once daily in the morning for 4 weeks."
           />
+          {med.sig.trim() && !med.sigEdited && (
+            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#8A7FB0]">
+              <span className="inline-flex h-3.5 items-center rounded-md bg-[#EDE7FA] px-1 text-[8.5px] font-bold tracking-wide text-[#4B3F7A]">
+                AI
+              </span>
+              AI draft from the selected regimen — provider review required.
+            </p>
+          )}
         </div>
         <div className="sm:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
