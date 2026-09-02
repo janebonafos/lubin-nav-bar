@@ -5871,6 +5871,17 @@ function MedicationCard({
     med.genericName.trim() ||
     (med.brandName.trim() ? med.brandName.trim() : "Untitled medication");
 
+  /** Fields still required on this medication, surfaced on the collapsed header. */
+  const missingCount = [
+    med.strength,
+    med.route,
+    med.sig,
+    med.quantity,
+    med.unit,
+    med.refills,
+    med.instructions,
+  ].filter((v) => !String(v ?? "").trim()).length;
+
   const HeaderInner = () => (
     <>
       <span className="rounded-md bg-[#EDE7FA] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#4B3F7A]">
@@ -5879,6 +5890,17 @@ function MedicationCard({
       {collapsible && (
         <span className="min-w-0 truncate text-[13px] font-semibold text-[#3D2E6B]">
           {medSummary}
+        </span>
+      )}
+      {collapsible && med.genericName.trim() && (
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-bold ${
+            missingCount > 0
+              ? "bg-[#FDF6E7] text-[#6B4E10]"
+              : "bg-[#E9F6EF] text-[#1F6B4A]"
+          }`}
+        >
+          {missingCount > 0 ? `${missingCount} to complete` : "Complete"}
         </span>
       )}
       <div className="h-px flex-1 bg-[#EDEBF3]" />
