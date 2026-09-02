@@ -1564,6 +1564,8 @@ export default function IssuePrescriptionDialog({
         );
       }
       if (materialChange === "reassess") contextGaps.push("Patient requires reassessment");
+      if (materialChange === "update" && (!soap.subjective.trim() || !soap.plan.trim()))
+        contextGaps.push("Complete updated clinical information");
       if (!soapApproved) contextGaps.push("Review and confirm the clinical information");
     }
   }
