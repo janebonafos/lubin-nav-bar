@@ -1175,6 +1175,23 @@ export default function IssuePrescriptionDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
+  /** A Plan placeholder resolves itself once the same information is documented
+   *  in the medication order. Only warning signs can remain outstanding. */
+  useEffect(() => {
+    setSoap((s) => {
+      let plan = s.plan;
+      if (orderFollowUp)
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${orderFollowUp}`);
+      if (orderInstructions)
+        plan = plan.replace(
+          `Patient instructions: ${NEEDS_CONFIRMATION}`,
+          `Patient instructions: ${orderInstructions}`,
+        );
+      return plan === s.plan ? s : { ...s, plan };
+    });
+  }, [orderFollowUp, orderInstructions]);
+
+
   /** Follow-up and patient instructions documented in the medication order flow
    *  straight into the Plan — the provider never types them twice. */
   useEffect(() => {
