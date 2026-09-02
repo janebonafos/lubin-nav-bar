@@ -22,7 +22,6 @@ import { Route as MyHealthPassportRouteImport } from './routes/my-health-passpor
 import { Route as FindProviderRouteImport } from './routes/find-provider'
 import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as EmailPreviewRouteImport } from './routes/email-preview'
-import { Route as EPrescriptionRouteImport } from './routes/e-prescription'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -36,6 +35,7 @@ import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
 import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview.psychiatrist-session'
 import { Route as PreviewPrescriberDemosRouteImport } from './routes/preview.prescriber-demos'
+import { Route as EPrescriptionViewIdRouteImport } from './routes/e-prescription_.$viewId'
 import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
 import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
 import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
@@ -115,11 +115,6 @@ const EmailPreviewRoute = EmailPreviewRouteImport.update({
   path: '/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EPrescriptionRoute = EPrescriptionRouteImport.update({
-  id: '/e-prescription',
-  path: '/e-prescription',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -184,6 +179,11 @@ const PreviewPsychiatristSessionRoute =
 const PreviewPrescriberDemosRoute = PreviewPrescriberDemosRouteImport.update({
   id: '/preview/prescriber-demos',
   path: '/preview/prescriber-demos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EPrescriptionViewIdRoute = EPrescriptionViewIdRouteImport.update({
+  id: '/e-prescription_/$viewId',
+  path: '/e-prescription/$viewId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
@@ -259,7 +259,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
-  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -284,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/e-prescription/$viewId': typeof EPrescriptionViewIdRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -301,7 +301,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
-  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -326,6 +325,7 @@ export interface FileRoutesByTo {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/e-prescription/$viewId': typeof EPrescriptionViewIdRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -344,7 +344,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
-  '/e-prescription': typeof EPrescriptionRoute
   '/email-preview': typeof EmailPreviewRoute
   '/faqs': typeof FaqsRoute
   '/find-provider': typeof FindProviderRoute
@@ -369,6 +368,7 @@ export interface FileRoutesById {
   '/appointment/cancel': typeof AppointmentCancelRoute
   '/appointment/details': typeof AppointmentDetailsRoute
   '/appointment/reschedule': typeof AppointmentRescheduleRoute
+  '/e-prescription_/$viewId': typeof EPrescriptionViewIdRoute
   '/preview/prescriber-demos': typeof PreviewPrescriberDemosRoute
   '/preview/psychiatrist-session': typeof PreviewPsychiatristSessionRoute
   '/profile/preview': typeof ProfilePreviewRoute
@@ -388,7 +388,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
-    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -413,6 +412,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/e-prescription/$viewId'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -430,7 +430,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
-    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -455,6 +454,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/e-prescription/$viewId'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -472,7 +472,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/check-in'
     | '/checkout'
-    | '/e-prescription'
     | '/email-preview'
     | '/faqs'
     | '/find-provider'
@@ -497,6 +496,7 @@ export interface FileRouteTypes {
     | '/appointment/cancel'
     | '/appointment/details'
     | '/appointment/reschedule'
+    | '/e-prescription_/$viewId'
     | '/preview/prescriber-demos'
     | '/preview/psychiatrist-session'
     | '/profile/preview'
@@ -515,7 +515,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
-  EPrescriptionRoute: typeof EPrescriptionRoute
   EmailPreviewRoute: typeof EmailPreviewRoute
   FaqsRoute: typeof FaqsRoute
   FindProviderRoute: typeof FindProviderRoute
@@ -540,6 +539,7 @@ export interface RootRouteChildren {
   AppointmentCancelRoute: typeof AppointmentCancelRoute
   AppointmentDetailsRoute: typeof AppointmentDetailsRoute
   AppointmentRescheduleRoute: typeof AppointmentRescheduleRoute
+  EPrescriptionViewIdRoute: typeof EPrescriptionViewIdRoute
   PreviewPrescriberDemosRoute: typeof PreviewPrescriberDemosRoute
   PreviewPsychiatristSessionRoute: typeof PreviewPsychiatristSessionRoute
   ProviderIdRoute: typeof ProviderIdRoute
@@ -645,13 +645,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/e-prescription': {
-      id: '/e-prescription'
-      path: '/e-prescription'
-      fullPath: '/e-prescription'
-      preLoaderRoute: typeof EPrescriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -741,6 +734,13 @@ declare module '@tanstack/react-router' {
       path: '/preview/prescriber-demos'
       fullPath: '/preview/prescriber-demos'
       preLoaderRoute: typeof PreviewPrescriberDemosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e-prescription_/$viewId': {
+      id: '/e-prescription_/$viewId'
+      path: '/e-prescription/$viewId'
+      fullPath: '/e-prescription/$viewId'
+      preLoaderRoute: typeof EPrescriptionViewIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/appointment/reschedule': {
@@ -853,7 +853,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
-  EPrescriptionRoute: EPrescriptionRoute,
   EmailPreviewRoute: EmailPreviewRoute,
   FaqsRoute: FaqsRoute,
   FindProviderRoute: FindProviderRoute,
@@ -878,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppointmentCancelRoute: AppointmentCancelRoute,
   AppointmentDetailsRoute: AppointmentDetailsRoute,
   AppointmentRescheduleRoute: AppointmentRescheduleRoute,
+  EPrescriptionViewIdRoute: EPrescriptionViewIdRoute,
   PreviewPrescriberDemosRoute: PreviewPrescriberDemosRoute,
   PreviewPsychiatristSessionRoute: PreviewPsychiatristSessionRoute,
   ProviderIdRoute: ProviderIdRoute,

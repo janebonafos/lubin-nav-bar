@@ -19,12 +19,12 @@ import {
   type PatientRecordView,
 } from "@/lib/prescription/patientRecords";
 import {
-  encodeSignedPrescription,
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
+import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
 import { ASSESSMENTS_BY_SLUG, GROUP_LABELS } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import {
@@ -37,17 +37,18 @@ import {
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
 const label = "text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
 
+/** Opens the document behind an opaque id — no patient, medication or
+ *  prescription data ever appears in the URL. */
 function prescriptionHref(doc: SignedPrescriptionDocument): string {
-  const params = new URLSearchParams({
-    appointment: doc.appointmentId,
+  const id = stashPrescriptionView({
+    appointmentId: doc.appointmentId,
     country: doc.country,
-    doc: doc.id,
+    clientName: doc.patientName,
+    providerName: doc.identity?.fullName,
+    docId: doc.id,
+    document: doc,
   });
-  if (doc.patientName) params.set("client", doc.patientName);
-  if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
-  const encoded = encodeSignedPrescription(doc);
-  if (encoded) params.set("d", encoded);
-  return `/e-prescription?${params.toString()}`;
+  return `/e-prescription/${id}`;
 }
 
 function formatDate(at?: number): string {

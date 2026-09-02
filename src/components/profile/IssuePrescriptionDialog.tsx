@@ -636,6 +636,9 @@ type MedicationOption = {
   unverified: string;
   source: string;
   clinicalBasis: string;
+  /** True only when the documented record supports the option. Anything else is
+   *  hypothetical and lives in the collapsed "clinical picture changes" group. */
+  supported: boolean;
 };
 
 const MEDICATION_OPTIONS: MedicationOption[] = [
@@ -656,6 +659,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: symptomatic antitussive used for short-term relief of dry cough when no red-flag features are documented.",
+    supported: true,
   },
   {
     id: "opt-carbocisteine",
@@ -673,6 +677,7 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: mucolytic option listed for provider consideration if secretions are documented.",
+    supported: false,
   },
   {
     id: "opt-cetirizine",
@@ -690,8 +695,26 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
     source: "Fictional prototype formulary · v2026.1 (01 Jun 2026)",
     clinicalBasis:
       "Fictional demonstration text: antihistamine listed only as an option; the provider decides whether an allergic contribution applies.",
+    supported: false,
   },
 ];
+
+/** Pregnancy / breastfeeding review state. "Not reviewed" is the only default. */
+type PregnancyReview =
+  | "not-reviewed"
+  | "not-pregnant"
+  | "pregnant"
+  | "breastfeeding"
+  | "not-applicable";
+
+const PREGNANCY_REVIEW_LABEL: Record<PregnancyReview, string> = {
+  "not-reviewed": "Not reviewed",
+  "not-pregnant": "Not pregnant and not breastfeeding",
+  pregnant: "Pregnant",
+  breastfeeding: "Breastfeeding",
+  "not-applicable": "Not applicable — provider confirmed",
+};
+
 
 
 type MedForm = {
@@ -987,6 +1010,9 @@ export default function IssuePrescriptionDialog({
   const [reviewedNoChanges, setReviewedNoChanges] = useState(false);
   const [conditionsText, setConditionsText] = useState("");
   const [pregnancyText, setPregnancyText] = useState("");
+  /** Pregnancy / breastfeeding stays "Not reviewed" until the provider selects
+   *  a status. Nothing is ever assigned automatically. */
+  const [pregnancyStatus, setPregnancyStatus] = useState<PregnancyReview>("not-reviewed");
   const [weightText, setWeightText] = useState("");
   const [bpText, setBpText] = useState("");
   const [hrText, setHrText] = useState("");
@@ -999,6 +1025,7 @@ export default function IssuePrescriptionDialog({
   const [dismissedOptions, setDismissedOptions] = useState<string[]>([]);
   const [basisOpen, setBasisOpen] = useState("");
   const [aiWorksOpen, setAiWorksOpen] = useState(false);
+  const [conditionalOpen, setConditionalOpen] = useState(false);
   const [aiHelpOpen, setAiHelpOpen] = useState(false);
   /** Plan detail drafted after the treatment is selected — all editable. */
   const [planExtras, setPlanExtras] = useState({
@@ -1274,6 +1301,24 @@ export default function IssuePrescriptionDialog({
      The information the options are based on is shown first. When something
      important is missing, no medication or dose is shown at all. */
   const confirmedIndication = isSoapPlaceholder(soap.assessment) ? "" : soap.assessment.trim();
+  /** The Plan is unresolved while it still carries a confirmation placeholder. */
+  const planUnresolved =
+    soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
+  /** Pregnancy is only ever what the provider selected. */
+  const pregnancyLabel =
+    sex === "male"
+      ? "Not applicable — recorded sex"
+      : pregnancyStatus === "not-reviewed"
+        ? "Not reviewed"
+        : [PREGNANCY_REVIEW_LABEL[pregnancyStatus], pregnancyText.trim()]
+            .filter(Boolean)
+            .join(" — ");
+  /** Never claim vitals, labs or organ function are documented when they were
+   *  not obtained — name the missing information instead. */
+  const vitalsLabel =
+    objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
+      ? soap.objective.trim()
+      : "Not obtained — no vital signs, laboratory results or renal or hepatic function recorded at this visit";
   const optionInputs: { label: string; value: string }[] = [
     {
       label: "Provider-confirmed Assessment or indication",
@@ -1301,14 +1346,11 @@ export default function IssuePrescriptionDialog({
     { label: "Relevant conditions", value: conditionsText.trim() || "None reported" },
     {
       label: "Pregnancy / breastfeeding",
-      value: pregnancyText.trim() || "Not applicable",
+      value: pregnancyLabel,
     },
     {
       label: "Relevant vitals, laboratory or organ function",
-      value:
-        objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
-          ? "Documented — view details"
-          : "Not obtained",
+      value: vitalsLabel,
     },
   ];
   const optionsMissing: string[] = [];
@@ -1316,7 +1358,73 @@ export default function IssuePrescriptionDialog({
   if (ageYears == null) optionsMissing.push("Date of birth so age can be calculated");
   if (allergyState === "not-assessed") optionsMissing.push("Drug allergy status");
   if (medicationState === "not-assessed") optionsMissing.push("Current medications");
+  if (sex !== "male" && pregnancyStatus === "not-reviewed") {
+    optionsMissing.push("Pregnancy / breastfeeding status");
+  }
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
+  const supportedOptions = visibleOptions.filter((o) => o.supported);
+  const conditionalOptions = visibleOptions.filter((o) => !o.supported);
+
+  /** One structured option card. Used for both the supported group and the
+   *  collapsed "clinical picture changes" group. */
+  const renderOption = (opt: MedicationOption) => (
+    <div key={opt.id} className="rounded-xl border border-[#E3DBF5] bg-white p-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[13.5px] font-bold text-[#3D2E6B]">
+            {opt.generic} <span className="font-semibold text-[#6F6889]">{opt.strengthForm}</span>
+          </p>
+          <p className="mt-0.5 text-[12px] text-[#4B4468]">
+            {opt.route} · {opt.dose} · {opt.frequency} · {opt.duration}
+          </p>
+        </div>
+        {!opt.supported && (
+          <span className="rounded-full bg-[#F5F1FF] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-[#6F5BA0]">
+            Conditional
+          </span>
+        )}
+      </div>
+      <dl className="mt-3 grid gap-2 text-[11.5px] leading-snug text-[#4B4468]">
+        <div>
+          <dt className="font-semibold text-[#3D2E6B]">Why it is listed</dt>
+          <dd>{opt.why}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-[#3D2E6B]">Patient information used</dt>
+          <dd>{opt.patientInfoUsed}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-[#3D2E6B]">Cautions</dt>
+          <dd>{opt.cautions}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-[#3D2E6B]">Not verified in this record</dt>
+          <dd>{opt.unverified}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-[#3D2E6B]">Clinical basis</dt>
+          <dd>{opt.clinicalBasis}</dd>
+        </div>
+      </dl>
+      <p className="mt-2 text-[10.5px] text-[#8A7FB0]">{opt.source}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => useMedicationOption(opt)}
+          className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-3.5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+        >
+          Use option
+        </button>
+        <button
+          type="button"
+          onClick={() => setDismissedOptions((cur) => [...cur, opt.id])}
+          className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
+        >
+          Not appropriate
+        </button>
+      </div>
+    </div>
+  );
 
   /** Copies a structured option into the order. Nothing beyond the option's
    *  own structured fields is filled in, and every field stays editable. */
@@ -2259,7 +2367,10 @@ export default function IssuePrescriptionDialog({
                         </div>
                         <div>
                           <label className={label} htmlFor="rx-preferred">
-                            Preferred name <span className="text-[#B4436C]">*</span>
+                            Preferred name{" "}
+                            <span className="font-normal normal-case text-[#8A7FB0]">
+                              (optional)
+                            </span>
                           </label>
                           <input
                             id="rx-preferred"
@@ -2631,14 +2742,12 @@ export default function IssuePrescriptionDialog({
                     const basisBlock =
                       key === "assessment" ? (
                         <div className="mt-2">
-                           {!noteHasAssessment && (
+                           {!noteHasAssessment && !assessmentBasis && (
                              <div className="space-y-2">
                                <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                 {diagnosisSaved
-                                   ? "Provider diagnosis recorded — it replaces the documented problem summary."
-                                   : "No clinical assessment was documented in the notes."}
+                                 No clinical assessment was documented in the notes.
                                </p>
-                               {!!symptomIndication && !diagnosisSaved && (
+                               {!!symptomIndication && (
                                  <div className="rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
                                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
                                      Documented clinical problem
@@ -2653,6 +2762,22 @@ export default function IssuePrescriptionDialog({
                                  </div>
 
                                )}
+                             </div>
+                           )}
+                           {!noteHasAssessment && !!assessmentBasis && (
+                             <div className="rounded-xl border border-[#3D2E6B] bg-[#F2EEFD] px-3 py-2.5">
+                               <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#6F5BA0]">
+                                 Selected Assessment or indication
+                               </p>
+                               <p className="mt-0.5 text-[13px] leading-snug text-[#3D2E6B]">
+                                 {assessmentBasis === "further"
+                                   ? "Further assessment required — no medication yet."
+                                   : isSoapPlaceholder(soap.assessment)
+                                     ? diagnosisSaved
+                                       ? "Provider diagnosis recorded."
+                                       : "Enter the Assessment or indication below."
+                                     : soap.assessment}
+                               </p>
                              </div>
                            )}
                           <div className="mt-2 space-y-2">
@@ -3569,7 +3694,7 @@ export default function IssuePrescriptionDialog({
                                 }
                               >
                                 <option value="">Select…</option>
-                                {(Object.keys(CONSULT_MODE_LABEL) as ConsultMode[]).map((m) => (
+                                {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
                                   <option key={m} value={m}>
                                     {CONSULT_MODE_LABEL[m]}
                                   </option>
@@ -3643,7 +3768,7 @@ export default function IssuePrescriptionDialog({
                               }
                             >
                               <option value="">Select…</option>
-                              {(["in-person", "video", "phone", "other"] as ConsultMode[]).map((m) => (
+                              {(["in-person", "video", "phone"] as ConsultMode[]).map((m) => (
                                 <option key={m} value={m}>
                                   {CONSULT_MODE_LABEL[m]}
                                 </option>
@@ -4175,9 +4300,11 @@ export default function IssuePrescriptionDialog({
                         )}
 
 
-                        {/* Conditions / pregnancy are shown only when clinically relevant. */}
-                        {(objectiveMode === "add" || dangerousMeds.length > 0 || conditionsText) && (
-                          <div className="mt-4 grid gap-3">
+                        {/* Conditions are shown when clinically relevant. Pregnancy /
+                            breastfeeding is always reviewed explicitly for a patient who
+                            is not recorded as male — it is never assigned automatically. */}
+                        <div className="mt-4 grid gap-3">
+                          {(objectiveMode === "add" || dangerousMeds.length > 0 || conditionsText) && (
                             <div>
                               <label className={label}>Relevant conditions</label>
                               <input
@@ -4187,22 +4314,62 @@ export default function IssuePrescriptionDialog({
                                 placeholder="e.g. Hypertension, migraine"
                               />
                             </div>
-                            {sex !== "male" && (
-                              <div>
-                                <label className={label}>
-                                  Pregnancy / breastfeeding
-                                  <FieldHint text="Shown because findings or the selected medication make it clinically relevant." />
-                                </label>
+                          )}
+                          {sex !== "male" && (
+                            <div>
+                              <label className={label}>
+                                Pregnancy / breastfeeding
+                                <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
+                              </label>
+                              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+                                {(
+                                  [
+                                    "not-pregnant",
+                                    "pregnant",
+                                    "breastfeeding",
+                                    "not-applicable",
+                                  ] as PregnancyReview[]
+                                ).map((s) => {
+                                  const on = pregnancyStatus === s;
+                                  return (
+                                    <button
+                                      key={s}
+                                      type="button"
+                                      onClick={() => setPregnancyStatus(s)}
+                                      className={`flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-left text-[12.5px] font-semibold transition ${
+                                        on
+                                          ? "border-[#3D2E6B] bg-[#F6F2FF] text-[#3D2E6B]"
+                                          : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                      }`}
+                                    >
+                                      <span
+                                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
+                                          on ? "border-[#3D2E6B]" : "border-[#CFC4E9]"
+                                        }`}
+                                      >
+                                        {on && <span className="h-2 w-2 rounded-full bg-[#3D2E6B]" />}
+                                      </span>
+                                      {PREGNANCY_REVIEW_LABEL[s]}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {pregnancyStatus === "not-reviewed" ? (
+                                <p className="mt-1.5 text-[11.5px] font-semibold text-[#8A6B1F]">
+                                  Not reviewed — select a status before medication options can be
+                                  displayed.
+                                </p>
+                              ) : (
                                 <input
-                                  className={`${field} mt-1.5`}
+                                  className={`${field} mt-2`}
                                   value={pregnancyText}
                                   onChange={(e) => setPregnancyText(e.target.value)}
-                                  placeholder="e.g. Not pregnant / not breastfeeding"
+                                  placeholder="Optional detail, e.g. last menstrual period"
                                 />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </section>
                     </>
                   );
@@ -4412,8 +4579,12 @@ export default function IssuePrescriptionDialog({
 
                       {optionsMissing.length > 0 ? (
                         <div className="mt-3 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-4">
-                          <p className="text-[12.5px] font-semibold text-[#6B4E10]">
-                            More information is required before medication options can be displayed.
+                          <p className="text-[11px] font-bold uppercase tracking-wide text-[#8A6B1F]">
+                            Information needed
+                          </p>
+                          <p className="mt-1 text-[12.5px] font-semibold text-[#6B4E10]">
+                            Medication options are not displayed until this information has been
+                            reviewed.
                           </p>
                           <ul className="mt-2 space-y-1 text-[12px] text-[#6B4E10]">
                             {optionsMissing.map((m) => (
@@ -4424,96 +4595,44 @@ export default function IssuePrescriptionDialog({
                       ) : (
                         <div className="mt-4 space-y-3">
                           <p className="text-[11.5px] font-bold uppercase tracking-wide text-[#8A7FB0]">
-                            Medication options for provider review
+                            Options supported by the documented record
                           </p>
-                          {visibleOptions.length === 0 ? (
+                          {supportedOptions.length === 0 ? (
                             <p className="rounded-xl border border-dashed border-[#DCD4F0] bg-white px-3 py-2.5 text-[12px] text-[#6F6889]">
-                              All options were dismissed. Use search and manual entry below.
+                              No option is supported by the documented record. Use search and manual
+                              entry below.
                             </p>
                           ) : (
-                            visibleOptions.map((opt) => (
-                              <div
-                                key={opt.id}
-                                className="rounded-xl border border-[#E9E2F8] bg-[#FBFAFE] p-4"
+                            supportedOptions.map(renderOption)
+                          )}
+                          {conditionalOptions.length > 0 && (
+                            <div className="rounded-xl border border-[#E9E2F8] bg-white p-3">
+                              <button
+                                type="button"
+                                aria-expanded={conditionalOpen}
+                                onClick={() => setConditionalOpen((v) => !v)}
+                                className="flex w-full items-center justify-between gap-2 text-left text-[12.5px] font-semibold text-[#3D2E6B]"
                               >
-                                <p className="text-[13.5px] font-semibold text-[#3D2E6B]">
-                                  {opt.generic}
-                                </p>
-                                <p className="mt-0.5 text-[12.5px] text-[#4B4468]">
-                                  {opt.strengthForm} · {opt.route}
-                                </p>
-                                <dl className="mt-2.5 space-y-1.5 text-[12px] text-[#4B4468]">
-                                  <div>
-                                    <dt className="font-semibold text-[#3D2E6B]">
-                                      Why this option was shown
-                                    </dt>
-                                    <dd>{opt.why}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="font-semibold text-[#3D2E6B]">
-                                      Patient information used
-                                    </dt>
-                                    <dd>{opt.patientInfoUsed}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="font-semibold text-[#3D2E6B]">
-                                      Important contraindications or interactions
-                                    </dt>
-                                    <dd>{opt.cautions}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="font-semibold text-[#3D2E6B]">
-                                      Missing or unverified information
-                                    </dt>
-                                    <dd>{opt.unverified}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="font-semibold text-[#3D2E6B]">Dosage source</dt>
-                                    <dd>{opt.source}</dd>
-                                  </div>
-                                </dl>
-                                {basisOpen === opt.id && (
-                                  <p className="mt-2 rounded-xl bg-[#F2EEFD] px-3 py-2 text-[12px] leading-relaxed text-[#4B4468]">
-                                    {opt.clinicalBasis}
-                                  </p>
-                                )}
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => useMedicationOption(opt)}
-                                    className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-3 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D]"
-                                  >
-                                    <Plus className="h-3.5 w-3.5" /> Use option
-                                  </button>
-                                  <button
-                                    type="button"
-                                    aria-expanded={basisOpen === opt.id}
-                                    onClick={() =>
-                                      setBasisOpen((cur) => (cur === opt.id ? "" : opt.id))
-                                    }
-                                    className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FE]"
-                                  >
-                                    View clinical basis
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setDismissedOptions((cur) => [...cur, opt.id])
-                                    }
-                                    className="inline-flex h-9 items-center rounded-xl border border-[#EDEBF3] bg-white px-3 text-[12px] font-semibold text-[#8A7FB0] transition hover:bg-[#FBFAFE]"
-                                  >
-                                    Dismiss
-                                  </button>
+                                Options if the clinical picture changes ({conditionalOptions.length})
+                                <span className="text-[11px] font-semibold text-[#8A7FB0]">
+                                  {conditionalOpen ? "Hide" : "Show"}
+                                </span>
+                              </button>
+                              {conditionalOpen && (
+                                <div className="mt-3 space-y-3">
+                                  {conditionalOptions.map(renderOption)}
                                 </div>
-                              </div>
-                            ))
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
                     </section>
                   )}
 
-                  {/* Medication order — manual entry always available */}
+                  {/* Medication order — hidden while options are being reviewed and
+                      nothing has been copied into the order yet. */}
+                  {!(rxPath === "options" && readyMeds.length === 0) && (
                   <section className={cardCls}>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
@@ -4541,6 +4660,7 @@ export default function IssuePrescriptionDialog({
                       ))}
                     </div>
                   </section>
+                  )}
 
                   {/* P — Plan, drafted only after the treatment is selected */}
                   {readyMeds.length > 0 && purpose !== "renewal" && (
@@ -4748,7 +4868,7 @@ export default function IssuePrescriptionDialog({
                       </li>
                       <li>Conditions — {conditionsText || "Not provided"}</li>
                       {sex !== "male" && (
-                        <li>Pregnancy / breastfeeding — {pregnancyText || "Not provided"}</li>
+                        <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
                       <li>Controlled or dangerous drug — none on this prescription</li>
                     </ul>
@@ -4913,7 +5033,11 @@ export default function IssuePrescriptionDialog({
                 Still to resolve: {allGaps.slice(0, 3).join(" · ")}
               </p>
             ) : (
-              <p className="text-[11.5px] text-[#8A7FB0]">Ready to continue.</p>
+              <p className="text-[11.5px] text-[#8A7FB0]">
+                {planUnresolved
+                  ? "Resolve the Plan items marked “Needs provider confirmation”."
+                  : "Ready to continue."}
+              </p>
             )}
           </div>
           <div className="flex items-center gap-2">

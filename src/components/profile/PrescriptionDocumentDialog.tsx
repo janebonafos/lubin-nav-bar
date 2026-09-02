@@ -8,9 +8,9 @@ import {
   PREGNANCY_STATUS_LABEL,
   type Prescription,
 } from "@/lib/prescription/store";
+import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
-  encodeSignedPrescription,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 
@@ -42,17 +42,17 @@ export default function PrescriptionDocumentDialog({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  /** Opaque route id — nothing about the patient or prescription is in the URL. */
   const standaloneHref = (() => {
-    const params = new URLSearchParams({
-      appointment: doc.appointmentId,
+    const id = stashPrescriptionView({
+      appointmentId: doc.appointmentId,
       country: doc.country,
-      doc: doc.id,
+      clientName: doc.patientName,
+      providerName: doc.identity?.fullName,
+      docId: doc.id,
+      document: doc,
     });
-    if (doc.patientName) params.set("client", doc.patientName);
-    if (doc.identity?.fullName) params.set("provider", doc.identity.fullName);
-    const encoded = encodeSignedPrescription(doc);
-    if (encoded) params.set("d", encoded);
-    return `/e-prescription?${params.toString()}`;
+    return `/e-prescription/${id}`;
   })();
 
   return (

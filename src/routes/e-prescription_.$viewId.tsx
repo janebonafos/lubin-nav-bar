@@ -5,39 +5,17 @@ import { EPrescriptionDocument } from "@/components/appointment/EPrescriptionDoc
 import { loadPrescription, type Prescription, type RxCountry } from "@/lib/prescription/store";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
-  decodeSignedPrescription,
   findSignedPrescription,
   prescriptionFromSignedDocument,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
+import { readPrescriptionView } from "@/lib/prescription/viewHandoff";
 import {
   applyVerifiedRecord,
   useVerifiedPrescribing,
 } from "@/lib/prescription/useVerifiedPrescribing";
 
-type Search = {
-  appointment: string;
-  country?: RxCountry;
-  client?: string;
-  provider?: string;
-  draft?: boolean;
-  /** Issued document id — renders the signed record instead of the draft. */
-  doc?: string;
-  /** Encoded issued document, so a new tab renders the signed record even when
-   *  it cannot read the local record store. */
-  d?: string;
-};
-
-export const Route = createFileRoute("/e-prescription")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    appointment: String(search.appointment ?? ""),
-    country: search.country === "US" ? "US" : "PH",
-    client: search.client ? String(search.client) : undefined,
-    provider: search.provider ? String(search.provider) : undefined,
-    draft: search.draft === true || search.draft === "true",
-    doc: search.doc ? String(search.doc) : undefined,
-    d: search.d ? String(search.d) : undefined,
-  }),
+export const Route = createFileRoute("/e-prescription_/$viewId")({
   head: () => ({
     meta: [
       { title: "E-prescription — Lubin" },
@@ -57,37 +35,55 @@ export const Route = createFileRoute("/e-prescription")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: EPrescriptionPage,
+  component: EPrescriptionViewPage,
 });
 
-function EPrescriptionPage() {
-  const { appointment, country, client, provider, draft, doc, d } = Route.useSearch();
+/** Opaque prescription view. The URL carries only a random id — every patient,
+ *  medication and prescription value is read from local prototype state. */
+function EPrescriptionViewPage() {
+  const { viewId } = Route.useParams();
   const [rx, setRx] = useState<Prescription | null>(null);
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [record, setRecord] = useState<SignedPrescriptionDocument | null>(null);
-  const verification = useVerifiedPrescribing(provider);
+  const [country, setCountry] = useState<RxCountry>("PH");
+  const [clientName, setClientName] = useState<string | undefined>();
+  const [providerName, setProviderName] = useState<string | undefined>();
+  const [draft, setDraft] = useState(false);
+  const [missing, setMissing] = useState(false);
+  const verification = useVerifiedPrescribing(providerName);
   const verified = verification.data;
 
   useEffect(() => {
-    let signed: SignedPrescriptionDocument | null = null;
-    if (doc) signed = findSignedPrescription(doc) ?? null;
-    if (!signed && d) signed = decodeSignedPrescription(d);
+    const view = readPrescriptionView(viewId);
+    const signed =
+      view?.document ??
+      (view?.docId ? findSignedPrescription(view.docId) : findSignedPrescription(viewId)) ??
+      null;
+
+    setCountry(view?.country ?? signed?.country ?? "PH");
+    setClientName(signed?.patientName ?? view?.clientName);
+    setProviderName(signed?.signedBy ?? view?.providerName);
+    setDraft(signed ? false : Boolean(view?.draft));
     setRecord(signed);
+
     if (signed) {
       setRx(prescriptionFromSignedDocument(signed));
       setIdentity(signed.identity);
       return;
     }
-    if (!appointment) return;
-    setRx(loadPrescription(appointment));
-    setIdentity(loadIdentity(provider));
-  }, [appointment, provider, doc, d]);
+    if (!view?.appointmentId) {
+      setMissing(true);
+      return;
+    }
+    setRx(loadPrescription(view.appointmentId));
+    setIdentity(loadIdentity(view.providerName));
+  }, [viewId]);
 
-  if (!appointment && !doc && !d) {
+  if (missing) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#F3F0FA] px-6">
         <p className="text-[13.5px] text-[#6F6889]">
-          No prescription was specified for this page.
+          This prescription link is no longer available. Open it again from the prescription record.
         </p>
       </main>
     );
@@ -105,9 +101,9 @@ function EPrescriptionPage() {
     <main style={{ fontFamily: "Inter, sans-serif" }}>
       <EPrescriptionDocument
         rx={rx}
-        country={record?.country ?? country ?? "PH"}
-        clientName={record?.patientName ?? client}
-        providerName={record?.signedBy ?? provider}
+        country={record?.country ?? country}
+        clientName={clientName}
+        providerName={providerName}
         identity={record ? record.identity : applyVerifiedRecord(identity, verified).identity}
         draft={record ? false : draft}
         document={record}
