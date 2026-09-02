@@ -1864,6 +1864,16 @@ export default function IssuePrescriptionDialog({
     });
   };
 
+  /** One-click: copies the option into the order, collapses the suggestion list
+   *  so it stops competing for attention, and reveals the order below. */
+  const addMedicationOption = (opt: MedicationOption) => {
+    useMedicationOption(opt);
+    setUsedOptionIds((cur) => [...new Set([...cur, opt.id])]);
+    setSelectedOptionIds((cur) => cur.filter((id) => id !== opt.id));
+    setOptionsListOpen(false);
+    scrollToMedicationOrder();
+  };
+
   const addSelectedMedicationOptions = () => {
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
