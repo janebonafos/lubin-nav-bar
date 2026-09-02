@@ -4223,6 +4223,7 @@ export default function IssuePrescriptionDialog({
                                       checked={linkedAppointment === a.id}
                                       onChange={() => {
                                         setLinkedAppointment(a.id);
+                                        setObjectiveForConsult("");
                                         setSoapApproved(false);
                                         setAssessmentBasis("");
                                         setDiagnosisSaved(false);
