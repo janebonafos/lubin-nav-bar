@@ -5185,11 +5185,11 @@ export default function IssuePrescriptionDialog({
                             </div>
                           )}
                           {sex !== "male" && (
-                            <div>
-                              <label className={label}>
-                                Pregnancy / breastfeeding
-                                <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
-                              </label>
+                             <div id="rx-pregnancy">
+                               <label className={label}>
+                                 Pregnancy / breastfeeding
+                                 <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
+                               </label>
                               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
                                 {(
                                   [
