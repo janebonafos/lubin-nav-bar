@@ -5711,6 +5711,16 @@ export default function IssuePrescriptionDialog({
                   Cancel
                 </button>
                 {step < 3 ? (
+                  step === 2 && selectedOptionIds.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={addSelectedMedicationOptions}
+                      className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-5 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add {selectedOptionIds.length} selected to medication order
+                    </button>
+                  ) : (
                   (() => {
                     const blocked = step >= 0 && !canAdvance;
                     // Blocked, but never a dead end: clicking highlights the
@@ -5746,7 +5756,7 @@ export default function IssuePrescriptionDialog({
                       </button>
                     );
                   })()
-
+                  )
                 ) : (
                   <button
                     type="button"
