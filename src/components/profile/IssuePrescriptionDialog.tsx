@@ -11,7 +11,6 @@ import { createPortal } from "react-dom";
 
 import {
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   CalendarClock,
   Check,
