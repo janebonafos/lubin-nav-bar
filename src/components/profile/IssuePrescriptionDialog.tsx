@@ -6205,43 +6205,51 @@ export default function IssuePrescriptionDialog({
                       Add {selectedOptionIds.length} selected to medication order
                     </button>
                   ) : (
-                  (() => {
-                    const blocked = step >= 0 && !canAdvance;
-                    // Blocked, but never a dead end: clicking highlights the
-                    // fields still needed instead of changing the button.
-                    const hasTargets = stepGaps.some((g) => gapTargets[g]);
-                    return (
-                      <button
-                        type="button"
-                        aria-disabled={blocked}
-                        onClick={() => {
-                          if (!blocked) {
-                            setStep(step < 0 ? 0 : step + 1);
-                            return;
-                          }
-                          if (hasTargets) highlightGaps(stepGaps);
-                        }}
-                        className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
-                          blocked
-                            ? hasTargets
-                              ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
-                              : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
-                            : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
-                        }`}
-                      >
-                        {step === 2
-                          ? "Review and sign"
-                          : step === 1
-                            ? purpose === "renewal"
-                              ? "Continue with renewal"
-                              : entry === "lubin"
-                                ? "Continue to medication"
-                                : "Continue to prescription"
-                            : "Continue"}
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    );
-                  })()
+                   (() => {
+                     const reusedStep = step === 1 && isReusedConsultation;
+                     const blocked = reusedStep ? !reusedReviewReady : step >= 0 && !canAdvance;
+                     // Blocked, but never a dead end: clicking highlights the
+                     // fields still needed instead of changing the button.
+                     const hasTargets = (reusedStep ? contextGaps : stepGaps).some((g) => gapTargets[g]);
+                     return (
+                       <button
+                         type="button"
+                         aria-disabled={blocked}
+                         onClick={() => {
+                           if (reusedStep) {
+                             if (reusedReviewReady) confirmReusedReview();
+                             else if (hasTargets) highlightGaps(contextGaps);
+                             return;
+                           }
+                           if (!blocked) {
+                             setStep(step < 0 ? 0 : step + 1);
+                             return;
+                           }
+                           if (hasTargets) highlightGaps(stepGaps);
+                         }}
+                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
+                           blocked
+                             ? hasTargets
+                               ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
+                               : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
+                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+                         }`}
+                       >
+                         {step === 2
+                           ? "Review and sign"
+                           : reusedStep
+                             ? reusedReviewLabel
+                             : step === 1
+                               ? purpose === "renewal"
+                                 ? "Continue with renewal"
+                                 : entry === "lubin"
+                                   ? "Continue to medication"
+                                   : "Continue to prescription"
+                               : "Continue"}
+                         <ArrowRight className="h-4 w-4" />
+                       </button>
+                     );
+                   })()
                   )
                 ) : (
                   <button
