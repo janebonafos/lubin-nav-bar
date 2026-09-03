@@ -2181,10 +2181,11 @@ export default function IssuePrescriptionDialog({
   );
   const renewalTouched = Boolean(
     renewal.medication.trim() ||
-      renewal.response.trim() ||
-      renewal.sideEffects.trim() ||
-      renewal.changes.trim(),
+      renewal.responseChoice ||
+      renewal.sideEffectChoice ||
+      renewal.changesChoice,
   );
+
   const soapStatusLabel =
     purpose === "renewal"
       ? soapGaps.length === 0
