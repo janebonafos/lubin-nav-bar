@@ -1546,16 +1546,20 @@ export default function IssuePrescriptionDialog({
   useEffect(() => {
     setSoap((s) => {
       let plan = s.plan;
-      if (orderFollowUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${orderFollowUp}`);
-      if (orderInstructions)
+      const followUp = orderFollowUp || planExtras.followUp.trim();
+      const instructions = orderInstructions || planExtras.instructions.trim();
+      if (followUp)
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${followUp}`);
+      if (instructions) {
         plan = plan.replace(
           `Patient instructions: ${NEEDS_CONFIRMATION}`,
-          `Patient instructions: ${orderInstructions}`,
+          `Patient instructions: ${instructions}`,
         );
+        plan = plan.replace(`Warning signs: ${NEEDS_CONFIRMATION}`, `Warning signs: ${instructions}`);
+      }
       return plan === s.plan ? s : { ...s, plan };
     });
-  }, [orderFollowUp, orderInstructions]);
+  }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
 
 
   /** Follow-up and patient instructions documented in the medication order flow
@@ -2331,6 +2335,19 @@ export default function IssuePrescriptionDialog({
   }
   if (dangerousMeds.length > 0) rxGaps.push("Remove the dangerous-drug entry");
 
+  /** The Plan may never reach Review and sign carrying an unresolved
+   *  "Needs provider confirmation" placeholder. */
+  if (readyMeds.length > 0 && purpose !== "renewal") {
+    if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Follow-up plan");
+    if (soap.plan.includes(`Patient instructions: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Patient instructions and warning signs");
+    else if (soap.plan.includes(`Warning signs: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Patient instructions and warning signs");
+    else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
+  }
+
+
   /** Nothing in this prototype flow is review-only: the prescriber signs their own work. */
   const reviewOnly = false;
 
@@ -2379,6 +2396,9 @@ export default function IssuePrescriptionDialog({
      "Review allergies": { step: 2, id: "rx-allergy" },
      "Review current medications": { step: 2, id: "rx-medications" },
      "Review pregnancy / breastfeeding status": { step: 2, id: "rx-pregnancy" },
+     "Follow-up plan": { step: 3, id: "plan-field-followUp" },
+     "Patient instructions and warning signs": { step: 3, id: "plan-field-instructions" },
+     "Complete the Plan": { step: 3, id: "plan-section" },
      "Patient requires reassessment": { step: 1, id: "material-change-section" },
      "Confirm whether clinical information has changed": { step: 1, id: "material-change-section" },
      "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
@@ -5408,7 +5428,7 @@ export default function IssuePrescriptionDialog({
               <Acc
                 index={2}
                 label="Medication safety check"
-                hint="Allergies, current medications and relevant conditions"
+                hint="Allergies, current medications, pregnancy and breastfeeding"
                 open={step === 2}
                 onToggle={goStep}
                 locked={!patientReady}
