@@ -53,24 +53,37 @@ export default function ProviderPrescriptionsSection() {
   const [query, setQuery] = useState("");
   const [issuing, setIssuing] = useState(false);
   const [resetToken, setResetToken] = useState(0);
+  const [archivedIds, setArchivedIds] = useState<string[]>([]);
+  const [view, setView] = useState<"active" | "archived">("active");
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
     const readDrafts = () => setDrafts(listPrescriptionDrafts());
+    const readArchive = () => setArchivedIds(listArchivedPrescriptionIds());
     read();
     readDrafts();
+    readArchive();
     const unsubscribeDocs = subscribePrescriptionDocuments(read);
     const unsubscribeDrafts = subscribePrescriptionDrafts(readDrafts);
+    const unsubscribeArchive = subscribePrescriptionArchive(readArchive);
     return () => {
       unsubscribeDocs();
       unsubscribeDrafts();
+      unsubscribeArchive();
     };
   }, []);
+
+  const archivedCount = useMemo(
+    () => docs.filter((d) => archivedIds.includes(d.id)).length,
+    [docs, archivedIds],
+  );
 
   const groups = useMemo<PatientGroup[]>(() => {
     const q = query.trim().toLowerCase();
     const matched = docs.filter((d) => {
+      const isArchived = archivedIds.includes(d.id);
+      if (view === "archived" ? !isArchived : isArchived) return false;
       if (!q) return true;
       const meds = d.medications
         .map((m) => `${m.genericName ?? ""} ${m.name}`)
