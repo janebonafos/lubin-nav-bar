@@ -5484,66 +5484,6 @@ export default function IssuePrescriptionDialog({
                     </section>
                   ) : (
                   <>
-                  {/* Two ways to choose the treatment. Manual entry is always open. */}
-                  <section className={cardCls}>
-                    <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      Medication and treatment
-                    </h3>
-                    <p className="mt-1 text-[12px] leading-relaxed text-[#6F6889]">
-                      Choose how you want to select the treatment. Manual entry stays available at
-                      all times.
-                    </p>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {(
-                        [
-                          [
-                            "search",
-                            "Enter medication manually",
-                            "Search the Philippine medication catalogue and complete the regimen.",
-                          ],
-                          [
-                            "options",
-                            "Review AI-assisted options",
-                            "View non-ranked options based on the confirmed assessment and reviewed patient information. You choose and edit the final order.",
-                          ],
-
-                        ] as const
-                      ).map(([value, title, helper]) => {
-                        const selected = rxPath === value;
-                        return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setRxPath(value)}
-                          aria-pressed={selected}
-                          className={`group relative rounded-xl border px-3.5 py-3 text-left transition ${
-                            selected
-                              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-[0_6px_18px_-8px_#3D2E6B]"
-                              : "border-[#EDEBF3] bg-white hover:border-[#D9CEF3]"
-                          }`}
-                        >
-                          <span className="flex items-center justify-between gap-2">
-                            <span className={`block text-[12.5px] font-semibold ${selected ? "text-white" : "text-[#3D2E6B]"}`}>
-                              {title}
-                            </span>
-                            <span
-                              className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border transition ${
-                                selected
-                                  ? "border-white bg-white text-[#3D2E6B]"
-                                  : "border-[#D9CEF3] bg-white text-transparent"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" strokeWidth={3} />
-                            </span>
-                          </span>
-                          <span className={`mt-1 block text-[11.5px] leading-snug ${selected ? "text-[#E7DEF6]" : "text-[#6F6889]"}`}>
-                            {helper}
-                          </span>
-                        </button>
-                        );
-                      })}
-                    </div>
-                  </section>
 
                   {/* Design-only medication options — synthetic fixtures, no AI service. */}
                   {rxPath === "options" && (
