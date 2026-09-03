@@ -2345,15 +2345,12 @@ export default function IssuePrescriptionDialog({
   }
   if (dangerousMeds.length > 0) rxGaps.push("Remove the dangerous-drug entry");
 
-  /** The Plan may never reach Review and sign carrying an unresolved
-   *  "Needs provider confirmation" placeholder. */
+  /** The Plan may never reach Review and sign with unresolved placeholder text
+   *  or an empty follow-up / patient-instruction field. */
   if (readyMeds.length > 0 && purpose !== "renewal") {
-    if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Follow-up plan");
-    if (soap.plan.includes(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Patient instructions and warning signs");
-    else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
-
+    if (!planExtras.followUp.trim()) rxGaps.push("Follow-up plan");
+    if (!planExtras.instructions.trim()) rxGaps.push("Patient instructions and warning signs");
+    if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
   }
 
 
