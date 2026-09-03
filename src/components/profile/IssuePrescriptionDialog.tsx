@@ -4220,26 +4220,6 @@ export default function IssuePrescriptionDialog({
                     setUnplacedNoteSentences((current) => current.filter((item) => item !== sentence));
                   };
 
-                  const unplacedNotesPanel = unplacedNoteSentences.length > 0 ? (
-                    <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
-                      <p className="text-[12.5px] font-bold text-[#3D2E6B]">From your notes — not yet placed</p>
-                      <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
-                        Review each sentence and place it in the clinical assessment where it belongs.
-                      </p>
-                      <div className="mt-3 space-y-2">
-                        {unplacedNoteSentences.map((sentence) => (
-                          <div key={sentence} className="rounded-xl border border-[#EDEBF3] bg-white p-3">
-                            <p className="text-[12px] leading-relaxed text-[#4B4468]">{sentence}</p>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <button type="button" onClick={() => addUnplacedSentence(sentence, "subjective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Subjective</button>
-                              <button type="button" onClick={() => addUnplacedSentence(sentence, "objective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Objective</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null;
-
                   return (
                     <>
                       {/* Once chosen, both selections collapse into one line */}
