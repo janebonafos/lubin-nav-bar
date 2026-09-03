@@ -662,6 +662,37 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
   },
 ];
 
+/** The renewal review is answered with taps, not typing. Free text is only
+ *  required when the provider says something has changed. */
+type RenewalResponseChoice = "" | "helping" | "partial" | "not-helping";
+type RenewalYesNoChoice = "" | "none" | "documented";
+const RENEWAL_RESPONSE_TEXT: Record<Exclude<RenewalResponseChoice, "">, string> = {
+  helping: "Helping — symptoms controlled on the current regimen",
+  partial: "Partial response — continuing the medication while monitoring",
+  "not-helping": "Not helping — treatment reviewed with the patient",
+};
+const EMPTY_RENEWAL = {
+  medication: "",
+  indication: "",
+  lastAssessment: "",
+  response: "",
+  responseChoice: "" as RenewalResponseChoice,
+  responseNote: "",
+  sideEffects: "",
+  sideEffectChoice: "" as RenewalYesNoChoice,
+  sideEffectDetail: "",
+  adherence: "",
+  changes: "",
+  changesChoice: "" as RenewalYesNoChoice,
+  changesDetail: "",
+  allergyChanges: "",
+  quantity: "",
+  refills: "",
+  followUp: "",
+};
+
+
+
 /** Where the clinical assessment supporting a NEW treatment was documented. */
 type EntryPoint = "lubin" | "outside" | "standalone" | "renewal";
 const ENTRY_POINTS: { value: EntryPoint; title: string; short: string; description: string }[] = [
