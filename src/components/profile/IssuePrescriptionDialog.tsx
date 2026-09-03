@@ -4488,7 +4488,7 @@ export default function IssuePrescriptionDialog({
                                         </button>
                                       ))}
                                     </div>
-                                    {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
+                                    {objectiveMode === "add" && (
                                       <AutoTextarea
                                         minRows={2}
                                         className={`${area} mt-2`}
@@ -4803,7 +4803,7 @@ export default function IssuePrescriptionDialog({
                                   </button>
                                 ))}
                               </div>
-                              {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
+                              {objectiveMode === "add" && (
                                 <>
                                   <AutoTextarea
                                     minRows={2}
