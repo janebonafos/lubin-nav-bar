@@ -3035,7 +3035,9 @@ export default function IssuePrescriptionDialog({
       refills: m.refills.trim() || undefined,
       followUp: m.followUp.trim() || undefined,
       indication: indication.trim() || undefined,
-      instructions: [m.sig.trim(), m.instructions.trim()].filter(Boolean).join(" "),
+      instructions: m.instructions.trim().includes(m.sig.trim())
+        ? sentence(m.instructions)
+        : joinSentences(m.sig, m.instructions),
       warnings: m.warnings,
       origin: "manual",
       controlled: false,
