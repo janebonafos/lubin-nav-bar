@@ -101,7 +101,7 @@ export default function ProviderPrescriptionsSection() {
         return { patientName, docs: sorted, lastSignedAt: sorted[0]!.signedAt };
       })
       .sort((a, b) => b.lastSignedAt - a.lastSignedAt);
-  }, [docs, query]);
+  }, [docs, query, archivedIds, view]);
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
