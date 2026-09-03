@@ -5009,10 +5009,10 @@ export default function IssuePrescriptionDialog({
                             </p>
                           )}
 
-                          <div className="mt-4 grid gap-3">
-                            <div>
+                          <div className="mt-4 grid gap-4">
+                            <div id="renewal-medication">
                               <label className={label}>
-                                Current medication and directions (SIG)
+                                The medication being continued
                               </label>
                               <input
                                 className={`${field} mt-1.5`}
@@ -5023,43 +5023,158 @@ export default function IssuePrescriptionDialog({
                                 placeholder="e.g. Losartan 50 mg — 1 tablet once daily"
                               />
                             </div>
-                            <div>
-                              <label className={label}>Is the medication helping?</label>
-                              <AutoTextarea
-                                minRows={2}
-                                className={`${area} mt-1.5`}
-                                value={renewal.response}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, response: e.target.value }))
-                                }
-                                placeholder="Symptom control since the last review…"
-                              />
+
+                            <div id="renewal-response">
+                              <label className={label}>How is the patient responding?</label>
+                              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-3">
+                                {(
+                                  [
+                                    ["helping", "Helping"],
+                                    ["partial", "Partial response"],
+                                    ["not-helping", "Not helping"],
+                                  ] as [Exclude<RenewalResponseChoice, "">, string][]
+                                ).map(([v, t]) => {
+                                  const on = renewal.responseChoice === v;
+                                  return (
+                                    <button
+                                      key={v}
+                                      type="button"
+                                      onClick={() =>
+                                        setRenewal((r) => ({
+                                          ...r,
+                                          responseChoice: v,
+                                          response: RENEWAL_RESPONSE_TEXT[v],
+                                        }))
+                                      }
+                                      className={`${chip} w-full justify-center text-center ${
+                                        on
+                                          ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                          : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                      }`}
+                                    >
+                                      {t}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {renewal.responseChoice && (
+                                <AutoTextarea
+                                  minRows={2}
+                                  className={`${area} mt-2`}
+                                  value={renewal.responseNote}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, responseNote: e.target.value }))
+                                  }
+                                  placeholder="Optional note on symptom control since the last review…"
+                                />
+                              )}
                             </div>
-                            <div>
+
+                            <div id="renewal-side-effects">
                               <label className={label}>Any side effects?</label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.sideEffects}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, sideEffects: e.target.value }))
-                                }
-                                placeholder="e.g. None reported"
-                              />
+                              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+                                {(
+                                  [
+                                    ["none", "None reported"],
+                                    ["documented", "Side effects reported"],
+                                  ] as [Exclude<RenewalYesNoChoice, "">, string][]
+                                ).map(([v, t]) => {
+                                  const on = renewal.sideEffectChoice === v;
+                                  return (
+                                    <button
+                                      key={v}
+                                      type="button"
+                                      onClick={() =>
+                                        setRenewal((r) => ({
+                                          ...r,
+                                          sideEffectChoice: v,
+                                          sideEffects:
+                                            v === "none"
+                                              ? "None reported"
+                                              : r.sideEffectDetail.trim(),
+                                        }))
+                                      }
+                                      className={`${chip} w-full justify-center text-center ${
+                                        on
+                                          ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                          : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                      }`}
+                                    >
+                                      {t}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {renewal.sideEffectChoice === "documented" && (
+                                <input
+                                  className={`${field} mt-2`}
+                                  value={renewal.sideEffectDetail}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({
+                                      ...r,
+                                      sideEffectDetail: e.target.value,
+                                      sideEffects: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="Describe the side effects reported"
+                                />
+                              )}
                             </div>
-                            <div>
+
+                            <div id="renewal-changes">
                               <label className={label}>
                                 Any medication or allergy changes?
                               </label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.changes}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, changes: e.target.value }))
-                                }
-                                placeholder="e.g. No new medications or allergies"
-                              />
+                              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
+                                {(
+                                  [
+                                    ["none", "No changes"],
+                                    ["documented", "Changes to record"],
+                                  ] as [Exclude<RenewalYesNoChoice, "">, string][]
+                                ).map(([v, t]) => {
+                                  const on = renewal.changesChoice === v;
+                                  return (
+                                    <button
+                                      key={v}
+                                      type="button"
+                                      onClick={() =>
+                                        setRenewal((r) => ({
+                                          ...r,
+                                          changesChoice: v,
+                                          changes:
+                                            v === "none"
+                                              ? "No new medications or allergies"
+                                              : r.changesDetail.trim(),
+                                        }))
+                                      }
+                                      className={`${chip} w-full justify-center text-center ${
+                                        on
+                                          ? "border-[#3D2E6B] bg-[#3D2E6B] text-white"
+                                          : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                      }`}
+                                    >
+                                      {t}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              {renewal.changesChoice === "documented" && (
+                                <input
+                                  className={`${field} mt-2`}
+                                  value={renewal.changesDetail}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({
+                                      ...r,
+                                      changesDetail: e.target.value,
+                                      changes: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="New medications, stopped medications or new allergies"
+                                />
+                              )}
                             </div>
                           </div>
+
 
                           <button
                             type="button"
