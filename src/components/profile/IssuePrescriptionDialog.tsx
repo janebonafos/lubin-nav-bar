@@ -1823,15 +1823,25 @@ export default function IssuePrescriptionDialog({
   /** The Plan is unresolved while it still carries a confirmation placeholder. */
   const planUnresolved =
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
-  /** Pregnancy is only ever what the provider selected. */
-  const pregnancyLabel =
-    !pregnancyApplicable
-      ? "Not applicable"
-      : pregnancyStatus === "not-reviewed"
-        ? "Not reviewed"
-        : [PREGNANCY_REVIEW_LABEL[pregnancyStatus], pregnancyText.trim()]
-            .filter(Boolean)
-            .join(" — ");
+  /** Pregnancy and breastfeeding are reported separately — never merged into a
+   *  single either/or answer. Each is only ever what the provider selected. */
+  const pregnancyLabel = !pregnancyApplicable
+    ? "Not applicable"
+    : [
+        `Pregnancy: ${
+          pregnancyStatus === "not-reviewed"
+            ? "not reviewed"
+            : PREGNANCY_REVIEW_LABEL[pregnancyStatus].toLowerCase()
+        }`,
+        `Breastfeeding: ${
+          breastfeedingStatus === "not-reviewed"
+            ? "not reviewed"
+            : BREASTFEEDING_REVIEW_LABEL[breastfeedingStatus].toLowerCase()
+        }`,
+        pregnancyText.trim(),
+      ]
+        .filter(Boolean)
+        .join(" · ");
   /** Never claim vitals, labs or organ function are documented when they were
    *  not obtained — name the missing information instead. */
   const vitalsLabel =
