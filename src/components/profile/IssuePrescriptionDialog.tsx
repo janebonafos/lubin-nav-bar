@@ -287,6 +287,11 @@ const SOAP_SECTION_HINT: Record<keyof SoapNote, string> = {
  */
 const NEEDS_CONFIRMATION = "Needs provider confirmation";
 
+/** Ends a fragment with a single full stop — never duplicated punctuation. */
+const sentence = (text: string) => `${text.trim().replace(/[.\s]+$/, "")}.`;
+
+
+
 /**
  * Neutral placeholders used when the provider's notes contain nothing for a
  * section. The draft never claims a section is "not required" and never
@@ -1532,9 +1537,9 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${orderFollowUp || NEEDS_CONFIRMATION}. Patient instructions: ${
-        orderInstructions || NEEDS_CONFIRMATION
-      }. Warning signs: ${NEEDS_CONFIRMATION}.`,
+      plan: `${lines.join(" ")} Follow-up: ${sentence(orderFollowUp || NEEDS_CONFIRMATION)} Patient instructions and warning signs: ${sentence(
+        orderInstructions || NEEDS_CONFIRMATION,
+      )}`,
     }));
     setAiFields((f) => ({ ...f, plan: true }));
     // Editing the medication or the Plan never re-opens the confirmed S/O/A.
@@ -1542,24 +1547,24 @@ export default function IssuePrescriptionDialog({
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
   /** A Plan placeholder resolves itself once the same information is documented
-   *  in the medication order. Only warning signs can remain outstanding. */
+   *  in the medication order. */
   useEffect(() => {
     setSoap((s) => {
       let plan = s.plan;
       const followUp = orderFollowUp || planExtras.followUp.trim();
       const instructions = orderInstructions || planExtras.instructions.trim();
       if (followUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${followUp}`);
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, `Follow-up: ${sentence(followUp)}`);
       if (instructions) {
         plan = plan.replace(
-          `Patient instructions: ${NEEDS_CONFIRMATION}`,
-          `Patient instructions: ${instructions}`,
+          `Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+          `Patient instructions and warning signs: ${sentence(instructions)}`,
         );
-        plan = plan.replace(`Warning signs: ${NEEDS_CONFIRMATION}`, `Warning signs: ${instructions}`);
       }
       return plan === s.plan ? s : { ...s, plan };
     });
   }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
+
 
 
   /** Follow-up and patient instructions documented in the medication order flow
@@ -2340,11 +2345,10 @@ export default function IssuePrescriptionDialog({
   if (readyMeds.length > 0 && purpose !== "renewal") {
     if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
       rxGaps.push("Follow-up plan");
-    if (soap.plan.includes(`Patient instructions: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Patient instructions and warning signs");
-    else if (soap.plan.includes(`Warning signs: ${NEEDS_CONFIRMATION}`))
+    if (soap.plan.includes(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}`))
       rxGaps.push("Patient instructions and warning signs");
     else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
+
   }
 
 
@@ -7144,17 +7148,22 @@ function MedicationCard({
                 setInstrLoading(true);
                 window.setTimeout(() => {
                   // Drafted only from the medication and regimen the provider
-                  // selected. No medication-specific warning is invented.
+                  // selected: how to take it, plus general warning signs for
+                  // provider review. No medication-specific claim is invented.
                   onPatch(
                     "instructions",
                     [
                       med.sig.trim() ||
                         `Take ${med.dose} ${med.frequency}${
                           med.duration ? ` for ${med.duration}` : ""
-                        }.`,
-                      "Tell your prescriber about any new symptom or side effect.",
-                    ].join(" "),
+                        }`,
+                      "Stop the medication and seek urgent care if you develop a rash, swelling of the face, lips or tongue, difficulty breathing, or any severe or rapidly worsening symptom",
+                      "Tell your prescriber about any new symptom or side effect",
+                    ]
+                      .map(sentence)
+                      .join(" "),
                   );
+
                   setInstrLoading(false);
                 }, 700);
               }}
