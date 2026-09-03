@@ -2612,15 +2612,14 @@ export default function IssuePrescriptionDialog({
         sectionQuestions: questions,
         safety,
         limitedRemoteOnly,
-        noteMethod,
         demographics,
         hasDocumentedAssessment,
       } = organiseSoap(raw);
       setNoteHasAssessment(hasDocumentedAssessment);
       setAssessmentBasis("");
       setSoap(drafted);
-      // The method stated in the notes wins over any earlier guess.
-      if (noteMethod) setConsultMode(noteMethod);
+      // The provider must explicitly select the consultation method; the note's
+      // wording is never auto-applied on their behalf.
       setObjectiveMode(
         limitedRemoteOnly
           ? "limited-remote"
@@ -3782,8 +3781,8 @@ export default function IssuePrescriptionDialog({
                             {SOAP_FULL_LABEL[key]}
                           </label>
                           {aiWritten && (
-                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                              AI draft — confirm
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${soapApproved ? "bg-[#3D2E6B] text-white" : "bg-[#EFE8FB] text-[#3D2E6B]"}`}>
+                              {soapApproved ? "Confirmed" : "AI draft — confirm"}
                             </span>
                           )}
                           {providerConfirmedAssessment && (
