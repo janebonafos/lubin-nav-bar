@@ -290,6 +290,14 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
 /** Ends a fragment with a single full stop — never duplicated punctuation. */
 const sentence = (text: string) => `${text.trim().replace(/[.\s]+$/, "")}.`;
 
+/** Joins fragments into clean sentences without duplicated punctuation. */
+const joinSentences = (...parts: (string | undefined)[]) =>
+  parts
+    .map((p) => (p ?? "").trim())
+    .filter(Boolean)
+    .map((p) => sentence(p))
+    .join(" ");
+
 
 
 /**
