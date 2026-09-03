@@ -1090,7 +1090,6 @@ export default function IssuePrescriptionDialog({
   /** Which consultation a manual Objective selection was made for. */
   const [objectiveForConsult, setObjectiveForConsult] = useState<string>("");
   const [apptSearch, setApptSearch] = useState("");
-  const [reviewSoapOpen, setReviewSoapOpen] = useState(false);
   /** Existing patients confirm or update the safety information already on file. */
   const [allergyConfirm, setAllergyConfirm] = useState<"idle" | "unchanged" | "update">("idle");
   const [medsConfirm, setMedsConfirm] = useState<"idle" | "unchanged" | "update">("idle");
@@ -2109,6 +2108,38 @@ export default function IssuePrescriptionDialog({
   const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
 
+  /** A completed consultation gets one explicit review action. It does not
+   * infer unchanged information until the provider clicks the footer action. */
+  const reusedReviewReady =
+    isReusedConsultation &&
+    reusedGaps.length === 0 &&
+    materialChange !== "reassess" &&
+    (materialChange !== "update" ||
+      (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
+    (allergyOnFile || allergyState !== "not-assessed") &&
+    (medicationOnFile || medicationState !== "not-assessed") &&
+    (sex === "male" || pregnancyStatus !== "not-reviewed");
+  const reusedReviewLabel =
+    materialChange === "update"
+      ? "Confirm updated information and continue"
+      : "Confirm reviewed and unchanged";
+  const confirmReusedReview = () => {
+    if (!reusedReviewReady || !linkedAppt) return;
+    setSoapApproved(true);
+    setMaterialChange(materialChange === "update" ? "update" : "none");
+    if (allergyOnFile) {
+      setAllergyConfirm("unchanged");
+      setAllergyState(savedAllergyState);
+      if (savedAllergyState === "recorded") setAllergyDetail(savedAllergies);
+    }
+    if (medicationOnFile) {
+      setMedsConfirm("unchanged");
+      setMedicationState(savedMedicationState);
+      if (savedMedicationState === "recorded") setMedicationDetail(savedMedications);
+    }
+    setStep(2);
+  };
+
   /** Where each outstanding item lives, so a missing field can be highlighted
    *  and brought into view instead of leaving the provider to hunt for it. */
    const gapTargets: Record<string, { step: number; id: string; medId?: string }> = {
@@ -2116,6 +2147,14 @@ export default function IssuePrescriptionDialog({
      "Date of birth": { step: 0, id: "rx-dob" },
      Sex: { step: 0, id: "rx-sex" },
      "City / municipality": { step: 0, id: "rx-city" },
+     "Choose an Objective status": { step: 1, id: "soap-field-objective" },
+     "Confirm an Assessment or indication": { step: 1, id: "soap-field-assessment" },
+     "Review allergies": { step: 1, id: "rx-allergy" },
+     "Review current medications": { step: 1, id: "rx-medications" },
+     "Review pregnancy / breastfeeding status": { step: 1, id: "rx-pregnancy" },
+     "Patient requires reassessment": { step: 1, id: "material-change-section" },
+     "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
+     "Review and confirm the clinical information": { step: 1, id: "reused-review-summary" },
    };
    if (meds[0])
      gapTargets["One medication with generic name, dose and frequency"] = {
@@ -2398,7 +2437,6 @@ export default function IssuePrescriptionDialog({
     setConsultMode(null);
     setLinkedAppointment("");
     setApptSearch("");
-    setReviewSoapOpen(false);
     setMaterialChange(null);
     setConsultDate("");
     setConsultLocation("");
@@ -3868,35 +3906,6 @@ export default function IssuePrescriptionDialog({
                   }
                    const step2Ready =
                      step2Missing.length === 0 && !noteRejected && !demographicConflict;
-                   const reusedReviewReady =
-                     isReusedConsultation &&
-                     reusedGaps.length === 0 &&
-                     materialChange !== "reassess" &&
-                     (materialChange !== "update" ||
-                       (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
-                     (allergyOnFile || allergyState !== "not-assessed") &&
-                     (medicationOnFile || medicationState !== "not-assessed") &&
-                     (sex === "male" || pregnancyStatus !== "not-reviewed");
-                   const reusedReviewLabel =
-                     materialChange === "update"
-                       ? "Confirm updated information and continue"
-                       : "Confirm reviewed and unchanged";
-                   const confirmReusedReview = () => {
-                     if (!reusedReviewReady || !linkedAppt) return;
-                     setSoapApproved(true);
-                     setMaterialChange(materialChange === "update" ? "update" : "none");
-                     if (allergyOnFile) {
-                       setAllergyConfirm("unchanged");
-                       setAllergyState(savedAllergyState);
-                       if (savedAllergyState === "recorded") setAllergyDetail(savedAllergies);
-                     }
-                     if (medicationOnFile) {
-                       setMedsConfirm("unchanged");
-                       setMedicationState(savedMedicationState);
-                       if (savedMedicationState === "recorded") setMedicationDetail(savedMedications);
-                     }
-                     setStep(2);
-                   };
 
 
                    /** Prominent AI-vs-manual choice, shared by every SOAP authoring flow. */
@@ -4280,50 +4289,64 @@ export default function IssuePrescriptionDialog({
                           {linkedAppt && (
                             <>
                               {/* Compact "documentation ready" card */}
-                              <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
-                                <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  SOAP note from Lubin consultation
-                                </p>
-
-                                <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Consultation date
-                                    </dt>
-                                    <dd>{linkedAppt.date}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Appointment type
-                                    </dt>
-                                    <dd>{linkedAppt.type}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      SOAP status
-                                    </dt>
-                                    <dd>
-                                      {reusedGaps.length === 0
-                                        ? "Ready for provider confirmation"
-                                        : `Incomplete — missing ${reusedGaps
-                                            .map((k) => SOAP_LABEL[k])
-                                            .join(", ")}`}
-                                    </dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Prescriber
-                                    </dt>
-                                    <dd>{identity?.fullName || linkedAppt.prescriber}</dd>
-                                  </div>
-                                  <div className="sm:col-span-2">
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Assessment / diagnosis
-                                    </dt>
-                                    <dd>{effectiveSoap.assessment || "Not documented"}</dd>
-                                  </div>
-                                </dl>
+                               <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                                 <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
+                                   <CheckCircle2 className="h-4 w-4" />
+                                   Clinical information from Lubin consultation
+                                 </p>
+ 
+                                 <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Consultation date / source
+                                     </dt>
+                                     <dd>{linkedAppt.date} · Completed Lubin consultation</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Appointment type
+                                     </dt>
+                                     <dd>{linkedAppt.type}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Objective status
+                                     </dt>
+                                     <dd>{linkedObjectiveText || (objectiveMode === "none" ? "Not reviewed" : objectiveMode === "limited-remote" ? "Limited remote observations" : "Findings documented")}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Prescriber context
+                                     </dt>
+                                     <dd>{identity?.fullName || linkedAppt.prescriber}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Assessment / indication
+                                     </dt>
+                                     <dd>{effectiveSoap.assessment || "Not documented"}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Allergies
+                                     </dt>
+                                     <dd>{savedAllergies}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Current medications
+                                     </dt>
+                                     <dd>{savedMedications}</dd>
+                                   </div>
+                                   {sex !== "male" && (
+                                     <div>
+                                       <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                         Pregnancy / breastfeeding
+                                       </dt>
+                                       <dd>{pregnancyLabel}</dd>
+                                     </div>
+                                   )}
+                                 </dl>
 
                                 <p
                                   className={`mt-3 rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
@@ -4400,46 +4423,19 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                 {reviewSoapOpen && (
-                                   <div className="mt-3 space-y-2 border-t border-[#E3DBF5] pt-3">
-                                     {(Object.keys(SOAP_LABEL) as (keyof SoapNote)[]).map((k) => (
-                                       <p key={k} className="text-[12px] leading-relaxed text-[#4B4468]">
-                                         <span className="font-semibold text-[#3D2E6B]">
-                                           {SOAP_FULL_LABEL[k]}:{" "}
-                                         </span>
-                                         {linkedAppt.soap[k] || (
-                                           <span className="text-[#8A7FB0]">
-                                             Not documented — provider confirmation required
-                                           </span>
-                                         )}
-                                       </p>
-                                     ))}
-                                     <p className="text-[11.5px] text-[#8A7FB0]">
-                                       Reused from the consultation record — read-only here.
-                                     </p>
-                                   </div>
-                                 )}
-                                 <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
-                                   <p className="text-[12px] font-semibold text-[#3D2E6B]">
-                                     Review clinical assessment and medication safety information before continuing.
-                                   </p>
-                                   <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
-                                     The selected consultation supports this prescription. Review the displayed Subjective, Objective and Assessment, confirm that important clinical information has not changed, and verify the saved allergy, medication and pregnancy information when applicable.
-                                   </p>
-                                   <button
-                                     type="button"
-                                     onClick={confirmReusedReview}
-                                     disabled={!reusedReviewReady}
-                                     className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12px] font-semibold text-white transition hover:bg-[#2A1F4D] disabled:cursor-not-allowed disabled:opacity-45"
-                                   >
-                                     {reusedReviewLabel}
-                                   </button>
-                                   {materialChange === "reassess" && (
-                                     <p className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
-                                       Patient requires reassessment before a prescription can be issued.
-                                     </p>
-                                   )}
-                                 </div>
+                                  <div id="reused-review-summary" className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
+                                    <p className="text-[12px] font-semibold text-[#3D2E6B]">
+                                      Review the clinical information before continuing.
+                                    </p>
+                                    <p className="mt-1 text-[11.5px] leading-relaxed text-[#6F6889]">
+                                      This consultation can be reused only when the information is complete and still applies to today’s prescription. The single confirmation action is at the bottom of this dialog.
+                                    </p>
+                                    {materialChange === "reassess" && (
+                                      <p id="material-change-section" className="mt-2 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] px-3 py-2 text-[11.5px] leading-relaxed text-[#8A6B1F]">
+                                        Patient requires reassessment before a prescription can be issued.
+                                      </p>
+                                    )}
+                                  </div>
                               </div>
 
                               {/* Ask only for the missing SOAP section(s) */}
@@ -5009,7 +5005,7 @@ export default function IssuePrescriptionDialog({
                         )}
 
                         {/* Existing patients confirm what is already on file. */}
-                        <div className="mt-4 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
+                        <div id="rx-allergy" className="mt-4 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
                           <p className="text-[12.5px] font-bold text-[#3D2E6B]">
                             Does the patient have any drug allergies?
                           </p>
@@ -5092,7 +5088,7 @@ export default function IssuePrescriptionDialog({
                           )}
                         </div>
 
-                        <div className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
+                        <div id="rx-medications" className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
                           <p className="text-[12.5px] font-bold text-[#3D2E6B]">
                             Is the patient taking any medications?
                           </p>
@@ -5204,11 +5200,11 @@ export default function IssuePrescriptionDialog({
                             </div>
                           )}
                           {sex !== "male" && (
-                            <div>
-                              <label className={label}>
-                                Pregnancy / breastfeeding
-                                <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
-                              </label>
+                             <div id="rx-pregnancy">
+                               <label className={label}>
+                                 Pregnancy / breastfeeding
+                                 <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
+                               </label>
                               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
                                 {(
                                   [
@@ -5340,23 +5336,25 @@ export default function IssuePrescriptionDialog({
                           Reused from the SOAP note — nothing needs to be retyped here.
                         </p>
 
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setStep(1)}
-                            className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                          >
-                            Review SOAP
-                          </button>
-                          {linkedAppt && (
-                            <a
-                              href={`/appointment/details?id=${linkedAppt.id}`}
-                              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                            >
-                              Open the consultation record
-                            </a>
-                          )}
-                        </div>
+                         <div className="mt-3 flex flex-wrap gap-2">
+                           {!linkedAppt && (
+                             <button
+                               type="button"
+                               onClick={() => setStep(1)}
+                               className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                             >
+                               Review SOAP
+                             </button>
+                           )}
+                           {linkedAppt && (
+                             <a
+                               href={`/appointment/details?id=${linkedAppt.id}`}
+                               className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                             >
+                               Open the consultation record
+                             </a>
+                           )}
+                         </div>
                       </div>
                     )}
                   </section>
@@ -6223,43 +6221,51 @@ export default function IssuePrescriptionDialog({
                       Add {selectedOptionIds.length} selected to medication order
                     </button>
                   ) : (
-                  (() => {
-                    const blocked = step >= 0 && !canAdvance;
-                    // Blocked, but never a dead end: clicking highlights the
-                    // fields still needed instead of changing the button.
-                    const hasTargets = stepGaps.some((g) => gapTargets[g]);
-                    return (
-                      <button
-                        type="button"
-                        aria-disabled={blocked}
-                        onClick={() => {
-                          if (!blocked) {
-                            setStep(step < 0 ? 0 : step + 1);
-                            return;
-                          }
-                          if (hasTargets) highlightGaps(stepGaps);
-                        }}
-                        className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
-                          blocked
-                            ? hasTargets
-                              ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
-                              : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
-                            : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
-                        }`}
-                      >
-                        {step === 2
-                          ? "Review and sign"
-                          : step === 1
-                            ? purpose === "renewal"
-                              ? "Continue with renewal"
-                              : entry === "lubin"
-                                ? "Use SOAP and continue"
-                                : "Continue to prescription"
-                            : "Continue"}
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    );
-                  })()
+                   (() => {
+                     const reusedStep = step === 1 && isReusedConsultation;
+                     const blocked = reusedStep ? !reusedReviewReady : step >= 0 && !canAdvance;
+                     // Blocked, but never a dead end: clicking highlights the
+                     // fields still needed instead of changing the button.
+                     const hasTargets = (reusedStep ? contextGaps : stepGaps).some((g) => gapTargets[g]);
+                     return (
+                       <button
+                         type="button"
+                         aria-disabled={blocked}
+                         onClick={() => {
+                           if (reusedStep) {
+                             if (reusedReviewReady) confirmReusedReview();
+                             else if (hasTargets) highlightGaps(contextGaps);
+                             return;
+                           }
+                           if (!blocked) {
+                             setStep(step < 0 ? 0 : step + 1);
+                             return;
+                           }
+                           if (hasTargets) highlightGaps(stepGaps);
+                         }}
+                         className={`inline-flex h-10 items-center gap-2 rounded-xl px-5 text-[12.5px] font-semibold transition ${
+                           blocked
+                             ? hasTargets
+                               ? "bg-[#3D2E6B] text-white opacity-70 hover:opacity-100"
+                               : "cursor-not-allowed bg-[#3D2E6B] text-white opacity-45"
+                             : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
+                         }`}
+                       >
+                         {step === 2
+                           ? "Review and sign"
+                           : reusedStep
+                             ? reusedReviewLabel
+                             : step === 1
+                               ? purpose === "renewal"
+                                 ? "Continue with renewal"
+                                 : entry === "lubin"
+                                   ? "Continue to medication"
+                                   : "Continue to prescription"
+                               : "Continue"}
+                         <ArrowRight className="h-4 w-4" />
+                       </button>
+                     );
+                   })()
                   )
                 ) : (
                   <button
