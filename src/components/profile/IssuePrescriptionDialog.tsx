@@ -5255,18 +5255,6 @@ export default function IssuePrescriptionDialog({
                               )}
                             </>
                           )}
-                          {noteSafetySuggestions.allergies && (
-                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
-                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.allergies}</p>
-                              <button type="button" onClick={() => {
-                                const suggestion = noteSafetySuggestions.allergies;
-                                const noKnown = /\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(suggestion);
-                                setAllergyState(noKnown ? "none-known" : "recorded");
-                                if (!noKnown) setAllergyDetail(suggestion);
-                                setNoteSafetySuggestions((current) => ({ ...current, allergies: "" }));
-                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
-                            </div>
-                          )}
                         </div>
 
                         <div id="rx-medications" className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
