@@ -4,6 +4,11 @@ import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
 import {
+  listPrescriptionDrafts,
+  subscribePrescriptionDrafts,
+  type PrescriptionDraft,
+} from "@/lib/prescription/drafts";
+import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
   type SignedPrescriptionDocument,
@@ -38,14 +43,23 @@ type PatientGroup = {
  */
 export default function ProviderPrescriptionsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
+  const [drafts, setDrafts] = useState<PrescriptionDraft[]>([]);
   const [query, setQuery] = useState("");
   const [issuing, setIssuing] = useState(false);
+  const [resetToken, setResetToken] = useState(0);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
+    const readDrafts = () => setDrafts(listPrescriptionDrafts());
     read();
-    return subscribePrescriptionDocuments(read);
+    readDrafts();
+    const unsubscribeDocs = subscribePrescriptionDocuments(read);
+    const unsubscribeDrafts = subscribePrescriptionDrafts(readDrafts);
+    return () => {
+      unsubscribeDocs();
+      unsubscribeDrafts();
+    };
   }, []);
 
   const groups = useMemo<PatientGroup[]>(() => {
@@ -92,7 +106,10 @@ export default function ProviderPrescriptionsSection() {
           </div>
           <button
             type="button"
-            onClick={() => setIssuing(true)}
+            onClick={() => {
+              setResetToken((token) => token + 1);
+              setIssuing(true);
+            }}
             className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
           >
             <Plus className="h-4 w-4" /> New prescription
@@ -102,9 +119,28 @@ export default function ProviderPrescriptionsSection() {
 
       <IssuePrescriptionDialog
         open={issuing}
+        resetToken={resetToken}
         onClose={() => setIssuing(false)}
         onIssued={() => setDocs(listSignedPrescriptions())}
       />
+
+      {drafts.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
+          <h4 className="text-[14px] font-bold text-[#3D2E6B]">Prescription drafts</h4>
+          <p className="mt-1 text-[12px] text-[#6F6889]">Unfinished prescriptions saved when you cancelled.</p>
+          <ul className="mt-3 space-y-2">
+            {drafts.map((draft) => (
+              <li key={draft.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
+                <div>
+                  <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
+                  <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
+                </div>
+                <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Draft</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {docs.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
@@ -118,7 +154,10 @@ export default function ProviderPrescriptionsSection() {
           </p>
           <button
             type="button"
-            onClick={() => setIssuing(true)}
+            onClick={() => {
+              setResetToken((token) => token + 1);
+              setIssuing(true);
+            }}
             className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
           >
             <Plus className="h-4 w-4" /> Issue a prescription

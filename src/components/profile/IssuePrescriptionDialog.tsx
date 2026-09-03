@@ -48,6 +48,9 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import {
+  savePrescriptionDraft,
+} from "@/lib/prescription/drafts";
+import {
   createPatientRecord,
   emptyInfo,
   listPatientRecords,
@@ -1082,12 +1085,15 @@ export default function IssuePrescriptionDialog({
   onClose,
   onIssued,
   appointmentId,
+  resetToken = 0,
 }: {
   open: boolean;
   onClose: () => void;
   onIssued?: (doc: SignedPrescriptionDocument) => void;
   /** When opened from an appointment, that consultation's SOAP is linked automatically. */
   appointmentId?: string;
+  /** Bumped by the caller when a fresh, empty prescription should be started. */
+  resetToken?: number;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
@@ -1304,6 +1310,10 @@ export default function IssuePrescriptionDialog({
     const found = detectJurisdiction();
     if (found.country) setCountry(found.country);
   }, [open]);
+
+  useEffect(() => {
+    if (resetToken > 0) resetAll();
+  }, [resetToken]);
 
 
   const ageYears = ageFromDob(dob);
@@ -2576,6 +2586,44 @@ export default function IssuePrescriptionDialog({
     setDeliveryChoice("email");
   }
 
+  function closeAsDraft() {
+    const medicationStarted = meds.some((med) =>
+      [med.genericName, med.dose, med.route, med.frequency, med.duration, med.quantity, med.instructions]
+        .some((value) => value?.trim()),
+    );
+    const hasStarted = Boolean(
+      patientName.trim() || selected || purpose || entry || pastedNote.trim() || medicationStarted,
+    );
+    if (hasStarted && !issued) {
+      savePrescriptionDraft({
+        patientId: selected?.id,
+        patientName: patientName.trim() || selected?.fullName || "Unnamed patient",
+        step,
+        purpose: purpose ?? undefined,
+        source: entry ?? undefined,
+        snapshot: {
+          patientName,
+          preferredName,
+          dob,
+          sex,
+          purpose,
+          entry,
+          linkedAppointment,
+          soap,
+          objectiveMode,
+          allergyState,
+          allergyDetail,
+          medicationState,
+          medicationDetail,
+          pregnancyStatus,
+          meds,
+          planExtras,
+        },
+      });
+    }
+    onClose();
+  }
+
   /** The clinical plan the prescription is prepared from. */
   const planText =
     purpose === "renewal"
@@ -2943,8 +2991,8 @@ export default function IssuePrescriptionDialog({
 
             <button
               type="button"
-              onClick={onClose}
-              aria-label="Close"
+              onClick={closeAsDraft}
+              aria-label="Cancel prescription"
               className="rounded-xl p-2 text-[#8A7FB0] transition hover:bg-[#F5F1FF]"
             >
               <X className="h-4 w-4" />
@@ -6191,9 +6239,7 @@ export default function IssuePrescriptionDialog({
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
-              onClick={() =>
-                issued ? setIssued(null) : step <= 0 ? onClose() : setStep(step - 1)
-              }
+              onClick={() => (issued ? setIssued(null) : closeAsDraft())}
               className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
             >
               {issued ? "Back to prescription" : "Cancel"}
