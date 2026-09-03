@@ -1308,6 +1308,11 @@ export default function IssuePrescriptionDialog({
 
   const ageYears = ageFromDob(dob);
   const isMinor = ageYears !== undefined && ageYears < 18;
+  /** Pregnancy / breastfeeding is only clinically possible for a patient
+   *  recorded as female within reproductive age. Where it cannot apply it is
+   *  never shown and never asked for. */
+  const pregnancyApplicable =
+    sex === "female" && (ageYears === undefined || (ageYears >= 10 && ageYears <= 55));
   const validity = useMemo(
     () => prescriptionValidity({ country, controlled: false, issuedAt: Date.now() }),
     [country],
@@ -1624,7 +1629,7 @@ export default function IssuePrescriptionDialog({
       : []),
   ];
   const pregnancyGap =
-    isReusedConsultation && sex !== "male" && pregnancyStatus === "not-reviewed"
+    pregnancyApplicable && pregnancyStatus === "not-reviewed"
       ? ["Review pregnancy / breastfeeding status"]
       : [];
   const contextGaps: string[] = [];
@@ -1676,11 +1681,9 @@ export default function IssuePrescriptionDialog({
   /** Everything still missing from the clinical note itself, without the
    *  separate safety confirmation. */
   const soapGaps = [...contextGaps];
-  if (isReusedConsultation) {
-    contextGaps.push(...safetyGaps, ...pregnancyGap);
-  } else {
-    contextGaps.push(...safetyGaps);
-  }
+  /** The medication safety check is its own step, so its outstanding items are
+   *  counted there rather than mixed into the clinical documentation step. */
+  const safetyStepGaps = [...safetyGaps, ...pregnancyGap];
 
   /* ---- Medication options for provider review (prototype fixtures) ----
      The information the options are based on is shown first. When something
@@ -1693,8 +1696,8 @@ export default function IssuePrescriptionDialog({
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
   /** Pregnancy is only ever what the provider selected. */
   const pregnancyLabel =
-    sex === "male"
-      ? "Not applicable — recorded sex"
+    !pregnancyApplicable
+      ? "Not applicable"
       : pregnancyStatus === "not-reviewed"
         ? "Not reviewed"
         : [PREGNANCY_REVIEW_LABEL[pregnancyStatus], pregnancyText.trim()]
@@ -1760,11 +1763,11 @@ export default function IssuePrescriptionDialog({
   if (ageYears == null)
     optionsMissingItems.push({ label: "Date of birth so age can be calculated", step: 0 });
   if (allergyState === "not-assessed")
-    optionsMissingItems.push({ label: "Drug allergy status", step: 0 });
+    optionsMissingItems.push({ label: "Drug allergy status", step: 2 });
   if (medicationState === "not-assessed")
-    optionsMissingItems.push({ label: "Current medications", step: 0 });
-  if (sex !== "male" && pregnancyStatus === "not-reviewed") {
-    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 0 });
+    optionsMissingItems.push({ label: "Current medications", step: 2 });
+  if (pregnancyApplicable && pregnancyStatus === "not-reviewed") {
+    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 2 });
   }
   const optionsMissing = optionsMissingItems.map((i) => i.label);
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
@@ -2177,7 +2180,7 @@ export default function IssuePrescriptionDialog({
   /** Nothing in this prototype flow is review-only: the prescriber signs their own work. */
   const reviewOnly = false;
 
-  const allGaps = [...patientGaps, ...contextGaps, ...docGaps, ...rxGaps];
+  const allGaps = [...patientGaps, ...contextGaps, ...safetyStepGaps, ...docGaps, ...rxGaps];
   const canReview = allGaps.length === 0;
 
   /** A completed consultation gets one explicit review action. It does not
@@ -2188,9 +2191,7 @@ export default function IssuePrescriptionDialog({
     materialChange !== "reassess" &&
     (materialChange !== "update" ||
       (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
-    (allergyOnFile || allergyState !== "not-assessed") &&
-    (medicationOnFile || medicationState !== "not-assessed") &&
-    (sex === "male" || pregnancyStatus !== "not-reviewed");
+    true;
   const reusedReviewLabel =
     materialChange === "update"
       ? "Confirm updated information and continue"
@@ -2221,27 +2222,27 @@ export default function IssuePrescriptionDialog({
      "City / municipality": { step: 0, id: "rx-city" },
      "Choose an Objective status": { step: 1, id: "soap-field-objective" },
      "Confirm an Assessment or indication": { step: 1, id: "soap-field-assessment" },
-     "Review allergies": { step: 1, id: "rx-allergy" },
-     "Review current medications": { step: 1, id: "rx-medications" },
-     "Review pregnancy / breastfeeding status": { step: 1, id: "rx-pregnancy" },
+     "Review allergies": { step: 2, id: "rx-allergy" },
+     "Review current medications": { step: 2, id: "rx-medications" },
+     "Review pregnancy / breastfeeding status": { step: 2, id: "rx-pregnancy" },
      "Patient requires reassessment": { step: 1, id: "material-change-section" },
      "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
      "Review and confirm the clinical information": { step: 1, id: "reused-review-summary" },
    };
    if (meds[0])
      gapTargets["One medication with generic name, dose and frequency"] = {
-       step: 2,
+       step: 3,
        id: `med-${meds[0].id}-generic`,
        medId: meds[0].id,
      };
    for (const m of readyMeds) {
      const n = m.genericName.trim();
-     gapTargets[`${n}: strength and dosage form`] = { step: 2, id: `med-${m.id}-strength`, medId: m.id };
-     gapTargets[`${n}: route`] = { step: 2, id: `med-${m.id}-route`, medId: m.id };
-     gapTargets[`${n}: complete SIG`] = { step: 2, id: `med-${m.id}-sig`, medId: m.id };
-     gapTargets[`${n}: quantity and unit`] = { step: 2, id: `med-${m.id}-quantity`, medId: m.id };
-     gapTargets[`${n}: refills`] = { step: 2, id: `med-${m.id}-refills`, medId: m.id };
-     gapTargets[`${n}: patient instructions`] = { step: 2, id: `med-${m.id}-instructions`, medId: m.id };
+     gapTargets[`${n}: strength and dosage form`] = { step: 3, id: `med-${m.id}-strength`, medId: m.id };
+     gapTargets[`${n}: route`] = { step: 3, id: `med-${m.id}-route`, medId: m.id };
+     gapTargets[`${n}: complete SIG`] = { step: 3, id: `med-${m.id}-sig`, medId: m.id };
+     gapTargets[`${n}: quantity and unit`] = { step: 3, id: `med-${m.id}-quantity`, medId: m.id };
+     gapTargets[`${n}: refills`] = { step: 3, id: `med-${m.id}-refills`, medId: m.id };
+     gapTargets[`${n}: patient instructions`] = { step: 3, id: `med-${m.id}-instructions`, medId: m.id };
    }
 
   /** Scrolls a field into view, focuses it and flashes a highlight ring. */
@@ -2313,7 +2314,7 @@ export default function IssuePrescriptionDialog({
 
   /** Takes the provider straight back to the Plan fields still needing input. */
   const goToPlanItems = () => {
-    setStep(2);
+    setStep(3);
     window.setTimeout(() => {
       const el =
         (!planExtras.instructions.trim() && document.getElementById("plan-field-instructions")) ||
@@ -2326,7 +2327,7 @@ export default function IssuePrescriptionDialog({
 
   const goStep = (i: number) => {
     if (i > 0 && !patientReady) return;
-    if (i === 3 && !canReview) return;
+    if (i === 4 && !canReview) return;
     setStep(i);
   };
 
@@ -2894,21 +2895,31 @@ export default function IssuePrescriptionDialog({
   const stepDoneFlags = [
     hasPatient && patientGaps.length === 0,
     patientReady && contextGaps.length === 0,
+    patientReady && safetyStepGaps.length === 0,
     patientReady && docGaps.length === 0 && rxGaps.length === 0,
     false,
   ];
-  const stepLockedFlags = [false, !patientReady, !patientReady, !patientReady || !canReview];
+  const stepLockedFlags = [
+    false,
+    !patientReady,
+    !patientReady,
+    !patientReady,
+    !patientReady || !canReview,
+  ];
   const nextStep = stepDoneFlags.findIndex((d, i) => !d && !stepLockedFlags[i]);
 
-  const stepGaps = [patientGaps, contextGaps, [...docGaps, ...rxGaps], []][step] ?? [];
+  const stepGaps =
+    [patientGaps, contextGaps, safetyStepGaps, [...docGaps, ...rxGaps], []][step] ?? [];
   const canAdvance =
     step === 0
       ? hasPatient && patientGaps.length === 0
       : step === 1
         ? contextGaps.length === 0
         : step === 2
-          ? docGaps.length === 0 && rxGaps.length === 0
-          : false;
+          ? safetyStepGaps.length === 0
+          : step === 3
+            ? docGaps.length === 0 && rxGaps.length === 0
+            : false;
 
   const drawer = (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1B1330]/50 p-3 backdrop-blur-sm sm:p-6">
@@ -3543,8 +3554,8 @@ export default function IssuePrescriptionDialog({
               {/* ---------------- STEP 2 — CLINICAL DOCUMENTATION ---------------- */}
               <Acc
                 index={1}
-                label="SOAP / clinical note"
-                hint="Reuse an existing SOAP or complete one focused note"
+                label="Clinical documentation"
+                hint="Confirm the documented clinical information — a full S–O–A–P is not always required"
 
                 open={step === 1}
                 onToggle={goStep}
@@ -4410,7 +4421,7 @@ export default function IssuePrescriptionDialog({
                                      </dt>
                                      <dd>{savedMedications}</dd>
                                    </div>
-                                   {sex !== "male" && (
+                                   {pregnancyApplicable && (
                                      <div>
                                        <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
                                          Pregnancy / breastfeeding
@@ -5062,6 +5073,38 @@ export default function IssuePrescriptionDialog({
                         </section>
                       )}
 
+                    </>
+                  );
+                }}
+              </Acc>
+
+              {/* ---------------- STEP 3 — MEDICATION SAFETY CHECK ---------------- */}
+              <Acc
+                index={2}
+                label="Medication safety check"
+                hint="Allergies, current medications and relevant conditions"
+                open={step === 2}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && safetyStepGaps.length === 0}
+                next={nextStep === 2}
+              >
+                {() => {
+                  const today = new Date().toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  });
+                  const passportUpdated = selected?.info?.updatedAt
+                    ? new Date(selected.info.updatedAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : null;
+                  return (
+                    <>
                       {/* Medication safety check */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
@@ -5271,7 +5314,7 @@ export default function IssuePrescriptionDialog({
                               />
                             </div>
                           )}
-                          {sex !== "male" && (
+                          {pregnancyApplicable && (
                              <div id="rx-pregnancy">
                                <label className={label}>
                                  Pregnancy / breastfeeding
@@ -5283,7 +5326,6 @@ export default function IssuePrescriptionDialog({
                                     "not-pregnant",
                                     "pregnant",
                                     "breastfeeding",
-                                    "not-applicable",
                                   ] as PregnancyReview[]
                                 ).map((s) => {
                                   const on = pregnancyStatus === s;
@@ -5336,15 +5378,15 @@ export default function IssuePrescriptionDialog({
 
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
               <Acc
-                index={2}
+                index={3}
                 label="Medication and treatment"
                 hint="Choose the treatment and complete the order"
-                open={step === 2}
+                open={step === 3}
                 onToggle={goStep}
                 locked={!patientReady}
                 lockedHint="Add a patient in Step 1 first"
                 done={patientReady && (docGaps.length === 0 && rxGaps.length === 0)}
-                next={nextStep === 2}
+                next={nextStep === 3}
               >
                 {() => (
                 <>
@@ -5352,7 +5394,7 @@ export default function IssuePrescriptionDialog({
                   {/* Reused documentation — read-only. Nothing is retyped here. */}
                   <section className={cardCls}>
                     <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
-                      SOAP information used for this prescription
+                      Clinical documentation used for this prescription
                     </h3>
                     {purpose === "renewal" ? (
                       <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
@@ -5888,14 +5930,14 @@ export default function IssuePrescriptionDialog({
 
               {/* ---------------- STEP 4 — REVIEW AND SIGN ---------------- */}
               <Acc
-                index={3}
+                index={4}
                 label="Review and sign"
                 hint="Read-only preview, then sign"
-                open={step === 3}
+                open={step === 4}
                 onToggle={goStep}
                 locked={!patientReady || !canReview}
-                next={nextStep === 3}
-                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–3 first"}
+                next={nextStep === 4}
+                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–4 first"}
                 done={false}
               >
                 {() => (
@@ -6041,7 +6083,7 @@ export default function IssuePrescriptionDialog({
                           : ""}
                       </li>
                       <li>Relevant conditions — {conditionsLabel}</li>
-                      {sex !== "male" && (
+                      {pregnancyApplicable && (
                         <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
                       <li>Controlled or dangerous drug — none on this prescription</li>
@@ -6067,7 +6109,7 @@ export default function IssuePrescriptionDialog({
                     <div className="flex items-center justify-between">
                       <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">Attest and sign</h3>
                       <span className="rounded-md border border-[#E3DBF5] bg-[#F5F1FB] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#5A3E8F]">
-                        Step 4 of 4
+                        Step 5 of 5
                       </span>
                     </div>
 
@@ -6227,14 +6269,12 @@ export default function IssuePrescriptionDialog({
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
               ) : stepGaps.length > 0 ? (
+                /** One footer convention everywhere: only the current step's
+                 *  outstanding fields are counted and listed. */
                 <p className="text-[11.5px] text-[#8A7FB0]">
                   {stepGaps.length} field{stepGaps.length === 1 ? "" : "s"} still needed on this
-                  step.
-                </p>
-              ) : allGaps.length > 0 ? (
-                <p className="text-[11.5px] text-[#8A7FB0]">
-                  Still to resolve:{" "}
-                  {allGaps.slice(0, 3).map((g, i) => (
+                  step:{" "}
+                  {stepGaps.slice(0, 3).map((g, i) => (
                     <span key={g}>
                       {i > 0 && " · "}
                       {gapTargets[g] ? (
@@ -6282,8 +6322,8 @@ export default function IssuePrescriptionDialog({
               </button>
             ) : (
               <>
-                {step < 3 ? (
-                  step === 2 && selectedOptionIds.length > 0 ? (
+                {step < 4 ? (
+                  step === 3 && selectedOptionIds.length > 0 ? (
                     <button
                       type="button"
                       onClick={addSelectedMedicationOptions}
@@ -6323,7 +6363,7 @@ export default function IssuePrescriptionDialog({
                              : "bg-[#3D2E6B] text-white hover:bg-[#33265A]"
                          }`}
                        >
-                         {step === 2
+                         {step === 3
                            ? "Review and sign"
                            : reusedStep
                              ? reusedReviewLabel
