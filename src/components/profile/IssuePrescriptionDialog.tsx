@@ -2335,6 +2335,19 @@ export default function IssuePrescriptionDialog({
   }
   if (dangerousMeds.length > 0) rxGaps.push("Remove the dangerous-drug entry");
 
+  /** The Plan may never reach Review and sign carrying an unresolved
+   *  "Needs provider confirmation" placeholder. */
+  if (readyMeds.length > 0 && purpose !== "renewal") {
+    if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Follow-up plan");
+    if (soap.plan.includes(`Patient instructions: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Patient instructions and warning signs");
+    else if (soap.plan.includes(`Warning signs: ${NEEDS_CONFIRMATION}`))
+      rxGaps.push("Patient instructions and warning signs");
+    else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
+  }
+
+
   /** Nothing in this prototype flow is review-only: the prescriber signs their own work. */
   const reviewOnly = false;
 
