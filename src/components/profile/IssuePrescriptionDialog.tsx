@@ -4791,7 +4791,6 @@ export default function IssuePrescriptionDialog({
                                 )}
                               </div>
                           {soapApproval}
-                          {unplacedNotesPanel}
                             </div>
                           )}
 
