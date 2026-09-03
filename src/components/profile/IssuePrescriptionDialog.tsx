@@ -6269,14 +6269,12 @@ export default function IssuePrescriptionDialog({
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
               ) : stepGaps.length > 0 ? (
+                /** One footer convention everywhere: only the current step's
+                 *  outstanding fields are counted and listed. */
                 <p className="text-[11.5px] text-[#8A7FB0]">
                   {stepGaps.length} field{stepGaps.length === 1 ? "" : "s"} still needed on this
-                  step.
-                </p>
-              ) : allGaps.length > 0 ? (
-                <p className="text-[11.5px] text-[#8A7FB0]">
-                  Still to resolve:{" "}
-                  {allGaps.slice(0, 3).map((g, i) => (
+                  step:{" "}
+                  {stepGaps.slice(0, 3).map((g, i) => (
                     <span key={g}>
                       {i > 0 && " · "}
                       {gapTargets[g] ? (
