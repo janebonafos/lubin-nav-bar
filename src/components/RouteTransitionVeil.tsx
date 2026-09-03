@@ -9,7 +9,7 @@ import PageSkeleton from "@/components/PageSkeleton";
  */
 export default function RouteTransitionVeil() {
   const isNavigating = useRouterState({
-    select: (s) => s.status === "pending" || s.isLoading || s.isTransitioning,
+    select: (s) => s.status === "pending" || s.isTransitioning,
   });
   const location = useRouterState({ select: (s) => s.location.href });
   const [show, setShow] = useState(false);
