@@ -1666,7 +1666,9 @@ export default function IssuePrescriptionDialog({
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
+      if (objectiveMode === "none") contextGaps.push("Choose an Objective status");
       if (!assessmentBasis) contextGaps.push("Choose the assessment or indication");
+
       if (assessmentBasis !== "further" && isSoapPlaceholder(soap.assessment))
         contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
@@ -2622,13 +2624,13 @@ export default function IssuePrescriptionDialog({
       setObjectiveMode(
         limitedRemoteOnly
           ? "limited-remote"
-          : drafted.objective === NO_OBJECTIVE
-            ? "not-obtained"
-            : // Never claim findings are documented while the field is empty.
-              drafted.objective.trim()
-              ? "add"
-              : "none",
+          : // Never claim findings are documented while the field is empty, and
+            // never pre-select "no findings obtained" on the provider's behalf.
+            drafted.objective.trim() && drafted.objective !== NO_OBJECTIVE
+            ? "add"
+            : "none",
       );
+
       setAiFields({
         subjective: drafts.includes("subjective"),
         objective: drafts.includes("objective"),
@@ -4486,7 +4488,7 @@ export default function IssuePrescriptionDialog({
                                         </button>
                                       ))}
                                     </div>
-                                    {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
+                                    {objectiveMode === "add" && (
                                       <AutoTextarea
                                         minRows={2}
                                         className={`${area} mt-2`}
@@ -4496,11 +4498,7 @@ export default function IssuePrescriptionDialog({
                                           setAiFields((current) => ({ ...current, objective: false }));
                                           setSoap((current) => ({ ...current, objective: e.target.value }));
                                         }}
-                                        placeholder={
-                                          objectiveMode === "limited-remote"
-                                            ? "Document what you could observe during the video or telephone assessment."
-                                            : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                        }
+                                            placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
                                       />
                                     )}
                                   </div>
@@ -4801,7 +4799,7 @@ export default function IssuePrescriptionDialog({
                                   </button>
                                 ))}
                               </div>
-                              {(objectiveMode === "add" || objectiveMode === "limited-remote") && (
+                              {objectiveMode === "add" && (
                                 <>
                                   <AutoTextarea
                                     minRows={2}
@@ -4812,11 +4810,7 @@ export default function IssuePrescriptionDialog({
                                       setAiFields((f) => ({ ...f, objective: false }));
                                       setSoap((s) => ({ ...s, objective: e.target.value }));
                                     }}
-                                    placeholder={
-                                      objectiveMode === "limited-remote"
-                                        ? "Document what you could observe during the video or telephone assessment."
-                                        : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                    }
+                                        placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
                                   />
                                   {!showVitals ? (
                                     <button
