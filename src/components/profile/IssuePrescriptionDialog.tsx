@@ -290,6 +290,14 @@ const NEEDS_CONFIRMATION = "Needs provider confirmation";
 /** Ends a fragment with a single full stop — never duplicated punctuation. */
 const sentence = (text: string) => `${text.trim().replace(/[.\s]+$/, "")}.`;
 
+/** Joins fragments into clean sentences without duplicated punctuation. */
+const joinSentences = (...parts: (string | undefined)[]) =>
+  parts
+    .map((p) => (p ?? "").trim())
+    .filter(Boolean)
+    .map((p) => sentence(p))
+    .join(" ");
+
 
 
 /**
@@ -1537,33 +1545,30 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${sentence(orderFollowUp || NEEDS_CONFIRMATION)} Patient instructions and warning signs: ${sentence(
-        orderInstructions || NEEDS_CONFIRMATION,
-      )}`,
+      // The regimen summary holds the medication only. Follow-up and patient
+      // instructions live in their own Plan fields — never duplicated here.
+      plan: joinSentences(...lines),
     }));
     setAiFields((f) => ({ ...f, plan: true }));
     // Editing the medication or the Plan never re-opens the confirmed S/O/A.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
-  /** A Plan placeholder resolves itself once the same information is documented
-   *  in the medication order. */
+  /** Older drafts may carry Follow-up / Patient instruction clauses inside the
+   *  regimen summary. Those move to their own Plan fields, so the placeholder
+   *  clauses are removed rather than shown twice. */
   useEffect(() => {
     setSoap((s) => {
-      let plan = s.plan;
-      const followUp = orderFollowUp || planExtras.followUp.trim();
-      const instructions = orderInstructions || planExtras.instructions.trim();
-      if (followUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, `Follow-up: ${sentence(followUp)}`);
-      if (instructions) {
-        plan = plan.replace(
-          `Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
-          `Patient instructions and warning signs: ${sentence(instructions)}`,
-        );
-      }
+      if (!s.plan.includes(NEEDS_CONFIRMATION)) return s;
+      const plan = s.plan
+        .replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, "")
+        .replace(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
       return plan === s.plan ? s : { ...s, plan };
     });
-  }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
+  }, [soap.plan]);
+
 
 
 
@@ -2194,6 +2199,10 @@ export default function IssuePrescriptionDialog({
       unit: opt.unit,
       rationale: opt.why,
       sig: draftedSig,
+      // Patient instructions are drafted as the regimen wording plus any
+      // clinically relevant warning signs documented for this medication, in one
+      // editable field — AI draft, provider review required.
+      instructions: joinSentences(draftedSig, opt.about.counselling),
       sigEdited: false,
     };
   };
@@ -2340,15 +2349,12 @@ export default function IssuePrescriptionDialog({
   }
   if (dangerousMeds.length > 0) rxGaps.push("Remove the dangerous-drug entry");
 
-  /** The Plan may never reach Review and sign carrying an unresolved
-   *  "Needs provider confirmation" placeholder. */
+  /** The Plan may never reach Review and sign with unresolved placeholder text
+   *  or an empty follow-up / patient-instruction field. */
   if (readyMeds.length > 0 && purpose !== "renewal") {
-    if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Follow-up plan");
-    if (soap.plan.includes(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Patient instructions and warning signs");
-    else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
-
+    if (!planExtras.followUp.trim()) rxGaps.push("Follow-up plan");
+    if (!planExtras.instructions.trim()) rxGaps.push("Patient instructions and warning signs");
+    if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
   }
 
 
@@ -3029,7 +3035,9 @@ export default function IssuePrescriptionDialog({
       refills: m.refills.trim() || undefined,
       followUp: m.followUp.trim() || undefined,
       indication: indication.trim() || undefined,
-      instructions: [m.sig.trim(), m.instructions.trim()].filter(Boolean).join(" "),
+      instructions: m.instructions.trim().includes(m.sig.trim())
+        ? sentence(m.instructions)
+        : joinSentences(m.sig, m.instructions),
       warnings: m.warnings,
       origin: "manual",
       controlled: false,
