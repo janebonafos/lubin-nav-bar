@@ -2741,6 +2741,7 @@ export default function IssuePrescriptionDialog({
           medicationState,
           medicationDetail,
           pregnancyStatus,
+          breastfeedingStatus,
           meds,
           planExtras,
         },
