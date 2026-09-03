@@ -55,6 +55,9 @@ export default function ProviderPrescriptionsSection() {
   const [resetToken, setResetToken] = useState(0);
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
   const [view, setView] = useState<"active" | "archived">("active");
+  /** Per-patient accordion state. Multi-prescription patients start collapsed
+   *  so a long record stays scannable; single-prescription patients stay open. */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
