@@ -136,6 +136,21 @@ export default function ProviderPrescriptionsSection() {
         </div>
       </div>
 
+      <div className="mt-5 inline-flex rounded-xl border border-[#E3DBF5] bg-white p-1">
+        {(["active", "archived"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setView(tab)}
+            className={`rounded-lg px-3.5 py-1.5 text-[12px] font-semibold transition ${
+              view === tab ? "bg-[#3D2E6B] text-white" : "text-[#6F6889] hover:text-[#3D2E6B]"
+            }`}
+          >
+            {tab === "active" ? "Active" : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
+          </button>
+        ))}
+      </div>
+
       <IssuePrescriptionDialog
         open={issuing}
         resetToken={resetToken}
