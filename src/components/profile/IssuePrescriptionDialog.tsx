@@ -1848,15 +1848,12 @@ export default function IssuePrescriptionDialog({
     objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
       ? soap.objective.trim()
       : "Not obtained — no vital signs, laboratory results or renal or hepatic function recorded at this visit";
-  /** One relevant-conditions status, used identically in medication options and
-   *  in the final Safety review. Conditions count as reviewed once the provider
-   *  has answered the allergy and current-medication questions. */
-  const conditionsReviewed = allergyState !== "not-assessed" && medicationState !== "not-assessed";
+  /** Relevant conditions are only reported when the provider has explicitly
+   *  documented them. An empty field is never presented as "Reviewed — none". */
   const conditionsLabel = conditionsText.trim()
-    ? `Reviewed — documented: ${conditionsText.trim()}`
-    : conditionsReviewed
-      ? "Reviewed — none"
-      : "Not reviewed";
+    ? `Documented: ${conditionsText.trim()}`
+    : "";
+
   const optionInputs: { label: string; value: string }[] = [
     {
       label: "Provider-confirmed Assessment or indication",
@@ -1881,7 +1878,6 @@ export default function IssuePrescriptionDialog({
             ? medicationDetail.trim() || "Documented — view details"
             : "Not assessed",
     },
-    { label: "Relevant conditions", value: conditionsLabel },
     {
       label: "Pregnancy / breastfeeding",
       value: pregnancyLabel,
@@ -4689,19 +4685,30 @@ export default function IssuePrescriptionDialog({
                                         </button>
                                       ))}
                                     </div>
-                                    {objectiveMode === "add" && (
-                                      <AutoTextarea
-                                        minRows={2}
-                                        className={`${area} mt-2`}
-                                        value={soap.objective}
-                                        onChange={(e) => {
-                                          setSoapApproved(false);
-                                          setAiFields((current) => ({ ...current, objective: false }));
-                                          setSoap((current) => ({ ...current, objective: e.target.value }));
-                                        }}
-                                            placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                      />
+                                    {objectiveMode !== "none" && (
+                                      <>
+                                        <p className="mt-2 text-[11px] font-bold text-[#3D2E6B]">
+                                          AI draft — provider review required
+                                        </p>
+                                        <AutoTextarea
+                                          minRows={2}
+                                          className={`${area} mt-1.5`}
+                                          value={
+                                            isSoapPlaceholder(soap.objective) &&
+                                            objectiveMode !== "not-obtained"
+                                              ? ""
+                                              : soap.objective
+                                          }
+                                          onChange={(e) => {
+                                            setSoapApproved(false);
+                                            setAiFields((current) => ({ ...current, objective: false }));
+                                            setSoap((current) => ({ ...current, objective: e.target.value }));
+                                          }}
+                                          placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
+                                        />
+                                      </>
                                     )}
+
                                   </div>
                                 )}
 
@@ -5000,12 +5007,19 @@ export default function IssuePrescriptionDialog({
                                   </button>
                                 ))}
                               </div>
-                              {objectiveMode === "add" && (
+                              {objectiveMode !== "none" && (
                                 <>
+                                  <p className="mt-2 text-[11px] font-bold text-[#3D2E6B]">
+                                    AI draft — provider review required
+                                  </p>
                                   <AutoTextarea
                                     minRows={2}
-                                    className={`${area} mt-2`}
-                                    value={soap.objective}
+                                    className={`${area} mt-1.5`}
+                                    value={
+                                      isSoapPlaceholder(soap.objective) && objectiveMode !== "not-obtained"
+                                        ? ""
+                                        : soap.objective
+                                    }
                                     onChange={(e) => {
                                       setSoapApproved(false);
                                       setAiFields((f) => ({ ...f, objective: false }));
@@ -5013,38 +5027,40 @@ export default function IssuePrescriptionDialog({
                                     }}
                                         placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
                                   />
-                                  {!showVitals ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => setShowVitals(true)}
-                                      className="mt-2 inline-flex h-9 items-center rounded-[10px] border border-[#D9CEF3] bg-white px-3 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
-                                    >
-                                      Add vitals (optional)
-                                    </button>
-                                  ) : (
-                                    <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                                      <input
-                                        className={field}
-                                        value={weightText}
-                                        onChange={(e) => setWeightText(e.target.value)}
-                                        placeholder="Weight — e.g. 58 kg"
-                                      />
-                                      <input
-                                        className={field}
-                                        value={bpText}
-                                        onChange={(e) => setBpText(e.target.value)}
-                                        placeholder="BP — e.g. 118/74"
-                                      />
-                                      <input
-                                        className={field}
-                                        value={hrText}
-                                        onChange={(e) => setHrText(e.target.value)}
-                                        placeholder="HR — e.g. 72 bpm"
-                                      />
-                                    </div>
-                                  )}
+                                  {objectiveMode === "add" &&
+                                    (!showVitals ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowVitals(true)}
+                                        className="mt-2 inline-flex h-9 items-center rounded-[10px] border border-[#D9CEF3] bg-white px-3 text-[11.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F4FB]"
+                                      >
+                                        Add vitals (optional)
+                                      </button>
+                                    ) : (
+                                      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                                        <input
+                                          className={field}
+                                          value={weightText}
+                                          onChange={(e) => setWeightText(e.target.value)}
+                                          placeholder="Weight — e.g. 58 kg"
+                                        />
+                                        <input
+                                          className={field}
+                                          value={bpText}
+                                          onChange={(e) => setBpText(e.target.value)}
+                                          placeholder="BP — e.g. 118/74"
+                                        />
+                                        <input
+                                          className={field}
+                                          value={hrText}
+                                          onChange={(e) => setHrText(e.target.value)}
+                                          placeholder="HR — e.g. 72 bpm"
+                                        />
+                                      </div>
+                                    ))}
                                 </>
                               )}
+
                             </div>
 
                             {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
@@ -6384,7 +6400,7 @@ export default function IssuePrescriptionDialog({
                           ? `: ${medicationDetail}`
                           : ""}
                       </li>
-                      <li>Relevant conditions — {conditionsLabel}</li>
+                      {conditionsLabel && <li>Relevant conditions — {conditionsLabel}</li>}
                       {pregnancyApplicable && (
                         <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
