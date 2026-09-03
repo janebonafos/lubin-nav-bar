@@ -2345,11 +2345,10 @@ export default function IssuePrescriptionDialog({
   if (readyMeds.length > 0 && purpose !== "renewal") {
     if (soap.plan.includes(`Follow-up: ${NEEDS_CONFIRMATION}`))
       rxGaps.push("Follow-up plan");
-    if (soap.plan.includes(`Patient instructions: ${NEEDS_CONFIRMATION}`))
-      rxGaps.push("Patient instructions and warning signs");
-    else if (soap.plan.includes(`Warning signs: ${NEEDS_CONFIRMATION}`))
+    if (soap.plan.includes(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}`))
       rxGaps.push("Patient instructions and warning signs");
     else if (soap.plan.includes(NEEDS_CONFIRMATION)) rxGaps.push("Complete the Plan");
+
   }
 
 
