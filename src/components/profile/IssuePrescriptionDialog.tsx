@@ -6497,7 +6497,10 @@ export default function IssuePrescriptionDialog({
                               code: <span className="font-bold text-[#3D2E6B]">{otpCode}</span>
                             </p>
                             <input
-                              className={`${field} mt-1 tracking-[0.34em]`}
+                              id="rx-verification-code"
+                              className={`${field} mt-1 tracking-[0.34em] ${
+                                otpError ? "!border-[#D9534F] bg-[#FEF7F6] ring-2 ring-[#D9534F]/40" : ""
+                              }`}
                               inputMode="numeric"
                               value={otpEntry}
                               onChange={(e) => {
@@ -6505,9 +6508,12 @@ export default function IssuePrescriptionDialog({
                                 setOtpError("");
                               }}
                               placeholder="000000"
+                              aria-invalid={!!otpError}
+                              aria-describedby="rx-verification-error"
                             />
                             {otpError && (
-                              <p className="mt-1 text-[12px] font-semibold text-[#9B3B33]">
+                              <p id="rx-verification-error" className="mt-1 flex items-center gap-1.5 text-[12px] font-semibold text-[#9B3B33]">
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                                 {otpError}
                               </p>
                             )}
