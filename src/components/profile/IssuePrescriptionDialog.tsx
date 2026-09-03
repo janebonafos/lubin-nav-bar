@@ -1728,11 +1728,16 @@ export default function IssuePrescriptionDialog({
     }
   }
   if (purpose === "renewal") {
-    if (!renewal.medication.trim()) contextGaps.push("Current medication and directions (SIG)");
-    if (!renewal.response.trim()) contextGaps.push("Is the medication helping?");
-    if (!renewal.sideEffects.trim()) contextGaps.push("Any side effects?");
-    if (!renewal.changes.trim()) contextGaps.push("Any medication or allergy changes?");
+    if (!renewal.medication.trim()) contextGaps.push("The medication being continued");
+    if (!renewal.responseChoice) contextGaps.push("How the patient is responding");
+    if (!renewal.sideEffectChoice) contextGaps.push("Side effects");
+    else if (renewal.sideEffectChoice === "documented" && !renewal.sideEffectDetail.trim())
+      contextGaps.push("Side effects");
+    if (!renewal.changesChoice) contextGaps.push("Medication or allergy changes");
+    else if (renewal.changesChoice === "documented" && !renewal.changesDetail.trim())
+      contextGaps.push("Medication or allergy changes");
   }
+
   /** Everything still missing from the clinical note itself, without the
    *  separate safety confirmation. */
   const soapGaps = [...contextGaps];
