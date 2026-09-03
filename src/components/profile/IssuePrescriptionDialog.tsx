@@ -1848,15 +1848,12 @@ export default function IssuePrescriptionDialog({
     objectiveMode === "add" && !isSoapPlaceholder(soap.objective)
       ? soap.objective.trim()
       : "Not obtained — no vital signs, laboratory results or renal or hepatic function recorded at this visit";
-  /** One relevant-conditions status, used identically in medication options and
-   *  in the final Safety review. Conditions count as reviewed once the provider
-   *  has answered the allergy and current-medication questions. */
-  const conditionsReviewed = allergyState !== "not-assessed" && medicationState !== "not-assessed";
+  /** Relevant conditions are only reported when the provider has explicitly
+   *  documented them. An empty field is never presented as "Reviewed — none". */
   const conditionsLabel = conditionsText.trim()
-    ? `Reviewed — documented: ${conditionsText.trim()}`
-    : conditionsReviewed
-      ? "Reviewed — none"
-      : "Not reviewed";
+    ? `Documented: ${conditionsText.trim()}`
+    : "";
+
   const optionInputs: { label: string; value: string }[] = [
     {
       label: "Provider-confirmed Assessment or indication",
