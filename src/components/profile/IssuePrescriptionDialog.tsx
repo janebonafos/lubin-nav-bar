@@ -6458,7 +6458,7 @@ export default function IssuePrescriptionDialog({
                             {(!attested || !aiReviewed || !canReview) && (
                               <div className="flex items-center justify-center gap-2 text-[12px] font-medium text-[#8A7FB0]">
                                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C9BCE9]" />
-                                Confirm both attestations above to proceed to verification
+                                Confirm the affirmation above to proceed to verification
                               </div>
                             )}
                           </>
