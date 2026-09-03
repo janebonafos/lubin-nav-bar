@@ -4289,50 +4289,64 @@ export default function IssuePrescriptionDialog({
                           {linkedAppt && (
                             <>
                               {/* Compact "documentation ready" card */}
-                              <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
-                                <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  SOAP note from Lubin consultation
-                                </p>
-
-                                <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Consultation date
-                                    </dt>
-                                    <dd>{linkedAppt.date}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Appointment type
-                                    </dt>
-                                    <dd>{linkedAppt.type}</dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      SOAP status
-                                    </dt>
-                                    <dd>
-                                      {reusedGaps.length === 0
-                                        ? "Ready for provider confirmation"
-                                        : `Incomplete — missing ${reusedGaps
-                                            .map((k) => SOAP_LABEL[k])
-                                            .join(", ")}`}
-                                    </dd>
-                                  </div>
-                                  <div>
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Prescriber
-                                    </dt>
-                                    <dd>{identity?.fullName || linkedAppt.prescriber}</dd>
-                                  </div>
-                                  <div className="sm:col-span-2">
-                                    <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
-                                      Assessment / diagnosis
-                                    </dt>
-                                    <dd>{effectiveSoap.assessment || "Not documented"}</dd>
-                                  </div>
-                                </dl>
+                               <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                                 <p className="flex items-center gap-2 text-[12.5px] font-bold text-[#3D2E6B]">
+                                   <CheckCircle2 className="h-4 w-4" />
+                                   Clinical information from Lubin consultation
+                                 </p>
+ 
+                                 <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 text-[12px] text-[#4B4468] sm:grid-cols-2">
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Consultation date / source
+                                     </dt>
+                                     <dd>{linkedAppt.date} · Completed Lubin consultation</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Appointment type
+                                     </dt>
+                                     <dd>{linkedAppt.type}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Objective status
+                                     </dt>
+                                     <dd>{linkedObjectiveText || (objectiveMode === "none" ? "Not reviewed" : objectiveMode === "limited-remote" ? "Limited remote observations" : "Findings documented")}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Prescriber context
+                                     </dt>
+                                     <dd>{identity?.fullName || linkedAppt.prescriber}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Assessment / indication
+                                     </dt>
+                                     <dd>{effectiveSoap.assessment || "Not documented"}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Allergies
+                                     </dt>
+                                     <dd>{savedAllergies}</dd>
+                                   </div>
+                                   <div>
+                                     <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                       Current medications
+                                     </dt>
+                                     <dd>{savedMedications}</dd>
+                                   </div>
+                                   {sex !== "male" && (
+                                     <div>
+                                       <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                         Pregnancy / breastfeeding
+                                       </dt>
+                                       <dd>{pregnancyLabel}</dd>
+                                     </div>
+                                   )}
+                                 </dl>
 
                                 <p
                                   className={`mt-3 rounded-xl px-3 py-2 text-[11.5px] font-semibold ${
