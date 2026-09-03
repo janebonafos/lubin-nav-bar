@@ -474,6 +474,8 @@ function organiseSoap(raw: string): {
   sectionQuestions: Partial<Record<keyof SoapNote, string>>;
   /** Safety information lifted out of the note for the safety check. */
   safety: { allergies: string; medications: string };
+  /** Sentences not placed into Subjective, Objective or Assessment. */
+  unplacedSentences: string[];
   /** True when observations exist but nothing was measured or examined. */
   limitedRemoteOnly: boolean;
   /** Assessment method stated in the notes, if any. */
