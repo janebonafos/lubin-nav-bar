@@ -2218,13 +2218,28 @@ export default function IssuePrescriptionDialog({
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
     );
-    useMedicationOptions(selectedOptions);
+    const added: MedForm[] = selectedOptions.map((opt) =>
+      medFromOption(opt, draftFor(opt)),
+    );
+    if (added.length) {
+      setMeds((cur) => {
+        let next = [...cur];
+        if (next.length === 1 && !next[0]?.genericName.trim()) next = [];
+        for (const m of added) {
+          if (next.some((x) => x.genericName.trim() === m.genericName.trim())) continue;
+          next.push(m);
+        }
+        return next.length ? next : cur;
+      });
+      // Redirect the provider to the first chosen medication so they can
+      // complete its remaining fields immediately.
+      setOpenMedId(added[0]!.id);
+    }
     setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
     setOptionsListOpen(false);
     // Keep every added medication visible: collapse the accordions instead of
     // leaving one expanded so the provider sees the full list at a glance.
-    setOpenMedId(null);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
     scrollToMedicationOrder();
@@ -6115,7 +6130,17 @@ export default function IssuePrescriptionDialog({
                         )}
                         <button
                           type="button"
-                          onClick={() => setMeds((cur) => [...cur, emptyMed()])}
+                          onClick={() => {
+                            const fresh = emptyMed();
+                            setMeds((cur) => [...cur, fresh]);
+                            setOpenMedId(fresh.id);
+                            // Redirect the provider to the newly added card.
+                            requestAnimationFrame(() =>
+                              document
+                                .getElementById(`med-card-${fresh.id}`)
+                                ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+                            );
+                          }}
                           className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
                         >
                           <Plus className="h-3.5 w-3.5" /> Add medication
@@ -6698,24 +6723,9 @@ function MedicationCard({
   ).filter((f) => !String(f.value ?? "").trim());
   const missingCount = missingFields.length;
 
-  /** Red only after the prescriber has started filling this card — untouched
-   *  cards stay neutral so empty fields don't shout before any input exists. */
-  const cardTouched = [
-    med.genericName,
-    med.brandName,
-    med.strength,
-    med.route,
-    med.dose,
-    med.frequency,
-    med.duration,
-    med.refills,
-    med.quantity,
-    med.unit,
-    med.sig,
-    med.instructions,
-  ].some((v) => String(v ?? "").trim());
-  const needRing = (v: string | undefined) =>
-    !cardTouched || String(v ?? "").trim() ? "" : " !border-[#D9534F] bg-[#FEF7F6]";
+  /** No persistent red highlight on empty fields — the provider is redirected
+   *  to the field that still needs input instead of being shouted at. */
+  const needRing = (_v: string | undefined) => "";
 
   /** Scrolls to a field in this card and flashes a ring so it is unmistakable. */
   const flashMedField = (id: string) => {
@@ -6804,7 +6814,7 @@ function MedicationCard({
   );
 
   return (
-    <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
+    <div id={`med-card-${med.id}`} className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
       {collapsible ? (
         <button
           type="button"
