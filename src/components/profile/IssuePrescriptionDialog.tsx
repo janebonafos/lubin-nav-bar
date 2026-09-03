@@ -1545,33 +1545,28 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${sentence(orderFollowUp || NEEDS_CONFIRMATION)} Patient instructions and warning signs: ${sentence(
-        orderInstructions || NEEDS_CONFIRMATION,
-      )}`,
+      // The regimen summary holds the medication only. Follow-up and patient
+      // instructions live in their own Plan fields — never duplicated here.
+      plan: joinSentences(...lines),
     }));
     setAiFields((f) => ({ ...f, plan: true }));
     // Editing the medication or the Plan never re-opens the confirmed S/O/A.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
-  /** A Plan placeholder resolves itself once the same information is documented
-   *  in the medication order. */
+  /** Legacy placeholder clauses are stripped from the regimen summary; that
+   *  information belongs to the dedicated Follow-up and Patient instructions
+   *  fields. */
   useEffect(() => {
     setSoap((s) => {
-      let plan = s.plan;
-      const followUp = orderFollowUp || planExtras.followUp.trim();
-      const instructions = orderInstructions || planExtras.instructions.trim();
-      if (followUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, `Follow-up: ${sentence(followUp)}`);
-      if (instructions) {
-        plan = plan.replace(
-          `Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
-          `Patient instructions and warning signs: ${sentence(instructions)}`,
-        );
-      }
+      const plan = s.plan
+        .replace(/\s*Follow-up:[^]*?(?=\s*Patient instructions and warning signs:|$)/, "")
+        .replace(/\s*Patient instructions and warning signs:[^]*$/, "")
+        .trim();
       return plan === s.plan ? s : { ...s, plan };
     });
-  }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
+  }, [soap.plan]);
+
 
 
 
