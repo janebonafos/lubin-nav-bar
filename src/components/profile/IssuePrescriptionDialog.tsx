@@ -287,6 +287,11 @@ const SOAP_SECTION_HINT: Record<keyof SoapNote, string> = {
  */
 const NEEDS_CONFIRMATION = "Needs provider confirmation";
 
+/** Ends a fragment with a single full stop — never duplicated punctuation. */
+const sentence = (text: string) => `${text.trim().replace(/[.\s]+$/, "")}.`;
+
+
+
 /**
  * Neutral placeholders used when the provider's notes contain nothing for a
  * section. The draft never claims a section is "not required" and never
