@@ -2289,6 +2289,11 @@ export default function IssuePrescriptionDialog({
      "Confirm whether clinical information has changed": { step: 1, id: "material-change-section" },
      "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
      "Review and confirm the clinical information": { step: 1, id: "reused-review-summary" },
+     "The medication being continued": { step: 1, id: "renewal-medication" },
+     "How the patient is responding": { step: 1, id: "renewal-response" },
+     "Side effects": { step: 1, id: "renewal-side-effects" },
+     "Medication or allergy changes": { step: 1, id: "renewal-changes" },
+
    };
    if (meds[0])
      gapTargets["One medication with generic name, dose and frequency"] = {
