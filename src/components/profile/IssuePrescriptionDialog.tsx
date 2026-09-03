@@ -1878,7 +1878,6 @@ export default function IssuePrescriptionDialog({
             ? medicationDetail.trim() || "Documented — view details"
             : "Not assessed",
     },
-    { label: "Relevant conditions", value: conditionsLabel },
     {
       label: "Pregnancy / breastfeeding",
       value: pregnancyLabel,
@@ -6401,7 +6400,7 @@ export default function IssuePrescriptionDialog({
                           ? `: ${medicationDetail}`
                           : ""}
                       </li>
-                      <li>Relevant conditions — {conditionsLabel}</li>
+                      {conditionsLabel && <li>Relevant conditions — {conditionsLabel}</li>}
                       {pregnancyApplicable && (
                         <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
