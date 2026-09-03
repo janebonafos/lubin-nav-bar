@@ -4698,7 +4698,10 @@ export default function IssuePrescriptionDialog({
                                           minRows={2}
                                           className={`${area} mt-1.5`}
                                           value={
-                                            isSoapPlaceholder(soap.objective) ? "" : soap.objective
+                                            isSoapPlaceholder(soap.objective) &&
+                                            objectiveMode !== "not-obtained"
+                                              ? ""
+                                              : soap.objective
                                           }
                                           onChange={(e) => {
                                             setSoapApproved(false);
@@ -5016,7 +5019,11 @@ export default function IssuePrescriptionDialog({
                                   <AutoTextarea
                                     minRows={2}
                                     className={`${area} mt-1.5`}
-                                    value={isSoapPlaceholder(soap.objective) ? "" : soap.objective}
+                                    value={
+                                      isSoapPlaceholder(soap.objective) && objectiveMode !== "not-obtained"
+                                        ? ""
+                                        : soap.objective
+                                    }
                                     onChange={(e) => {
                                       setSoapApproved(false);
                                       setAiFields((f) => ({ ...f, objective: false }));
