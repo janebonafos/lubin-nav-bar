@@ -6115,7 +6115,17 @@ export default function IssuePrescriptionDialog({
                         )}
                         <button
                           type="button"
-                          onClick={() => setMeds((cur) => [...cur, emptyMed()])}
+                          onClick={() => {
+                            const fresh = emptyMed();
+                            setMeds((cur) => [...cur, fresh]);
+                            setOpenMedId(fresh.id);
+                            // Redirect the provider to the newly added card.
+                            requestAnimationFrame(() =>
+                              document
+                                .getElementById(`med-card-${fresh.id}`)
+                                ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+                            );
+                          }}
                           className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
                         >
                           <Plus className="h-3.5 w-3.5" /> Add medication
