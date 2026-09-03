@@ -1647,6 +1647,8 @@ export default function IssuePrescriptionDialog({
               : "Confirm an Assessment or indication",
         );
       }
+      if (materialChange === null)
+        contextGaps.push("Confirm whether clinical information has changed");
       if (materialChange === "reassess") contextGaps.push("Patient requires reassessment");
       if (materialChange === "update" && (!soap.subjective.trim() || !soap.plan.trim()))
         contextGaps.push("Complete updated clinical information");
@@ -2188,10 +2190,10 @@ export default function IssuePrescriptionDialog({
   const reusedReviewReady =
     isReusedConsultation &&
     reusedGaps.length === 0 &&
+    materialChange !== null &&
     materialChange !== "reassess" &&
     (materialChange !== "update" ||
-      (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0)) &&
-    true;
+      (soap.subjective.trim().length > 0 && soap.plan.trim().length > 0));
   const reusedReviewLabel =
     materialChange === "update"
       ? "Confirm updated information and continue"
@@ -2226,6 +2228,7 @@ export default function IssuePrescriptionDialog({
      "Review current medications": { step: 2, id: "rx-medications" },
      "Review pregnancy / breastfeeding status": { step: 2, id: "rx-pregnancy" },
      "Patient requires reassessment": { step: 1, id: "material-change-section" },
+     "Confirm whether clinical information has changed": { step: 1, id: "material-change-section" },
      "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
      "Review and confirm the clinical information": { step: 1, id: "reused-review-summary" },
    };
@@ -4395,7 +4398,7 @@ export default function IssuePrescriptionDialog({
                                      <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
                                        Objective status
                                      </dt>
-                                     <dd>{linkedObjectiveText || (objectiveMode === "none" ? "Not reviewed" : objectiveMode === "limited-remote" ? "Limited remote observations" : "Findings documented")}</dd>
+                                     <dd>{linkedObjectiveText || (objectiveMode === "not-obtained" ? "No objective findings obtained" : objectiveMode === "limited-remote" ? "Limited remote observations" : objectiveMode === "add" ? "Findings documented" : "Not reviewed")}</dd>
                                    </div>
                                    <div>
                                      <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
