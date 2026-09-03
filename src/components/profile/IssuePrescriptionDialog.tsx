@@ -3305,30 +3305,33 @@ export default function IssuePrescriptionDialog({
                                 No patient named “{patientQuery.trim()}” in your records yet.
                               </p>
                             )}
-                            <button
-                              type="button"
-                              onClick={startNewPatient}
-                              className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3 text-left transition hover:border-[#7E6BAF] hover:bg-[#F1EBFF]"
-                            >
-                              <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
-                                <UserPlus className="h-4 w-4" />
-                              </span>
-                              <span className="min-w-0">
-                                <span className="block text-[13px] font-semibold text-[#3D2E6B]">
-                                  {patientQuery.trim()
-                                    ? `Create “${patientQuery.trim()}” as a new patient`
-                                    : "New patient record"}
-                                </span>
-                                <span className="block text-[11.5px] text-[#8A7FB0]">
-                                  For a first-time patient who isn’t in your records yet — no Lubin
-                                  account needed
-                                </span>
-                              </span>
-                            </button>
                           </div>
                         )}
+                        {/* Always visible — a prescriber adding a first-time patient
+                            should never have to type a search first to find it. */}
+                        <button
+                          type="button"
+                          onClick={startNewPatient}
+                          className="mt-2 flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3 text-left transition hover:border-[#7E6BAF] hover:bg-[#F1EBFF]"
+                        >
+                          <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
+                            <UserPlus className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+                              {patientQuery.trim()
+                                ? `Create “${patientQuery.trim()}” as a new patient`
+                                : "New patient record"}
+                            </span>
+                            <span className="block text-[11.5px] text-[#8A7FB0]">
+                              For a first-time patient who isn’t in your records yet — no Lubin
+                              account needed
+                            </span>
+                          </span>
+                        </button>
                       </>
                     )}
+
 
                     {selected && !editPatient && (
                       <div className="mt-4 rounded-2xl border border-[#E9E2F8] bg-[#FBF9FF] p-4">
