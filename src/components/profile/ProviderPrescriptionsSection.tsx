@@ -199,10 +199,14 @@ export default function ProviderPrescriptionsSection() {
         </div>
       ) : groups.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
-          No prescriptions match “{query}”.
+          {query
+            ? `No prescriptions match “${query}”.`
+            : view === "archived"
+              ? "No archived prescriptions."
+              : "No active prescriptions — check the Archived tab."}
         </p>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 max-h-[620px] space-y-4 overflow-y-auto pr-1">
           {groups.map((group) => (
             <div
               key={group.patientName}
