@@ -5062,6 +5062,38 @@ export default function IssuePrescriptionDialog({
                         </section>
                       )}
 
+                    </>
+                  );
+                }}
+              </Acc>
+
+              {/* ---------------- STEP 3 — MEDICATION SAFETY CHECK ---------------- */}
+              <Acc
+                index={2}
+                label="Medication safety check"
+                hint="Allergies, current medications and relevant conditions"
+                open={step === 2}
+                onToggle={goStep}
+                locked={!patientReady}
+                lockedHint="Add a patient in Step 1 first"
+                done={patientReady && safetyStepGaps.length === 0}
+                next={nextStep === 2}
+              >
+                {() => {
+                  const today = new Date().toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  });
+                  const passportUpdated = selected?.info?.updatedAt
+                    ? new Date(selected.info.updatedAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : null;
+                  return (
+                    <>
                       {/* Medication safety check */}
                       <section className={cardCls}>
                         <h3 className="text-[13.5px] font-bold text-[#3D2E6B]">
