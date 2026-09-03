@@ -2218,13 +2218,28 @@ export default function IssuePrescriptionDialog({
     const selectedOptions = MEDICATION_OPTIONS.filter((opt) =>
       selectedOptionIds.includes(opt.id),
     );
-    useMedicationOptions(selectedOptions);
+    const added: MedForm[] = selectedOptions.map((opt) =>
+      medFromOption(opt, draftFor(opt)),
+    );
+    if (added.length) {
+      setMeds((cur) => {
+        let next = [...cur];
+        if (next.length === 1 && !next[0]?.genericName.trim()) next = [];
+        for (const m of added) {
+          if (next.some((x) => x.genericName.trim() === m.genericName.trim())) continue;
+          next.push(m);
+        }
+        return next.length ? next : cur;
+      });
+      // Redirect the provider to the first chosen medication so they can
+      // complete its remaining fields immediately.
+      setOpenMedId(added[0]!.id);
+    }
     setUsedOptionIds((cur) => [...new Set([...cur, ...selectedOptions.map((o) => o.id)])]);
     setSelectedOptionIds([]);
     setOptionsListOpen(false);
     // Keep every added medication visible: collapse the accordions instead of
     // leaving one expanded so the provider sees the full list at a glance.
-    setOpenMedId(null);
     // The provider stays on the AI-assisted path they chose; the order below is
     // simply populated with the options they picked.
     scrollToMedicationOrder();
