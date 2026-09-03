@@ -1008,21 +1008,28 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
   },
 ];
 
-/** Pregnancy / breastfeeding review state. "Not reviewed" is the only default. */
-type PregnancyReview =
-  | "not-reviewed"
-  | "not-pregnant"
-  | "pregnant"
-  | "breastfeeding"
-  | "not-applicable";
+/** Pregnancy review state. Pregnancy and breastfeeding are NOT mutually
+ *  exclusive, so they are tracked as two independent statuses. "Not reviewed"
+ *  is the only default for each. */
+type PregnancyReview = "not-reviewed" | "pregnant" | "not-pregnant" | "unknown";
 
 const PREGNANCY_REVIEW_LABEL: Record<PregnancyReview, string> = {
   "not-reviewed": "Not reviewed",
-  "not-pregnant": "Not pregnant and not breastfeeding",
   pregnant: "Pregnant",
-  breastfeeding: "Breastfeeding",
-  "not-applicable": "Not applicable — provider confirmed",
+  "not-pregnant": "Not pregnant",
+  unknown: "Unknown",
 };
+
+/** Breastfeeding review state, independent of pregnancy. */
+type BreastfeedingReview = "not-reviewed" | "yes" | "no" | "unknown";
+
+const BREASTFEEDING_REVIEW_LABEL: Record<BreastfeedingReview, string> = {
+  "not-reviewed": "Not reviewed",
+  yes: "Breastfeeding",
+  no: "Not breastfeeding",
+  unknown: "Unknown",
+};
+
 
 
 
