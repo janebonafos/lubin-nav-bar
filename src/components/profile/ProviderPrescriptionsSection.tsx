@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, ShieldAlert } from "lucide-react";
+import { Archive, ArchiveRestore, Plus, Search, ShieldAlert } from "lucide-react";
+import {
+  archivePrescription,
+  listArchivedPrescriptionIds,
+  subscribePrescriptionArchive,
+  unarchivePrescription,
+} from "@/lib/prescription/archive";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
@@ -47,24 +53,37 @@ export default function ProviderPrescriptionsSection() {
   const [query, setQuery] = useState("");
   const [issuing, setIssuing] = useState(false);
   const [resetToken, setResetToken] = useState(0);
+  const [archivedIds, setArchivedIds] = useState<string[]>([]);
+  const [view, setView] = useState<"active" | "archived">("active");
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
     const readDrafts = () => setDrafts(listPrescriptionDrafts());
+    const readArchive = () => setArchivedIds(listArchivedPrescriptionIds());
     read();
     readDrafts();
+    readArchive();
     const unsubscribeDocs = subscribePrescriptionDocuments(read);
     const unsubscribeDrafts = subscribePrescriptionDrafts(readDrafts);
+    const unsubscribeArchive = subscribePrescriptionArchive(readArchive);
     return () => {
       unsubscribeDocs();
       unsubscribeDrafts();
+      unsubscribeArchive();
     };
   }, []);
+
+  const archivedCount = useMemo(
+    () => docs.filter((d) => archivedIds.includes(d.id)).length,
+    [docs, archivedIds],
+  );
 
   const groups = useMemo<PatientGroup[]>(() => {
     const q = query.trim().toLowerCase();
     const matched = docs.filter((d) => {
+      const isArchived = archivedIds.includes(d.id);
+      if (view === "archived" ? !isArchived : isArchived) return false;
       if (!q) return true;
       const meds = d.medications
         .map((m) => `${m.genericName ?? ""} ${m.name}`)
@@ -82,7 +101,7 @@ export default function ProviderPrescriptionsSection() {
         return { patientName, docs: sorted, lastSignedAt: sorted[0]!.signedAt };
       })
       .sort((a, b) => b.lastSignedAt - a.lastSignedAt);
-  }, [docs, query]);
+  }, [docs, query, archivedIds, view]);
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
@@ -115,6 +134,21 @@ export default function ProviderPrescriptionsSection() {
             <Plus className="h-4 w-4" /> New prescription
           </button>
         </div>
+      </div>
+
+      <div className="mt-5 inline-flex rounded-xl border border-[#E3DBF5] bg-white p-1">
+        {(["active", "archived"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setView(tab)}
+            className={`rounded-lg px-3.5 py-1.5 text-[12px] font-semibold transition ${
+              view === tab ? "bg-[#3D2E6B] text-white" : "text-[#6F6889] hover:text-[#3D2E6B]"
+            }`}
+          >
+            {tab === "active" ? "Active" : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
+          </button>
+        ))}
       </div>
 
       <IssuePrescriptionDialog
@@ -165,10 +199,14 @@ export default function ProviderPrescriptionsSection() {
         </div>
       ) : groups.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
-          No prescriptions match “{query}”.
+          {query
+            ? `No prescriptions match “${query}”.`
+            : view === "archived"
+              ? "No archived prescriptions."
+              : "No active prescriptions — check the Archived tab."}
         </p>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 max-h-[620px] space-y-4 overflow-y-auto pr-1">
           {groups.map((group) => (
             <div
               key={group.patientName}
@@ -226,14 +264,35 @@ export default function ProviderPrescriptionsSection() {
                           </p>
                         )}
                       </div>
-                      <a
-                        href={prescriptionHref(doc)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex h-9 shrink-0 items-center justify-center self-start rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
-                      >
-                        View prescription
-                      </a>
+                      <div className="flex shrink-0 flex-col items-end gap-2 self-start">
+                        <a
+                          href={prescriptionHref(doc)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                        >
+                          View prescription
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            view === "archived"
+                              ? unarchivePrescription(doc.id)
+                              : archivePrescription(doc.id)
+                          }
+                          className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-[#E3DBF5] bg-white px-3 text-[11.5px] font-semibold text-[#6F5BA0] transition hover:border-[#7E6BAF]"
+                        >
+                          {view === "archived" ? (
+                            <>
+                              <ArchiveRestore className="h-3.5 w-3.5" /> Restore
+                            </>
+                          ) : (
+                            <>
+                              <Archive className="h-3.5 w-3.5" /> Archive
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </li>
                 ))}
