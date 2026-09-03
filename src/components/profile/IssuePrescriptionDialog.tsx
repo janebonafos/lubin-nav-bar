@@ -1008,21 +1008,28 @@ const MEDICATION_OPTIONS: MedicationOption[] = [
   },
 ];
 
-/** Pregnancy / breastfeeding review state. "Not reviewed" is the only default. */
-type PregnancyReview =
-  | "not-reviewed"
-  | "not-pregnant"
-  | "pregnant"
-  | "breastfeeding"
-  | "not-applicable";
+/** Pregnancy review state. Pregnancy and breastfeeding are NOT mutually
+ *  exclusive, so they are tracked as two independent statuses. "Not reviewed"
+ *  is the only default for each. */
+type PregnancyReview = "not-reviewed" | "pregnant" | "not-pregnant" | "unknown";
 
 const PREGNANCY_REVIEW_LABEL: Record<PregnancyReview, string> = {
   "not-reviewed": "Not reviewed",
-  "not-pregnant": "Not pregnant and not breastfeeding",
   pregnant: "Pregnant",
-  breastfeeding: "Breastfeeding",
-  "not-applicable": "Not applicable — provider confirmed",
+  "not-pregnant": "Not pregnant",
+  unknown: "Unknown",
 };
+
+/** Breastfeeding review state, independent of pregnancy. */
+type BreastfeedingReview = "not-reviewed" | "yes" | "no" | "unknown";
+
+const BREASTFEEDING_REVIEW_LABEL: Record<BreastfeedingReview, string> = {
+  "not-reviewed": "Not reviewed",
+  yes: "Breastfeeding",
+  no: "Not breastfeeding",
+  unknown: "Unknown",
+};
+
 
 
 
@@ -1320,6 +1327,9 @@ export default function IssuePrescriptionDialog({
   /** Pregnancy / breastfeeding stays "Not reviewed" until the provider selects
    *  a status. Nothing is ever assigned automatically. */
   const [pregnancyStatus, setPregnancyStatus] = useState<PregnancyReview>("not-reviewed");
+  /** Breastfeeding is a separate question — a patient can be both, or neither. */
+  const [breastfeedingStatus, setBreastfeedingStatus] =
+    useState<BreastfeedingReview>("not-reviewed");
   const [weightText, setWeightText] = useState("");
   const [bpText, setBpText] = useState("");
   const [hrText, setHrText] = useState("");
@@ -1738,10 +1748,10 @@ export default function IssuePrescriptionDialog({
       ? ["Review current medications"]
       : []),
   ];
-  const pregnancyGap =
-    pregnancyApplicable && pregnancyStatus === "not-reviewed"
-      ? ["Review pregnancy / breastfeeding status"]
-      : [];
+  const pregnancyReviewed =
+    !pregnancyApplicable ||
+    (pregnancyStatus !== "not-reviewed" && breastfeedingStatus !== "not-reviewed");
+  const pregnancyGap = pregnancyReviewed ? [] : ["Review pregnancy / breastfeeding status"];
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Treatment type");
   if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
@@ -1813,15 +1823,25 @@ export default function IssuePrescriptionDialog({
   /** The Plan is unresolved while it still carries a confirmation placeholder. */
   const planUnresolved =
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
-  /** Pregnancy is only ever what the provider selected. */
-  const pregnancyLabel =
-    !pregnancyApplicable
-      ? "Not applicable"
-      : pregnancyStatus === "not-reviewed"
-        ? "Not reviewed"
-        : [PREGNANCY_REVIEW_LABEL[pregnancyStatus], pregnancyText.trim()]
-            .filter(Boolean)
-            .join(" — ");
+  /** Pregnancy and breastfeeding are reported separately — never merged into a
+   *  single either/or answer. Each is only ever what the provider selected. */
+  const pregnancyLabel = !pregnancyApplicable
+    ? "Not applicable"
+    : [
+        `Pregnancy: ${
+          pregnancyStatus === "not-reviewed"
+            ? "not reviewed"
+            : PREGNANCY_REVIEW_LABEL[pregnancyStatus].toLowerCase()
+        }`,
+        `Breastfeeding: ${
+          breastfeedingStatus === "not-reviewed"
+            ? "not reviewed"
+            : BREASTFEEDING_REVIEW_LABEL[breastfeedingStatus].toLowerCase()
+        }`,
+        pregnancyText.trim(),
+      ]
+        .filter(Boolean)
+        .join(" · ");
   /** Never claim vitals, labs or organ function are documented when they were
    *  not obtained — name the missing information instead. */
   const vitalsLabel =
@@ -1886,7 +1906,10 @@ export default function IssuePrescriptionDialog({
   if (medicationState === "not-assessed")
     optionsMissingItems.push({ label: "Current medications", step: 2 });
   if (pregnancyApplicable && pregnancyStatus === "not-reviewed") {
-    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 2 });
+    optionsMissingItems.push({ label: "Pregnancy status", step: 2 });
+  }
+  if (pregnancyApplicable && breastfeedingStatus === "not-reviewed") {
+    optionsMissingItems.push({ label: "Breastfeeding status", step: 2 });
   }
   const optionsMissing = optionsMissingItems.map((i) => i.label);
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
@@ -2666,6 +2689,8 @@ export default function IssuePrescriptionDialog({
     setReviewedNoChanges(false);
     setConditionsText("");
     setPregnancyText("");
+    setPregnancyStatus("not-reviewed");
+    setBreastfeedingStatus("not-reviewed");
     setWeightText("");
     setBpText("");
     setHrText("");
@@ -2716,6 +2741,7 @@ export default function IssuePrescriptionDialog({
           medicationState,
           medicationDetail,
           pregnancyStatus,
+          breastfeedingStatus,
           meds,
           planExtras,
         },
@@ -5574,47 +5600,90 @@ export default function IssuePrescriptionDialog({
                             </div>
                           )}
                           {pregnancyApplicable && (
-                             <div id="rx-pregnancy">
+                            <div id="rx-pregnancy">
                                <label className={label}>
-                                 Pregnancy / breastfeeding
-                                 <FieldHint text="Stays “Not reviewed” until you select a status. Nothing is assumed." />
+                                 Pregnancy and breastfeeding
+                                 <FieldHint text="Two separate questions — a patient can be pregnant, breastfeeding, both or neither. Each stays “Not reviewed” until you select a status. Nothing is assumed." />
                                </label>
-                              <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
-                                {(
-                                  [
-                                    "not-pregnant",
-                                    "pregnant",
-                                    "breastfeeding",
-                                  ] as PregnancyReview[]
-                                ).map((s) => {
-                                  const on = pregnancyStatus === s;
-                                  return (
-                                    <button
-                                      key={s}
-                                      type="button"
-                                      onClick={() => setPregnancyStatus(s)}
-                                      className={`flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-left text-[12.5px] font-semibold transition ${
-                                        on
-                                          ? "border-[#3D2E6B] bg-[#F6F2FF] text-[#3D2E6B]"
-                                          : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
-                                      }`}
-                                    >
-                                      <span
-                                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
-                                          on ? "border-[#3D2E6B]" : "border-[#CFC4E9]"
-                                        }`}
-                                      >
-                                        {on && <span className="h-2 w-2 rounded-full bg-[#3D2E6B]" />}
-                                      </span>
-                                      {PREGNANCY_REVIEW_LABEL[s]}
-                                    </button>
-                                  );
-                                })}
+                              <div className="mt-1.5 grid gap-2.5">
+                                <div>
+                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                    Pregnancy
+                                  </p>
+                                  <div className="mt-1.5 grid gap-1.5 sm:grid-cols-3">
+                                    {(["pregnant", "not-pregnant", "unknown"] as PregnancyReview[]).map(
+                                      (s) => {
+                                        const on = pregnancyStatus === s;
+                                        return (
+                                          <button
+                                            key={s}
+                                            type="button"
+                                            onClick={() => setPregnancyStatus(s)}
+                                            className={`flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-left text-[12.5px] font-semibold transition ${
+                                              on
+                                                ? "border-[#3D2E6B] bg-[#F6F2FF] text-[#3D2E6B]"
+                                                : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                            }`}
+                                          >
+                                            <span
+                                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
+                                                on ? "border-[#3D2E6B]" : "border-[#CFC4E9]"
+                                              }`}
+                                            >
+                                              {on && (
+                                                <span className="h-2 w-2 rounded-full bg-[#3D2E6B]" />
+                                              )}
+                                            </span>
+                                            {PREGNANCY_REVIEW_LABEL[s]}
+                                          </button>
+                                        );
+                                      },
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
+                                    Breastfeeding
+                                  </p>
+                                  <div className="mt-1.5 grid gap-1.5 sm:grid-cols-3">
+                                    {(["yes", "no", "unknown"] as BreastfeedingReview[]).map((s) => {
+                                      const on = breastfeedingStatus === s;
+                                      return (
+                                        <button
+                                          key={s}
+                                          type="button"
+                                          onClick={() => setBreastfeedingStatus(s)}
+                                          className={`flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-left text-[12.5px] font-semibold transition ${
+                                            on
+                                              ? "border-[#3D2E6B] bg-[#F6F2FF] text-[#3D2E6B]"
+                                              : "border-[#E5DCF5] bg-white text-[#5B5479] hover:border-[#C9BAEC]"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
+                                              on ? "border-[#3D2E6B]" : "border-[#CFC4E9]"
+                                            }`}
+                                          >
+                                            {on && (
+                                              <span className="h-2 w-2 rounded-full bg-[#3D2E6B]" />
+                                            )}
+                                          </span>
+                                          {BREASTFEEDING_REVIEW_LABEL[s]}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               </div>
-                              {pregnancyStatus === "not-reviewed" ? (
+                              {pregnancyStatus === "not-reviewed" ||
+                              breastfeedingStatus === "not-reviewed" ? (
                                 <p className="mt-1.5 text-[11.5px] font-semibold text-[#8A6B1F]">
-                                  Not reviewed — select a status before medication options can be
-                                  displayed.
+                                  {pregnancyStatus === "not-reviewed" &&
+                                  breastfeedingStatus === "not-reviewed"
+                                    ? "Not reviewed — answer both questions before medication options can be displayed."
+                                    : pregnancyStatus === "not-reviewed"
+                                      ? "Pregnancy not reviewed — select a status before medication options can be displayed."
+                                      : "Breastfeeding not reviewed — select a status before medication options can be displayed."}
                                 </p>
                               ) : (
                                 <input
@@ -5625,6 +5694,7 @@ export default function IssuePrescriptionDialog({
                                 />
                               )}
                             </div>
+
                           )}
                         </div>
                       </section>
