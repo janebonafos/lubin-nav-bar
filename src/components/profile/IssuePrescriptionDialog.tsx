@@ -2612,15 +2612,14 @@ export default function IssuePrescriptionDialog({
         sectionQuestions: questions,
         safety,
         limitedRemoteOnly,
-        noteMethod,
         demographics,
         hasDocumentedAssessment,
       } = organiseSoap(raw);
       setNoteHasAssessment(hasDocumentedAssessment);
       setAssessmentBasis("");
       setSoap(drafted);
-      // The method stated in the notes wins over any earlier guess.
-      if (noteMethod) setConsultMode(noteMethod);
+      // The provider must explicitly select the consultation method; the note's
+      // wording is never auto-applied on their behalf.
       setObjectiveMode(
         limitedRemoteOnly
           ? "limited-remote"
