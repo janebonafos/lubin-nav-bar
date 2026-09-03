@@ -4409,7 +4409,7 @@ export default function IssuePrescriptionDialog({
                                   </div>
                                 )}
 
-                                  <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
+                                  <div id="reused-review-summary" className="mt-3 rounded-xl border border-[#E3DBF5] bg-white p-3">
                                     <p className="text-[12px] font-semibold text-[#3D2E6B]">
                                       Review the clinical information before continuing.
                                     </p>
