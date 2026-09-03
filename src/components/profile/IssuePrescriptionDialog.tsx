@@ -4498,11 +4498,7 @@ export default function IssuePrescriptionDialog({
                                           setAiFields((current) => ({ ...current, objective: false }));
                                           setSoap((current) => ({ ...current, objective: e.target.value }));
                                         }}
-                                        placeholder={
-                                          objectiveMode === "limited-remote"
-                                            ? "Document what you could observe during the video or telephone assessment."
-                                            : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                        }
+                                            placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
                                       />
                                     )}
                                   </div>
@@ -4814,11 +4810,7 @@ export default function IssuePrescriptionDialog({
                                       setAiFields((f) => ({ ...f, objective: false }));
                                       setSoap((s) => ({ ...s, objective: e.target.value }));
                                     }}
-                                    placeholder={
-                                      objectiveMode === "limited-remote"
-                                        ? "Document what you could observe during the video or telephone assessment."
-                                        : "e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                    }
+                                        placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
                                   />
                                   {!showVitals ? (
                                     <button
