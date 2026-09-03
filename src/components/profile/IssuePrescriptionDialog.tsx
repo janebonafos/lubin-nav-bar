@@ -1906,7 +1906,10 @@ export default function IssuePrescriptionDialog({
   if (medicationState === "not-assessed")
     optionsMissingItems.push({ label: "Current medications", step: 2 });
   if (pregnancyApplicable && pregnancyStatus === "not-reviewed") {
-    optionsMissingItems.push({ label: "Pregnancy / breastfeeding status", step: 2 });
+    optionsMissingItems.push({ label: "Pregnancy status", step: 2 });
+  }
+  if (pregnancyApplicable && breastfeedingStatus === "not-reviewed") {
+    optionsMissingItems.push({ label: "Breastfeeding status", step: 2 });
   }
   const optionsMissing = optionsMissingItems.map((i) => i.label);
   const visibleOptions = MEDICATION_OPTIONS.filter((o) => !dismissedOptions.includes(o.id));
