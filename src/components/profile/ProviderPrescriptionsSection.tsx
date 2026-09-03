@@ -264,14 +264,35 @@ export default function ProviderPrescriptionsSection() {
                           </p>
                         )}
                       </div>
-                      <a
-                        href={prescriptionHref(doc)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex h-9 shrink-0 items-center justify-center self-start rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
-                      >
-                        View prescription
-                      </a>
+                      <div className="flex shrink-0 flex-col items-end gap-2 self-start">
+                        <a
+                          href={prescriptionHref(doc)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                        >
+                          View prescription
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            view === "archived"
+                              ? unarchivePrescription(doc.id)
+                              : archivePrescription(doc.id)
+                          }
+                          className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-[#E3DBF5] bg-white px-3 text-[11.5px] font-semibold text-[#6F5BA0] transition hover:border-[#7E6BAF]"
+                        >
+                          {view === "archived" ? (
+                            <>
+                              <ArchiveRestore className="h-3.5 w-3.5" /> Restore
+                            </>
+                          ) : (
+                            <>
+                              <Archive className="h-3.5 w-3.5" /> Archive
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </li>
                 ))}
