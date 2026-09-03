@@ -200,6 +200,17 @@ export default function ProviderPrescriptionsSection() {
             <Plus className="h-4 w-4" /> Issue a prescription
           </button>
         </div>
+      ) : query.trim() === "" ? (
+        <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
+          <Search className="mx-auto h-7 w-7 text-[#A89BD0]" />
+          <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
+            Search to find a prescription
+          </p>
+          <p className="mt-1 text-[12.5px] text-[#6F6889]">
+            Enter a patient name, Rx number, or medication above to view matching
+            {view === "archived" ? " archived" : ""} prescriptions.
+          </p>
+        </div>
       ) : groups.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
           {query
