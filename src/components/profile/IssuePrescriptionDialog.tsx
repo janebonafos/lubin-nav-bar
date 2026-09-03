@@ -474,6 +474,8 @@ function organiseSoap(raw: string): {
   sectionQuestions: Partial<Record<keyof SoapNote, string>>;
   /** Safety information lifted out of the note for the safety check. */
   safety: { allergies: string; medications: string };
+  /** Sentences not placed into Subjective, Objective or Assessment. */
+  unplacedSentences: string[];
   /** True when observations exist but nothing was measured or examined. */
   limitedRemoteOnly: boolean;
   /** Assessment method stated in the notes, if any. */
@@ -489,6 +491,7 @@ function organiseSoap(raw: string): {
   const impressions: string[] = [];
   const allergyLines: string[] = [];
   const medicationLines: string[] = [];
+  const unplacedSentences: string[] = [];
   let hasMeasured = false;
   let hasObservation = false;
   let hasNotObtained = false;
@@ -496,15 +499,22 @@ function organiseSoap(raw: string): {
   for (const s of sentences) {
     // Instruction-style lines ("Objective must contain…") are not clinical facts.
     if (isInstructionFragment(s)) continue;
-    // Never claim whether a cause is or is not established.
-    if (CAUSE_CLAIM.test(s)) continue;
-    // Safety information goes to the Medication safety check, not Subjective.
+    // Never claim whether a cause is or is not established in Assessment, but
+    // keep the sentence available for the provider to place deliberately.
+    if (CAUSE_CLAIM.test(s)) {
+      unplacedSentences.push(s);
+      continue;
+    }
+    // Safety information is offered in the Medication safety check and is also
+    // available for deliberate placement in Subjective or Objective.
     if (ALLERGY_LINE.test(s)) {
       allergyLines.push(s);
+      unplacedSentences.push(s);
       continue;
     }
     if (MEDICATION_LINE.test(s)) {
       medicationLines.push(s);
+      unplacedSentences.push(s);
       continue;
     }
     // How the encounter was conducted is an objective fact about the visit.
@@ -523,7 +533,10 @@ function organiseSoap(raw: string): {
       impressions.push(s);
       continue;
     }
-    if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
+    if (PLAN_HINTS.test(s)) {
+      unplacedSentences.push(s);
+      continue; // plan comes from Step 3 decisions
+    }
     if (OBSERVATION_HINTS.test(s) && !/^(patient (reports|says)|pt reports)/i.test(s)) {
       objective.push(s);
       hasObservation = true;
@@ -613,6 +626,7 @@ function organiseSoap(raw: string): {
       allergies: allergyLines.join(" "),
       medications: medicationLines.join(" "),
     },
+    unplacedSentences,
     limitedRemoteOnly,
     noteMethod,
     demographics: readNoteDemographics(raw),
@@ -1177,8 +1191,13 @@ export default function IssuePrescriptionDialog({
   const [sectionQuestions, setSectionQuestions] = useState<
     Partial<Record<keyof SoapNote, string>>
   >({});
-
-
+  /** Note-derived safety details are suggestions, never provider answers. */
+  const [noteSafetySuggestions, setNoteSafetySuggestions] = useState({
+    allergies: "",
+    medications: "",
+  });
+  /** Sentences from pasted notes that still need deliberate placement. */
+  const [unplacedNoteSentences, setUnplacedNoteSentences] = useState<string[]>([]);
 
   const [soap, setSoap] = useState<SoapNote>({
     subjective: "",
@@ -1578,6 +1597,8 @@ export default function IssuePrescriptionDialog({
     setSuggestedAssessment("");
     setNoteHasAssessment(false);
     setSymptomIndication("");
+    setNoteSafetySuggestions({ allergies: "", medications: "" });
+    setUnplacedNoteSentences([]);
     setObjectiveMode("none");
     setObjectiveForConsult("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2537,8 +2558,8 @@ export default function IssuePrescriptionDialog({
     setNoteHasAssessment(false);
     setAssessmentBasis("");
     setSectionQuestions({});
-
-
+    setNoteSafetySuggestions({ allergies: "", medications: "" });
+    setUnplacedNoteSentences([]);
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
@@ -2659,6 +2680,7 @@ export default function IssuePrescriptionDialog({
         symptomIndication: symptom,
         sectionQuestions: questions,
         safety,
+        unplacedSentences,
         limitedRemoteOnly,
         demographics,
         hasDocumentedAssessment,
@@ -2681,23 +2703,10 @@ export default function IssuePrescriptionDialog({
       setSymptomIndication(symptom);
       setSectionQuestions(questions);
 
-      // Allergy and current-medication wording goes to the safety check only.
-      if (safety.allergies) {
-        if (/\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(safety.allergies)) {
-          setAllergyState("none-known");
-        } else {
-          setAllergyState("recorded");
-          setAllergyDetail((d) => d || safety.allergies);
-        }
-      }
-      if (safety.medications) {
-        if (/\bno (current )?medications?|not on any medication/i.test(safety.medications)) {
-          setMedicationState("nothing");
-        } else {
-          setMedicationState("recorded");
-          setMedicationDetail((d) => d || safety.medications);
-        }
-      }
+      setNoteSafetySuggestions(safety);
+      setUnplacedNoteSentences(unplacedSentences);
+      // Note-derived safety details are suggestions only. The provider must
+      // explicitly choose “Use this” or answer the question themselves.
 
       // Demographics in the note must match the selected patient profile.
       const conflicts: string[] = [];
@@ -4064,6 +4073,8 @@ export default function IssuePrescriptionDialog({
                           setSoapDrafted(false);
                           setSoapApproved(false);
                           setNoteRejected(false);
+                          setNoteSafetySuggestions({ allergies: "", medications: "" });
+                          setUnplacedNoteSentences([]);
                         }}
                         placeholder="e.g. Patient seen today for follow-up of hypertension. BP 138/86. Tolerating current medication…"
                       />
@@ -4198,7 +4209,36 @@ export default function IssuePrescriptionDialog({
                     </div>
                   );
 
+                  const addUnplacedSentence = (sentence: string, target: "subjective" | "objective") => {
+                    setAiFields((current) => ({ ...current, [target]: false }));
+                    setSoapApproved(false);
+                    setSoap((current) => {
+                      const currentValue = isSoapPlaceholder(current[target]) ? "" : current[target].trim();
+                      return { ...current, [target]: currentValue ? `${currentValue} ${sentence}` : sentence };
+                    });
+                    if (target === "objective") setObjectiveMode("add");
+                    setUnplacedNoteSentences((current) => current.filter((item) => item !== sentence));
+                  };
 
+                  const unplacedNotesPanel = unplacedNoteSentences.length > 0 ? (
+                    <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                      <p className="text-[12.5px] font-bold text-[#3D2E6B]">From your notes — not yet placed</p>
+                      <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
+                        Review each sentence and place it in the clinical assessment where it belongs.
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        {unplacedNoteSentences.map((sentence) => (
+                          <div key={sentence} className="rounded-xl border border-[#EDEBF3] bg-white p-3">
+                            <p className="text-[12px] leading-relaxed text-[#4B4468]">{sentence}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <button type="button" onClick={() => addUnplacedSentence(sentence, "subjective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Subjective</button>
+                              <button type="button" onClick={() => addUnplacedSentence(sentence, "objective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Objective</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
 
                   return (
                     <>
@@ -4751,6 +4791,7 @@ export default function IssuePrescriptionDialog({
                                 )}
                               </div>
                           {soapApproval}
+                          {unplacedNotesPanel}
                             </div>
                           )}
 
@@ -4889,6 +4930,7 @@ export default function IssuePrescriptionDialog({
                             {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
                           </div>
                            {soapApproval}
+                           {unplacedNotesPanel}
                           </div>
                           )}
 
@@ -5235,6 +5277,18 @@ export default function IssuePrescriptionDialog({
                               )}
                             </>
                           )}
+                          {noteSafetySuggestions.allergies && (
+                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
+                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.allergies}</p>
+                              <button type="button" onClick={() => {
+                                const suggestion = noteSafetySuggestions.allergies;
+                                const noKnown = /\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(suggestion);
+                                setAllergyState(noKnown ? "none-known" : "recorded");
+                                if (!noKnown) setAllergyDetail(suggestion);
+                                setNoteSafetySuggestions((current) => ({ ...current, allergies: "" }));
+                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
+                            </div>
+                          )}
                         </div>
 
                         <div id="rx-medications" className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
@@ -5316,6 +5370,18 @@ export default function IssuePrescriptionDialog({
                                 />
                               )}
                             </>
+                          )}
+                          {noteSafetySuggestions.medications && (
+                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
+                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.medications}</p>
+                              <button type="button" onClick={() => {
+                                const suggestion = noteSafetySuggestions.medications;
+                                const nothing = /\bno (current )?medications?|not on any medication/i.test(suggestion);
+                                setMedicationState(nothing ? "nothing" : "recorded");
+                                if (!nothing) setMedicationDetail(suggestion);
+                                setNoteSafetySuggestions((current) => ({ ...current, medications: "" }));
+                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
+                            </div>
                           )}
                         </div>
 
