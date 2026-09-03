@@ -1696,8 +1696,8 @@ export default function IssuePrescriptionDialog({
     soap.plan.includes(NEEDS_CONFIRMATION) || isSoapPlaceholder(soap.plan) || !soap.plan.trim();
   /** Pregnancy is only ever what the provider selected. */
   const pregnancyLabel =
-    sex === "male"
-      ? "Not applicable — recorded sex"
+    !pregnancyApplicable
+      ? "Not applicable"
       : pregnancyStatus === "not-reviewed"
         ? "Not reviewed"
         : [PREGNANCY_REVIEW_LABEL[pregnancyStatus], pregnancyText.trim()]
@@ -4421,7 +4421,7 @@ export default function IssuePrescriptionDialog({
                                      </dt>
                                      <dd>{savedMedications}</dd>
                                    </div>
-                                   {sex !== "male" && (
+                                   {pregnancyApplicable && (
                                      <div>
                                        <dt className="text-[10.5px] font-semibold uppercase tracking-wide text-[#8A7FB0]">
                                          Pregnancy / breastfeeding
@@ -5314,7 +5314,7 @@ export default function IssuePrescriptionDialog({
                               />
                             </div>
                           )}
-                          {sex !== "male" && (
+                          {pregnancyApplicable && (
                              <div id="rx-pregnancy">
                                <label className={label}>
                                  Pregnancy / breastfeeding
@@ -5326,7 +5326,6 @@ export default function IssuePrescriptionDialog({
                                     "not-pregnant",
                                     "pregnant",
                                     "breastfeeding",
-                                    "not-applicable",
                                   ] as PregnancyReview[]
                                 ).map((s) => {
                                   const on = pregnancyStatus === s;
@@ -6084,7 +6083,7 @@ export default function IssuePrescriptionDialog({
                           : ""}
                       </li>
                       <li>Relevant conditions — {conditionsLabel}</li>
-                      {sex !== "male" && (
+                      {pregnancyApplicable && (
                         <li>Pregnancy / breastfeeding — {pregnancyLabel}</li>
                       )}
                       <li>Controlled or dangerous drug — none on this prescription</li>
