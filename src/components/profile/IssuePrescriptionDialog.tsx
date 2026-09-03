@@ -2993,15 +2993,11 @@ export default function IssuePrescriptionDialog({
 
           {issued ? (
             <section className="mx-auto w-full max-w-[480px] my-auto">
-              <div className="relative overflow-hidden rounded-[32px] border border-[#7E6BAF]/30 bg-[#EAE7F5]/70 shadow-[0_32px_64px_-12px_rgba(61,46,107,0.25)] backdrop-blur-2xl">
-                {/* decorative blooms */}
-                <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#7E6BAF]/30 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[#5B45A0]/20 blur-3xl" />
-
-                <div className="relative flex flex-col items-center px-8 pt-10 pb-8 text-center">
+              <div className="relative">
+                <div className="relative flex flex-col items-center px-2 pt-2 pb-4 text-center">
                   {/* Success medallion */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 scale-150 rounded-full bg-[#7E6BAF]/40 blur-2xl" />
+                    <div className="absolute inset-0 scale-150 rounded-full bg-[#7E6BAF]/25 blur-2xl" />
                     <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#7E6BAF] to-[#3D2E6B] shadow-lg shadow-[#3D2E6B]/30">
                       <Check className="h-10 w-10 text-white" strokeWidth={2.5} />
                     </div>
@@ -3053,11 +3049,12 @@ export default function IssuePrescriptionDialog({
                   </div>
                 </div>
 
-                <p className="relative border-t border-[#7E6BAF]/15 bg-[#EAE7F5]/40 px-6 py-3 text-center text-[11px] uppercase tracking-widest text-[#7E6BAF]">
+                <p className="relative px-6 pt-2 text-center text-[11px] uppercase tracking-widest text-[#7E6BAF]">
                   Prototype only — no message is actually sent
                 </p>
               </div>
             </section>
+
           ) : (
             <>
               {identityGaps.length > 0 && (
@@ -6259,15 +6256,16 @@ export default function IssuePrescriptionDialog({
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
-            {!issued && (
-              <button
-                type="button"
-                onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
-                className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-              >
-                Cancel
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() =>
+                issued ? setIssued(null) : step <= 0 ? onClose() : setStep(step - 1)
+              }
+              className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+            >
+              {issued ? "Back to prescription" : "Cancel"}
+            </button>
+
             <div className="min-w-0">
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
