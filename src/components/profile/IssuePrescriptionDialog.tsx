@@ -4689,19 +4689,27 @@ export default function IssuePrescriptionDialog({
                                         </button>
                                       ))}
                                     </div>
-                                    {objectiveMode === "add" && (
-                                      <AutoTextarea
-                                        minRows={2}
-                                        className={`${area} mt-2`}
-                                        value={soap.objective}
-                                        onChange={(e) => {
-                                          setSoapApproved(false);
-                                          setAiFields((current) => ({ ...current, objective: false }));
-                                          setSoap((current) => ({ ...current, objective: e.target.value }));
-                                        }}
-                                            placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
-                                      />
+                                    {objectiveMode !== "none" && (
+                                      <>
+                                        <p className="mt-2 text-[11px] font-bold text-[#3D2E6B]">
+                                          AI draft — provider review required
+                                        </p>
+                                        <AutoTextarea
+                                          minRows={2}
+                                          className={`${area} mt-1.5`}
+                                          value={
+                                            isSoapPlaceholder(soap.objective) ? "" : soap.objective
+                                          }
+                                          onChange={(e) => {
+                                            setSoapApproved(false);
+                                            setAiFields((current) => ({ ...current, objective: false }));
+                                            setSoap((current) => ({ ...current, objective: e.target.value }));
+                                          }}
+                                          placeholder="e.g. Alert and speaking in complete sentences; lungs clear on examination; SpO₂ 98%; relevant laboratory or imaging result."
+                                        />
+                                      </>
                                     )}
+
                                   </div>
                                 )}
 
