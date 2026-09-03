@@ -4209,7 +4209,36 @@ export default function IssuePrescriptionDialog({
                     </div>
                   );
 
+                  const addUnplacedSentence = (sentence: string, target: "subjective" | "objective") => {
+                    setAiFields((current) => ({ ...current, [target]: false }));
+                    setSoapApproved(false);
+                    setSoap((current) => {
+                      const currentValue = isSoapPlaceholder(current[target]) ? "" : current[target].trim();
+                      return { ...current, [target]: currentValue ? `${currentValue} ${sentence}` : sentence };
+                    });
+                    if (target === "objective") setObjectiveMode("add");
+                    setUnplacedNoteSentences((current) => current.filter((item) => item !== sentence));
+                  };
 
+                  const unplacedNotesPanel = unplacedNoteSentences.length > 0 ? (
+                    <div className="mt-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] p-4">
+                      <p className="text-[12.5px] font-bold text-[#3D2E6B]">From your notes — not yet placed</p>
+                      <p className="mt-1 text-[11.5px] leading-snug text-[#6F6889]">
+                        Review each sentence and place it in the clinical assessment where it belongs.
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        {unplacedNoteSentences.map((sentence) => (
+                          <div key={sentence} className="rounded-xl border border-[#EDEBF3] bg-white p-3">
+                            <p className="text-[12px] leading-relaxed text-[#4B4468]">{sentence}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <button type="button" onClick={() => addUnplacedSentence(sentence, "subjective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Subjective</button>
+                              <button type="button" onClick={() => addUnplacedSentence(sentence, "objective")} className="rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Add to Objective</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
 
                   return (
                     <>
@@ -4762,6 +4791,7 @@ export default function IssuePrescriptionDialog({
                                 )}
                               </div>
                           {soapApproval}
+                          {unplacedNotesPanel}
                             </div>
                           )}
 
@@ -4900,6 +4930,7 @@ export default function IssuePrescriptionDialog({
                             {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
                           </div>
                            {soapApproval}
+                           {unplacedNotesPanel}
                           </div>
                           )}
 
@@ -5246,6 +5277,18 @@ export default function IssuePrescriptionDialog({
                               )}
                             </>
                           )}
+                          {noteSafetySuggestions.allergies && (
+                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
+                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.allergies}</p>
+                              <button type="button" onClick={() => {
+                                const suggestion = noteSafetySuggestions.allergies;
+                                const noKnown = /\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(suggestion);
+                                setAllergyState(noKnown ? "none-known" : "recorded");
+                                if (!noKnown) setAllergyDetail(suggestion);
+                                setNoteSafetySuggestions((current) => ({ ...current, allergies: "" }));
+                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
+                            </div>
+                          )}
                         </div>
 
                         <div id="rx-medications" className="mt-2.5 rounded-[14px] border border-[#EDE8F8] bg-white p-3.5">
@@ -5327,6 +5370,18 @@ export default function IssuePrescriptionDialog({
                                 />
                               )}
                             </>
+                          )}
+                          {noteSafetySuggestions.medications && (
+                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
+                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.medications}</p>
+                              <button type="button" onClick={() => {
+                                const suggestion = noteSafetySuggestions.medications;
+                                const nothing = /\bno (current )?medications?|not on any medication/i.test(suggestion);
+                                setMedicationState(nothing ? "nothing" : "recorded");
+                                if (!nothing) setMedicationDetail(suggestion);
+                                setNoteSafetySuggestions((current) => ({ ...current, medications: "" }));
+                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
+                            </div>
                           )}
                         </div>
 
