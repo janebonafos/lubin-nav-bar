@@ -565,13 +565,22 @@ function organiseSoap(raw: string): {
       hasObservation = true;
       continue;
     }
-    if (OBJECTIVE_HINTS.test(s) && (/\d/.test(s) || !NEGATIVE_HINTS.test(s))) {
+    // Patient-reported symptoms, symptom duration and relevant negatives are
+    // Subjective — evaluated BEFORE any incidental anatomy or objective keyword.
+    if (isPatientReport(s)) {
+      subjective.push(s);
+      continue;
+    }
+    if (isObjectiveSentence(s)) {
       objective.push(s);
-      if (MEASURED_HINTS.test(s)) hasMeasured = true;
+      // A statement that something was NOT obtained is Objective but is not a
+      // measurement, and a bare duration is never a measurement either.
+      if (!NOT_OBTAINED_LINE.test(s) && isMeasured(s)) hasMeasured = true;
       continue;
     }
     subjective.push(s);
   }
+
 
   const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
   // Only a genuine remote observation without measurement counts as "limited".
