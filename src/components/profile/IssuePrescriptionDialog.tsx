@@ -6256,15 +6256,16 @@ export default function IssuePrescriptionDialog({
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#EDEBF3] bg-white px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
-            {!issued && (
-              <button
-                type="button"
-                onClick={() => (step <= 0 ? onClose() : setStep(step - 1))}
-                className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-              >
-                Cancel
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() =>
+                issued ? setIssued(null) : step <= 0 ? onClose() : setStep(step - 1)
+              }
+              className="inline-flex h-10 shrink-0 items-center rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+            >
+              {issued ? "Back to prescription" : "Cancel"}
+            </button>
+
             <div className="min-w-0">
               {issued ? (
                 <p className="text-[11.5px] text-[#8A7FB0]">Prescription signed and recorded.</p>
