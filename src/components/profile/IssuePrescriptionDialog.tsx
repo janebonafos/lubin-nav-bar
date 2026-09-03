@@ -1546,16 +1546,20 @@ export default function IssuePrescriptionDialog({
   useEffect(() => {
     setSoap((s) => {
       let plan = s.plan;
-      if (orderFollowUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${orderFollowUp}`);
-      if (orderInstructions)
+      const followUp = orderFollowUp || planExtras.followUp.trim();
+      const instructions = orderInstructions || planExtras.instructions.trim();
+      if (followUp)
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${followUp}`);
+      if (instructions) {
         plan = plan.replace(
           `Patient instructions: ${NEEDS_CONFIRMATION}`,
-          `Patient instructions: ${orderInstructions}`,
+          `Patient instructions: ${instructions}`,
         );
+        plan = plan.replace(`Warning signs: ${NEEDS_CONFIRMATION}`, `Warning signs: ${instructions}`);
+      }
       return plan === s.plan ? s : { ...s, plan };
     });
-  }, [orderFollowUp, orderInstructions]);
+  }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
 
 
   /** Follow-up and patient instructions documented in the medication order flow
@@ -5408,7 +5412,7 @@ export default function IssuePrescriptionDialog({
               <Acc
                 index={2}
                 label="Medication safety check"
-                hint="Allergies, current medications and relevant conditions"
+                hint="Allergies, current medications, pregnancy and breastfeeding"
                 open={step === 2}
                 onToggle={goStep}
                 locked={!patientReady}
