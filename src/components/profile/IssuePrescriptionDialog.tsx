@@ -1578,8 +1578,8 @@ export default function IssuePrescriptionDialog({
     setSuggestedAssessment("");
     setNoteHasAssessment(false);
     setSymptomIndication("");
-    setObjectiveMode(entry === "lubin" && linkedObjectiveText ? "add" : "none");
-    setObjectiveForConsult(entry === "lubin" && linkedObjectiveText ? linkedAppointment : "");
+    setObjectiveMode("none");
+    setObjectiveForConsult("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, purpose, entry, linkedAppointment, selected?.id]);
 
@@ -2668,15 +2668,8 @@ export default function IssuePrescriptionDialog({
       setSoap(drafted);
       // The provider must explicitly select the consultation method; the note's
       // wording is never auto-applied on their behalf.
-      setObjectiveMode(
-        limitedRemoteOnly
-          ? "limited-remote"
-          : // Never claim findings are documented while the field is empty, and
-            // never pre-select "no findings obtained" on the provider's behalf.
-            drafted.objective.trim() && drafted.objective !== NO_OBJECTIVE
-            ? "add"
-            : "none",
-      );
+      // Nothing is selected on the provider's behalf — they must choose.
+      setObjectiveMode("none");
 
       setAiFields({
         subjective: drafts.includes("subjective"),
@@ -4396,7 +4389,7 @@ export default function IssuePrescriptionDialog({
                                         setDiagnosisSaved(false);
                                         setMaterialChange(null);
                                         setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
-                                        setObjectiveMode(a.soap.objective.trim() ? "add" : "none");
+                                        setObjectiveMode("none");
                                       }}
                                     />
                                     <span className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
@@ -4523,7 +4516,7 @@ export default function IssuePrescriptionDialog({
                                                   ? LIMITED_REMOTE_PREFILL
                                                   : current.objective,
                                               }));
-                                            else setSoap((current) => ({ ...current, objective: "" }));
+                                            else setSoap((current) => ({ ...current, objective: isSoapPlaceholder(current.objective) ? "" : current.objective }));
                                           }}
                                           className={`${chip} w-full justify-center text-center ${
                                             objectiveMode === value
@@ -4834,7 +4827,7 @@ export default function IssuePrescriptionDialog({
                                             ? LIMITED_REMOTE_PREFILL
                                             : s.objective,
                                         }));
-                                      else setSoap((s) => ({ ...s, objective: "" }));
+                                      else setSoap((s) => ({ ...s, objective: isSoapPlaceholder(s.objective) ? "" : s.objective }));
                                     }}
                                     className={`${chip} w-full justify-center text-center ${
                                       objectiveMode === value
