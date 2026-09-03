@@ -6799,7 +6799,7 @@ function MedicationCard({
   );
 
   return (
-    <div className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
+    <div id={`med-card-${med.id}`} className="rounded-2xl border border-[#EDEBF3] bg-[#FBFAFE] p-5">
       {collapsible ? (
         <button
           type="button"
