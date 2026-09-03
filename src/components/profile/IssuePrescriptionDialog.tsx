@@ -3781,8 +3781,8 @@ export default function IssuePrescriptionDialog({
                             {SOAP_FULL_LABEL[key]}
                           </label>
                           {aiWritten && (
-                            <span className="rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-                              AI draft — confirm
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${soapApproved ? "bg-[#3D2E6B] text-white" : "bg-[#EFE8FB] text-[#3D2E6B]"}`}>
+                              {soapApproved ? "Confirmed" : "AI draft — confirm"}
                             </span>
                           )}
                           {providerConfirmedAssessment && (
