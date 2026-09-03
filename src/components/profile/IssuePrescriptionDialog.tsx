@@ -2583,19 +2583,8 @@ export default function IssuePrescriptionDialog({
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
-    setRenewal({
-      medication: "",
-      indication: "",
-      lastAssessment: "",
-      response: "",
-      sideEffects: "",
-      adherence: "",
-      changes: "",
-      allergyChanges: "",
-      quantity: "",
-      refills: "",
-      followUp: "",
-    });
+    setRenewal({ ...EMPTY_RENEWAL });
+
     setRenewalSource("");
     setRenewalMore(false);
     setSavedForReview(false);
