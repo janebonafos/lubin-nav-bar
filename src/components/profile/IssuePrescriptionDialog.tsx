@@ -6382,12 +6382,18 @@ export default function IssuePrescriptionDialog({
                       </span>
                     </div>
 
+                    {/* One concise affirmation instead of two overlapping
+                        attestations — repeated near-identical statements invite
+                        reflex ticking rather than a real review. */}
                     <label className="group mt-4 flex cursor-pointer items-start gap-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FD] p-5 transition-colors hover:border-[#D6CCEC] hover:bg-[#F1EBFA]">
                       <span className="relative mt-1 flex shrink-0 items-center justify-center">
                         <input
                           type="checkbox"
-                          checked={attested}
-                          onChange={(e) => setAttested(e.target.checked)}
+                          checked={attested && aiReviewed}
+                          onChange={(e) => {
+                            setAttested(e.target.checked);
+                            setAiReviewed(e.target.checked);
+                          }}
                           className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[#C9BCE9] bg-white transition-all checked:border-[#5A3E8F] checked:bg-[#5A3E8F] focus:ring-2 focus:ring-[#7E6BAF] focus:ring-offset-1 focus:outline-none"
                         />
                         <Check
@@ -6397,9 +6403,9 @@ export default function IssuePrescriptionDialog({
                       </span>
                       <span className="flex flex-col gap-1.5">
                         <span className="select-none text-[13px] font-medium leading-relaxed text-[#4B4468]">
-                          I assessed this patient, the medication and directions above are clinically
-                          appropriate, and I am signing this prescription under my own professional
-                          licence.
+                          I reviewed the patient, clinical basis, safety information and final
+                          prescription, including AI-assisted content, and authorize this
+                          prescription under my professional licence.
                         </span>
                         <span className="opacity-70">
                           <span className="text-[11px] font-medium text-[#6F6889]">
@@ -6409,33 +6415,6 @@ export default function IssuePrescriptionDialog({
                       </span>
                     </label>
 
-                    <label className="group mt-3 flex cursor-pointer items-start gap-4 rounded-xl border border-[#E3DBF5] bg-[#F7F3FD] p-5 transition-colors hover:border-[#D6CCEC] hover:bg-[#F1EBFA]">
-                      <span className="relative mt-1 flex shrink-0 items-center justify-center">
-                        <input
-                          type="checkbox"
-                          checked={aiReviewed}
-                          onChange={(e) => setAiReviewed(e.target.checked)}
-                          className="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-[#C9BCE9] bg-white transition-all checked:border-[#5A3E8F] checked:bg-[#5A3E8F] focus:ring-2 focus:ring-[#7E6BAF] focus:ring-offset-1 focus:outline-none"
-                        />
-                        <Check
-                          className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
-                          strokeWidth={3}
-                        />
-                      </span>
-                      <span className="flex flex-col gap-1.5">
-                        <span className="select-none text-[13px] font-medium leading-relaxed text-[#4B4468]">
-                          I read and checked every field on this prescription, including all
-                          AI-drafted wording — notes, assessment, plan, medication options and
-                          patient instructions. AI assistance is a suggestion only; the clinical
-                          decision and the responsibility for it are mine.
-                        </span>
-                        <span className="opacity-70">
-                          <span className="text-[11px] font-medium text-[#6F6889]">
-                            Accountability for AI-assisted content
-                          </span>
-                        </span>
-                      </span>
-                    </label>
 
                     {reviewOnly ? (
                       <div className="mt-4 rounded-xl border border-[#EFE6D2] bg-[#FDF9EF] p-3.5">
