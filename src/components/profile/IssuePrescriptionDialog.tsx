@@ -5368,15 +5368,15 @@ export default function IssuePrescriptionDialog({
 
               {/* ---------------- STEP 3 — DOCUMENTATION + PRESCRIPTION ---------------- */}
               <Acc
-                index={2}
+                index={3}
                 label="Medication and treatment"
                 hint="Choose the treatment and complete the order"
-                open={step === 2}
+                open={step === 3}
                 onToggle={goStep}
                 locked={!patientReady}
                 lockedHint="Add a patient in Step 1 first"
                 done={patientReady && (docGaps.length === 0 && rxGaps.length === 0)}
-                next={nextStep === 2}
+                next={nextStep === 3}
               >
                 {() => (
                 <>
@@ -5920,14 +5920,14 @@ export default function IssuePrescriptionDialog({
 
               {/* ---------------- STEP 4 — REVIEW AND SIGN ---------------- */}
               <Acc
-                index={3}
+                index={4}
                 label="Review and sign"
                 hint="Read-only preview, then sign"
-                open={step === 3}
+                open={step === 4}
                 onToggle={goStep}
                 locked={!patientReady || !canReview}
-                next={nextStep === 3}
-                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–3 first"}
+                next={nextStep === 4}
+                lockedHint={!patientReady ? "Add a patient in Step 1 first" : "Complete Steps 1–4 first"}
                 done={false}
               >
                 {() => (
