@@ -4929,8 +4929,7 @@ export default function IssuePrescriptionDialog({
                             {soapField("assessment", SOAP_SECTION_HINT.assessment, 1)}
                           </div>
                            {soapApproval}
-                           {unplacedNotesPanel}
-                          </div>
+                           </div>
                           )}
 
 
