@@ -55,6 +55,7 @@ import {
   type PatientRecordView,
 } from "@/lib/prescription/patientRecords";
 import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
+import { loadSoapNote } from "@/lib/clinical/soapNotes";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
@@ -171,6 +172,24 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     },
   },
   {
+    id: "c7",
+    patient: "Anna Reyes",
+    date: "29 Aug 2026",
+    time: "11:00 AM",
+    type: "Psychiatry follow-up (medication review)",
+    status: "completed",
+    prescriber: "Dr. Maria Santos",
+    soap: {
+      subjective:
+        "Reviewed mood, sleep and anxiety since the last review. Sleep improving, anxiety still intrusive on work days. No thoughts of self-harm.",
+      objective:
+        "Video consultation — alert, oriented, appropriate affect. No acute distress observed remotely.",
+      assessment:
+        "Moderate depressive symptoms with anxiety, responding partially. Safe to continue pharmacological treatment.",
+      plan: "",
+    },
+  },
+  {
     id: "x1",
     patient: "Miguel Santos",
     date: "2 Sep 2026",
@@ -191,8 +210,28 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     soap: { subjective: "", objective: "", assessment: "", plan: "" },
   },
 ];
-/** Only completed consultations are eligible to support a new prescription. */
-const ELIGIBLE_APPOINTMENTS = DEMO_APPOINTMENTS.filter((a) => a.status === "completed");
+
+/**
+ * A consultation is eligible when the appointment is completed and clinician
+ * documentation exists for it. The clinician's saved private documentation is
+ * the source of truth; the fixture note is the fallback. The state of the
+ * patient-facing summary is irrelevant to eligibility.
+ */
+function consultationWithSavedDocumentation(a: DemoAppointment): DemoAppointment {
+  const saved = loadSoapNote(a.id);
+  return {
+    ...a,
+    soap: {
+      subjective: saved.subjective.trim() || a.soap.subjective,
+      objective: saved.objective.trim() || a.soap.objective,
+      assessment: saved.assessment.trim() || a.soap.assessment,
+      plan: saved.plan.trim() || a.soap.plan,
+    },
+  };
+}
+function hasClinicianDocumentation(a: DemoAppointment): boolean {
+  return Boolean(a.soap.subjective.trim() || a.soap.assessment.trim());
+}
 
 /** Which SOAP sections of a reused note still need the prescriber's input. */
 function missingSoapSections(note: SoapNote): (keyof SoapNote)[] {
@@ -1408,9 +1447,21 @@ export default function IssuePrescriptionDialog({
   }, [orderInstructions]);
 
 
+  /**
+   * Eligible consultations: completed appointments whose clinician documentation
+   * exists. The clinician's saved private note wins over the fixture note, and a
+   * pending patient-facing summary never removes a consultation.
+   */
+  const eligibleAppointments = useMemo(() => {
+    if (!open) return [] as DemoAppointment[];
+    return DEMO_APPOINTMENTS.filter((a) => a.status === "completed")
+      .map(consultationWithSavedDocumentation)
+      .filter(hasClinicianDocumentation);
+  }, [open]);
+
   /** Preselect only when the immutable patient record proves the appointment link. */
   const fromAppointmentCandidate = appointmentId
-    ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
+    ? eligibleAppointments.find((a) => a.id === appointmentId)
     : undefined;
   const fromAppointment =
     fromAppointmentCandidate && selected?.appointmentIds.includes(fromAppointmentCandidate.id)
@@ -1423,19 +1474,40 @@ export default function IssuePrescriptionDialog({
     setLinkedAppointment(fromAppointment.id);
   }, [open, fromAppointment]);
 
-  /** Only this patient's completed Lubin consultations are eligible. Prefer the
-   * immutable appointment relationship on a saved patient record; the fixture's
-   * name match remains a display-only fallback for a newly selected patient. */
+  /** This patient's eligible consultations. The immutable patient record's
+   * appointment links are authoritative; a record whose consultations are not
+   * linked yet is matched on the patient's identity and then linked, so the
+   * immutable patient ID carries the relationship from then on. */
   const patientForAppointments = (selected?.fullName || patientName).trim().toLowerCase();
-  const patientAppointments = ELIGIBLE_APPOINTMENTS.filter(
-    (a) =>
-      !patientForAppointments ||
-      (selected?.appointmentIds.includes(a.id) ?? false) ||
-      (!selected && a.patient.trim().toLowerCase() === patientForAppointments),
-  ).slice(0, 5);
+  const patientAppointments = eligibleAppointments
+    .filter(
+      (a) =>
+        !patientForAppointments ||
+        (selected?.appointmentIds.includes(a.id) ?? false) ||
+        a.patient.trim().toLowerCase() === patientForAppointments,
+    )
+    .slice(0, 5);
 
-  /** The linked Lubin consultation, if any — only completed ones are eligible. */
-  const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
+  /** Persist the identity match onto the immutable patient record once. */
+  const linkedRecordIdsRef = useRef<Set<string>>(new Set());
+  const patientAppointmentKey = patientAppointments.map((a) => a.id).join(",");
+  useEffect(() => {
+    if (!open || !selected || !patientAppointmentKey) return;
+    const missing = patientAppointmentKey
+      .split(",")
+      .filter(
+        (id) =>
+          !selected.appointmentIds.includes(id) &&
+          !linkedRecordIdsRef.current.has(selected.id + ":" + id),
+      );
+    for (const id of missing) {
+      linkedRecordIdsRef.current.add(selected.id + ":" + id);
+      updatePatientRecord(selected.id, { appointmentId: id });
+    }
+  }, [open, selected, patientAppointmentKey]);
+
+  /** The linked Lubin consultation, if any — only eligible ones are linkable. */
+  const linkedAppt = eligibleAppointments.find((a) => a.id === linkedAppointment);
   /** Sections the reused note is missing — the provider is asked for those only. */
   const missingFromLinked = linkedAppt ? missingSoapSections(linkedAppt.soap) : [];
   /**
