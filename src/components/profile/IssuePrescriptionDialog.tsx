@@ -2622,13 +2622,13 @@ export default function IssuePrescriptionDialog({
       setObjectiveMode(
         limitedRemoteOnly
           ? "limited-remote"
-          : drafted.objective === NO_OBJECTIVE
-            ? "not-obtained"
-            : // Never claim findings are documented while the field is empty.
-              drafted.objective.trim()
-              ? "add"
-              : "none",
+          : // Never claim findings are documented while the field is empty, and
+            // never pre-select "no findings obtained" on the provider's behalf.
+            drafted.objective.trim() && drafted.objective !== NO_OBJECTIVE
+            ? "add"
+            : "none",
       );
+
       setAiFields({
         subjective: drafts.includes("subjective"),
         objective: drafts.includes("objective"),
