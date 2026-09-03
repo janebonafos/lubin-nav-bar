@@ -55,6 +55,7 @@ import {
   type PatientRecordView,
 } from "@/lib/prescription/patientRecords";
 import { detectJurisdiction } from "@/lib/prescription/jurisdiction";
+import { loadSoapNote } from "@/lib/clinical/soapNotes";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import PatientAvatar from "@/components/profile/PatientAvatar";
