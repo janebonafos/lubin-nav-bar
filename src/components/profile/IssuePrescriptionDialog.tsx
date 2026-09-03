@@ -491,6 +491,7 @@ function organiseSoap(raw: string): {
   const impressions: string[] = [];
   const allergyLines: string[] = [];
   const medicationLines: string[] = [];
+  const unplacedSentences: string[] = [];
   let hasMeasured = false;
   let hasObservation = false;
   let hasNotObtained = false;
@@ -498,15 +499,22 @@ function organiseSoap(raw: string): {
   for (const s of sentences) {
     // Instruction-style lines ("Objective must contain…") are not clinical facts.
     if (isInstructionFragment(s)) continue;
-    // Never claim whether a cause is or is not established.
-    if (CAUSE_CLAIM.test(s)) continue;
-    // Safety information goes to the Medication safety check, not Subjective.
+    // Never claim whether a cause is or is not established in Assessment, but
+    // keep the sentence available for the provider to place deliberately.
+    if (CAUSE_CLAIM.test(s)) {
+      unplacedSentences.push(s);
+      continue;
+    }
+    // Safety information is offered in the Medication safety check and is also
+    // available for deliberate placement in Subjective or Objective.
     if (ALLERGY_LINE.test(s)) {
       allergyLines.push(s);
+      unplacedSentences.push(s);
       continue;
     }
     if (MEDICATION_LINE.test(s)) {
       medicationLines.push(s);
+      unplacedSentences.push(s);
       continue;
     }
     // How the encounter was conducted is an objective fact about the visit.
@@ -525,7 +533,10 @@ function organiseSoap(raw: string): {
       impressions.push(s);
       continue;
     }
-    if (PLAN_HINTS.test(s)) continue; // plan comes from Step 3 decisions
+    if (PLAN_HINTS.test(s)) {
+      unplacedSentences.push(s);
+      continue; // plan comes from Step 3 decisions
+    }
     if (OBSERVATION_HINTS.test(s) && !/^(patient (reports|says)|pt reports)/i.test(s)) {
       objective.push(s);
       hasObservation = true;
@@ -615,6 +626,7 @@ function organiseSoap(raw: string): {
       allergies: allergyLines.join(" "),
       medications: medicationLines.join(" "),
     },
+    unplacedSentences,
     limitedRemoteOnly,
     noteMethod,
     demographics: readNoteDemographics(raw),
@@ -1179,8 +1191,13 @@ export default function IssuePrescriptionDialog({
   const [sectionQuestions, setSectionQuestions] = useState<
     Partial<Record<keyof SoapNote, string>>
   >({});
-
-
+  /** Note-derived safety details are suggestions, never provider answers. */
+  const [noteSafetySuggestions, setNoteSafetySuggestions] = useState({
+    allergies: "",
+    medications: "",
+  });
+  /** Sentences from pasted notes that still need deliberate placement. */
+  const [unplacedNoteSentences, setUnplacedNoteSentences] = useState<string[]>([]);
 
   const [soap, setSoap] = useState<SoapNote>({
     subjective: "",
@@ -2539,8 +2556,8 @@ export default function IssuePrescriptionDialog({
     setNoteHasAssessment(false);
     setAssessmentBasis("");
     setSectionQuestions({});
-
-
+    setNoteSafetySuggestions({ allergies: "", medications: "" });
+    setUnplacedNoteSentences([]);
 
     setSoap({ subjective: "", objective: "", assessment: "", plan: "" });
     setObjectiveMode("none");
@@ -4066,6 +4083,8 @@ export default function IssuePrescriptionDialog({
                           setSoapDrafted(false);
                           setSoapApproved(false);
                           setNoteRejected(false);
+                          setNoteSafetySuggestions({ allergies: "", medications: "" });
+                          setUnplacedNoteSentences([]);
                         }}
                         placeholder="e.g. Patient seen today for follow-up of hypertension. BP 138/86. Tolerating current medication…"
                       />
