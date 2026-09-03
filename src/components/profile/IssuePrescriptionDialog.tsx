@@ -2154,6 +2154,7 @@ export default function IssuePrescriptionDialog({
      "Review pregnancy / breastfeeding status": { step: 1, id: "rx-pregnancy" },
      "Patient requires reassessment": { step: 1, id: "material-change-section" },
      "Complete updated clinical information": { step: 1, id: "soap-field-subjective" },
+     "Review and confirm the clinical information": { step: 1, id: "reused-review-summary" },
    };
    if (meds[0])
      gapTargets["One medication with generic name, dose and frequency"] = {
