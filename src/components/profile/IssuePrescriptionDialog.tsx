@@ -1532,9 +1532,9 @@ export default function IssuePrescriptionDialog({
     );
     setSoap((s) => ({
       ...s,
-      plan: `${lines.join(" ")} Follow-up: ${orderFollowUp || NEEDS_CONFIRMATION}. Patient instructions: ${
-        orderInstructions || NEEDS_CONFIRMATION
-      }. Warning signs: ${NEEDS_CONFIRMATION}.`,
+      plan: `${lines.join(" ")} Follow-up: ${sentence(orderFollowUp || NEEDS_CONFIRMATION)} Patient instructions and warning signs: ${sentence(
+        orderInstructions || NEEDS_CONFIRMATION,
+      )}`,
     }));
     setAiFields((f) => ({ ...f, plan: true }));
     // Editing the medication or the Plan never re-opens the confirmed S/O/A.
@@ -1542,24 +1542,24 @@ export default function IssuePrescriptionDialog({
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
   /** A Plan placeholder resolves itself once the same information is documented
-   *  in the medication order. Only warning signs can remain outstanding. */
+   *  in the medication order. */
   useEffect(() => {
     setSoap((s) => {
       let plan = s.plan;
       const followUp = orderFollowUp || planExtras.followUp.trim();
       const instructions = orderInstructions || planExtras.instructions.trim();
       if (followUp)
-        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}`, `Follow-up: ${followUp}`);
+        plan = plan.replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, `Follow-up: ${sentence(followUp)}`);
       if (instructions) {
         plan = plan.replace(
-          `Patient instructions: ${NEEDS_CONFIRMATION}`,
-          `Patient instructions: ${instructions}`,
+          `Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`,
+          `Patient instructions and warning signs: ${sentence(instructions)}`,
         );
-        plan = plan.replace(`Warning signs: ${NEEDS_CONFIRMATION}`, `Warning signs: ${instructions}`);
       }
       return plan === s.plan ? s : { ...s, plan };
     });
   }, [orderFollowUp, orderInstructions, planExtras.followUp, planExtras.instructions]);
+
 
 
   /** Follow-up and patient instructions documented in the medication order flow
