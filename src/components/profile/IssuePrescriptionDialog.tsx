@@ -5323,7 +5323,7 @@ export default function IssuePrescriptionDialog({
                         </p>
 
                          <div className="mt-3 flex flex-wrap gap-2">
-                           {(!linkedAppt || purpose === "renewal") && (
+                           {!linkedAppt && (
                              <button
                                type="button"
                                onClick={() => setStep(1)}
