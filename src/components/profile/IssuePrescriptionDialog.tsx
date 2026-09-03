@@ -1748,10 +1748,10 @@ export default function IssuePrescriptionDialog({
       ? ["Review current medications"]
       : []),
   ];
-  const pregnancyGap =
-    pregnancyApplicable && pregnancyStatus === "not-reviewed"
-      ? ["Review pregnancy / breastfeeding status"]
-      : [];
+  const pregnancyReviewed =
+    !pregnancyApplicable ||
+    (pregnancyStatus !== "not-reviewed" && breastfeedingStatus !== "not-reviewed");
+  const pregnancyGap = pregnancyReviewed ? [] : ["Review pregnancy / breastfeeding status"];
   const contextGaps: string[] = [];
   if (!purpose) contextGaps.push("Treatment type");
   if (purpose === "new" && !entry) contextGaps.push("The clinical note supporting this prescription");
