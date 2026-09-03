@@ -1666,7 +1666,9 @@ export default function IssuePrescriptionDialog({
     }
     if (!noteRejected && (soapMode === "manual" || soapDrafted)) {
       if (isSoapPlaceholder(soap.subjective)) contextGaps.push("Subjective");
+      if (objectiveMode === "none") contextGaps.push("Choose an Objective status");
       if (!assessmentBasis) contextGaps.push("Choose the assessment or indication");
+
       if (assessmentBasis !== "further" && isSoapPlaceholder(soap.assessment))
         contextGaps.push("Enter the diagnosis, working diagnosis or indication");
       // The Plan is drafted from the Step 3 prescription decisions, so it is
