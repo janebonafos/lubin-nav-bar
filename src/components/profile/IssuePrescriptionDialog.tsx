@@ -1554,14 +1554,16 @@ export default function IssuePrescriptionDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyMeds.map((m) => `${m.genericName}|${m.dose}|${m.frequency}|${m.duration}`).join("~")]);
 
-  /** Legacy placeholder clauses are stripped from the regimen summary; that
-   *  information belongs to the dedicated Follow-up and Patient instructions
-   *  fields. */
+  /** Older drafts may carry Follow-up / Patient instruction clauses inside the
+   *  regimen summary. Those move to their own Plan fields, so the placeholder
+   *  clauses are removed rather than shown twice. */
   useEffect(() => {
     setSoap((s) => {
+      if (!s.plan.includes(NEEDS_CONFIRMATION)) return s;
       const plan = s.plan
-        .replace(/\s*Follow-up:[^]*?(?=\s*Patient instructions and warning signs:|$)/, "")
-        .replace(/\s*Patient instructions and warning signs:[^]*$/, "")
+        .replace(`Follow-up: ${NEEDS_CONFIRMATION}.`, "")
+        .replace(`Patient instructions and warning signs: ${NEEDS_CONFIRMATION}.`, "")
+        .replace(/\s{2,}/g, " ")
         .trim();
       return plan === s.plan ? s : { ...s, plan };
     });
