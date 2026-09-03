@@ -2947,6 +2947,11 @@ export default function IssuePrescriptionDialog({
     if (!identity || !canSign) return;
     if (otpEntry.trim() !== otpCode) {
       setOtpError("That code does not match the one sent to your verified email.");
+      requestAnimationFrame(() => {
+        const el = document.getElementById("rx-verification-code");
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        (el as HTMLInputElement | null)?.focus({ preventScroll: true });
+      });
       return;
     }
     const signedAt = Date.now();
