@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ArchiveRestore, Plus, Search, ShieldAlert } from "lucide-react";
+import { Archive, ArchiveRestore, ChevronDown, Plus, Search, ShieldAlert } from "lucide-react";
 import {
   archivePrescription,
   listArchivedPrescriptionIds,
