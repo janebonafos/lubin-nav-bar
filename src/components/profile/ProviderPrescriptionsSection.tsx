@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, ShieldAlert } from "lucide-react";
+import { Archive, ArchiveRestore, Plus, Search, ShieldAlert } from "lucide-react";
+import {
+  archivePrescription,
+  listArchivedPrescriptionIds,
+  subscribePrescriptionArchive,
+  unarchivePrescription,
+} from "@/lib/prescription/archive";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
