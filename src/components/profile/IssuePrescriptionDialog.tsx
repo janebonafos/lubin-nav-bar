@@ -2199,6 +2199,10 @@ export default function IssuePrescriptionDialog({
       unit: opt.unit,
       rationale: opt.why,
       sig: draftedSig,
+      // Patient instructions are drafted as the regimen wording plus any
+      // clinically relevant warning signs documented for this medication, in one
+      // editable field — AI draft, provider review required.
+      instructions: joinSentences(draftedSig, opt.about.counselling),
       sigEdited: false,
     };
   };
