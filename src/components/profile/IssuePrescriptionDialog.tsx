@@ -171,6 +171,24 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     },
   },
   {
+    id: "c7",
+    patient: "Anna Reyes",
+    date: "29 Aug 2026",
+    time: "11:00 AM",
+    type: "Psychiatry follow-up (medication review)",
+    status: "completed",
+    prescriber: "Dr. Maria Santos",
+    soap: {
+      subjective:
+        "Reviewed mood, sleep and anxiety since the last review. Sleep improving, anxiety still intrusive on work days. No thoughts of self-harm.",
+      objective:
+        "Video consultation — alert, oriented, appropriate affect. No acute distress observed remotely.",
+      assessment:
+        "Moderate depressive symptoms with anxiety, responding partially. Safe to continue pharmacological treatment.",
+      plan: "",
+    },
+  },
+  {
     id: "x1",
     patient: "Miguel Santos",
     date: "2 Sep 2026",
@@ -191,8 +209,28 @@ const DEMO_APPOINTMENTS: DemoAppointment[] = [
     soap: { subjective: "", objective: "", assessment: "", plan: "" },
   },
 ];
-/** Only completed consultations are eligible to support a new prescription. */
-const ELIGIBLE_APPOINTMENTS = DEMO_APPOINTMENTS.filter((a) => a.status === "completed");
+
+/**
+ * A consultation is eligible when the appointment is completed and clinician
+ * documentation exists for it. The clinician's saved private documentation is
+ * the source of truth; the fixture note is the fallback. The state of the
+ * patient-facing summary is irrelevant to eligibility.
+ */
+function consultationWithSavedDocumentation(a: DemoAppointment): DemoAppointment {
+  const saved = loadSoapNote(a.id);
+  return {
+    ...a,
+    soap: {
+      subjective: saved.subjective.trim() || a.soap.subjective,
+      objective: saved.objective.trim() || a.soap.objective,
+      assessment: saved.assessment.trim() || a.soap.assessment,
+      plan: saved.plan.trim() || a.soap.plan,
+    },
+  };
+}
+function hasClinicianDocumentation(a: DemoAppointment): boolean {
+  return Boolean(a.soap.subjective.trim() || a.soap.assessment.trim());
+}
 
 /** Which SOAP sections of a reused note still need the prescriber's input. */
 function missingSoapSections(note: SoapNote): (keyof SoapNote)[] {
