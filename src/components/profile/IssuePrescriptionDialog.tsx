@@ -7148,17 +7148,22 @@ function MedicationCard({
                 setInstrLoading(true);
                 window.setTimeout(() => {
                   // Drafted only from the medication and regimen the provider
-                  // selected. No medication-specific warning is invented.
+                  // selected: how to take it, plus general warning signs for
+                  // provider review. No medication-specific claim is invented.
                   onPatch(
                     "instructions",
                     [
                       med.sig.trim() ||
                         `Take ${med.dose} ${med.frequency}${
                           med.duration ? ` for ${med.duration}` : ""
-                        }.`,
-                      "Tell your prescriber about any new symptom or side effect.",
-                    ].join(" "),
+                        }`,
+                      "Stop the medication and seek urgent care if you develop a rash, swelling of the face, lips or tongue, difficulty breathing, or any severe or rapidly worsening symptom",
+                      "Tell your prescriber about any new symptom or side effect",
+                    ]
+                      .map(sentence)
+                      .join(" "),
                   );
+
                   setInstrLoading(false);
                 }, 700);
               }}
