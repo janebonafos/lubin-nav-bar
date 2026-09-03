@@ -3162,53 +3162,66 @@ export default function IssuePrescriptionDialog({
                             className={`${field} pl-9`}
                           />
                         </div>
-                        <div className="mt-3 space-y-2">
-                          {filteredRecords.map((r) => (
+                        {patientQuery.trim() === "" ? (
+                          <div className="mt-4 rounded-xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
+                            <Search className="mx-auto h-6 w-6 text-[#A89BD0]" />
+                            <p className="mt-2 text-[13px] font-semibold text-[#3D2E6B]">
+                              Search to find a patient
+                            </p>
+                            <p className="mt-1 text-[12px] text-[#6F6889]">
+                              Enter a name above to view matching patient records, or create a new
+                              record below.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="mt-3 space-y-2">
+                            {filteredRecords.map((r) => (
+                              <button
+                                key={r.id}
+                                type="button"
+                                onClick={() => selectRecord(r)}
+                                className="flex w-full items-center gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#C9BCE9]"
+                              >
+                                <PatientAvatar name={r.fullName} size={34} />
+                                <span className="min-w-0">
+                                  <span className="block text-[13.5px] font-semibold text-[#3D2E6B]">
+                                    {r.fullName}
+                                  </span>
+                                  <span className="block text-[11.5px] text-[#8A7FB0]">
+                                    {r.prescriptionCount} prescription
+                                    {r.prescriptionCount === 1 ? "" : "s"}
+                                    {r.passport ? " · health passport shared" : " · no shared passport"}
+                                  </span>
+                                </span>
+                              </button>
+                            ))}
+                            {filteredRecords.length === 0 && (
+                              <p className="px-1 text-[12.5px] text-[#6F6889]">
+                                No patient named “{patientQuery.trim()}” in your records yet.
+                              </p>
+                            )}
                             <button
-                              key={r.id}
                               type="button"
-                              onClick={() => selectRecord(r)}
-                              className="flex w-full items-center gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#C9BCE9]"
+                              onClick={startNewPatient}
+                              className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3 text-left transition hover:border-[#7E6BAF] hover:bg-[#F1EBFF]"
                             >
-                              <PatientAvatar name={r.fullName} size={34} />
+                              <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
+                                <UserPlus className="h-4 w-4" />
+                              </span>
                               <span className="min-w-0">
-                                <span className="block text-[13.5px] font-semibold text-[#3D2E6B]">
-                                  {r.fullName}
+                                <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+                                  {patientQuery.trim()
+                                    ? `Create “${patientQuery.trim()}” as a new patient`
+                                    : "New patient record"}
                                 </span>
                                 <span className="block text-[11.5px] text-[#8A7FB0]">
-                                  {r.prescriptionCount} prescription
-                                  {r.prescriptionCount === 1 ? "" : "s"}
-                                  {r.passport ? " · health passport shared" : " · no shared passport"}
+                                  For a first-time patient who isn’t in your records yet — no Lubin
+                                  account needed
                                 </span>
                               </span>
                             </button>
-                          ))}
-                          {patientQuery.trim() && filteredRecords.length === 0 && (
-                            <p className="px-1 text-[12.5px] text-[#6F6889]">
-                              No patient named “{patientQuery.trim()}” in your records yet.
-                            </p>
-                          )}
-                          <button
-                            type="button"
-                            onClick={startNewPatient}
-                            className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C9BCE9] bg-[#F7F3FF] px-4 py-3 text-left transition hover:border-[#7E6BAF] hover:bg-[#F1EBFF]"
-                          >
-                            <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[#3D2E6B] text-white">
-                              <UserPlus className="h-4 w-4" />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-[13px] font-semibold text-[#3D2E6B]">
-                                {patientQuery.trim()
-                                  ? `Create “${patientQuery.trim()}” as a new patient`
-                                  : "New patient record"}
-                              </span>
-                              <span className="block text-[11.5px] text-[#8A7FB0]">
-                                For a first-time patient who isn’t in your records yet — no Lubin
-                                account needed
-                              </span>
-                            </span>
-                          </button>
-                        </div>
+                          </div>
+                        )}
                       </>
                     )}
 
