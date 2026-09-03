@@ -1489,14 +1489,22 @@ export default function IssuePrescriptionDialog({
     .slice(0, 5);
 
   /** Persist the identity match onto the immutable patient record once. */
+  const linkedRecordIdsRef = useRef<Set<string>>(new Set());
+  const patientAppointmentKey = patientAppointments.map((a) => a.id).join(",");
   useEffect(() => {
-    if (!open || !selected) return;
-    for (const a of patientAppointments) {
-      if (!selected.appointmentIds.includes(a.id)) {
-        updatePatientRecord(selected.id, { appointmentId: a.id });
-      }
+    if (!open || !selected || !patientAppointmentKey) return;
+    const missing = patientAppointmentKey
+      .split(",")
+      .filter(
+        (id) =>
+          !selected.appointmentIds.includes(id) &&
+          !linkedRecordIdsRef.current.has(selected.id + ":" + id),
+      );
+    for (const id of missing) {
+      linkedRecordIdsRef.current.add(selected.id + ":" + id);
+      updatePatientRecord(selected.id, { appointmentId: id });
     }
-  }, [open, selected, patientAppointments]);
+  }, [open, selected, patientAppointmentKey]);
 
   /** The linked Lubin consultation, if any — only eligible ones are linkable. */
   const linkedAppt = eligibleAppointments.find((a) => a.id === linkedAppointment);
