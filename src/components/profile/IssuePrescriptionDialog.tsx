@@ -1446,9 +1446,21 @@ export default function IssuePrescriptionDialog({
   }, [orderInstructions]);
 
 
+  /**
+   * Eligible consultations: completed appointments whose clinician documentation
+   * exists. The clinician's saved private note wins over the fixture note, and a
+   * pending patient-facing summary never removes a consultation.
+   */
+  const eligibleAppointments = useMemo(() => {
+    if (!open) return [] as DemoAppointment[];
+    return DEMO_APPOINTMENTS.filter((a) => a.status === "completed")
+      .map(consultationWithSavedDocumentation)
+      .filter(hasClinicianDocumentation);
+  }, [open]);
+
   /** Preselect only when the immutable patient record proves the appointment link. */
   const fromAppointmentCandidate = appointmentId
-    ? ELIGIBLE_APPOINTMENTS.find((a) => a.id === appointmentId)
+    ? eligibleAppointments.find((a) => a.id === appointmentId)
     : undefined;
   const fromAppointment =
     fromAppointmentCandidate && selected?.appointmentIds.includes(fromAppointmentCandidate.id)
@@ -1461,19 +1473,32 @@ export default function IssuePrescriptionDialog({
     setLinkedAppointment(fromAppointment.id);
   }, [open, fromAppointment]);
 
-  /** Only this patient's completed Lubin consultations are eligible. Prefer the
-   * immutable appointment relationship on a saved patient record; the fixture's
-   * name match remains a display-only fallback for a newly selected patient. */
+  /** This patient's eligible consultations. The immutable patient record's
+   * appointment links are authoritative; a record whose consultations are not
+   * linked yet is matched on the patient's identity and then linked, so the
+   * immutable patient ID carries the relationship from then on. */
   const patientForAppointments = (selected?.fullName || patientName).trim().toLowerCase();
-  const patientAppointments = ELIGIBLE_APPOINTMENTS.filter(
-    (a) =>
-      !patientForAppointments ||
-      (selected?.appointmentIds.includes(a.id) ?? false) ||
-      (!selected && a.patient.trim().toLowerCase() === patientForAppointments),
-  ).slice(0, 5);
+  const patientAppointments = eligibleAppointments
+    .filter(
+      (a) =>
+        !patientForAppointments ||
+        (selected?.appointmentIds.includes(a.id) ?? false) ||
+        a.patient.trim().toLowerCase() === patientForAppointments,
+    )
+    .slice(0, 5);
 
-  /** The linked Lubin consultation, if any — only completed ones are eligible. */
-  const linkedAppt = ELIGIBLE_APPOINTMENTS.find((a) => a.id === linkedAppointment);
+  /** Persist the identity match onto the immutable patient record once. */
+  useEffect(() => {
+    if (!open || !selected) return;
+    for (const a of patientAppointments) {
+      if (!selected.appointmentIds.includes(a.id)) {
+        updatePatientRecord(selected.id, { appointmentId: a.id });
+      }
+    }
+  }, [open, selected, patientAppointments]);
+
+  /** The linked Lubin consultation, if any — only eligible ones are linkable. */
+  const linkedAppt = eligibleAppointments.find((a) => a.id === linkedAppointment);
   /** Sections the reused note is missing — the provider is asked for those only. */
   const missingFromLinked = linkedAppt ? missingSoapSections(linkedAppt.soap) : [];
   /**
