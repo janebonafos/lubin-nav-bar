@@ -317,8 +317,31 @@ function isSoapPlaceholder(value: string): boolean {
   return !v || SOAP_PLACEHOLDERS.some((p) => v === p);
 }
 
-const OBJECTIVE_HINTS =
-  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|sat|rr|weight|kg|lbs|bmi|exam|examination|auscultation|chest|abdomen|lungs|clear|tender|swelling|rash|mmhg|bpm|°c|celsius|lab|labs|result|results|x-ray|ecg|ekg|cbc|glucose|urinalysis|ultrasound|imaging|swab|test)\b/i;
+/**
+ * Strong objective cues: a vital sign, an examination that was performed or a
+ * named test. Any one of these makes a sentence Objective.
+ */
+const OBJECTIVE_STRONG =
+  /\b(bp|blood pressure|hr|heart rate|pulse|temp|temperature|spo2|o2 sat|sat|rr|respiratory rate|weight|kg|lbs|bmi|mmhg|bpm|°c|celsius|exam|examination|auscultation|palpat|percussion|inspection|x-ray|ecg|ekg|cbc|glucose|urinalysis|ultrasound|imaging|swab|labs?)\b/i;
+/**
+ * Weak cues — incidental anatomy or generic words. One of these alone never
+ * makes a sentence Objective ("chest pain for 2 days" is Subjective); two or
+ * more together do ("lungs clear").
+ */
+const OBJECTIVE_WEAK = /\b(chest|abdomen|lungs|throat|clear|tender|swelling|rash|results?|tests?)\b/gi;
+/** An actual measured value — a vital sign, measurement or test result. */
+const MEASUREMENT_VALUE =
+  /(\b\d{2,3}\/\d{2,3}\b|\b\d+(?:\.\d+)?\s*(?:mmhg|bpm|kg|lbs?|°c|°f|%|mg\/dl|mmol|breaths)|\b(?:bp|spo2|o2 sat|sat|hr|heart rate|pulse|temp|temperature|rr|respiratory rate|weight|bmi|glucose)\b[^.]{0,15}?\d)/i;
+/** Symptoms the patient experiences and reports. */
+const SYMPTOM_WORDS =
+  /\b(cough(ing)?|pain|ache|aching|fever|chills|sweats|headache|nausea|vomit\w*|diarrh\w*|constipat\w*|fatigue|tired\w*|dizz\w*|itch\w*|sore throat|runny nose|congestion|shortness of breath|dyspnea|breathless\w*|wheez\w*|hemoptysis|palpitations|insomnia|appetite|cramp\w*|bleeding|discomfort|numbness|tingling)\b/i;
+/** Wording that marks the sentence as patient-reported history. */
+const REPORTED_VERBS =
+  /\b(reports?|reported|reporting|complain(s|ed)? of|c\/o|states?|says?|said|describes?|denies|denied|presents with|history of|hx of|onset|started|began|noticed|feels?|felt)\b/i;
+/** A duration ("3 weeks", "2 days") — never an objective measurement. */
+const DURATION_PHRASE =
+  /\b\d+\s*(?:hour|hours|day|days|week|weeks|month|months|year|years)\b(?!\s*[- ]?old)/i;
+
 /** How the encounter was conducted — an objective fact about the visit. */
 const METHOD_HINTS =
   /\b(seen (in person|via|by|over)|assessed (in person|by|via|over|through)|assessment (was )?(performed|done|conducted|carried out)|consult(ation)? (was )?(performed|done|conducted)|(by|via|over) (video|phone|telephone)|in[- ]person|face[- ]to[- ]face|tele(consult|medicine|health)|video (call|consult|visit)|phone (call|consult|visit)|remote(ly)?|home visit|clinic visit|walk[- ]in)\b/i;
@@ -348,6 +371,33 @@ const MEDICATION_LINE =
 /** Vitals or an actual examination / test result was documented. */
 const MEASURED_HINTS =
   /\b(\d{2,3}\/\d{2,3}|\d+\s*(mmhg|bpm|kg|lbs|°c|°f|mg\/dl|mmol)|bp\b|heart rate|pulse|temperature|spo2|weight|exam|examination|auscultation|palpat|lab|result|x-ray|ecg|ekg|cbc|ultrasound|imaging)\b/i;
+
+/** True when the sentence is patient-reported symptom, duration or negative. */
+function isPatientReport(s: string): boolean {
+  if (MEASUREMENT_VALUE.test(s)) return false;
+  // An examination or named test that was actually performed is Objective.
+  if (/\b(exam|examination|auscultat\w*|palpat\w*|percussion|on inspection|x-ray|ecg|ekg|cbc|ultrasound|imaging|swab)\b/i.test(s))
+    return false;
+  return (
+    REPORTED_VERBS.test(s) ||
+    SYMPTOM_WORDS.test(s) ||
+    DURATION_PHRASE.test(s) ||
+    NEGATIVE_HINTS.test(s)
+  );
+}
+
+/** True when the sentence carries a real objective cue. */
+function isObjectiveSentence(s: string): boolean {
+  if (OBJECTIVE_STRONG.test(s) || MEASUREMENT_VALUE.test(s)) return true;
+  const weak = s.match(OBJECTIVE_WEAK);
+  // Incidental anatomy or a generic word alone is never enough.
+  return (weak?.length ?? 0) >= 2;
+}
+
+/** True when an actual vital sign, measurement or test result is documented. */
+function isMeasured(s: string): boolean {
+  return MEASUREMENT_VALUE.test(s) || MEASURED_HINTS.test(s);
+}
 
 /**
  * Product/design/engineering instruction language. Text like this is not
@@ -542,13 +592,22 @@ function organiseSoap(raw: string): {
       hasObservation = true;
       continue;
     }
-    if (OBJECTIVE_HINTS.test(s) && (/\d/.test(s) || !NEGATIVE_HINTS.test(s))) {
+    // Patient-reported symptoms, symptom duration and relevant negatives are
+    // Subjective — evaluated BEFORE any incidental anatomy or objective keyword.
+    if (isPatientReport(s)) {
+      subjective.push(s);
+      continue;
+    }
+    if (isObjectiveSentence(s)) {
       objective.push(s);
-      if (MEASURED_HINTS.test(s)) hasMeasured = true;
+      // A statement that something was NOT obtained is Objective but is not a
+      // measurement, and a bare duration is never a measurement either.
+      if (!NOT_OBTAINED_LINE.test(s) && isMeasured(s)) hasMeasured = true;
       continue;
     }
     subjective.push(s);
   }
+
 
   const subjectiveText = subjective.length ? phraseSubjective(subjective) : "";
   // Only a genuine remote observation without measurement counts as "limited".
