@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ArchiveRestore, Plus, Search, ShieldAlert } from "lucide-react";
+import { Archive, ArchiveRestore, ChevronDown, Plus, Search, ShieldAlert } from "lucide-react";
 import {
   archivePrescription,
   listArchivedPrescriptionIds,
@@ -55,6 +55,9 @@ export default function ProviderPrescriptionsSection() {
   const [resetToken, setResetToken] = useState(0);
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
   const [view, setView] = useState<"active" | "archived">("active");
+  /** Per-patient accordion state. Multi-prescription patients start collapsed
+   *  so a long record stays scannable; single-prescription patients stay open. */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -206,99 +209,130 @@ export default function ProviderPrescriptionsSection() {
               : "No active prescriptions — check the Archived tab."}
         </p>
       ) : (
-        <div className="mt-6 max-h-[620px] space-y-4 overflow-y-auto pr-1">
-          {groups.map((group) => (
-            <div
-              key={group.patientName}
-              className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <PatientAvatar
-                    name={group.patientName}
-                    photoUrl={group.docs[0]!.patientPhotoUrl}
-                    size={36}
-                  />
-                  <div>
-                    <p className="text-[14px] font-bold text-[#3D2E6B]">
-                      {group.patientName}
-                    </p>
-                    <p className="text-[11.5px] text-[#8A7FB0]">
-                      {group.docs.length} prescription
-                      {group.docs.length > 1 ? "s" : ""} · last issued{" "}
-                      {formatDate(group.lastSignedAt)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <ul className="mt-4 space-y-3">
-                {group.docs.map((doc) => (
-                  <li
-                    key={doc.id}
-                    className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
-                  >
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-                      <div className="min-w-0">
-                        <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
-                          {doc.number}
-                        </p>
-                        <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
-                          {doc.medications
-                            .map(
-                              (m) =>
-                                `${m.genericName || m.name}${m.strength ? ` ${m.strength}` : ""}`,
-                            )
-                            .join(" · ") || "No medication recorded"}
-                        </p>
-                        <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
-                          Signed {formatDateTime(doc.signedAt)} · {doc.country} ·{" "}
-                          {doc.authenticationMethod}
-                        </p>
-                        {doc.controlled && (
-                          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10]">
-                            <ShieldAlert className="h-3.5 w-3.5" />
-                            {doc.country === "PH"
-                              ? "Dangerous drug"
-                              : "Controlled substance"}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex shrink-0 flex-col items-end gap-2 self-start">
-                        <a
-                          href={prescriptionHref(doc)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
-                        >
-                          View prescription
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            view === "archived"
-                              ? unarchivePrescription(doc.id)
-                              : archivePrescription(doc.id)
-                          }
-                          className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-[#E3DBF5] bg-white px-3 text-[11.5px] font-semibold text-[#6F5BA0] transition hover:border-[#7E6BAF]"
-                        >
-                          {view === "archived" ? (
-                            <>
-                              <ArchiveRestore className="h-3.5 w-3.5" /> Restore
-                            </>
-                          ) : (
-                            <>
-                              <Archive className="h-3.5 w-3.5" /> Archive
-                            </>
-                          )}
-                        </button>
-                      </div>
+        <div className="mt-6 max-h-[620px] space-y-3 overflow-y-auto pr-1">
+          {groups.map((group) => {
+            const isOpen =
+              expanded[group.patientName] ?? group.docs.length === 1;
+            const toggle = () =>
+              setExpanded((current) => ({
+                ...current,
+                [group.patientName]: !isOpen,
+              }));
+            return (
+              <div
+                key={group.patientName}
+                className="rounded-2xl border border-[#E3DBF5]/70 bg-white"
+              >
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <PatientAvatar
+                      name={group.patientName}
+                      photoUrl={group.docs[0]!.patientPhotoUrl}
+                      size={36}
+                    />
+                    <div>
+                      <p className="text-[14px] font-bold text-[#3D2E6B]">
+                        {group.patientName}
+                      </p>
+                      <p className="text-[11.5px] text-[#8A7FB0]">
+                        {group.docs.length} prescription
+                        {group.docs.length > 1 ? "s" : ""} · last issued{" "}
+                        {formatDate(group.lastSignedAt)}
+                      </p>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                  </div>
+                  {group.docs.length > 1 && (
+                    <ChevronDown
+                      className={`h-4 w-4 shrink-0 text-[#A89BD0] transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
+                </button>
+
+                {isOpen && (
+                  <ul className="space-y-3 px-5 pb-5">
+                    {group.docs.map((doc) => (
+                      <li
+                        key={doc.id}
+                        className="group rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
+                      >
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                          <div className="min-w-0">
+                            <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
+                              {doc.number}
+                            </p>
+                            <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
+                              {doc.medications
+                                .map(
+                                  (m) =>
+                                    `${m.genericName || m.name}${
+                                      m.strength ? ` ${m.strength}` : ""
+                                    }`,
+                                )
+                                .join(" · ") || "No medication recorded"}
+                            </p>
+                            <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
+                              Signed {formatDateTime(doc.signedAt)} ·{" "}
+                              {doc.country} · {doc.authenticationMethod}
+                            </p>
+                            {doc.controlled && (
+                              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10]">
+                                <ShieldAlert className="h-3.5 w-3.5" />
+                                {doc.country === "PH"
+                                  ? "Dangerous drug"
+                                  : "Controlled substance"}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex shrink-0 flex-col items-end gap-2 self-start">
+                            <a
+                              href={prescriptionHref(doc)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                            >
+                              View prescription
+                            </a>
+                            <button
+                              type="button"
+                              title={
+                                view === "archived"
+                                  ? "Restore prescription"
+                                  : "Archive prescription"
+                              }
+                              aria-label={
+                                view === "archived"
+                                  ? "Restore prescription"
+                                  : "Archive prescription"
+                              }
+                              onClick={() =>
+                                view === "archived"
+                                  ? unarchivePrescription(doc.id)
+                                  : archivePrescription(doc.id)
+                              }
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                            >
+                              {view === "archived" ? (
+                                <ArchiveRestore className="h-3.5 w-3.5" />
+                              ) : (
+                                <Archive className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
