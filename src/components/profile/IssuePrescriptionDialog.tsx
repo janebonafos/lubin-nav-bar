@@ -5337,18 +5337,6 @@ export default function IssuePrescriptionDialog({
                               )}
                             </>
                           )}
-                          {noteSafetySuggestions.medications && (
-                            <div className="mt-2 rounded-xl border border-[#E3DBF5] bg-[#F7F3FF] px-3 py-2.5">
-                              <p className="text-[11.5px] leading-relaxed text-[#6F6889]">From your notes: {noteSafetySuggestions.medications}</p>
-                              <button type="button" onClick={() => {
-                                const suggestion = noteSafetySuggestions.medications;
-                                const nothing = /\bno (current )?medications?|not on any medication/i.test(suggestion);
-                                setMedicationState(nothing ? "nothing" : "recorded");
-                                if (!nothing) setMedicationDetail(suggestion);
-                                setNoteSafetySuggestions((current) => ({ ...current, medications: "" }));
-                              }} className="mt-2 rounded-[10px] border border-[#D9CEF3] bg-white px-3 py-1.5 text-[11.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]">Use this</button>
-                            </div>
-                          )}
                         </div>
 
                         {!selected && (
