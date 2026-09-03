@@ -1597,6 +1597,8 @@ export default function IssuePrescriptionDialog({
     setSuggestedAssessment("");
     setNoteHasAssessment(false);
     setSymptomIndication("");
+    setNoteSafetySuggestions({ allergies: "", medications: "" });
+    setUnplacedNoteSentences([]);
     setObjectiveMode("none");
     setObjectiveForConsult("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2678,6 +2680,7 @@ export default function IssuePrescriptionDialog({
         symptomIndication: symptom,
         sectionQuestions: questions,
         safety,
+        unplacedSentences,
         limitedRemoteOnly,
         demographics,
         hasDocumentedAssessment,
@@ -2700,23 +2703,10 @@ export default function IssuePrescriptionDialog({
       setSymptomIndication(symptom);
       setSectionQuestions(questions);
 
-      // Allergy and current-medication wording goes to the safety check only.
-      if (safety.allergies) {
-        if (/\b(nkda|no known drug allerg|denies allerg|no allerg)/i.test(safety.allergies)) {
-          setAllergyState("none-known");
-        } else {
-          setAllergyState("recorded");
-          setAllergyDetail((d) => d || safety.allergies);
-        }
-      }
-      if (safety.medications) {
-        if (/\bno (current )?medications?|not on any medication/i.test(safety.medications)) {
-          setMedicationState("nothing");
-        } else {
-          setMedicationState("recorded");
-          setMedicationDetail((d) => d || safety.medications);
-        }
-      }
+      setNoteSafetySuggestions(safety);
+      setUnplacedNoteSentences(unplacedSentences);
+      // Note-derived safety details are suggestions only. The provider must
+      // explicitly choose “Use this” or answer the question themselves.
 
       // Demographics in the note must match the selected patient profile.
       const conflicts: string[] = [];
