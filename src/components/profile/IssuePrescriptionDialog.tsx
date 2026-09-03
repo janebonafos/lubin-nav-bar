@@ -1243,19 +1243,8 @@ export default function IssuePrescriptionDialog({
   /** Age / sex mismatch between the dictated note and the selected patient. */
   const [demographicConflict, setDemographicConflict] = useState<string>("");
 
-  const [renewal, setRenewal] = useState({
-    medication: "",
-    indication: "",
-    lastAssessment: "",
-    response: "",
-    sideEffects: "",
-    adherence: "",
-    changes: "",
-    allergyChanges: "",
-    quantity: "",
-    refills: "",
-    followUp: "",
-  });
+  const [renewal, setRenewal] = useState({ ...EMPTY_RENEWAL });
+
   /** Which previously signed prescription the renewal was prefilled from. */
   const [renewalSource, setRenewalSource] = useState("");
   /** Optional extra renewal detail, collapsed by default. */
