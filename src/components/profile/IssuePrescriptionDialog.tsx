@@ -5322,23 +5322,25 @@ export default function IssuePrescriptionDialog({
                           Reused from the SOAP note — nothing needs to be retyped here.
                         </p>
 
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setStep(1)}
-                            className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                          >
-                            Review SOAP
-                          </button>
-                          {linkedAppt && (
-                            <a
-                              href={`/appointment/details?id=${linkedAppt.id}`}
-                              className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
-                            >
-                              Open the consultation record
-                            </a>
-                          )}
-                        </div>
+                         <div className="mt-3 flex flex-wrap gap-2">
+                           {(!linkedAppt || purpose === "renewal") && (
+                             <button
+                               type="button"
+                               onClick={() => setStep(1)}
+                               className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                             >
+                               Review SOAP
+                             </button>
+                           )}
+                           {linkedAppt && (
+                             <a
+                               href={`/appointment/details?id=${linkedAppt.id}`}
+                               className="inline-flex h-9 items-center rounded-xl border border-[#D9CEF3] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FE]"
+                             >
+                               Open the consultation record
+                             </a>
+                           )}
+                         </div>
                       </div>
                     )}
                   </section>
