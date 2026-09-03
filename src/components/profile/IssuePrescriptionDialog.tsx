@@ -6458,9 +6458,24 @@ function MedicationCard({
   ).filter((f) => !String(f.value ?? "").trim());
   const missingCount = missingFields.length;
 
-  /** Red outline on any required field that is still empty. */
+  /** Red only after the prescriber has started filling this card — untouched
+   *  cards stay neutral so empty fields don't shout before any input exists. */
+  const cardTouched = [
+    med.genericName,
+    med.brandName,
+    med.strength,
+    med.route,
+    med.dose,
+    med.frequency,
+    med.duration,
+    med.refills,
+    med.quantity,
+    med.unit,
+    med.sig,
+    med.instructions,
+  ].some((v) => String(v ?? "").trim());
   const needRing = (v: string | undefined) =>
-    String(v ?? "").trim() ? "" : " !border-[#D9534F] bg-[#FEF7F6]";
+    !cardTouched || String(v ?? "").trim() ? "" : " !border-[#D9534F] bg-[#FEF7F6]";
 
   /** Scrolls to a field in this card and flashes a ring so it is unmistakable. */
   const flashMedField = (id: string) => {
