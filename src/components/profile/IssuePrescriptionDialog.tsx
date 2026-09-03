@@ -5293,7 +5293,6 @@ export default function IssuePrescriptionDialog({
                                       : "border-[#D9CEF3] bg-white text-[#3D2E6B]"
                                   }`}
                                 >
-                                  <Check className="h-3.5 w-3.5" />
                                   {medsConfirm === "unchanged"
                                     ? `Confirmed unchanged · ${today}`
                                     : "Confirm unchanged"}
