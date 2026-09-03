@@ -372,6 +372,33 @@ const MEDICATION_LINE =
 const MEASURED_HINTS =
   /\b(\d{2,3}\/\d{2,3}|\d+\s*(mmhg|bpm|kg|lbs|°c|°f|mg\/dl|mmol)|bp\b|heart rate|pulse|temperature|spo2|weight|exam|examination|auscultation|palpat|lab|result|x-ray|ecg|ekg|cbc|ultrasound|imaging)\b/i;
 
+/** True when the sentence is patient-reported symptom, duration or negative. */
+function isPatientReport(s: string): boolean {
+  if (MEASUREMENT_VALUE.test(s)) return false;
+  // An examination or named test that was actually performed is Objective.
+  if (/\b(exam|examination|auscultat\w*|palpat\w*|percussion|on inspection|x-ray|ecg|ekg|cbc|ultrasound|imaging|swab)\b/i.test(s))
+    return false;
+  return (
+    REPORTED_VERBS.test(s) ||
+    SYMPTOM_WORDS.test(s) ||
+    DURATION_PHRASE.test(s) ||
+    NEGATIVE_HINTS.test(s)
+  );
+}
+
+/** True when the sentence carries a real objective cue. */
+function isObjectiveSentence(s: string): boolean {
+  if (OBJECTIVE_STRONG.test(s) || MEASUREMENT_VALUE.test(s)) return true;
+  const weak = s.match(OBJECTIVE_WEAK);
+  // Incidental anatomy or a generic word alone is never enough.
+  return (weak?.length ?? 0) >= 2;
+}
+
+/** True when an actual vital sign, measurement or test result is documented. */
+function isMeasured(s: string): boolean {
+  return MEASUREMENT_VALUE.test(s) || MEASURED_HINTS.test(s);
+}
+
 /**
  * Product/design/engineering instruction language. Text like this is not
  * patient information and must never reach a clinical field.
