@@ -1327,6 +1327,9 @@ export default function IssuePrescriptionDialog({
   /** Pregnancy / breastfeeding stays "Not reviewed" until the provider selects
    *  a status. Nothing is ever assigned automatically. */
   const [pregnancyStatus, setPregnancyStatus] = useState<PregnancyReview>("not-reviewed");
+  /** Breastfeeding is a separate question — a patient can be both, or neither. */
+  const [breastfeedingStatus, setBreastfeedingStatus] =
+    useState<BreastfeedingReview>("not-reviewed");
   const [weightText, setWeightText] = useState("");
   const [bpText, setBpText] = useState("");
   const [hrText, setHrText] = useState("");
