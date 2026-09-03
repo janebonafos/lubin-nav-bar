@@ -4178,7 +4178,7 @@ export default function IssuePrescriptionDialog({
                             Clinical assessment confirmed
                           </p>
                           <p className="text-[11.5px] leading-snug text-[#5C8A6B]">
-                            Subjective, Objective and Assessment confirmed. The Plan is drafted after you choose the medication in Step 3.
+                            Subjective, Objective and Assessment confirmed. The Plan is drafted after you choose the medication in Step 4.
                           </p>
                         </div>
                       ) : step2Ready ? (
@@ -4191,7 +4191,7 @@ export default function IssuePrescriptionDialog({
                             Confirm clinical assessment
                           </button>
                           <p className="text-center text-[11px] leading-snug text-[#8A7FB0]">
-                            Confirms Subjective, Objective and Assessment. The Plan is drafted in Step 3; your signature provides final authorization.
+                            Confirms Subjective, Objective and Assessment. The Plan is drafted in Step 4; your signature provides final authorization.
                           </p>
                         </div>
                       ) : (
@@ -6273,17 +6273,7 @@ export default function IssuePrescriptionDialog({
                 </p>
               ) : (
                 <p className="text-[11.5px] text-[#8A7FB0]">
-                  {planUnresolved ? (
-                    <button
-                      type="button"
-                      onClick={goToPlanItems}
-                      className="text-left font-semibold text-[#6F5BA0] underline decoration-[#D9CEF3] underline-offset-2 transition hover:text-[#3D2E6B]"
-                    >
-                      Resolve the Plan items marked “Needs provider confirmation”.
-                    </button>
-                  ) : (
-                    "Ready to continue."
-                  )}
+                  Ready to continue.
                 </p>
               )}
             </div>
