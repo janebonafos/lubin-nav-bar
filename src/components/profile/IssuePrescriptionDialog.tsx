@@ -2689,6 +2689,8 @@ export default function IssuePrescriptionDialog({
     setReviewedNoChanges(false);
     setConditionsText("");
     setPregnancyText("");
+    setPregnancyStatus("not-reviewed");
+    setBreastfeedingStatus("not-reviewed");
     setWeightText("");
     setBpText("");
     setHrText("");
