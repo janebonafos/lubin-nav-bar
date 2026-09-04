@@ -5178,14 +5178,55 @@ export default function IssuePrescriptionDialog({
                               <label className={label}>
                                 The medication being continued
                               </label>
-                              <input
-                                className={`${field} mt-1.5`}
-                                value={renewal.medication}
-                                onChange={(e) =>
-                                  setRenewal((r) => ({ ...r, medication: e.target.value }))
-                                }
-                                placeholder="e.g. Losartan 50 mg — 1 tablet once daily"
-                              />
+                              <div className="relative mt-1.5">
+                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+                                <input
+                                  className={`${field} pl-9`}
+                                  value={renewal.medication || renewalMedQuery}
+                                  onChange={(e) => {
+                                    setRenewal((r) => ({ ...r, medication: e.target.value }));
+                                    setRenewalMedQuery(e.target.value);
+                                  }}
+                                  onFocus={() => setRenewalMedFocused(true)}
+                                  onBlur={() =>
+                                    window.setTimeout(
+                                      () => setRenewalMedFocused(false),
+                                      150,
+                                    )
+                                  }
+                                  placeholder="Search e.g. losartan or Cozaar, or type freely"
+                                />
+                                {renewalMedFocused && renewalMedResults.length > 0 && (
+                                  <ul className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-[#EDEBF3] bg-white p-1 shadow-lg">
+                                    {renewalMedResults.map((r) => (
+                                      <li key={r.id}>
+                                        <button
+                                          type="button"
+                                          onMouseDown={(e) => e.preventDefault()}
+                                          onClick={() => {
+                                            const form = r.forms[0] ?? "";
+                                            setRenewal((cur) => ({
+                                              ...cur,
+                                              medication: `${r.generic}${form ? ` ${form}` : ""}`,
+                                            }));
+                                            setRenewalMedQuery("");
+                                            setRenewalMedFocused(false);
+                                          }}
+                                          className="w-full rounded-lg px-3 py-2 text-left transition hover:bg-[#F4F0FE]"
+                                        >
+                                          <span className="block text-[12.5px] font-semibold text-[#3D2E6B]">
+                                            {r.generic}
+                                          </span>
+                                          <span className="block text-[11.5px] text-[#8A7FB0]">
+                                            {r.brands.join(", ") || "No brand listed"}
+                                            {r.className ? ` · ${r.className}` : ""}
+                                          </span>
+                                        </button>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
                             </div>
 
                             <div id="renewal-response">
