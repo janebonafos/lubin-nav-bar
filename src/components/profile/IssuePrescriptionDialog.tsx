@@ -1329,6 +1329,13 @@ export default function IssuePrescriptionDialog({
   /** Optional extra renewal detail, collapsed by default. */
   const [renewalMore, setRenewalMore] = useState(false);
   const [savedForReview, setSavedForReview] = useState(false);
+  /** Search query for the renewal "medication being continued" combobox. */
+  const [renewalMedQuery, setRenewalMedQuery] = useState("");
+  const [renewalMedFocused, setRenewalMedFocused] = useState(false);
+  const renewalMedResults = useMemo(
+    () => (renewalMedQuery.trim() ? searchPhCatalogue(renewalMedQuery) : []),
+    [renewalMedQuery],
+  );
 
   const [allergyState, setAllergyState] = useState<AllergyReadiness>("not-assessed");
   const [allergyDetail, setAllergyDetail] = useState("");
