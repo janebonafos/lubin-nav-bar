@@ -7437,12 +7437,40 @@ function Acc({
   onToggle: (i: number) => void;
   children: () => React.ReactNode;
 }) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  // When a step opens, bring its header to the top of the scroll area so the
+  // provider lands on the active fields instead of having to scroll up.
+  useEffect(() => {
+    if (!open) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    const id = window.setTimeout(() => {
+      let parent = el.parentElement;
+      while (parent) {
+        const oy = window.getComputedStyle(parent).overflowY;
+        if ((oy === "auto" || oy === "scroll") && parent.scrollHeight > parent.clientHeight) break;
+        parent = parent.parentElement;
+      }
+      if (!parent) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      const delta = el.getBoundingClientRect().top - parent.getBoundingClientRect().top - 8;
+      parent.scrollTo({ top: parent.scrollTop + delta, behavior: "smooth" });
+    }, 90);
+    return () => window.clearTimeout(id);
+  }, [open]);
+
   return (
     <section
-      className={`overflow-hidden rounded-2xl border bg-white transition ${
+      ref={sectionRef}
+      id={`rx-step-${index}`}
+      className={`scroll-mt-4 overflow-hidden rounded-2xl border bg-white transition ${
         next && !done ? "border-[#6C4BD8] shadow-[0_0_0_3px_rgba(108,75,216,0.12)]" : "border-[#E3DBF5]"
       }`}
     >
+
       <button
         type="button"
         onClick={() => onToggle(open ? -1 : index)}
