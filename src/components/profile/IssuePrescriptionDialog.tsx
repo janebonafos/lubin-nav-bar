@@ -6463,6 +6463,59 @@ export default function IssuePrescriptionDialog({
                       </span>
                     </div>
 
+                    {/* Who is signing — so the prescriber can confirm the
+                        signature is being applied under their own credentials. */}
+                    <div className="mt-3 rounded-xl border border-[#E3DBF5] bg-[#F7F3FD] p-3.5">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                        Signing as
+                      </p>
+                      <p className="mt-1 text-[13px] font-bold text-[#3D2E6B]">
+                        {identity?.fullName || "Prescriber name not set"}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#4B4468]">
+                        {country === "PH"
+                          ? `PRC ${identity?.prcNumber || "—"} · PTR ${identity?.ptrNumber || "—"}`
+                          : `NPI ${identity?.npiNumber || "—"} · Licence ${identity?.licenseNumber || "—"}`}
+                      </p>
+                      {identity?.clinicName && (
+                        <p className="mt-0.5 text-[12px] text-[#6F6889]">{identity.clinicName}</p>
+                      )}
+                      {identity?.signingEmail && (
+                        <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                          Verification code sent to {identity.signingEmail}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Compact prescription preview kept next to the signature
+                        so the order can be re-read without scrolling back up. */}
+                    <div className="mt-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] p-3.5">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-[#7E6BAF]">
+                        Prescription being signed
+                      </p>
+                      <p className="mt-1 text-[12.5px] font-semibold text-[#3D2E6B]">
+                        {patientName || "—"}
+                        {ageYears !== undefined ? ` · ${ageYears} years` : ""}
+                      </p>
+                      <ol className="mt-2 space-y-1.5 text-[12px] text-[#4B4468]">
+                        {readyMeds.map((m, i) => (
+                          <li key={m.id}>
+                            {i + 1}. <span className="font-semibold">{m.genericName}</span>
+                            {m.brandName ? ` (${m.brandName})` : ""} {m.strength} —{" "}
+                            {m.sig ||
+                              buildSig({
+                                dose: m.dose,
+                                route: m.route,
+                                frequency: m.frequency,
+                                duration: m.duration,
+                              })}
+                          </li>
+                        ))}
+                        {readyMeds.length === 0 && <li>No medication is ready to sign yet.</li>}
+                      </ol>
+                    </div>
+
+
                     {/* One concise affirmation instead of two overlapping
                         attestations — repeated near-identical statements invite
                         reflex ticking rather than a real review. */}
