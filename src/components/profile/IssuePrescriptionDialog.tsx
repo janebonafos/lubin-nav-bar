@@ -81,6 +81,7 @@ import {
 
 import {
   PHASE1_DANGEROUS_MESSAGE,
+  PH_MEDICATION_CATALOGUE,
   buildSig,
   findPhCatalogue,
   searchPhCatalogue,
