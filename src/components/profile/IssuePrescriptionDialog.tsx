@@ -739,9 +739,10 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
 type RenewalResponseChoice = "" | "helping" | "partial" | "not-helping";
 type RenewalYesNoChoice = "" | "none" | "documented";
 const RENEWAL_RESPONSE_TEXT: Record<Exclude<RenewalResponseChoice, "">, string> = {
-  helping: "Helping — symptoms controlled on the current regimen",
-  partial: "Partial response — continuing the medication while monitoring",
-  "not-helping": "Not helping — treatment reviewed with the patient",
+  helping: "Symptoms improved — controlled on the current regimen",
+  partial: "Partly improved — continuing the medication while monitoring",
+  "not-helping": "No improvement — treatment reviewed with the patient",
+
 };
 const EMPTY_RENEWAL = {
   medication: "",
@@ -5227,15 +5228,26 @@ export default function IssuePrescriptionDialog({
                             </div>
 
                             <div id="renewal-response">
-                              <label className={label}>How is the patient responding?</label>
+                              <label className={label}>
+                                How is the patient responding to{" "}
+                                {renewal.medication.trim()
+                                  ? renewal.medication.trim()
+                                  : "this medication"}
+                                ?
+                              </label>
+                              <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
+                                Effect of the medication being continued since it was last
+                                prescribed — symptom control, not side effects.
+                              </p>
                               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-3">
                                 {(
                                   [
-                                    ["helping", "Helping"],
-                                    ["partial", "Partial response"],
-                                    ["not-helping", "Not helping"],
+                                    ["helping", "Symptoms improved"],
+                                    ["partial", "Partly improved"],
+                                    ["not-helping", "No improvement"],
                                   ] as [Exclude<RenewalResponseChoice, "">, string][]
                                 ).map(([v, t]) => {
+
                                   const on = renewal.responseChoice === v;
                                   return (
                                     <button
