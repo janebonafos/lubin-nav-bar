@@ -739,9 +739,10 @@ const PURPOSE_OPTIONS: { value: RxPurposeChoice; title: string; description: str
 type RenewalResponseChoice = "" | "helping" | "partial" | "not-helping";
 type RenewalYesNoChoice = "" | "none" | "documented";
 const RENEWAL_RESPONSE_TEXT: Record<Exclude<RenewalResponseChoice, "">, string> = {
-  helping: "Helping — symptoms controlled on the current regimen",
-  partial: "Partial response — continuing the medication while monitoring",
-  "not-helping": "Not helping — treatment reviewed with the patient",
+  helping: "Symptoms improved — controlled on the current regimen",
+  partial: "Partly improved — continuing the medication while monitoring",
+  "not-helping": "No improvement — treatment reviewed with the patient",
+
 };
 const EMPTY_RENEWAL = {
   medication: "",
