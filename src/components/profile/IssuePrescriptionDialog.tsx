@@ -5181,11 +5181,10 @@ export default function IssuePrescriptionDialog({
                                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
                                 <input
                                   className={`${field} pl-9`}
-                                  value={renewal.medication || renewalMedQuery}
-                                  onChange={(e) => {
-                                    setRenewal((r) => ({ ...r, medication: e.target.value }));
-                                    setRenewalMedQuery(e.target.value);
-                                  }}
+                                  value={renewal.medication}
+                                  onChange={(e) =>
+                                    setRenewal((r) => ({ ...r, medication: e.target.value }))
+                                  }
                                   onFocus={() => setRenewalMedFocused(true)}
                                   onBlur={() =>
                                     window.setTimeout(
@@ -5208,7 +5207,6 @@ export default function IssuePrescriptionDialog({
                                               ...cur,
                                               medication: `${r.generic}${form ? ` ${form}` : ""}`,
                                             }));
-                                            setRenewalMedQuery("");
                                             setRenewalMedFocused(false);
                                           }}
                                           className="w-full rounded-lg px-3 py-2 text-left transition hover:bg-[#F4F0FE]"
