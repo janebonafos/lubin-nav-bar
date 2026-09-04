@@ -7437,11 +7437,11 @@ function Acc({
   onToggle: (i: number) => void;
   children: () => React.ReactNode;
 }) {
-  const sectionRef = React.useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   // When a step opens, bring its header to the top of the scroll area so the
   // provider lands on the active fields instead of having to scroll up.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return;
     const el = sectionRef.current;
     if (!el) return;
