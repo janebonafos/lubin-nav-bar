@@ -1366,6 +1366,53 @@ export default function IssuePrescriptionDialog({
   const [usedOptionIds, setUsedOptionIds] = useState<string[]>([]);
   /** Suggestion list collapses once an option has been used. */
   const [optionsListOpen, setOptionsListOpen] = useState(true);
+
+  /**
+   * Renewal only: the medication searched in Step 2 ("the medication being
+   * continued") autofills the single medication card in the medication order.
+   * Anything the provider typed themselves is never overwritten.
+   */
+  const renewalMedSyncRef = useRef("");
+  useEffect(() => {
+    if (purpose !== "renewal") return;
+    const raw = renewal.medication.trim();
+    if (!raw) return;
+    if (renewalMedSyncRef.current === raw) return;
+    // Split "Generic 25 mg tablet" / "Generic · 25 mg · once daily".
+    const parts = raw
+      .split("·")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const head = parts[0] ?? raw;
+    const cat =
+      findPhCatalogue(head) ??
+      PH_MEDICATION_CATALOGUE.find((m) =>
+        head.toLowerCase().startsWith(m.generic.toLowerCase()),
+      );
+    const generic = cat?.generic ?? head;
+    const remainder = head.slice(generic.length).trim();
+    const strength = parts[1] ?? remainder;
+    const frequency = parts[2] ?? "";
+    setMeds((cur) => {
+      if (cur.length !== 1) return cur;
+      const m = cur[0];
+      const prev = renewalMedSyncRef.current;
+      const untouched = !m.genericName.trim() || m.genericName === prev.split("·")[0]?.trim();
+      if (!untouched) return cur;
+      return [
+        {
+          ...m,
+          genericName: generic,
+          strength: strength || m.strength,
+          route: cat?.routes[0] ?? m.route,
+          unit: cat?.unit ?? m.unit,
+          frequency: frequency || m.frequency,
+        },
+      ];
+    });
+    renewalMedSyncRef.current = raw;
+  }, [purpose, renewal.medication]);
+
   /** Brings the populated medication order into view after using options. */
   const scrollToMedicationOrder = () => {
     requestAnimationFrame(() => {
