@@ -5227,15 +5227,26 @@ export default function IssuePrescriptionDialog({
                             </div>
 
                             <div id="renewal-response">
-                              <label className={label}>How is the patient responding?</label>
+                              <label className={label}>
+                                How is the patient responding to{" "}
+                                {renewal.medication.trim()
+                                  ? renewal.medication.trim()
+                                  : "this medication"}
+                                ?
+                              </label>
+                              <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
+                                Effect of the medication being continued since it was last
+                                prescribed — symptom control, not side effects.
+                              </p>
                               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-3">
                                 {(
                                   [
-                                    ["helping", "Helping"],
-                                    ["partial", "Partial response"],
-                                    ["not-helping", "Not helping"],
+                                    ["helping", "Symptoms improved"],
+                                    ["partial", "Partly improved"],
+                                    ["not-helping", "No improvement"],
                                   ] as [Exclude<RenewalResponseChoice, "">, string][]
                                 ).map(([v, t]) => {
+
                                   const on = renewal.responseChoice === v;
                                   return (
                                     <button
