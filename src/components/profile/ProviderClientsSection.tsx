@@ -646,33 +646,96 @@ export default function ProviderClientsSection() {
 
         <div className={card}>
           <h4 className="text-[13.5px] font-bold text-[#3D2E6B]">Clinical profile</h4>
+          <p className="mt-1 text-[12px] text-[#8A7FB0]">
+            The same health questions the client answered on their health card.
+          </p>
           <dl className="mt-3 space-y-3 text-[12.5px]">
-            <div>
-              <dt className={label}>Allergies</dt>
-              <dd className="text-[#4B4468]">
-                {entryList(active.info.allergyState, active.info.allergyEntries)}
-              </dd>
-            </div>
-            <div>
-              <dt className={label}>Conditions</dt>
-              <dd className="text-[#4B4468]">
-                {entryList(active.info.conditionState, active.info.conditionEntries)}
-              </dd>
-            </div>
-            <div>
-              <dt className={label}>Current medications</dt>
-              <dd className="text-[#4B4468]">
-                {entryList(active.info.medicationState, active.info.medicationEntries)}
-              </dd>
-            </div>
-            <div>
-              <dt className={label}>Pregnancy / breastfeeding</dt>
-              <dd className="text-[#4B4468]">
-                {PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus ?? "not-documented"]}
-              </dd>
-            </div>
+            {(() => {
+              const recorded = (
+                fieldId: string,
+                recordedValue: string,
+                undocumented: boolean,
+              ) => {
+                const shared = clientAnswers[fieldId];
+                if (undocumented && shared?.value) {
+                  return { value: shared.value, fromClient: true };
+                }
+                return { value: recordedValue, fromClient: false };
+              };
+              const pregnancyStatus = active.info.pregnancyStatus ?? "not-documented";
+              const rows: {
+                key: string;
+                label: string;
+                value: string;
+                fromClient: boolean;
+              }[] = [
+                {
+                  key: "medication.list",
+                  label: "Anything you take right now",
+                  ...recorded(
+                    "medication.list",
+                    entryList(active.info.medicationState, active.info.medicationEntries),
+                    (active.info.medicationState ?? "not-documented") === "not-documented" &&
+                      !(active.info.medicationEntries?.length),
+                  ),
+                },
+                {
+                  key: "history.allergies",
+                  label: "Allergies or reactions",
+                  ...recorded(
+                    "history.allergies",
+                    entryList(active.info.allergyState, active.info.allergyEntries),
+                    (active.info.allergyState ?? "not-documented") === "not-documented" &&
+                      !(active.info.allergyEntries?.length),
+                  ),
+                },
+                {
+                  key: "history.conditions",
+                  label: "Conditions or past care that feels relevant",
+                  ...recorded(
+                    "history.conditions",
+                    entryList(active.info.conditionState, active.info.conditionEntries),
+                    (active.info.conditionState ?? "not-documented") === "not-documented" &&
+                      !(active.info.conditionEntries?.length),
+                  ),
+                },
+                {
+                  key: "history.pregnancy",
+                  label: "Pregnant, breastfeeding or trying to conceive?",
+                  ...recorded(
+                    "history.pregnancy",
+                    PREGNANCY_STATUS_LABEL[pregnancyStatus],
+                    pregnancyStatus === "not-documented",
+                  ),
+                },
+                {
+                  key: "care.previous",
+                  label: "Therapy or psychiatric care before?",
+                  ...recorded("care.previous", "Not documented", true),
+                },
+                {
+                  key: "care.clinicians",
+                  label: "Anyone currently involved in their care",
+                  ...recorded("care.clinicians", "Not documented", true),
+                },
+              ];
+              return rows.map((row) => (
+                <div key={row.key}>
+                  <dt className={label}>{row.label}</dt>
+                  <dd className="text-[#4B4468]">
+                    {row.value}
+                    {row.fromClient && (
+                      <span className="ml-2 rounded-full bg-[#F3EEFF] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-[#7E6BAF]">
+                        Client answered
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              ));
+            })()}
           </dl>
         </div>
+
 
         <div className={card}>
           <h4 className="text-[13.5px] font-bold text-[#3D2E6B]">
