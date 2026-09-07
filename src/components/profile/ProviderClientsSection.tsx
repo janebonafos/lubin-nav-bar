@@ -33,6 +33,8 @@ import {
   type PatientSafetyInfo,
   type PregnancyStatus,
 } from "@/lib/prescription/store";
+import { sharedHealthCardValues } from "@/lib/prescription/intakeImport";
+
 
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
 const label = "text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
