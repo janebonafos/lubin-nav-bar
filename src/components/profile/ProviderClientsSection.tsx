@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ChevronDown,
-  ClipboardCopy,
+  
   Plus,
   Search,
   UserPlus,
@@ -464,7 +464,7 @@ export default function ProviderClientsSection() {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
@@ -544,42 +544,6 @@ export default function ProviderClientsSection() {
     return groups.filter((g) => g.rows.length > 0);
   }, [passportItems]);
 
-  function copySummary() {
-    if (!active) return;
-    const lines = [
-      `Client: ${active.fullName}`,
-      `Date of birth: ${active.info.dob ?? "—"}${active.info.ageYears ? ` (${active.info.ageYears} years)` : ""}`,
-      `Sex: ${SEX_LABEL[active.info.sex ?? "not-documented"]}`,
-      `Address: ${active.info.address ?? "—"}`,
-      `Allergies: ${entryList(active.info.allergyState, active.info.allergyEntries)}`,
-      `Conditions: ${entryList(active.info.conditionState, active.info.conditionEntries)}`,
-      `Current medications: ${entryList(active.info.medicationState, active.info.medicationEntries)}`,
-      `Pregnancy status: ${PREGNANCY_STATUS_LABEL[active.info.pregnancyStatus ?? "not-documented"]}`,
-      "",
-      "Shared assessments:",
-      ...(passportItems.length
-        ? passportItems.map(
-            (p) =>
-              `- ${p.name}${p.clinicalName ? ` (${p.clinicalName})` : ""}: ${p.score}${p.maxScore ? `/${p.maxScore}` : ""}${p.statusLabel ? ` · ${p.statusLabel}` : ""}`,
-          )
-        : ["- none shared"]),
-      "",
-      "Prescriptions issued:",
-      ...(activeDocs.length
-        ? activeDocs.map(
-            (d) =>
-              `- ${d.number} (${formatDate(d.signedAt)}): ${d.medications.map((m) => `${m.genericName || m.name} ${m.dose}`).join(", ")}`,
-          )
-        : ["- none"]),
-    ];
-    try {
-      void navigator.clipboard.writeText(lines.join("\n"));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* noop */
-    }
-  }
 
   if (active) {
     return (
@@ -605,13 +569,6 @@ export default function ProviderClientsSection() {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={copySummary}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#D8C7F0] bg-white px-4 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-            >
-              <ClipboardCopy className="h-4 w-4" /> {copied ? "Summary copied" : "Copy summary to share"}
-            </button>
           </div>
 
           <dl className="mt-5 grid gap-x-6 gap-y-3 text-[12.5px] sm:grid-cols-2">
