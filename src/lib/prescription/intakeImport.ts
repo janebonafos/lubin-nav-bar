@@ -232,3 +232,29 @@ export function sharedSourceMap(appointmentId: string): Record<string, SharedSou
   add("pregnancy", "history.pregnancy", "Pregnancy or breastfeeding");
   return map;
 }
+
+/**
+ * Everything the client answered in the health-related part of their health
+ * card (plus the matching intake questions), for the health-card field ids the
+ * client consented to share. Used to show a client record with exactly the same
+ * questions the client was asked, rather than a different provider-side set.
+ */
+export function sharedHealthCardValues(
+  appointmentIds: string[],
+): Record<string, { value: string; source: "intake" | "passport" }> {
+  const out: Record<string, { value: string; source: "intake" | "passport" }> = {};
+  for (const appointmentId of appointmentIds) {
+    const values = getResponse(appointmentId).values ?? {};
+    for (const [id, raw] of Object.entries(values)) {
+      const v = (raw ?? "").trim();
+      if (!v || v === PREFER_IN_PERSON_TEXT || out[id]) continue;
+      out[id] = { value: v, source: "intake" };
+    }
+    for (const [id, raw] of Object.entries(consentedPassportValues(appointmentId))) {
+      const v = (raw ?? "").trim();
+      if (!v || out[id]) continue;
+      out[id] = { value: v, source: "passport" };
+    }
+  }
+  return out;
+}
