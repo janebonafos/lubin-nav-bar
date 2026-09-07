@@ -544,6 +544,15 @@ export default function ProviderClientsSection() {
     return groups.filter((g) => g.rows.length > 0);
   }, [passportItems]);
 
+  /** What the client themselves answered in the health part of their health
+   *  card, so the record shows the same questions they were asked. */
+  const clientAnswers = useMemo(
+    () => (active ? sharedHealthCardValues(active.appointmentIds ?? []) : {}),
+    [active],
+  );
+
+
+
 
   if (active) {
     return (
