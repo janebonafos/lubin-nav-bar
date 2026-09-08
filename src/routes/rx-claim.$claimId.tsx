@@ -133,7 +133,12 @@ function ClaimPrescriptionPage() {
                 {m.genericName || m.name}
                 {m.strength ? ` ${m.strength}` : ""}
               </span>
-              {m.sig ? <span className="text-[#5A4A8A]"> — {m.sig}</span> : null}
+              {[m.dose, m.frequency, m.duration].filter(Boolean).length > 0 ? (
+                <span className="text-[#5A4A8A]">
+                  {" "}
+                  — {[m.dose, m.frequency, m.duration].filter(Boolean).join(", ")}
+                </span>
+              ) : null}
             </li>
           ))}
           {doc.medications.length === 0 && (
