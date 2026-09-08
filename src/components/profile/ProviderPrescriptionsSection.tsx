@@ -1,5 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ArchiveRestore, ChevronDown, Plus, Search, ShieldAlert } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Check,
+  ChevronDown,
+  Download,
+  Mail,
+  Plus,
+  Search,
+  ShieldAlert,
+} from "lucide-react";
+import {
+  CLAIM_STATE_LABEL,
+  claimForDocument,
+  claimUrl,
+  ensureClaim,
+  markClaimSent,
+  subscribeClaims,
+} from "@/lib/prescription/claim";
 import {
   archivePrescription,
   listArchivedPrescriptionIds,
