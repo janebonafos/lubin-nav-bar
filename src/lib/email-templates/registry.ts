@@ -2,6 +2,9 @@ import type { ComponentType } from "react";
 import { template as bookingConfirmation } from "./booking-confirmation";
 import { template as bookingConfirmationClient } from "./booking-confirmation-client";
 import { template as prescriptionSigningOtp } from "./prescription-signing-otp";
+import PrescriptionIssuedEmail, {
+  template as prescriptionIssued,
+} from "./prescription-issued";
 import { template as assessmentResultShared } from "./assessment-result-shared";
 import AppointmentRescheduledEmail, {
   template as appointmentRescheduled,
@@ -30,6 +33,17 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "booking-confirmation": bookingConfirmation,
   "booking-confirmation-client": bookingConfirmationClient,
   "prescription-signing-otp": prescriptionSigningOtp,
+  "prescription-issued": prescriptionIssued,
+  "prescription-issued-registered": {
+    component: PrescriptionIssuedEmail,
+    subject: "Your prescription is in your Lubin account",
+    displayName: "Prescription issued (patient already on Lubin)",
+    previewData: {
+      ...(prescriptionIssued.previewData ?? {}),
+      hasAccount: true,
+      claimLink: "https://lubin.care/rx-claim/rxc_demo1234",
+    },
+  },
   "assessment-result-shared": assessmentResultShared,
   "appointment-message": appointmentMessage,
   "appointment-rescheduled": appointmentRescheduled,
