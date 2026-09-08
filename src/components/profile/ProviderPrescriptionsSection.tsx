@@ -434,7 +434,7 @@ function DraftDetailsDialog({
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#2C2247]/45 px-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Draft prescription details"
+      aria-label="Unfinished prescription details"
       onClick={onClose}
     >
       <div
