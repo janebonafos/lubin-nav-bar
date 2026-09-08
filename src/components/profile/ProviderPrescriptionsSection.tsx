@@ -192,8 +192,8 @@ export default function ProviderPrescriptionsSection() {
 
       {drafts.length > 0 && (
         <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
-          <h4 className="text-[14px] font-bold text-[#3D2E6B]">Prescription drafts</h4>
-          <p className="mt-1 text-[12px] text-[#6F6889]">Unfinished prescriptions saved when you cancelled.</p>
+          <h4 className="text-[14px] font-bold text-[#3D2E6B]">Unfinished prescriptions</h4>
+          <p className="mt-1 text-[12px] text-[#6F6889]">Saved automatically when you cancelled before signing.</p>
           <ul className="mt-3 space-y-2">
             {drafts.map((draft) => (
               <li key={draft.id}>
@@ -206,7 +206,7 @@ export default function ProviderPrescriptionsSection() {
                     <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
                     <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
                   </div>
-                  <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Draft</span>
+                  <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Unfinished</span>
                 </button>
               </li>
             ))}
@@ -434,7 +434,7 @@ function DraftDetailsDialog({
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#2C2247]/45 px-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Draft prescription details"
+      aria-label="Unfinished prescription details"
       onClick={onClose}
     >
       <div
@@ -444,20 +444,20 @@ function DraftDetailsDialog({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h4 className="text-[15px] font-bold text-[#3D2E6B]">
-              Draft — {draft.patientName}
+              Unfinished — {draft.patientName}
             </h4>
             <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
               Stopped at Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}
             </p>
           </div>
           <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">
-            Draft
+            Unfinished
           </span>
         </div>
 
         {rows.length === 0 && meds.length === 0 ? (
           <p className="mt-4 text-[13px] text-[#6F6889]">
-            Nothing was filled in before this draft was saved.
+            Nothing was filled in before this was saved.
           </p>
         ) : (
           <dl className="mt-4 space-y-3">
