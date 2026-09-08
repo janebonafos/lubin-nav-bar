@@ -29,6 +29,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as RxClaimClaimIdRouteImport } from './routes/rx-claim.$claimId'
 import { Route as ResultTokenRouteImport } from './routes/result.$token'
 import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
@@ -148,6 +149,11 @@ const ShareTokenRoute = ShareTokenRouteImport.update({
 const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   id: '/self-discovery_/$slug',
   path: '/self-discovery/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RxClaimClaimIdRoute = RxClaimClaimIdRouteImport.update({
+  id: '/rx-claim/$claimId',
+  path: '/rx-claim/$claimId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultTokenRoute = ResultTokenRouteImport.update({
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
   '/result/$token': typeof ResultTokenRoute
+  '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -332,6 +339,7 @@ export interface FileRoutesByTo {
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
   '/result/$token': typeof ResultTokenRoute
+  '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -375,6 +383,7 @@ export interface FileRoutesById {
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
   '/result/$token': typeof ResultTokenRoute
+  '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/provider/$id'
     | '/provider/appointments'
     | '/result/$token'
+    | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -461,6 +471,7 @@ export interface FileRouteTypes {
     | '/provider/$id'
     | '/provider/appointments'
     | '/result/$token'
+    | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/provider/$id'
     | '/provider/appointments'
     | '/result/$token'
+    | '/rx-claim/$claimId'
     | '/self-discovery_/$slug'
     | '/share/$token'
     | '/share/preview'
@@ -545,6 +557,7 @@ export interface RootRouteChildren {
   ProviderIdRoute: typeof ProviderIdRoute
   ProviderAppointmentsRoute: typeof ProviderAppointmentsRoute
   ResultTokenRoute: typeof ResultTokenRoute
+  RxClaimClaimIdRoute: typeof RxClaimClaimIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
@@ -692,6 +705,13 @@ declare module '@tanstack/react-router' {
       path: '/self-discovery/$slug'
       fullPath: '/self-discovery/$slug'
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rx-claim/$claimId': {
+      id: '/rx-claim/$claimId'
+      path: '/rx-claim/$claimId'
+      fullPath: '/rx-claim/$claimId'
+      preLoaderRoute: typeof RxClaimClaimIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result/$token': {
@@ -883,6 +903,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProviderIdRoute: ProviderIdRoute,
   ProviderAppointmentsRoute: ProviderAppointmentsRoute,
   ResultTokenRoute: ResultTokenRoute,
+  RxClaimClaimIdRoute: RxClaimClaimIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
