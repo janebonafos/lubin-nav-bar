@@ -186,6 +186,10 @@ export default function ProviderPrescriptionsSection() {
         onIssued={() => setDocs(listSignedPrescriptions())}
       />
 
+      {viewingDraft && (
+        <DraftDetailsDialog draft={viewingDraft} onClose={() => setViewingDraft(null)} />
+      )}
+
       {drafts.length > 0 && (
         <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
           <h4 className="text-[14px] font-bold text-[#3D2E6B]">Prescription drafts</h4>
