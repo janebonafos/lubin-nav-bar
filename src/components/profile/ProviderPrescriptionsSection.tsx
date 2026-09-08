@@ -73,6 +73,8 @@ export default function ProviderPrescriptionsSection() {
   const [resetToken, setResetToken] = useState(0);
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
   const [view, setView] = useState<"active" | "archived">("active");
+  /** Draft whose saved details are being viewed. */
+  const [viewingDraft, setViewingDraft] = useState<PrescriptionDraft | null>(null);
   /** Per-patient accordion state. Multi-prescription patients start collapsed
    *  so a long record stays scannable; single-prescription patients stay open. */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -184,18 +186,28 @@ export default function ProviderPrescriptionsSection() {
         onIssued={() => setDocs(listSignedPrescriptions())}
       />
 
+      {viewingDraft && (
+        <DraftDetailsDialog draft={viewingDraft} onClose={() => setViewingDraft(null)} />
+      )}
+
       {drafts.length > 0 && (
         <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
           <h4 className="text-[14px] font-bold text-[#3D2E6B]">Prescription drafts</h4>
           <p className="mt-1 text-[12px] text-[#6F6889]">Unfinished prescriptions saved when you cancelled.</p>
           <ul className="mt-3 space-y-2">
             {drafts.map((draft) => (
-              <li key={draft.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
-                <div>
-                  <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
-                  <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
-                </div>
-                <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Draft</span>
+              <li key={draft.id}>
+                <button
+                  type="button"
+                  onClick={() => setViewingDraft(draft)}
+                  className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
+                >
+                  <div>
+                    <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
+                    <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
+                  </div>
+                  <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Draft</span>
+                </button>
               </li>
             ))}
           </ul>
@@ -379,6 +391,125 @@ export default function ProviderPrescriptionsSection() {
         </div>
       )}
     </section>
+  );
+}
+
+/** Read-only view of what was entered before a draft was saved. */
+function DraftDetailsDialog({
+  draft,
+  onClose,
+}: {
+  draft: PrescriptionDraft;
+  onClose: () => void;
+}) {
+  const snap = (draft.snapshot ?? {}) as Record<string, unknown>;
+  const text = (key: string): string =>
+    typeof snap[key] === "string" ? (snap[key] as string).trim() : "";
+  const soap = (snap.soap ?? {}) as Record<string, unknown>;
+  const soapText = (key: string): string =>
+    typeof soap[key] === "string" ? (soap[key] as string).trim() : "";
+  const meds = Array.isArray(snap.meds)
+    ? (snap.meds as Record<string, unknown>[]).filter((m) =>
+        ["genericName", "name", "dose", "route", "frequency", "duration", "quantity", "instructions"]
+          .some((k) => typeof m[k] === "string" && (m[k] as string).trim()),
+      )
+    : [];
+
+  const rows: [string, string][] = [
+    ["Patient", text("patientName") || draft.patientName],
+    ["Preferred name", text("preferredName")],
+    ["Date of birth", text("dob")],
+    ["Sex", text("sex") && text("sex") !== "not-documented" ? text("sex") : ""],
+    ["Reason", text("purpose") === "renewal" ? "Renewal" : text("purpose") === "new" ? "New treatment" : ""],
+    ["Allergies", text("allergyDetail") || (text("allergyState") === "none" ? "No known allergies" : "")],
+    ["Current medications", text("medicationDetail")],
+    ["Subjective", soapText("subjective")],
+    ["Objective", soapText("objective")],
+    ["Assessment", soapText("assessment")],
+    ["Plan", soapText("plan")],
+  ].filter(([, v]) => v) as [string, string][];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#2C2247]/45 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Draft prescription details"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[80vh] w-full max-w-[520px] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h4 className="text-[15px] font-bold text-[#3D2E6B]">
+              Draft — {draft.patientName}
+            </h4>
+            <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
+              Stopped at Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}
+            </p>
+          </div>
+          <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">
+            Draft
+          </span>
+        </div>
+
+        {rows.length === 0 && meds.length === 0 ? (
+          <p className="mt-4 text-[13px] text-[#6F6889]">
+            Nothing was filled in before this draft was saved.
+          </p>
+        ) : (
+          <dl className="mt-4 space-y-3">
+            {rows.map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8A7FB0]">
+                  {label}
+                </dt>
+                <dd className="mt-0.5 whitespace-pre-line text-[13px] leading-relaxed text-[#2C2B4B]">
+                  {value}
+                </dd>
+              </div>
+            ))}
+            {meds.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8A7FB0]">
+                  Medications
+                </dt>
+                <dd className="mt-1 space-y-1.5">
+                  {meds.map((m, i) => (
+                    <p key={i} className="text-[13px] leading-snug text-[#2C2B4B]">
+                      <span className="font-semibold">
+                        {(m.genericName as string) || (m.name as string)}
+                        {typeof m.strength === "string" && m.strength ? ` ${m.strength}` : ""}
+                      </span>
+                      {["dose", "route", "frequency", "duration"]
+                        .map((k) => (typeof m[k] === "string" ? (m[k] as string).trim() : ""))
+                        .filter(Boolean).length > 0 && (
+                        <span className="text-[#5A4A8A]">
+                          {" "}— {["dose", "route", "frequency", "duration"]
+                            .map((k) => (typeof m[k] === "string" ? (m[k] as string).trim() : ""))
+                            .filter(Boolean)
+                            .join(", ")}
+                        </span>
+                      )}
+                    </p>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+        >
+          Close
+        </button>
+      </div>
+    </div>
   );
 }
 
