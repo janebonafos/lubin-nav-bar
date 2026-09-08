@@ -394,3 +394,103 @@ function formatDateTime(at: number): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Delivery of a signed prescription to the patient: a secure claim link the
+ * provider shares by email. Prototype only — nothing is actually sent.
+ */
+function ShareByEmail({ doc }: { doc: SignedPrescriptionDocument }) {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => subscribeClaims(() => setTick((t) => t + 1)), []);
+
+  const claim = useMemo(() => {
+    void tick;
+    return claimForDocument(doc.id);
+  }, [doc.id, tick]);
+
+  const link = claim ? claimUrl(claim.claimId) : "";
+  const valid = /.+@.+\..+/.test(email.trim());
+
+  return (
+    <div className="mt-3 border-t border-[#EDEBF3] pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            claim?.state === "claimed"
+              ? "bg-[#F3FAF6] text-[#2F6B4A]"
+              : "bg-[#F4F0FE] text-[#6F5BA0]"
+          }`}
+        >
+          {claim?.state === "claimed" && <Check className="h-3.5 w-3.5" />}
+          {CLAIM_STATE_LABEL[claim?.state ?? "unclaimed"]}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            ensureClaim(doc);
+            setOpen((o) => !o);
+          }}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#DCD4F0] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
+        >
+          <Mail className="h-3.5 w-3.5" />
+          {claim?.sentTo ? "Resend link" : "Share via email"}
+        </button>
+      </div>
+
+      {claim?.sentTo && !open && (
+        <p className="mt-2 text-[11.5px] text-[#8A7FB0]">
+          Link sent to {claim.sentTo}
+          {claim.sentAt ? ` · ${formatDateTime(claim.sentAt)}` : ""}
+        </p>
+      )}
+
+      {open && (
+        <div className="mt-2.5 rounded-xl border border-[#E3DBF5] bg-white p-3.5">
+          <p className="text-[12px] leading-snug text-[#6F6889]">
+            The patient receives the medication details and a secure link. If they already have a
+            Lubin account it opens straight from their prescriptions; if not, they can open it and
+            create an account to keep it.
+          </p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="patient@email.com"
+              className="h-9 min-w-[220px] flex-1 rounded-xl border border-[#E3DBF5] bg-white px-3 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
+            />
+            <button
+              type="button"
+              disabled={!valid || !claim}
+              onClick={() => {
+                if (!claim) return;
+                markClaimSent(claim.claimId, email.trim());
+                setOpen(false);
+                setEmail("");
+              }}
+              className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Send prescription
+            </button>
+          </div>
+          {link && (
+            <p className="mt-2.5 break-all text-[11.5px] text-[#8A7FB0]">
+              Secure link (also printed as a QR code on the document):{" "}
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#6E4FD3] underline"
+              >
+                {link}
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
