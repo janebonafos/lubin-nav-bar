@@ -37,6 +37,15 @@ prescription signed
                         prescription saved to the right profile
 ```
 
+## What the provider does after signing
+
+Nothing is ever delivered unsigned — the claim link and QR code only exist once the prescription is signed. From the signed record the provider has exactly two actions:
+
+- **Download** — the signed PDF/print copy, carrying the QR code.
+- **Share via email** — sends the branded email with the claim link to the patient's address (editable before sending, in case the patient gives a different one).
+
+The pharmacy-transmission option stays as it is; download and email-share sit alongside it.
+
 ## Flow 1 — patient is already on Lubin
 
 - At signing, if the patient's email matches an existing account, the prescription is attached to that profile immediately. Nothing for them to claim.
