@@ -79,7 +79,12 @@ export default function ProviderPrescriptionsSection() {
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
-    const read = () => setDocs(listSignedPrescriptions());
+    const read = () => {
+      const list = listSignedPrescriptions();
+      // Every signed prescription carries a claim link from the moment it exists.
+      list.forEach(ensureClaim);
+      setDocs(list);
+    };
     const readDrafts = () => setDrafts(listPrescriptionDrafts());
     const readArchive = () => setArchivedIds(listArchivedPrescriptionIds());
     read();
