@@ -328,6 +328,14 @@ export default function ProviderPrescriptionsSection() {
                             >
                               View prescription
                             </a>
+                            <a
+                              href={`${prescriptionHref(doc)}?download=1`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
+                            >
+                              <Download className="h-3.5 w-3.5" /> Download
+                            </a>
                             <button
                               type="button"
                               title={
@@ -355,6 +363,7 @@ export default function ProviderPrescriptionsSection() {
                             </button>
                           </div>
                         </div>
+                        <ShareByEmail doc={doc} />
                       </li>
                     ))}
                   </ul>
