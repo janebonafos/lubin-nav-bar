@@ -442,16 +442,19 @@ function ShareByEmail({ doc }: { doc: SignedPrescriptionDocument }) {
   return (
     <div className="mt-3 border-t border-[#EDEBF3] pt-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-            claim?.state === "claimed"
-              ? "bg-[#F3FAF6] text-[#2F6B4A]"
-              : "bg-[#F4F0FE] text-[#6F5BA0]"
-          }`}
-        >
-          {claim?.state === "claimed" && <Check className="h-3.5 w-3.5" />}
-          {CLAIM_STATE_LABEL[claim?.state ?? "unclaimed"]}
-        </span>
+        {claim?.state && claim.state !== "unclaimed" && (
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              claim.state === "claimed"
+                ? "bg-[#F3FAF6] text-[#2F6B4A]"
+                : "bg-[#F4F0FE] text-[#6F5BA0]"
+            }`}
+          >
+            {claim.state === "claimed" && <Check className="h-3.5 w-3.5" />}
+            {CLAIM_STATE_LABEL[claim.state]}
+          </span>
+        )}
+        {(!claim?.state || claim.state === "unclaimed") && <span />}
         <button
           type="button"
           onClick={() => {
