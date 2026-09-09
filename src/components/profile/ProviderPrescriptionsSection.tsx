@@ -165,7 +165,7 @@ export default function ProviderPrescriptionsSection() {
       </div>
 
       <div className="mt-5 inline-flex rounded-xl border border-[#E3DBF5] bg-white p-1">
-        {(["active", "archived"] as const).map((tab) => (
+        {(["active", "drafts", "archived"] as const).map((tab) => (
           <button
             key={tab}
             type="button"
@@ -174,7 +174,11 @@ export default function ProviderPrescriptionsSection() {
               view === tab ? "bg-[#3D2E6B] text-white" : "text-[#6F6889] hover:text-[#3D2E6B]"
             }`}
           >
-            {tab === "active" ? "Active" : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
+            {tab === "active"
+              ? "Active"
+              : tab === "drafts"
+                ? `Drafts${drafts.length ? ` (${drafts.length})` : ""}`
+                : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
           </button>
         ))}
       </div>
@@ -190,31 +194,39 @@ export default function ProviderPrescriptionsSection() {
         <DraftDetailsDialog draft={viewingDraft} onClose={() => setViewingDraft(null)} />
       )}
 
-      {drafts.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
-          <h4 className="text-[14px] font-bold text-[#3D2E6B]">Unfinished prescriptions</h4>
-          <p className="mt-1 text-[12px] text-[#6F6889]">Saved automatically when you cancelled before signing.</p>
-          <ul className="mt-3 space-y-2">
-            {drafts.map((draft) => (
-              <li key={draft.id}>
-                <button
-                  type="button"
-                  onClick={() => setViewingDraft(draft)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
-                >
-                  <div>
-                    <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
-                    <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
-                  </div>
-                  <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">Unfinished</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {docs.length === 0 ? (
+      {view === "drafts" ? (
+        drafts.length === 0 ? (
+          <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
+            <p className="text-[13.5px] font-semibold text-[#3D2E6B]">No drafts saved</p>
+            <p className="mt-1 text-[12.5px] text-[#6F6889]">
+              A prescription you start and leave before signing is saved here so you can pick it up later.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
+            <p className="text-[12px] text-[#6F6889]">
+              Started but not signed yet. Open one to see what was saved.
+            </p>
+            <ul className="mt-3 space-y-2">
+              {drafts.map((draft) => (
+                <li key={draft.id}>
+                  <button
+                    type="button"
+                    onClick={() => setViewingDraft(draft)}
+                    className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
+                  >
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
+                      <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
+                    </div>
+                    <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      ) : docs.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
           <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
           <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
@@ -234,17 +246,6 @@ export default function ProviderPrescriptionsSection() {
           >
             <Plus className="h-4 w-4" /> Issue a prescription
           </button>
-        </div>
-      ) : query.trim() === "" ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
-          <Search className="mx-auto h-7 w-7 text-[#A89BD0]" />
-          <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
-            Search to find a prescription
-          </p>
-          <p className="mt-1 text-[12.5px] text-[#6F6889]">
-            Enter a patient name, Rx number, or medication above to view matching
-            {view === "archived" ? " archived" : ""} prescriptions.
-          </p>
         </div>
       ) : groups.length === 0 ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
