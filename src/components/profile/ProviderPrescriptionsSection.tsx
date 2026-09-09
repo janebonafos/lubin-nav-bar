@@ -72,7 +72,7 @@ export default function ProviderPrescriptionsSection() {
   const [issuing, setIssuing] = useState(false);
   const [resetToken, setResetToken] = useState(0);
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
-  const [view, setView] = useState<"active" | "archived">("active");
+  const [view, setView] = useState<"active" | "drafts" | "archived">("active");
   /** Draft whose saved details are being viewed. */
   const [viewingDraft, setViewingDraft] = useState<PrescriptionDraft | null>(null);
   /** Per-patient accordion state. Multi-prescription patients start collapsed
