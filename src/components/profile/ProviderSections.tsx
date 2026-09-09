@@ -1754,7 +1754,16 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+                  {a.status === "upcoming" && (
+                    <AppointmentMessageButton
+                      appointmentId={a.id}
+                      role="provider"
+                      active={isExpanded}
+                      onOpen={() => setExpanded(a.id)}
+                    />
+                  )}
                   {a.status === "completed" || a.status === "session_review" ? (
+
                     <button
                       onClick={() => {
                         try {
