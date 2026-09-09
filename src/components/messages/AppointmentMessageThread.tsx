@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Mail, Send, ShieldCheck, ChevronDown } from "lucide-react";
+import { ChevronDown, MessageCircle, Send, ShieldCheck } from "lucide-react";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
 import {
   formatMessageTime,
   getThread,
@@ -30,10 +38,16 @@ export default function AppointmentMessageThread({
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const refresh = () => setMessages(getThread(appointmentId));
+    const refresh = () => {
+      const next = getThread(appointmentId);
+      setMessages(next);
+      if (next.some((message) => message.from !== role && !message.system)) {
+        setOpen(true);
+      }
+    };
     refresh();
     return subscribeThread(appointmentId, refresh);
-  }, [appointmentId]);
+  }, [appointmentId, role]);
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ block: "nearest" });
@@ -42,8 +56,8 @@ export default function AppointmentMessageThread({
   const myRelay = useMemo(() => relayAddress(appointmentId, role), [appointmentId, role]);
   const unreadFromOther = messages.filter((m) => m.from !== role && !m.system).length;
 
-  const submit = () => {
-    const body = draft.trim();
+  const submit = (submittedText = draft) => {
+    const body = submittedText.trim();
     if (!body) return;
     sendMessage(appointmentId, { from: role, authorName: selfName, body });
     setDraft("");
@@ -52,128 +66,114 @@ export default function AppointmentMessageThread({
   };
 
   return (
-    <div className="rounded-[12px] border border-[#EAE7F5] bg-white shadow-[0_8px_24px_-12px_rgba(61,46,107,0.08)]">
-      <button
+    <section className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-[0_18px_44px_-24px_color-mix(in_oklab,var(--color-brand-purple)_35%,transparent)]">
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left"
+        className="h-auto w-full justify-start rounded-none border-b border-brand-lavender px-4 py-4 text-left hover:bg-brand-lavender/30 sm:px-6"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#F4EEFE] text-[#5B4796]">
-          <Mail className="h-4 w-4" />
+        <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple text-primary-foreground">
+          <MessageCircle className="h-5 w-5" />
+          {unreadFromOther > 0 && (
+            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-card bg-brand-purple-dark" />
+          )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-[#3D2E6B]">
-            Messages with {otherName}
+          <span className="block text-base font-semibold text-brand-purple-dark">
+            Appointment messages
           </span>
-          <span className="mt-0.5 block text-xs text-[#7E6BAF]">
+          <span className="mt-0.5 block truncate text-xs font-normal text-brand-purple">
             {messages.length === 0
-              ? "No messages yet · emailed to both of you and kept on this appointment"
-              : `${messages.length} message${messages.length === 1 ? "" : "s"} · last ${formatMessageTime(
-                  messages[messages.length - 1]!.at,
-                )}`}
+              ? `Start a conversation with ${otherName}`
+              : `${otherName} · Last message ${formatMessageTime(messages[messages.length - 1].at)}`}
           </span>
         </span>
         {unreadFromOther > 0 && (
-          <span className="rounded-full bg-[#E0D9F7] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#3D2E6B]">
-            {unreadFromOther} from {otherName.split(" ")[0]}
+          <span className="hidden rounded-full bg-brand-lavender px-3 py-1 text-xs font-semibold text-brand-purple-dark sm:inline-flex">
+            {unreadFromOther} new
           </span>
         )}
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-[#A89BD0] transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-brand-purple-accent transition-transform ${open ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
 
       {open && (
-        <div className="border-t border-[#F0EAFB] px-5 pb-5 pt-4">
-          <p className="mb-4 flex items-start gap-2 rounded-[10px] bg-[#FBF9FF] px-3 py-2.5 text-xs leading-relaxed text-[#7E6BAF]">
-            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A89BD0]" />
-            <span>
-              Every message is emailed to {role === "provider" ? otherName : "your provider"} and to
-              you, and stays attached to this appointment in Lubin. Replies come back
-              here through a private Lubin address — personal email addresses are never
-              shared.
-            </span>
-          </p>
-
+        <div>
           {messages.length === 0 ? (
-            <p className="mb-4 rounded-[10px] border border-dashed border-[#EAE7F5] px-4 py-6 text-center text-sm text-[#7E6BAF]">
-              Nothing sent yet. Start the conversation below.
-            </p>
+            <div className="px-5 py-8 text-center sm:px-8">
+              <MessageCircle className="mx-auto h-6 w-6 text-brand-purple-accent" />
+              <p className="mt-2 text-sm font-medium text-brand-purple-dark">No messages yet</p>
+              <p className="mt-1 text-xs text-brand-purple">Start the conversation about this appointment below.</p>
+            </div>
           ) : (
-            <ul className="mb-4 max-h-80 space-y-3 overflow-y-auto pr-1">
+            <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
                 if (m.system) {
                   return (
-                    <li key={m.id} className="flex justify-center">
-                      <div className="w-full rounded-[12px] border border-dashed border-[#D9CFF2] bg-[#FBF9FF] px-4 py-3 text-center">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                    <div key={m.id} className="flex justify-center">
+                      <div className="w-full rounded-lg border border-dashed border-brand-lavender bg-brand-lavender/20 px-4 py-3 text-center">
+                        <p className="text-[10px] font-semibold uppercase text-brand-purple-accent">
                           Lubin update · {formatMessageTime(m.at)}
                         </p>
-                        <p className="mt-1.5 whitespace-pre-line text-xs leading-relaxed text-[#3D2E6B]">
+                        <p className="mt-1.5 whitespace-pre-line text-xs leading-relaxed text-brand-purple-dark">
                           {m.body}
                         </p>
-                        <p className="mt-2 text-[10px] text-[#A89BD0]">
+                        <p className="mt-2 text-[10px] text-brand-purple-accent">
                           Emailed to client and provider
                         </p>
                       </div>
-                    </li>
+                    </div>
                   );
                 }
                 const mine = m.from === role;
                 return (
-                  <li key={m.id} className={mine ? "flex justify-end" : "flex justify-start"}>
-                    <div
-                      className={`max-w-[85%] rounded-[12px] px-4 py-3 ${
-                        mine
-                          ? "bg-[#3D2E6B] text-white"
-                          : "border border-[#EAE7F5] bg-[#FBF9FF] text-[#3D2E6B]"
-                      }`}
+                  <Message key={m.id} from={mine ? "user" : "assistant"} className={mine ? "items-end" : "items-start"}>
+                    <p className="px-1 text-[10px] font-semibold uppercase text-brand-purple-accent">
+                      {mine ? "You" : m.authorName} · {formatMessageTime(m.at)}
+                    </p>
+                    <MessageContent
+                      className={mine
+                        ? "max-w-[88%] rounded-xl rounded-tr-sm bg-brand-purple-dark px-4 py-3 text-primary-foreground shadow-sm"
+                        : "max-w-[88%] rounded-xl rounded-tl-sm border border-brand-lavender bg-brand-lavender/30 px-4 py-3 text-brand-purple-dark shadow-sm"}
                     >
-                      <p
-                        className={`text-[10px] font-bold uppercase tracking-wider ${
-                          mine ? "text-white/60" : "text-[#A89BD0]"
-                        }`}
-                      >
-                        {mine ? "You" : m.authorName} · {formatMessageTime(m.at)}
-                      </p>
-                      <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed">
-                        {m.body}
-                      </p>
-                      <p
-                        className={`mt-2 text-[10px] ${
-                          mine ? "text-white/50" : "text-[#A89BD0]"
-                        }`}
-                      >
-                        Emailed to client and provider
-                      </p>
-                    </div>
-                  </li>
+                      <p className="whitespace-pre-line text-sm leading-relaxed">{m.body}</p>
+                    </MessageContent>
+                  </Message>
                 );
               })}
               <div ref={endRef} />
-            </ul>
+            </div>
           )}
 
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-            {messages.length === 0 ? "Write a message" : "Reply"}
-          </label>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={3}
-            placeholder={
-              role === "provider"
-                ? `Reply to ${otherName} about this appointment…`
-                : "Ask a question or share something before your session…"
-            }
-            className="mt-1.5 w-full resize-y rounded-[10px] border border-[#EAE7F5] bg-white px-3 py-2.5 text-sm text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#A89BD0] focus:outline-none focus:ring-2 focus:ring-[#E0D9F7]"
-          />
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="text-[11px] text-[#7E6BAF]">
+          <div className="border-t border-brand-lavender bg-brand-lavender/15 px-4 py-5 sm:px-8">
+            <PromptInput
+              onSubmit={({ text }) => submit(text)}
+              className="[&_[data-slot=input-group]]:rounded-xl [&_[data-slot=input-group]]:border-brand-lavender [&_[data-slot=input-group]]:bg-card [&_[data-slot=input-group]]:shadow-sm"
+            >
+              <PromptInputTextarea
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                placeholder={role === "provider" ? `Reply to ${otherName}…` : "Ask a question or share something before your session…"}
+                className="min-h-20 text-sm text-brand-purple-dark placeholder:text-brand-purple-accent"
+              />
+              <PromptInputFooter className="justify-end">
+                <PromptInputSubmit
+                  disabled={!draft.trim()}
+                  className="h-9 w-auto rounded-lg bg-brand-purple-dark px-4 text-primary-foreground hover:bg-brand-navy"
+                >
+                  <Send className="h-4 w-4" />
+                  <span>{messages.length === 0 ? "Send message" : "Send reply"}</span>
+                </PromptInputSubmit>
+              </PromptInputFooter>
+            </PromptInput>
+            <div className="mt-3 flex flex-wrap items-start justify-between gap-3 text-[11px] text-brand-purple">
+              <div>
               <p>
                 Your Lubin address for this appointment:{" "}
-                <span className="font-medium text-[#3D2E6B]">{myRelay}</span>
+                  <span className="font-medium text-brand-purple-dark">{myRelay}</span>
               </p>
               <a
                 href={`/email-preview?template=${
@@ -183,28 +183,24 @@ export default function AppointmentMessageThread({
                 }`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-1 inline-block font-medium text-[#5B4796] underline underline-offset-2"
+                  className="mt-1 inline-block font-medium text-brand-purple-dark underline underline-offset-2"
               >
                 Preview the email notification
               </a>
+              </div>
+              <p className="flex max-w-sm items-start gap-1.5 leading-relaxed">
+                <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple-accent" />
+                Personal email addresses stay private.
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={!draft.trim()}
-              className="inline-flex items-center gap-2 rounded-[8px] bg-[#3D2E6B] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2C2B4B] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Send className="h-4 w-4" />
-              {messages.length === 0 ? "Send message" : "Send reply"}
-            </button>
+            {justSent && (
+              <p className="mt-3 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground">
+                Sent — emailed to both of you and saved on this appointment.
+              </p>
+            )}
           </div>
-          {justSent && (
-            <p className="mt-3 rounded-[10px] bg-[#E6F8F1] px-3 py-2 text-xs font-medium text-[#2D8E69]">
-              Sent — emailed to both of you and saved on this appointment.
-            </p>
-          )}
         </div>
       )}
-    </div>
+    </section>
   );
 }
