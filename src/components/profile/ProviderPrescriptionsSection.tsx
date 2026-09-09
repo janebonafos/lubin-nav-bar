@@ -208,7 +208,7 @@ export default function ProviderPrescriptionsSection() {
         ) : (
           <div className="mt-6 rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
             <p className="text-[12px] text-[#6F6889]">
-              Started but not signed yet. Open one to see what was saved.
+              Started but not signed yet. Open one to continue where you left off.
             </p>
             <ul className="mt-3 space-y-2">
               {drafts.map((draft) => (
