@@ -48,7 +48,9 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import {
+  removePrescriptionDraft,
   savePrescriptionDraft,
+  type PrescriptionDraft,
 } from "@/lib/prescription/drafts";
 import {
   createPatientRecord,
