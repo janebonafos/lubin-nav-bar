@@ -215,7 +215,11 @@ export default function ProviderPrescriptionsSection() {
                 <li key={draft.id}>
                   <button
                     type="button"
-                    onClick={() => setViewingDraft(draft)}
+                    onClick={() => {
+                      setResumingDraft(draft);
+                      setResumeToken((token) => token + 1);
+                      setIssuing(true);
+                    }}
                     className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
                   >
                     <div>
