@@ -541,6 +541,17 @@ export default function ClientAppointmentsSection() {
 
                   {isExpanded && (
                     <div className="px-6 pb-8 pt-2">
+                      {a.status === "upcoming" && (
+                        <div className="mb-6">
+                          <AppointmentMessageThread
+                            appointmentId={a.id}
+                            role="client"
+                            selfName="You"
+                            otherName={a.provider}
+                          />
+                        </div>
+                      )}
+
                       <div className="mb-6 grid gap-6 sm:grid-cols-3">
                         <Detail label="Provider" value={a.provider} />
                         <Detail
@@ -610,17 +621,6 @@ export default function ClientAppointmentsSection() {
                           revokeProviderGrant(a.id);
                         }}
                       />
-
-                      {a.status === "upcoming" && (
-                        <div className="mb-6">
-                          <AppointmentMessageThread
-                            appointmentId={a.id}
-                            role="client"
-                            selfName="You"
-                            otherName={a.provider}
-                          />
-                        </div>
-                      )}
 
                       {a.status === "upcoming" && (
                         <div className="space-y-2">

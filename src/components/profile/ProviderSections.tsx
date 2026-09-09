@@ -1802,6 +1802,16 @@ export function AppointmentsSection() {
                 </div>
                 {isExpanded && (
                   <div className="px-6 pb-8 pt-2">
+                    {a.status === "upcoming" && (
+                      <div className="mb-6">
+                        <AppointmentMessageThread
+                          appointmentId={a.id}
+                          role="provider"
+                          selfName="You"
+                          otherName={a.client}
+                        />
+                      </div>
+                    )}
                     <div className="mb-6 grid gap-6 sm:grid-cols-3">
                       <DetailItem label="Client" value={a.client} />
                       <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time} · ${a.timezone}`} />
@@ -1848,14 +1858,6 @@ export function AppointmentsSection() {
                     )}
                     {(a.status === "completed" || a.status === "session_review") && (
                       <ApptPayoutStatus status={a.payoutStatus ?? "pending_review"} />
-                    )}
-                    {a.status === "upcoming" && (
-                      <AppointmentMessageThread
-                        appointmentId={a.id}
-                        role="provider"
-                        selfName="You"
-                        otherName={a.client}
-                      />
                     )}
                     {a.status === "upcoming" && (
                       (() => {
