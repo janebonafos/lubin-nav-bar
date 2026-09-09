@@ -73,8 +73,9 @@ export default function ProviderPrescriptionsSection() {
   const [resetToken, setResetToken] = useState(0);
   const [archivedIds, setArchivedIds] = useState<string[]>([]);
   const [view, setView] = useState<"active" | "drafts" | "archived">("active");
-  /** Draft whose saved details are being viewed. */
-  const [viewingDraft, setViewingDraft] = useState<PrescriptionDraft | null>(null);
+  /** Saved, unfinished prescription being continued in the prescribing flow. */
+  const [resumingDraft, setResumingDraft] = useState<PrescriptionDraft | null>(null);
+  const [resumeToken, setResumeToken] = useState(0);
   /** Per-patient accordion state. Multi-prescription patients start collapsed
    *  so a long record stays scannable; single-prescription patients stay open. */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
