@@ -1212,6 +1212,8 @@ export default function IssuePrescriptionDialog({
   onIssued,
   appointmentId,
   resetToken = 0,
+  resumeDraft,
+  resumeToken = 0,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1220,6 +1222,10 @@ export default function IssuePrescriptionDialog({
   appointmentId?: string;
   /** Bumped by the caller when a fresh, empty prescription should be started. */
   resetToken?: number;
+  /** A saved, unfinished prescription to continue from where it was left. */
+  resumeDraft?: PrescriptionDraft | null;
+  /** Bumped by the caller each time a saved prescription should be reopened. */
+  resumeToken?: number;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
