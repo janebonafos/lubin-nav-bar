@@ -42,6 +42,10 @@ export function savePrescriptionDraft(draft: Omit<PrescriptionDraft, "id" | "sav
   return next;
 }
 
+export function removePrescriptionDraft(id: string) {
+  writeAll(readAll().filter((d) => d.id !== id));
+}
+
 export function listPrescriptionDrafts(): PrescriptionDraft[] {
   return readAll().sort((a, b) => b.savedAt - a.savedAt);
 }
