@@ -186,13 +186,15 @@ export default function ProviderPrescriptionsSection() {
       <IssuePrescriptionDialog
         open={issuing}
         resetToken={resetToken}
-        onClose={() => setIssuing(false)}
+        resumeDraft={resumingDraft}
+        resumeToken={resumeToken}
+        onClose={() => {
+          setIssuing(false);
+          setResumingDraft(null);
+        }}
         onIssued={() => setDocs(listSignedPrescriptions())}
       />
 
-      {viewingDraft && (
-        <DraftDetailsDialog draft={viewingDraft} onClose={() => setViewingDraft(null)} />
-      )}
 
       {view === "drafts" ? (
         drafts.length === 0 ? (
