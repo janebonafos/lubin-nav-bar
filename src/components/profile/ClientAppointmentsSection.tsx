@@ -22,6 +22,7 @@ import {
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
+import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
@@ -522,8 +523,17 @@ export default function ClientAppointmentsSection() {
                     </div>
 
                     <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+                      {a.status === "upcoming" && (
+                        <AppointmentMessageButton
+                          appointmentId={a.id}
+                          role="client"
+                          active={isExpanded}
+                          onOpen={() => setExpanded(a.id)}
+                        />
+                      )}
                       <button
                         onClick={() => setExpanded(isExpanded ? null : a.id)}
+
                         className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#EAE7F5] px-4 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-white"
                       >
                         {isExpanded ? (
