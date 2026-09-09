@@ -48,7 +48,9 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import {
+  removePrescriptionDraft,
   savePrescriptionDraft,
+  type PrescriptionDraft,
 } from "@/lib/prescription/drafts";
 import {
   createPatientRecord,
@@ -1212,6 +1214,8 @@ export default function IssuePrescriptionDialog({
   onIssued,
   appointmentId,
   resetToken = 0,
+  resumeDraft,
+  resumeToken = 0,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1220,6 +1224,10 @@ export default function IssuePrescriptionDialog({
   appointmentId?: string;
   /** Bumped by the caller when a fresh, empty prescription should be started. */
   resetToken?: number;
+  /** A saved, unfinished prescription to continue from where it was left. */
+  resumeDraft?: PrescriptionDraft | null;
+  /** Bumped by the caller each time a saved prescription should be reopened. */
+  resumeToken?: number;
 }) {
   const [identity, setIdentity] = useState<PrescriberIdentity | null>(null);
   const [country, setCountry] = useState<RxCountry>("PH");
@@ -1490,6 +1498,41 @@ export default function IssuePrescriptionDialog({
   useEffect(() => {
     if (resetToken > 0) resetAll();
   }, [resetToken]);
+
+  /** Reopen a saved, unfinished prescription exactly where it was left. */
+  useEffect(() => {
+    if (resumeToken <= 0 || !resumeDraft) return;
+    resetAll();
+    const s = (resumeDraft.snapshot ?? {}) as Record<string, any>;
+    if (resumeDraft.patientId) {
+      const rec = listPatientRecords().find((r) => r.id === resumeDraft.patientId);
+      if (rec) setSelected(rec);
+    } else if (resumeDraft.patientName) {
+      setCreatingNew(true);
+    }
+    if (typeof s.patientName === "string") setPatientName(s.patientName);
+    else setPatientName(resumeDraft.patientName ?? "");
+    if (typeof s.preferredName === "string") setPreferredName(s.preferredName);
+    if (typeof s.dob === "string") setDob(s.dob);
+    if (s.sex) setSex(s.sex);
+    if (s.purpose) setPurpose(s.purpose);
+    if (s.entry) setEntry(s.entry);
+    if (typeof s.linkedAppointment === "string") setLinkedAppointment(s.linkedAppointment);
+    if (s.soap) setSoap({ subjective: "", objective: "", assessment: "", plan: "", ...s.soap });
+    if (s.objectiveMode) setObjectiveMode(s.objectiveMode);
+    if (s.allergyState) setAllergyState(s.allergyState);
+    if (typeof s.allergyDetail === "string") setAllergyDetail(s.allergyDetail);
+    if (s.medicationState) setMedicationState(s.medicationState);
+    if (typeof s.medicationDetail === "string") setMedicationDetail(s.medicationDetail);
+    if (s.pregnancyStatus) setPregnancyStatus(s.pregnancyStatus);
+    if (s.breastfeedingStatus) setBreastfeedingStatus(s.breastfeedingStatus);
+    if (Array.isArray(s.meds) && s.meds.length) setMeds(s.meds);
+    if (s.planExtras) setPlanExtras((cur) => ({ ...cur, ...s.planExtras }));
+    setStep(Math.min(Math.max(resumeDraft.step ?? 0, 0), 3));
+    // Continuing a saved prescription replaces it; leaving again saves it anew.
+    removePrescriptionDraft(resumeDraft.id);
+  }, [resumeToken]);
+
 
 
   const ageYears = ageFromDob(dob);
