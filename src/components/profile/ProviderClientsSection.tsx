@@ -179,7 +179,7 @@ function TagField({
   }
 
   const chipCls = (on: boolean) =>
-    `rounded-full border px-4 py-2 text-[12.5px] font-medium transition ${
+    `rounded-[12px] border px-4 py-2 text-[12.5px] font-medium transition ${
       on
         ? "border-transparent bg-[#F3F0FA] text-[#7E6BAF]"
         : "border-[#E9E5F3] text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
@@ -212,13 +212,13 @@ function TagField({
           }}
           onBlur={commitDraft}
           placeholder={placeholder ?? "Type and press Enter"}
-          className="h-9 w-44 rounded-full border border-[#7E6BAF] bg-white px-3 text-[12.5px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:outline-none"
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="rounded-full border border-dashed border-[#C9B6EC] px-4 py-2 text-[12.5px] font-medium text-[#5B4A93] transition hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
+            className="h-9 w-44 rounded-[12px] border border-[#7E6BAF] bg-white px-3 text-[12.5px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:outline-none"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="rounded-[12px] border border-dashed border-[#C9B6EC] px-4 py-2 text-[12.5px] font-medium text-[#5B4A93] transition hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
         >
           + Add other
         </button>
@@ -246,7 +246,7 @@ function ChoiceChips<T extends string>({
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`rounded-full border px-4 py-2 text-[12.5px] font-medium transition ${
+            className={`rounded-[12px] border px-4 py-2 text-[12.5px] font-medium transition ${
               on
                 ? "border-transparent bg-[#F3F0FA] text-[#7E6BAF]"
                 : "border-[#E9E5F3] text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
@@ -263,9 +263,6 @@ function ChoiceChips<T extends string>({
 const SEX_OPTIONS: { value: NonNullable<PatientSafetyInfo["sex"]>; label: string }[] = [
   { value: "female", label: "Female" },
   { value: "male", label: "Male" },
-  { value: "intersex", label: "Intersex" },
-  { value: "prefer-not-to-say", label: "Prefer not to say" },
-  { value: "not-documented", label: "Not documented" },
 ];
 
 const PREGNANCY_OPTIONS: { value: PregnancyStatus; label: string }[] = (
