@@ -158,8 +158,8 @@ export default function ProviderPrescriptionsSection() {
         <div>
           <h3 className="text-[15px] font-bold text-[#3D2E6B]">Issued prescriptions</h3>
           <p className="mt-1 text-[13px] text-[#6F6889]">
-            Every prescription you signed, grouped by patient. Signed prescriptions
-            are part of the patient record and cannot be edited.
+            Every prescription you signed, grouped by patient. Correcting one keeps
+            the original in the record and must be signed again.
           </p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
