@@ -212,13 +212,13 @@ function TagField({
           }}
           onBlur={commitDraft}
           placeholder={placeholder ?? "Type and press Enter"}
-          className="h-9 w-44 rounded-full border border-[#7E6BAF] bg-white px-3 text-[12.5px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:outline-none"
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="rounded-full border border-dashed border-[#C9B6EC] px-4 py-2 text-[12.5px] font-medium text-[#5B4A93] transition hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
+            className="h-9 w-44 rounded-[12px] border border-[#7E6BAF] bg-white px-3 text-[12.5px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:outline-none"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="rounded-[12px] border border-dashed border-[#C9B6EC] px-4 py-2 text-[12.5px] font-medium text-[#5B4A93] transition hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
         >
           + Add other
         </button>
