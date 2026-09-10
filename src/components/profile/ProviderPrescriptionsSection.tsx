@@ -260,7 +260,7 @@ export default function ProviderPrescriptionsSection() {
             }`}
           >
             {tab === "active"
-              ? "Active"
+              ? "Issued"
               : tab === "drafts"
                 ? `Drafts${activeDrafts.length ? ` (${activeDrafts.length})` : ""}`
                 : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
@@ -736,7 +736,7 @@ function DocRow({
               onClick={() => {
                 unarchivePrescription(doc.id);
                 toast.success("Prescription restored", {
-                  description: `${doc.number} is back in Active.`,
+                  description: `${doc.number} is back in Issued.`,
                 });
               }}
               className={iconBtn}
