@@ -34,6 +34,10 @@ import {
   type PregnancyStatus,
 } from "@/lib/prescription/store";
 import { sharedHealthCardValues } from "@/lib/prescription/intakeImport";
+import {
+  ALL_HEALTH_DETAIL_FIELDS,
+  type HealthDetailField,
+} from "@/lib/intake/healthDetails";
 
 
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
