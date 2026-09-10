@@ -431,28 +431,19 @@ export default function ProviderPrescriptionsSection() {
                             </a>
                             <button
                               type="button"
-                              title={
-                                view === "archived"
-                                  ? "Restore prescription"
-                                  : "Archive prescription"
-                              }
-                              aria-label={
-                                view === "archived"
-                                  ? "Restore prescription"
-                                  : "Archive prescription"
-                              }
                               onClick={() =>
                                 view === "archived"
                                   ? unarchivePrescription(doc.id)
                                   : archivePrescription(doc.id)
                               }
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
                             >
                               {view === "archived" ? (
                                 <ArchiveRestore className="h-3.5 w-3.5" />
                               ) : (
                                 <Archive className="h-3.5 w-3.5" />
                               )}
+                              {view === "archived" ? "Restore" : "Archive"}
                             </button>
                           </div>
                         </div>
