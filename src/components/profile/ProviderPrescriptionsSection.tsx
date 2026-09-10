@@ -96,6 +96,10 @@ export default function ProviderPrescriptionsSection() {
   const [editConfirm, setEditConfirm] = useState<SignedPrescriptionDocument | null>(null);
   /** The signed prescription currently being replaced by a correction. */
   const [replacing, setReplacing] = useState<SignedPrescriptionDocument | null>(null);
+  /** Signed prescription the prescriber is voiding — the record is kept but
+   *  marked not dispensable. */
+  const [voiding, setVoiding] = useState<SignedPrescriptionDocument | null>(null);
+  const [voidReason, setVoidReason] = useState("");
 
   /** Reopens a signed prescription in the prescribing flow as a correction.
    *  The original stays in the record; the corrected version must be signed. */
