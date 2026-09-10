@@ -87,6 +87,32 @@ export default function ProviderPrescriptionsSection() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   /** Draft pending archive confirmation. */
   const [archiveConfirm, setArchiveConfirm] = useState<PrescriptionDraft | null>(null);
+  /** Signed prescription the prescriber asked to correct — needs confirmation
+   *  first, because a correction must be signed again. */
+  const [editConfirm, setEditConfirm] = useState<SignedPrescriptionDocument | null>(null);
+  /** The signed prescription currently being replaced by a correction. */
+  const [replacing, setReplacing] = useState<SignedPrescriptionDocument | null>(null);
+
+  /** Reopens a signed prescription in the prescribing flow as a correction.
+   *  The original stays in the record; the corrected version must be signed. */
+  function startCorrection(doc: SignedPrescriptionDocument) {
+    setReplacing(doc);
+    setResumingDraft({
+      id: `rxedit_${doc.id}`,
+      patientName: doc.patientName,
+      step: 2,
+      savedAt: Date.now(),
+      snapshot: {
+        patientName: doc.patientName,
+        sex: doc.patientSex,
+        purpose: "new",
+        meds: doc.medications,
+        soap: { assessment: doc.clinicalNotes ?? "" },
+      },
+    });
+    setResumeToken((token) => token + 1);
+    setIssuing(true);
+  }
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
