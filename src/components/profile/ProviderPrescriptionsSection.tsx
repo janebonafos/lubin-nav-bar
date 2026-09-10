@@ -238,8 +238,23 @@ export default function ProviderPrescriptionsSection() {
         onClose={() => {
           setIssuing(false);
           setResumingDraft(null);
+          setReplacing(null);
         }}
-        onIssued={() => setDocs(listSignedPrescriptions())}
+        onIssued={(doc) => {
+          // A correction supersedes the original: the first prescription and its
+          // signature stay in the record, marked as replaced.
+          if (replacing && replacing.id !== doc.id) {
+            voidSignedPrescription(replacing.id, {
+              reason: `Replaced by corrected prescription ${doc.number}`,
+              by: doc.signedBy,
+            });
+            toast.success("Corrected prescription signed", {
+              description: `${doc.number} replaces ${replacing.number}.`,
+            });
+            setReplacing(null);
+          }
+          setDocs(listSignedPrescriptions());
+        }}
       />
 
 
