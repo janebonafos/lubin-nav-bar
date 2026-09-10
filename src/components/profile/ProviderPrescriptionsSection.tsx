@@ -100,6 +100,34 @@ export default function ProviderPrescriptionsSection() {
   /** Reopens a signed prescription in the prescribing flow as a correction.
    *  The original stays in the record; the corrected version must be signed. */
   function startCorrection(doc: SignedPrescriptionDocument) {
+    const patientInfo = doc.patientInfo;
+    const editableMedications = doc.medications.map((med) => ({
+      id: med.id,
+      genericName: med.genericName ?? med.name ?? "",
+      brandName:
+        med.genericName && med.name !== med.genericName ? med.name : "",
+      strength: med.strength ?? "",
+      route: med.route ?? "Oral",
+      dose: med.dose ?? "",
+      frequency: med.frequency ?? "",
+      duration: med.duration ?? "",
+      quantity: med.quantity?.replace(/^\s*\d+(?:\.\d+)?\s*/, "") ?
+        med.quantity?.match(/^\s*\d+(?:\.\d+)?/)?.[0]?.trim() ?? "" :
+        med.quantity ?? "",
+      unit: med.quantity?.replace(/^\s*\d+(?:\.\d+)?\s*/, "") || "tablets",
+      refills: med.refills ?? "No refills",
+      followUp: med.followUp ?? "",
+      sig: [med.dose, med.route, med.frequency, med.duration]
+        .filter(Boolean)
+        .join(" · "),
+      sigEdited: true,
+      instructions: med.instructions ?? "",
+      pharmacistNotes: "",
+      internalNotes: "",
+      dangerous: doc.controlled,
+      warnings: med.warnings ?? "",
+      rationale: med.rationale ?? "",
+    }));
     setReplacing(doc);
     setResumingDraft({
       id: `rxedit_${doc.id}`,
@@ -108,9 +136,15 @@ export default function ProviderPrescriptionsSection() {
       savedAt: Date.now(),
       snapshot: {
         patientName: doc.patientName,
-        sex: doc.patientSex,
+        preferredName: patientInfo?.preferredName ?? "",
+        dob: patientInfo?.dob ?? "",
+        sex: patientInfo?.sex ?? doc.patientSex ?? "not-documented",
         purpose: "new",
-        meds: doc.medications,
+        allergyState: patientInfo?.allergyState ?? "not-assessed",
+        allergyDetail: patientInfo?.allergies ?? "",
+        medicationState: patientInfo?.medicationState ?? "not-assessed",
+        medicationDetail: patientInfo?.currentMedications ?? "",
+        meds: editableMedications,
         soap: { assessment: doc.clinicalNotes ?? "" },
       },
     });
