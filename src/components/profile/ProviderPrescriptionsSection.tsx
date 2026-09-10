@@ -515,6 +515,11 @@ function DocRow({
           </a>
           <a
             href={`${prescriptionHref(doc)}?download=1`}
+            onClick={() =>
+              toast.success("Prescription downloaded", {
+                description: `${doc.number} for ${doc.patientName || "the patient"}`,
+              })
+            }
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Download prescription"
@@ -526,11 +531,19 @@ function DocRow({
           <button
             type="button"
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
-            onClick={() =>
-              view === "archived"
-                ? unarchivePrescription(doc.id)
-                : archivePrescription(doc.id)
-            }
+            onClick={() => {
+              if (view === "archived") {
+                unarchivePrescription(doc.id);
+                toast.success("Prescription restored", {
+                  description: `${doc.number} is back in Active.`,
+                });
+              } else {
+                archivePrescription(doc.id);
+                toast.success("Prescription archived", {
+                  description: `${doc.number} for ${doc.patientName || "the patient"} moved to Archived.`,
+                });
+              }
+            }}
             className={iconBtn}
           >
             {view === "archived" ? (
