@@ -203,6 +203,9 @@ function NewClientForm({
   const [conditions, setConditions] = useState("");
   const [medications, setMedications] = useState("");
   const [pregnancy, setPregnancy] = useState<PregnancyStatus>("not-documented");
+  // "Care you already have" — the same two questions on the client's health card.
+  const [previousCare, setPreviousCare] = useState("");
+  const [clinicians, setClinicians] = useState("");
   const [error, setError] = useState("");
 
   // Optional details beyond the standard intake set.
