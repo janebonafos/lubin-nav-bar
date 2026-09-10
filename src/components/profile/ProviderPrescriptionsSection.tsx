@@ -559,9 +559,12 @@ function ClaimBadge({ docId }: { docId: string }) {
 function DocRow({
   doc,
   view,
+  onEdit,
 }: {
   doc: SignedPrescriptionDocument;
   view: "active" | "archived";
+  /** Opens a correction of this prescription, which must be signed again. */
+  onEdit?: () => void;
 }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [tick, setTick] = useState(0);
