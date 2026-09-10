@@ -246,11 +246,11 @@ function ChoiceChips<T extends string>({
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`rounded-[12px] border px-4 py-2 text-[12.5px] font-medium transition ${
-              on
-                ? "border-transparent bg-[#F3F0FA] text-[#7E6BAF]"
-                : "border-[#E9E5F3] text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
-            }`}
+              className={`rounded-[12px] border px-4 py-2 text-[12.5px] font-semibold transition ${
+                on
+                  ? "border-transparent bg-[#5B4A93] text-white shadow-sm"
+                  : "border-[#E9E5F3] bg-white text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
+              }`}
           >
             {o.label}
           </button>
