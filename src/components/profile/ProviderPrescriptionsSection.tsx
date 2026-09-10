@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import {
   Archive,
   ArchiveRestore,
@@ -255,15 +255,15 @@ export default function ProviderPrescriptionsSection() {
                       <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0] transition group-hover:bg-[#EAE2FB]">In progress</span>
                       <button
                         type="button"
-                        title="Archive"
                         aria-label="Archive draft"
                         onClick={(e) => {
                           e.stopPropagation();
                           archivePrescriptionDraft(draft.id);
                         }}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
+                        className="group/icon relative inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
                       >
                         <Archive className="h-3.5 w-3.5" />
+                        <TooltipLabel>Archive</TooltipLabel>
                       </button>
                     </div>
                   </div>
@@ -414,6 +414,18 @@ function formatDateTime(at: number): string {
   });
 }
 
+/** Lightweight hover label for icon-only action buttons. */
+function TooltipLabel({ children }: { children: ReactNode }) {
+  return (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-md bg-[#2C2B4B] px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-md transition-all duration-150 group-hover/icon:translate-y-0 group-hover/icon:opacity-100 group-focus-visible/icon:translate-y-0 group-focus-visible/icon:opacity-100"
+    >
+      {children}
+    </span>
+  );
+}
+
 /** Small badge showing delivery state of the secure claim link. */
 function ClaimBadge({ docId }: { docId: string }) {
   const [tick, setTick] = useState(0);
@@ -459,7 +471,7 @@ function DocRow({
   }, [doc.id, tick]);
 
   const iconBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCD4F0] bg-white text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
+    "group/icon relative inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCD4F0] bg-white text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
 
   return (
     <li className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
@@ -494,25 +506,24 @@ function DocRow({
             href={prescriptionHref(doc)}
             target="_blank"
             rel="noopener noreferrer"
-            title="View prescription"
             aria-label="View prescription"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
+            className="group/icon relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
           >
             <Eye className="h-4 w-4" />
+            <TooltipLabel>View</TooltipLabel>
           </a>
           <a
             href={`${prescriptionHref(doc)}?download=1`}
             target="_blank"
             rel="noopener noreferrer"
-            title="Download"
             aria-label="Download prescription"
             className={iconBtn}
           >
             <Download className="h-4 w-4" />
+            <TooltipLabel>Download</TooltipLabel>
           </a>
           <button
             type="button"
-            title={view === "archived" ? "Restore" : "Archive"}
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
             onClick={() =>
               view === "archived"
@@ -526,10 +537,10 @@ function DocRow({
             ) : (
               <Archive className="h-4 w-4" />
             )}
+            <TooltipLabel>{view === "archived" ? "Restore" : "Archive"}</TooltipLabel>
           </button>
           <button
             type="button"
-            title={sentTo ? "Resend link" : "Share via email"}
             aria-label={sentTo ? "Resend prescription link" : "Share prescription via email"}
             onClick={() => {
               ensureClaim(doc);
@@ -538,6 +549,7 @@ function DocRow({
             className={iconBtn}
           >
             <Mail className="h-4 w-4" />
+            <TooltipLabel>{sentTo ? "Resend link" : "Share via email"}</TooltipLabel>
           </button>
         </div>
       </div>
