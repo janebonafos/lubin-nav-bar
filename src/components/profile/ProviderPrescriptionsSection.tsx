@@ -538,7 +538,7 @@ function DocRow({
         </p>
       )}
 
-      <ShareByEmail doc={doc} open={shareOpen} />
+      <ShareByEmail doc={doc} open={shareOpen} onSent={() => setShareOpen(false)} />
     </li>
   );
 }
