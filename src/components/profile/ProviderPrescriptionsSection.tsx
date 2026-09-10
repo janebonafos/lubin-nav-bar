@@ -292,7 +292,7 @@ export default function ProviderPrescriptionsSection() {
             <Plus className="h-4 w-4" /> Issue a prescription
           </button>
         </div>
-      ) : groups.length === 0 ? (
+      ) : groups.length === 0 && !(view === "archived" && archivedDrafts.length > 0) ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
           {query
             ? `No prescriptions match “${query}”.`
@@ -302,6 +302,38 @@ export default function ProviderPrescriptionsSection() {
         </p>
       ) : (
         <div className="mt-6 max-h-[620px] space-y-3 overflow-y-auto pr-1">
+          {view === "archived" && archivedDrafts.length > 0 && (
+            <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
+              <p className="text-[12px] text-[#6F6889]">
+                Archived drafts — started but never signed. Restore one to keep working on it.
+              </p>
+              <ul className="mt-3 space-y-2">
+                {archivedDrafts.map((draft) => (
+                  <li
+                    key={draft.id}
+                    className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
+                      <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">
+                        Draft · Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}
+                        {draft.archivedAt ? ` · Archived ${formatDate(draft.archivedAt)}` : ""}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      title="Restore draft"
+                      aria-label="Restore draft"
+                      onClick={() => unarchivePrescriptionDraft(draft.id)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                    >
+                      <ArchiveRestore className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {groups.map((group) => {
             const isOpen =
               expanded[group.patientName] ?? group.docs.length === 1;
