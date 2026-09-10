@@ -2851,15 +2851,10 @@ export default function IssuePrescriptionDialog({
   }
 
   function closeAsDraft() {
-    const medicationStarted = meds.some((med) =>
-      [med.genericName, med.dose, med.route, med.frequency, med.duration, med.quantity, med.instructions]
-        .some((value) => value?.trim()),
-    );
-    // Only save a draft when the provider actually entered something — the
-    // purpose/entry defaults alone must not create an "Unnamed patient" draft.
-    const hasStarted = Boolean(
-      patientName.trim() || selected || pastedNote.trim() || medicationStarted,
-    );
+    // Only save a draft when the patient is identifiable — a prescription
+    // without a patient name is discarded instead of creating an
+    // "Unnamed patient" draft.
+    const hasStarted = Boolean(patientName.trim() || selected?.fullName?.trim());
     if (hasStarted && !issued) {
       savePrescriptionDraft({
         patientId: selected?.id,
