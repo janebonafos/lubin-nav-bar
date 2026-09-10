@@ -84,6 +84,8 @@ export default function ProviderPrescriptionsSection() {
   /** Per-patient accordion state. Multi-prescription patients start collapsed
    *  so a long record stays scannable; single-prescription patients stay open. */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  /** Draft pending archive confirmation. */
+  const [archiveConfirm, setArchiveConfirm] = useState<PrescriptionDraft | null>(null);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
