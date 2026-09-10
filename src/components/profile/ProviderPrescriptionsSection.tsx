@@ -596,6 +596,11 @@ function DocRow({
             Signed {formatDateTime(doc.signedAt)} · {doc.country} ·{" "}
             {doc.authenticationMethod}
           </p>
+          {doc.voided && (
+            <p className="mt-1 inline-flex rounded-full bg-[#FBF1F1] px-2 py-0.5 text-[11px] font-semibold text-[#8A3A3A]">
+              {doc.voided.reason}
+            </p>
+          )}
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
