@@ -260,9 +260,29 @@ function NewClientForm({
       emergencyContact: emergencyContact.trim() || undefined,
       referralSource: referralSource.trim() || undefined,
       providerNotes: providerNotes.trim() || undefined,
-      customFields: customFields
-        .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
-        .filter((f) => f.label && f.value),
+      customFields: [
+        ...(previousCare.trim()
+          ? [
+              {
+                id: "care.previous",
+                label: hcLabel("care.previous", "Therapy or psychiatric care before"),
+                value: previousCare.trim(),
+              },
+            ]
+          : []),
+        ...(clinicians.trim()
+          ? [
+              {
+                id: "care.clinicians",
+                label: hcLabel("care.clinicians", "Anyone currently involved in their care"),
+                value: clinicians.trim(),
+              },
+            ]
+          : []),
+        ...customFields
+          .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
+          .filter((f) => f.label && f.value),
+      ],
     };
     const record = createPatientRecord({ fullName, info });
     onCreated(record.id);
