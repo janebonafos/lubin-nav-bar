@@ -8,7 +8,7 @@ import {
   PREGNANCY_STATUS_LABEL,
   type Prescription,
 } from "@/lib/prescription/store";
-import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
+import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 import { loadIdentity, type PrescriberIdentity } from "@/lib/prescription/credentials";
 import {
   type SignedPrescriptionDocument,
@@ -44,7 +44,7 @@ export default function PrescriptionDocumentDialog({
 
   /** Opaque route id — nothing about the patient or prescription is in the URL. */
   const standaloneHref = (() => {
-    const id = stashPrescriptionView({
+    return prescriptionViewHref({
       appointmentId: doc.appointmentId,
       country: doc.country,
       clientName: doc.patientName,
@@ -52,7 +52,6 @@ export default function PrescriptionDocumentDialog({
       docId: doc.id,
       document: doc,
     });
-    return `/e-prescription/${id}`;
   })();
 
   return (

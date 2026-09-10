@@ -10,7 +10,7 @@ import {
   subscribeClaims,
   type PrescriptionClaim,
 } from "@/lib/prescription/claim";
-import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
+import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 
 export const Route = createFileRoute("/rx-claim/$claimId")({
   head: () => ({
@@ -77,7 +77,7 @@ function ClaimPrescriptionPage() {
   const doc = claim?.document;
   const documentHref = useMemo(() => {
     if (!doc) return "#";
-    const id = stashPrescriptionView({
+    return prescriptionViewHref({
       appointmentId: doc.appointmentId,
       country: doc.country,
       clientName: doc.patientName,
@@ -85,7 +85,6 @@ function ClaimPrescriptionPage() {
       docId: doc.id,
       document: doc,
     });
-    return `/e-prescription/${id}`;
   }, [doc]);
 
   if (loaded && !claim) {
