@@ -379,75 +379,7 @@ export default function ProviderPrescriptionsSection() {
                 {isOpen && (
                   <ul className="space-y-3 px-5 pb-5">
                     {group.docs.map((doc) => (
-                      <li
-                        key={doc.id}
-                        className="group rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
-                      >
-                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-                          <div className="min-w-0">
-                            <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
-                              {doc.number}
-                            </p>
-                            <p className="mt-1 text-[13px] font-semibold text-[#2C2B4B]">
-                              {doc.medications
-                                .map(
-                                  (m) =>
-                                    `${m.genericName || m.name}${
-                                      m.strength ? ` ${m.strength}` : ""
-                                    }`,
-                                )
-                                .join(" · ") || "No medication recorded"}
-                            </p>
-                            <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
-                              Signed {formatDateTime(doc.signedAt)} ·{" "}
-                              {doc.country} · {doc.authenticationMethod}
-                            </p>
-                            {doc.controlled && (
-                              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10]">
-                                <ShieldAlert className="h-3.5 w-3.5" />
-                                {doc.country === "PH"
-                                  ? "Dangerous drug"
-                                  : "Controlled substance"}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex shrink-0 flex-col items-end gap-2 self-start">
-                            <a
-                              href={prescriptionHref(doc)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex h-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
-                            >
-                              View prescription
-                            </a>
-                            <a
-                              href={`${prescriptionHref(doc)}?download=1`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
-                            >
-                              <Download className="h-3.5 w-3.5" /> Download
-                            </a>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                view === "archived"
-                                  ? unarchivePrescription(doc.id)
-                                  : archivePrescription(doc.id)
-                              }
-                              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
-                            >
-                              {view === "archived" ? (
-                                <ArchiveRestore className="h-3.5 w-3.5" />
-                              ) : (
-                                <Archive className="h-3.5 w-3.5" />
-                              )}
-                              {view === "archived" ? "Restore" : "Archive"}
-                            </button>
-                          </div>
-                        </div>
-                        <ShareByEmail doc={doc} />
-                      </li>
+                      <DocRow key={doc.id} doc={doc} view={view} />
                     ))}
                   </ul>
                 )}
