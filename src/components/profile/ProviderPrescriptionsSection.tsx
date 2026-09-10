@@ -8,6 +8,7 @@ import {
   Download,
   Eye,
   Mail,
+  Pencil,
   Plus,
   Search,
   ShieldAlert,
@@ -41,6 +42,7 @@ import {
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
+  voidSignedPrescription,
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
@@ -87,6 +89,32 @@ export default function ProviderPrescriptionsSection() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   /** Draft pending archive confirmation. */
   const [archiveConfirm, setArchiveConfirm] = useState<PrescriptionDraft | null>(null);
+  /** Signed prescription the prescriber asked to correct — needs confirmation
+   *  first, because a correction must be signed again. */
+  const [editConfirm, setEditConfirm] = useState<SignedPrescriptionDocument | null>(null);
+  /** The signed prescription currently being replaced by a correction. */
+  const [replacing, setReplacing] = useState<SignedPrescriptionDocument | null>(null);
+
+  /** Reopens a signed prescription in the prescribing flow as a correction.
+   *  The original stays in the record; the corrected version must be signed. */
+  function startCorrection(doc: SignedPrescriptionDocument) {
+    setReplacing(doc);
+    setResumingDraft({
+      id: `rxedit_${doc.id}`,
+      patientName: doc.patientName,
+      step: 2,
+      savedAt: Date.now(),
+      snapshot: {
+        patientName: doc.patientName,
+        sex: doc.patientSex,
+        purpose: "new",
+        meds: doc.medications,
+        soap: { assessment: doc.clinicalNotes ?? "" },
+      },
+    });
+    setResumeToken((token) => token + 1);
+    setIssuing(true);
+  }
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -158,8 +186,8 @@ export default function ProviderPrescriptionsSection() {
         <div>
           <h3 className="text-[15px] font-bold text-[#3D2E6B]">Issued prescriptions</h3>
           <p className="mt-1 text-[13px] text-[#6F6889]">
-            Every prescription you signed, grouped by patient. Signed prescriptions
-            are part of the patient record and cannot be edited.
+            Every prescription you signed, grouped by patient. Correcting one keeps
+            the original in the record and must be signed again.
           </p>
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
@@ -212,8 +240,23 @@ export default function ProviderPrescriptionsSection() {
         onClose={() => {
           setIssuing(false);
           setResumingDraft(null);
+          setReplacing(null);
         }}
-        onIssued={() => setDocs(listSignedPrescriptions())}
+        onIssued={(doc) => {
+          // A correction supersedes the original: the first prescription and its
+          // signature stay in the record, marked as replaced.
+          if (replacing && replacing.id !== doc.id) {
+            voidSignedPrescription(replacing.id, {
+              reason: `Replaced by corrected prescription ${doc.number}`,
+              by: doc.signedBy,
+            });
+            toast.success("Corrected prescription signed", {
+              description: `${doc.number} replaces ${replacing.number}.`,
+            });
+            setReplacing(null);
+          }
+          setDocs(listSignedPrescriptions());
+        }}
       />
 
 
@@ -392,7 +435,12 @@ export default function ProviderPrescriptionsSection() {
                 {isOpen && (
                   <ul className="space-y-3 px-5 pb-5">
                     {group.docs.map((doc) => (
-                      <DocRow key={doc.id} doc={doc} view={view} />
+                      <DocRow
+                        key={doc.id}
+                        doc={doc}
+                        view={view}
+                        onEdit={() => setEditConfirm(doc)}
+                      />
                     ))}
                   </ul>
                 )}
@@ -439,6 +487,52 @@ export default function ProviderPrescriptionsSection() {
                   className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
                 >
                   Yes, archive
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {editConfirm &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setEditConfirm(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-[#E3DBF5] bg-white p-7 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h4 className="text-[14px] font-bold text-[#3D2E6B]">
+                Correct this prescription?
+              </h4>
+              <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                {editConfirm.patientName} · {editConfirm.number}
+              </p>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-[#6F6889]">
+                You'll open a copy with the same patient, clinical basis and
+                medications so you can change what's needed. The original stays in
+                the patient's record, marked as replaced, and the corrected
+                prescription must be signed again before it can be shared.
+              </p>
+              <div className="mt-5 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditConfirm(null)}
+                  className="inline-flex h-9 items-center rounded-xl border border-[#E3DBF5] px-4 text-[12.5px] font-semibold text-[#6F6889] transition hover:bg-[#F8F6FE]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    startCorrection(editConfirm);
+                    setEditConfirm(null);
+                  }}
+                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                >
+                  Edit and re-sign
                 </button>
               </div>
             </div>
@@ -511,9 +605,12 @@ function ClaimBadge({ docId }: { docId: string }) {
 function DocRow({
   doc,
   view,
+  onEdit,
 }: {
   doc: SignedPrescriptionDocument;
   view: "active" | "archived";
+  /** Opens a correction of this prescription, which must be signed again. */
+  onEdit?: () => void;
 }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [tick, setTick] = useState(0);
@@ -545,6 +642,11 @@ function DocRow({
             Signed {formatDateTime(doc.signedAt)} · {doc.country} ·{" "}
             {doc.authenticationMethod}
           </p>
+          {doc.voided && (
+            <p className="mt-1 inline-flex rounded-full bg-[#FBF1F1] px-2 py-0.5 text-[11px] font-semibold text-[#8A3A3A]">
+              {doc.voided.reason}
+            </p>
+          )}
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
@@ -580,6 +682,17 @@ function DocRow({
             <Download className="h-4 w-4" />
             <TooltipLabel>Download</TooltipLabel>
           </a>
+          {onEdit && !doc.voided && (
+            <button
+              type="button"
+              aria-label="Edit and re-sign prescription"
+              onClick={onEdit}
+              className={iconBtn}
+            >
+              <Pencil className="h-4 w-4" />
+              <TooltipLabel>Edit &amp; re-sign</TooltipLabel>
+            </button>
+          )}
           <button
             type="button"
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
