@@ -593,7 +593,7 @@ function ShareByEmail({
               onClick={() => {
                 if (!claim) return;
                 markClaimSent(claim.claimId, email.trim());
-                setOpen(false);
+                onSent?.();
                 setEmail("");
               }}
               className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A] disabled:cursor-not-allowed disabled:opacity-45"
