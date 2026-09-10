@@ -554,25 +554,105 @@ export default function ProviderPrescriptionsSection() {
                 You'll open a copy with the same patient, clinical basis and
                 medications so you can change what's needed. The original stays in
                 the patient's record, marked as replaced, and the corrected
-                prescription must be signed again before it can be shared.
+                 prescription must be signed again before it can be shared.
+               </p>
+               <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+                 <button
+                   type="button"
+                   onClick={() => {
+                     setVoiding(editConfirm);
+                     setVoidReason("");
+                     setEditConfirm(null);
+                   }}
+                   className="inline-flex h-9 items-center rounded-xl px-2 text-[12.5px] font-semibold text-[#8A3A3A] transition hover:bg-[#FBF1F1] hover:px-3"
+                 >
+                   Void instead
+                 </button>
+                 <div className="flex gap-2">
+                   <button
+                     type="button"
+                     onClick={() => setEditConfirm(null)}
+                     className="inline-flex h-9 items-center rounded-xl border border-[#E3DBF5] px-4 text-[12.5px] font-semibold text-[#6F6889] transition hover:bg-[#F8F6FE]"
+                   >
+                     Cancel
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => {
+                       startCorrection(editConfirm);
+                       setEditConfirm(null);
+                     }}
+                     className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                   >
+                     Edit and re-sign
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>,
+           document.body,
+         )}
+
+      {voiding &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setVoiding(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-[#E3DBF5] bg-white p-7 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h4 className="text-[14px] font-bold text-[#3D2E6B]">
+                Void this prescription?
+              </h4>
+              <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                {voiding.patientName} · {voiding.number}
               </p>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-[#6F6889]">
+                Voiding keeps the prescription in the record but marks it not
+                dispensable — pharmacies and the patient's view show it as
+                voided. This can't be undone; if the patient still needs the
+                medication, issue a new prescription and sign it again.
+              </p>
+              <label className="mt-4 block">
+                <span className="text-[12px] font-semibold text-[#3D2E6B]">
+                  Reason for voiding
+                </span>
+                <textarea
+                  value={voidReason}
+                  onChange={(e) => setVoidReason(e.target.value)}
+                  rows={2}
+                  autoFocus
+                  placeholder="e.g. Issued in error, duplicate prescription"
+                  className="mt-1.5 w-full resize-none rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
+                />
+              </label>
               <div className="mt-5 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setEditConfirm(null)}
+                  onClick={() => setVoiding(null)}
                   className="inline-flex h-9 items-center rounded-xl border border-[#E3DBF5] px-4 text-[12.5px] font-semibold text-[#6F6889] transition hover:bg-[#F8F6FE]"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
+                  disabled={!voidReason.trim()}
                   onClick={() => {
-                    startCorrection(editConfirm);
-                    setEditConfirm(null);
+                    voidSignedPrescription(voiding.id, {
+                      reason: `Voided — ${voidReason.trim()}`,
+                    });
+                    toast.success("Prescription voided", {
+                      description: `${voiding.number} is marked not dispensable.`,
+                    });
+                    setDocs(listSignedPrescriptions());
+                    setVoiding(null);
+                    setVoidReason("");
                   }}
-                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                  className="inline-flex h-9 items-center rounded-xl bg-[#8A3A3A] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#722F2F] disabled:cursor-not-allowed disabled:opacity-45"
                 >
-                  Edit and re-sign
+                  Yes, void prescription
                 </button>
               </div>
             </div>
