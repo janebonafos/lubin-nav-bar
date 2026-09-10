@@ -662,11 +662,22 @@ function DocRow({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="View prescription"
-            className="group/icon relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
+            className={iconBtn}
           >
             <Eye className="h-4 w-4" />
             <TooltipLabel>View</TooltipLabel>
           </a>
+          {onEdit && !doc.voided && view === "active" && (
+            <button
+              type="button"
+              aria-label="Edit and re-sign prescription"
+              onClick={onEdit}
+              className={iconBtn}
+            >
+              <Pencil className="h-4 w-4" />
+              <TooltipLabel>Edit & re-sign</TooltipLabel>
+            </button>
+          )}
           <a
             href={`${prescriptionHref(doc)}?download=1`}
             onClick={() =>
@@ -682,42 +693,22 @@ function DocRow({
             <Download className="h-4 w-4" />
             <TooltipLabel>Download</TooltipLabel>
           </a>
-          {onEdit && !doc.voided && (
+          {view === "archived" && (
             <button
               type="button"
-              aria-label="Edit and re-sign prescription"
-              onClick={onEdit}
-              className={iconBtn}
-            >
-              <Pencil className="h-4 w-4" />
-              <TooltipLabel>Edit &amp; re-sign</TooltipLabel>
-            </button>
-          )}
-          <button
-            type="button"
-            aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
-            onClick={() => {
-              if (view === "archived") {
+              aria-label="Restore prescription"
+              onClick={() => {
                 unarchivePrescription(doc.id);
                 toast.success("Prescription restored", {
                   description: `${doc.number} is back in Active.`,
                 });
-              } else {
-                archivePrescription(doc.id);
-                toast.success("Prescription archived", {
-                  description: `${doc.number} for ${doc.patientName || "the patient"} moved to Archived.`,
-                });
-              }
-            }}
-            className={iconBtn}
-          >
-            {view === "archived" ? (
+              }}
+              className={iconBtn}
+            >
               <ArchiveRestore className="h-4 w-4" />
-            ) : (
-              <Archive className="h-4 w-4" />
-            )}
-            <TooltipLabel>{view === "archived" ? "Restore" : "Archive"}</TooltipLabel>
-          </button>
+              <TooltipLabel>Restore</TooltipLabel>
+            </button>
+          )}
           <button
             type="button"
             aria-label={sentTo ? "Resend prescription link" : "Share prescription via email"}
