@@ -118,6 +118,75 @@ function noteEntries(text: string, source: "provider" = "provider") {
   }));
 }
 
+/**
+ * The same questions the client answers on their own health card, so a record a
+ * provider types matches a record a client shares — one wording, one option set.
+ */
+function hcField(id: string): HealthDetailField | undefined {
+  return ALL_HEALTH_DETAIL_FIELDS.find((f) => f.id === id);
+}
+
+function hcLabel(id: string, fallback: string): string {
+  return hcField(id)?.label ?? fallback;
+}
+
+function hcHelp(id: string): string | undefined {
+  return hcField(id)?.help;
+}
+
+/** Same suggestions the client sees, so both sides record the same wording. */
+function Suggestions({
+  fieldId,
+  value,
+  onChange,
+}: {
+  fieldId: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const options = hcField(fieldId)?.options ?? [];
+  const exclusive = hcField(fieldId)?.exclusiveOption;
+  if (options.length === 0) return null;
+  const items = value
+    .split(/[,\n;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const toggle = (opt: string) => {
+    if (opt === exclusive) {
+      onChange(items.includes(opt) ? "" : opt);
+      return;
+    }
+    const kept = items.filter((i) => i !== exclusive);
+    const next = kept.includes(opt) ? kept.filter((i) => i !== opt) : [...kept, opt];
+    onChange(next.join(", "));
+  };
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {options
+        .filter((o) => o !== "Other")
+        .map((opt) => {
+          const on = items.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition ${
+                on
+                  ? "border-[#7E6BAF] bg-[#F1EBFC] text-[#3D2E6B]"
+                  : "border-[#E3DBF5] bg-white text-[#6F6889] hover:border-[#C9B6EC]"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+    </div>
+  );
+}
+
 /** Create a client record before or outside an appointment. */
 function NewClientForm({
   onCancel,
