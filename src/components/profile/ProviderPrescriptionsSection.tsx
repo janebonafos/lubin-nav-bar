@@ -255,13 +255,15 @@ export default function ProviderPrescriptionsSection() {
                       <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0] transition group-hover:bg-[#EAE2FB]">In progress</span>
                       <button
                         type="button"
+                        title="Archive"
+                        aria-label="Archive draft"
                         onClick={(e) => {
                           e.stopPropagation();
                           archivePrescriptionDraft(draft.id);
                         }}
-                        className="inline-flex items-center rounded-lg px-2.5 py-1.5 text-[11.5px] font-semibold text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
                       >
-                        Archive
+                        <Archive className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
