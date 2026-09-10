@@ -287,7 +287,7 @@ function NewClientForm({
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className={label} htmlFor="nc-name">
-            Full legal name
+            {hcLabel("identity.fullName", "Full name")}
           </label>
           <input
             id="nc-name"
@@ -296,7 +296,7 @@ function NewClientForm({
               setFullName(e.target.value);
               setError("");
             }}
-            placeholder="e.g. Maria Santos"
+            placeholder="First, middle, last"
             className={`${inputCls} mt-1`}
           />
         </div>
