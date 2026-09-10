@@ -261,10 +261,7 @@ export default function ProviderPrescriptionsSection() {
                         aria-label="Archive draft"
                         onClick={(e) => {
                           e.stopPropagation();
-                          archivePrescriptionDraft(draft.id);
-                          toast.success("Draft archived", {
-                            description: `${draft.patientName}'s draft moved to Archived.`,
-                          });
+                          setArchiveConfirm(draft);
                         }}
                         className="group/icon relative inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
                       >
