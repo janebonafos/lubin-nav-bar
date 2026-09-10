@@ -631,6 +631,17 @@ function DocRow({
             <Download className="h-4 w-4" />
             <TooltipLabel>Download</TooltipLabel>
           </a>
+          {onEdit && !doc.voided && (
+            <button
+              type="button"
+              aria-label="Edit and re-sign prescription"
+              onClick={onEdit}
+              className={iconBtn}
+            >
+              <Pencil className="h-4 w-4" />
+              <TooltipLabel>Edit &amp; re-sign</TooltipLabel>
+            </button>
+          )}
           <button
             type="button"
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
