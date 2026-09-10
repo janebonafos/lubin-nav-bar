@@ -28,8 +28,11 @@ import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
 import {
+  archivePrescriptionDraft,
+  ensureSampleArchivedDraft,
   listPrescriptionDrafts,
   subscribePrescriptionDrafts,
+  unarchivePrescriptionDraft,
   type PrescriptionDraft,
 } from "@/lib/prescription/drafts";
 import {
@@ -82,6 +85,7 @@ export default function ProviderPrescriptionsSection() {
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
+    ensureSampleArchivedDraft();
     const read = () => {
       const list = listSignedPrescriptions();
       // Every signed prescription carries a claim link from the moment it exists.
@@ -103,9 +107,20 @@ export default function ProviderPrescriptionsSection() {
     };
   }, []);
 
+  const activeDrafts = useMemo(
+    () => drafts.filter((d) => !d.archivedAt),
+    [drafts],
+  );
+  const archivedDrafts = useMemo(
+    () => drafts.filter((d) => d.archivedAt),
+    [drafts],
+  );
+
   const archivedCount = useMemo(
-    () => docs.filter((d) => archivedIds.includes(d.id)).length,
-    [docs, archivedIds],
+    () =>
+      docs.filter((d) => archivedIds.includes(d.id)).length +
+      archivedDrafts.length,
+    [docs, archivedIds, archivedDrafts],
   );
 
   const groups = useMemo<PatientGroup[]>(() => {
@@ -178,7 +193,7 @@ export default function ProviderPrescriptionsSection() {
             {tab === "active"
               ? "Active"
               : tab === "drafts"
-                ? `Drafts${drafts.length ? ` (${drafts.length})` : ""}`
+                ? `Drafts${activeDrafts.length ? ` (${activeDrafts.length})` : ""}`
                 : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
           </button>
         ))}
@@ -198,7 +213,7 @@ export default function ProviderPrescriptionsSection() {
 
 
       {view === "drafts" ? (
-        drafts.length === 0 ? (
+        activeDrafts.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
             <p className="text-[13.5px] font-semibold text-[#3D2E6B]">No drafts saved</p>
             <p className="mt-1 text-[12.5px] text-[#6F6889]">
@@ -211,23 +226,46 @@ export default function ProviderPrescriptionsSection() {
               Started but not signed yet. Open one to continue where you left off.
             </p>
             <ul className="mt-3 space-y-2">
-              {drafts.map((draft) => (
+              {activeDrafts.map((draft) => (
                 <li key={draft.id}>
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       setResumingDraft(draft);
                       setResumeToken((token) => token + 1);
                       setIssuing(true);
                     }}
-                    className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setResumingDraft(draft);
+                        setResumeToken((token) => token + 1);
+                        setIssuing(true);
+                      }
+                    }}
+                    className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
                   >
                     <div>
                       <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
                       <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
                     </div>
-                    <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
-                  </button>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
+                      <button
+                        type="button"
+                        title="Archive draft"
+                        aria-label="Archive draft"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          archivePrescriptionDraft(draft.id);
+                        }}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                      >
+                        <Archive className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -254,7 +292,7 @@ export default function ProviderPrescriptionsSection() {
             <Plus className="h-4 w-4" /> Issue a prescription
           </button>
         </div>
-      ) : groups.length === 0 ? (
+      ) : groups.length === 0 && !(view === "archived" && archivedDrafts.length > 0) ? (
         <p className="mt-6 text-[13px] text-[#6F6889]">
           {query
             ? `No prescriptions match “${query}”.`
@@ -264,6 +302,38 @@ export default function ProviderPrescriptionsSection() {
         </p>
       ) : (
         <div className="mt-6 max-h-[620px] space-y-3 overflow-y-auto pr-1">
+          {view === "archived" && archivedDrafts.length > 0 && (
+            <div className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
+              <p className="text-[12px] text-[#6F6889]">
+                Archived drafts — started but never signed. Restore one to keep working on it.
+              </p>
+              <ul className="mt-3 space-y-2">
+                {archivedDrafts.map((draft) => (
+                  <li
+                    key={draft.id}
+                    className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
+                      <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">
+                        Draft · Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}
+                        {draft.archivedAt ? ` · Archived ${formatDate(draft.archivedAt)}` : ""}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      title="Restore draft"
+                      aria-label="Restore draft"
+                      onClick={() => unarchivePrescriptionDraft(draft.id)}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                    >
+                      <ArchiveRestore className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {groups.map((group) => {
             const isOpen =
               expanded[group.patientName] ?? group.docs.length === 1;
