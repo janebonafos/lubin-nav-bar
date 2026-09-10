@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import {
   Archive,
   ArchiveRestore,
@@ -415,7 +415,7 @@ function formatDateTime(at: number): string {
 }
 
 /** Lightweight hover label for icon-only action buttons. */
-function TooltipLabel({ children }: { children: React.ReactNode }) {
+function TooltipLabel({ children }: { children: ReactNode }) {
   return (
     <span
       role="tooltip"
