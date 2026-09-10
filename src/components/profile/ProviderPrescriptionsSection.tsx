@@ -254,15 +254,14 @@ export default function ProviderPrescriptionsSection() {
                       <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
                       <button
                         type="button"
-                        title="Archive draft"
-                        aria-label="Archive draft"
                         onClick={(e) => {
                           e.stopPropagation();
                           archivePrescriptionDraft(draft.id);
                         }}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E3DBF5] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#6F6889] transition hover:border-[#DCD4F0] hover:bg-[#F4F0FE] hover:text-[#6F5BA0]"
                       >
                         <Archive className="h-3.5 w-3.5" />
+                        Archive
                       </button>
                     </div>
                   </div>
@@ -322,12 +321,11 @@ export default function ProviderPrescriptionsSection() {
                     </div>
                     <button
                       type="button"
-                      title="Restore draft"
-                      aria-label="Restore draft"
                       onClick={() => unarchivePrescriptionDraft(draft.id)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E3DBF5] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#6F6889] transition hover:border-[#DCD4F0] hover:bg-[#F4F0FE] hover:text-[#6F5BA0]"
                     >
                       <ArchiveRestore className="h-3.5 w-3.5" />
+                      Restore
                     </button>
                   </li>
                 ))}
@@ -433,28 +431,19 @@ export default function ProviderPrescriptionsSection() {
                             </a>
                             <button
                               type="button"
-                              title={
-                                view === "archived"
-                                  ? "Restore prescription"
-                                  : "Archive prescription"
-                              }
-                              aria-label={
-                                view === "archived"
-                                  ? "Restore prescription"
-                                  : "Archive prescription"
-                              }
                               onClick={() =>
                                 view === "archived"
                                   ? unarchivePrescription(doc.id)
                                   : archivePrescription(doc.id)
                               }
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
                             >
                               {view === "archived" ? (
                                 <ArchiveRestore className="h-3.5 w-3.5" />
                               ) : (
                                 <Archive className="h-3.5 w-3.5" />
                               )}
+                              {view === "archived" ? "Restore" : "Archive"}
                             </button>
                           </div>
                         </div>
