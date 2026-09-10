@@ -459,7 +459,7 @@ function DocRow({
   }, [doc.id, tick]);
 
   const iconBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCD4F0] bg-white text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
+    "group/icon relative inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCD4F0] bg-white text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
 
   return (
     <li className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
@@ -494,25 +494,24 @@ function DocRow({
             href={prescriptionHref(doc)}
             target="_blank"
             rel="noopener noreferrer"
-            title="View prescription"
             aria-label="View prescription"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
+            className="group/icon relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
           >
             <Eye className="h-4 w-4" />
+            <TooltipLabel>View</TooltipLabel>
           </a>
           <a
             href={`${prescriptionHref(doc)}?download=1`}
             target="_blank"
             rel="noopener noreferrer"
-            title="Download"
             aria-label="Download prescription"
             className={iconBtn}
           >
             <Download className="h-4 w-4" />
+            <TooltipLabel>Download</TooltipLabel>
           </a>
           <button
             type="button"
-            title={view === "archived" ? "Restore" : "Archive"}
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
             onClick={() =>
               view === "archived"
@@ -526,10 +525,10 @@ function DocRow({
             ) : (
               <Archive className="h-4 w-4" />
             )}
+            <TooltipLabel>{view === "archived" ? "Restore" : "Archive"}</TooltipLabel>
           </button>
           <button
             type="button"
-            title={sentTo ? "Resend link" : "Share via email"}
             aria-label={sentTo ? "Resend prescription link" : "Share prescription via email"}
             onClick={() => {
               ensureClaim(doc);
@@ -538,6 +537,7 @@ function DocRow({
             className={iconBtn}
           >
             <Mail className="h-4 w-4" />
+            <TooltipLabel>{sentTo ? "Resend link" : "Share via email"}</TooltipLabel>
           </button>
         </div>
       </div>
