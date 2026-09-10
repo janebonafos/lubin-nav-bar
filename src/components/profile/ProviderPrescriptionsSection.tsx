@@ -409,12 +409,12 @@ export default function ProviderPrescriptionsSection() {
             onClick={() => setArchiveConfirm(null)}
           >
             <div
-              className="w-full max-w-sm rounded-2xl border border-[#E3DBF5] bg-white p-6 shadow-xl"
+              className="w-full max-w-md rounded-2xl border border-[#E3DBF5] bg-white p-7 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <h4 className="text-[14px] font-bold text-[#3D2E6B]">Archive this draft?</h4>
               <p className="mt-0.5 text-[12px] text-[#6F6889]">
-                {archiveConfirm.patientName} · Step {archiveConfirm.step + 1}
+                {archiveConfirm.patientName}
               </p>
               <p className="mt-3 text-[12.5px] leading-relaxed text-[#6F6889]">
                 You can restore it later from the Archived tab, but it won't appear in Drafts until then.
