@@ -34,6 +34,10 @@ import {
   type PregnancyStatus,
 } from "@/lib/prescription/store";
 import { sharedHealthCardValues } from "@/lib/prescription/intakeImport";
+import {
+  ALL_HEALTH_DETAIL_FIELDS,
+  type HealthDetailField,
+} from "@/lib/intake/healthDetails";
 
 
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
@@ -114,6 +118,75 @@ function noteEntries(text: string, source: "provider" = "provider") {
   }));
 }
 
+/**
+ * The same questions the client answers on their own health card, so a record a
+ * provider types matches a record a client shares — one wording, one option set.
+ */
+function hcField(id: string): HealthDetailField | undefined {
+  return ALL_HEALTH_DETAIL_FIELDS.find((f) => f.id === id);
+}
+
+function hcLabel(id: string, fallback: string): string {
+  return hcField(id)?.label ?? fallback;
+}
+
+function hcHelp(id: string): string | undefined {
+  return hcField(id)?.help;
+}
+
+/** Same suggestions the client sees, so both sides record the same wording. */
+function Suggestions({
+  fieldId,
+  value,
+  onChange,
+}: {
+  fieldId: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const options = hcField(fieldId)?.options ?? [];
+  const exclusive = hcField(fieldId)?.exclusiveOption;
+  if (options.length === 0) return null;
+  const items = value
+    .split(/[,\n;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const toggle = (opt: string) => {
+    if (opt === exclusive) {
+      onChange(items.includes(opt) ? "" : opt);
+      return;
+    }
+    const kept = items.filter((i) => i !== exclusive);
+    const next = kept.includes(opt) ? kept.filter((i) => i !== opt) : [...kept, opt];
+    onChange(next.join(", "));
+  };
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {options
+        .filter((o) => o !== "Other")
+        .map((opt) => {
+          const on = items.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition ${
+                on
+                  ? "border-[#7E6BAF] bg-[#F1EBFC] text-[#3D2E6B]"
+                  : "border-[#E3DBF5] bg-white text-[#6F6889] hover:border-[#C9B6EC]"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+    </div>
+  );
+}
+
 /** Create a client record before or outside an appointment. */
 function NewClientForm({
   onCancel,
@@ -130,6 +203,9 @@ function NewClientForm({
   const [conditions, setConditions] = useState("");
   const [medications, setMedications] = useState("");
   const [pregnancy, setPregnancy] = useState<PregnancyStatus>("not-documented");
+  // "Care you already have" — the same two questions on the client's health card.
+  const [previousCare, setPreviousCare] = useState("");
+  const [clinicians, setClinicians] = useState("");
   const [error, setError] = useState("");
 
   // Optional details beyond the standard intake set.
@@ -184,9 +260,29 @@ function NewClientForm({
       emergencyContact: emergencyContact.trim() || undefined,
       referralSource: referralSource.trim() || undefined,
       providerNotes: providerNotes.trim() || undefined,
-      customFields: customFields
-        .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
-        .filter((f) => f.label && f.value),
+      customFields: [
+        ...(previousCare.trim()
+          ? [
+              {
+                id: "care.previous",
+                label: hcLabel("care.previous", "Therapy or psychiatric care before"),
+                value: previousCare.trim(),
+              },
+            ]
+          : []),
+        ...(clinicians.trim()
+          ? [
+              {
+                id: "care.clinicians",
+                label: hcLabel("care.clinicians", "Anyone currently involved in their care"),
+                value: clinicians.trim(),
+              },
+            ]
+          : []),
+        ...customFields
+          .map((f) => ({ ...f, label: f.label.trim(), value: f.value.trim() }))
+          .filter((f) => f.label && f.value),
+      ],
     };
     const record = createPatientRecord({ fullName, info });
     onCreated(record.id);
@@ -214,7 +310,7 @@ function NewClientForm({
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className={label} htmlFor="nc-name">
-            Full legal name
+            {hcLabel("identity.fullName", "Full name")}
           </label>
           <input
             id="nc-name"
@@ -223,7 +319,7 @@ function NewClientForm({
               setFullName(e.target.value);
               setError("");
             }}
-            placeholder="e.g. Maria Santos"
+            placeholder="First, middle, last"
             className={`${inputCls} mt-1`}
           />
         </div>
@@ -273,51 +369,74 @@ function NewClientForm({
             className={`${inputCls} mt-1`}
           />
         </div>
-        <div>
-          <label className={label} htmlFor="nc-allergies">
-            Allergies
-          </label>
-          <input
-            id="nc-allergies"
-            value={allergies}
-            onChange={(e) => setAllergies(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-conditions">
-            Conditions
-          </label>
-          <input
-            id="nc-conditions"
-            value={conditions}
-            onChange={(e) => setConditions(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div>
+        <div className="sm:col-span-2">
           <label className={label} htmlFor="nc-meds">
-            Current medications
+            {hcLabel("medication.list", "Anything you take right now")}
           </label>
+          {hcHelp("medication.list") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("medication.list")}
+            </p>
+          )}
           <input
             id="nc-meds"
             value={medications}
             onChange={(e) => setMedications(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
+            placeholder="e.g. Sertraline 50mg"
+            className={`${inputCls} mt-1.5`}
           />
+          <Suggestions fieldId="medication.list" value={medications} onChange={setMedications} />
         </div>
         <div>
-          <label className={label} htmlFor="nc-preg">
-            Pregnancy / breastfeeding
+          <label className={label} htmlFor="nc-allergies">
+            {hcLabel("history.allergies", "Allergies or reactions")}
           </label>
+          {hcHelp("history.allergies") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.allergies")}
+            </p>
+          )}
+          <input
+            id="nc-allergies"
+            value={allergies}
+            onChange={(e) => setAllergies(e.target.value)}
+            placeholder="e.g. Penicillin"
+            className={`${inputCls} mt-1.5`}
+          />
+          <Suggestions fieldId="history.allergies" value={allergies} onChange={setAllergies} />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-conditions">
+            {hcLabel("history.conditions", "Conditions or past care that feels relevant")}
+          </label>
+          {hcHelp("history.conditions") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.conditions")}
+            </p>
+          )}
+          <input
+            id="nc-conditions"
+            value={conditions}
+            onChange={(e) => setConditions(e.target.value)}
+            placeholder="e.g. Migraine"
+            className={`${inputCls} mt-1.5`}
+          />
+          <Suggestions fieldId="history.conditions" value={conditions} onChange={setConditions} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="nc-preg">
+            {hcLabel("history.pregnancy", "Pregnant, breastfeeding or trying to conceive?")}
+          </label>
+          {hcHelp("history.pregnancy") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.pregnancy")}
+            </p>
+          )}
           <select
             id="nc-preg"
             value={pregnancy}
             onChange={(e) => setPregnancy(e.target.value as PregnancyStatus)}
-            className={`${inputCls} mt-1`}
+            className={`${inputCls} mt-1.5`}
           >
             {(Object.keys(PREGNANCY_STATUS_LABEL) as PregnancyStatus[]).map((k) => (
               <option key={k} value={k}>
@@ -325,6 +444,37 @@ function NewClientForm({
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-care-prev">
+            {hcLabel("care.previous", "Have you had therapy or psychiatric care before?")}
+          </label>
+          <select
+            id="nc-care-prev"
+            value={previousCare}
+            onChange={(e) => setPreviousCare(e.target.value)}
+            className={`${inputCls} mt-1`}
+          >
+            <option value="">Not documented</option>
+            {(hcField("care.previous")?.options ?? []).map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-clinicians">
+            {hcLabel("care.clinicians", "Anyone currently involved in your care")}
+          </label>
+          <input
+            id="nc-clinicians"
+            value={clinicians}
+            onChange={(e) => setClinicians(e.target.value)}
+            placeholder="e.g. GP"
+            className={`${inputCls} mt-1`}
+          />
+          <Suggestions fieldId="care.clinicians" value={clinicians} onChange={setClinicians} />
         </div>
       </div>
 
@@ -354,10 +504,20 @@ function NewClientForm({
             <div className="grid gap-4 sm:grid-cols-2">
               {(
                 [
-                  ["Preferred name", preferredName, setPreferredName, "What they like to be called"],
+                  [
+                    hcLabel("identity.preferredName", "Preferred name"),
+                    preferredName,
+                    setPreferredName,
+                    "What they'd like to be called",
+                  ],
                   ["Pronouns", pronouns, setPronouns, "e.g. she/her"],
-                  ["Phone", phone, setPhone, "Mobile or landline"],
-                  ["Email", email, setEmail, "name@example.com"],
+                  [
+                    hcLabel("contact.phone", "Mobile number"),
+                    phone,
+                    setPhone,
+                    "912 345 6789",
+                  ],
+                  [hcLabel("contact.email", "Email"), email, setEmail, "you@email.com"],
                   [
                     "Emergency contact",
                     emergencyContact,
