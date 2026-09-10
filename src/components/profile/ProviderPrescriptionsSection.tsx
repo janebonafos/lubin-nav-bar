@@ -193,7 +193,7 @@ export default function ProviderPrescriptionsSection() {
             {tab === "active"
               ? "Active"
               : tab === "drafts"
-                ? `Drafts${drafts.length ? ` (${drafts.length})` : ""}`
+                ? `Drafts${activeDrafts.length ? ` (${activeDrafts.length})` : ""}`
                 : `Archived${archivedCount ? ` (${archivedCount})` : ""}`}
           </button>
         ))}
@@ -213,7 +213,7 @@ export default function ProviderPrescriptionsSection() {
 
 
       {view === "drafts" ? (
-        drafts.length === 0 ? (
+        activeDrafts.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
             <p className="text-[13.5px] font-semibold text-[#3D2E6B]">No drafts saved</p>
             <p className="mt-1 text-[12.5px] text-[#6F6889]">
