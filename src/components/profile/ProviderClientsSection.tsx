@@ -24,7 +24,7 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
-import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
+import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 import { ASSESSMENTS_BY_SLUG, GROUP_LABELS } from "@/lib/patterns/assessments";
 import { getAssessmentStatus } from "@/lib/patterns/scoring";
 import {
@@ -46,7 +46,7 @@ const label = "text-[11px] font-semibold uppercase tracking-wide text-[#7E6BAF]"
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
 function prescriptionHref(doc: SignedPrescriptionDocument): string {
-  const id = stashPrescriptionView({
+  return prescriptionViewHref({
     appointmentId: doc.appointmentId,
     country: doc.country,
     clientName: doc.patientName,
@@ -54,7 +54,6 @@ function prescriptionHref(doc: SignedPrescriptionDocument): string {
     docId: doc.id,
     document: doc,
   });
-  return `/e-prescription/${id}`;
 }
 
 function formatDate(at?: number): string {

@@ -48,15 +48,58 @@ export function stashPrescriptionView(view: Omit<PrescriptionView, "createdAt">)
   return id;
 }
 
+/** Encodes the payload into the URL fragment so the document still renders in a
+ *  tab (or origin) that cannot read the local store. Fragments are never sent
+ *  to the server. */
+function encodeView(view: Omit<PrescriptionView, "createdAt">): string {
+  try {
+    if (typeof window === "undefined") return "";
+    const json = JSON.stringify({ ...view, createdAt: Date.now() });
+    const bytes = new TextEncoder().encode(json);
+    let bin = "";
+    bytes.forEach((b) => {
+      bin += String.fromCharCode(b);
+    });
+    return encodeURIComponent(window.btoa(bin));
+  } catch {
+    return "";
+  }
+}
+
+function decodeView(encoded: string): PrescriptionView | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const bytes = Uint8Array.from(window.atob(decodeURIComponent(encoded)), (c) =>
+      c.charCodeAt(0),
+    );
+    return JSON.parse(new TextDecoder().decode(bytes)) as PrescriptionView;
+  } catch {
+    return null;
+  }
+}
+
+/** Builds the link used to open a prescription in its own tab. */
+export function prescriptionViewHref(
+  view: Omit<PrescriptionView, "createdAt">,
+  opts?: { download?: boolean },
+): string {
+  const id = stashPrescriptionView(view);
+  const payload = encodeView(view);
+  const query = opts?.download ? "?download=1" : "";
+  return `/e-prescription/${id}${query}${payload ? `#d=${payload}` : ""}`;
+}
+
 export function readPrescriptionView(id: string): PrescriptionView | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(KEY_PREFIX + id);
-    if (!raw) return null;
-    return JSON.parse(raw) as PrescriptionView;
+    if (raw) return JSON.parse(raw) as PrescriptionView;
   } catch {
-    return null;
+    /* fall through to the fragment payload */
   }
+  const hash = typeof window !== "undefined" ? window.location.hash : "";
+  const match = /[#&]d=([^&]+)/.exec(hash);
+  return match?.[1] ? decodeView(match[1]) : null;
 }
 
 function prunePrescriptionViews() {

@@ -46,20 +46,22 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
-import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
+import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
-function prescriptionHref(doc: SignedPrescriptionDocument): string {
-  const id = stashPrescriptionView({
+function prescriptionHref(
+  doc: SignedPrescriptionDocument,
+  opts?: { download?: boolean },
+): string {
+  return prescriptionViewHref({
     appointmentId: doc.appointmentId,
     country: doc.country,
     clientName: doc.patientName,
     providerName: doc.identity?.fullName,
     docId: doc.id,
     document: doc,
-  });
-  return `/e-prescription/${id}`;
+  }, opts);
 }
 
 type PatientGroup = {
@@ -679,7 +681,7 @@ function DocRow({
             </button>
           )}
           <a
-            href={`${prescriptionHref(doc)}?download=1`}
+            href={prescriptionHref(doc, { download: true })}
             onClick={() =>
               toast.success("Prescription downloaded", {
                 description: `${doc.number} for ${doc.patientName || "the patient"}`,

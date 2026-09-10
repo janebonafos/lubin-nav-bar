@@ -7,20 +7,22 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
-import { stashPrescriptionView } from "@/lib/prescription/viewHandoff";
+import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
-function prescriptionHref(doc: SignedPrescriptionDocument): string {
-  const id = stashPrescriptionView({
+function prescriptionHref(
+  doc: SignedPrescriptionDocument,
+  opts?: { download?: boolean },
+): string {
+  return prescriptionViewHref({
     appointmentId: doc.appointmentId,
     country: doc.country,
     clientName: doc.patientName,
     providerName: doc.identity?.fullName,
     docId: doc.id,
     document: doc,
-  });
-  return `/e-prescription/${id}`;
+  }, opts);
 }
 
 /**
@@ -118,7 +120,7 @@ export default function ClientPrescriptionsSection() {
                     View
                   </a>
                   <a
-                    href={prescriptionHref(doc)}
+                    href={prescriptionHref(doc, { download: true })}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex h-9 items-center justify-center rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
