@@ -11,6 +11,7 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
   claimForDocument,
@@ -259,6 +260,9 @@ export default function ProviderPrescriptionsSection() {
                         onClick={(e) => {
                           e.stopPropagation();
                           archivePrescriptionDraft(draft.id);
+                          toast.success("Draft archived", {
+                            description: `${draft.patientName}'s draft moved to Archived.`,
+                          });
                         }}
                         className="group/icon relative inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
                       >
@@ -325,7 +329,12 @@ export default function ProviderPrescriptionsSection() {
                       type="button"
                       title="Restore"
                       aria-label="Restore draft"
-                      onClick={() => unarchivePrescriptionDraft(draft.id)}
+                      onClick={() => {
+                        unarchivePrescriptionDraft(draft.id);
+                        toast.success("Draft restored", {
+                          description: `${draft.patientName}'s draft is back in Drafts.`,
+                        });
+                      }}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E3DBF5] text-[#6F6889] transition hover:border-[#DCD4F0] hover:bg-[#F4F0FE] hover:text-[#6F5BA0]"
                     >
                       <ArchiveRestore className="h-3.5 w-3.5" />
@@ -514,6 +523,11 @@ function DocRow({
           </a>
           <a
             href={`${prescriptionHref(doc)}?download=1`}
+            onClick={() =>
+              toast.success("Prescription downloaded", {
+                description: `${doc.number} for ${doc.patientName || "the patient"}`,
+              })
+            }
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Download prescription"
@@ -525,11 +539,19 @@ function DocRow({
           <button
             type="button"
             aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
-            onClick={() =>
-              view === "archived"
-                ? unarchivePrescription(doc.id)
-                : archivePrescription(doc.id)
-            }
+            onClick={() => {
+              if (view === "archived") {
+                unarchivePrescription(doc.id);
+                toast.success("Prescription restored", {
+                  description: `${doc.number} is back in Active.`,
+                });
+              } else {
+                archivePrescription(doc.id);
+                toast.success("Prescription archived", {
+                  description: `${doc.number} for ${doc.patientName || "the patient"} moved to Archived.`,
+                });
+              }
+            }}
             className={iconBtn}
           >
             {view === "archived" ? (
@@ -616,7 +638,11 @@ function ShareByEmail({
               disabled={!valid || !claim}
               onClick={() => {
                 if (!claim) return;
-                markClaimSent(claim.claimId, email.trim());
+                const to = email.trim();
+                markClaimSent(claim.claimId, to);
+                toast.success("Prescription sent", {
+                  description: `Secure link emailed to ${to}.`,
+                });
                 onSent?.();
                 setEmail("");
               }}
