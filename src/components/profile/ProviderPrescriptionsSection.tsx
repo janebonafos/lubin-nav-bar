@@ -327,7 +327,6 @@ export default function ProviderPrescriptionsSection() {
                     </div>
                     <button
                       type="button"
-                      title="Restore"
                       aria-label="Restore draft"
                       onClick={() => {
                         unarchivePrescriptionDraft(draft.id);
@@ -335,9 +334,10 @@ export default function ProviderPrescriptionsSection() {
                           description: `${draft.patientName}'s draft is back in Drafts.`,
                         });
                       }}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E3DBF5] text-[#6F6889] transition hover:border-[#DCD4F0] hover:bg-[#F4F0FE] hover:text-[#6F5BA0]"
+                      className="group/icon relative inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[#E3DBF5] text-[#6F6889] transition hover:border-[#DCD4F0] hover:bg-[#F4F0FE] hover:text-[#6F5BA0]"
                     >
                       <ArchiveRestore className="h-3.5 w-3.5" />
+                      <TooltipLabel>Restore</TooltipLabel>
                     </button>
                   </li>
                 ))}
