@@ -50,7 +50,10 @@ import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
-function prescriptionHref(doc: SignedPrescriptionDocument): string {
+function prescriptionHref(
+  doc: SignedPrescriptionDocument,
+  opts?: { download?: boolean },
+): string {
   return prescriptionViewHref({
     appointmentId: doc.appointmentId,
     country: doc.country,
@@ -58,7 +61,7 @@ function prescriptionHref(doc: SignedPrescriptionDocument): string {
     providerName: doc.identity?.fullName,
     docId: doc.id,
     document: doc,
-  });
+  }, opts);
 }
 
 type PatientGroup = {
@@ -678,7 +681,7 @@ function DocRow({
             </button>
           )}
           <a
-            href={`${prescriptionHref(doc)}?download=1`}
+            href={prescriptionHref(doc, { download: true })}
             onClick={() =>
               toast.success("Prescription downloaded", {
                 description: `${doc.number} for ${doc.patientName || "the patient"}`,
