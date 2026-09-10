@@ -41,7 +41,7 @@ import {
 
 
 const card = "rounded-2xl border border-[#E9E2F8] bg-white p-5";
-const label = "text-[11px] font-semibold uppercase tracking-wide text-[#8A7FB0]";
+const label = "text-[11px] font-semibold uppercase tracking-wide text-[#7E6BAF]";
 
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
@@ -134,25 +134,30 @@ function hcHelp(id: string): string | undefined {
   return hcField(id)?.help;
 }
 
-/** Same suggestions the client sees, so both sides record the same wording. */
-function Suggestions({
+/** Tap-to-select chips for a tags field — same options the client sees on their
+ *  health card. "+ Add other" reveals a small input for anything not listed. */
+function TagField({
   fieldId,
   value,
   onChange,
+  placeholder,
 }: {
   fieldId: string;
   value: string;
   onChange: (next: string) => void;
+  placeholder?: string;
 }) {
-  const options = hcField(fieldId)?.options ?? [];
-  const exclusive = hcField(fieldId)?.exclusiveOption;
-  if (options.length === 0) return null;
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState("");
+  const field = hcField(fieldId);
+  const options = field?.options ?? [];
+  const exclusive = field?.exclusiveOption;
   const items = value
     .split(/[,\n;]/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const toggle = (opt: string) => {
+  function toggle(opt: string) {
     if (opt === exclusive) {
       onChange(items.includes(opt) ? "" : opt);
       return;
@@ -160,32 +165,117 @@ function Suggestions({
     const kept = items.filter((i) => i !== exclusive);
     const next = kept.includes(opt) ? kept.filter((i) => i !== opt) : [...kept, opt];
     onChange(next.join(", "));
-  };
+  }
+
+  function commitDraft() {
+    const d = draft.trim();
+    setDraft("");
+    setAdding(false);
+    if (!d) return;
+    const kept =
+      exclusive && items.includes(exclusive) ? [] : items.filter((i) => i !== exclusive);
+    if (kept.includes(d)) return;
+    onChange([...kept, d].join(", "));
+  }
+
+  const chipCls = (on: boolean) =>
+    `rounded-full border px-4 py-2 text-[12.5px] font-medium transition ${
+      on
+        ? "border-transparent bg-[#F3F0FA] text-[#7E6BAF]"
+        : "border-[#E9E5F3] text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
+    }`;
 
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
+    <div className="mt-1.5 flex flex-wrap items-center gap-2">
       {options
         .filter((o) => o !== "Other")
-        .map((opt) => {
-          const on = items.includes(opt);
-          return (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => toggle(opt)}
-              className={`rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition ${
-                on
-                  ? "border-[#7E6BAF] bg-[#F1EBFC] text-[#3D2E6B]"
-                  : "border-[#E3DBF5] bg-white text-[#6F6889] hover:border-[#C9B6EC]"
-              }`}
-            >
-              {opt}
-            </button>
-          );
-        })}
+        .map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => toggle(opt)}
+            className={chipCls(items.includes(opt))}
+          >
+            {opt}
+          </button>
+        ))}
+      {adding ? (
+        <input
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commitDraft();
+            }
+          }}
+          onBlur={commitDraft}
+          placeholder={placeholder ?? "Type and press Enter"}
+          className="h-9 w-44 rounded-full border border-[#7E6BAF] bg-white px-3 text-[12.5px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:outline-none"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="rounded-full border border-dashed border-[#C9B6EC] px-4 py-2 text-[12.5px] font-medium text-[#5B4A93] transition hover:border-[#7E6BAF] hover:text-[#7E6BAF]"
+        >
+          + Add other
+        </button>
+      )}
     </div>
   );
 }
+
+/** Single-select chips for choice fields — same options as the health card. */
+function ChoiceChips<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-2">
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(o.value)}
+            className={`rounded-full border px-4 py-2 text-[12.5px] font-medium transition ${
+              on
+                ? "border-transparent bg-[#F3F0FA] text-[#7E6BAF]"
+                : "border-[#E9E5F3] text-slate-600 hover:border-[#7E6BAF] hover:bg-[#F8F6FD]"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const SEX_OPTIONS: { value: NonNullable<PatientSafetyInfo["sex"]>; label: string }[] = [
+  { value: "female", label: "Female" },
+  { value: "male", label: "Male" },
+  { value: "intersex", label: "Intersex" },
+  { value: "prefer-not-to-say", label: "Prefer not to say" },
+  { value: "not-documented", label: "Not documented" },
+];
+
+const PREGNANCY_OPTIONS: { value: PregnancyStatus; label: string }[] = (
+  Object.keys(PREGNANCY_STATUS_LABEL) as PregnancyStatus[]
+).map((k) => ({ value: k, label: PREGNANCY_STATUS_LABEL[k] }));
+
+const PREVIOUS_CARE_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "Not documented" },
+  ...(hcField("care.previous")?.options ?? []).map((o) => ({ value: o, label: o })),
+];
 
 /** Create a client record before or outside an appointment. */
 function NewClientForm({
