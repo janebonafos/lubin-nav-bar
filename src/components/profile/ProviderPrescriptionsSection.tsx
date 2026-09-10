@@ -410,12 +410,151 @@ function formatDateTime(at: number): string {
   });
 }
 
+/** Small badge showing delivery state of the secure claim link. */
+function ClaimBadge({ docId }: { docId: string }) {
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribeClaims(() => setTick((t) => t + 1)), []);
+  const claim = useMemo(() => {
+    void tick;
+    return claimForDocument(docId);
+  }, [docId, tick]);
+
+  if (!claim?.state || claim.state === "unclaimed") return null;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
+        claim.state === "claimed"
+          ? "bg-[#F3FAF6] text-[#2F6B4A]"
+          : "bg-[#F4F0FE] text-[#6F5BA0]"
+      }`}
+    >
+      {claim.state === "claimed" && <Check className="h-3 w-3" />}
+      {CLAIM_STATE_LABEL[claim.state]}
+    </span>
+  );
+}
+
+/**
+ * One signed prescription row: info on the left, all actions in a single
+ * compact row on the right so the card stays short. The email-share panel
+ * expands below only while it is open.
+ */
+function DocRow({
+  doc,
+  view,
+}: {
+  doc: SignedPrescriptionDocument;
+  view: "active" | "archived";
+}) {
+  const [shareOpen, setShareOpen] = useState(false);
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribeClaims(() => setTick((t) => t + 1)), []);
+  const sentTo = useMemo(() => {
+    void tick;
+    return claimForDocument(doc.id)?.sentTo;
+  }, [doc.id, tick]);
+
+  const secondaryBtn =
+    "inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#DCD4F0] bg-white px-2.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
+
+  return (
+    <li className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
+            {doc.number}
+          </p>
+          <p className="mt-0.5 truncate text-[13px] font-semibold text-[#2C2B4B]">
+            {doc.medications
+              .map(
+                (m) =>
+                  `${m.genericName || m.name}${m.strength ? ` ${m.strength}` : ""}`,
+              )
+              .join(" · ") || "No medication recorded"}
+          </p>
+          <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">
+            Signed {formatDateTime(doc.signedAt)} · {doc.country} ·{" "}
+            {doc.authenticationMethod}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          {doc.controlled && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#FDF6E7] px-2 py-0.5 text-[10.5px] font-semibold text-[#6B4E10]">
+              <ShieldAlert className="h-3 w-3" />
+              {doc.country === "PH" ? "Dangerous drug" : "Controlled substance"}
+            </span>
+          )}
+          <ClaimBadge docId={doc.id} />
+          <a
+            href={prescriptionHref(doc)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            View prescription
+          </a>
+          <a
+            href={`${prescriptionHref(doc)}?download=1`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={secondaryBtn}
+          >
+            <Download className="h-3.5 w-3.5" /> Download
+          </a>
+          <button
+            type="button"
+            onClick={() =>
+              view === "archived"
+                ? unarchivePrescription(doc.id)
+                : archivePrescription(doc.id)
+            }
+            className={secondaryBtn}
+          >
+            {view === "archived" ? (
+              <ArchiveRestore className="h-3.5 w-3.5" />
+            ) : (
+              <Archive className="h-3.5 w-3.5" />
+            )}
+            {view === "archived" ? "Restore" : "Archive"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              ensureClaim(doc);
+              setShareOpen((o) => !o);
+            }}
+            className={secondaryBtn}
+          >
+            <Mail className="h-3.5 w-3.5" />
+            {sentTo ? "Resend link" : "Share via email"}
+          </button>
+        </div>
+      </div>
+
+      {sentTo && !shareOpen && (
+        <p className="mt-1.5 text-[11.5px] text-[#8A7FB0]">
+          Link sent to {sentTo}
+        </p>
+      )}
+
+      <ShareByEmail doc={doc} open={shareOpen} />
+    </li>
+  );
+}
+
 /**
  * Delivery of a signed prescription to the patient: a secure claim link the
  * provider shares by email. Prototype only — nothing is actually sent.
+ * Controlled panel — the toggle button lives in DocRow's action row.
  */
-function ShareByEmail({ doc }: { doc: SignedPrescriptionDocument }) {
-  const [open, setOpen] = useState(false);
+function ShareByEmail({
+  doc,
+  open,
+}: {
+  doc: SignedPrescriptionDocument;
+  open: boolean;
+}) {
   const [email, setEmail] = useState("");
   const [tick, setTick] = useState(0);
 
@@ -429,42 +568,10 @@ function ShareByEmail({ doc }: { doc: SignedPrescriptionDocument }) {
   const link = claim ? claimUrl(claim.claimId) : "";
   const valid = /.+@.+\..+/.test(email.trim());
 
+  if (!open) return null;
+
   return (
     <div className="mt-3 border-t border-[#EDEBF3] pt-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {claim?.state && claim.state !== "unclaimed" && (
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-              claim.state === "claimed"
-                ? "bg-[#F3FAF6] text-[#2F6B4A]"
-                : "bg-[#F4F0FE] text-[#6F5BA0]"
-            }`}
-          >
-            {claim.state === "claimed" && <Check className="h-3.5 w-3.5" />}
-            {CLAIM_STATE_LABEL[claim.state]}
-          </span>
-        )}
-        {(!claim?.state || claim.state === "unclaimed") && <span />}
-        <button
-          type="button"
-          onClick={() => {
-            ensureClaim(doc);
-            setOpen((o) => !o);
-          }}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#DCD4F0] bg-white px-3 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
-        >
-          <Mail className="h-3.5 w-3.5" />
-          {claim?.sentTo ? "Resend link" : "Share via email"}
-        </button>
-      </div>
-
-      {claim?.sentTo && !open && (
-        <p className="mt-2 text-[11.5px] text-[#8A7FB0]">
-          Link sent to {claim.sentTo}
-          {claim.sentAt ? ` · ${formatDateTime(claim.sentAt)}` : ""}
-        </p>
-      )}
-
       {open && (
         <div className="mt-2.5 rounded-xl border border-[#E3DBF5] bg-white p-3.5">
           <p className="text-[12px] leading-snug text-[#6F6889]">
