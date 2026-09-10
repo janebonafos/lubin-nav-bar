@@ -504,10 +504,20 @@ function NewClientForm({
             <div className="grid gap-4 sm:grid-cols-2">
               {(
                 [
-                  ["Preferred name", preferredName, setPreferredName, "What they like to be called"],
+                  [
+                    hcLabel("identity.preferredName", "Preferred name"),
+                    preferredName,
+                    setPreferredName,
+                    "What they'd like to be called",
+                  ],
                   ["Pronouns", pronouns, setPronouns, "e.g. she/her"],
-                  ["Phone", phone, setPhone, "Mobile or landline"],
-                  ["Email", email, setEmail, "name@example.com"],
+                  [
+                    hcLabel("contact.phone", "Mobile number"),
+                    phone,
+                    setPhone,
+                    "912 345 6789",
+                  ],
+                  [hcLabel("contact.email", "Email"), email, setEmail, "you@email.com"],
                   [
                     "Emergency contact",
                     emergencyContact,
