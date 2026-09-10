@@ -226,23 +226,46 @@ export default function ProviderPrescriptionsSection() {
               Started but not signed yet. Open one to continue where you left off.
             </p>
             <ul className="mt-3 space-y-2">
-              {drafts.map((draft) => (
+              {activeDrafts.map((draft) => (
                 <li key={draft.id}>
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       setResumingDraft(draft);
                       setResumeToken((token) => token + 1);
                       setIssuing(true);
                     }}
-                    className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setResumingDraft(draft);
+                        setResumeToken((token) => token + 1);
+                        setIssuing(true);
+                      }
+                    }}
+                    className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3 text-left transition hover:border-[#DCD4F0] hover:bg-[#F6F3FE]"
                   >
                     <div>
                       <p className="text-[13px] font-semibold text-[#3D2E6B]">{draft.patientName}</p>
                       <p className="mt-0.5 text-[11.5px] text-[#8A7FB0]">Step {draft.step + 1} · Saved {formatDateTime(draft.savedAt)}</p>
                     </div>
-                    <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
-                  </button>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-[#F4F0FE] px-2.5 py-1 text-[11px] font-semibold text-[#6F5BA0]">In progress</span>
+                      <button
+                        type="button"
+                        title="Archive draft"
+                        aria-label="Archive draft"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          archivePrescriptionDraft(draft.id);
+                        }}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#B7ACDB] opacity-60 transition hover:bg-[#F4F0FE] hover:text-[#6F5BA0] hover:opacity-100 focus:opacity-100"
+                      >
+                        <Archive className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
