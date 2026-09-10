@@ -493,6 +493,52 @@ export default function ProviderPrescriptionsSection() {
           </div>,
           document.body,
         )}
+
+      {editConfirm &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setEditConfirm(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl border border-[#E3DBF5] bg-white p-7 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h4 className="text-[14px] font-bold text-[#3D2E6B]">
+                Correct this prescription?
+              </h4>
+              <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                {editConfirm.patientName} · {editConfirm.number}
+              </p>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-[#6F6889]">
+                You'll open a copy with the same patient, clinical basis and
+                medications so you can change what's needed. The original stays in
+                the patient's record, marked as replaced, and the corrected
+                prescription must be signed again before it can be shared.
+              </p>
+              <div className="mt-5 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditConfirm(null)}
+                  className="inline-flex h-9 items-center rounded-xl border border-[#E3DBF5] px-4 text-[12.5px] font-semibold text-[#6F6889] transition hover:bg-[#F8F6FE]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    startCorrection(editConfirm);
+                    setEditConfirm(null);
+                  }}
+                  className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                >
+                  Edit and re-sign
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }
