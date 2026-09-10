@@ -263,9 +263,6 @@ function ChoiceChips<T extends string>({
 const SEX_OPTIONS: { value: NonNullable<PatientSafetyInfo["sex"]>; label: string }[] = [
   { value: "female", label: "Female" },
   { value: "male", label: "Male" },
-  { value: "intersex", label: "Intersex" },
-  { value: "prefer-not-to-say", label: "Prefer not to say" },
-  { value: "not-documented", label: "Not documented" },
 ];
 
 const PREGNANCY_OPTIONS: { value: PregnancyStatus; label: string }[] = (
