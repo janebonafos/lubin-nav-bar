@@ -551,9 +551,11 @@ function DocRow({
 function ShareByEmail({
   doc,
   open,
+  onSent,
 }: {
   doc: SignedPrescriptionDocument;
   open: boolean;
+  onSent?: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [tick, setTick] = useState(0);
