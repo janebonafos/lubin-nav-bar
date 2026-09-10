@@ -414,6 +414,18 @@ function formatDateTime(at: number): string {
   });
 }
 
+/** Lightweight hover label for icon-only action buttons. */
+function TooltipLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-md bg-[#2C2B4B] px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-md transition-all duration-150 group-hover/icon:translate-y-0 group-hover/icon:opacity-100 group-focus-visible/icon:translate-y-0 group-focus-visible/icon:opacity-100"
+    >
+      {children}
+    </span>
+  );
+}
+
 /** Small badge showing delivery state of the secure claim link. */
 function ClaimBadge({ docId }: { docId: string }) {
   const [tick, setTick] = useState(0);
