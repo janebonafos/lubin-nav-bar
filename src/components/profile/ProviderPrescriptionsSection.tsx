@@ -11,6 +11,7 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
   claimForDocument,
