@@ -345,12 +345,12 @@ export function EPrescriptionDocument({
               ) : (
                 <p className="mt-2 text-[11.5px] font-semibold text-[#B4342F]">{credentialLine}</p>
               )}
-              {identity.clinicAddress.trim() && (
+              {identity.clinicAddress?.trim() && (
                 <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#6F6889]">
                   {identity.clinicAddress.trim()}
                 </p>
               )}
-              {identity.clinicContact.trim() && (
+              {identity.clinicContact?.trim() && (
                 <p className="mt-1 text-[11.5px] font-medium text-[#6E4FD3]">
                   {identity.clinicContact.trim()}
                 </p>
