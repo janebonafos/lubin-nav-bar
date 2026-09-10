@@ -5,6 +5,7 @@ import {
   Check,
   ChevronDown,
   Download,
+  Eye,
   Mail,
   Plus,
   Search,
