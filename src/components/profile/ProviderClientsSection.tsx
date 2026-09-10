@@ -379,12 +379,13 @@ function NewClientForm({
   }
 
   return (
-    <div className="mt-6 rounded-2xl border border-[#D8C7F0] bg-white p-5">
-      <div className="flex items-start justify-between gap-3">
+    <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#E9E5F3] bg-white">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3 px-6 pt-6 pb-3">
         <div>
-          <h4 className="text-[14px] font-bold text-[#3D2E6B]">New client record</h4>
-          <p className="mt-1 text-[12.5px] text-[#6F6889]">
-            Only the name is required — you can document the rest later or during a session.
+          <h4 className="text-lg font-semibold text-[#2D2D2D]">New client record</h4>
+          <p className="mt-1 text-[13px] text-[#7E6BAF]/80">
+            Tap to select common values, type only when needed.
           </p>
         </div>
         <button
@@ -397,311 +398,271 @@ function NewClientForm({
         </button>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <label className={label} htmlFor="nc-name">
-            {hcLabel("identity.fullName", "Full name")}
-          </label>
-          <input
-            id="nc-name"
-            value={fullName}
-            onChange={(e) => {
-              setFullName(e.target.value);
-              setError("");
-            }}
-            placeholder="First, middle, last"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-dob">
-            Date of birth
-          </label>
-          <input
-            id="nc-dob"
-            type="date"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-            className={`${inputCls} mt-1`}
-          />
-          <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
-            {age !== undefined ? `Age ${age}` : "Age is calculated automatically"}
-          </p>
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-sex">
-            Sex
-          </label>
-          <select
-            id="nc-sex"
-            value={sex}
-            onChange={(e) =>
-              setSex(e.target.value as NonNullable<PatientSafetyInfo["sex"]>)
-            }
-            className={`${inputCls} mt-1`}
-          >
-            <option value="not-documented">Not documented</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="intersex">Intersex</option>
-            <option value="prefer-not-to-say">Prefer not to say</option>
-          </select>
-        </div>
-        <div className="sm:col-span-2">
-          <label className={label} htmlFor="nc-address">
-            Address
-          </label>
-          <input
-            id="nc-address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Street, city, province / state"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className={label} htmlFor="nc-meds">
-            {hcLabel("medication.list", "Anything you take right now")}
-          </label>
-          {hcHelp("medication.list") && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-              {hcHelp("medication.list")}
-            </p>
-          )}
-          <input
-            id="nc-meds"
-            value={medications}
-            onChange={(e) => setMedications(e.target.value)}
-            placeholder="e.g. Sertraline 50mg"
-            className={`${inputCls} mt-1.5`}
-          />
-          <Suggestions fieldId="medication.list" value={medications} onChange={setMedications} />
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-allergies">
-            {hcLabel("history.allergies", "Allergies or reactions")}
-          </label>
-          {hcHelp("history.allergies") && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-              {hcHelp("history.allergies")}
-            </p>
-          )}
-          <input
-            id="nc-allergies"
-            value={allergies}
-            onChange={(e) => setAllergies(e.target.value)}
-            placeholder="e.g. Penicillin"
-            className={`${inputCls} mt-1.5`}
-          />
-          <Suggestions fieldId="history.allergies" value={allergies} onChange={setAllergies} />
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-conditions">
-            {hcLabel("history.conditions", "Conditions or past care that feels relevant")}
-          </label>
-          {hcHelp("history.conditions") && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-              {hcHelp("history.conditions")}
-            </p>
-          )}
-          <input
-            id="nc-conditions"
-            value={conditions}
-            onChange={(e) => setConditions(e.target.value)}
-            placeholder="e.g. Migraine"
-            className={`${inputCls} mt-1.5`}
-          />
-          <Suggestions fieldId="history.conditions" value={conditions} onChange={setConditions} />
-        </div>
-        <div className="sm:col-span-2">
-          <label className={label} htmlFor="nc-preg">
-            {hcLabel("history.pregnancy", "Pregnant, breastfeeding or trying to conceive?")}
-          </label>
-          {hcHelp("history.pregnancy") && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
-              {hcHelp("history.pregnancy")}
-            </p>
-          )}
-          <select
-            id="nc-preg"
-            value={pregnancy}
-            onChange={(e) => setPregnancy(e.target.value as PregnancyStatus)}
-            className={`${inputCls} mt-1.5`}
-          >
-            {(Object.keys(PREGNANCY_STATUS_LABEL) as PregnancyStatus[]).map((k) => (
-              <option key={k} value={k}>
-                {PREGNANCY_STATUS_LABEL[k]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-care-prev">
-            {hcLabel("care.previous", "Have you had therapy or psychiatric care before?")}
-          </label>
-          <select
-            id="nc-care-prev"
-            value={previousCare}
-            onChange={(e) => setPreviousCare(e.target.value)}
-            className={`${inputCls} mt-1`}
-          >
-            <option value="">Not documented</option>
-            {(hcField("care.previous")?.options ?? []).map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-clinicians">
-            {hcLabel("care.clinicians", "Anyone currently involved in your care")}
-          </label>
-          <input
-            id="nc-clinicians"
-            value={clinicians}
-            onChange={(e) => setClinicians(e.target.value)}
-            placeholder="e.g. GP"
-            className={`${inputCls} mt-1`}
-          />
-          <Suggestions fieldId="care.clinicians" value={clinicians} onChange={setClinicians} />
-        </div>
-      </div>
-
-      <div className="mt-5 rounded-xl border border-[#EDE7FA] bg-[#FBFAFE] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="space-y-7 px-6 pb-6">
+        {/* Primary info */}
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-[13px] font-bold text-[#3D2E6B]">More details</p>
-            <p className="mt-0.5 text-[12px] text-[#6F6889]">
-              The fields above are the usual set clinicians record. Add anything else your
-              practice keeps on file — all optional.
+            <label className={label} htmlFor="nc-name">
+              {hcLabel("identity.fullName", "Full name")}{" "}
+              <span className="text-[#B4453C]">*</span>
+            </label>
+            <input
+              id="nc-name"
+              value={fullName}
+              onChange={(e) => {
+                setFullName(e.target.value);
+                setError("");
+              }}
+              placeholder="First, middle, last"
+              className={`${inputCls} mt-1.5`}
+            />
+          </div>
+          <div>
+            <label className={label} htmlFor="nc-dob">
+              Date of birth
+            </label>
+            <input
+              id="nc-dob"
+              type="date"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className={`${inputCls} mt-1.5`}
+            />
+            <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
+              {age !== undefined ? `Age ${age}` : "Age is calculated automatically"}
             </p>
           </div>
+        </div>
+
+        {/* Sex */}
+        <div>
+          <label className={label}>Sex</label>
+          <ChoiceChips options={SEX_OPTIONS} value={sex} onChange={setSex} />
+        </div>
+
+        {/* Pregnancy */}
+        <div>
+          <label className={label}>
+            {hcLabel("history.pregnancy", "Pregnant, breastfeeding or trying to conceive?")}
+          </label>
+          <ChoiceChips
+            options={PREGNANCY_OPTIONS}
+            value={pregnancy}
+            onChange={setPregnancy}
+          />
+        </div>
+
+        {/* Conditions */}
+        <div>
+          <label className={label}>
+            {hcLabel("history.conditions", "Conditions or past care that feels relevant")}
+          </label>
+          <TagField
+            fieldId="history.conditions"
+            value={conditions}
+            onChange={setConditions}
+            placeholder="Type a condition"
+          />
+        </div>
+
+        {/* Allergies + Medications */}
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label className={label}>
+              {hcLabel("history.allergies", "Allergies or reactions")}
+            </label>
+            <TagField
+              fieldId="history.allergies"
+              value={allergies}
+              onChange={setAllergies}
+              placeholder="Type an allergy"
+            />
+          </div>
+          <div>
+            <label className={label}>
+              {hcLabel("medication.list", "Anything you take right now")}
+            </label>
+            <TagField
+              fieldId="medication.list"
+              value={medications}
+              onChange={setMedications}
+              placeholder="Type a medication"
+            />
+          </div>
+        </div>
+
+        {/* Care */}
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label className={label}>
+              {hcLabel("care.previous", "Had therapy or psychiatric care before?")}
+            </label>
+            <ChoiceChips
+              options={PREVIOUS_CARE_OPTIONS}
+              value={previousCare}
+              onChange={setPreviousCare}
+            />
+          </div>
+          <div>
+            <label className={label}>
+              {hcLabel("care.clinicians", "Anyone currently involved in their care")}
+            </label>
+            <TagField
+              fieldId="care.clinicians"
+              value={clinicians}
+              onChange={setClinicians}
+              placeholder="Type a clinician"
+            />
+          </div>
+        </div>
+
+        {/* Address & extra details (collapsible) */}
+        <div className="rounded-2xl border border-[#EDE7FA] bg-[#FBFAFE]">
           <button
             type="button"
             onClick={() => setShowMore((v) => !v)}
-            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#D8C7F0] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-white/60"
+            className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
           >
-            {showMore ? "Hide" : "Add more details"}
+            <div>
+              <p className="text-[13px] font-semibold text-[#3D2E6B]">
+                Address & extra details
+              </p>
+              <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                Optional — add now or during a session.
+              </p>
+            </div>
             <ChevronDown
-              className={`h-3.5 w-3.5 transition ${showMore ? "rotate-180" : ""}`}
+              className={`h-4 w-4 text-[#8A7FB0] transition ${showMore ? "rotate-180" : ""}`}
             />
           </button>
-        </div>
 
-        {showMore && (
-          <div className="mt-4 space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(
-                [
+          {showMore && (
+            <div className="space-y-4 border-t border-[#EDE7FA] px-4 py-4">
+              <div>
+                <label className={label} htmlFor="nc-address">
+                  Address
+                </label>
+                <input
+                  id="nc-address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street, city, province / state"
+                  className={`${inputCls} mt-1.5`}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {(
                   [
-                    hcLabel("identity.preferredName", "Preferred name"),
-                    preferredName,
-                    setPreferredName,
-                    "What they'd like to be called",
-                  ],
-                  ["Pronouns", pronouns, setPronouns, "e.g. she/her"],
-                  [
-                    hcLabel("contact.phone", "Mobile number"),
-                    phone,
-                    setPhone,
-                    "912 345 6789",
-                  ],
-                  [hcLabel("contact.email", "Email"), email, setEmail, "you@email.com"],
-                  [
-                    "Emergency contact",
-                    emergencyContact,
-                    setEmergencyContact,
-                    "Name, relationship, number",
-                  ],
-                  ["Referral source", referralSource, setReferralSource, "Who referred them"],
-                ] as const
-              ).map(([lbl, value, set, placeholder]) => (
-                <div key={lbl}>
-                  <label className={label}>{lbl}</label>
-                  <input
-                    value={value}
-                    onChange={(e) => set(e.target.value)}
-                    placeholder={placeholder}
-                    className={`${inputCls} mt-1`}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <label className={label} htmlFor="nc-notes">
-                Other notes
-              </label>
-              <textarea
-                id="nc-notes"
-                value={providerNotes}
-                onChange={(e) => setProviderNotes(e.target.value)}
-                rows={3}
-                placeholder="Anything else you want on this record"
-                className="mt-1 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
-              />
-            </div>
-
-            {customFields.length > 0 && (
-              <div className="space-y-2">
-                {customFields.map((f) => (
-                  <div key={f.id} className="flex flex-wrap items-center gap-2">
+                    [
+                      hcLabel("identity.preferredName", "Preferred name"),
+                      preferredName,
+                      setPreferredName,
+                      "What they'd like to be called",
+                    ],
+                    ["Pronouns", pronouns, setPronouns, "e.g. she/her"],
+                    [
+                      hcLabel("contact.phone", "Mobile number"),
+                      phone,
+                      setPhone,
+                      "912 345 6789",
+                    ],
+                    [hcLabel("contact.email", "Email"), email, setEmail, "you@email.com"],
+                    [
+                      "Emergency contact",
+                      emergencyContact,
+                      setEmergencyContact,
+                      "Name, relationship, number",
+                    ],
+                    ["Referral source", referralSource, setReferralSource, "Who referred them"],
+                  ] as const
+                ).map(([lbl, value, set, placeholder]) => (
+                  <div key={lbl}>
+                    <label className={label}>{lbl}</label>
                     <input
-                      value={f.label}
-                      onChange={(e) => patchCustom(f.id, { label: e.target.value })}
-                      placeholder="Detail name"
-                      className={`${inputCls} sm:w-[200px]`}
+                      value={value}
+                      onChange={(e) => set(e.target.value)}
+                      placeholder={placeholder}
+                      className={`${inputCls} mt-1`}
                     />
-                    <input
-                      value={f.value}
-                      onChange={(e) => patchCustom(f.id, { value: e.target.value })}
-                      placeholder="Value"
-                      className={`${inputCls} flex-1`}
-                    />
-                    <button
-                      type="button"
-                      aria-label="Remove detail"
-                      onClick={() =>
-                        setCustomFields((list) => list.filter((x) => x.id !== f.id))
-                      }
-                      className="rounded-full p-1.5 text-[#8A7FB0] transition hover:bg-[#F4F0FC]"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
                   </div>
                 ))}
               </div>
-            )}
 
-            <button
-              type="button"
-              onClick={addCustom}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-dashed border-[#C9B6EC] bg-white px-3.5 text-[12.5px] font-semibold text-[#5B4A93] transition hover:bg-white/60"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add your own field
-            </button>
-          </div>
-        )}
-      </div>
+              <div>
+                <label className={label} htmlFor="nc-notes">
+                  Other notes
+                </label>
+                <textarea
+                  id="nc-notes"
+                  value={providerNotes}
+                  onChange={(e) => setProviderNotes(e.target.value)}
+                  rows={3}
+                  placeholder="Anything else you want on this record"
+                  className="mt-1 w-full rounded-xl border border-[#E3DBF5] bg-white px-3 py-2 text-[13px] text-[#3D2E6B] placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:outline-none"
+                />
+              </div>
 
-      {error && <p className="mt-3 text-[12.5px] font-semibold text-[#B4453C]">{error}</p>}
+              {customFields.length > 0 && (
+                <div className="space-y-2">
+                  {customFields.map((f) => (
+                    <div key={f.id} className="flex flex-wrap items-center gap-2">
+                      <input
+                        value={f.label}
+                        onChange={(e) => patchCustom(f.id, { label: e.target.value })}
+                        placeholder="Detail name"
+                        className={`${inputCls} sm:w-[200px]`}
+                      />
+                      <input
+                        value={f.value}
+                        onChange={(e) => patchCustom(f.id, { value: e.target.value })}
+                        placeholder="Value"
+                        className={`${inputCls} flex-1`}
+                      />
+                      <button
+                        type="button"
+                        aria-label="Remove detail"
+                        onClick={() =>
+                          setCustomFields((list) => list.filter((x) => x.id !== f.id))
+                        }
+                        className="rounded-full p-1.5 text-[#8A7FB0] transition hover:bg-[#F4F0FC]"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={submit}
-          className="inline-flex h-11 items-center rounded-xl bg-[#3D2E6B] px-5 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
-        >
-          Create client record
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex h-11 items-center rounded-xl border border-[#D8C7F0] bg-white px-5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-        >
-          Cancel
-        </button>
+              <button
+                type="button"
+                onClick={addCustom}
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-dashed border-[#C9B6EC] bg-white px-3.5 text-[12.5px] font-semibold text-[#5B4A93] transition hover:bg-white/60"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add your own field
+              </button>
+            </div>
+          )}
+        </div>
+
+        {error && <p className="text-[12.5px] font-semibold text-[#B4453C]">{error}</p>}
+
+        {/* Footer */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={submit}
+            className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-[#3D2E6B] px-5 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
+          >
+            Create client record
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-11 items-center rounded-xl border border-[#D8C7F0] bg-white px-5 text-[13px] font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
