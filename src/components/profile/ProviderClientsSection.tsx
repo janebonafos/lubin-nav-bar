@@ -346,51 +346,74 @@ function NewClientForm({
             className={`${inputCls} mt-1`}
           />
         </div>
-        <div>
-          <label className={label} htmlFor="nc-allergies">
-            Allergies
-          </label>
-          <input
-            id="nc-allergies"
-            value={allergies}
-            onChange={(e) => setAllergies(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div>
-          <label className={label} htmlFor="nc-conditions">
-            Conditions
-          </label>
-          <input
-            id="nc-conditions"
-            value={conditions}
-            onChange={(e) => setConditions(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
-          />
-        </div>
-        <div>
+        <div className="sm:col-span-2">
           <label className={label} htmlFor="nc-meds">
-            Current medications
+            {hcLabel("medication.list", "Anything you take right now")}
           </label>
+          {hcHelp("medication.list") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("medication.list")}
+            </p>
+          )}
           <input
             id="nc-meds"
             value={medications}
             onChange={(e) => setMedications(e.target.value)}
-            placeholder="Separate with commas"
-            className={`${inputCls} mt-1`}
+            placeholder="e.g. Sertraline 50mg"
+            className={`${inputCls} mt-1.5`}
           />
+          <Suggestions fieldId="medication.list" value={medications} onChange={setMedications} />
         </div>
         <div>
-          <label className={label} htmlFor="nc-preg">
-            Pregnancy / breastfeeding
+          <label className={label} htmlFor="nc-allergies">
+            {hcLabel("history.allergies", "Allergies or reactions")}
           </label>
+          {hcHelp("history.allergies") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.allergies")}
+            </p>
+          )}
+          <input
+            id="nc-allergies"
+            value={allergies}
+            onChange={(e) => setAllergies(e.target.value)}
+            placeholder="e.g. Penicillin"
+            className={`${inputCls} mt-1.5`}
+          />
+          <Suggestions fieldId="history.allergies" value={allergies} onChange={setAllergies} />
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-conditions">
+            {hcLabel("history.conditions", "Conditions or past care that feels relevant")}
+          </label>
+          {hcHelp("history.conditions") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.conditions")}
+            </p>
+          )}
+          <input
+            id="nc-conditions"
+            value={conditions}
+            onChange={(e) => setConditions(e.target.value)}
+            placeholder="e.g. Migraine"
+            className={`${inputCls} mt-1.5`}
+          />
+          <Suggestions fieldId="history.conditions" value={conditions} onChange={setConditions} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="nc-preg">
+            {hcLabel("history.pregnancy", "Pregnant, breastfeeding or trying to conceive?")}
+          </label>
+          {hcHelp("history.pregnancy") && (
+            <p className="mt-1 text-[11.5px] leading-relaxed text-[#8A7FB0]">
+              {hcHelp("history.pregnancy")}
+            </p>
+          )}
           <select
             id="nc-preg"
             value={pregnancy}
             onChange={(e) => setPregnancy(e.target.value as PregnancyStatus)}
-            className={`${inputCls} mt-1`}
+            className={`${inputCls} mt-1.5`}
           >
             {(Object.keys(PREGNANCY_STATUS_LABEL) as PregnancyStatus[]).map((k) => (
               <option key={k} value={k}>
@@ -398,6 +421,37 @@ function NewClientForm({
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-care-prev">
+            {hcLabel("care.previous", "Have you had therapy or psychiatric care before?")}
+          </label>
+          <select
+            id="nc-care-prev"
+            value={previousCare}
+            onChange={(e) => setPreviousCare(e.target.value)}
+            className={`${inputCls} mt-1`}
+          >
+            <option value="">Not documented</option>
+            {(hcField("care.previous")?.options ?? []).map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={label} htmlFor="nc-clinicians">
+            {hcLabel("care.clinicians", "Anyone currently involved in your care")}
+          </label>
+          <input
+            id="nc-clinicians"
+            value={clinicians}
+            onChange={(e) => setClinicians(e.target.value)}
+            placeholder="e.g. GP"
+            className={`${inputCls} mt-1`}
+          />
+          <Suggestions fieldId="care.clinicians" value={clinicians} onChange={setClinicians} />
         </div>
       </div>
 
