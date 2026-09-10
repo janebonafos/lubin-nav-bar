@@ -28,8 +28,11 @@ import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PatientAvatar from "@/components/profile/PatientAvatar";
 import IssuePrescriptionDialog from "@/components/profile/IssuePrescriptionDialog";
 import {
+  archivePrescriptionDraft,
+  ensureSampleArchivedDraft,
   listPrescriptionDrafts,
   subscribePrescriptionDrafts,
+  unarchivePrescriptionDraft,
   type PrescriptionDraft,
 } from "@/lib/prescription/drafts";
 import {
@@ -82,6 +85,7 @@ export default function ProviderPrescriptionsSection() {
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
+    ensureSampleArchivedDraft();
     const read = () => {
       const list = listSignedPrescriptions();
       // Every signed prescription carries a claim link from the moment it exists.
