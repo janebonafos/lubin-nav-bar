@@ -84,6 +84,8 @@ export default function ProviderPrescriptionsSection() {
   /** Per-patient accordion state. Multi-prescription patients start collapsed
    *  so a long record stays scannable; single-prescription patients stay open. */
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  /** Draft pending archive confirmation. */
+  const [archiveConfirm, setArchiveConfirm] = useState<PrescriptionDraft | null>(null);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -259,10 +261,7 @@ export default function ProviderPrescriptionsSection() {
                         aria-label="Archive draft"
                         onClick={(e) => {
                           e.stopPropagation();
-                          archivePrescriptionDraft(draft.id);
-                          toast.success("Draft archived", {
-                            description: `${draft.patientName}'s draft moved to Archived.`,
-                          });
+                          setArchiveConfirm(draft);
                         }}
                         className="group/icon relative inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#8A7FB0] opacity-0 transition hover:text-[#6F5BA0] hover:bg-[#EAE2FB] focus-visible:opacity-100 group-hover:opacity-100"
                       >
@@ -399,6 +398,55 @@ export default function ProviderPrescriptionsSection() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {archiveConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setArchiveConfirm(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[#E3DBF5] bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FDF6E7]">
+                <Archive className="h-5 w-5 text-[#6B4E10]" />
+              </div>
+              <div>
+                <h4 className="text-[14px] font-bold text-[#3D2E6B]">Archive this draft?</h4>
+                <p className="mt-0.5 text-[12px] text-[#6F6889]">
+                  {archiveConfirm.patientName} · Step {archiveConfirm.step + 1}
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-[12.5px] leading-relaxed text-[#6F6889]">
+              You can restore it later from the Archived tab, but it won't appear in Drafts until then.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setArchiveConfirm(null)}
+                className="inline-flex h-9 items-center rounded-xl border border-[#E3DBF5] px-4 text-[12.5px] font-semibold text-[#6F6889] transition hover:bg-[#F8F6FE]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  archivePrescriptionDraft(archiveConfirm.id);
+                  toast.success("Draft archived", {
+                    description: `${archiveConfirm.patientName}'s draft moved to Archived.`,
+                  });
+                  setArchiveConfirm(null);
+                }}
+                className="inline-flex h-9 items-center rounded-xl bg-[#3D2E6B] px-4 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+              >
+                Yes, archive
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>
