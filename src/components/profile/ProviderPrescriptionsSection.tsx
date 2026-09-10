@@ -107,9 +107,20 @@ export default function ProviderPrescriptionsSection() {
     };
   }, []);
 
+  const activeDrafts = useMemo(
+    () => drafts.filter((d) => !d.archivedAt),
+    [drafts],
+  );
+  const archivedDrafts = useMemo(
+    () => drafts.filter((d) => d.archivedAt),
+    [drafts],
+  );
+
   const archivedCount = useMemo(
-    () => docs.filter((d) => archivedIds.includes(d.id)).length,
-    [docs, archivedIds],
+    () =>
+      docs.filter((d) => archivedIds.includes(d.id)).length +
+      archivedDrafts.length,
+    [docs, archivedIds, archivedDrafts],
   );
 
   const groups = useMemo<PatientGroup[]>(() => {
