@@ -455,8 +455,8 @@ function DocRow({
     return claimForDocument(doc.id)?.sentTo;
   }, [doc.id, tick]);
 
-  const secondaryBtn =
-    "inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#DCD4F0] bg-white px-2.5 text-[12px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
+  const iconBtn =
+    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#DCD4F0] bg-white text-[#3D2E6B] transition hover:bg-[#F6F4FC]";
 
   return (
     <li className="rounded-xl border border-[#EDEBF3] bg-[#FBFAFE] px-4 py-3">
@@ -491,44 +491,50 @@ function DocRow({
             href={prescriptionHref(doc)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-8 items-center justify-center rounded-lg bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white transition hover:bg-[#33265A]"
+            title="View prescription"
+            aria-label="View prescription"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3D2E6B] text-white transition hover:bg-[#33265A]"
           >
-            View prescription
+            <Eye className="h-4 w-4" />
           </a>
           <a
             href={`${prescriptionHref(doc)}?download=1`}
             target="_blank"
             rel="noopener noreferrer"
-            className={secondaryBtn}
+            title="Download"
+            aria-label="Download prescription"
+            className={iconBtn}
           >
-            <Download className="h-3.5 w-3.5" /> Download
+            <Download className="h-4 w-4" />
           </a>
           <button
             type="button"
+            title={view === "archived" ? "Restore" : "Archive"}
+            aria-label={view === "archived" ? "Restore prescription" : "Archive prescription"}
             onClick={() =>
               view === "archived"
                 ? unarchivePrescription(doc.id)
                 : archivePrescription(doc.id)
             }
-            className={secondaryBtn}
+            className={iconBtn}
           >
             {view === "archived" ? (
-              <ArchiveRestore className="h-3.5 w-3.5" />
+              <ArchiveRestore className="h-4 w-4" />
             ) : (
-              <Archive className="h-3.5 w-3.5" />
+              <Archive className="h-4 w-4" />
             )}
-            {view === "archived" ? "Restore" : "Archive"}
           </button>
           <button
             type="button"
+            title={sentTo ? "Resend link" : "Share via email"}
+            aria-label={sentTo ? "Resend prescription link" : "Share prescription via email"}
             onClick={() => {
               ensureClaim(doc);
               setShareOpen((o) => !o);
             }}
-            className={secondaryBtn}
+            className={iconBtn}
           >
-            <Mail className="h-3.5 w-3.5" />
-            {sentTo ? "Resend link" : "Share via email"}
+            <Mail className="h-4 w-4" />
           </button>
         </div>
       </div>
