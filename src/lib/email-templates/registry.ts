@@ -17,6 +17,9 @@ import { template as sessionPrepRequest } from "./session-prep-request";
 import AppointmentMessageEmail, {
   template as appointmentMessage,
 } from "./appointment-message";
+import HealthPassportSharedEmail, {
+  template as healthPassportShared,
+} from "./health-passport-shared";
 
 export type TemplateEntry = {
   component: ComponentType<any>;
@@ -45,6 +48,18 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
     },
   },
   "assessment-result-shared": assessmentResultShared,
+  "health-passport-shared": healthPassportShared,
+  "health-passport-shared-patient": {
+    component: HealthPassportSharedEmail,
+    subject: "You shared your Health Passport",
+    displayName: "Health Passport shared (patient's copy)",
+    previewData: {
+      ...(healthPassportShared.previewData ?? {}),
+      recipientRole: "patient",
+      recipientName: "Anna",
+      viewLink: "https://lubin.care/my-health-passport",
+    },
+  },
   "appointment-message": appointmentMessage,
   "appointment-rescheduled": appointmentRescheduled,
   "appointment-rescheduled-provider": {
