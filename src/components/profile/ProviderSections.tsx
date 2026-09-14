@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import ProviderPassportShareCard from "@/components/share/ProviderPassportShareCard";
 import { seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
 import {
@@ -1866,6 +1867,13 @@ export function AppointmentsSection() {
                       <DetailItem label="Promo code" value={a.promoCode ?? "—"} />
                     </div>
                     <div className="space-y-4">
+                    {a.status !== "cancelled" && (
+                      <ProviderPassportShareCard
+                        appointmentId={a.id}
+                        clientName={a.client}
+                      />
+                    )}
+
                     <ProviderIntakeAnswers
                       appointmentId={a.id}
                       providerName="You"

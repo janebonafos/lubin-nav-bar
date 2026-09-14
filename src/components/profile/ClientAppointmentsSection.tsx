@@ -26,6 +26,7 @@ import AppointmentMessageButton from "@/components/messages/AppointmentMessageBu
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import { seedDemoThreads, seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
+import AppointmentPassportShare from "@/components/share/AppointmentPassportShare";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
 
 type Appt = {
@@ -632,18 +633,11 @@ export default function ClientAppointmentsSection() {
                       )}
 
 
-                      <SharingRow
+                      <AppointmentPassportShare
                         appointmentId={a.id}
                         providerName={a.provider}
+                        appointmentLabel={`${a.month} ${a.date} · ${a.time}`}
                         status={a.status}
-                        grant={grants[a.id] ?? null}
-                        anyGrant={anyGrants[a.id] ?? null}
-                        onReconfirm={() => {
-                          reconfirmGrant(a.id);
-                        }}
-                        onRevoke={() => {
-                          revokeProviderGrant(a.id);
-                        }}
                       />
 
                       {a.status === "upcoming" && (
