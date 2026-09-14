@@ -178,7 +178,7 @@ export default function AppointmentMessageThread({
                     ? /\(provider\)|by the provider/i.test(m.body)
                       ? "provider"
                       : "client"
-                    : null;
+                    : null);
 
                 if (m.system && !legacyReschedule) {
                   return (
