@@ -284,6 +284,10 @@ export default function ClientAppointmentsSection() {
   }, []);
 
   useEffect(() => {
+    seedDemoThreads();
+  }, []);
+
+  useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 400);
     return () => window.clearTimeout(t);
   }, []);
