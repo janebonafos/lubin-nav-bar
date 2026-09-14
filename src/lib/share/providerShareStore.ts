@@ -7,6 +7,27 @@
 // without touching call sites.
 
 import type { SummaryData } from "@/lib/share/summary";
+import { INCLUDE_OPTIONS } from "@/lib/share/summary";
+import {
+  healthPassportRevokedNotice,
+  healthPassportSharedNotice,
+  postSystemMessage,
+} from "@/lib/messages/appointmentMessages";
+
+/** Human labels for the shared sections, for the appointment message trail. */
+function sectionLabels(keys: string[]): string[] {
+  return keys.map(
+    (k) => INCLUDE_OPTIONS.find((o) => o.key === k)?.label ?? k,
+  );
+}
+
+function expiryLabel(ts: number) {
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 export type ProviderShareGrant = {
   appointmentId: string;
@@ -126,6 +147,14 @@ export function createProviderGrant(input: {
   const store = readStore();
   store[input.appointmentId] = grant;
   writeStore(store);
+  postSystemMessage(
+    input.appointmentId,
+    healthPassportSharedNotice({
+      mode: "shared",
+      sections: sectionLabels(grant.includedKeys),
+      expiresLabel: expiryLabel(grant.expiresAt),
+    }),
+  );
   return grant;
 }
 
@@ -163,6 +192,14 @@ export function updateProviderGrant(
   };
   store[appointmentId] = next;
   writeStore(store);
+  postSystemMessage(
+    appointmentId,
+    healthPassportSharedNotice({
+      mode: "updated",
+      sections: sectionLabels(next.includedKeys),
+      expiresLabel: expiryLabel(next.expiresAt),
+    }),
+  );
   return next;
 }
 
@@ -176,6 +213,7 @@ export function revokeProviderGrant(appointmentId: string): void {
     revokeReason: store[appointmentId].revokeReason ?? "user",
   };
   writeStore(store);
+  postSystemMessage(appointmentId, healthPassportRevokedNotice());
 }
 
 /** Auto-revoke because the appointment was cancelled. */
