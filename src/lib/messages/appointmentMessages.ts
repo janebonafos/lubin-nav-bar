@@ -315,6 +315,48 @@ export function seedDemoTrailNotices() {
           total: 8,
         }),
       },
+      // Provider-side demo appointments (u1 = Anna Reyes, u2 = Jordan Lee).
+      {
+        appointmentId: "u1",
+        minutesAgo: 60 * 6,
+        body: rescheduleNotice({
+          byRole: "provider",
+          byName: "Dr. Camille Lazaro",
+          previousWhen: "Fri, Jun 27 · 11:00 AM",
+          newWhen: "Fri, Jun 27 · 2:00 PM",
+          note: "Clinic schedule changed.",
+        }),
+      },
+      {
+        appointmentId: "u1",
+        minutesAgo: 60 * 3,
+        body: healthPassportSharedNotice({
+          patientName: "Anna Reyes",
+          sections: ["Mood patterns", "Assessment results"],
+          mode: "shared",
+          expiresLabel: expires,
+        }),
+      },
+      {
+        appointmentId: "u1",
+        minutesAgo: 45,
+        body: intakeCompletedNotice({
+          patientName: "Anna Reyes",
+          providerName: "Dr. Camille Lazaro",
+          answered: 12,
+          total: 14,
+        }),
+      },
+      {
+        appointmentId: "u2",
+        minutesAgo: 30,
+        body: intakeCompletedNotice({
+          patientName: "Jordan Lee",
+          providerName: "Dr. Camille Lazaro",
+          answered: 8,
+          total: 8,
+        }),
+      },
     ];
     const grouped = new Map<string, AppointmentMessage[]>();
     for (const item of entries) {
