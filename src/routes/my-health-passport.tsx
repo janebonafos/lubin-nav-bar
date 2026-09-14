@@ -349,7 +349,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "home" && tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -371,9 +371,17 @@ function PassportPage() {
                 if (destination === "card" || destination === "details") setTab("details");
                 else if (destination === "share") setTab("share");
                 else if (destination === "patterns") setTab("progress");
-                else if (destination === "visits" || destination === "prescriptions") {
-                  window.location.href = `/profile?tab=${destination === "visits" ? "appointments" : "prescriptions"}`;
+                else if (destination === "visits") setTab("visits");
+                else if (destination === "prescriptions") {
+                  window.location.href = "/profile?tab=prescriptions";
                 }
+              }}
+            />
+          )}
+          {tab === "visits" && (
+            <VisitsTimeline
+              onOpenPrescriptions={() => {
+                window.location.href = "/profile?tab=prescriptions";
               }}
             />
           )}
