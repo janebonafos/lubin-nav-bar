@@ -365,7 +365,7 @@ function PassportPage() {
             <PassportHome
               ownerName={detailsName ?? "Maria Santos"}
               onNavigate={(destination) => {
-                if (destination === "card") setTab("details");
+                if (destination === "card" || destination === "details") setTab("details");
                 else if (destination === "share") setTab("share");
                 else if (destination === "patterns") setTab("progress");
                 else if (destination === "visits" || destination === "prescriptions") {
