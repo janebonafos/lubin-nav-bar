@@ -1215,6 +1215,9 @@ function ProfilePage() {
                     else window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
+                <div id="passport-visits" className="mt-8 scroll-mt-28">
+                  <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+                </div>
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />
                 </div>
