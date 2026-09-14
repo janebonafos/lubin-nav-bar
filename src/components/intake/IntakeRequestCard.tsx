@@ -60,6 +60,21 @@ export default function IntakeRequestCard({
     [appointmentId, providerName, mounted, tick],
   );
 
+  // Once the form is finished, drop a notice into the appointment conversation
+  // so the client and the provider both see it in the same trail.
+  useEffect(() => {
+    if (!progress?.complete) return;
+    postSystemMessageOnce(
+      appointmentId,
+      "intake-complete",
+      intakeCompletedNotice({
+        providerName,
+        answered: progress.answered,
+        total: progress.total,
+      }),
+    );
+  }, [appointmentId, providerName, progress?.complete, progress?.answered, progress?.total]);
+
   if (!progress || progress.total === 0) return null;
 
   const firstName = providerName.replace(/^(Dr\.|Coach|Ms\.|Mr\.)\s+/i, "").split(" ")[0];
