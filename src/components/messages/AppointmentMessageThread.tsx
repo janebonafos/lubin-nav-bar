@@ -35,6 +35,7 @@ export default function AppointmentMessageThread({
   const [open, setOpen] = useState(defaultOpen);
   const [draft, setDraft] = useState("");
   const [justSent, setJustSent] = useState(false);
+  const [seenAt, setSeenAt] = useState(0);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -43,6 +44,13 @@ export default function AppointmentMessageThread({
       setMessages(next);
       if (next.some((message) => message.from !== role && !message.system)) {
         setOpen(true);
+      }
+      try {
+        setSeenAt(
+          Number(window.localStorage.getItem(`lubin:appt-thread-seen:${appointmentId}:${role}`) || 0),
+        );
+      } catch {
+        setSeenAt(0);
       }
     };
     refresh();
@@ -54,7 +62,7 @@ export default function AppointmentMessageThread({
   }, [open, messages.length]);
 
   const myRelay = useMemo(() => relayAddress(appointmentId, role), [appointmentId, role]);
-  const unreadFromOther = messages.filter((m) => m.from !== role && !m.system).length;
+  const unreadFromOther = messages.filter((m) => m.from !== role && !m.system && m.at > seenAt).length;
 
   const submit = (submittedText = draft) => {
     const body = submittedText.trim();
