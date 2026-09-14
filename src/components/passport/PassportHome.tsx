@@ -28,7 +28,7 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
-type PassportDestination = "card" | "share" | "visits" | "prescriptions" | "patterns";
+type PassportDestination = "card" | "share" | "details" | "visits" | "prescriptions" | "patterns";
 
 export default function PassportHome({
   ownerName = "Maria Santos",
