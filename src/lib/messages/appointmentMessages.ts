@@ -255,6 +255,94 @@ export function seedDemoThreads() {
   }
 }
 
+/**
+ * Demo trail notices (prototype): sample automated Lubin notices so the
+ * conversation history shows what reschedules, Health Passport shares and
+ * completed intake forms look like. Seeded once via its own flag, separately
+ * from DEMO_FLAG, so existing browsers pick these up too.
+ */
+const DEMO_TRAIL_FLAG = "lubin:appt-thread-demo-trail:v1";
+
+export function seedDemoTrailNotices() {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem(DEMO_TRAIL_FLAG)) return;
+    window.localStorage.setItem(DEMO_TRAIL_FLAG, "1");
+    const expires = new Date(Date.now() + 7 * 86_400_000).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    const entries: Array<{ appointmentId: string; body: string; minutesAgo: number }> = [
+      {
+        appointmentId: "cu1",
+        minutesAgo: 60 * 6,
+        body: rescheduleNotice({
+          byRole: "provider",
+          byName: "Dr. Camille Lazaro",
+          previousWhen: "Fri, Jun 27 · 11:00 AM",
+          newWhen: "Sat, Jun 28 · 3:00 PM",
+          note: "Clinic schedule changed.",
+        }),
+      },
+      {
+        appointmentId: "cu1",
+        minutesAgo: 60 * 3,
+        body: healthPassportSharedNotice({
+          patientName: "Anna Reyes",
+          sections: ["Mood patterns", "Assessment results"],
+          mode: "shared",
+          expiresLabel: expires,
+        }),
+      },
+      {
+        appointmentId: "cu1",
+        minutesAgo: 50,
+        body: intakeCompletedNotice({
+          patientName: "Anna Reyes",
+          providerName: "Dr. Camille Lazaro",
+          answered: 12,
+          total: 14,
+        }),
+      },
+      {
+        appointmentId: "cu2",
+        minutesAgo: 35,
+        body: intakeCompletedNotice({
+          patientName: "Anna Reyes",
+          providerName: "Coach Liam Park",
+          answered: 8,
+          total: 8,
+        }),
+      },
+    ];
+    const grouped = new Map<string, AppointmentMessage[]>();
+    for (const item of entries) {
+      const list = grouped.get(item.appointmentId) ?? getThread(item.appointmentId);
+      list.push({
+        id: `demotrail${item.appointmentId}${list.length}${item.minutesAgo}`,
+        from: "system",
+        authorName: "Lubin",
+        body: item.body,
+        at: Date.now() - item.minutesAgo * 60_000,
+        notified: [
+          relayAddress(item.appointmentId, "client"),
+          relayAddress(item.appointmentId, "provider"),
+        ],
+        system: true,
+      });
+      grouped.set(item.appointmentId, list);
+    }
+    for (const [appointmentId, list] of grouped) {
+      list.sort((a, b) => a.at - b.at);
+      window.localStorage.setItem(key(appointmentId), JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent(EVENT, { detail: { appointmentId } }));
+    }
+  } catch {
+    /* noop */
+  }
+}
+
 export function formatMessageTime(ts: number) {
   return new Date(ts).toLocaleString(undefined, {
     month: "short",
