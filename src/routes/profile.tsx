@@ -40,6 +40,7 @@ import CheckInFlow, { type CheckInPayload } from "@/components/CheckInFlow";
 import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
+import PassportHome from "@/components/passport/PassportHome";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
@@ -527,7 +528,7 @@ function ProfilePage() {
     },
     passport: {
       title: "Health Passport",
-      subtitle: "Your daily check-ins and emotional trends",
+      subtitle: "Your health details, visits, medications, results, and wellbeing records",
     },
     discovery: {
       title: "Self Discovery",
@@ -1199,7 +1200,19 @@ function ProfilePage() {
 
             {activeSection === "passport" && role === "client" && (
               <>
-                <HealthDetailsCard />
+                <PassportHome
+                  ownerName={displayName}
+                  onNavigate={(destination) => {
+                    if (destination === "share") setActiveSection("share");
+                    else if (destination === "visits") setActiveSection("appointments");
+                    else if (destination === "prescriptions") setActiveSection("prescriptions");
+                    else if (destination === "patterns") setActiveSection("discovery");
+                    else window.setTimeout(() => document.getElementById("passport-health-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                  }}
+                />
+                <div id="passport-health-card" className="mt-8 scroll-mt-28">
+                  <HealthDetailsCard />
+                </div>
                 <div className="mt-8">
                   <Overview
                     today={todayLabel}
