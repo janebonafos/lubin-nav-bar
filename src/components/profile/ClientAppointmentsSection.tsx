@@ -24,6 +24,7 @@ import {
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import { seedDemoThreads } from "@/lib/messages/appointmentMessages";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
 
