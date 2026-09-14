@@ -14,6 +14,7 @@ import AppointmentCancelledEmail, {
 } from "./appointment-cancelled";
 import { template as appointmentCompleted } from "./appointment-completed";
 import { template as sessionPrepRequest } from "./session-prep-request";
+import { template as intakeCompletedProvider } from "./intake-completed-provider";
 import AppointmentMessageEmail, {
   template as appointmentMessage,
 } from "./appointment-message";
