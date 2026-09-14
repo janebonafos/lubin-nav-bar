@@ -320,7 +320,7 @@ export function seedDemoThreads() {
  * completed intake forms look like. Seeded once via its own flag, separately
  * from DEMO_FLAG, so existing browsers pick these up too.
  */
-const DEMO_TRAIL_FLAG = "lubin:appt-thread-demo-trail:v2";
+const DEMO_TRAIL_FLAG = "lubin:appt-thread-demo-trail:v3";
 
 export function seedDemoTrailNotices() {
   if (typeof window === "undefined") return;
@@ -332,10 +332,20 @@ export function seedDemoTrailNotices() {
       day: "numeric",
       year: "numeric",
     });
-    const entries: Array<{ appointmentId: string; body: string; minutesAgo: number }> = [
+    const entries: Array<{
+      appointmentId: string;
+      body: string;
+      minutesAgo: number;
+      from?: ThreadRole;
+      authorName?: string;
+      eventType?: "rescheduled";
+    }> = [
       {
         appointmentId: "cu1",
-        minutesAgo: 60 * 6,
+        minutesAgo: 15,
+        from: "provider",
+        authorName: "Dr. Camille Lazaro",
+        eventType: "rescheduled",
         body: rescheduleNotice({
           byRole: "provider",
           byName: "Dr. Camille Lazaro",
@@ -346,7 +356,7 @@ export function seedDemoTrailNotices() {
       },
       {
         appointmentId: "cu1",
-        minutesAgo: 60 * 3,
+        minutesAgo: 10,
         body: healthPassportSharedNotice({
           patientName: "Anna Reyes",
           sections: ["Mood patterns", "Assessment results"],
@@ -356,7 +366,7 @@ export function seedDemoTrailNotices() {
       },
       {
         appointmentId: "cu1",
-        minutesAgo: 50,
+        minutesAgo: 5,
         body: intakeCompletedNotice({
           patientName: "Anna Reyes",
           providerName: "Dr. Camille Lazaro",
@@ -377,7 +387,10 @@ export function seedDemoTrailNotices() {
       // Provider-side demo appointments (u1 = Anna Reyes, u2 = Jordan Lee).
       {
         appointmentId: "u1",
-        minutesAgo: 60 * 6,
+        minutesAgo: 15,
+        from: "provider",
+        authorName: "Dr. Camille Lazaro",
+        eventType: "rescheduled",
         body: rescheduleNotice({
           byRole: "provider",
           byName: "Dr. Camille Lazaro",
@@ -388,7 +401,7 @@ export function seedDemoTrailNotices() {
       },
       {
         appointmentId: "u1",
-        minutesAgo: 60 * 3,
+        minutesAgo: 10,
         body: healthPassportSharedNotice({
           patientName: "Anna Reyes",
           sections: ["Mood patterns", "Assessment results"],
@@ -398,7 +411,7 @@ export function seedDemoTrailNotices() {
       },
       {
         appointmentId: "u1",
-        minutesAgo: 45,
+        minutesAgo: 5,
         body: intakeCompletedNotice({
           patientName: "Anna Reyes",
           providerName: "Dr. Camille Lazaro",
@@ -419,18 +432,21 @@ export function seedDemoTrailNotices() {
     ];
     const grouped = new Map<string, AppointmentMessage[]>();
     for (const item of entries) {
-      const list = grouped.get(item.appointmentId) ?? getThread(item.appointmentId);
+      const list = grouped.get(item.appointmentId) ?? getThread(item.appointmentId).filter(
+        (message) => !message.id.startsWith("demotrail"),
+      );
       list.push({
         id: `demotrail${item.appointmentId}${list.length}${item.minutesAgo}`,
-        from: "system",
-        authorName: "Lubin",
+        from: item.from ?? "system",
+        authorName: item.authorName ?? "Lubin",
         body: item.body,
         at: Date.now() - item.minutesAgo * 60_000,
         notified: [
           relayAddress(item.appointmentId, "client"),
           relayAddress(item.appointmentId, "provider"),
         ],
-        system: true,
+        ...(item.from ? {} : { system: true }),
+        ...(item.eventType ? { eventType: item.eventType } : {}),
       });
       grouped.set(item.appointmentId, list);
     }

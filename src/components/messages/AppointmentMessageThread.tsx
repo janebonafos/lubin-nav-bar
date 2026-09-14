@@ -153,7 +153,7 @@ export default function AppointmentMessageThread({
             </p>
             )
           ) : (
-            <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
+            <div className="max-h-[34rem] space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
                 const legacyReschedule = m.system && /appointment (?:was successfully )?rescheduled by/i.test(m.body);
                 const rescheduleRole: ThreadRole | null = m.eventType === "rescheduled"
