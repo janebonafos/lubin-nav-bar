@@ -67,7 +67,7 @@ export default function ClinicRecipientPreview({
               Born Apr 12, 1991 · Passport ID LBN-4821-9037
             </p>
           </div>
-          <DemoQr size={72} />
+          <DemoQr seed="LBN-4821-9037" className="h-16 w-16" />
         </div>
 
         {recipient === "reception" ? (
