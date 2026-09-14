@@ -103,7 +103,10 @@ export default function AppointmentMessageThread({
   };
 
   return (
-    <section className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-[0_18px_44px_-24px_color-mix(in_oklab,var(--color-brand-purple)_35%,transparent)]">
+    <section
+      ref={rootRef}
+      className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-[0_18px_44px_-24px_color-mix(in_oklab,var(--color-brand-purple)_35%,transparent)]"
+    >
       <Button
         type="button"
         variant="ghost"
