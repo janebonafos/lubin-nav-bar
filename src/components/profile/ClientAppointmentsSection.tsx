@@ -23,7 +23,9 @@ import {
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
-import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import AppointmentMessageThread, {
+  ChatClosedNotice,
+} from "@/components/messages/AppointmentMessageThread";
 import { seedDemoThreads, seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
@@ -564,7 +566,7 @@ export default function ClientAppointmentsSection() {
 
                   {isExpanded && (
                     <div className="px-6 pb-8 pt-2">
-                      {a.status === "upcoming" && (
+                      {a.status === "upcoming" ? (
                         <div className="mb-6">
                           <AppointmentMessageThread
                             key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
@@ -574,6 +576,10 @@ export default function ClientAppointmentsSection() {
                             otherName={a.provider}
                             defaultOpen={(msgOpen[a.id] ?? 0) > 0}
                           />
+                        </div>
+                      ) : (
+                        <div className="mb-6">
+                          <ChatClosedNotice reason={a.status} />
                         </div>
                       )}
 
