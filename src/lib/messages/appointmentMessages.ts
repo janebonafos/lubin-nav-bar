@@ -17,6 +17,8 @@ export type AppointmentMessage = {
   notified: string[];
   /** True for automated Lubin system notices. */
   system?: boolean;
+  /** Appointment event rendered in the conversation as a participant update. */
+  eventType?: "rescheduled";
 };
 
 const KEY_PREFIX = "lubin:appt-thread:";
@@ -46,7 +48,13 @@ export function getThread(appointmentId: string): AppointmentMessage[] {
 
 export function sendMessage(
   appointmentId: string,
-  input: { from: MessageAuthor; authorName: string; body: string; system?: boolean },
+  input: {
+    from: MessageAuthor;
+    authorName: string;
+    body: string;
+    system?: boolean;
+    eventType?: "rescheduled";
+  },
 ): AppointmentMessage {
   const message: AppointmentMessage = {
     id: `m${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
@@ -59,6 +67,7 @@ export function sendMessage(
       relayAddress(appointmentId, "provider"),
     ],
     ...(input.system ? { system: true } : {}),
+    ...(input.eventType ? { eventType: input.eventType } : {}),
   };
   const next = [...getThread(appointmentId), message];
   try {
@@ -116,6 +125,30 @@ export function postSystemMessageMirrored(appointmentId: string, body: string) {
   return msg;
 }
 
+/** Show a successful reschedule as sent by the participant who made it. */
+export function postRescheduleMessageMirrored(
+  appointmentId: string,
+  input: { byRole: ThreadRole; body: string },
+) {
+  const authorName = input.byRole === "provider" ? "Provider" : "Patient";
+  const message = sendMessage(appointmentId, {
+    from: input.byRole,
+    authorName,
+    body: input.body,
+    eventType: "rescheduled",
+  });
+  const linked = linkedAppointmentId(appointmentId);
+  if (linked) {
+    sendMessage(linked, {
+      from: input.byRole,
+      authorName,
+      body: input.body,
+      eventType: "rescheduled",
+    });
+  }
+  return message;
+}
+
 export function rescheduleNotice(input: {
   byRole: ThreadRole;
   byName: string;
@@ -126,7 +159,7 @@ export function rescheduleNotice(input: {
 }) {
   const who = input.byRole === "provider" ? `${input.byName} (provider)` : input.byName;
   const lines = [
-    `Appointment rescheduled by ${who}.`,
+    `The appointment was successfully rescheduled by ${who}.`,
     input.previousWhen ? `Previous time: ${input.previousWhen}` : null,
     `New time: ${input.newWhen}${input.timezone ? ` (${input.timezone})` : ""}`,
     input.note ? `Note: ${input.note}` : null,

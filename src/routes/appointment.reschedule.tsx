@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarCheck2, ChevronLeft, ChevronRight, Loade
 import { toast } from "sonner";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
-import { postSystemMessageMirrored, rescheduleNotice } from "@/lib/messages/appointmentMessages";
+import { postRescheduleMessageMirrored, rescheduleNotice } from "@/lib/messages/appointmentMessages";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -368,9 +368,9 @@ function ReschedulePage() {
                     description: `${counterName} will be notified about ${label} at ${time}.`,
                   });
                   if (s.id) {
-                    postSystemMessageMirrored(
-                      s.id,
-                      rescheduleNotice({
+                    postRescheduleMessageMirrored(s.id, {
+                      byRole: isClient ? "client" : "provider",
+                      body: rescheduleNotice({
                         byRole: isClient ? "client" : "provider",
                         byName: isClient ? "The client" : "The provider",
                         previousWhen: [s.date, s.time].filter(Boolean).join(" · ") || undefined,
@@ -378,7 +378,7 @@ function ReschedulePage() {
                         timezone: s.timezone,
                         note: reason.trim() || undefined,
                       }),
-                    );
+                    });
                   }
                   if (s.id) publishAppointmentEvent({ type: "rescheduled", id: s.id, date: label, time: time ?? undefined });
                   setDone(true);

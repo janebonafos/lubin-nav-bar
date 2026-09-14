@@ -155,7 +155,16 @@ export default function AppointmentMessageThread({
           ) : (
             <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
-                if (m.system) {
+                const legacyReschedule = m.system && /appointment (?:was successfully )?rescheduled by/i.test(m.body);
+                const rescheduleRole: ThreadRole | null = m.eventType === "rescheduled"
+                  ? (m.from === "provider" || m.from === "client" ? m.from : null)
+                  : legacyReschedule
+                    ? /\(provider\)|by the provider/i.test(m.body)
+                      ? "provider"
+                      : "client"
+                    : null;
+
+                if (m.system && !legacyReschedule) {
                   return (
                     <div key={m.id} className="flex justify-center">
                       <div className="w-full rounded-lg border border-dashed border-brand-lavender bg-brand-lavender/20 px-4 py-3 text-center">
@@ -172,11 +181,18 @@ export default function AppointmentMessageThread({
                     </div>
                   );
                 }
-                const mine = m.from === role;
+                const mine = rescheduleRole ? rescheduleRole === role : m.from === role;
+                const authorLabel = rescheduleRole
+                  ? mine
+                    ? "You"
+                    : otherName
+                  : mine
+                    ? "You"
+                    : m.authorName;
                 return (
                   <Message key={m.id} from={mine ? "user" : "assistant"} className={mine ? "items-end" : "items-start"}>
                     <p className="px-1 text-[10px] font-semibold uppercase text-brand-purple-accent">
-                      {mine ? "You" : m.authorName} · {formatMessageTime(m.at)}
+                      {authorLabel} · {formatMessageTime(m.at)}
                     </p>
                     <MessageContent
                       className={mine
@@ -184,6 +200,11 @@ export default function AppointmentMessageThread({
                         : "max-w-[88%] rounded-xl rounded-tl-sm border border-brand-lavender bg-brand-lavender/30 px-4 py-3 text-brand-purple-dark shadow-sm"}
                     >
                       <p className="whitespace-pre-line text-sm leading-relaxed">{m.body}</p>
+                      {rescheduleRole && (
+                        <p className={`text-[10px] font-medium ${mine ? "text-primary-foreground/70" : "text-brand-purple-accent"}`}>
+                          Automated appointment update
+                        </p>
+                      )}
                     </MessageContent>
                   </Message>
                 );
