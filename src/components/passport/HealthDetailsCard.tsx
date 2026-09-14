@@ -4,19 +4,32 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { CalendarDays, Check, Lock, Plus, RotateCw, X } from "lucide-react";
+import { CalendarDays, Check, Download, Lock, Plus, Printer, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
+  essentialProgress,
+  formatUpdatedAt,
   groupFilledCount,
   healthDetailsProgress,
+  healthDetailsUpdatedAt,
   loadHealthDetails,
   loadHealthAgreement,
+  optionalProgress,
+  passportId as loadPassportId,
   setHealthDetail,
   setHealthAgreement,
   subscribeHealthDetails,
   type HealthDetailField,
   type HealthDetails,
 } from "@/lib/intake/healthDetails";
+import {
+  ensureDemoItemReviews,
+  loadItemReviews,
+  reviewLabel,
+  type ItemReviewMap,
+} from "@/lib/intake/reviewLog";
+import DemoQr from "@/components/passport/DemoQr";
+import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
@@ -89,17 +102,18 @@ function formatDob(value: string): string {
   });
 }
 
-function CardBack({ details }: { details: HealthDetails }) {
+function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemReviewMap }) {
   const sections = HEALTH_DETAIL_GROUPS
     // Basic identity + contact fields already live on the card front.
     .filter((group) => group.id !== "about-you" && group.id !== "reach-you")
     .map((group) => ({
     label: group.label,
     rows: group.fields
-      .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim() }))
+      .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim(), review: reviews[f.id] }))
       .filter((r) => r.value.length > 0)
       .map((r) => ({
         label: r.label,
+        review: r.review,
         // tags/meds store comma-separated lists — render each item on its own line
         values:
           (r.type === "tags" || r.type === "meds") && /[;,]/.test(r.value)
@@ -158,6 +172,9 @@ function CardBack({ details }: { details: HealthDetails }) {
                           +{r.values.length - 4} more
                         </span>
                       )}
+                      <span className="block pt-0.5 text-[9.5px] font-medium text-white/45">
+                        {r.review ? reviewLabel(r.review) : "Patient-provided"}
+                      </span>
                     </dd>
                   </div>
                 ))}
@@ -175,19 +192,33 @@ function PassportCard({
   filled,
   total,
   ownerName,
+  reviews,
+  cardId,
+  updatedAt,
 }: {
   details: HealthDetails;
   filled: number;
   total: number;
   ownerName: string | null;
+  reviews: ItemReviewMap;
+  cardId: string;
+  updatedAt: number | null;
 }) {
   const [flipped, setFlipped] = useState(false);
   const name =
     details["identity.fullName"] || details["identity.preferredName"] || ownerName || "";
   const dob = details["identity.dob"] ?? "";
   const age = ageFrom(dob);
+  const lastUpdated = formatUpdatedAt(updatedAt);
 
   const pct = total ? Math.round((filled / total) * 100) : 0;
+
+  const cardData = {
+    name: name || "Your name",
+    dob: dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "",
+    passportId: cardId,
+    lastUpdated,
+  };
 
   return (
     <div className="[perspective:1400px]">
@@ -223,10 +254,18 @@ function PassportCard({
                   Health Network
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15">
-                <RotateCw className="h-3 w-3" />
-                See details
-              </span>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15 sm:inline-flex">
+                  <RotateCw className="h-3 w-3" />
+                  See details
+                </span>
+                <span className="rounded-[10px] bg-white p-1.5 text-center">
+                  <DemoQr seed={cardId} color="#3D2E6B" className="h-11 w-11" />
+                  <span className="mt-0.5 block text-[7px] font-bold uppercase tracking-[0.12em] text-brand-purple">
+                    Demo QR
+                  </span>
+                </span>
+              </div>
             </div>
 
             <div className="mt-auto">
@@ -236,27 +275,30 @@ function PassportCard({
               <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
                 {name || "Your name"}
               </h3>
-              <p className="mt-1 text-[12px] text-white/55">
-                {dob
-                  ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
-                  : "Add the basics to start your card"}
-              </p>
 
-              <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
+              <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3 border-t border-white/10 pt-4">
                 <div>
                   <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Mobile
+                    Date of birth
                   </p>
                   <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                    {details["contact.phone"] || "—"}
+                    {dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Location
+                    Passport ID
                   </p>
-                  <p className="mt-0.5 truncate font-mono text-[11px] tracking-wider text-white/80">
-                    {details["contact.address"] || "—"}
+                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                    {cardId}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                    Last updated
+                  </p>
+                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                    {lastUpdated}
                   </p>
                 </div>
               </div>
@@ -281,19 +323,36 @@ function PassportCard({
             WebkitBackfaceVisibility: "hidden",
           }}
         >
-          <CardBack details={details} />
+          <CardBack details={details} reviews={reviews} />
         </div>
       </button>
 
-      <p className="mt-3 text-center text-[12px] text-brand-purple-dark/50">
-        {filled} of {total} details added ·{" "}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => printPassportCard(cardData)}
+          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+        >
+          <Printer className="h-3.5 w-3.5" /> Print card
+        </button>
+        <button
+          type="button"
+          onClick={() => downloadPassportCard(cardData)}
+          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+        >
+          <Download className="h-3.5 w-3.5" /> Download card
+        </button>
         <button
           type="button"
           onClick={() => setFlipped((v) => !v)}
-          className="font-semibold text-brand-purple underline-offset-2 hover:underline"
+          className="inline-flex items-center gap-1.5 rounded-[12px] px-3 py-2 text-[12.5px] font-semibold text-brand-purple underline-offset-2 hover:underline"
         >
           {flipped ? "Back to card" : "See everything you've added"}
         </button>
+      </div>
+      <p className="mt-2 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
+        Patient-provided card · {filled} of {total} details added. The QR block is a demo
+        placeholder in this prototype.
       </p>
     </div>
   );
@@ -902,18 +961,29 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [proxyName, setProxyName] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const [reviews, setReviews] = useState<ItemReviewMap>({});
+  const [cardId, setCardId] = useState("LBN-0000-0000");
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
   useEffect(() => {
+    ensureDemoItemReviews();
     setDetails(loadHealthDetails());
     setProxyName(proxyFirstName(loadProxySignup()));
     setAgreed(loadHealthAgreement());
+    setReviews(loadItemReviews());
+    setCardId(loadPassportId());
+    setUpdatedAt(healthDetailsUpdatedAt());
     return subscribeHealthDetails(() => {
       setDetails(loadHealthDetails());
       setAgreed(loadHealthAgreement());
+      setReviews(loadItemReviews());
+      setUpdatedAt(healthDetailsUpdatedAt());
     });
   }, []);
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
+  const essentials = useMemo(() => essentialProgress(details), [details]);
+  const optional = useMemo(() => optionalProgress(details), [details]);
 
   const allComplete = useMemo(
     () =>
@@ -965,7 +1035,31 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
             filled={progress.filled}
             total={progress.total}
             ownerName={proxyName}
+            reviews={reviews}
+            cardId={cardId}
+            updatedAt={updatedAt}
           />
+
+          <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[13px] font-semibold text-brand-purple-dark">
+                What's on your card
+              </span>
+              <span className="rounded-xl bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
+                {essentials.complete ? "Essentials complete" : `${essentials.filled}/${essentials.total} essentials`}
+              </span>
+            </div>
+            <p className="mt-2 text-[13px] leading-relaxed text-brand-purple-dark/55">
+              {essentials.complete
+                ? `The essential details are in. ${optional.filled} of ${optional.total} optional details added — add more any time.`
+                : `Still to add: ${essentials.missing.join(", ")}. You can use, print and share your card at any point.`}
+            </p>
+            <p className="mt-2 text-[12px] leading-relaxed text-brand-purple-dark/45">
+              Everything here is patient-provided. A clinician may review individual items during an
+              appointment — that's never needed to create, view, update, download or share your card.
+            </p>
+          </div>
+
 
           <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
@@ -1163,36 +1257,22 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
           {!openGroup &&
             (() => {
-              if (allComplete && agreed) {
+              if (essentials.complete) {
                 return (
-                  <div className="mt-2 flex items-center gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
+                  <div className="mt-2 flex items-start gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
                       <Check className="h-5 w-5" />
                     </span>
                     <div>
                       <p className="text-[15px] font-bold text-brand-purple-dark">
-                        All set — your health card is complete
+                        Essential details complete — your card is ready to use
                       </p>
-                      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/55">
-                        You've confirmed everything is accurate. You can still edit any section
-                        above.
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-brand-purple-dark/55">
+                        {optional.filled} of {optional.total} optional details added. Everything
+                        above stays editable, and you can print, download or share your card now.
                       </p>
                     </div>
                   </div>
-                );
-              }
-
-              if (allComplete) {
-                return (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenGroup(HEALTH_DETAIL_GROUPS[HEALTH_DETAIL_GROUPS.length - 1].id)
-                    }
-                    className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
-                  >
-                    One last step — review and confirm your health card
-                  </button>
                 );
               }
 
