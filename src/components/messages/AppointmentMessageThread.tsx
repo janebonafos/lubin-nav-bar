@@ -8,6 +8,8 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
+import SharedPassportDialog from "@/components/share/SharedPassportDialog";
+import { shareState } from "@/lib/share/appointmentSharing";
 import {
   formatMessageTime,
   getThread,
@@ -38,6 +40,8 @@ export default function AppointmentMessageThread({
   const [draft, setDraft] = useState("");
   const [justSent, setJustSent] = useState(false);
   const [seenAt, setSeenAt] = useState(0);
+  const [viewingShare, setViewingShare] = useState(false);
+  const shared = viewingShare ? shareState(appointmentId) : null;
   const endRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -144,6 +148,14 @@ export default function AppointmentMessageThread({
         />
       </Button>
 
+      {viewingShare && shared && shared.kind !== "not_shared" && (
+        <SharedPassportDialog
+          grant={shared.grant}
+          patientName={role === "client" ? "You" : otherName}
+          ack={shared.kind === "acknowledged" ? shared.ack : null}
+          onClose={() => setViewingShare(false)}
+        />
+      )}
       {open && (
         <div>
           {messages.length === 0 ? (
@@ -156,13 +168,17 @@ export default function AppointmentMessageThread({
             <div className="max-h-[34rem] space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
                 const legacyReschedule = m.system && /appointment (?:was successfully )?rescheduled by/i.test(m.body);
-                const rescheduleRole: ThreadRole | null = m.eventType === "rescheduled"
+                const eventRole: ThreadRole | null =
+                  m.eventType === "passport_shared" || m.eventType === "passport_acknowledged"
+                    ? (m.from === "provider" || m.from === "client" ? m.from : null)
+                    : null;
+                const rescheduleRole: ThreadRole | null = eventRole ?? (m.eventType === "rescheduled"
                   ? (m.from === "provider" || m.from === "client" ? m.from : null)
                   : legacyReschedule
                     ? /\(provider\)|by the provider/i.test(m.body)
                       ? "provider"
                       : "client"
-                    : null;
+                    : null);
 
                 if (m.system && !legacyReschedule) {
                   return (
@@ -204,6 +220,20 @@ export default function AppointmentMessageThread({
                         <p className={`text-[10px] font-medium ${mine ? "text-primary-foreground/70" : "text-brand-purple-accent"}`}>
                           Automated appointment update
                         </p>
+                      )}
+                      {(m.eventType === "passport_shared" ||
+                        m.eventType === "passport_acknowledged") && (
+                        <button
+                          type="button"
+                          onClick={() => setViewingShare(true)}
+                          className={`mt-1 inline-flex items-center gap-1.5 rounded-[10px] px-2.5 py-1 text-[11.5px] font-semibold transition ${
+                            mine
+                              ? "bg-white/20 text-primary-foreground ring-1 ring-white/50 hover:bg-white/30"
+                              : "bg-white text-brand-purple-dark ring-1 ring-brand-lavender hover:bg-brand-lavender/20"
+                          }`}
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5" /> View shared passport
+                        </button>
                       )}
                     </MessageContent>
                   </Message>

@@ -18,8 +18,14 @@ export type AppointmentMessage = {
   /** True for automated Lubin system notices. */
   system?: boolean;
   /** Appointment event rendered in the conversation as a participant update. */
-  eventType?: "rescheduled";
+  eventType?: AppointmentEventType;
 };
+
+/** Appointment events shown as participant updates rather than Lubin notices. */
+export type AppointmentEventType =
+  | "rescheduled"
+  | "passport_shared"
+  | "passport_acknowledged";
 
 const KEY_PREFIX = "lubin:appt-thread:";
 const EVENT = "lubin:appt-thread-change";
@@ -53,7 +59,7 @@ export function sendMessage(
     authorName: string;
     body: string;
     system?: boolean;
-    eventType?: "rescheduled";
+    eventType?: AppointmentEventType;
   },
 ): AppointmentMessage {
   const message: AppointmentMessage = {
@@ -149,6 +155,25 @@ export function postRescheduleMessageMirrored(
   return message;
 }
 
+/** Patient's Health Passport share, shown as sent by the patient. */
+export function postPassportSharedMirrored(
+  appointmentId: string,
+  input: { patientName?: string; body: string },
+) {
+  const authorName = input.patientName ?? "Patient";
+  const post = (id: string) =>
+    sendMessage(id, {
+      from: "client",
+      authorName,
+      body: input.body,
+      eventType: "passport_shared",
+    });
+  const message = post(appointmentId);
+  const linked = linkedAppointmentId(appointmentId);
+  if (linked) post(linked);
+  return message;
+}
+
 export function rescheduleNotice(input: {
   byRole: ThreadRole;
   byName: string;
@@ -206,6 +231,45 @@ export function healthPassportSharedNotice(input: {
     "Open the appointment to view the shared summary.",
   ].filter(Boolean);
   return lines.join("\n");
+}
+
+/**
+ * Patient shared their Health Passport, shown as sent by the patient.
+ * Deliberately free of medical detail — the appointment carries the controlled
+ * "View shared passport" action.
+ */
+export function passportSharedParticipantNotice(input: {
+  providerName: string;
+  itemCount: number;
+  expiresLabel: string;
+}) {
+  return [
+    `I shared my Health Passport with ${input.providerName} for this appointment.`,
+    `${input.itemCount} section${input.itemCount === 1 ? "" : "s"} included · access ends ${input.expiresLabel}.`,
+    "Open “View shared passport” in the appointment to see it.",
+  ].join("\n");
+}
+
+/**
+ * Provider explicitly acknowledged receipt. Receipt only — never a review,
+ * approval or verification of the shared information.
+ */
+export function passportAcknowledgedNotice(input: {
+  providerName: string;
+  patientName?: string;
+  at: number;
+}) {
+  const when = new Date(input.at).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return [
+    `${input.providerName} acknowledged receipt of the shared Health Passport on ${when}.`,
+    "This confirms receipt only — it is not a clinical review of the information.",
+  ].join("\n");
 }
 
 /** Patient revoked access to a previously shared Health Passport. */
