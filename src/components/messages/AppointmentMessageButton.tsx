@@ -62,7 +62,7 @@ export default function AppointmentMessageButton({
 
   const label =
     unread > 0
-      ? `Message, ${unread} unread`
+      ? `Message (${unread} unread ${unread === 1 ? "message" : "messages"})`
       : total > 0
         ? "View messages"
         : "Send a message";
@@ -84,14 +84,7 @@ export default function AppointmentMessageButton({
       }`}
     >
       <MessageCircle className="h-4 w-4" />
-      <span>Message</span>
-      {unread > 0 && (
-        <span
-          className="min-w-5 rounded-full bg-white px-1.5 text-center text-[11px] font-bold leading-5 text-[#3D2E6B]"
-        >
-          {unread}
-        </span>
-      )}
+      <span>{label}</span>
     </button>
   );
 }
