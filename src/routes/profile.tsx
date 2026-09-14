@@ -41,6 +41,7 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
+import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
