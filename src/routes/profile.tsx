@@ -1207,7 +1207,8 @@ function ProfilePage() {
                   ownerName={displayName}
                   onNavigate={(destination) => {
                     if (destination === "share") setActiveSection("share");
-                    else if (destination === "visits") setActiveSection("appointments");
+                    else if (destination === "visits")
+                      window.setTimeout(() => document.getElementById("passport-visits")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
                     else if (destination === "prescriptions") setActiveSection("prescriptions");
                     else if (destination === "patterns") setActiveSection("discovery");
                     else if (destination === "details") window.setTimeout(() => document.getElementById("passport-health-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
