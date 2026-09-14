@@ -1762,8 +1762,11 @@ export function AppointmentsSection() {
                       role="provider"
                       active={isExpanded}
                       onOpen={() => {
-                        setMsgOpen((m) => ({ ...m, [a.id]: (m[a.id] ?? 0) + 1 }));
-                        setExpanded(a.id);
+                        setExpanded((cur) => {
+                          if (cur === a.id) return null; // close if already open
+                          setMsgOpen((m) => ({ ...m, [a.id]: (m[a.id] ?? 0) + 1 }));
+                          return a.id;
+                        });
                       }}
                     />
                   )}
