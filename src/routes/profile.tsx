@@ -94,6 +94,8 @@ export const Route = createFileRoute("/profile")({
         content:
           "Your personal Lubin space — update your info and tailor your mental health journey.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ProfilePage,
