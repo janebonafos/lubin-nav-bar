@@ -68,6 +68,7 @@ import {
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
+import PassportHome from "@/components/passport/PassportHome";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
@@ -79,7 +80,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["overview", "progress", "share", "details"]).optional(),
+      tab: z.enum(["home", "overview", "progress", "share", "details"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -91,8 +92,12 @@ export const Route = createFileRoute("/my-health-passport")({
       {
         name: "description",
         content:
-          "Your Health Passport — gently remembers your mood, check-ins and progress over time.",
+          "Keep your health details, visits, medications, results, and wellbeing records together and choose what to share.",
       },
+      { property: "og:title", content: "Health Passport — Lubin" },
+      { property: "og:description", content: "Your health information, ready for your next visit. Keep records together and choose what to share." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
@@ -131,8 +136,8 @@ const MOODS = [
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
-  const [tab, setTab] = useState<"overview" | "progress" | "share" | "details">(
-    search.tab ?? "overview",
+  const [tab, setTab] = useState<"home" | "overview" | "progress" | "share" | "details">(
+    search.tab ?? "home",
   );
   const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
     string | null
@@ -275,10 +280,10 @@ function PassportPage() {
       <Navbar />
       <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
         {/* Guest nudge banner */}
-        <GuestBanner />
+        {tab !== "home" && <GuestBanner />}
 
         {/* Header */}
-        <header className="mt-6 flex items-start justify-between gap-4">
+        {tab !== "home" && <header className="mt-6 flex items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <Sparkles className="h-3 w-3 text-brand-purple" />
@@ -287,14 +292,18 @@ function PassportPage() {
               </p>
             </div>
             <h1 className="mt-4 text-3xl md:text-[2.75rem] md:leading-[1.1] font-bold tracking-tight text-brand-purple-dark">
-              Everything you share,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">gently remembered.</span>
+              Your health information,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">ready for your next visit.</span>
             </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65 sm:text-[15px]">
+              Keep your details, visits, medications, and records together. Choose what to share with your care team.
+            </p>
           </div>
-        </header>
+        </header>}
 
         {/* Tabs */}
         <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
           {([
+            ["home", "Home"],
             ["details", detailsName ? `${detailsName}'s card` : "Health card"],
             ["overview", "Today"],
             ["progress", "Patterns"],
@@ -337,7 +346,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -352,6 +361,19 @@ function PassportPage() {
 
         {/* Tab content */}
         <div className="mt-8">
+          {tab === "home" && (
+            <PassportHome
+              ownerName={detailsName ?? "Maria Santos"}
+              onNavigate={(destination) => {
+                if (destination === "card") setTab("details");
+                else if (destination === "share") setTab("share");
+                else if (destination === "patterns") setTab("progress");
+                else if (destination === "visits" || destination === "prescriptions") {
+                  window.location.href = `/profile?tab=${destination === "visits" ? "appointments" : "prescriptions"}`;
+                }
+              }}
+            />
+          )}
           {tab === "overview" && (
             <Overview
               today={today}
@@ -517,7 +539,7 @@ function GuestBanner() {
         className="mt-2 text-[17px] sm:text-[20px] font-bold leading-snug"
         style={{ color: "#2C2B4B", fontFamily: "Inter, sans-serif", marginBottom: 12 }}
       >
-        Your Health Passport is your mental wellness story
+        Your health information, ready for your next visit
       </h2>
 
       <p
@@ -527,7 +549,7 @@ function GuestBanner() {
           fontFamily: "Inter, sans-serif",
         }}
       >
-        Most people go through their mental health journey without ever seeing the full picture — what triggers their stress, when their mood tends to dip, what actually helps. Your Health Passport changes that. Every check-in, every assessment, every conversation with Lubin quietly builds a private record that's yours alone. Over time, you'll start to notice patterns you never saw before — and that awareness is where real change begins.
+        Keep your details, visits, medications, and records together so they are easier to reuse at a clinic or hospital. Your check-ins and assessments remain an important part of the picture, and nothing is shared unless you choose it.
       </p>
 
       <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
