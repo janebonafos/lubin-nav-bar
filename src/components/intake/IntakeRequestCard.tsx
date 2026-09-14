@@ -13,6 +13,10 @@ import {
   toggleSkip,
   type IntakeProgress,
 } from "@/lib/intake/store";
+import {
+  intakeCompletedNotice,
+  postSystemMessageOnce,
+} from "@/lib/messages/appointmentMessages";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getLatestAttempt } from "@/lib/patterns/storage";
 
