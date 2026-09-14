@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
+import { seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
 import {
   publishAppointmentEvent,
@@ -1516,6 +1517,7 @@ export function AppointmentsSection() {
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
+    seedDemoTrailNotices();
     return () => window.clearTimeout(t);
   }, []);
 
