@@ -23,9 +23,7 @@ import {
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
-import AppointmentMessageThread, {
-  ChatClosedNotice,
-} from "@/components/messages/AppointmentMessageThread";
+import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import { seedDemoThreads, seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
@@ -566,22 +564,17 @@ export default function ClientAppointmentsSection() {
 
                   {isExpanded && (
                     <div className="px-6 pb-8 pt-2">
-                      {a.status === "upcoming" ? (
-                        <div className="mb-6">
-                          <AppointmentMessageThread
-                            key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
-                            appointmentId={a.id}
-                            role="client"
-                            selfName="You"
-                            otherName={a.provider}
-                            defaultOpen={(msgOpen[a.id] ?? 0) > 0}
-                          />
-                        </div>
-                      ) : (
-                        <div className="mb-6">
-                          <ChatClosedNotice reason={a.status} />
-                        </div>
-                      )}
+                      <div className="mb-6">
+                        <AppointmentMessageThread
+                          key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
+                          appointmentId={a.id}
+                          role="client"
+                          selfName="You"
+                          otherName={a.provider}
+                          defaultOpen={(msgOpen[a.id] ?? 0) > 0}
+                          closedReason={a.status === "upcoming" ? undefined : a.status}
+                        />
+                      </div>
 
                       <div className="mb-6 grid gap-6 sm:grid-cols-3">
                         <Detail label="Provider" value={a.provider} />

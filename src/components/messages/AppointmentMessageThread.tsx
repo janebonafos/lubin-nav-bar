@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, MessageCircle, MessageCircleOff, Send, ShieldCheck } from "lucide-react";
+import { ChevronDown, MessageCircle, Send, ShieldCheck } from "lucide-react";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
@@ -24,15 +24,17 @@ export default function AppointmentMessageThread({
   selfName,
   otherName,
   defaultOpen = false,
+  closedReason,
 }: {
   appointmentId: string;
   role: ThreadRole;
   selfName: string;
   otherName: string;
   defaultOpen?: boolean;
+  closedReason?: "cancelled" | "completed";
 }) {
   const [messages, setMessages] = useState<AppointmentMessage[]>([]);
-  const [open, setOpen] = useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen || Boolean(closedReason));
   const [draft, setDraft] = useState("");
   const [justSent, setJustSent] = useState(false);
   const [seenAt, setSeenAt] = useState(0);
@@ -125,7 +127,9 @@ export default function AppointmentMessageThread({
             Appointment messages
           </span>
           <span className="mt-0.5 block truncate text-xs font-normal text-brand-purple">
-            {messages.length === 0
+            {closedReason
+              ? `Conversation with ${otherName}`
+              : messages.length === 0
               ? `Start a conversation with ${otherName}`
               : `${otherName} · Last message ${formatMessageTime(messages[messages.length - 1].at)}`}
           </span>
@@ -143,11 +147,13 @@ export default function AppointmentMessageThread({
       {open && (
         <div>
           {messages.length === 0 ? (
+            closedReason ? null : (
             <div className="px-5 py-8 text-center sm:px-8">
               <MessageCircle className="mx-auto h-6 w-6 text-brand-purple-accent" />
               <p className="mt-2 text-sm font-medium text-brand-purple-dark">No messages yet</p>
               <p className="mt-1 text-xs text-brand-purple">Start the conversation about this appointment below.</p>
             </div>
+            )
           ) : (
             <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
@@ -188,6 +194,20 @@ export default function AppointmentMessageThread({
             </div>
           )}
 
+          {closedReason ? (
+            <div className="border-t border-brand-lavender px-5 py-5 text-center sm:px-8">
+              <p className="mx-auto max-w-md text-xs leading-relaxed text-brand-purple">
+                You can no longer send messages in this conversation. If you need anything, email{" "}
+                <a
+                  href="mailto:info@lubin.ai"
+                  className="font-medium text-brand-purple-dark underline underline-offset-2"
+                >
+                  info@lubin.ai
+                </a>
+                .
+              </p>
+            </div>
+          ) : (
           <div className="border-t border-brand-lavender bg-brand-lavender/15 px-4 py-5 sm:px-8">
             <PromptInput
               onSubmit={({ text }) => submit(text)}
@@ -240,33 +260,9 @@ export default function AppointmentMessageThread({
               </p>
             )}
           </div>
+          )}
         </div>
       )}
     </section>
-  );
-}
-/** Shown in place of the conversation once an appointment is cancelled or
- * completed — messaging is no longer available, with a clear reason. */
-export function ChatClosedNotice({
-  reason,
-}: {
-  reason: "cancelled" | "completed";
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-[#F7F5FC] px-5 py-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#A89BD0]">
-        <MessageCircleOff className="h-4 w-4" />
-      </span>
-      <div>
-        <p className="text-sm font-semibold text-[#3D2E6B]">
-          Messaging is no longer available
-        </p>
-        <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
-          {reason === "cancelled"
-            ? "This appointment was cancelled, so the conversation for it is closed."
-            : "This appointment has been completed, so the conversation for it is closed."}
-        </p>
-      </div>
-    </div>
   );
 }
