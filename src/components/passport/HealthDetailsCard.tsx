@@ -961,18 +961,29 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [proxyName, setProxyName] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const [reviews, setReviews] = useState<ItemReviewMap>({});
+  const [cardId, setCardId] = useState("LBN-0000-0000");
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
   useEffect(() => {
+    ensureDemoItemReviews();
     setDetails(loadHealthDetails());
     setProxyName(proxyFirstName(loadProxySignup()));
     setAgreed(loadHealthAgreement());
+    setReviews(loadItemReviews());
+    setCardId(loadPassportId());
+    setUpdatedAt(healthDetailsUpdatedAt());
     return subscribeHealthDetails(() => {
       setDetails(loadHealthDetails());
       setAgreed(loadHealthAgreement());
+      setReviews(loadItemReviews());
+      setUpdatedAt(healthDetailsUpdatedAt());
     });
   }, []);
 
   const progress = useMemo(() => healthDetailsProgress(details), [details]);
+  const essentials = useMemo(() => essentialProgress(details), [details]);
+  const optional = useMemo(() => optionalProgress(details), [details]);
 
   const allComplete = useMemo(
     () =>
@@ -1024,7 +1035,31 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
             filled={progress.filled}
             total={progress.total}
             ownerName={proxyName}
+            reviews={reviews}
+            cardId={cardId}
+            updatedAt={updatedAt}
           />
+
+          <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[13px] font-semibold text-brand-purple-dark">
+                What's on your card
+              </span>
+              <span className="rounded-xl bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
+                {essentials.complete ? "Essentials complete" : `${essentials.filled}/${essentials.total} essentials`}
+              </span>
+            </div>
+            <p className="mt-2 text-[13px] leading-relaxed text-brand-purple-dark/55">
+              {essentials.complete
+                ? `The essential details are in. ${optional.filled} of ${optional.total} optional details added — add more any time.`
+                : `Still to add: ${essentials.missing.join(", ")}. You can use, print and share your card at any point.`}
+            </p>
+            <p className="mt-2 text-[12px] leading-relaxed text-brand-purple-dark/45">
+              Everything here is patient-provided. A clinician may review individual items during an
+              appointment — that's never needed to create, view, update, download or share your card.
+            </p>
+          </div>
+
 
           <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
