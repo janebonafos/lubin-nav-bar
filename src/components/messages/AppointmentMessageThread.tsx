@@ -61,6 +61,19 @@ export default function AppointmentMessageThread({
     if (open) endRef.current?.scrollIntoView({ block: "nearest" });
   }, [open, messages.length]);
 
+  // Once the conversation is open, everything in it counts as read so the
+  // "N new" pill and the icon dot clear for this visit.
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const now = Date.now();
+      window.localStorage.setItem(`lubin:appt-thread-seen:${appointmentId}:${role}`, String(now));
+      setSeenAt(now);
+    } catch {
+      /* noop */
+    }
+  }, [open, appointmentId, role]);
+
   const myRelay = useMemo(() => relayAddress(appointmentId, role), [appointmentId, role]);
   const unreadFromOther = messages.filter((m) => m.from !== role && !m.system && m.at > seenAt).length;
 
