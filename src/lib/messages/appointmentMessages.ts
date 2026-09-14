@@ -132,15 +132,16 @@ export function postSystemMessageOnce(
 
 /** Patient shared (or updated) their Health Passport for this appointment. */
 export function healthPassportSharedNotice(input: {
-  patientName: string;
+  patientName?: string;
   sections: string[];
   mode: "shared" | "updated";
   expiresLabel?: string;
 }) {
+  const who = input.patientName ?? "The patient";
   const lines = [
     input.mode === "updated"
-      ? `${input.patientName} updated the Health Passport information shared for this appointment.`
-      : `${input.patientName} shared their Health Passport for this appointment.`,
+      ? `${who} updated the Health Passport information shared for this appointment.`
+      : `${who} shared their Health Passport for this appointment.`,
     input.sections.length ? `Included: ${input.sections.join(", ")}` : null,
     input.expiresLabel ? `Access ends ${input.expiresLabel}.` : null,
     "Open the appointment to view the shared summary.",
@@ -149,22 +150,22 @@ export function healthPassportSharedNotice(input: {
 }
 
 /** Patient revoked access to a previously shared Health Passport. */
-export function healthPassportRevokedNotice(patientName: string) {
+export function healthPassportRevokedNotice(patientName?: string) {
   return [
-    `${patientName} turned off Health Passport sharing for this appointment.`,
+    `${patientName ?? "The patient"} turned off Health Passport sharing for this appointment.`,
     "The previously shared summary can no longer be opened.",
   ].join("\n");
 }
 
 /** Client finished the provider's session prep / intake form. */
 export function intakeCompletedNotice(input: {
-  patientName: string;
+  patientName?: string;
   providerName: string;
   answered: number;
   total: number;
 }) {
   return [
-    `${input.patientName} completed the session prep form for ${input.providerName}.`,
+    `${input.patientName ?? "The patient"} completed the session prep form for ${input.providerName}.`,
     `${input.answered} of ${input.total} questions answered.`,
     "Both of you can view the answers on the appointment.",
   ].join("\n");
