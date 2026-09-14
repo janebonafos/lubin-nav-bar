@@ -8,6 +8,7 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
+import MedicationList from "@/components/passport/MedicationList";
 
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
@@ -51,10 +52,24 @@ export default function ClientPrescriptionsSection() {
       <div>
         <h3 className="text-[15px] font-bold text-[#3D2E6B]">My prescriptions</h3>
         <p className="mt-1 text-[13px] text-[#6F6889]">
-          Prescriptions your prescriber issued to you. Open or download a copy
+          Your medication list and every prescription issued to you. Open or download a copy
           any time — you don’t need to find the appointment first.
         </p>
       </div>
+
+      <div className="mt-6">
+        <MedicationList
+          onOpenPrescription={(id) => {
+            const doc = sorted.find((d) => d.id === id);
+            if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
+          }}
+        />
+      </div>
+
+      <h4 className="mt-8 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+        Prescription documents
+      </h4>
+
 
       {sorted.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
