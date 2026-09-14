@@ -246,6 +246,7 @@ export default function ClientAppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
   const [all, setAll] = useState<Appt[]>(seed);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [msgOpen, setMsgOpen] = useState<Record<string, number>>({});
   const [locks, setLocks] = useState<Record<string, "cancel" | "reschedule">>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
