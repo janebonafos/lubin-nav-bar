@@ -1760,7 +1760,7 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
-                  {a.status === "upcoming" && (
+                  {(a.status === "upcoming" || a.status === "session_review") && (
                     <AppointmentMessageButton
                       appointmentId={a.id}
                       role="provider"
