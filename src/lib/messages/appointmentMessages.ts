@@ -155,6 +155,25 @@ export function postRescheduleMessageMirrored(
   return message;
 }
 
+/** Patient's Health Passport share, shown as sent by the patient. */
+export function postPassportSharedMirrored(
+  appointmentId: string,
+  input: { patientName?: string; body: string },
+) {
+  const authorName = input.patientName ?? "Patient";
+  const post = (id: string) =>
+    sendMessage(id, {
+      from: "client",
+      authorName,
+      body: input.body,
+      eventType: "passport_shared",
+    });
+  const message = post(appointmentId);
+  const linked = linkedAppointmentId(appointmentId);
+  if (linked) post(linked);
+  return message;
+}
+
 export function rescheduleNotice(input: {
   byRole: ThreadRole;
   byName: string;

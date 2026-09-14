@@ -11,6 +11,8 @@ import { INCLUDE_OPTIONS } from "@/lib/share/summary";
 import {
   healthPassportRevokedNotice,
   healthPassportSharedNotice,
+  passportSharedParticipantNotice,
+  postPassportSharedMirrored,
   postSystemMessageMirrored,
 } from "@/lib/messages/appointmentMessages";
 
@@ -154,14 +156,16 @@ export function createProviderGrant(input: {
   const store = readStore();
   store[input.appointmentId] = grant;
   writeStore(store);
-  postSystemMessageMirrored(
-    input.appointmentId,
-    healthPassportSharedNotice({
-      mode: "shared",
-      sections: sectionLabels(grant.includedKeys),
+  // Sharing update in the existing conversation, sent as the patient. No
+  // medical detail in the text — the appointment carries the controlled
+  // "View shared passport" action.
+  postPassportSharedMirrored(input.appointmentId, {
+    body: passportSharedParticipantNotice({
+      providerName: grant.providerName,
+      itemCount: grant.includedKeys.length,
       expiresLabel: expiryLabel(grant.expiresAt),
     }),
-  );
+  });
   return grant;
 }
 
