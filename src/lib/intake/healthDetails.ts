@@ -220,10 +220,99 @@ export function setHealthDetail(fieldId: string, value: string): void {
   else delete next[fieldId];
   try {
     window.localStorage.setItem(KEY, JSON.stringify(next));
+    // "Last updated" is recorded automatically — the patient never sets it.
+    window.localStorage.setItem(UPDATED_KEY, String(Date.now()));
   } catch {
     /* noop */
   }
   emit();
+}
+
+/** Epoch ms of the last automatic save, or null when nothing was saved yet. */
+export function healthDetailsUpdatedAt(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(UPDATED_KEY);
+    const value = raw ? Number(raw) : NaN;
+    return Number.isFinite(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export function formatUpdatedAt(at: number | null): string {
+  if (!at) return "Not updated yet";
+  return new Date(at).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+/**
+ * Stable, human-readable passport id for this device's passport. Generated on
+ * first read and kept — the patient never has to create or request one.
+ */
+export function passportId(): string {
+  const fallback = "LBN-0000-0000";
+  if (typeof window === "undefined") return fallback;
+  try {
+    const existing = window.localStorage.getItem(PASSPORT_ID_KEY);
+    if (existing) return existing;
+    const block = () =>
+      Math.floor(1000 + Math.random() * 9000).toString();
+    const next = `LBN-${block()}-${block()}`;
+    window.localStorage.setItem(PASSPORT_ID_KEY, next);
+    return next;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * The handful of details that make a passport useful at a clinic. Everything
+ * else is optional. Clinician review is never part of completion.
+ */
+export const ESSENTIAL_HEALTH_DETAIL_IDS = [
+  "identity.fullName",
+  "identity.dob",
+  "contact.phone",
+  "emergency.name",
+  "medication.list",
+  "history.allergies",
+] as const;
+
+export type EssentialProgress = {
+  filled: number;
+  total: number;
+  complete: boolean;
+  /** Field labels still missing, for a plain-language nudge. */
+  missing: string[];
+};
+
+export function essentialProgress(details = loadHealthDetails()): EssentialProgress {
+  const noEmergency = details["emergency.none"] === "No one right now";
+  const done = (id: string) =>
+    id === "emergency.name"
+      ? noEmergency || Boolean(details[id]?.trim())
+      : Boolean(details[id]?.trim());
+  const missing = ESSENTIAL_HEALTH_DETAIL_IDS.filter((id) => !done(id)).map(
+    (id) => ALL_HEALTH_DETAIL_FIELDS.find((f) => f.id === id)?.label ?? id,
+  );
+  const total = ESSENTIAL_HEALTH_DETAIL_IDS.length;
+  return { filled: total - missing.length, total, complete: missing.length === 0, missing };
+}
+
+export type OptionalProgress = { filled: number; total: number };
+
+export function optionalProgress(details = loadHealthDetails()): OptionalProgress {
+  const optional = ALL_HEALTH_DETAIL_FIELDS.filter(
+    (f) => !(ESSENTIAL_HEALTH_DETAIL_IDS as readonly string[]).includes(f.id),
+  );
+  return {
+    filled: optional.filter((f) => (details[f.id] ?? "").trim()).length,
+    total: optional.length,
+  };
 }
 
 export type HealthDetailsProgress = {
