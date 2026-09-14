@@ -141,8 +141,8 @@ export default function PassportHome({
                 <p className="mt-1 text-sm font-semibold">{progress.filled} of {progress.total}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase text-primary-foreground/45">Last reviewed</p>
-                <p className="mt-1 text-sm font-semibold">Sep 14, 2026</p>
+                <p className="text-[10px] uppercase text-primary-foreground/45">Last updated</p>
+                <p className="mt-1 text-sm font-semibold">{formatUpdatedAt(updatedAt)}</p>
               </div>
             </div>
           </div>
