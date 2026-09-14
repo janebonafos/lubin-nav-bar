@@ -246,6 +246,7 @@ export default function ClientAppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "completed" | "cancelled">("all");
   const [all, setAll] = useState<Appt[]>(seed);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [msgOpen, setMsgOpen] = useState<Record<string, number>>({});
   const [locks, setLocks] = useState<Record<string, "cancel" | "reschedule">>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -528,7 +529,10 @@ export default function ClientAppointmentsSection() {
                           appointmentId={a.id}
                           role="client"
                           active={isExpanded}
-                          onOpen={() => setExpanded(a.id)}
+                          onOpen={() => {
+                            setMsgOpen((m) => ({ ...m, [a.id]: (m[a.id] ?? 0) + 1 }));
+                            setExpanded(a.id);
+                          }}
                         />
                       )}
                       <button
@@ -554,10 +558,12 @@ export default function ClientAppointmentsSection() {
                       {a.status === "upcoming" && (
                         <div className="mb-6">
                           <AppointmentMessageThread
+                            key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
                             appointmentId={a.id}
                             role="client"
                             selfName="You"
                             otherName={a.provider}
+                            defaultOpen={(msgOpen[a.id] ?? 0) > 0}
                           />
                         </div>
                       )}

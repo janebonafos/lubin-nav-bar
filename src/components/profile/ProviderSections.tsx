@@ -1384,6 +1384,7 @@ export const UPCOMING_APPOINTMENTS_COUNT = 3;
 export function AppointmentsSection() {
   const [tab, setTab] = useState<"all" | "upcoming" | "session_review" | "completed" | "cancelled">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [msgOpen, setMsgOpen] = useState<Record<string, number>>({});
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -1760,7 +1761,10 @@ export function AppointmentsSection() {
                       appointmentId={a.id}
                       role="provider"
                       active={isExpanded}
-                      onOpen={() => setExpanded(a.id)}
+                      onOpen={() => {
+                        setMsgOpen((m) => ({ ...m, [a.id]: (m[a.id] ?? 0) + 1 }));
+                        setExpanded(a.id);
+                      }}
                     />
                   )}
                   {a.status === "completed" || a.status === "session_review" ? (
@@ -1815,10 +1819,12 @@ export function AppointmentsSection() {
                     {a.status === "upcoming" && (
                       <div className="mb-6">
                         <AppointmentMessageThread
+                          key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
                           appointmentId={a.id}
                           role="provider"
                           selfName="You"
                           otherName={a.client}
+                          defaultOpen={(msgOpen[a.id] ?? 0) > 0}
                         />
                       </div>
                     )}
