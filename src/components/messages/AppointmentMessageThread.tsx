@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, MessageCircle, Send, ShieldCheck } from "lucide-react";
+import { ChevronDown, MessageCircle, MessageCircleOff, Send, ShieldCheck } from "lucide-react";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
@@ -243,5 +243,30 @@ export default function AppointmentMessageThread({
         </div>
       )}
     </section>
+  );
+}
+/** Shown in place of the conversation once an appointment is cancelled or
+ * completed — messaging is no longer available, with a clear reason. */
+export function ChatClosedNotice({
+  reason,
+}: {
+  reason: "cancelled" | "completed";
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-[#EAE7F5] bg-[#F7F5FC] px-5 py-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#A89BD0]">
+        <MessageCircleOff className="h-4 w-4" />
+      </span>
+      <div>
+        <p className="text-sm font-semibold text-[#3D2E6B]">
+          Messaging is no longer available
+        </p>
+        <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
+          {reason === "cancelled"
+            ? "This appointment was cancelled, so the conversation for it is closed."
+            : "This appointment has been completed, so the conversation for it is closed."}
+        </p>
+      </div>
+    </div>
   );
 }
