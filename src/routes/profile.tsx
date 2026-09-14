@@ -41,6 +41,7 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
+import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
@@ -1206,13 +1207,17 @@ function ProfilePage() {
                   ownerName={displayName}
                   onNavigate={(destination) => {
                     if (destination === "share") setActiveSection("share");
-                    else if (destination === "visits") setActiveSection("appointments");
+                    else if (destination === "visits")
+                      window.setTimeout(() => document.getElementById("passport-visits")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
                     else if (destination === "prescriptions") setActiveSection("prescriptions");
                     else if (destination === "patterns") setActiveSection("discovery");
                     else if (destination === "details") window.setTimeout(() => document.getElementById("passport-health-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
                     else window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
+                <div id="passport-visits" className="mt-8 scroll-mt-28">
+                  <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+                </div>
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />
                 </div>

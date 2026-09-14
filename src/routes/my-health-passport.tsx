@@ -69,6 +69,7 @@ import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
 import PassportHome from "@/components/passport/PassportHome";
+import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
@@ -80,7 +81,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["home", "overview", "progress", "share", "details"]).optional(),
+      tab: z.enum(["home", "overview", "progress", "share", "details", "visits"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -136,7 +137,9 @@ const MOODS = [
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
-  const [tab, setTab] = useState<"home" | "overview" | "progress" | "share" | "details">(
+  const [tab, setTab] = useState<
+    "home" | "overview" | "progress" | "share" | "details" | "visits"
+  >(
     search.tab ?? "home",
   );
   const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
@@ -305,6 +308,7 @@ function PassportPage() {
           {([
             ["home", "Home"],
             ["details", detailsName ? `${detailsName}'s card` : "Health card"],
+            ["visits", "Visits"],
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
@@ -346,7 +350,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "home" && tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -368,9 +372,17 @@ function PassportPage() {
                 if (destination === "card" || destination === "details") setTab("details");
                 else if (destination === "share") setTab("share");
                 else if (destination === "patterns") setTab("progress");
-                else if (destination === "visits" || destination === "prescriptions") {
-                  window.location.href = `/profile?tab=${destination === "visits" ? "appointments" : "prescriptions"}`;
+                else if (destination === "visits") setTab("visits");
+                else if (destination === "prescriptions") {
+                  window.location.href = "/profile?tab=prescriptions";
                 }
+              }}
+            />
+          )}
+          {tab === "visits" && (
+            <VisitsTimeline
+              onOpenPrescriptions={() => {
+                window.location.href = "/profile?tab=prescriptions";
               }}
             />
           )}
