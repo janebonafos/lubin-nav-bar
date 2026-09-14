@@ -172,6 +172,9 @@ function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemR
                           +{r.values.length - 4} more
                         </span>
                       )}
+                      <span className="block pt-0.5 text-[9.5px] font-medium text-white/45">
+                        {r.review ? reviewLabel(r.review) : "Patient-provided"}
+                      </span>
                     </dd>
                   </div>
                 ))}
@@ -189,19 +192,33 @@ function PassportCard({
   filled,
   total,
   ownerName,
+  reviews,
+  cardId,
+  updatedAt,
 }: {
   details: HealthDetails;
   filled: number;
   total: number;
   ownerName: string | null;
+  reviews: ItemReviewMap;
+  cardId: string;
+  updatedAt: number | null;
 }) {
   const [flipped, setFlipped] = useState(false);
   const name =
     details["identity.fullName"] || details["identity.preferredName"] || ownerName || "";
   const dob = details["identity.dob"] ?? "";
   const age = ageFrom(dob);
+  const lastUpdated = formatUpdatedAt(updatedAt);
 
   const pct = total ? Math.round((filled / total) * 100) : 0;
+
+  const cardData = {
+    name: name || "Your name",
+    dob: dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "",
+    passportId: cardId,
+    lastUpdated,
+  };
 
   return (
     <div className="[perspective:1400px]">
@@ -237,10 +254,18 @@ function PassportCard({
                   Health Network
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15">
-                <RotateCw className="h-3 w-3" />
-                See details
-              </span>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15 sm:inline-flex">
+                  <RotateCw className="h-3 w-3" />
+                  See details
+                </span>
+                <span className="rounded-[10px] bg-white p-1.5 text-center">
+                  <DemoQr seed={cardId} color="#3D2E6B" className="h-11 w-11" />
+                  <span className="mt-0.5 block text-[7px] font-bold uppercase tracking-[0.12em] text-brand-purple">
+                    Demo QR
+                  </span>
+                </span>
+              </div>
             </div>
 
             <div className="mt-auto">
@@ -250,27 +275,30 @@ function PassportCard({
               <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
                 {name || "Your name"}
               </h3>
-              <p className="mt-1 text-[12px] text-white/55">
-                {dob
-                  ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}`
-                  : "Add the basics to start your card"}
-              </p>
 
-              <div className="mt-5 flex gap-8 border-t border-white/10 pt-4">
+              <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3 border-t border-white/10 pt-4">
                 <div>
                   <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Mobile
+                    Date of birth
                   </p>
                   <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                    {details["contact.phone"] || "—"}
+                    {dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Location
+                    Passport ID
                   </p>
-                  <p className="mt-0.5 truncate font-mono text-[11px] tracking-wider text-white/80">
-                    {details["contact.address"] || "—"}
+                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                    {cardId}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
+                    Last updated
+                  </p>
+                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
+                    {lastUpdated}
                   </p>
                 </div>
               </div>
@@ -295,19 +323,36 @@ function PassportCard({
             WebkitBackfaceVisibility: "hidden",
           }}
         >
-          <CardBack details={details} />
+          <CardBack details={details} reviews={reviews} />
         </div>
       </button>
 
-      <p className="mt-3 text-center text-[12px] text-brand-purple-dark/50">
-        {filled} of {total} details added ·{" "}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => printPassportCard(cardData)}
+          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+        >
+          <Printer className="h-3.5 w-3.5" /> Print card
+        </button>
+        <button
+          type="button"
+          onClick={() => downloadPassportCard(cardData)}
+          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+        >
+          <Download className="h-3.5 w-3.5" /> Download card
+        </button>
         <button
           type="button"
           onClick={() => setFlipped((v) => !v)}
-          className="font-semibold text-brand-purple underline-offset-2 hover:underline"
+          className="inline-flex items-center gap-1.5 rounded-[12px] px-3 py-2 text-[12.5px] font-semibold text-brand-purple underline-offset-2 hover:underline"
         >
           {flipped ? "Back to card" : "See everything you've added"}
         </button>
+      </div>
+      <p className="mt-2 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
+        Patient-provided card · {filled} of {total} details added. The QR block is a demo
+        placeholder in this prototype.
       </p>
     </div>
   );
