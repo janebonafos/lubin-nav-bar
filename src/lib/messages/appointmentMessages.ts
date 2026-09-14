@@ -90,6 +90,32 @@ export function postSystemMessage(appointmentId: string, body: string) {
   });
 }
 
+/**
+ * Prototype only: the client and provider demo lists model the same
+ * real-world appointment under different ids (client "cu1" = provider "u1",
+ * client "cu2" = provider "u2"). Automated trail notices are mirrored to the
+ * linked thread so BOTH sides see the same reschedule / share / intake
+ * history, like a real shared conversation would.
+ */
+const LINKED_APPOINTMENT: Record<string, string> = {
+  cu1: "u1",
+  u1: "cu1",
+  cu2: "u2",
+  u2: "cu2",
+};
+
+export function linkedAppointmentId(appointmentId: string) {
+  return LINKED_APPOINTMENT[appointmentId];
+}
+
+/** Post an automated notice to the appointment AND its linked counterpart. */
+export function postSystemMessageMirrored(appointmentId: string, body: string) {
+  const msg = postSystemMessage(appointmentId, body);
+  const linked = linkedAppointmentId(appointmentId);
+  if (linked) postSystemMessage(linked, body);
+  return msg;
+}
+
 export function rescheduleNotice(input: {
   byRole: ThreadRole;
   byName: string;
