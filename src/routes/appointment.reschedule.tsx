@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarCheck2, ChevronLeft, ChevronRight, Loade
 import { toast } from "sonner";
 import { useAvailabilityStore, formatTime12, type WeekAvail } from "@/lib/availability-store";
 import { publishAppointmentEvent } from "@/lib/appointments-bus";
-import { postSystemMessage, rescheduleNotice } from "@/lib/messages/appointmentMessages";
+import { postSystemMessageMirrored, rescheduleNotice } from "@/lib/messages/appointmentMessages";
 
 const searchSchema = z.object({
   id: z.string().optional(),
@@ -368,7 +368,7 @@ function ReschedulePage() {
                     description: `${counterName} will be notified about ${label} at ${time}.`,
                   });
                   if (s.id) {
-                    postSystemMessage(
+                    postSystemMessageMirrored(
                       s.id,
                       rescheduleNotice({
                         byRole: isClient ? "client" : "provider",
