@@ -261,7 +261,7 @@ export function seedDemoThreads() {
  * completed intake forms look like. Seeded once via its own flag, separately
  * from DEMO_FLAG, so existing browsers pick these up too.
  */
-const DEMO_TRAIL_FLAG = "lubin:appt-thread-demo-trail:v1";
+const DEMO_TRAIL_FLAG = "lubin:appt-thread-demo-trail:v2";
 
 export function seedDemoTrailNotices() {
   if (typeof window === "undefined") return;
