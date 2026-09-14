@@ -37,6 +37,22 @@ export default function AppointmentMessageThread({
   const [justSent, setJustSent] = useState(false);
   const [seenAt, setSeenAt] = useState(0);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+
+  // When the thread is opened via the appointment's Message button
+  // (defaultOpen on a fresh mount), bring the conversation into view so the
+  // user lands on the messages — not on a form further down the page.
+  useEffect(() => {
+    if (!defaultOpen) return;
+    const el = rootRef.current;
+    if (!el) return;
+    const t = window.setTimeout(() => {
+      const top = el.getBoundingClientRect().top + window.scrollY - 90;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }, 80);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const refresh = () => {
@@ -87,7 +103,10 @@ export default function AppointmentMessageThread({
   };
 
   return (
-    <section className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-[0_18px_44px_-24px_color-mix(in_oklab,var(--color-brand-purple)_35%,transparent)]">
+    <section
+      ref={rootRef}
+      className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-[0_18px_44px_-24px_color-mix(in_oklab,var(--color-brand-purple)_35%,transparent)]"
+    >
       <Button
         type="button"
         variant="ghost"
