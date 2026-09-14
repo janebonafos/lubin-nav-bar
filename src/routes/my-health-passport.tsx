@@ -80,7 +80,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["home", "overview", "progress", "share", "details"]).optional(),
+      tab: z.enum(["home", "overview", "progress", "share", "details", "visits"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -136,7 +136,9 @@ const MOODS = [
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
-  const [tab, setTab] = useState<"home" | "overview" | "progress" | "share" | "details">(
+  const [tab, setTab] = useState<
+    "home" | "overview" | "progress" | "share" | "details" | "visits"
+  >(
     search.tab ?? "home",
   );
   const [autoOpenAppointmentId, setAutoOpenAppointmentId] = useState<
@@ -305,6 +307,7 @@ function PassportPage() {
           {([
             ["home", "Home"],
             ["details", detailsName ? `${detailsName}'s card` : "Health card"],
+            ["visits", "Visits"],
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
