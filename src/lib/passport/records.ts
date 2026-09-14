@@ -25,6 +25,15 @@ export type PassportRecord = {
   visitLabel?: string;
   /** "Uploaded by you" records come from outside Lubin. */
   origin: "lubin" | "uploaded";
+  /** Who put the record in the passport, when it was not the patient. */
+  addedBy?: string;
+  addedByRole?: string;
+  /** Explicit clinician review of this record, when one actually happened. */
+  reviewedBy?: string;
+  reviewedByRole?: string;
+  reviewedAt?: string;
+  /** Clinician-authored records cannot be edited by the patient. */
+  authoredByClinician?: boolean;
   fileName?: string;
   fileSizeLabel?: string;
   addedAt?: number;
@@ -54,6 +63,12 @@ export const DEMO_RECORDS: PassportRecord[] = [
     visitId: "v-2026-08-29",
     visitLabel: "Medication review · Aug 29, 2026",
     origin: "lubin",
+    addedBy: "Dr. Reyes Mendoza",
+    addedByRole: "Psychiatrist",
+    authoredByClinician: true,
+    reviewedBy: "Dr. Reyes Mendoza",
+    reviewedByRole: "Psychiatrist",
+    reviewedAt: "2026-08-29",
   },
   {
     id: "r-cbc-2026-08-20",
@@ -63,6 +78,7 @@ export const DEMO_RECORDS: PassportRecord[] = [
     source: "Mercy Family Clinic laboratory",
     summary: "All values within normal range.",
     origin: "uploaded",
+    addedBy: "Mercy Family Clinic",
     fileName: "cbc-aug-2026.pdf",
     fileSizeLabel: "412 KB",
   },
@@ -95,6 +111,9 @@ export const DEMO_RECORDS: PassportRecord[] = [
     date: "2026-05-02",
     source: "Dr. Alina Cruz · Mercy Family Clinic",
     summary: "Referred for assessment of low mood and sleep disturbance.",
+    addedBy: "Dr. Alina Cruz",
+    addedByRole: "Family doctor",
+    authoredByClinician: true,
     visitId: "v-2026-05-06",
     visitLabel: "First therapy session · May 6, 2026",
     origin: "lubin",
@@ -114,6 +133,9 @@ export const DEMO_RECORDS: PassportRecord[] = [
     id: "r-fit-note-2026-07-16",
     type: "other",
     title: "Fit-to-work certificate",
+    addedBy: "Dr. Alina Cruz",
+    addedByRole: "Family doctor",
+    authoredByClinician: true,
     date: "2026-07-16",
     source: "Mercy Family Clinic, Quezon City",
     visitId: "v-2026-07-14",
@@ -189,4 +211,30 @@ export function fileSizeLabel(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Where a record came from, shown automatically in record details. Clinician
+ * review is only ever mentioned when a review actually happened.
+ */
+export function recordSourceLabel(record: PassportRecord): string {
+  if (record.origin === "uploaded") {
+    return record.addedBy ? `Uploaded by ${record.addedBy}` : "Entered by you";
+  }
+  if (record.addedBy) {
+    return `Added by ${record.addedBy}${record.addedByRole ? ` · ${record.addedByRole}` : ""}`;
+  }
+  return "Added by your care team";
+}
+
+/** Non-empty only when an explicit clinician review was recorded. */
+export function recordReviewLabel(record: PassportRecord): string | null {
+  if (!record.reviewedBy) return null;
+  const when = record.reviewedAt ? formatRecordDate(record.reviewedAt) : null;
+  return `Clinician-reviewed by ${record.reviewedBy}${when ? ` · ${when}` : ""}`;
+}
+
+/** Patients edit their own entries; clinician-authored records stay unchanged. */
+export function canPatientEdit(record: PassportRecord): boolean {
+  return record.origin === "uploaded" && !record.authoredByClinician;
 }

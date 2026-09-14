@@ -26,6 +26,11 @@ export type HealthDetailField = {
   options?: string[];
   /** For "tags": an option that clears every other selection (e.g. "None"). */
   exclusiveOption?: string;
+  /**
+   * For "tags": every option that stands alone. "None known" and "I don't know"
+   * are both real answers — a blank field is never read as "no condition".
+   */
+  exclusiveOptions?: string[];
   /** For "tags": max characters per added item. */
   maxItemLength?: number;
   /** For "tags": max number of items. */
@@ -112,7 +117,8 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
         type: "tags",
         placeholder: "e.g. Penicillin",
         exclusiveOption: "None known",
-        options: ["None known", "Penicillin", "Aspirin / NSAIDs", "Sulfa drugs", "Food", "Latex"],
+        exclusiveOptions: ["None known", "I don't know"],
+        options: ["None known", "I don't know", "Penicillin", "Aspirin / NSAIDs", "Sulfa drugs", "Food", "Latex"],
         maxItemLength: 30,
         maxItems: 10,
       },
@@ -123,8 +129,10 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
         type: "tags",
         placeholder: "e.g. Migraine",
         exclusiveOption: "None",
+        exclusiveOptions: ["None", "I don't know"],
         options: [
           "None",
+          "I don't know",
           "Anxiety",
           "Depression",
           "Bipolar disorder",
@@ -151,6 +159,7 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
           "I'm pregnant",
           "I'm breastfeeding",
           "Trying to conceive",
+          "I don't know",
           "Prefer not to say",
         ],
       },
@@ -174,7 +183,8 @@ export const HEALTH_DETAIL_GROUPS: HealthDetailGroup[] = [
         type: "tags",
         placeholder: "e.g. GP",
         exclusiveOption: "No one right now",
-        options: ["No one right now", "GP / family doctor", "Psychiatrist", "Therapist", "Specialist"],
+        exclusiveOptions: ["No one right now", "I don't know"],
+        options: ["No one right now", "I don't know", "GP / family doctor", "Psychiatrist", "Therapist", "Specialist"],
         maxItemLength: 30,
         maxItems: 6,
       },

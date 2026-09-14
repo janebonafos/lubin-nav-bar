@@ -18,6 +18,9 @@ import {
   allRecords,
   fileSizeLabel,
   formatRecordDate,
+  recordSourceLabel,
+  recordReviewLabel,
+  canPatientEdit,
   RECORD_TYPES,
   recordTypeLabel,
   removeUploadedRecord,
@@ -152,11 +155,21 @@ function RecordRow({
                   : "bg-[#EAF6EF] text-[#256B47]"
               }`}
             >
-              {record.origin === "uploaded" ? "Uploaded by you" : "From your care team"}
+              {record.origin === "uploaded" ? "Your upload" : "Care team"}
             </span>
+            {recordReviewLabel(record) ? (
+              <span className="rounded-[10px] bg-[#EAF6EF] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#256B47]">
+                Clinician-reviewed
+              </span>
+            ) : null}
           </div>
           <p className="mt-1 text-[12.5px] text-[#6F6889]">
             {formatRecordDate(record.date)} · {record.source}
+          </p>
+          <p className="mt-0.5 text-[12px] text-[#8A7FB0]">
+            {recordSourceLabel(record)}
+            {recordReviewLabel(record) ? ` · ${recordReviewLabel(record)}` : ""}
+            {record.authoredByClinician ? " · Written by your clinician, so it stays as recorded" : ""}
           </p>
           {record.summary ? (
             <p className="mt-2 text-[12.5px] leading-relaxed text-[#4B4570]">{record.summary}</p>
@@ -182,7 +195,7 @@ function RecordRow({
             )}
           </div>
         </div>
-        {record.origin === "uploaded" && record.addedAt ? (
+        {canPatientEdit(record) && record.addedAt ? (
           <button
             type="button"
             onClick={() => {

@@ -119,6 +119,13 @@ export function getAnyProviderGrant(appointmentId: string): ProviderShareGrant |
   return readStore()[appointmentId] ?? null;
 }
 
+/** Every grant ever created, newest first — for the Manage sharing area. */
+export function listAllProviderGrants(): ProviderShareGrant[] {
+  return Object.values(readStore()).sort(
+    (a, b) => (b.updatedAt ?? b.createdAt) - (a.updatedAt ?? a.createdAt),
+  );
+}
+
 export function createProviderGrant(input: {
   appointmentId: string;
   providerId?: string;
