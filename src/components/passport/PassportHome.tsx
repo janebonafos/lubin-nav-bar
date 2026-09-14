@@ -236,3 +236,46 @@ function RecordCard({
     </article>
   );
 }
+
+function ActionButton({
+  icon: Icon,
+  title,
+  detail,
+  onClick,
+  primary = false,
+}: {
+  icon: typeof CalendarCheck;
+  title: string;
+  detail: string;
+  onClick: () => void;
+  primary?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group flex items-start gap-3 rounded-[12px] p-3.5 text-left transition-colors ${
+        primary
+          ? "bg-brand-purple text-primary-foreground hover:bg-brand-purple-dark"
+          : "border border-brand-purple/20 bg-card text-brand-purple-dark hover:border-brand-purple/40 hover:bg-brand-lavender"
+      }`}
+    >
+      <span
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] ${
+          primary ? "bg-primary-foreground/15 text-primary-foreground" : "bg-brand-purple/10 text-brand-purple"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="flex items-center gap-1 text-[13px] font-bold leading-tight">
+          {title}
+          <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-70" />
+        </span>
+        <span className={`mt-0.5 block text-[11.5px] leading-snug ${primary ? "text-primary-foreground/75" : "text-brand-purple-dark/55"}`}>
+          {detail}
+        </span>
+      </span>
+    </button>
+  );
+}
