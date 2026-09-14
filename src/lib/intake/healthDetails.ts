@@ -8,6 +8,8 @@
 
 const KEY = "lubin.passport.healthDetails.v1";
 const AGREEMENT_KEY = "lubin.passport.healthAgreement.v1";
+const UPDATED_KEY = "lubin.passport.healthDetails.updatedAt.v1";
+const PASSPORT_ID_KEY = "lubin.passport.cardId.v1";
 const CHANGE_EVENT = "lubin-health-details-change";
 
 export type HealthDetailField = {
