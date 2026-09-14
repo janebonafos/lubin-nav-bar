@@ -148,11 +148,9 @@ export default function AppointmentMessageThread({
         <div>
           {messages.length === 0 ? (
             closedReason ? null : (
-            <div className="px-5 py-8 text-center sm:px-8">
-              <MessageCircle className="mx-auto h-6 w-6 text-brand-purple-accent" />
-              <p className="mt-2 text-sm font-medium text-brand-purple-dark">No messages yet</p>
-              <p className="mt-1 text-xs text-brand-purple">Start the conversation about this appointment below.</p>
-            </div>
+            <p className="px-5 py-4 text-center text-xs text-brand-purple sm:px-8">
+              No messages yet — start the conversation below.
+            </p>
             )
           ) : (
             <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
