@@ -110,6 +110,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   },
   "appointment-completed": appointmentCompleted,
   "session-prep-request": sessionPrepRequest,
+  "intake-completed-provider": intakeCompletedProvider,
   "appointment-message-sender-copy": {
     component: AppointmentMessageEmail,
     subject: "Copy of your message · Lubin appointment",
