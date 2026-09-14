@@ -13,6 +13,10 @@ import {
   toggleSkip,
   type IntakeProgress,
 } from "@/lib/intake/store";
+import {
+  intakeCompletedNotice,
+  postSystemMessageOnce,
+} from "@/lib/messages/appointmentMessages";
 import { ASSESSMENTS_BY_SLUG } from "@/lib/patterns/assessments";
 import { getLatestAttempt } from "@/lib/patterns/storage";
 
@@ -59,6 +63,21 @@ export default function IntakeRequestCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [appointmentId, providerName, mounted, tick],
   );
+
+  // Once the form is finished, drop a notice into the appointment conversation
+  // so the client and the provider both see it in the same trail.
+  useEffect(() => {
+    if (!progress?.complete) return;
+    postSystemMessageOnce(
+      appointmentId,
+      "intake-complete",
+      intakeCompletedNotice({
+        providerName,
+        answered: progress.answered,
+        total: progress.total,
+      }),
+    );
+  }, [appointmentId, providerName, progress?.complete, progress?.answered, progress?.total]);
 
   if (!progress || progress.total === 0) return null;
 

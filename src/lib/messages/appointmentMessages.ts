@@ -109,6 +109,68 @@ export function rescheduleNotice(input: {
   return lines.join("\n");
 }
 
+/**
+ * Post an automated notice at most once per appointment + event key, so the
+ * same milestone (intake completed, passport shared) never duplicates when a
+ * component re-renders or remounts.
+ */
+export function postSystemMessageOnce(
+  appointmentId: string,
+  eventKey: string,
+  body: string,
+) {
+  if (typeof window === "undefined") return null;
+  const flag = `lubin:appt-thread-notice:${appointmentId}:${eventKey}`;
+  try {
+    if (window.localStorage.getItem(flag)) return null;
+    window.localStorage.setItem(flag, "1");
+  } catch {
+    /* noop */
+  }
+  return postSystemMessage(appointmentId, body);
+}
+
+/** Patient shared (or updated) their Health Passport for this appointment. */
+export function healthPassportSharedNotice(input: {
+  patientName?: string;
+  sections: string[];
+  mode: "shared" | "updated";
+  expiresLabel?: string;
+}) {
+  const who = input.patientName ?? "The patient";
+  const lines = [
+    input.mode === "updated"
+      ? `${who} updated the Health Passport information shared for this appointment.`
+      : `${who} shared their Health Passport for this appointment.`,
+    input.sections.length ? `Included: ${input.sections.join(", ")}` : null,
+    input.expiresLabel ? `Access ends ${input.expiresLabel}.` : null,
+    "Open the appointment to view the shared summary.",
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+/** Patient revoked access to a previously shared Health Passport. */
+export function healthPassportRevokedNotice(patientName?: string) {
+  return [
+    `${patientName ?? "The patient"} turned off Health Passport sharing for this appointment.`,
+    "The previously shared summary can no longer be opened.",
+  ].join("\n");
+}
+
+/** Client finished the provider's session prep / intake form. */
+export function intakeCompletedNotice(input: {
+  patientName?: string;
+  providerName: string;
+  answered: number;
+  total: number;
+}) {
+  return [
+    `${input.patientName ?? "The patient"} completed the session prep form for ${input.providerName}.`,
+    `${input.answered} of ${input.total} questions answered.`,
+    "Both of you can view the answers on the appointment.",
+  ].join("\n");
+}
+
 export function subscribeThread(appointmentId: string, handler: () => void) {
   if (typeof window === "undefined") return () => {};
   const onLocal = (e: Event) => {
