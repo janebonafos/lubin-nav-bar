@@ -41,6 +41,8 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
+import PassportNav, { type PassportArea } from "@/components/passport/PassportNav";
+import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import RecordsSection from "@/components/passport/RecordsSection";
 import ShareTabView from "@/components/share/ShareTabView";
@@ -1204,6 +1206,27 @@ function ProfilePage() {
 
             {activeSection === "passport" && role === "client" && (
               <>
+                <PassportNav
+                  area={passportArea}
+                  onChange={(next) => {
+                    if (next === "medications") { setActiveSection("prescriptions"); return; }
+                    if (next === "sharing") { setActiveSection("share"); return; }
+                    setPassportArea(next);
+                    const anchor =
+                      next === "visits"
+                        ? "passport-visits"
+                        : next === "records"
+                        ? "passport-records"
+                        : next === "wellbeing"
+                        ? "passport-wellbeing"
+                        : null;
+                    if (!anchor) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+                    window.setTimeout(
+                      () => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                      0,
+                    );
+                  }}
+                />
                 <PassportHome
                   ownerName={displayName}
                   onNavigate={(destination) => {
@@ -1233,7 +1256,7 @@ function ProfilePage() {
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />
                 </div>
-                <div className="mt-8">
+                <div id="passport-wellbeing" className="mt-8 scroll-mt-28">
                   <Overview
                     today={todayLabel}
                     checkins={passportData.checkins as never}
@@ -1319,6 +1342,11 @@ function ProfilePage() {
                 sharerName={profile.fullName.trim() || "You"}
                 upcomingAppointments={upcomingAppointments}
               />
+            )}
+            {activeSection === "share" && (
+              <div className="mt-8">
+                <ClinicRecipientPreview patientName={profile.fullName.trim() || "Maria Santos"} />
+              </div>
             )}
 
             {activeSection === "chat" && (
