@@ -4,19 +4,32 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { CalendarDays, Check, Lock, Plus, RotateCw, X } from "lucide-react";
+import { CalendarDays, Check, Download, Lock, Plus, Printer, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
+  essentialProgress,
+  formatUpdatedAt,
   groupFilledCount,
   healthDetailsProgress,
+  healthDetailsUpdatedAt,
   loadHealthDetails,
   loadHealthAgreement,
+  optionalProgress,
+  passportId as loadPassportId,
   setHealthDetail,
   setHealthAgreement,
   subscribeHealthDetails,
   type HealthDetailField,
   type HealthDetails,
 } from "@/lib/intake/healthDetails";
+import {
+  ensureDemoItemReviews,
+  loadItemReviews,
+  reviewLabel,
+  type ItemReviewMap,
+} from "@/lib/intake/reviewLog";
+import DemoQr from "@/components/passport/DemoQr";
+import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
@@ -89,17 +102,18 @@ function formatDob(value: string): string {
   });
 }
 
-function CardBack({ details }: { details: HealthDetails }) {
+function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemReviewMap }) {
   const sections = HEALTH_DETAIL_GROUPS
     // Basic identity + contact fields already live on the card front.
     .filter((group) => group.id !== "about-you" && group.id !== "reach-you")
     .map((group) => ({
     label: group.label,
     rows: group.fields
-      .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim() }))
+      .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim(), review: reviews[f.id] }))
       .filter((r) => r.value.length > 0)
       .map((r) => ({
         label: r.label,
+        review: r.review,
         // tags/meds store comma-separated lists — render each item on its own line
         values:
           (r.type === "tags" || r.type === "meds") && /[;,]/.test(r.value)
